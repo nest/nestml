@@ -23,7 +23,7 @@ import os
 import nest
 import unittest
 import numpy as np
-from pynestml.frontend.pynestml_frontend import generate_target
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -43,15 +43,14 @@ class NestWBCondExpTest(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "../../models/neurons", "traub_cond_multisyn.nestml")))
         target_path = "target"
-        module_name = 'nestmlmodule'
-        suffix = '_nestml'
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
 
-        generate_target(input_path=input_path,
-                        target_path=target_path,
-                        target_platform="NEST",
-                        logging_level="INFO",
-                        suffix=suffix,
-                        module_name=module_name)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level="INFO",
+                             suffix=suffix,
+                             module_name=module_name)
 
         nest.Install("nestmlmodule")
         model = "traub_cond_multisyn_nestml"
@@ -61,7 +60,7 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.SetKernelStatus({"resolution": dt})
 
         neuron1 = nest.Create(model, 1)
-        neuron1.set({'I_e': 100.0})
+        neuron1.set({"I_e": 100.0})
 
         neuron2 = nest.Create(model)
         neuron2.set({"tau_AMPA_1": 0.1,
@@ -75,7 +74,7 @@ class NestWBCondExpTest(unittest.TestCase):
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
         multimeter[1].set({"record_from": record_from,
                            "interval": dt})
-        # {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
+        # {"AMPA": 1, "NMDA": 2, "GABA_A": 3, "GABA_B": 4}
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 2})  # NMDA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
@@ -92,8 +91,8 @@ class NestWBCondExpTest(unittest.TestCase):
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
 
-        dSD = nest.GetStatus(spike_recorder, keys='events')[0]
-        spikes = dSD['senders']
+        dSD = nest.GetStatus(spike_recorder, keys="events")[0]
+        spikes = dSD["senders"]
         ts = dSD["times"]
 
         firing_rate = len(spikes) / t_simulation * 1000
@@ -114,7 +113,7 @@ class NestWBCondExpTest(unittest.TestCase):
                 ax[1].plot(tv, g, lw=2, label=labels[j])
                 j += 1
 
-            ax[2].plot(ts, spikes, 'k.')
+            ax[2].plot(ts, spikes, "k.")
             ax[2].set_xlabel("Time [ms]")
             ax[2].set_xlim(0, t_simulation)
             ax[2].set_ylabel("Spikes")

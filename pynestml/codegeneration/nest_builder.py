@@ -23,6 +23,7 @@ from __future__ import annotations
 from typing import Any, List, Mapping, Optional, Sequence
 
 import os
+import platform
 import subprocess
 import sys
 
@@ -32,6 +33,42 @@ from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
+
+
+def __add_library_to_sli(lib_path):
+    if not os.path.isabs(lib_path):
+        lib_path = os.path.abspath(lib_path)
+
+    system = platform.system()
+    lib_key = ""
+
+    if system == "Linux":
+        lib_key = "LD_LIBRARY_PATH"
+    else:
+        lib_key = "DYLD_LIBRARY_PATH"
+
+    if lib_key in os.environ:
+        current = os.environ[lib_key].split(os.pathsep)
+        if lib_path not in current:
+            current.append(lib_path)
+            os.environ[lib_key] += os.pathsep.join(current)
+    else:
+        os.environ[lib_key] = lib_path
+
+
+def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
+    '''
+    This method can be used to add external modules to SLI environment
+
+    Parameters
+    ----------
+    paths
+        paths to external nest modules
+    '''
+    if isinstance(paths, str):
+        paths = [paths]
+    for path in paths:
+        __add_library_to_sli(path)
 
 
 class NESTBuilder(Builder):
@@ -56,7 +93,7 @@ class NESTBuilder(Builder):
             Logger.log_message(None, -1, "The NEST installation was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
 
     def build(self) -> None:
-        """
+        r"""
         This method can be used to build the generated code and install the resulting extension module into NEST.
 
         Raises
@@ -66,7 +103,11 @@ class NESTBuilder(Builder):
         InvalidPathException
             If a failure occurs while trying to access the target path or the NEST installation path.
         """
+        cmake_cmd = ["cmake"]
         target_path = FrontendConfiguration.get_target_path()
+        install_path = FrontendConfiguration.get_install_path()
+        if install_path is not None:
+            add_libraries_to_sli(install_path)
         nest_path = self.get_option("nest_path")
 
         if not os.path.isdir(target_path):
@@ -75,9 +116,21 @@ class NESTBuilder(Builder):
         if nest_path is None or (not os.path.isdir(nest_path)):
             raise InvalidPathException('NEST path (' + str(nest_path) + ') is not a directory!')
 
-        cmake_cmd = ['cmake', '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config'), '.']
+        install_prefix = ""
+        if install_path:
+            if not os.path.isabs(install_path):
+                install_path = os.path.abspath(install_path)
+            install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
+
+        nest_config_path = f"-Dwith-nest={os.path.join(nest_path, 'bin', 'nest-config')}"
+        cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
         make_all_cmd = ['make', 'all']
         make_install_cmd = ['make', 'install']
+
+        # remove CMakeCache.txt if exists
+        cmake_cache = os.path.join(target_path, "CMakeCache.txt")
+        if os.path.exists(cmake_cache):
+            os.remove(cmake_cache)
 
         # check if we run on win
         if sys.platform.startswith('win'):

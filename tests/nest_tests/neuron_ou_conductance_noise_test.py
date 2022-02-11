@@ -23,7 +23,8 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import generate_target
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -37,7 +38,7 @@ class TestOUConductanceNoise(unittest.TestCase):
     record_from = ["g_noise_ex", "g_noise_in"]
 
     def simulate_OU_noise_neuron(self, resolution):
-        """
+        r"""
         Simulates a single neuron with OU noise conductances.
 
         Parameters
@@ -60,13 +61,14 @@ class TestOUConductanceNoise(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                 "..", "..", "models", "neurons", "hh_cond_exp_destexhe.nestml")))
         target_path = "target"
-        target_platform = "NEST"
         logging_level = "INFO"
         module_name = "nestmlmodule"
-        store_log = False
         suffix = "_nestml"
-        dev = True
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.Install("nestmlmodule")

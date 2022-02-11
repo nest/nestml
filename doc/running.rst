@@ -14,9 +14,9 @@ Subsequently, it is possible to call PyNESTML from other Python tools and script
 
 .. code-block:: python
 
-   generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, dev, codegen_opts)
+   generate_target(input_path, target_platform, target_path, install_path, logging_level, module_name, store_log, suffix, dev, codegen_opts)
 
-The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
+The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ("DEBUG", "INFO", "WARNING", "ERROR", "NO"). Note that only the ``input_path`` argument is mandatory:
 
 .. list-table::
    :header-rows: 1
@@ -28,18 +28,24 @@ The following default values are used, corresponding to the command line default
    * - input_path
      - str or Sequence[str]
      - *no default*
-   * - target_path
-     - string
-     - None
    * - target_platform
-     - string
-     - 'NEST'
+     - str
+     - "NEST"
+   * - target_path
+     - str
+     - None
+   * - install_path
+     - str
+     - None
    * - logging_level
-     - string
-     - 'ERROR'
+     - str
+     - "ERROR"
    * - module_name
-     - string
-     - ``nestmlmodule``
+     - str
+     - "nestmlmodule"
+   * - suffix
+     - str
+     - ""
    * - store_log
      - bool
      - False
@@ -57,7 +63,17 @@ A typical script for the NEST Simulator target could look like the following. Fi
    from pynestml.frontend.pynestml_frontend import generate_target
 
    generate_target(input_path="/home/nest/work/pynestml/models",
+                   target_platform="NEST",
                    target_path="/tmp/nestml_target")
+
+We can also use a shorthand function for each supported target platform (here, NEST):
+
+.. code-block:: python
+
+   from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+   generate_nest_target(input_path="/home/nest/work/pynestml/models",
+                        target_path="/tmp/nestml_target")
 
 To dynamically load a module with ``module_name`` equal to ``nestmlmodule`` (the default) in PyNEST can be done as follows:
 
@@ -93,7 +109,7 @@ This will generate, compile, build, and install the code for a set of specified 
    * - ``-h`` or ``--help``
      - Print help message.
    * - ``--input_path``
-     - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching '\*.nestml'.
+     - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching "\*.nestml".
    * - ``--target_path``
      - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
    * - ``--target_platform``
@@ -106,6 +122,8 @@ This will generate, compile, build, and install the code for a set of specified 
      - (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.
    * - ``--suffix``
      - (Optional) A suffix string that will be appended to the name of all generated models.
+   * - ``--install_path``
+     - (Optional) Path to the directory where the generated code will be installed.
    * - ``--dev``
      - (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
    * - ``--codegen_opts``
@@ -170,19 +188,14 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``generate_targ
 
    from pynestml.frontend.pynestml_frontend import generate_target
 
-   codegen_opts = {
-        "templates":
-        {
-            "path": "/home/nest/work/custom_templates",
-            "model_templates": {
-                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-                "synapse": ['SynapseHeader.h.jinja2']
-            },
-            "module_templates": ["setup"]
-        }
-   }
+   input_path = "..."
+   target_platform = "NEST"
+   codegen_opts = {"templates": {"path": "/home/nest/work/custom_templates",
+                                 "model_templates": {"neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
+                                                     "synapse": ["SynapseHeader.h.jinja2"]},
+                                 "module_templates": ["setup"]}}
 
-   generate_target(input_path, target_path, logging_level, module_name, store_log, dev, codegen_opts)
+   generate_target(input_path, target_platform, codegen_opts=codegen_opts)
 
 
 Running in NEST 2.* compatibility mode
@@ -194,11 +207,11 @@ To generate code that is compatible with NEST Simulator major version 2 (in part
 
    codegen_opts = {
        "templates": {
-           "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
-                                'resources_nest', 'point_neuron_nest2'),
-           "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-           "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
-                                'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
+           "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pynestml", "codegeneration",
+                                "resources_nest", "point_neuron_nest2"),
+           "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
+           "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/SLI_Init.sli.jinja2",
+                                "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]
    }}
 
 The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.

@@ -23,9 +23,8 @@ import unittest
 import numpy as np
 
 import nest
-from pynestml.utils.model_installer import install_nest
 
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestMultithreadingTest(unittest.TestCase):
@@ -50,25 +49,25 @@ class NestMultithreadingTest(unittest.TestCase):
         synapse_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models",
                                           "synapses", "stdp_synapse.nestml")))
-        to_nest(input_path=[neuron_path, synapse_path],
-                target_path=self.neuron_synapse_target,
-                logging_level="INFO",
-                module_name=self.neuron_synapse_module,
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                        "synapse": "stdp",
-                                                        "post_ports": ["post_spikes"]}]})
+        generate_nest_target(input_path=[neuron_path, synapse_path],
+                             target_path=self.neuron_synapse_target,
+                             logging_level="INFO",
+                             module_name=self.neuron_synapse_module,
+                             suffix="_nestml",
+                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                                           "neuron_parent_class_include": "structural_plasticity_node.h",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                                     "synapse": "stdp",
+                                                                     "post_ports": ["post_spikes"]}]})
 
         # Neuron model
-        to_nest(input_path=neuron_path,
-                target_path=self.neuron_target,
-                logging_level="INFO",
-                module_name=self.neuron_module,
-                suffix="__nestml",
-                codegen_opts={"neuron_parent_class": "ArchivingNode",
-                              "neuron_parent_class_include": "archiving_node.h"})
+        generate_nest_target(input_path=neuron_path,
+                             target_path=self.neuron_target,
+                             logging_level="INFO",
+                             module_name=self.neuron_module,
+                             suffix="__nestml",
+                             codegen_opts={"neuron_parent_class": "ArchivingNode",
+                                           "neuron_parent_class_include": "archiving_node.h"})
 
     def test_neuron_multithreading(self):
         nest.set_verbosity("M_ALL")

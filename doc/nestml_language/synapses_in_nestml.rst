@@ -57,7 +57,7 @@ The corresponding event handler has the general structure:
    onReceive(pre_spikes):
      print("Info: processing a presynaptic spike at time t = {t}")
      # ... plasticity dynamics go here ...
-     deliver_spike(w, d)     
+     deliver_spike(w, d)
    end
 
 The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
@@ -312,7 +312,7 @@ STDP synapse with nearest-neighbour spike pairing
 This synapse model extends the STDP model by restrictions on interactions between pre- and post spikes.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
-   
+
    Figure 7 from Morrison, Diesmann and Gerstner [1]_. Original caption: "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron j and a postsynaptic neuron i. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)"
 
 
@@ -552,19 +552,19 @@ When NESTML is invoked to generate code for plastic synapses, the code generator
 .. code-block:: python
 
    generate_target(...,
-                        codegen_opts={...,
-                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                                "synapse": "third_factor_stdp"}]})
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp"}]})
 
 Additionally, if the synapse requires it, specify the ``"post_syn_port_map"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
 .. code-block:: python
 
    generate_target(...,
-                        codegen_opts={...,
-                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                                "synapse": "third_factor_stdp",
-                                                                "post_syn_port_map": [["I_post_dend", "I_dend"]]]}]})
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp",
+                                                           "post_syn_port_map": [["I_post_dend", "I_dend"]]]}]})
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input port ``I_post_dend`` in the synapse is to be mapped to the ``I_dend`` variable in the postsynaptic neuron. The map is given as a list of tuples of length 2, in the form (synaptic variable name, neuron variable name).
 
@@ -573,10 +573,10 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
 .. code-block:: python
 
    generate_target(...,
-                        codegen_opts={...,
-                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                                "synapse": "third_factor_stdp",
-                                                                "vt_ports": ["dopa_spikes"]}]})
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp",
+                                                            "vt_ports": ["dopa_spikes"]}]})
 
 
 
