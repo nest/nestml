@@ -31,8 +31,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 synapse CoCoPrioritiesCorrectlySpecified:
   input:
-    pre_spikes real <- spike
-    post_spikes real <- spike
+    pre_spikes real <- pre spike
+    post_spikes real <- post spike
   end
 
   onReceive(pre_spikes, priority=1):

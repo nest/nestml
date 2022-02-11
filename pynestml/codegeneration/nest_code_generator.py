@@ -906,12 +906,16 @@ class NESTCodeGenerator(CodeGenerator):
         # event handlers priority
         # XXX: this should be refactored in case we have additional modulatory (3rd-factor) spiking input ports in the synapse
         namespace["pre_before_post_update"] = 0   # C++-compatible boolean...
-        spiking_post_port = synapse.get_ports_with_qualifier(qualifier="post", port_type=PortSignalType.SPIKE)
-        if spiking_post_port:
+        spiking_post_ports = synapse.get_ports_with_qualifier(qualifier=PortQualifierType.POST, port_type=PortSignalType.SPIKE)
+        if spiking_post_ports:
+            assert len(spiking_post_ports) == 1, "More than one postsynaptic spiking input port is not currently supported"
+            spiking_post_port = spiking_post_ports[0]
+
             post_spike_port_priority = None
-            if "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
+            if synapse.get_on_receive_block(spiking_post_port.name) is not None \
+               and "priority" in synapse.get_on_receive_block(spiking_post_port.name).get_const_parameters().keys():
                 post_spike_port_priority = int(synapse.get_on_receive_block(
-                    spiking_post_port).get_const_parameters()["priority"])
+                    spiking_post_port.name).get_const_parameters()["priority"])
 
             if post_spike_port_priority \
                     and len(namespace["pre_ports"]) and len(namespace["post_ports"]) \
