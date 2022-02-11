@@ -156,7 +156,7 @@ class ASTInputPort(ASTNode):
         :return: True if continuous time, False otherwise.
         """
         return self.signal_type is PortSignalType.CONTINUOUS
-    
+
     def get_port_signal_type(self) -> PortSignalType:
         return self.signal_type
 

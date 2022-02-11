@@ -68,7 +68,7 @@ class NestIntegrationTest(unittest.TestCase):
                                                                      "synapse": "stdp_nn_restr_symm"},
                                                                     {"neuron": "iaf_psc_exp_dend",
                                                                      "synapse": "third_factor_stdp",
-                                                                     "post_syn_port_map": [["I_post_dend", "I_dend"]]]},
+                                                                     "post_syn_port_map": [["I_post_dend", "I_dend"]]},
                                                                     {"neuron": "iaf_psc_exp",
                                                                      "synapse": "stdp_nn_pre_centered"}]})
 

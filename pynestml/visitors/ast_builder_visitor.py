@@ -35,6 +35,7 @@ from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
 
+
 class ASTBuilderVisitor(PyNestMLParserVisitor):
     """
     This class is used to create an internal representation of the model by means of an abstract syntax tree.

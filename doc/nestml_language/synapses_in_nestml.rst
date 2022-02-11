@@ -568,18 +568,6 @@ Additionally, if the synapse requires it, specify the ``"post_syn_port_map"`` en
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input port ``I_post_dend`` in the synapse is to be mapped to the ``I_dend`` variable in the postsynaptic neuron. The map is given as a list of tuples of length 2, in the form (synaptic variable name, neuron variable name).
 
-Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                            "vt_ports": ["dopa_spikes"]}]})
-
-
-
 Implementation notes
 ~~~~~~~~~~~~~~~~~~~~
 
