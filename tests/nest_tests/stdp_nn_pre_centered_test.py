@@ -61,7 +61,6 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
                                                                      "synapse": "stdp_nn_pre_centered"}]})
-
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path="models/neurons/iaf_psc_exp.nestml",
                              target_path="/tmp/nestml-non-jit",
