@@ -522,6 +522,15 @@ private:
     State_();
   };
 
+{%- if has_delay_variables %}
+    // Declare helper variables for variables with delay
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/DelayVariablesDeclaration.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+{%- endif %}
+
   /**
    * Internal variables of the neuron.
    *
@@ -613,6 +622,7 @@ private:
     double __step;             //!< step size in ms
     double __integration_step; //!< current integration time step, updated by GSL
 {%- endif %}
+
   };
 
   // -------------------------------------------------------------------------
@@ -682,7 +692,9 @@ private:
 
   nest::normal_distribution normal_dev_; //!< random deviate generator
 {%- endif %}
-
+{%- if has_delay_variables %}
+  void update_delay_variables();
+{%- endif %}
 
 
 

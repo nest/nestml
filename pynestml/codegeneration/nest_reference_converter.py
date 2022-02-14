@@ -237,15 +237,20 @@ e();
             return 'get_' + variable.get_name() + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_kernel():
-            assert False, "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
+            assert False, "NEST reference converter cannot print kernel; kernel should have been converted during " \
+                          "code generation "
 
         if symbol.is_state():
-            temp = NestPrinter.print_origin(symbol, prefix=prefix)
-            if self.uses_gsl:
-                temp += GSLNamesConverter.name(symbol)
+            if symbol.has_delay_parameter():
+                temp = "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + NestNamesConverter.name(symbol) \
+                       + "_idx ]"
             else:
-                temp += NestNamesConverter.name(symbol)
-            temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
+                temp = NestPrinter.print_origin(symbol, prefix=prefix)
+                if self.uses_gsl:
+                    temp += GSLNamesConverter.name(symbol)
+                else:
+                    temp += NestNamesConverter.name(symbol)
+                temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())

@@ -987,6 +987,8 @@ class ASTTransformers:
                 delay_var_symbol = ASTUtils.get_delay_variable_symbol(expr.get_function_call())
                 delay_var_symbol.set_delay_parameter(delay_parameter)
 
+                expr.get_scope().update_variable_symbol(delay_var_symbol)
+
                 # Nullify the function call
                 expr.set_function_call(None)
 

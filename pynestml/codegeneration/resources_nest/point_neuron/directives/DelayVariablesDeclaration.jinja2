@@ -1,0 +1,9 @@
+{#
+  Generates C++ declaration of vector for variables with delay
+  @param variable VariableSymbol
+  @result C++ declaration
+#}
+  double delay_{{names.name(variable)}};
+  size_t delay_{{names.name(variable)}}_steps;
+  std::vector< double > delayed_{{names.name(variable)}};
+  size_t delayed_{{names.name(variable)}}_idx;

@@ -372,6 +372,13 @@ void {{neuronName}}::init_buffers_()
   B_.__step = nest::Time::get_resolution().get_ms();
   B_.__integration_step = nest::Time::get_resolution().get_ms();
 {%- endif %}
+
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/DelayVariablesInitialization.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+
 }
 
 void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
@@ -435,6 +442,17 @@ void {{neuronName}}::calibrate() {
 {%- include "directives/GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
+{%- if has_delay_variables %}
+void {{neuronName}}::update_delay_variables()
+{
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/UpdateDelayVariables.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+
+}
+{%- endif %}
 {%- if neuron.print_dynamics_comment('*')|length > 1 %}
 /*
  {{neuron.print_dynamics_comment('*')}}
@@ -466,6 +484,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-   include "directives/Block.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
+{%- endif %}
+
+{%- if has_delay_variables %}
+    update_delay_variables();
 {%- endif %}
 
     // voltage logging
