@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# delay_based_variables_test.py
+# nest_delay_based_variables_test.py
 #
 # This file is part of NEST.
 #
@@ -30,7 +30,7 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -53,20 +53,18 @@ class DelayVariablesTest(unittest.TestCase):
             ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
         Logger.init_logger(LoggingLevel.INFO)
 
-        self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'target'))))
-
     def test_equations_with_delay_vars(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
                                                                 "DelayBasedVariables.nestml")))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target_delay'
         logging_level = 'DEBUG'
         module_name = 'nestmlmodule'
-        store_log = False
         suffix = '_nestml'
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, )
-        install_nest(target_path, nest_path)
+        generate_nest_target(input_path=input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.Install(module_name)
