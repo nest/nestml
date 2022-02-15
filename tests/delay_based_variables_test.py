@@ -19,57 +19,86 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import unittest
 
 import nest
-import matplotlib.pyplot as plt
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
+
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-
-input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
-                                                        "DelayBasedVariables.nestml")))
-nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-target_path = 'target_delay'
-logging_level = 'DEBUG'
-module_name = 'nestmlmodule'
-store_log = False
-suffix = '_nestml'
-dev = True
-
-# to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-# install_nest(target_path, nest_path)
-nest.set_verbosity("M_ALL")
-nest.ResetKernel()
-nest.Install(module_name)
-
-neuron = nest.Create("delay_variables_nestml")
-multimeter = nest.Create("multimeter", params={"record_from": ["u_bar_plus", "foo"]})
-nest.Connect(multimeter, neuron)
-
-nest.Simulate(100.0)
-events = multimeter.get("events")
-times = events["times"]
-u_bar_plus_delay = events["u_bar_plus"]
-foo_delay = events["foo"]
+from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.utils.logger import Logger, LoggingLevel
 
 
-# Set the delay to 0
-nest.ResetKernel()
-neuron = nest.Create("delay_variables_nestml")
-nest.SetStatus(neuron, {"delay": 0.0})
+class DelayVariablesTest(unittest.TestCase):
+    """
+    Tests the behavior of delay variables in differential equations.
+    """
+    def setUp(self):
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedFunctions.register_functions()
+        PredefinedVariables.register_variables()
+        SymbolTable.initialize_symbol_table(
+            ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        Logger.init_logger(LoggingLevel.INFO)
 
-multimeter = nest.Create("multimeter", params={"record_from": ["u_bar_plus", "foo"]})
-nest.Connect(multimeter, neuron)
+        self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'target'))))
 
-nest.Simulate(100.0)
-events = multimeter.get("events")
-times = events["times"]
-u_bar_plus = events["u_bar_plus"]
-foo = events["foo"]
+    def test_equations_with_delay_vars(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
+                                                                "DelayBasedVariables.nestml")))
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+        target_path = 'target_delay'
+        logging_level = 'DEBUG'
+        module_name = 'nestmlmodule'
+        store_log = False
+        suffix = '_nestml'
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, )
+        install_nest(target_path, nest_path)
+        nest.set_verbosity("M_ALL")
+        nest.ResetKernel()
+        nest.Install(module_name)
 
-plt.plot(times, u_bar_plus_delay, label='u_bar_plus(delay)')
-plt.plot(times, foo_delay, label='foo(delay)')
-plt.plot(times, u_bar_plus, label='u_bar_plus')
-plt.plot(times, foo, label='foo')
-plt.legend()
-plt.show()
+        neuron = nest.Create("delay_variables_nestml")
+        multimeter = nest.Create("multimeter", params={"record_from": ["u_bar_plus", "foo"]})
+        nest.Connect(multimeter, neuron)
 
+        nest.Simulate(100.0)
+        events = multimeter.get("events")
+        times = events["times"]
+        u_bar_plus_delay = events["u_bar_plus"]
+        foo_delay = events["foo"]
+
+        # Set the delay to 0
+        nest.ResetKernel()
+        neuron = nest.Create("delay_variables_nestml")
+        nest.SetStatus(neuron, {"delay": 0.0})
+
+        multimeter = nest.Create("multimeter", params={"record_from": ["u_bar_plus", "foo"]})
+        nest.Connect(multimeter, neuron)
+
+        nest.Simulate(100.0)
+        events = multimeter.get("events")
+        times = events["times"]
+        u_bar_plus = events["u_bar_plus"]
+        foo = events["foo"]
+
+        if TEST_PLOTS:
+            plt.plot(times, u_bar_plus_delay, label='u_bar_plus(delay)')
+            plt.plot(times, foo_delay, label='foo(delay)')
+            plt.plot(times, u_bar_plus, label='u_bar_plus')
+            plt.plot(times, foo, label='foo')
+            plt.legend()
+            plt.show()
