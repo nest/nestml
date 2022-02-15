@@ -63,7 +63,7 @@ class ASTExpression(ASTExpressionNode):
 
     def __init__(self, is_encapsulated=False, unary_operator=None, is_logical_not=False,
                  expression=None, lhs=None, binary_operator=None, rhs=None, condition=None, if_true=None,
-                 if_not=None, *args, **kwargs):
+                 if_not=None, has_delay=False, *args, **kwargs):
         """
         Standard constructor.
 
@@ -89,6 +89,7 @@ class ASTExpression(ASTExpressionNode):
         :type if_true: ASTExpression
         :param if_not: if condition does not hold, this rhs is executed.
         :type if_not: ASTExpression
+        TODO:
         """
         super(ASTExpression, self).__init__(*args, **kwargs)
         assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator)
@@ -108,6 +109,7 @@ class ASTExpression(ASTExpressionNode):
         self.condition = condition
         self.if_true = if_true
         self.if_not = if_not
+        self.has_delay = has_delay
 
     def clone(self):
         """
@@ -150,6 +152,7 @@ class ASTExpression(ASTExpressionNode):
                             condition=condition_dup,
                             if_true=if_true_dup,
                             if_not=if_not_dup,
+                            has_delay=self.has_delay,
                             # ASTNode common attributes:
                             source_position=self.source_position,
                             scope=self.scope,
@@ -254,6 +257,13 @@ class ASTExpression(ASTExpressionNode):
         :rtype: ASTExpression
         """
         return self.if_not
+
+    def get_has_delay(self):
+        """
+        Returns the has_delay parameter
+        :return:
+        """
+        return self.has_delay
 
     def get_variables(self):
         """

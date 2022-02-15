@@ -53,7 +53,7 @@ class ASTSimpleExpression(ASTExpressionNode):
     """
 
     def __init__(self, function_call=None, boolean_literal=None, numeric_literal=None, is_inf=False,
-                 variable=None, string=None, *args, **kwargs):
+                 variable=None, string=None, has_delay=False, *args, **kwargs):
         """
         Standard constructor.
 
@@ -71,6 +71,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :type variable: ASTVariable
         :param string: a single string literal
         :type string: str
+        TODO:
         """
         super(ASTSimpleExpression, self).__init__(*args, **kwargs)
         assert (function_call is None or isinstance(function_call, ASTFunctionCall)), \
@@ -97,6 +98,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
+        self.has_delay = has_delay
 
     def clone(self):
         """
@@ -125,6 +127,7 @@ class ASTSimpleExpression(ASTExpressionNode):
                                   is_inf=self.is_inf_literal,
                                   variable=variable_dup,
                                   string=self.string,
+                                  has_delay=self.has_delay,
                                   # ASTNode common attributes:
                                   source_position=self.source_position,
                                   scope=self.scope,
@@ -206,6 +209,24 @@ class ASTSimpleExpression(ASTExpressionNode):
         :rtype: bool
         """
         return self.variable is not None and self.numeric_literal is None
+
+    def is_delay_variable(self):
+        """
+        Returns whether it is a delay variable or not
+        :return: bool
+        """
+        if self.is_variable() and self.has_delay \
+                and self.get_variable().get_delay_parameter() is not None:
+            return True
+        else:
+            return False
+
+    def get_has_delay(self):
+        """
+        Returns the has_delay parameter
+        :return:
+        """
+        return self.has_delay
 
     def get_variables(self):
         """

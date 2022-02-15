@@ -48,6 +48,7 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -58,6 +59,8 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
+from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
+from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
@@ -83,6 +86,14 @@ def update_delay_parameter(neuron: ASTNeuron, state_vars_before_update: List[Var
             symbol = neuron.get_scope().resolve_to_symbol(state_var.get_symbol_name(), SymbolKind.VARIABLE)
             if symbol is not None:
                 symbol.set_delay_parameter(state_var.get_delay_parameter())
+
+
+def has_delay_variables(equations_with_delay_vars: ASTOdeEquation, sym: str):
+    for equation in equations_with_delay_vars:
+        print(equation.get_lhs().get_name())
+        if equation.get_lhs().get_name() == sym:
+            return True
+    return False
 
 
 class NESTCodeGenerator(CodeGenerator):
@@ -797,9 +808,10 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_neuron(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates = self.analyse_neuron(neuron)
+            spike_updates, post_spike_updates, equations_with_delay_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
+            neuron.equations_with_delay_vars = equations_with_delay_vars
 
     def analyse_transform_synapses(self, synapses: List[ASTSynapse]) -> None:
         """
@@ -831,7 +843,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
-            return [], []
+            return [], [], []
 
         delta_factors = ASTTransformers.get_delta_factors_(neuron, equations_block)
         kernel_buffers = ASTTransformers.generate_kernel_buffers_(neuron, equations_block)
@@ -839,8 +851,10 @@ class NESTCodeGenerator(CodeGenerator):
         ASTTransformers.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTTransformers.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
-        ASTTransformers.replace_function_call_with_delay_variable(neuron)
-        state_vars = neuron.get_state_symbols()
+        # expressions_with_delay_vars = ASTTransformers.replace_function_call_with_delay_variable(neuron)
+        equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
+        neuron.accept(equations_with_delay_vars_visitor)
+        equations_with_delay_vars = equations_with_delay_vars_visitor.equations
 
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
@@ -890,7 +904,7 @@ class NESTCodeGenerator(CodeGenerator):
         spike_updates, post_spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-        return spike_updates, post_spike_updates
+        return spike_updates, post_spike_updates, equations_with_delay_vars
 
     def analyse_synapse(self, synapse: ASTSynapse) -> None:
         """
@@ -1191,6 +1205,8 @@ class NESTCodeGenerator(CodeGenerator):
                 sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']})
 
             namespace['update_expressions'] = {}
+            if namespace['has_delay_variables']:
+                namespace["update_expressions_with_delay"] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             for sym in namespace['analytic_state_variables'] + namespace['analytic_state_variables_moved']:
@@ -1201,6 +1217,11 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['update_expressions'][sym] = expr_ast
+
+                # Check if the update expression has delay variables
+                if has_delay_variables(neuron.equations_with_delay_vars, sym):
+                    marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
+                    expr_ast.accept(marks_delay_vars_visitor)
 
             namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
 
@@ -1246,6 +1267,11 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['numeric_update_expressions'][sym] = expr_ast
+
+                # Check if the update expression has delay variables
+                if has_delay_variables(neuron.equations_with_delay_vars, sym):
+                    marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
+                    expr_ast.accept(marks_delay_vars_visitor)
 
             if namespace['uses_numeric_solver']:
                 if 'analytic_state_variables_moved' in namespace.keys():

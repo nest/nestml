@@ -21,6 +21,7 @@
 import os
 
 import nest
+import matplotlib.pyplot as plt
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
@@ -34,6 +35,41 @@ store_log = False
 suffix = '_nestml'
 dev = True
 
-to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+# to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
 # install_nest(target_path, nest_path)
-# nest.set_verbosity("M_ALL")
+nest.set_verbosity("M_ALL")
+nest.ResetKernel()
+nest.Install(module_name)
+
+neuron = nest.Create("delay_variables_nestml")
+multimeter = nest.Create("multimeter", params={"record_from": ["u_bar_plus", "foo"]})
+nest.Connect(multimeter, neuron)
+
+nest.Simulate(100.0)
+events = multimeter.get("events")
+times = events["times"]
+u_bar_plus_delay = events["u_bar_plus"]
+foo_delay = events["foo"]
+
+
+# Set the delay to 0
+nest.ResetKernel()
+neuron = nest.Create("delay_variables_nestml")
+nest.SetStatus(neuron, {"delay": 0.0})
+
+multimeter = nest.Create("multimeter", params={"record_from": ["u_bar_plus", "foo"]})
+nest.Connect(multimeter, neuron)
+
+nest.Simulate(100.0)
+events = multimeter.get("events")
+times = events["times"]
+u_bar_plus = events["u_bar_plus"]
+foo = events["foo"]
+
+plt.plot(times, u_bar_plus_delay, label='u_bar_plus(delay)')
+plt.plot(times, foo_delay, label='foo(delay)')
+plt.plot(times, u_bar_plus, label='u_bar_plus')
+plt.plot(times, foo, label='foo')
+plt.legend()
+plt.show()
+

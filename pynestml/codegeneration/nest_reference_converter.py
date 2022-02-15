@@ -241,16 +241,12 @@ e();
                           "code generation "
 
         if symbol.is_state():
-            if symbol.has_delay_parameter():
-                temp = "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + NestNamesConverter.name(symbol) \
-                       + "_idx ]"
+            temp = NestPrinter.print_origin(symbol, prefix=prefix)
+            if self.uses_gsl:
+                temp += GSLNamesConverter.name(symbol)
             else:
-                temp = NestPrinter.print_origin(symbol, prefix=prefix)
-                if self.uses_gsl:
-                    temp += GSLNamesConverter.name(symbol)
-                else:
-                    temp += NestNamesConverter.name(symbol)
-                temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
+                temp += NestNamesConverter.name(symbol)
+            temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
@@ -263,6 +259,19 @@ e();
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
             NestNamesConverter.name(symbol) + \
             ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
+
+    def convert_delay_variable(self, variable: ASTVariable):
+        """
+        Converts a delay variable to NEST processible format
+        :param variable:
+        :return:
+        """
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol:
+            if symbol.is_state() and symbol.has_delay_parameter():
+                return "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + NestNamesConverter.name(
+                        symbol) + "_idx ]"
+        return None
 
     def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \

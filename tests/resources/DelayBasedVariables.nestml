@@ -36,7 +36,7 @@ neuron delay_variables:
     end
 
     parameters:
-        tau ms = 10. ms
+        tau ms = 1.5 ms
         delay ms = 5. ms
         b real = 0.
     end

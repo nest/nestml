@@ -4,5 +4,6 @@
   @result C++ declaration
 #}
   delayed_{{names.name(variable)}}_idx = 0;
-  delay_{{names.name(variable)}}_steps = nest::Time::delay_ms_to_steps( {{printer.print_delay_parameter(variable)}} );
+  delay_{{names.name(variable)}}_steps = nest::Time::delay_ms_to_steps( {{printer.print_delay_parameter(variable)}} ) +
+  1;
   delayed_{{names.name(variable)}}.resize( delay_{{names.name(variable)}}_steps );
