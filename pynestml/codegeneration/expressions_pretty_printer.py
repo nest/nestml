@@ -90,10 +90,6 @@ class ExpressionsPrettyPrinter:
             elif node.is_delay_variable():
                 return self.reference_converter.convert_delay_variable(node.get_variable())
             elif node.is_variable():
-                # if node.get_has_delay():
-                #     delay_var_str = self.reference_converter.convert_delay_variable(node.get_variable())
-                #     if delay_var_str is not None:
-                #         return delay_var_str
                 return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
