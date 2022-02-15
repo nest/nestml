@@ -278,8 +278,7 @@ class ASTTransformers:
         """
         Get the differential order of the variable with the given name from the ode-toolbox results JSON.
 
-        N.B. the variable name is given in NESTML notation, e.g. "g_in$"; convert to ode-toolbox export format
-        notation (e.g. "g_in__DOLLAR").
+        N.B. the variable name is given in NESTML notation, e.g. "g_in$"; convert to ode-toolbox export format notation (e.g. "g_in__DOLLAR").
         """
 
         kernel_var = kernel_var.replace("$", "__DOLLAR")
@@ -301,8 +300,7 @@ class ASTTransformers:
     @classmethod
     def to_ode_toolbox_processed_name(cls, name: str) -> str:
         """
-        Convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible
-        with ode-toolbox output
+        Convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible with ode-toolbox output
         """
         return name.replace("$", "__DOLLAR").replace("'", "__d")
 
@@ -356,7 +354,6 @@ class ASTTransformers:
         :param spike_buf: input port instance
         :return:
         """
-
         def replace_kernel_var(node):
             if type(node) is ASTSimpleExpression \
                     and node.is_variable() \
@@ -395,8 +392,7 @@ class ASTTransformers:
 
         These equations will later on be fed to ode-toolbox, so we use the symbol "'" to indicate differential order.
 
-        Note that for kernels/systems of ODE of dimension > 1, all variable orders and all variables for this kernel
-        will already be present in `kernel_buffers`.
+        Note that for kernels/systems of ODE of dimension > 1, all variable orders and all variables for this kernel will already be present in `kernel_buffers`.
         """
         for kernel, spike_buf in kernel_buffers:
             for kernel_var in kernel.get_variables():
@@ -426,7 +422,7 @@ class ASTTransformers:
             and expr.get_rhs().is_function_call() \
             and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
             expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function[
-                                             "delta"]
+            "delta"]
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
@@ -556,8 +552,7 @@ class ASTTransformers:
     @classmethod
     def remove_initial_values_for_kernels(cls, neuron: ASTNeuron) -> None:
         """
-        Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the
-        initial value expressions returned from ODE-toolbox.
+        Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ODE-toolbox.
         """
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
 
@@ -614,8 +609,7 @@ class ASTTransformers:
                     iv_decl.set_expression(iv_expr)
 
     @classmethod
-    def create_initial_values_for_kernels(cls, neuron: ASTNeuron, solver_dicts: List[dict],
-                                          kernels: List[ASTKernel]) -> None:
+    def create_initial_values_for_kernels(cls, neuron: ASTNeuron, solver_dicts: List[dict], kernels: List[ASTKernel]) -> None:
         """
         Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST
         """
@@ -634,8 +628,7 @@ class ASTTransformers:
             for var_name, expr in solver_dict["initial_values"].items():
                 # overwrite is allowed because initial values might be repeated between numeric and analytic solver
                 if cls.variable_in_kernels(var_name, kernels):
-                    expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment
-                    # value; the actual initial value is assumed to be 0
+                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
                     if not cls.declaration_in_state_block(neuron, var_name):
                         cls.add_declaration_to_state_block(neuron, var_name, expr)
 
@@ -645,14 +638,12 @@ class ASTTransformers:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 
-        Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model
-        code contains the statements
+        Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
             convolve(G, ex_spikes)
             convolve(G, in_spikes)
 
-        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will
-        be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
+        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
 
         :param parameters_block:
         :param kernel_buffers:
@@ -771,8 +762,7 @@ class ASTTransformers:
     def replace_inline_expressions_through_defining_expressions(cls, definitions: Sequence[ASTOdeEquation],
                                                                 inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
         """
-        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from
-        `inline_expressions`.
+        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 
         :param definitions: A list of ODE definitions (**updated in-place**).
         :param inline_expressions: A list of inline expression definitions.
@@ -799,8 +789,7 @@ class ASTTransformers:
     @classmethod
     def get_delta_factors_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> dict:
         r"""
-        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel`
-        is a delta function, add the element `(x^(n), inport) --> a` to the set.
+        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
         """
         delta_factors = {}
         for ode_eq in equations_block.get_ode_equations():
@@ -809,8 +798,7 @@ class ASTTransformers:
             conv_calls = OdeTransformer.get_convolve_function_calls(expr)
             for conv_call in conv_calls:
                 assert len(
-                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and " \
-                                          "spike input port"
+                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
                 kernel = conv_call.args[0]
                 if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
                     inport = conv_call.args[1].get_variable()
@@ -858,8 +846,7 @@ class ASTTransformers:
     @classmethod
     def generate_kernel_buffers_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> Mapping[ASTKernel, ASTInputPort]:
         """
-        For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel,
-        spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.
+        For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel, spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.
         """
 
         kernel_buffers = set()
@@ -890,11 +877,8 @@ class ASTTransformers:
     @classmethod
     def replace_convolution_aliasing_inlines(cls, neuron: ASTNeuron) -> None:
         """
-        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a
-        second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated
-        variable ``kern_name__X__spike_buf``.
+        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
         """
-
         def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
@@ -911,9 +895,10 @@ class ASTTransformers:
                     var.set_differential_order(0)
 
         for decl in neuron.get_equations_block().get_declarations():
+            from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
-                    and isinstance(decl.get_expression(), ASTSimpleExpression) \
-                    and '__X__' in str(decl.get_expression()):
+               and isinstance(decl.get_expression(), ASTSimpleExpression) \
+               and '__X__' in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
                 neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
                     x, decl.get_variable_name(), replace_with_var_name)))
@@ -926,7 +911,6 @@ class ASTTransformers:
 
         Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
-
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
@@ -950,8 +934,7 @@ class ASTTransformers:
     @classmethod
     def replace_convolve_calls_with_buffers_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> None:
         r"""
-        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable,
-        e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
+        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
         """
 
         def replace_function_call_through_var(_expr=None):
@@ -971,8 +954,7 @@ class ASTTransformers:
                 buffer_var = cls.construct_kernel_X_spike_buf_name(
                     var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if cls.is_delta_kernel(kernel):
-                    # delta kernels are treated separately, and should be kept out of the dynamics (computing
-                    # derivates etc.) --> set to zero
+                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
                     _expr.set_variable(None)
                     _expr.set_numeric_literal(0)
                 else:
