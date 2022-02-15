@@ -1231,7 +1231,7 @@ class NESTCodeGenerator(CodeGenerator):
                 if has_delay_variables(neuron.equations_with_delay_vars, sym):
                     marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
                     expr_ast.accept(marks_delay_vars_visitor)
-                    
+
             if namespace["uses_numeric_solver"]:
                 if "analytic_state_variables_moved" in namespace.keys():
                     namespace["purely_numeric_state_variables_moved"] = list(

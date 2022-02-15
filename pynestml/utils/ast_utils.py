@@ -899,4 +899,3 @@ class ASTUtils:
         args = node.get_args()
         delay_parameter = args[0].get_rhs().get_variable()
         return delay_parameter.get_name()
-

@@ -418,13 +418,13 @@ class ASTTransformers:
             expr = kernel
 
         rhs_is_delta_kernel = type(expr) is ASTSimpleExpression \
-                              and expr.is_function_call() \
-                              and expr.get_function_call().get_scope().resolve_to_symbol(
+            and expr.is_function_call() \
+            and expr.get_function_call().get_scope().resolve_to_symbol(
             expr.get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
         rhs_is_multiplied_delta_kernel = type(expr) is ASTExpression \
-                                         and type(expr.get_rhs()) is ASTSimpleExpression \
-                                         and expr.get_rhs().is_function_call() \
-                                         and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
+            and type(expr.get_rhs()) is ASTSimpleExpression \
+            and expr.get_rhs().is_function_call() \
+            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
             expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function[
                                              "delta"]
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
@@ -739,8 +739,7 @@ class ASTTransformers:
             equations_block.get_declarations().remove(decl)
 
     @classmethod
-    def make_inline_expressions_self_contained(cls, inline_expressions: List[ASTInlineExpression]) -> List[
-        ASTInlineExpression]:
+    def make_inline_expressions_self_contained(cls, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
         """
         Make inline_expressions self contained, i.e. without any references to other inline_expressions.
 
@@ -770,8 +769,7 @@ class ASTTransformers:
 
     @classmethod
     def replace_inline_expressions_through_defining_expressions(cls, definitions: Sequence[ASTOdeEquation],
-                                                                inline_expressions: Sequence[ASTInlineExpression]) -> \
-    Sequence[ASTOdeEquation]:
+                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
         """
         Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from
         `inline_expressions`.
@@ -858,8 +856,7 @@ class ASTTransformers:
         neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
-    def generate_kernel_buffers_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> Mapping[
-        ASTKernel, ASTInputPort]:
+    def generate_kernel_buffers_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> Mapping[ASTKernel, ASTInputPort]:
         """
         For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel,
         spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.

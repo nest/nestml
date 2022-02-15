@@ -55,4 +55,3 @@ class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
         if self.has_delay:
             self.equations.append(node)
             self.has_delay = False
-
