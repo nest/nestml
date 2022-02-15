@@ -802,6 +802,8 @@ class NESTCodeGenerator(CodeGenerator):
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
         :return: spike_updates: list of spike updates, see documentation for get_spike_update_expressions() for more information.
+        :return: post_spike_updates: list of post-synaptic spike update expressions
+        :return: equations_with_delay_vars: list of equations containing delay variables
         """
         code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -823,7 +825,8 @@ class NESTCodeGenerator(CodeGenerator):
         ASTTransformers.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTTransformers.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
-        # expressions_with_delay_vars = ASTTransformers.replace_function_call_with_delay_variable(neuron)
+
+        # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
         equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
         neuron.accept(equations_with_delay_vars_visitor)
         equations_with_delay_vars = equations_with_delay_vars_visitor.equations
