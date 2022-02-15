@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_equations_with_delay_vars_visitor.py.py
+# ast_equations_with_delay_vars_visitor.py
 #
 # This file is part of NEST.
 #

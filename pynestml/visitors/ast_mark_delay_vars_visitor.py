@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_mark_delay_vars_visitor.py.py
+# ast_mark_delay_vars_visitor.py
 #
 # This file is part of NEST.
 #
