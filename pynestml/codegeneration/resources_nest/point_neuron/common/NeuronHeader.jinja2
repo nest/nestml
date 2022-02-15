@@ -48,7 +48,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- if norm_rng %}
 
 // Includes for random number generator
-#include "random_generators.h"
+#if NEST2_COMPAT
+#include "normal_randomdev.h"
+#include "uniform_randomdev.h"
+#else
+#include <random>
+#endif
 {%- endif %}
 {%- if useGSL %}
 
@@ -473,18 +478,18 @@ private:
   struct State_
   {
 {%- if not useGSL %}
-{%- if has_state_vectors %}
-{%  include "directives/StateVariablesEnum.jinja2" %}
-{%- endif %}
+{%-   if has_state_vectors %}
+{%      include "directives/StateVariablesEnum.jinja2" %}
+{%-   endif %}
 {%-   filter indent(4,True) %}
 {%-   for variable in neuron.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
-{%- if has_state_vectors %}
-{%- include "directives/VectorVariablesEnum.jinja2" %}
-{%- endif %}
+{%-   if has_state_vectors %}
+{%-     include "directives/VectorVariablesEnum.jinja2" %}
+{%-   endif %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
     {
@@ -690,7 +695,11 @@ private:
 {% endif %}
 {%- if norm_rng %}
 
+#if NEST2_COMPAT
+  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+#else
   nest::normal_distribution normal_dev_; //!< random deviate generator
+#endif
 {%- endif %}
 {%- if has_delay_variables %}
   void update_delay_variables();

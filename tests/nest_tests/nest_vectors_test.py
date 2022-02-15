@@ -24,32 +24,33 @@ import numpy as np
 
 import nest
 
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestVectorsIntegrationTest(unittest.TestCase):
-    """
+    r"""
     Tests the code generation and vector operations from NESTML to NEST.
     """
 
     def test_vectors(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml")))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
         neuron = nest.Create("vectors_nestml")
-        multimeter = nest.Create('multimeter')
+        multimeter = nest.Create("multimeter")
         recordables = list()
         recordables.extend(["G_IN_" + str(i + 1) for i in range(0, 20)])
         recordables.extend(["G_EX_" + str(i + 1) for i in range(0, 10)])

@@ -48,37 +48,28 @@ class NESTReferenceConverter(IReferenceConverter):
     This concrete reference converter is used to transfer internal names to counter-pieces in NEST.
     """
 
-    def __init__(self, uses_gsl=False):
-        """
-        Standard constructor.
-        :param uses_gsl: indicates whether GSL is used.
-        :type uses_gsl: bool
-        """
-        self.uses_gsl = uses_gsl
-        return
-
-    @classmethod
-    def convert_binary_op(cls, binary_operator):
+    def convert_binary_op(self, binary_operator) -> str:
         """
         Converts a single binary operator to nest processable format.
         :param binary_operator: a single binary operator string.
         :type binary_operator: AST_
         :return: the corresponding nest representation
-        :rtype: str
         """
         if isinstance(binary_operator, ASTArithmeticOperator):
-            return cls.convert_arithmetic_operator(binary_operator)
-        if isinstance(binary_operator, ASTBitOperator):
-            return cls.convert_bit_operator(binary_operator)
-        if isinstance(binary_operator, ASTComparisonOperator):
-            return cls.convert_comparison_operator(binary_operator)
-        if isinstance(binary_operator, ASTLogicalOperator):
-            return cls.convert_logical_operator(binary_operator)
-        else:
-            raise RuntimeError('Cannot determine binary operator!')
+            return self.convert_arithmetic_operator(binary_operator)
 
-    @classmethod
-    def convert_function_call(cls, function_call, prefix=''):
+        if isinstance(binary_operator, ASTBitOperator):
+            return self.convert_bit_operator(binary_operator)
+
+        if isinstance(binary_operator, ASTComparisonOperator):
+            return self.convert_comparison_operator(binary_operator)
+
+        if isinstance(binary_operator, ASTLogicalOperator):
+            return self.convert_logical_operator(binary_operator)
+
+        raise RuntimeError('Cannot determine binary operator!')
+
+    def convert_function_call(self, function_call, prefix='') -> str:
         """
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -184,13 +175,12 @@ e();
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
-    def convert_name_reference(self, variable: ASTVariable, prefix=''):
+    def convert_name_reference(self, variable: ASTVariable, prefix='') -> str:
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
         :type variable: ASTVariable
         :return: a nest processable format.
-        :rtype: str
         """
         from pynestml.codegeneration.nest_printer import NestPrinter
 
@@ -241,11 +231,8 @@ e();
                           "code generation "
 
         if symbol.is_state():
-            temp = NestPrinter.print_origin(symbol, prefix=prefix)
-            if self.uses_gsl:
-                temp += GSLNamesConverter.name(symbol)
-            else:
-                temp += NestNamesConverter.name(symbol)
+            temp = ""
+            temp += NestNamesConverter.getter(symbol) + "()"
             temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
@@ -286,20 +273,19 @@ e();
 
         return ''
 
-    def convert_print_statement(self, function_call):
+    def convert_print_statement(self, function_call) -> str:
         """
         A wrapper function to convert arguments of a print or println functions
         :param function_call: print function call
         :type function_call: ASTFunctionCall
         :return: the converted print string with corresponding variables, if any
-        :rtype: str
         """
         stmt = function_call.get_args()[0].get_string()
         stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
         scope = function_call.get_scope()
         return self.__convert_print_statement_str(stmt, scope)
 
-    def __convert_print_statement_str(self, stmt, scope):
+    def __convert_print_statement_str(self, stmt, scope) -> str:
         """
         Converts the string argument of the print or println function to NEST processable format
         Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
@@ -325,7 +311,6 @@ e();
         :param scope: scope of the variables in the argument, if any
         :type scope: Scope
         :return: the converted string to NEST
-        :rtype: str
         """
         pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
         match = pattern.search(stmt)
@@ -340,64 +325,56 @@ e();
         else:
             return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
 
-    @classmethod
-    def convert_constant(cls, constant_name):
+    def convert_constant(self, constant_name) -> str:
         """
         Converts a single handed over constant.
         :param constant_name: a constant as string.
         :type constant_name: str
         :return: the corresponding nest representation
-        :rtype: str
         """
         if constant_name == 'inf':
             return 'std::numeric_limits<double_t>::infinity()'
-        else:
-            return constant_name
 
-    @classmethod
-    def convert_unary_op(cls, unary_operator):
+        return constant_name
+
+    def convert_unary_op(self, unary_operator) -> str:
         """
         Depending on the concretely used operator, a string is returned.
         :param unary_operator: a single operator.
         :type unary_operator:  ASTUnaryOperator
         :return: the same operator
-        :rtype: str
         """
         if unary_operator.is_unary_plus:
             return '(' + '+' + '%s' + ')'
-        elif unary_operator.is_unary_minus:
-            return '(' + '-' + '%s' + ')'
-        elif unary_operator.is_unary_tilde:
-            return '(' + '~' + '%s' + ')'
-        else:
-            raise RuntimeError('Cannot determine unary operator!', LoggingLevel.ERROR)
 
-    @classmethod
-    def convert_encapsulated(cls):
+        if unary_operator.is_unary_minus:
+            return '(' + '-' + '%s' + ')'
+
+        if unary_operator.is_unary_tilde:
+            return '(' + '~' + '%s' + ')'
+
+        raise RuntimeError('Cannot determine unary operator!', LoggingLevel.ERROR)
+
+    def convert_encapsulated(self) -> str:
         """
         Converts the encapsulating parenthesis to NEST style.
         :return: a set of parenthesis
-        :rtype: str
         """
         return '(%s)'
 
-    @classmethod
-    def convert_logical_not(cls):
+    def convert_logical_not(self) -> str:
         """
         Returns a representation of the logical not in NEST.
         :return: a string representation
-        :rtype: str
         """
         return '(' + '!' + '%s' + ')'
 
-    @classmethod
-    def convert_logical_operator(cls, op):
+    def convert_logical_operator(self, op) -> str:
         """
         Prints a logical operator in NEST syntax.
         :param op: a logical operator object
         :type op: ASTLogicalOperator
         :return: a string representation
-        :rtype: str
         """
         if op.is_logical_and:
             return '%s' + '&&' + '%s'
@@ -406,80 +383,87 @@ e();
         else:
             raise RuntimeError('Cannot determine logical operator!', LoggingLevel.ERROR)
 
-    @classmethod
-    def convert_comparison_operator(cls, op):
+    def convert_comparison_operator(self, op) -> str:
         """
         Prints a logical operator in NEST syntax.
         :param op: a logical operator object
         :type op: ASTComparisonOperator
         :return: a string representation
-        :rtype: str
         """
         if op.is_lt:
             return '%s' + '<' + '%s'
-        elif op.is_le:
-            return '%s' + '<=' + '%s'
-        elif op.is_eq:
-            return '%s' + '==' + '%s'
-        elif op.is_ne or op.is_ne2:
-            return '%s' + '!=' + '%s'
-        elif op.is_ge:
-            return '%s' + '>=' + '%s'
-        elif op.is_gt:
-            return '%s' + '>' + '%s'
-        else:
-            raise RuntimeError('Cannot determine comparison operator!')
 
-    @classmethod
-    def convert_bit_operator(cls, op):
+        if op.is_le:
+            return '%s' + '<=' + '%s'
+
+        if op.is_eq:
+            return '%s' + '==' + '%s'
+
+        if op.is_ne or op.is_ne2:
+            return '%s' + '!=' + '%s'
+
+        if op.is_ge:
+            return '%s' + '>=' + '%s'
+
+        if op.is_gt:
+            return '%s' + '>' + '%s'
+
+        raise RuntimeError('Cannot determine comparison operator!')
+
+    def convert_bit_operator(self, op) -> str:
         """
         Prints a logical operator in NEST syntax.
         :param op: a logical operator object
         :type op: ASTBitOperator
         :return: a string representation
-        :rtype: str
         """
         if op.is_bit_shift_left:
             return '%s' + '<<' '%s'
+
         if op.is_bit_shift_right:
             return '%s' + '>>' + '%s'
+
         if op.is_bit_and:
             return '%s' + '&' + '%s'
+
         if op.is_bit_or:
             return '%s' + '|' + '%s'
+
         if op.is_bit_xor:
             return '%s' + '^' + '%s'
-        else:
-            raise RuntimeError('Cannot determine bit operator!')
 
-    @classmethod
-    def convert_arithmetic_operator(cls, op):
+        raise RuntimeError('Cannot determine bit operator!')
+
+    def convert_arithmetic_operator(self, op) -> str:
         """
         Prints a logical operator in NEST syntax.
         :param op: a logical operator object
         :type op: ASTArithmeticOperator
         :return: a string representation
-        :rtype: str
         """
         if op.is_plus_op:
             return '%s' + ' + ' + '%s'
+
         if op.is_minus_op:
             return '%s' + ' - ' + '%s'
+
         if op.is_times_op:
             return '%s' + ' * ' + '%s'
+
         if op.is_div_op:
             return '%s' + ' / ' + '%s'
+
         if op.is_modulo_op:
             return '%s' + ' %% ' + '%s'
+
         if op.is_pow_op:
             return 'pow' + '(%s, %s)'
+
         raise RuntimeError('Cannot determine arithmetic operator!')
 
-    @classmethod
-    def convert_ternary_operator(cls):
+    def convert_ternary_operator(self) -> str:
         """
         Prints a ternary operator in NEST syntax.
         :return: a string representation
-        :rtype: str
         """
         return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
