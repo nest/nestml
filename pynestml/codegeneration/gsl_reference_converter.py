@@ -18,9 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.nest_names_converter import NestNamesConverter
+
+from pynestml.codegeneration.base_reference_converter import BaseReferenceConverter
+from pynestml.codegeneration.reference_converter import ReferenceConverter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -35,7 +35,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class GSLReferenceConverter(IReferenceConverter):
+class GSLReferenceConverter(BaseReferenceConverter):
     """
     This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
     """
@@ -73,7 +73,7 @@ class GSLReferenceConverter(IReferenceConverter):
             return ''
 
         if symbol.is_state():
-            return GSLNamesConverter.name(symbol)
+            return self.name(symbol)
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -83,14 +83,14 @@ class GSLReferenceConverter(IReferenceConverter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += prefix + 'B_.' + NestNamesConverter.buffer_value(symbol)
+            s += prefix + 'B_.' + self.buffer_value(symbol)
             if symbol.has_vector_parameter():
                 s += '[i]'
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
-        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_name())
+        variable_name = self.convert_to_cpp_name(variable.get_name())
 
         if symbol.is_local() or symbol.is_inline_expression:
             return variable_name
@@ -255,3 +255,56 @@ e();'''
 
     def convert_arithmetic_operator(self, op):
         return NESTReferenceConverter().convert_arithmetic_operator(op)
+
+    def array_index(self, symbol):
+        """
+        Transforms the haded over symbol to a GSL processable format.
+        :param symbol: a single variable symbol
+        :type symbol: VariableSymbol
+        :return: the corresponding string format
+        :rtype: str
+        """
+        return 'State_::' + self.convert_to_cpp_name(symbol.get_symbol_name())
+
+    def name(self, symbol):
+        """
+        Transforms the given symbol to a format that can be processed by GSL.
+        :param symbol: a single variable symbol
+        :type symbol: VariableSymbol
+        :return: the corresponding string format
+        :rtype: str
+        """
+        if symbol.is_state() and not symbol.is_inline_expression:
+            return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
+        else:
+            return self.name(symbol)
+
+    def getter(self, variable_symbol):
+        """
+        Converts for a handed over symbol the corresponding name of the getter to a gsl processable format.
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
+        :return: the corresponding representation as a string
+        :rtype: str
+        """
+        return self.getter(variable_symbol)
+
+    def setter(self, variable_symbol):
+        """
+        Converts for a handed over symbol the corresponding name of the setter to a gsl processable format.
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
+        :return: the corresponding representation as a string
+        :rtype: str
+        """
+        return self.setter(variable_symbol)
+
+    def buffer_value(self, variable_symbol):
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a gsl processable format.
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
+        :return: the corresponding representation as a string
+        :rtype: str
+        """
+        return self.buffer_value(variable_symbol)

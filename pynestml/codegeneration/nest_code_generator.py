@@ -18,58 +18,54 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import glob
-from re import S
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
+
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 import datetime
+import glob
 import os
+
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
-from odetoolbox import analysis
+import odetoolbox
 
 import pynestml
 from pynestml.codegeneration.ast_transformers import ASTTransformers
 from pynestml.codegeneration.code_generator import CodeGenerator
-from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
-from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
+from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
-from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
-from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
-
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.variable_symbol import BlockType
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 def find_spiking_post_port(synapse, namespace):
@@ -121,17 +117,21 @@ class NESTCodeGenerator(CodeGenerator):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
-        self._printer = ExpressionsPrettyPrinter()
         self.analytic_solver = {}
         self.numeric_solver = {}
         self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
+
         self.setup_template_env()
 
-        self.gsl_reference_converter = GSLReferenceConverter()
-        self.gsl_printer = UnitlessExpressionPrinter(self.gsl_reference_converter)
-
-        self.nest_reference_converter = NESTReferenceConverter()
-        self.unitless_printer = UnitlessExpressionPrinter(self.nest_reference_converter)
+        self._gsl_reference_converter = GSLReferenceConverter()
+        self._nest_reference_converter = NESTReferenceConverter()
+        self._types_printer = CppTypesPrinter()
+        self._gsl_printer = UnitlessExpressionPrinter(self._gsl_reference_converter, self._types_printer)
+        self._printer = ExpressionsPrinter(self._nest_reference_converter, self._types_printer)
+        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter, self._types_printer)
+        self._unitless_nest_printer = NestPrinter(self._nest_reference_converter, self._types_printer, expressions_printer=self._printer)
+        self._unitless_nest_gsl_printer = NestPrinter(self._unitless_expression_printer, self._types_printer, expressions_printer=self._unitless_expression_printer)
+        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter(), self._types_printer)
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -962,14 +962,14 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["synapse"] = synapse
         namespace["astnode"] = synapse
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
-        namespace["printer"] = NestPrinter(self.unitless_printer)
+        namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["assignments"] = NestAssignmentsHelper()
-        namespace["names"] = NestNamesConverter()
+        namespace["names"] = self._nest_reference_converter
         namespace["declarations"] = NestDeclarationsHelper()
         namespace["utils"] = ASTUtils
-        namespace["idemPrinter"] = UnitlessExpressionPrinter()
+        namespace["idemPrinter"] = self._printer
         namespace["odeTransformer"] = OdeTransformer()
-        namespace["printerGSL"] = self.gsl_printer
+        namespace["printerGSL"] = self._gsl_printer
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
         namespace["has_state_vectors"] = False
@@ -1035,9 +1035,8 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
-            namespace["useGSL"] = namespace["uses_numeric_solver"]
-            namespace["names"] = GSLNamesConverter()
-            namespace["printer"] = NestPrinter(self.unitless_printer)
+            namespace["names"] = self._gsl_reference_converter
+            namespace["printer"] = self._unitless_nest_gsl_printer
 
         namespace["spike_updates"] = synapse.spike_updates
 
@@ -1081,18 +1080,18 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["neuron"] = neuron
         namespace["astnode"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
-        namespace["printer"] = NestPrinter(self.unitless_printer)
-        namespace["nest_printer"] = NestPrinter(self.unitless_printer, names_converter=NestNamesConverter)
+        namespace["printer"] = self._unitless_nest_gsl_printer
+        namespace["nest_printer"] = self._unitless_nest_printer
         namespace["assignments"] = NestAssignmentsHelper()
-        namespace["names"] = NestNamesConverter()
+        namespace["names"] = self._nest_reference_converter
         namespace["declarations"] = NestDeclarationsHelper()
         namespace["utils"] = ASTUtils
-        namespace["idemPrinter"] = UnitlessExpressionPrinter()
+        namespace["idemPrinter"] = self._printer
         namespace["outputEvent"] = namespace["printer"].print_output_event(neuron.get_body())
         namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
         namespace["odeTransformer"] = OdeTransformer()
-        namespace["printerGSL"] = self.gsl_printer
+        namespace["printerGSL"] = self._gsl_printer
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
         namespace["has_state_vectors"] = neuron.has_state_vectors()
@@ -1153,7 +1152,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["uses_numeric_solver"] = neuron.get_name() in self.numeric_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
         if namespace["uses_numeric_solver"]:
-
             namespace["numeric_state_variables_moved"] = []
             if "paired_synapse" in dir(neuron):
                 namespace["numeric_state_variables"] = []
@@ -1194,9 +1192,8 @@ class NESTCodeGenerator(CodeGenerator):
                 else:
                     namespace["purely_numeric_state_variables_moved"] = namespace["numeric_state_variables_moved"]
 
-            namespace["useGSL"] = namespace["uses_numeric_solver"]
-            namespace["names"] = GSLNamesConverter()
-            namespace["printer"] = NestPrinter(self.unitless_printer)
+            namespace["names"] = self._gsl_reference_converter
+            namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()
@@ -1213,6 +1210,7 @@ class NESTCodeGenerator(CodeGenerator):
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
         namespace["norm_rng"] = rng_visitor._norm_rng_is_used
+
         return namespace
 
     def ode_toolbox_analysis(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
@@ -1231,30 +1229,30 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
         parameters_block = neuron.get_parameter_blocks()
-        odetoolbox_indict = ASTTransformers.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers)
+        odetoolbox_indict = ASTTransformers.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers, printer=self._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        solver_result = analysis(odetoolbox_indict,
-                                 disable_stiffness_check=True,
-                                 preserve_expressions=self.get_option("preserve_expressions"),
-                                 simplify_expression=self.get_option("simplify_expression"),
-                                 log_level=FrontendConfiguration.logging_level)
+        solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                            disable_stiffness_check=True,
+                                            preserve_expressions=self.get_option("preserve_expressions"),
+                                            simplify_expression=self.get_option("simplify_expression"),
+                                            log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
         if len(analytic_solvers) > 0:
             analytic_solver = analytic_solvers[0]
 
-        # if numeric solver is required, generate a stepping function that includes each state variable
+        # if numeric solver is required, generate a stepping function that includes each state variable, including the analytic ones
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
-            solver_result = analysis(odetoolbox_indict,
-                                     disable_stiffness_check=True,
-                                     disable_analytic_solver=True,
-                                     preserve_expressions=self.get_option("preserve_expressions"),
-                                     simplify_expression=self.get_option("simplify_expression"),
-                                     log_level=FrontendConfiguration.logging_level)
+            solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                disable_stiffness_check=True,
+                                                disable_analytic_solver=True,
+                                                preserve_expressions=self.get_option("preserve_expressions"),
+                                                simplify_expression=self.get_option("simplify_expression"),
+                                                log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:

@@ -21,9 +21,8 @@
 
 import re
 
-from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.nest_names_converter import NestNamesConverter
+from pynestml.codegeneration.base_reference_converter import BaseReferenceConverter
+from pynestml.codegeneration.reference_converter import ReferenceConverter
 from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -38,13 +37,15 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variable_symbol import BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class NESTReferenceConverter(IReferenceConverter):
-    """
+class NESTReferenceConverter(BaseReferenceConverter):
+    r"""
     This concrete reference converter is used to transfer internal names to counter-pieces in NEST.
     """
 
@@ -182,8 +183,6 @@ e();
         :type variable: ASTVariable
         :return: a nest processable format.
         """
-        from pynestml.codegeneration.nest_printer import NestPrinter
-
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
@@ -216,7 +215,7 @@ e();
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += NestPrinter.print_origin(symbol, prefix=prefix) + NestNamesConverter.buffer_value(symbol)
+            s += self.print_origin(symbol, prefix=prefix) + self.buffer_value(symbol)
             if symbol.has_vector_parameter():
                 s += '[' + variable.get_vector_parameter() + ']'
             if not units_conversion_factor == 1:
@@ -231,19 +230,19 @@ e();
 
         if symbol.is_state():
             temp = ""
-            temp += NestNamesConverter.getter(symbol) + "()"
+            temp += self.getter(symbol) + "()"
             temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
-        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
+        variable_name = self.convert_to_cpp_name(variable.get_complete_name())
         if symbol.is_local():
             return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_inline_expression:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
-        return NestPrinter.print_origin(symbol, prefix=prefix) + \
-            NestNamesConverter.name(symbol) + \
+        return self.print_origin(symbol, prefix=prefix) + \
+            self.name(symbol) + \
             ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
 
     def __get_unit_name(self, variable):
@@ -252,7 +251,7 @@ e();
                 variable)
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
-        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
+        variable_name = self.convert_to_cpp_name(variable.get_complete_name())
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
             return symbol.get_type_symbol().unit.unit.to_string()
@@ -453,3 +452,41 @@ e();
         :return: a string representation
         """
         return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
+
+    def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
+        """
+        Returns a prefix corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding prefix
+        """
+        assert isinstance(variable_symbol, VariableSymbol), \
+            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
+                variable_symbol)
+
+        if variable_symbol.block_type == BlockType.STATE:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.EQUATION:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.PARAMETERS:
+            return prefix + 'P_.'
+
+        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
+            return prefix + 'cp.'
+
+        if variable_symbol.block_type == BlockType.INTERNALS:
+            return prefix + 'V_.'
+
+        if variable_symbol.block_type == BlockType.INPUT:
+            return prefix + 'B_.'
+
+        return ''
+
+    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        return variable_symbol.get_symbol_name() + '_grid_sum_'

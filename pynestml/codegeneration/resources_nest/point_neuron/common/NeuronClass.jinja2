@@ -163,7 +163,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if neuron.get_multiple_receptors()|length > 1 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   , __s( 0 ), __c( 0 ), __e( 0 )
 {%- endif %}
 {
@@ -175,7 +175,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if neuron.get_multiple_receptors()|length > 1 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   , __s( 0 ), __c( 0 ), __e( 0 )
 {%- endif %}
 {
@@ -191,7 +191,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   calibrate();
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
@@ -294,7 +294,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {{neuronName}}::~{{neuronName}}()
 {
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   // GSL structs may not have been allocated, so we need to protect destruction
 
   if (B_.__s)
@@ -336,7 +336,7 @@ void {{neuronName}}::init_buffers_()
 {%- if paired_neuron is defined %}
   clear_history();
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
   if ( B_.__s == 0 )
   {
@@ -431,7 +431,7 @@ void {{neuronName}}::calibrate() {
 //   Update and spike handling functions
 // ---------------------------------------------------------------------------
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
 {%- include "directives/GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
@@ -671,7 +671,7 @@ void
 {%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
 {%- endwith %}
 
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 // update only synapse->neuron moved variables; back-up and restore the rest
 double ode_state_bak[State_::STATE_VEC_SIZE];
 
@@ -709,7 +709,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
         **/
 
 {%- for stmt in spike_update_stmts %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
         {{printer.print_node(stmt)}};
 {%- else %}
         {{nest_printer.print_node(stmt)}};

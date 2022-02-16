@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# expressions_pretty_printer.py
+# expressions_printer.py
 #
 # This file is part of NEST.
 #
@@ -28,27 +28,16 @@ from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.codegeneration.printer import Printer
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class ExpressionsPrettyPrinter:
-    """
-    Converts expressions to the executable platform dependent code. By using different
-    referenceConverters for the handling of variables, names, and functions can be adapted. For this,
-    implement own IReferenceConverter specialisation.
-    This class is used to transform only parts of the procedural language and not nestml in whole.
-    """
+class ExpressionsPrinter(Printer):
+    r"""
+    Converts expressions to the executable platform dependent code.
 
-    def __init__(self, reference_converter=None, types_printer=None):
-        if reference_converter is not None:
-            self.reference_converter = reference_converter
-        else:
-            self.reference_converter = NestMLReferenceConverter()
-
-        if types_printer is not None:
-            self.types_printer = types_printer
-        else:
-            self.types_printer = CppTypesPrinter()
+    This class is used to transform only parts of the grammar and not NESTML as a whole.
+    """
 
     def print_expression(self, node, prefix=''):
         """Print an expression.
@@ -122,31 +111,31 @@ class ExpressionsPrettyPrinter:
         else:
             raise RuntimeError('Unsupported rhs in rhs pretty printer (%s)!' % str(node))
 
-    def print_function_call(self, function_call, prefix=''):
+    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """Print a function call, including bracketed arguments list.
 
         Parameters
         ----------
-        node : ASTFunctionCall
+        node
             The function call node to print.
-        prefix : str
+        prefix
             Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
 
             Predefined functions will not be prefixed.
 
         Returns
         -------
-        s : str
+        s
             The function call string.
         """
         function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self.reference_converter.convert_print_statement(function_call))
-            else:
-                return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
-        else:
-            return function_name
+
+            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+
+        return function_name
 
     def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str='') -> Tuple[str, ...]:
         ret = []

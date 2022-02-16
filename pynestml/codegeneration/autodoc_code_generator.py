@@ -28,11 +28,11 @@ from jinja2 import Environment, FileSystemLoader
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.latex_expression_printer import LatexExpressionPrinter
+from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
-from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
-from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
+from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -50,7 +50,9 @@ class AutoDocCodeGenerator(CodeGenerator):
         self._template_neuron_nestml_model = env.get_template('nestml_neuron_model.jinja2')
         self._template_synapse_nestml_model = env.get_template('nestml_synapse_model.jinja2')
 
-        self._printer = LatexExpressionPrinter()
+        converter = LatexReferenceConverter()
+        types_printer = LatexTypesPrinter()
+        self._printer = LatexExpressionPrinter(converter, types_printer)
 
     def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
         """
@@ -98,17 +100,14 @@ class AutoDocCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        converter = LatexReferenceConverter()
-        latex_expression_printer = LatexExpressionPrinter(converter)
-
         namespace = dict()
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neuron'] = neuron
         namespace['neuronName'] = str(neuron.get_name())
-        namespace['printer'] = NestPrinter(latex_expression_printer)
+        namespace['printer'] = NestPrinter(self._printer)
         namespace['assignments'] = NestAssignmentsHelper()
-        namespace['names'] = NestNamesConverter()
+        namespace['names'] = NESTReferenceConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
         namespace['odeTransformer'] = OdeTransformer()
@@ -129,9 +128,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        converter = LatexReferenceConverter()
-        latex_expression_printer = LatexExpressionPrinter(converter)
-
         namespace = dict()
 
         namespace['now'] = datetime.datetime.utcnow()
@@ -139,7 +135,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['synapseName'] = str(synapse.get_name())
         namespace['printer'] = NestPrinter(latex_expression_printer)
         namespace['assignments'] = NestAssignmentsHelper()
-        namespace['names'] = NestNamesConverter()
+        namespace['names'] = NESTReferenceConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
         namespace['odeTransformer'] = OdeTransformer()
@@ -161,7 +157,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         converter = LatexReferenceConverter()
-        latex_expression_printer = LatexExpressionPrinter(converter)
+        types_printer = LatexTypesPrinter()
+        latex_expression_printer = LatexExpressionPrinter(converter, types_printer)
 
         namespace = dict()
 
@@ -172,7 +169,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['synapseNames'] = [str(neuron.get_name()) for neuron in neurons]
         namespace['printer'] = NestPrinter(latex_expression_printer)
         namespace['assignments'] = NestAssignmentsHelper()
-        namespace['names'] = NestNamesConverter()
+        namespace['names'] = NESTReferenceConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
         namespace['odeTransformer'] = OdeTransformer()

@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
@@ -28,7 +29,7 @@ class NEST2GSLReferenceConverter(GSLReferenceConverter):
     This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
     """
 
-    def convert_function_call(self, function_call, prefix=''):
+    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = ''):
         r"""Convert a single function call to C++ GSL API syntax.
 
         Parameters

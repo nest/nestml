@@ -21,7 +21,7 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
+from pynestml.codegeneration.reference_converter import ReferenceConverter
 from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -33,20 +33,10 @@ from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
 from pynestml.codegeneration.types_printer import TypesPrinter
 
 
-class LatexExpressionPrinter:
+class LatexExpressionPrinter(Printer):
     """
     Pretty printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.
     """
-
-    def __init__(self, reference_converter: IReferenceConverter = None, types_printer: TypesPrinter = None):
-        if reference_converter is not None:
-            self.reference_converter = reference_converter
-        else:
-            self.reference_converter = LatexReferenceConverter()
-        if types_printer is not None:
-            self.types_printer = types_printer
-        else:
-            self.types_printer = LatexTypesPrinter()
 
     def print_expression(self, node: ASTExpressionNode, prefix='') -> str:
         return self.__do_print(node, prefix=prefix)

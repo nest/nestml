@@ -18,11 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
-from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
+from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -30,6 +30,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
@@ -39,7 +40,7 @@ PredefinedTypes.register_types()
 PredefinedVariables.register_variables()
 PredefinedFunctions.register_functions()
 Logger.init_logger(LoggingLevel.INFO)
-printer = NestPrinter(ExpressionsPrettyPrinter(), NESTReferenceConverter())
+printer = NestPrinter(NESTReferenceConverter(), CppTypesPrinter(), ExpressionsPrinter())
 
 
 def get_first_statement_in_update_block(model):
@@ -64,7 +65,7 @@ def print_rhs_of_first_assignment_in_update_block(model):
 
 def print_first_function_call_in_update_block(model):
     function_call = get_first_statement_in_update_block(model).small_stmt.get_function_call()
-    return printer.print_method_call(function_call)
+    return printer.print_function_call(function_call)
 
 
 def print_rhs_of_first_declaration_in_state_block(model):

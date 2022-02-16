@@ -254,7 +254,7 @@ private:
   *         assignment operator to copy those members.
   */
   struct State_{
-{%- if not useGSL %}
+{%- if not uses_numeric_solver %}
 {%-   filter indent(4,True) %}
 {%-   for variable in synapse.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
@@ -366,7 +366,7 @@ private:
 {%- endfor %}
 {%- endfilter %}
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
     double __gsl_error_tol;
 {% endif %}
 
@@ -1094,7 +1094,7 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespa
     throw nest::BadProperty("The constraint '{{idemPrinter.print_expression(invariant)}}' is violated!");
   }
 {%- endfor %}
-{% if useGSL %}
+{% if uses_numeric_solver %}
 
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. ){
