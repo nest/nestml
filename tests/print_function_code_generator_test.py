@@ -21,7 +21,7 @@
 import os
 import unittest
 
-from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.utils.model_parser import ModelParser
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.utils.logger import Logger, LoggingLevel

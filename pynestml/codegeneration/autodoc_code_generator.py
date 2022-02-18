@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# autodoc_codegenerator.py
+# autodoc_code_generator.py
 #
 # This file is part of NEST.
 #
@@ -26,7 +26,7 @@ import os
 
 from jinja2 import Environment, FileSystemLoader
 
-from pynestml.codegeneration.codegenerator import CodeGenerator
+from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.latex_expression_printer import LatexExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper

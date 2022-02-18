@@ -25,7 +25,8 @@ import numpy as np
 import os
 import unittest
 import re
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -45,43 +46,40 @@ def get_model_doc_title(model_fname: str):
 class NestIntegrationTest(unittest.TestCase):
 
     def generate_all_models(self):
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
-        to_nest(input_path=["models"],
-                target_path="/tmp/nestml-allmodels",
-                logging_level="INFO",
-                module_name="nestml_allmodels_module",
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                        "synapse": "neuromodulated_stdp",
-                                                        "post_ports": ["post_spikes"],
-                                                        "vt_ports": ["mod_spikes"]},
-                                                       {"neuron": "iaf_psc_exp",
-                                                        "synapse": "stdp",
-                                                        "post_ports": ["post_spikes"]},
-                                                       {"neuron": "iaf_psc_delta",
-                                                        "synapse": "stdp_triplet",
-                                                        "post_ports": ["post_spikes"]},
-                                                       {"neuron": "iaf_psc_delta",
-                                                        "synapse": "stdp_triplet_nn",
-                                                        "post_ports": ["post_spikes"]},
-                                                       {"neuron": "iaf_psc_exp",
-                                                        "synapse": "stdp_nn_symm",
-                                                        "post_ports": ["post_spikes"]},
-                                                       {"neuron": "iaf_psc_exp",
-                                                        "synapse": "stdp_nn_restr_symm",
-                                                        "post_ports": ["post_spikes"]},
-                                                       {"neuron": "iaf_psc_exp_dend",
-                                                        "synapse": "third_factor_stdp",
-                                                        "post_ports": ["post_spikes",
-                                                                       ["I_post_dend", "I_dend"]]},
-                                                       {"neuron": "iaf_psc_exp",
-                                                        "synapse": "stdp_nn_pre_centered",
-                                                        "post_ports": ["post_spikes"]}]})
-
-        install_nest("/tmp/nestml-allmodels", nest_path)
+        generate_nest_target(input_path=["models"],
+                             target_path="/tmp/nestml-allmodels",
+                             logging_level="INFO",
+                             module_name="nestml_allmodels_module",
+                             suffix="_nestml",
+                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                                           "neuron_parent_class_include": "structural_plasticity_node.h",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                                     "synapse": "neuromodulated_stdp",
+                                                                     "post_ports": ["post_spikes"],
+                                                                     "vt_ports": ["mod_spikes"]},
+                                                                    {"neuron": "iaf_psc_exp",
+                                                                     "synapse": "stdp",
+                                                                     "post_ports": ["post_spikes"]},
+                                                                    {"neuron": "iaf_psc_delta",
+                                                                     "synapse": "stdp_triplet",
+                                                                     "post_ports": ["post_spikes"]},
+                                                                    {"neuron": "iaf_psc_delta",
+                                                                     "synapse": "stdp_triplet_nn",
+                                                                     "post_ports": ["post_spikes"]},
+                                                                    {"neuron": "iaf_psc_exp",
+                                                                     "synapse": "stdp_nn_symm",
+                                                                     "post_ports": ["post_spikes"]},
+                                                                    {"neuron": "iaf_psc_exp",
+                                                                     "synapse": "stdp_nn_restr_symm",
+                                                                     "post_ports": ["post_spikes"]},
+                                                                    {"neuron": "iaf_psc_exp_dend",
+                                                                     "synapse": "third_factor_stdp",
+                                                                     "post_ports": ["post_spikes",
+                                                                                    ["I_post_dend", "I_dend"]]},
+                                                                    {"neuron": "iaf_psc_exp",
+                                                                     "synapse": "stdp_nn_pre_centered",
+                                                                     "post_ports": ["post_spikes"]}]})
 
     def test_nest_integration(self):
         # N.B. all models are assumed to have been already built (see .travis.yml)

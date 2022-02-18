@@ -22,7 +22,8 @@
 import nest
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -37,15 +38,16 @@ class NestMultiSynapseTest(unittest.TestCase):
     def test_multisynapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
@@ -64,11 +66,11 @@ class NestMultiSynapseTest(unittest.TestCase):
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": 3, "weight": 500., "delay": 0.1})
 
-        mm = nest.Create('multimeter', params={'record_from': [
-                         'I_kernel1__X__spikes1', 'I_kernel2__X__spikes2', 'I_kernel3__X__spikes3'], 'interval': 0.1})
+        mm = nest.Create("multimeter", params={"record_from": [
+                         "I_kernel1__X__spikes1", "I_kernel2__X__spikes2", "I_kernel3__X__spikes3"], "interval": 0.1})
         nest.Connect(mm, neuron)
 
-        vm_1 = nest.Create('voltmeter')
+        vm_1 = nest.Create("voltmeter")
         nest.Connect(vm_1, neuron)
 
         # simulate

@@ -1,5 +1,5 @@
-Writing neuron models
----------------------
+Creating neuron models
+----------------------
 
 * :doc:`Izhikevich tutorial </tutorials/izhikevich/nestml_izhikevich_tutorial>`
 
@@ -14,8 +14,8 @@ Writing neuron models
   Implement the Ornstein-Uhlenbeck process in NESTML and use it to inject a noise current into a neuron.
 
 
-Writing synapse models
-----------------------
+Creating synapse models
+-----------------------
 
 * :doc:`STDP windows </tutorials/stdp_windows/stdp_windows>`
 

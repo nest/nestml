@@ -53,6 +53,8 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('--store_log')
         params.append('--dev')
+        params.append('--codegen_opts')
+        params.append('tests/nest_tests/resources/nest_codegen_opts.json')
 
         exit_code = None
         with patch.object(sys, 'argv', params):
@@ -66,7 +68,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('nestml')
         params.append('--input_path')
         params.append(path)
-        params.append('--target')
+        params.append('--target_platform')
         params.append('autodoc')
         params.append('--logging_level')
         params.append('INFO')
