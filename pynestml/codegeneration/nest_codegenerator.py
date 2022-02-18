@@ -1251,11 +1251,14 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = ASTTransformers.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+
+        print(f"------------------{neuron.get_name()}:Start--------------------------")
         solver_result = analysis(odetoolbox_indict,
                                  disable_stiffness_check=True,
                                  preserve_expressions=self.get_option('preserve_expressions'),
                                  simplify_expression=self.get_option('simplify_expression'),
                                  log_level=FrontendConfiguration.logging_level)
+        print(f"------------------{neuron.get_name()}:End--------------------------")
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"

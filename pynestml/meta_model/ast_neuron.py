@@ -85,7 +85,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
 
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         symtable_vistor = ASTSymbolTableVisitor()
-        symtable_vistor = ASTSymbolTableVisitor()
         dup.accept(symtable_vistor)
         return dup
 
