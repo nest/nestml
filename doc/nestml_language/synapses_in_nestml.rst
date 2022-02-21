@@ -31,16 +31,39 @@ The top-level element of the model is ``synapse``, followed by a name. All other
      # [...]
    end
 
-Input and output ports
-----------------------
 
-Depending on whether the plasticity rule depends only on pre-, or on both pre- and postsynaptic activity, one or two input ports are defined. Synapses always have only one (spiking) output port. The port is marked by the input port qualifier keyword ``pre``, indicating that it receives spikes from a presynaptic partner.
+Input ports
+-----------
+
+A synapse has at least one spiking input port, which is intended to receive spikes from the presynaptic neuron:
 
 .. code-block:: nestml
 
    input:
      pre_spikes nS <- pre spike
    end
+
+Depending on the plasticity rule and synapse model dynamics, additional input ports can be defined, for example, receiving spikes from the postsynaptic neuron (see :doc:`Postsynaptic spike event handler`), or neuromodulatory spikes representing dopamine release. There are three corresponding types of input port qualifiers that can be used to specify the intended connectivity of the port:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 60
+
+   * - Keyword
+     - Port is connected to
+   * - ``pre``
+     - presynaptic neuron
+   * - ``post``
+     - postsynaptic neuron
+   * - ``mod`` (modulatory)
+     - postsynaptic neuron, or other spike source ("volume transmitter" in NEST)
+
+Output port
+-----------
+
+Only the ``spike`` type output port is supported for a synapse. A spike can be emitted from this port by calling the ``deliver_spike()`` function (see :doc:`Presynaptic spike event handler`).
+
+.. code-block:: nestml
 
    output: spike
 
