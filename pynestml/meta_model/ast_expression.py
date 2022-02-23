@@ -65,7 +65,7 @@ class ASTExpression(ASTExpressionNode):
     """
 
     def __init__(self, is_encapsulated: bool = False, unary_operator: ASTUnaryOperator = None,
-                 is_logical_not:bool = False, expression: ASTExpression = None, lhs: ASTExpression = None,
+                 is_logical_not: bool = False, expression: ASTExpression = None, lhs: ASTExpression = None,
                  binary_operator: Union[ASTLogicalOperator, ASTComparisonOperator, ASTBitOperator,
                                         ASTArithmeticOperator] = None,
                  rhs: ASTExpression = None, condition: ASTExpression = None, if_true: ASTExpression = None,
@@ -394,7 +394,7 @@ class ASTExpression(ASTExpressionNode):
             return False
         if self.is_ternary_operator() and other.is_ternary_operator() and \
                 not (self.get_condition().equals(other.get_condition())
-                     and self.get_if_true().equals(other.get_if_true()) and self.get_if_not().equals(
-                            other.get_if_not())):
+                     and self.get_if_true().equals(other.get_if_true())
+                     and self.get_if_not().equals(other.get_if_not())):
             return False
         return True
