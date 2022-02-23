@@ -247,18 +247,19 @@ e();
             NestNamesConverter.name(symbol) + \
             ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
 
-    def convert_delay_variable(self, variable: ASTVariable):
+    def convert_delay_variable(self, variable: ASTVariable, prefix=''):
         """
-        Converts a delay variable to NEST processible format
+        Converts a delay variable to NEST processable format
         :param variable:
         :return:
         """
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol:
             if symbol.is_state() and symbol.has_delay_parameter():
-                return "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + \
-                       NestNamesConverter.name(symbol) + "_idx ]"
-        return None
+                # return "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + \
+                #        NestNamesConverter.name(symbol) + "_idx ]"
+                return "get_delayed_" + variable.get_name() + "()"
+        return ''
 
     def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \

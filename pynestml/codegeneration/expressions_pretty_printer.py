@@ -88,7 +88,7 @@ class ExpressionsPrettyPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_delay_variable():
-                return self.reference_converter.convert_delay_variable(node.get_variable())
+                return self.reference_converter.convert_delay_variable(node.get_variable(), prefix=prefix)
             elif node.is_variable():
                 return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():

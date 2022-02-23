@@ -2,7 +2,6 @@
   Generates C++ statements that update the delay variables
   @param variable VariableSymbol
 #}
-    delayed_{{names.name(variable)}} [delayed_{{names.name(variable)}}_idx] = {{printer.print_origin(variable)}}{{names
+    delayed_{{variable.get_symbol_name()}} [delayed_{{variable.get_symbol_name()}}_idx] = {{printer.print_origin(variable)}}{{names
     .name(variable)}};
-    delayed_{{names.name(variable)}}_idx = (delayed_{{names.name(variable)}}_idx + 1) % delay_{{names.name(variable)
-    }}_steps;
+    delayed_{{variable.get_symbol_name()}}_idx = (delayed_{{variable.get_symbol_name()}}_idx + 1) % delay_{{variable.get_symbol_name()}}_steps;

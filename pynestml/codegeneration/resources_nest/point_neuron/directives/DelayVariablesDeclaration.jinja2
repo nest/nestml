@@ -3,7 +3,7 @@
   @param variable VariableSymbol
   @result C++ declaration
 #}
-  double delay_{{names.name(variable)}};
-  size_t delay_{{names.name(variable)}}_steps;
-  std::vector< double > delayed_{{names.name(variable)}};
-  size_t delayed_{{names.name(variable)}}_idx;
+  double delay_{{variable.get_symbol_name()}};
+  size_t delay_{{variable.get_symbol_name()}}_steps;
+  std::vector< double > delayed_{{variable.get_symbol_name()}};
+  size_t delayed_{{variable.get_symbol_name()}}_idx;

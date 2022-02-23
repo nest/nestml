@@ -703,11 +703,16 @@ private:
 {%- endif %}
 {%- if has_delay_variables %}
   void update_delay_variables();
+
+  // Getters for the delayed variables
+  // These are obtained from the vector helper variables defined
+  // for the state variable that is used with a delay parameter
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+  double get_delayed_{{variable.get_symbol_name()}}() const;
+{%-     endif %}
+{%-   endfor %}
 {%- endif %}
-
-
-
-
 
 }; /* neuron {{neuronName}} */
 

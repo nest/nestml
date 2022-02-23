@@ -450,8 +450,17 @@ void {{neuronName}}::update_delay_variables()
 {%-       include "directives/UpdateDelayVariables.jinja2" %}
 {%-     endif %}
 {%-   endfor %}
-
 }
+
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
+{
+    return delayed_{{variable.get_symbol_name()}}[ delayed_{{variable.get_symbol_name()}}_idx ];
+}
+{%-     endif %}
+{%-   endfor %}
+
 {%- endif %}
 {%- if neuron.print_dynamics_comment('*')|length > 1 %}
 /*
