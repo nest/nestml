@@ -78,7 +78,7 @@ class DelayVariablesTest(unittest.TestCase):
 
         try:
             nest.Install(self.module_name)
-        except:
+        except BaseException:
             pass
 
         neuron = nest.Create(neuron_model_name)
