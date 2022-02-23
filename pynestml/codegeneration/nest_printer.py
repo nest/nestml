@@ -520,7 +520,7 @@ class NestPrinter:
             ");"
         return decl_str
 
-    def print_delay_parameter(self, variable: VariableSymbol):
+    def print_delay_parameter(self, variable: VariableSymbol) -> str:
         """
         Prints the delay parameter
         :param variable: Variable with delay parameter
@@ -534,10 +534,10 @@ class NestPrinter:
                                                                    SymbolKind.VARIABLE)
         delay_param = ""
         if symbol is not None:
-            # size parameter is a variable
+            # delay parameter is a variable
             delay_param += self.print_origin(symbol) + delay_parameter
         else:
-            # size parameter is an integer
+            # delay parameter is an integer
             delay_param += delay_parameter
 
         return delay_param
