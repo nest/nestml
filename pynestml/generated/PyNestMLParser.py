@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.8
+# Generated from PyNestMLParser.g4 by ANTLR 4.9.3
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -524,7 +524,7 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.8")
+        self.checkVersion("4.9.3")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -532,6 +532,7 @@ class PyNestMLParser ( Parser ):
 
 
     class DataTypeContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -625,6 +626,7 @@ class PyNestMLParser ( Parser ):
 
 
     class UnitTypeContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -787,6 +789,7 @@ class PyNestMLParser ( Parser ):
 
 
     class UnitTypeExponentContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -845,6 +848,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ExpressionContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1179,6 +1183,7 @@ class PyNestMLParser ( Parser ):
 
 
     class SimpleExpressionContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1290,6 +1295,7 @@ class PyNestMLParser ( Parser ):
 
 
     class UnaryOperatorContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1353,6 +1359,7 @@ class PyNestMLParser ( Parser ):
 
 
     class BitOperatorContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1432,6 +1439,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ComparisonOperatorContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1527,6 +1535,7 @@ class PyNestMLParser ( Parser ):
 
 
     class LogicalOperatorContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1582,6 +1591,7 @@ class PyNestMLParser ( Parser ):
 
 
     class IndexParameterContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1637,6 +1647,7 @@ class PyNestMLParser ( Parser ):
 
 
     class VariableContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1716,6 +1727,7 @@ class PyNestMLParser ( Parser ):
 
 
     class FunctionCallContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1799,6 +1811,7 @@ class PyNestMLParser ( Parser ):
 
 
     class InlineExpressionContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1884,6 +1897,7 @@ class PyNestMLParser ( Parser ):
 
 
     class OdeEquationContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1948,6 +1962,7 @@ class PyNestMLParser ( Parser ):
 
 
     class KernelContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2062,6 +2077,7 @@ class PyNestMLParser ( Parser ):
 
 
     class BlockContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2131,6 +2147,7 @@ class PyNestMLParser ( Parser ):
 
 
     class StmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2187,6 +2204,7 @@ class PyNestMLParser ( Parser ):
 
 
     class CompoundStmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2252,6 +2270,7 @@ class PyNestMLParser ( Parser ):
 
 
     class SmallStmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2328,6 +2347,7 @@ class PyNestMLParser ( Parser ):
 
 
     class AssignmentContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2420,6 +2440,7 @@ class PyNestMLParser ( Parser ):
 
 
     class DeclarationContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2569,6 +2590,7 @@ class PyNestMLParser ( Parser ):
 
 
     class AnyDecoratorContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2648,6 +2670,7 @@ class PyNestMLParser ( Parser ):
 
 
     class NamespaceDecoratorNamespaceContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2687,6 +2710,7 @@ class PyNestMLParser ( Parser ):
 
 
     class NamespaceDecoratorNameContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2726,6 +2750,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ReturnStmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2776,6 +2801,7 @@ class PyNestMLParser ( Parser ):
 
 
     class IfStmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2850,6 +2876,7 @@ class PyNestMLParser ( Parser ):
 
 
     class IfClauseContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2905,6 +2932,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ElifClauseContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2960,6 +2988,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ElseClauseContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3009,6 +3038,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ForStmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3124,6 +3154,7 @@ class PyNestMLParser ( Parser ):
 
 
     class WhileStmtContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3184,6 +3215,7 @@ class PyNestMLParser ( Parser ):
 
 
     class NestMLCompilationUnitContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3269,6 +3301,7 @@ class PyNestMLParser ( Parser ):
 
 
     class NeuronContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3318,6 +3351,7 @@ class PyNestMLParser ( Parser ):
 
 
     class NeuronBodyContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3452,6 +3486,7 @@ class PyNestMLParser ( Parser ):
 
 
     class SynapseContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3506,6 +3541,7 @@ class PyNestMLParser ( Parser ):
 
 
     class SynapseBodyContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3646,6 +3682,7 @@ class PyNestMLParser ( Parser ):
 
 
     class OnReceiveBlockContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3742,6 +3779,7 @@ class PyNestMLParser ( Parser ):
 
 
     class BlockWithVariablesContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3839,6 +3877,7 @@ class PyNestMLParser ( Parser ):
 
 
     class UpdateBlockContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3893,6 +3932,7 @@ class PyNestMLParser ( Parser ):
 
 
     class EquationsBlockContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3999,6 +4039,7 @@ class PyNestMLParser ( Parser ):
 
 
     class InputBlockContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -4083,6 +4124,7 @@ class PyNestMLParser ( Parser ):
 
 
     class InputPortContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -4201,6 +4243,7 @@ class PyNestMLParser ( Parser ):
 
 
     class InputQualifierContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -4280,6 +4323,7 @@ class PyNestMLParser ( Parser ):
 
 
     class OutputBlockContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -4345,6 +4389,7 @@ class PyNestMLParser ( Parser ):
 
 
     class FunctionContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -4461,6 +4506,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ParameterContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -4505,6 +4551,7 @@ class PyNestMLParser ( Parser ):
 
 
     class ConstParameterContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)

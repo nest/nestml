@@ -6,7 +6,7 @@ The NESTML modeling language
    :height: 350px
    :align: right
 
-NESTML is a domain-specific language for neuron and synapse models. These dynamical models can be used in simulations of brain acitivty on several platforms, in particular the `NEST Simulator <https://nest-simulator.readthedocs.org/>`_.
+NESTML is a domain-specific language for neuron and synapse models. These dynamical models can be used in simulations of brain activity on several platforms, in particular the `NEST Simulator <https://nest-simulator.readthedocs.org/>`_.
 
 NESTML combines:
 
