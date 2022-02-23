@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -29,13 +32,13 @@ class ASTMarkDelayVarsVisitor(ASTVisitor):
     def __init__(self):
         super(ASTMarkDelayVarsVisitor, self).__init__()
 
-    def visit_expression(self, node):
+    def visit_expression(self, node: ASTExpression):
         node.has_delay = True
 
-    def visit_simple_expression(self, node):
+    def visit_simple_expression(self, node: ASTSimpleExpression):
         node.has_delay = True
 
-    def visit_variable(self, node):
+    def visit_variable(self, node: ASTVariable):
         delay_var_symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
         if delay_var_symbol is not None:
             delay_parameter = delay_var_symbol.get_delay_parameter()

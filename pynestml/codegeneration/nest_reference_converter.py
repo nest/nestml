@@ -256,10 +256,8 @@ e();
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol:
             if symbol.is_state() and symbol.has_delay_parameter():
-                # return "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + \
-                #        NestNamesConverter.name(symbol) + "_idx ]"
                 return "get_delayed_" + variable.get_name() + "()"
-        return ''
+        return ""
 
     def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \

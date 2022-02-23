@@ -109,7 +109,7 @@ class DelayVariablesTest(unittest.TestCase):
 
     def test_eqns_with_delay_vars_analytic_solver(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
-                                                                "DelayBasedVariables.nestml")))
+                                                                "DelayBasedVariablesWithAnalyticSolver.nestml")))
         generate_nest_target(input_path=input_path,
                              target_path=self.target_path,
                              logging_level=self.logging_level,

@@ -1,6 +1,6 @@
 """
-DelayBasedVariables.nestml
-##########################
+DelayBasedVariablesWithAnalyticSolver.nestml
+############################################
 
 
 Copyright statement
@@ -28,13 +28,11 @@ neuron delay_variables:
     state:
         u_bar_plus real = -70.
         foo real = 0
-        x real = 0
     end
 
     equations:
         u_bar_plus' = -u_bar_plus / tau
         foo' = u_bar_plus(t - delay) / tau
-        x' =  u_bar_plus / tau
     end
 
     parameters:

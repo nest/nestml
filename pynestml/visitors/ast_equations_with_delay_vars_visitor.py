@@ -19,17 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
+    """
+    A visitor that converts the delay variables parsed as function calls to ASTVariable and collects all the
+    equations that have these delay variables.
+    """
     def __init__(self):
         super(ASTEquationsWithDelayVarsVisitor, self).__init__()
         self.equations = list()
         self.has_delay = False
 
-    def visit_simple_expression(self, node):
+    def visit_simple_expression(self, node: ASTSimpleExpression):
         if node.is_function_call() and ASTUtils.has_delay_variable(node.get_function_call()):
             # Create a new ASTVariable
             ast_variable = ASTNodeFactory.create_ast_variable(node.get_function_call().get_name(),
@@ -51,7 +57,7 @@ class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
 
             self.has_delay = True
 
-    def endvisit_ode_equation(self, node):
+    def endvisit_ode_equation(self, node: ASTOdeEquation):
         if self.has_delay:
             self.equations.append(node)
             self.has_delay = False

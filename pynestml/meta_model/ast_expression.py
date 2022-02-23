@@ -18,12 +18,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+from typing import Union
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 
 
 class ASTExpression(ASTExpressionNode):
@@ -61,42 +64,31 @@ class ASTExpression(ASTExpressionNode):
         simple_expression = None
     """
 
-    def __init__(self, is_encapsulated=False, unary_operator=None, is_logical_not=False,
-                 expression=None, lhs=None, binary_operator=None, rhs=None, condition=None, if_true=None,
-                 if_not=None, has_delay=False, *args, **kwargs):
+    def __init__(self, is_encapsulated: bool = False, unary_operator: ASTUnaryOperator = None,
+                 is_logical_not:bool = False, expression: ASTExpression = None, lhs: ASTExpression = None,
+                 binary_operator: Union[ASTLogicalOperator, ASTComparisonOperator, ASTBitOperator,
+                                        ASTArithmeticOperator] = None,
+                 rhs: ASTExpression = None, condition: ASTExpression = None, if_true: ASTExpression = None,
+                 if_not: ASTExpression = None, has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param is_encapsulated: is encapsulated in brackets.
-        :type is_encapsulated: bool
         :param unary_operator: combined by unary operator, e.g., ~.
-        :type unary_operator: ASTUnaryOperator
         :param is_logical_not: is a negated rhs.
-        :type is_logical_not: bool
-        :param expression: the rhs either encapsulated in brackets or negated or with a with a unary op, or a simple rhs.
-        :type expression: ASTExpression
+        :param expression: the rhs either encapsulated in brackets or negated or with a with a unary op, or a simple
+        rhs.
         :param lhs: the left-hand side rhs.
-        :type lhs: ASTExpression
         :param binary_operator: a binary operator, e.g., a comparison operator or a logical operator.
-        :type binary_operator: ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
         :param rhs: the right-hand side rhs
-        :type rhs: ASTExpression
         :param condition: the condition of a ternary operator
-        :type condition: ASTExpression
         :param if_true: if condition holds, this rhs is executed.
-        :type if_true: ASTExpression
         :param if_not: if condition does not hold, this rhs is executed.
-        :type if_not: ASTExpression
-        TODO:
+        :param has_delay: if this expression has a delay variable
         """
         super(ASTExpression, self).__init__(*args, **kwargs)
-        assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator)
-                                              or isinstance(binary_operator, ASTBitOperator)
-                                              or isinstance(binary_operator, ASTLogicalOperator)
-                                              or isinstance(binary_operator, ASTComparisonOperator))), \
-            '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(binary_operator)
         self.is_encapsulated = is_encapsulated
         self.is_logical_not = is_logical_not
         self.unary_operator = unary_operator
@@ -402,6 +394,7 @@ class ASTExpression(ASTExpressionNode):
             return False
         if self.is_ternary_operator() and other.is_ternary_operator() and \
                 not (self.get_condition().equals(other.get_condition())
-                     and self.get_if_true().equals(other.get_if_true()) and self.get_if_not().equals(other.get_if_not())):
+                     and self.get_if_true().equals(other.get_if_true()) and self.get_if_not().equals(
+                            other.get_if_not())):
             return False
         return True

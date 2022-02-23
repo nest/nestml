@@ -100,19 +100,17 @@ class GSLReferenceConverter(IReferenceConverter):
 
         return prefix + 'get_' + variable_name + '()'
 
-    def convert_delay_variable(self, variable, prefix=''):
+    def convert_delay_variable(self, variable: ASTVariable, prefix: str =''):
         """
         Converts a delay variable to GSL processable format
-        :param variable:
+        :param variable: variable to be converted
         :return: GSL processable format of the delay variable
         """
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol:
             if symbol.is_state() and symbol.has_delay_parameter():
-                # return "delayed_" + NestNamesConverter.name(symbol) + "[ delayed_" + \
-                #        NestNamesConverter.name(symbol) + "_idx ]"
                 return prefix + "get_delayed_" + variable.get_name() + "()"
-        return ''
+        return ""
 
     def convert_function_call(self, function_call, prefix=''):
         """Convert a single function call to C++ GSL API syntax.
