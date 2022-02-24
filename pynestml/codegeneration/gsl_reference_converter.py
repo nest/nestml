@@ -236,22 +236,22 @@ e();'''
             return '%s' + str(binary_operator) + '%s'
 
     def convert_logical_not(self):
-        return NESTReferenceConverter.convert_logical_not()
+        return NESTReferenceConverter().convert_logical_not()
 
     def convert_logical_operator(self, op):
-        return NESTReferenceConverter.convert_logical_operator(op)
+        return NESTReferenceConverter().convert_logical_operator(op)
 
     def convert_comparison_operator(self, op):
-        return NESTReferenceConverter.convert_comparison_operator(op)
+        return NESTReferenceConverter().convert_comparison_operator(op)
 
     def convert_bit_operator(self, op):
-        return NESTReferenceConverter.convert_bit_operator(op)
+        return NESTReferenceConverter().convert_bit_operator(op)
 
     def convert_encapsulated(self):
-        return NESTReferenceConverter.convert_encapsulated()
+        return NESTReferenceConverter().convert_encapsulated()
 
     def convert_ternary_operator(self):
-        return NESTReferenceConverter.convert_ternary_operator()
+        return NESTReferenceConverter().convert_ternary_operator()
 
     def convert_arithmetic_operator(self, op):
-        return NESTReferenceConverter.convert_arithmetic_operator(op)
+        return NESTReferenceConverter().convert_arithmetic_operator(op)
