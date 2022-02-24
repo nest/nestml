@@ -821,7 +821,7 @@ public:
     **/
 
 {# {%- for inputLine in synapse.get_spike_buffers() %} #}
-{%- for spike_update in spike_updates: %}
+{%- for spike_update in spike_updates.values() %}
     // XXX: TODO: increment with initial value instead of 1
     S_.{{names.name(synapse.get_state_blocks().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
 {#    S_.{{names.name(spike_update.get_variable())}} += 1.; #}

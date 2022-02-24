@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import datetime
 import glob
@@ -779,14 +779,14 @@ class NESTCodeGenerator(CodeGenerator):
         for synapse in synapses:
             if Logger.logging_level == LoggingLevel.INFO:
                 print("Analysing/transforming synapse {}.".format(synapse.get_name()))
-            spike_updates, post_spike_updates = self.analyse_synapse(synapse)
+            spike_updates, _ = self.analyse_synapse(synapse)
             synapse.spike_updates = spike_updates
 
-    def analyse_neuron(self, neuron: ASTNeuron) -> List[ASTAssignment]:
+    def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
-        :return: spike_updates: list of spike updates, see documentation for get_spike_update_expressions() for more information.
+        :return: see documentation for get_spike_update_expressions() for more information.
         """
         code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -854,7 +854,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return spike_updates, post_spike_updates
 
-    def analyse_synapse(self, synapse: ASTSynapse) -> None:
+    def analyse_synapse(self, synapse: ASTSynapse) -> Dict[str, ASTAssignment]:
         """
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
@@ -863,7 +863,7 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
         equations_block = synapse.get_equations_block()
-        spike_updates, post_spike_updates = [], []
+        spike_updates = {}
         if equations_block is not None:
             delta_factors = ASTTransformers.get_delta_factors_(synapse, equations_block)
             kernel_buffers = ASTTransformers.generate_kernel_buffers_(synapse, equations_block)
@@ -890,14 +890,14 @@ class NESTCodeGenerator(CodeGenerator):
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
             self.update_symbol_table(synapse, kernel_buffers)
-            spike_updates, post_spike_updates = self.get_spike_update_expressions(
+            spike_updates, _ = self.get_spike_update_expressions(
                 synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
         else:
             ASTTransformers.add_timestep_symbol(synapse)
 
         self.update_blocktype_for_common_parameters(synapse)
 
-        return spike_updates, post_spike_updates
+        return spike_updates
 
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """
@@ -1270,20 +1270,27 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(symbol_table_visitor)
         SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
 
-    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
-        """
+    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
+        r"""
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
         For example, a resulting `assignment_str` could be "I_kernel_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
 
         Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
+
+        ``spike_updates`` is a mapping from input port name (as a string) to update expressions.
+
+        ``post_spike_updates`` is a mapping from kernel name (as a string) to update expressions.
         """
-        spike_updates = []
+        spike_updates = {}
         post_spike_updates = {}
 
         for kernel, spike_input_port in kernel_buffers:
             if ASTTransformers.is_delta_kernel(kernel):
                 continue
+
+            if not str(spike_input_port) in spike_updates.keys():
+                spike_updates[str(spike_input_port)] = []
 
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
                and spike_input_port.get_variable()._is_post_port:
@@ -1328,9 +1335,9 @@ class NESTCodeGenerator(CodeGenerator):
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
                         print("adding post assignment string: " + str(ast_assignment))
-                        spike_updates.append(ast_assignment)
+                        spike_updates[str(spike_input_port)].append(ast_assignment)
                     else:
-                        spike_updates.append(ast_assignment)
+                        spike_updates[str(spike_input_port)].append(ast_assignment)
 
         for k, factor in delta_factors.items():
             var = k[0]
@@ -1343,6 +1350,9 @@ class NESTCodeGenerator(CodeGenerator):
             ast_assignment.update_scope(neuron.get_scope())
             ast_assignment.accept(ASTSymbolTableVisitor())
 
-            spike_updates.append(ast_assignment)
+            if not str(inport) in spike_updates.keys():
+                spike_updates[str(inport)] = []
+
+            spike_updates[str(inport)].append(ast_assignment)
 
         return spike_updates, post_spike_updates

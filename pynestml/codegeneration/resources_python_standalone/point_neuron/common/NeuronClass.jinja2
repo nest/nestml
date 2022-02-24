@@ -654,10 +654,10 @@ void
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
 {%- endfor %}
         }
 
@@ -880,15 +880,15 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 #endif
 
   if (t == 0.) {
-    return 0.;  // initial value for convoluation is always 0
+    return 0.;  // initial value for convolution is always 0
   }
 
   // set to initial value
 {%- for var_ in purely_numeric_state_variables_moved %}
-  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
+  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
+  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
   // propagate in time
