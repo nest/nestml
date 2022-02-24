@@ -67,6 +67,7 @@ class FrontendConfiguration:
     target = None
     install_path = None
     target_path = None
+    target_platform = None
     module_name = None
     store_log = False
     suffix = ''
@@ -98,7 +99,7 @@ appropriate numeric solver otherwise.
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
         cls.argument_parser.add_argument(qualifier_install_path_arg, metavar='PATH', type=str, help=help_install_path)
-                                         'NEST', 'NEST_COMPARTMENTAL', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=get_known_targets(), type=str.upper, help=help_target, default='NEST')
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
                                          'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
@@ -124,8 +125,11 @@ appropriate numeric solver otherwise.
         cls.is_dev = parsed_args.dev
 
     @classmethod
-    def targetIsCompartmental(cls):
-        return cls.get_target() == 'NEST_COMPARTMENTAL'
+    def target_is_compartmental(cls):
+        if cls.get_target_platform() is None:
+            return False
+
+        return cls.get_target_platform().upper() == 'NEST_COMPARTMENTAL'
 
     @classmethod
     def getCompartmentalVariableName(cls):

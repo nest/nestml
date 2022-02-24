@@ -107,7 +107,7 @@ class SynsProcessing(object):
         info_collector = ASTSynapseInformationCollector()
         
         syns_info = defaultdict()
-        if not FrontendConfiguration.targetIsCompartmental():
+        if not FrontendConfiguration.target_is_compartmental():
             return syns_info, info_collector
         
         # tests will arrive here if we actually have compartmental model

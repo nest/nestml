@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_codegenerator.py
+# nest_codegenerator_cm.py
 #
 # This file is part of NEST.
 #
@@ -73,8 +73,8 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 import sympy
 
 
-class NESTCodeGeneratorCM(CodeGenerator):
-    """
+class NESTCompartmentalCodeGenerator(CodeGenerator):
+    r"""
     Code generator for a C++ NEST extension module.
 
     Options:

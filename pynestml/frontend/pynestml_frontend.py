@@ -53,7 +53,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
     elif target_name.upper() == "COMPARTMENTAL":
-        from pynestml.codegeneration.compartmental_code_generator import CompartmentalCodegenerator
+        from pynestml.codegeneration.compartmental_code_generator import NESTCompartmentalCodegenerator
         return CompartmentalCodegenerator()
     elif target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code

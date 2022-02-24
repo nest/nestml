@@ -124,7 +124,7 @@ class ASTChannelInformationCollector(object):
      
     @classmethod
     def detect_cm_inline_expressions(cls, neuron):
-        if not FrontendConfiguration.targetIsCompartmental(): 
+        if not FrontendConfiguration.target_is_compartmental(): 
             return defaultdict()
 
         # search for inline expressions inside equations block

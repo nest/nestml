@@ -49,8 +49,8 @@ class CoCoVCompDefined(CoCo):
             If True, checks are not as rigorous. Use False where possible.
         """
 
-    
-        if not FrontendConfiguration.targetIsCompartmental(): return
+        if not FrontendConfiguration.target_is_compartmental():
+            return
         enforced_variable_name = FrontendConfiguration.getCompartmentalVariableName()
 
         state_blocks = neuron.get_state_blocks()
