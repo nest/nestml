@@ -51,11 +51,11 @@ from pynestml.utils.ast_utils import ASTUtils
 
 
 class PythonStandaloneReferenceConverter(BaseReferenceConverter):
-    """
-    This converter preserves the initial NestML syntax.
+    r"""
+    Convert to Python syntax.
     """
 
-    def convert_unary_op(self, ast_unary_operator):
+    def convert_unary_op(self, ast_unary_operator) -> str:
         """
         Returns the same string.
         :param ast_unary_operator: a single unary operator string.
@@ -65,7 +65,7 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable, prefix=''):
+    def convert_name_reference(self, ast_variable, prefix='') -> str:
         """
         Returns the same string
         :param ast_variable: a single variable
@@ -75,7 +75,7 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         """
         return prefix + ast_variable.get_complete_name()
 
-    def convert_function_call(self, function_call, prefix=''):
+    def convert_function_call(self, function_call, prefix='') -> str:
         """Return the function call in NESTML syntax.
 
         Parameters
@@ -98,7 +98,7 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
             result += '()'
         return result
 
-    def convert_binary_op(self, ast_binary_operator):
+    def convert_binary_op(self, ast_binary_operator) -> str:
         """
         Returns the same binary operator back.
         :param ast_binary_operator:  a single binary operator
@@ -108,17 +108,21 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         """
         return '%s' + str(ast_binary_operator) + '%s'
 
-    def convert_constant(self, constant_name):
+    def convert_constant(self, constant_name: str) -> str:
         """
         Returns the same string back.
         :param constant_name: a constant name
-        :type constant_name: str
         :return: the same string
-        :rtype: str
         """
+        if constant_name == 'true':
+            return 'True'
+
+        if constant_name == 'false':
+            return 'False'
+
         return constant_name
 
-    def convert_ternary_operator(self):
+    def convert_ternary_operator(self) -> str:
         """
         Converts the ternary operator to its initial kernel.
         :return: a string representation
@@ -126,22 +130,22 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         """
         return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
 
-    def convert_logical_operator(self, op):
+    def convert_logical_operator(self, op) -> str:
         return str(op)
 
-    def convert_arithmetic_operator(self, op):
+    def convert_arithmetic_operator(self, op) -> str:
         return str(op)
 
-    def convert_encapsulated(self):
+    def convert_encapsulated(self) -> str:
         return '(%s)'
 
-    def convert_comparison_operator(self, op):
+    def convert_comparison_operator(self, op) -> str:
         return str(op)
 
-    def convert_logical_not(self):
+    def convert_logical_not(self) -> str:
         return 'not'
 
-    def convert_bit_operator(self, op):
+    def convert_bit_operator(self, op) -> str:
         return str(op)
 
     def print_origin(self, variable_symbol, prefix='') -> str:
@@ -179,7 +183,7 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
 
         return ''
 
-    def array_index(self, symbol):
+    def array_index(self, symbol) -> str:
         """
         Transforms the haded over symbol to a GSL processable format.
         :param symbol: a single variable symbol

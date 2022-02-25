@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.reference_converter import ReferenceConverter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -279,11 +278,11 @@ class PythonStandalonePrinter(Printer):
         if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
         declaration = ast_function.print_comment('//') + '\n'
-        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
         declaration += ' '
         declaration += ast_function.get_name() + '('
         for typeSym in function_symbol.get_parameter_types():
-            declaration += PyNestml2NestTypeConverter.convert(typeSym)
+            declaration += self.types_printer.convert(typeSym)
             if function_symbol.get_parameter_types().index(typeSym) < len(
                     function_symbol.get_parameter_types()) - 1:
                 declaration += ', '
@@ -312,14 +311,14 @@ class PythonStandalonePrinter(Printer):
         for param in ast_function.get_parameters():
             params.append(param.get_name())
         declaration = ast_function.print_comment('//') + '\n'
-        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
         declaration += ' '
         if namespace is not None:
             declaration += namespace + '::'
         declaration += ast_function.get_name() + '('
         for typeSym in function_symbol.get_parameter_types():
             # create the type name combination, e.g. double Tau
-            declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
+            declaration += self.types_printer.convert(typeSym) + ' ' + \
                 params[function_symbol.get_parameter_types().index(typeSym)]
             # if not the last component, separate by ','
             if function_symbol.get_parameter_types().index(typeSym) < \
@@ -339,7 +338,7 @@ class PythonStandalonePrinter(Printer):
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         if ast_buffer.is_spike_input_port() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
-            return 'inline ' + PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
+            return 'inline ' + self.types_printer.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
                    + ast_buffer.get_symbol_name() + '() {' + \
                    '  return spike_inputs_[' + ast_buffer.get_symbol_name().upper() + ' - 1]; }'
         else:
@@ -362,10 +361,10 @@ class PythonStandalonePrinter(Printer):
         declaration = 'inline '
         if ast_buffer.has_vector_parameter():
             declaration += 'std::vector<'
-            declaration += PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol())
+            declaration += self.types_printer.convert(ast_buffer.get_type_symbol())
             declaration += '> &'
         else:
-            declaration += PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + '&'
+            declaration += self.types_printer.convert(ast_buffer.get_type_symbol()) + '&'
         declaration += ' get_' + ast_buffer.get_symbol_name() + '() {'
         if is_in_struct:
             declaration += 'return ' + ast_buffer.get_symbol_name() + ';'
@@ -400,9 +399,9 @@ class PythonStandalonePrinter(Printer):
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         if ast_buffer.has_vector_parameter():
-            buffer_type = 'std::vector< ' + PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + ' >'
+            buffer_type = 'std::vector< ' + self.types_printer.convert(ast_buffer.get_type_symbol()) + ' >'
         else:
-            buffer_type = PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol())
+            buffer_type = self.types_printer.convert(ast_buffer.get_type_symbol())
         buffer_type.replace(".", "::")
         return buffer_type + " " + ast_buffer.get_symbol_name()
 

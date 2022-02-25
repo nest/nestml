@@ -27,21 +27,11 @@ import os
 from jinja2 import Environment, FileSystemLoader
 
 from pynestml.codegeneration.code_generator import CodeGenerator
-from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
-# from pynestml.codegeneration.python_standalone_expression_printer import PythonStandaloneExpressionPrinter
-from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
-from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.python_standalone_printer import PythonStandalonePrinter
-from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.python_standalone_reference_converter import PythonStandaloneReferenceConverter
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.ode_transformer import OdeTransformer
 
 
 class PythonStandaloneCodeGenerator(CodeGenerator):

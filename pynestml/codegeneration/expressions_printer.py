@@ -21,7 +21,6 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -63,19 +62,18 @@ class ExpressionsPrinter(Printer):
     def __do_print(self, node: ASTExpressionNode, prefix: str='') -> str:
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
-                # todo by kp: this should not be done in the typesPrinter, obsolete
-                return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
+                return str(node.get_numeric_literal()) + '*' + \
                     self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:
                 return self.reference_converter.convert_constant('inf')
             elif node.is_string():
-                return self.types_printer.pretty_print(node.get_string())
+                return str(node.get_string())
             elif node.is_boolean_true:
-                return self.types_printer.pretty_print(True)
+                return self.reference_converter.convert_constant('true')
             elif node.is_boolean_false:
-                return self.types_printer.pretty_print(False)
+                return self.reference_converter.convert_constant('false')
             elif node.is_variable():
                 return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():

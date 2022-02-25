@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Union
+
 import re
 
 from pynestml.codegeneration.base_reference_converter import BaseReferenceConverter
@@ -310,17 +312,26 @@ e();
         else:
             return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
 
-    def convert_constant(self, constant_name) -> str:
+    def convert_constant(self, const: Union[str, float, int]) -> str:
         """
         Converts a single handed over constant.
         :param constant_name: a constant as string.
         :type constant_name: str
         :return: the corresponding nest representation
         """
-        if constant_name == 'inf':
+        if const == 'inf':
             return 'std::numeric_limits<double_t>::infinity()'
 
-        return constant_name
+        if const == 'true':
+            return 'true'
+
+        if const == 'false':
+            return 'false'
+
+        if isinstance(const, float) or isinstance(const, int):
+            return str(const)
+
+        return const
 
     def convert_unary_op(self, unary_operator) -> str:
         """

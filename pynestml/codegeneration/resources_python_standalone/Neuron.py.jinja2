@@ -48,6 +48,9 @@ DEBUG = 1
 
 import numpy as np
 
+from Neuron import Neuron
+
+
 {%- set stateSize = neuron.get_non_inline_state_symbols()|length %}
 
 class Neuron_{{neuronName}}(Neuron):
@@ -220,15 +223,24 @@ class Neuron_{{neuronName}}(Neuron):
   # -------------------------------------------------------------------------
   #   Spiking input handlers
   # -------------------------------------------------------------------------
+
+  def handle(self, port_name: str) -> None:
 {%   for port in neuron.get_spike_input_ports() %}
-  def handle(t_spike: float, rport: int):
-{%-     filter indent(4) %}
+    if port_name == "{{port.name}}":
+{%-     filter indent(6) %}
 {%-     for ast in spike_updates[port.name] %}
 {%-       include "directives/Assignment.jinja2" %}
 {%-     endfor %}
 {%-     endfilter %}
-
 {%   endfor %}
+
+  def get_spiking_input_ports(self) -> List[str]:
+    return [
+{%- for port in neuron.get_spike_input_ports() %}
+            "{{port.name}}",
+{%- endfor %}
+    ]
+
 {%- endif %}
 
 {%- if paired_synapse is defined %}

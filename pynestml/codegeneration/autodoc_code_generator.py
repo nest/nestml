@@ -27,6 +27,7 @@ import os
 from jinja2 import Environment, FileSystemLoader
 
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.latex_expression_printer import LatexExpressionPrinter
 from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -51,7 +52,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         self._template_synapse_nestml_model = env.get_template('nestml_synapse_model.jinja2')
 
         converter = LatexReferenceConverter()
-        types_printer = LatexTypesPrinter()
+        types_printer = CppTypesPrinter()
         self._printer = LatexExpressionPrinter(converter, types_printer)
 
     def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
@@ -157,7 +158,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         converter = LatexReferenceConverter()
-        types_printer = LatexTypesPrinter()
+        types_printer = CppTypesPrinter()
         latex_expression_printer = LatexExpressionPrinter(converter, types_printer)
 
         namespace = dict()

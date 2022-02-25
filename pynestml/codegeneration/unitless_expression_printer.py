@@ -50,10 +50,9 @@ class UnitlessExpressionPrinter(ExpressionsPrinter):
         s : str
             The expression string.
         """
-        # todo : printing of literals etc. should be done by constant converter, not a type converter
         if isinstance(node, ASTSimpleExpression):
             if node.is_numeric_literal():
-                return self.types_printer.pretty_print(node.get_numeric_literal())
+                return self.reference_converter.convert_constant(node.get_numeric_literal())
             elif node.is_variable() and node.get_scope() is not None:
                 node_is_variable_symbol = node.get_scope().resolve_to_symbol(
                     node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
