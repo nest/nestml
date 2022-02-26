@@ -21,16 +21,14 @@
 
 from typing import List, Optional, Sequence
 
-import datetime
 import os
-
-from jinja2 import Environment, FileSystemLoader
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.python_standalone_printer import PythonStandalonePrinter
 from pynestml.codegeneration.python_standalone_reference_converter import PythonStandaloneReferenceConverter
+from pynestml.codegeneration.python_types_printer import PythonTypesPrinter
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 
 
@@ -40,6 +38,7 @@ class PythonStandaloneCodeGenerator(CodeGenerator):
 
     def __init__(self):
         self.codegen_int = NESTCodeGenerator()
+        self.codegen_int._types_printer = PythonTypesPrinter()
         self.codegen_int._gsl_reference_converter = PythonStandaloneReferenceConverter()
         self.codegen_int._nest_reference_converter = PythonStandaloneReferenceConverter()
         self.codegen_int._expressions_printer = UnitlessExpressionPrinter(reference_converter=self.codegen_int._nest_reference_converter,
@@ -60,7 +59,7 @@ class PythonStandaloneCodeGenerator(CodeGenerator):
         self.codegen_int._options["templates"]["path"] = os.path.join(os.path.dirname(__file__), "resources_python_standalone")
         self.codegen_int._options["templates"]["model_templates"]["neuron"] = ["Neuron.py.jinja2"]
         self.codegen_int._options["templates"]["model_templates"]["synapse"] = ["Synapse.py.jinja2"]
-        self.codegen_int._options["templates"]["module_templates"] = ["Simulator.py.jinja2"]
+        self.codegen_int._options["templates"]["module_templates"] = ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2"]
         self.codegen_int.setup_template_env()
 
     def generate_code(self, neurons, synapses):

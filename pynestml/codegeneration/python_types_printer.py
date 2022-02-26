@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_types_printer.py
+# python_types_printer.py
 #
 # This file is part of NEST.
 #
@@ -31,13 +31,12 @@ from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-class CppTypesPrinter(TypesPrinter):
+class PythonTypesPrinter(TypesPrinter):
     """
-    Returns a C++ syntax version of the handed over type.
+    Returns a Python syntax version of the handed over type.
     """
 
-    @classmethod
-    def convert(cls, type_symbol: TypeSymbol) -> str:
+    def convert(self, type_symbol: TypeSymbol) -> str:
         """
         Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol

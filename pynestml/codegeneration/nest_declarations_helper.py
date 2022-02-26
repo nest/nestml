@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.types_printer import TypesPrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -31,11 +31,11 @@ class NestDeclarationsHelper:
     This class contains several methods as used during generation of code.
     """
 
-    def __init__(self):
+    def __init__(self, types_printer: TypesPrinter):
         """
         Initialized the declaration helper.
         """
-        self.type_converter = CppTypesPrinter()
+        self.types_printer = types_printer
 
     def get_domain_from_type(self, type_symbol):
         """
@@ -45,7 +45,7 @@ class NestDeclarationsHelper:
         :return: the corresponding domain
         :rtype: str
         """
-        return self.type_converter.convert(type_symbol)
+        return self.types_printer.convert(type_symbol)
 
     def print_variable_type(self, variable_symbol):
         """
@@ -56,10 +56,10 @@ class NestDeclarationsHelper:
         :rtype: str
         """
         if variable_symbol.has_vector_parameter():
-            return 'std::vector< ' + self.CppTypesPrinter.convert(variable_symbol.get_type_symbol()) + \
+            return 'std::vector< ' + self.types_printer.convert(variable_symbol.get_type_symbol()) + \
                    ' > '
 
-        return self.type_converter.convert(variable_symbol.get_type_symbol())
+        return self.types_printer.convert(variable_symbol.get_type_symbol())
 
     @classmethod
     def get_variables(cls, ast_declaration):

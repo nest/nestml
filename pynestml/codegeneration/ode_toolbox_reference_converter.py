@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Union
+
 from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -47,3 +50,16 @@ class ODEToolboxReferenceConverter(NestMLReferenceConverter):
         """
         s = '0 * (' + '%s' + ') + (' + '%s' + ') + 0 * (' + '%s' + ')'
         return '(' + s + ')'
+
+    def convert_constant(self, const: Union[str, float, int]) -> str:
+        """
+        Converts a single handed over constant.
+        :param constant_name: a constant as string.
+        :type constant_name: str
+        :return: the corresponding nest representation
+        """
+        print("xxxxxxx converting " + str(const))
+        if isinstance(const, float) or isinstance(const, int):
+            return str(const)
+
+        return const

@@ -91,6 +91,14 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
             The function call string in NESTML syntax.
         """
         result = function_call.get_name()
+
+
+        if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
+            return 'steps({!s}, self._timestep)'
+
+        if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
+            return 'self._timestep'
+
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             result += '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'

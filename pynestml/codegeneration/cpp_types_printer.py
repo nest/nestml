@@ -36,8 +36,7 @@ class CppTypesPrinter(TypesPrinter):
     Returns a C++ syntax version of the handed over type.
     """
 
-    @classmethod
-    def convert(cls, type_symbol: TypeSymbol) -> str:
+    def convert(self, type_symbol: TypeSymbol) -> str:
         """
         Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol
@@ -55,6 +54,7 @@ class CppTypesPrinter(TypesPrinter):
             return "bool"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
+            import pdb;pdb.set_trace()
             return "long"
 
         if isinstance(type_symbol, StringTypeSymbol):

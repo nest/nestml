@@ -1,5 +1,5 @@
 """
-Neuron.py
+neuron.py
 
 This file is part of NEST.
 
@@ -21,14 +21,31 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 Generated from NESTML at time: {{now}}
 """
 
+from typing import List
+
 from abc import ABCMeta, abstractmethod
 
 
 class Neuron(metaclass=ABCMeta):
+    def __init__(self):
+        self._emitted_spikes: List[float] = []
+
     @abstractmethod
-    def update(self, origin: float) -> None:
+    def step(self, origin: float, timestep: float) -> None:
         pass
 
     @abstractmethod
     def handle(self, port_name: str) -> None:
         pass
+
+    def emit_spike(self, t: float) -> None:
+        self._emitted_spikes.append(t)
+
+    def pop_emitted_spikes(self) -> List[float]:
+        spikes = self._emitted_spikes.copy()
+        self._emitted_spikes = []
+        return spikes
+
+    @abstractmethod
+    def get_model(self) -> str:
+        return ""

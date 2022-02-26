@@ -55,6 +55,8 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger
@@ -965,7 +967,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_reference_converter
-        namespace["declarations"] = NestDeclarationsHelper()
+        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["utils"] = ASTUtils
         namespace["idemPrinter"] = self._printer
         namespace["odeTransformer"] = OdeTransformer()
@@ -1084,7 +1086,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._unitless_nest_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_reference_converter
-        namespace["declarations"] = NestDeclarationsHelper()
+        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["utils"] = ASTUtils
         namespace["idemPrinter"] = self._printer
         namespace["outputEvent"] = namespace["printer"].print_output_event(neuron.get_body())
@@ -1197,10 +1199,11 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()
-                                                   if namespace["declarations"].get_domain_from_type(sym.get_type_symbol()) == "double"
-                                                   and sym.is_recordable and not ASTTransformers.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
+                                                   if sym.get_type_symbol() in [IntegerTypeSymbol, RealTypeSymbol]
+                                                   and sym.is_recordable
+                                                   and not ASTTransformers.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
-                                                      if namespace["declarations"].get_domain_from_type(sym.get_type_symbol()) == "double"
+                                                      if sym.get_type_symbol() in [IntegerTypeSymbol, RealTypeSymbol]
                                                       and sym.is_recordable]
 
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols()
