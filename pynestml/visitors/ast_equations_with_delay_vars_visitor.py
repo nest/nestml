@@ -22,6 +22,8 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -36,7 +38,7 @@ class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
         self.has_delay = False
 
     def visit_simple_expression(self, node: ASTSimpleExpression):
-        if node.is_function_call() and ASTUtils.has_delay_variable(node.get_function_call()):
+        if node.is_function_call() and ASTUtils.is_function_delay_variable(node.get_function_call()):
             # Create a new ASTVariable
             ast_variable = ASTNodeFactory.create_ast_variable(node.get_function_call().get_name(),
                                                               source_position=node.get_source_position())
@@ -44,12 +46,20 @@ class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
             delay_parameter = ASTUtils.extract_delay_parameter(node.get_function_call())
             ast_variable.set_delay_parameter(delay_parameter)
 
+            # Set the variable in the SimpleExpression node
             node.set_variable(ast_variable)
 
             # Set the delay parameter in its corresponding variable symbol
             delay_var_symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())
+            if delay_var_symbol is None:
+                code, message = Messages.get_no_variable_found(node.get_function_call().get_name())
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
+                return
+
             delay_var_symbol.set_delay_parameter(delay_parameter)
 
+            # Update scope
             node.get_scope().update_variable_symbol(delay_var_symbol)
 
             # Nullify the function call

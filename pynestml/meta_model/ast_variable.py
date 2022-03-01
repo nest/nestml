@@ -179,7 +179,7 @@ class ASTVariable(ASTNode):
         assert (delay is not None), '(PyNestML.AST.Variable) No delay parameter provided'
         self.delay_parameter = delay
 
-    def get_parent(self, ast):
+    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.

@@ -532,12 +532,7 @@ class NestPrinter:
         delay_parameter_var = ASTVariable(delay_parameter, scope=variable.get_corresponding_scope())
         symbol = delay_parameter_var.get_scope().resolve_to_symbol(delay_parameter_var.get_complete_name(),
                                                                    SymbolKind.VARIABLE)
-        delay_param = ""
         if symbol is not None:
             # delay parameter is a variable
-            delay_param += self.print_origin(symbol) + delay_parameter
-        else:
-            # delay parameter is an integer
-            delay_param += delay_parameter
-
-        return delay_param
+            return self.print_origin(symbol) + delay_parameter
+        return delay_parameter

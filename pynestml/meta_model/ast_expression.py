@@ -397,4 +397,6 @@ class ASTExpression(ASTExpressionNode):
                      and self.get_if_true().equals(other.get_if_true())
                      and self.get_if_not().equals(other.get_if_not())):
             return False
+        if self.get_has_delay() + other.get_has_delay() == 1:
+            return False
         return True

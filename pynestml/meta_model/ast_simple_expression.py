@@ -213,8 +213,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         if self.is_variable() and self.has_delay \
                 and self.get_variable().get_delay_parameter() is not None:
             return True
-        else:
-            return False
+        return False
 
     def get_has_delay(self):
         """

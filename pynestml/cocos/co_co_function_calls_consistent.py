@@ -71,7 +71,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
 
         symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.FUNCTION)
 
-        if symbol is None and ASTUtils.has_delay_variable(node):
+        if symbol is None and ASTUtils.is_function_delay_variable(node):
             code, message = Messages.get_function_is_delay_variable(node.get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.WARNING,
                                code=code, message=message)

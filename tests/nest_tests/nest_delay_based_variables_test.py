@@ -57,9 +57,9 @@ class DelayVariablesTest(unittest.TestCase):
             ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
         Logger.init_logger(LoggingLevel.INFO)
 
-        self.target_path = 'target_delay'
-        self.logging_level = 'DEBUG'
-        self.suffix = '_nestml'
+        self.target_path = "target_delay"
+        self.logging_level = "DEBUG"
+        self.suffix = "_nestml"
 
     def plot_fig(self, times, recordable_events_delay: dict, recordable_events: dict, filename: str):
         fig, axes = plt.subplots(len(recordable_events), 1, figsize=(7, 9), sharex=True)
@@ -89,11 +89,11 @@ class DelayVariablesTest(unittest.TestCase):
         nest.Connect(multimeter, neuron)
 
         if spikes is not None:
-            sg = nest.Create('spike_generator', params={'spike_times': spikes})
+            sg = nest.Create("spike_generator", params={"spike_times": spikes})
             nest.Connect(sg, neuron)
 
         if dc_gen:
-            cgs = nest.Create('dc_generator')
+            cgs = nest.Create("dc_generator")
             cgs.set({"amplitude": 25.})
             nest.Connect(cgs, neuron)
 

@@ -30,9 +30,11 @@ from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -860,42 +862,63 @@ class ASTUtils:
         return stmts
 
     @classmethod
-    def has_delay_variable(cls, node: ASTFunctionCall) -> bool:
+    def is_function_delay_variable(cls, node: ASTFunctionCall) -> bool:
         """
-        Checks if the given function call is actually a variable with a delay differential part
-        :param node: The expression
+        Checks if the given function call is actually a delayed variable. For a function call to be a delayed
+        variable, the function name should be resolved to a state symbol, with one function argument which is an
+        expression.
+        :param node: The function call
         """
         # Check if the function name is a state variable
-        function_name = node.get_name()
-        symbol = node.get_scope().resolve_to_symbol(function_name, SymbolKind.VARIABLE)
-        if symbol and symbol.block_type == BlockType.STATE:
-            # Check if the length of arg list is 1
-            args = node.get_args()
-            if len(args) == 1 and isinstance(args[0], ASTExpression):
-                return True
+        symbol = cls.get_delay_variable_symbol(node)
+        args = node.get_args()
+        # Check if the length of arg list is 1
+        if symbol and len(args) == 1 and isinstance(args[0], ASTExpression):
+            return True
         return False
 
     @classmethod
     def get_delay_variable_symbol(cls, node: ASTFunctionCall):
         """
-            Checks if the given function call is actually a variable with a delay differential part
-            :param node: The expression
-            """
-        # Check if the function name is a state variable
-        function_name = node.get_name()
-        symbol = node.get_scope().resolve_to_symbol(function_name, SymbolKind.VARIABLE)
+        Returns the variable symbol for the corresponding delayed variable
+        :param node: The delayed variable parsed as a function call
+        """
+        symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.VARIABLE)
         if symbol and symbol.block_type == BlockType.STATE:
-            # Check if the length of arg list is 1
-            args = node.get_args()
-            if len(args) == 1 and isinstance(args[0], ASTExpression):
-                return symbol
+            return symbol
         return None
 
     @classmethod
     def extract_delay_parameter(cls, node: ASTFunctionCall) -> str:
         """
-        Extracts the delay parameter from the function call arguments
+        Extracts the delay parameter from the delayed variable
+        :param node: The delayed variable parsed as a function call
         """
         args = node.get_args()
         delay_parameter = args[0].get_rhs().get_variable()
         return delay_parameter.get_name()
+
+    @classmethod
+    def update_delay_parameter_in_state_vars(cls, neuron: ASTNeuron, state_vars_before_update: List[VariableSymbol]) -> None:
+        """
+        Updates the delay parameter in state variables after the symbol table update
+        :param neuron: AST neuron
+        :param state_vars_before_update: State variables before the symbol table update
+        """
+        for state_var in state_vars_before_update:
+            if state_var.has_delay_parameter():
+                symbol = neuron.get_scope().resolve_to_symbol(state_var.get_symbol_name(), SymbolKind.VARIABLE)
+                if symbol is not None:
+                    symbol.set_delay_parameter(state_var.get_delay_parameter())
+
+    @classmethod
+    def has_equation_with_delay_variable(cls, equations_with_delay_vars: ASTOdeEquation, sym: str) -> bool:
+        """
+        Returns true if the given variable has an equation defined with a delayed variable, false otherwise.
+        :param equations_with_delay_vars: a list of equations containing delayed variables
+        :param sym: symbol denoting the lhs of
+        """
+        for equation in equations_with_delay_vars:
+            if equation.get_lhs().get_name() == sym:
+                return True
+        return False

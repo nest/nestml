@@ -75,7 +75,7 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
         function_name = node.get_function_call().get_name()
         method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
 
-        if method_symbol is None and ASTUtils.has_delay_variable(node.get_function_call()):
+        if method_symbol is None and ASTUtils.is_function_delay_variable(node.get_function_call()):
             code, message = Messages.get_function_is_delay_variable(function_name)
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.WARNING)
