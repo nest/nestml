@@ -66,7 +66,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :param is_inf: is inf symbol.
         :param variable: a variable object.
         :param string: a single string literal
-        :param has_delay: is this simple expression node has a delay variable
+        :param has_delay: whether this simple expression node has a delay variable
         """
         super(ASTSimpleExpression, self).__init__(*args, **kwargs)
         assert (function_call is None or isinstance(function_call, ASTFunctionCall)), \
