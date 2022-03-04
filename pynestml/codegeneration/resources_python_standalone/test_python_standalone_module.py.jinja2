@@ -40,7 +40,18 @@ class SimulatorTest(unittest.TestCase):
         sg = simulator.add_neuron(SpikeGenerator())
 {% for neuron in neurons %}
         neuron = simulator.add_neuron(Neuron_{{neuron.get_name()}}(timestep=simulator.timestep))
-        simulator.connect(sg, neuron)
+        simulator.connect(sg, neuron, "ex_spikes")
 {% endfor %}
 
         simulator.run(100.)
+
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots()
+        for neuron_id, neuron_log in simulator.log.items():
+            if neuron_id == "t":
+                continue
+            for var_name, values in neuron_log.items():
+                ax.plot(simulator.log["t"], values, label="Neuron " + str(neuron_id) + ": " + str(var_name))
+        fig.legend()
+        plt.show()
+        import pdb;pdb.set_trace()

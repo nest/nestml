@@ -373,20 +373,17 @@ class PythonStandalonePrinter(Printer):
         declaration += '}'
         return declaration
 
-    def print_buffer_declaration_value(self, ast_buffer):
+    def print_buffer_declaration_value(self, ast_buffer: VariableSymbol) -> str:
         """
         Returns a string representation for the declaration of a buffer's value.
         :param ast_buffer: a single buffer variable symbol
         :type ast_buffer: VariableSymbol
         :return: the corresponding string representation
-        :rtype: str
         """
-        assert isinstance(ast_buffer, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         if ast_buffer.has_vector_parameter():
-            return 'std::vector<double> ' + self.self.reference_converter.buffer_value(ast_buffer)
-        else:
-            return 'double ' + self.self.reference_converter.buffer_value(ast_buffer)
+            return self.reference_converter.buffer_value(ast_buffer) + ": List[float] = []"
+
+        return self.reference_converter.buffer_value(ast_buffer) + ": float = 0."
 
     def print_buffer_declaration(self, ast_buffer):
         """

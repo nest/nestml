@@ -79,12 +79,29 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 {%- endfilter %}
 
+  class Buffers_:
+{%- if neuron.get_spike_input_ports() | length > 0 %}
+    # spiking input ports
+{%- endif %}
+{%- for port in neuron.get_spike_input_ports() %}
+    {{printer.print_buffer_declaration_value(port)}}
+{%- endfor %}
+
+{%- if neuron.get_continuous_input_ports() | length > 0 %}
+    # continuous input ports
+{%- endif %}
+{%- for port in neuron.get_continuous_input_ports() %}
+    {{printer.print_buffer_declaration_value(port)}}
+{%- endfor %}
+
+
   def __init__(self, timestep: float):
     super().__init__()
 
     self.P_ = self.Parameters_()
     self.S_ = self.State_()
     self.V_ = self.Variables_()
+    self.B_ = self.Buffers_()
 
 {%- if parameter_syms_with_iv|length > 0 %}
     # initial values for parameters
@@ -226,7 +243,7 @@ class Neuron_{{neuronName}}(Neuron):
     #     NESTML generated code for the update block
     # -------------------------------------------------------------------------
 
-{%- if neuron.get_update_blocks() %}
+{% if neuron.get_update_blocks() %}
 {%- filter indent(4) %}
 {%- set dynamics = neuron.get_update_blocks() %}
 {%- with ast = dynamics.get_block() %}
@@ -235,20 +252,27 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfilter %}
 {%- endif %}
 
+    # -------------------------------------------------------------------------
+    #     Clear spike buffers at end of timestep
+    # -------------------------------------------------------------------------
+
+{%- for port in neuron.get_spike_input_ports() %}
+    self.B_.{{port.get_symbol_name()}} = 0.
+{%- endfor %}
+
+
+
 {% if has_spike_input %}
   # -------------------------------------------------------------------------
   #   Spiking input handlers
   # -------------------------------------------------------------------------
 
-  def handle(self, port_name: str) -> None:
-{%   for port in neuron.get_spike_input_ports() %}
+  def handle(self, t_spike: float, w: float, port_name: str) -> None:
+{%-   for port in neuron.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
-{%-     filter indent(6) %}
-{%-     for ast in spike_updates[port.name] %}
-{%-       include "directives/Assignment.jinja2" %}
-{%-     endfor %}
-{%-     endfilter %}
-{%   endfor %}
+      self.B_.{{port.get_symbol_name()}} += abs(w)
+{%-   endfor %}
+{%- endif %}
 
   def get_spiking_input_ports(self) -> List[str]:
     return [
@@ -256,8 +280,6 @@ class Neuron_{{neuronName}}(Neuron):
             "{{port.name}}",
 {%- endfor %}
     ]
-
-{%- endif %}
 
 {%- if paired_synapse is defined %}
   # -------------------------------------------------------------------------

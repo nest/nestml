@@ -20,7 +20,7 @@
 {%-   else %}
 {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}
 {%-   endif %}
-{{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}};
+{{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}}
 {%- else %}
 {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}} {{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}};
 {%- endif %}

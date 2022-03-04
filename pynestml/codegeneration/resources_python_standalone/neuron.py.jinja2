@@ -34,8 +34,7 @@ class Neuron(metaclass=ABCMeta):
     def step(self, origin: float, timestep: float) -> None:
         pass
 
-    @abstractmethod
-    def handle(self, port_name: str) -> None:
+    def handle(self, t_spike: float, w: float, port_name: str) -> None:
         pass
 
     def emit_spike(self, t: float) -> None:

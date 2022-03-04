@@ -99,6 +99,9 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
             return 'self._timestep'
 
+        if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
+            return 'self.emit_spike(origin)'
+
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             result += '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
@@ -238,14 +241,20 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
                 units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
             else:
                 units_conversion_factor = 1
+
             s = ""
+
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
+
             s += self.print_origin(symbol, prefix=prefix) + self.buffer_value(symbol)
+
             if symbol.has_vector_parameter():
                 s += '[' + variable.get_vector_parameter() + ']'
+
             if not units_conversion_factor == 1:
                 s += ")"
+
             return s
 
         if symbol.is_inline_expression:
@@ -277,4 +286,4 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         :param variable_symbol: a single variable symbol.
         :return: the corresponding representation as a string
         """
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        return variable_symbol.get_symbol_name()

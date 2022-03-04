@@ -853,7 +853,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.update_symbol_table(neuron, kernel_buffers)
         spike_updates, post_spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
-
+        import pdb;pdb.set_trace()
         return spike_updates, post_spike_updates
 
     def analyse_synapse(self, synapse: ASTSynapse) -> Dict[str, ASTAssignment]:

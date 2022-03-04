@@ -36,8 +36,5 @@ class SpikeGenerator(Neuron):
       self._interval_counter += self._interval
       self.emit_spike(origin)
 
-  def handle(self, port_name: str) -> None:
-    pass
-
   def get_model(self) -> str:
     return "spike_generator"
