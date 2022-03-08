@@ -48,8 +48,5 @@ class TestPythonStandaloneNeuronBuildAndSim(unittest.TestCase):
                                           suffix=suffix,
                                           codegen_opts=codegen_opts)
 
-        from nestmlmodule.simulator import Simulator
-        from nestmlmodule.iaf_psc_exp import Neuron_iaf_psc_exp
-        n = Neuron_iaf_psc_exp()
-        sim = Simulator(n)
-        sim.run()
+        from nestmlmodule.test_python_standalone_module import TestSimulator
+        TestSimulator().test_simulator()

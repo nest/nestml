@@ -30,6 +30,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -276,35 +277,13 @@ e();'''
         """
         if symbol.is_state() and not symbol.is_inline_expression:
             return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
-        else:
-            return self.name(symbol)
 
-    def getter(self, variable_symbol):
-        """
-        Converts for a handed over symbol the corresponding name of the getter to a gsl processable format.
-        :param variable_symbol: a single variable symbol.
-        :type variable_symbol: VariableSymbol
-        :return: the corresponding representation as a string
-        :rtype: str
-        """
-        return self.getter(variable_symbol)
+        return super().name(symbol)
 
-    def setter(self, variable_symbol):
+    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
         """
-        Converts for a handed over symbol the corresponding name of the setter to a gsl processable format.
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
         :param variable_symbol: a single variable symbol.
-        :type variable_symbol: VariableSymbol
         :return: the corresponding representation as a string
-        :rtype: str
         """
-        return self.setter(variable_symbol)
-
-    def buffer_value(self, variable_symbol):
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a gsl processable format.
-        :param variable_symbol: a single variable symbol.
-        :type variable_symbol: VariableSymbol
-        :return: the corresponding representation as a string
-        :rtype: str
-        """
-        return self.buffer_value(variable_symbol)
+        return variable_symbol.get_symbol_name() + '_grid_sum_'

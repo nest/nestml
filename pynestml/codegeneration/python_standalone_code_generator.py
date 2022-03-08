@@ -42,19 +42,19 @@ class PythonStandaloneCodeGenerator(CodeGenerator):
         self.codegen_int._gsl_reference_converter = PythonStandaloneReferenceConverter()
         self.codegen_int._nest_reference_converter = PythonStandaloneReferenceConverter()
         self.codegen_int._expressions_printer = UnitlessExpressionPrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                   types_printer=self.codegen_int._types_printer)
+                                                                          types_printer=self.codegen_int._types_printer)
 
         self.codegen_int._gsl_printer = PythonStandalonePrinter(reference_converter=self.codegen_int._nest_reference_converter,
                                                                 types_printer=self.codegen_int._types_printer,
                                                                 expressions_printer=self.codegen_int._expressions_printer)
 
         self.codegen_int._unitless_nest_printer = PythonStandalonePrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                     types_printer=self.codegen_int._types_printer,
-                                                                     expressions_printer=self.codegen_int._expressions_printer)
+                                                                          types_printer=self.codegen_int._types_printer,
+                                                                          expressions_printer=self.codegen_int._expressions_printer)
 
         self.codegen_int._unitless_nest_gsl_printer = PythonStandalonePrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                     types_printer=self.codegen_int._types_printer,
-                                                                     expressions_printer=self.codegen_int._expressions_printer)
+                                                                              types_printer=self.codegen_int._types_printer,
+                                                                              expressions_printer=self.codegen_int._expressions_printer)
 
         self.codegen_int._options["templates"]["path"] = os.path.join(os.path.dirname(__file__), "resources_python_standalone")
         self.codegen_int._options["templates"]["model_templates"]["neuron"] = ["Neuron.py.jinja2"]

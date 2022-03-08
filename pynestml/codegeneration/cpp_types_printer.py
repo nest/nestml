@@ -54,7 +54,6 @@ class CppTypesPrinter(TypesPrinter):
             return "bool"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
-            import pdb;pdb.set_trace()
             return "long"
 
         if isinstance(type_symbol, StringTypeSymbol):

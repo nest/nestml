@@ -29,5 +29,6 @@ class Printer:
     """
 
     def __init__(self, reference_converter: ReferenceConverter, types_printer: TypesPrinter):
+        assert isinstance(reference_converter, ReferenceConverter)
         self.reference_converter = reference_converter
         self.types_printer = types_printer

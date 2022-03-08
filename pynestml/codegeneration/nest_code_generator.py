@@ -57,6 +57,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger
@@ -125,14 +126,25 @@ class NESTCodeGenerator(CodeGenerator):
 
         self.setup_template_env()
 
+        self._types_printer = CppTypesPrinter()
         self._gsl_reference_converter = GSLReferenceConverter()
         self._nest_reference_converter = NESTReferenceConverter()
-        self._types_printer = CppTypesPrinter()
-        self._gsl_printer = UnitlessExpressionPrinter(self._gsl_reference_converter, self._types_printer)
+
+        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter,
+                                                              types_printer=self._types_printer)
         self._printer = ExpressionsPrinter(self._nest_reference_converter, self._types_printer)
         self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter, self._types_printer)
-        self._unitless_nest_printer = NestPrinter(self._nest_reference_converter, self._types_printer, expressions_printer=self._printer)
-        self._unitless_nest_gsl_printer = NestPrinter(self._unitless_expression_printer, self._types_printer, expressions_printer=self._unitless_expression_printer)
+        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter,
+                                                      types_printer=self._types_printer)
+
+        self._unitless_nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+                                                  types_printer=self._types_printer,
+                                                  expressions_printer=self._printer)
+
+        self._unitless_nest_gsl_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+                                                      types_printer=self._types_printer,
+                                                      expressions_printer=self._unitless_expression_printer)
+
         self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter(), self._types_printer)
 
     def raise_helper(self, msg):
@@ -781,7 +793,7 @@ class NESTCodeGenerator(CodeGenerator):
         for synapse in synapses:
             if Logger.logging_level == LoggingLevel.INFO:
                 print("Analysing/transforming synapse {}.".format(synapse.get_name()))
-            spike_updates, _ = self.analyse_synapse(synapse)
+            spike_updates = self.analyse_synapse(synapse)
             synapse.spike_updates = spike_updates
 
     def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
@@ -853,7 +865,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.update_symbol_table(neuron, kernel_buffers)
         spike_updates, post_spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
-        import pdb;pdb.set_trace()
+
         return spike_updates, post_spike_updates
 
     def analyse_synapse(self, synapse: ASTSynapse) -> Dict[str, ASTAssignment]:
@@ -1199,11 +1211,12 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()
-                                                   if sym.get_type_symbol() in [IntegerTypeSymbol, RealTypeSymbol]
+                                                   if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
                                                    and sym.is_recordable
                                                    and not ASTTransformers.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
+
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
-                                                      if sym.get_type_symbol() in [IntegerTypeSymbol, RealTypeSymbol]
+                                                      if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
                                                       and sym.is_recordable]
 
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols()
@@ -1323,8 +1336,7 @@ class NESTCodeGenerator(CodeGenerator):
                     else:
                         assignment_str += "(" + str(spike_input_port) + ")"
                     if not expr in ["1.", "1.0", "1"]:
-                        assignment_str += " * (" + \
-                            self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+                        assignment_str += " * (" + expr + ")"
 
                     if not buffer_type.print_nestml_type() in ["1.", "1.0", "1", "real", "integer"]:
                         assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
@@ -1347,7 +1359,11 @@ class NESTCodeGenerator(CodeGenerator):
             inport = k[1]
             assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
             if not factor in ["1.", "1.0", "1"]:
-                assignment_str += "(" + self._printer.print_expression(ModelParser.parse_expression(factor)) + ") * "
+                factor_expr = ModelParser.parse_expression(factor)
+                factor_expr.update_scope(neuron.get_scope())
+                factor_expr.accept(ASTSymbolTableVisitor())
+                assignment_str += "(" + self._unitless_expression_printer.print_expression(factor_expr) + ") * "
+
             assignment_str += str(inport)
             ast_assignment = ModelParser.parse_assignment(assignment_str)
             ast_assignment.update_scope(neuron.get_scope())

@@ -261,7 +261,6 @@ class PythonStandalonePrinter(Printer):
         """
         return 'get_' + variable_symbol.get_symbol_name() + '().clear(); //includes resize'
 
-
     def print_function_declaration(self, ast_function):
         """
         Returns a nest processable function declaration head, i.e. the part which appears in the .h file.

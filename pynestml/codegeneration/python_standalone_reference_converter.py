@@ -92,7 +92,6 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         """
         result = function_call.get_name()
 
-
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return 'steps({!s}, self._timestep)'
 
@@ -172,7 +171,6 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
 
         if prefix == '':
             prefix = 'self.'
-        print("abc Printing " +prefix+ str(variable_symbol.name))
 
         if variable_symbol.block_type == BlockType.STATE:
             return prefix + 'S_.'

@@ -21,13 +21,13 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 Generated from NESTML at time: {{now}}
 """
 
-from neuron import Neuron
+from .neuron import Neuron
 
 
 class SpikeGenerator(Neuron):
-  def __init__(self):
+  def __init__(self, interval: int):
     super().__init__()
-    self._interval = 10.
+    self._interval = interval
     self._interval_counter = self._interval
 
   def step(self, origin: float, timestep: float):

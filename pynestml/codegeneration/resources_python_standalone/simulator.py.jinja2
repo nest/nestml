@@ -46,7 +46,7 @@ from typing import List, Mapping, Optional, Union
 
 import numpy as np
 
-from neuron import Neuron
+from .neuron import Neuron
 
 
 class Simulator:
@@ -86,7 +86,8 @@ class Simulator:
             neuron.step(origin=self._t,
                         timestep=timestep)
             self._t += self.timestep
-            self.log_step()
+
+        self.log_step()
 
     def add_neuron(self, neuron: Neuron) -> int:
         r"""Add neuron instance to the simulator. Return a globally unique neuron ID for this instance."""
