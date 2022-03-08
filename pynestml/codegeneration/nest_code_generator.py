@@ -213,6 +213,12 @@ class NESTCodeGenerator(CodeGenerator):
 
         return _abs_template_paths
 
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        ret = super().set_options(options)
+        self.setup_template_env()
+
+        return ret
+
     def update_blocktype_for_common_parameters(self, node):
         """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
         # get all homogeneous parameters
