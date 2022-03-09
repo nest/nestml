@@ -36,14 +36,19 @@ class WithOptions:
             self.set_options(options)
 
     def get_option(self, k: str) -> Any:
+        r"""Get the value of a given option."""
         return self._options[k]
 
     def option_exists(self, k: str) -> bool:
+        r"""Test whether an option exists."""
         return k in self._options.keys()
 
-    def set_options(self, options: Mapping[str, Any]):
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
+        unhandled_options = {}
         for k in options.keys():
             if k in self.__class__._default_options:
                 self._options[k] = options[k]
             else:
-                print("Option \"" + str(k) + "\" does not exist in builder")
+                unhandled_options[k] = options[k]
+        return unhandled_options
