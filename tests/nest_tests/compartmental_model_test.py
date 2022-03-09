@@ -61,7 +61,7 @@ class CMTest(unittest.TestCase):
         nest.SetKernelStatus(dict(resolution=DT))
 
     def install_nestml_model(self):
-        print("Compiled nestml model \'cm_main_cm_default\' not found, installing...")
+        print("Compiled nestml model \'cm_main_cm_default_nestml\' not found, installing...")
 
         path_nestml = pynestml.__path__[0]
         path_target = "target/"
@@ -72,9 +72,10 @@ class CMTest(unittest.TestCase):
                 os.makedirs(path_target)
 
         generate_nest_target(input_path=os.path.join(path_nestml, "../models/cm_default.nestml"),
-                target_path=os.path.join(path_target, "compartmental_model/"),
-                module_name="cm_defaultmodule",
-                logging_level="ERROR")
+                             target_path=os.path.join(path_target, "compartmental_model/"),
+                             module_name="cm_defaultmodule",
+                             suffix="_nestml",
+                             logging_level="ERROR")
 
 
     def get_model(self, reinstall_flag=True):
@@ -90,10 +91,11 @@ class CMTest(unittest.TestCase):
 
                 nest.Install("cm_defaultmodule")
 
-            cm_act = nest.Create("cm_main_cm_default")
-            cm_pas = nest.Create("cm_main_cm_default")
+            cm_act = nest.Create("cm_main_cm_default_nestml")
+            cm_pas = nest.Create("cm_main_cm_default_nestml")
 
         else:
+            # models built into NEST Simulator
             cm_pas = nest.Create('cm_default')
             cm_act = nest.Create('cm_default')
 
