@@ -86,8 +86,3 @@ class CodeGenerator(WithOptions):
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
-
-        targets = ["NEST", "NEST_COMPARTMENTAL", "autodoc", ""]     # include the empty string here to represent "no code generated"
-        if target_name.upper() == "NEST_COMPARTMENTAL":
-            from pynestml.codegeneration.nest_codegenerator_cm import NESTCodeGeneratorCM
-            return NESTCodeGeneratorCM(options)
