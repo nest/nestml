@@ -24,6 +24,7 @@ from typing import Any, Mapping, Optional
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest2_gsl_reference_converter import NEST2GSLReferenceConverter
 from pynestml.codegeneration.nest2_reference_converter import NEST2ReferenceConverter
+from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 
 
@@ -37,8 +38,18 @@ class NEST2CodeGenerator(NESTCodeGenerator):
 
         self._target = "NEST2"
 
-        self.gsl_reference_converter = NEST2GSLReferenceConverter()
-        self.gsl_printer = UnitlessExpressionPrinter(self.gsl_reference_converter)
+        self._gsl_reference_converter = NEST2GSLReferenceConverter()
+        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter,
+                                                      types_printer=self._types_printer)
 
-        self.nest_reference_converter = NEST2ReferenceConverter()
-        self.unitless_printer = UnitlessExpressionPrinter(self.nest_reference_converter)
+        self._nest_reference_converter = NEST2ReferenceConverter()
+        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter,
+                                                                          types_printer=self._types_printer)
+
+        self._unitless_nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+                                                                          types_printer=self._types_printer,
+                                                                          expressions_printer=self._expressions_printer)
+
+        self._unitless_nest_gsl_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+                                                                              types_printer=self._types_printer,
+                                                                              expressions_printer=self._expressions_printer)
