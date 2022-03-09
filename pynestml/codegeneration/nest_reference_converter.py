@@ -233,9 +233,6 @@ e();
         if symbol.is_state():
             temp = ""
             temp += NestNamesConverter.getter(symbol) + "()"
-            # if with_origins is False then also
-            # deactivate "ode_state[State_::"
-            if self.uses_gsl and with_origins:
             temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
