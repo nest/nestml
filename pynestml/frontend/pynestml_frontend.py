@@ -120,10 +120,6 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     args.append(qualifier_target_platform_arg)
     args.append(target_platform)
 
-        args.append(str(target))
-    else:
-        raise Exception("target argument must be one of: "+str(known_targets))
-        
     args.append(qualifier_logging_level_arg)
     args.append(str(logging_level))
 
