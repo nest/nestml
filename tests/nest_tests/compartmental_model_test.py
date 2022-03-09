@@ -85,7 +85,7 @@ class CMTest(unittest.TestCase):
 
                 nest.Install("cm_defaultmodule")
 
-            except (nest.pynestkernel.NESTError, AssertionError) as e:
+            except (nest.NESTError, AssertionError) as e:
                 self.install_nestml_model()
 
                 nest.Install("cm_defaultmodule")
@@ -94,8 +94,8 @@ class CMTest(unittest.TestCase):
             cm_pas = nest.Create("cm_main_cm_default")
 
         else:
-            cm_pas = nest.Create('cm_main')
-            cm_act = nest.Create('cm_main')
+            cm_pas = nest.Create('cm_default')
+            cm_act = nest.Create('cm_default')
 
         return cm_act, cm_pas
 
@@ -114,22 +114,36 @@ class CMTest(unittest.TestCase):
         cm_act, cm_pas = self.get_model()
 
         # create a neuron model with a passive dendritic compartment
-        nest.AddCompartment(cm_pas, 0, -1, SOMA_PARAMS)
-        nest.AddCompartment(cm_pas, 1, 0, DEND_PARAMS_PASSIVE)
+        cm_pas.compartments = [
+            {"parent_idx": -1, "params": SOMA_PARAMS},
+            {"parent_idx":  0, "params": DEND_PARAMS_PASSIVE}
+        ]
+        
         # create a neuron model with an active dendritic compartment
-        nest.AddCompartment(cm_act, 0, -1, SOMA_PARAMS)
-        nest.AddCompartment(cm_act, 1, 0, DEND_PARAMS_ACTIVE)
+        cm_act.compartments = [
+            {"parent_idx": -1, "params": SOMA_PARAMS},
+            {"parent_idx":  0, "params": DEND_PARAMS_ACTIVE}
+        ]
 
         # set spike thresholds
         nest.SetStatus(cm_pas, {'V_th': -50.})
         nest.SetStatus(cm_act, {'V_th': -50.})
 
         # add somatic and dendritic receptor to passive dendrite model
-        syn_idx_soma_pas = nest.AddReceptor(cm_pas, 0, "AMPA_NMDA")
-        syn_idx_dend_pas = nest.AddReceptor(cm_pas, 1, "AMPA_NMDA")
+        cm_pas.receptors = [
+            {"comp_idx": 0, "receptor_type": "AMPA_NMDA"},
+            {"comp_idx": 1, "receptor_type": "AMPA_NMDA"}
+        ]
+        syn_idx_soma_pas = 0
+        syn_idx_dend_pas = 1
+
         # add somatic and dendritic receptor to active dendrite model
-        syn_idx_soma_act = nest.AddReceptor(cm_act, 0, "AMPA_NMDA")
-        syn_idx_dend_act = nest.AddReceptor(cm_act, 1, "AMPA_NMDA")
+        cm_act.receptors = [
+            {"comp_idx": 0, "receptor_type": "AMPA_NMDA"},
+            {"comp_idx": 1, "receptor_type": "AMPA_NMDA"}
+        ]
+        syn_idx_soma_act = 0
+        syn_idx_dend_act = 1
 
         # create a two spike generators
         sg_soma = nest.Create('spike_generator', 1, {'spike_times': [10.,13.,16.]})

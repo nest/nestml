@@ -40,6 +40,12 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 
+
+def get_known_targets():
+    targets = ["NEST", "NEST2", "python_standalone", "autodoc", "none"]
+    targets = [s.upper() for s in targets]
+    return targets
+
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
