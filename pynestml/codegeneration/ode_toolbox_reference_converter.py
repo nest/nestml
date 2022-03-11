@@ -58,7 +58,6 @@ class ODEToolboxReferenceConverter(NestMLReferenceConverter):
         :type constant_name: str
         :return: the corresponding nest representation
         """
-        print("xxxxxxx converting " + str(const))
         if isinstance(const, float) or isinstance(const, int):
             return str(const)
 

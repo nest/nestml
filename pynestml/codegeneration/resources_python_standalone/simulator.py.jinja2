@@ -85,7 +85,7 @@ class Simulator:
         for neuron in self.neurons:
             neuron.step(origin=self._t,
                         timestep=timestep)
-            self._t += self.timestep
+        self._t += self.timestep
 
         self.log_step()
 
@@ -109,6 +109,8 @@ class Simulator:
         self.connection_weights[source][target] = w
         self.connection_ports[source][target] = port
         self.connections[source].append(target)
+        if not port in self.neurons[target].get_spiking_input_ports():
+            raise Exception("Tried to connect to unknown input port \"" + port_name + "\" on neuron type \"" + self.neurons[target].get_model() + "\"")
 
 
     def handle(self, source: Neuron) -> None:
@@ -140,11 +142,11 @@ class Simulator:
         t_stop
             Stopping time in milliseconds.
         """
-        self.t = 0.
-        while self.t < t_stop:
+        self._t = 0.
+        while self._t < t_stop:
             self.step(self.timestep)
             self.deliver_spikes()
-            self.t += self.timestep
+            self._t += self.timestep
 
     def get_log(self):
         return self._log

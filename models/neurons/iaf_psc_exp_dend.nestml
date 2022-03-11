@@ -47,7 +47,7 @@ neuron iaf_psc_exp_dend:
     kernel I_kernel_in = exp(-1/tau_syn_in*t)
     kernel I_kernel_ex = exp(-1/tau_syn_ex*t)
     recordable inline V_m mV = V_abs + E_L # Membrane potential.
-    inline I_syn pA = convolve(I_kernel_in, in_spikes) + convolve(I_kernel_ex, ex_spikes) + I_e + I_stim
+    inline I_syn pA = convolve(I_kernel_ex, ex_spikes) - convolve(I_kernel_in, in_spikes) + I_e + I_stim
     V_abs' = -V_abs / tau_m + I_syn / C_m
   end
 

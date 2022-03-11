@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
 
+import numpy as np
+
 from .simulator import Simulator
 from .spike_generator import SpikeGenerator
 
@@ -41,8 +43,8 @@ class TestSimulator:
         sg_inh = simulator.add_neuron(SpikeGenerator(interval=50.))
 {% for neuron in neurons %}
         neuron = simulator.add_neuron(Neuron_{{neuron.get_name()}}(timestep=simulator.timestep))
-        simulator.connect(sg_exc, neuron, "ex_spikes",w=1000.)
-        simulator.connect(sg_inh, neuron, "in_spikes",w=4000.)
+        simulator.connect(sg_exc, neuron, "exc_spikes",w=1000.)
+        simulator.connect(sg_inh, neuron, "inh_spikes",w=4000.)
 {% endfor %}
 
         simulator.run(t_stop)
@@ -60,3 +62,11 @@ class TestSimulator:
                 ax[i].set_xlim(0, t_stop)
                 ax[i].grid(True)
             #plt.show()
+            fig.savefig("/tmp/test_python_standalone_simulation_[neuron=" + simulator.neurons[neuron_id].get_model() + "].png")
+
+            if simulator.neurons[neuron_id].get_model() == "iaf_psc_exp":
+                np.testing.assert_allclose(values[-1], 1.045281330074588)
+            elif simulator.neurons[neuron_id].get_model() == "iaf_psc_alpha":
+                np.testing.assert_allclose(values[-1], -24.16445159932949)
+            elif simulator.neurons[neuron_id].get_model() == "aeif_cond_exp":
+                np.testing.assert_allclose(values[-1], -24.16445159932949)

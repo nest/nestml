@@ -498,7 +498,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   const double weight = e.get_weight();
   const double multiplicity = e.get_multiplicity();
 {%-   for port in neuron.get_spike_input_ports() %}
-{%-     if port.is_excitatory() %}
+{%-     if port.is_excitatory() and port.is_inhibitory() %}
   if ( weight >= 0.0 )
   {
     // excitatory
@@ -506,8 +506,6 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                        weight * multiplicity );
   }
-{%-     endif %}
-{%-     if port.is_inhibitory() %}
   if ( weight < 0.0 )
   {
     // inhibitory
@@ -515,6 +513,22 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                       {% if port.is_conductance_based() %} // ensure conductance is positive {% endif %}
                       {% if port.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
+  }
+{%-     elif port.is_excitatory() %}
+  if ( weight >= 0.0 )
+  {
+    // excitatory
+    get_{{port.get_symbol_name()}}().
+        add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+                       weight * multiplicity );
+  }
+{%-     elif port.is_inhibitory() %}
+  if ( weight < 0.0 )
+  {
+    // inhibitory
+    get_{{port.get_symbol_name()}}().
+        add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+                  -weight * multiplicity );
   }
 {%-     endif %}
 {%-   endfor %}
@@ -692,7 +706,6 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%-   for variable_name in numeric_state_variables %}
 S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
 {%-     endfor %}
-
 {%- endif %}
 
 {%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
