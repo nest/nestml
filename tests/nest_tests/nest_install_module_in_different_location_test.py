@@ -19,15 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-<<<<<<< HEAD
-import os
-import unittest
-
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest, add_libraries_to_sli
-import tempfile
-import glob
-import nest
-=======
 import glob
 import nest
 import os
@@ -35,7 +26,6 @@ import tempfile
 import unittest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
->>>>>>> 4d0c764e2c362f0f8e83c825e6693f5395236ad6
 
 
 class NestInstallExistingModule(unittest.TestCase):
@@ -46,31 +36,6 @@ class NestInstallExistingModule(unittest.TestCase):
     def test_installing_module_outside_nest(self):
 
         model_name = "iaf_psc_exp"
-<<<<<<< HEAD
-        module_name = f'{model_name}module'
-
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", f"{model_name}.nestml"))))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        install_dir = tempfile.mkdtemp(prefix="nest_install", suffix="")
-        target_path = 'target'
-
-        logging_level = 'INFO'
-        store_log = False
-        suffix = '_location_test'
-        dev = True
-
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path, install_dir)
-
-        expected_module_path = f"{install_dir}/{module_name}.so"
-        actual_module_path = glob.glob(f"{install_dir}/*so")
-
-        # check if tmp folder contains only one module
-        self.assertEqual(len(actual_module_path), 1)
-        # compare the expected module name with the actual fgit ound one
-        self.assertEqual(actual_module_path[0], expected_module_path)
-=======
         module_name = f"{model_name}module"
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -108,7 +73,6 @@ class NestInstallExistingModule(unittest.TestCase):
         self.assertEqual(len(actual_found_module), 1)
         # compare the expected module name with the actual found one
         self.assertEqual(actual_found_module[0], expected_found_module)
->>>>>>> 4d0c764e2c362f0f8e83c825e6693f5395236ad6
 
         # install module
         nest.set_verbosity("M_ALL")
@@ -121,8 +85,4 @@ class NestInstallExistingModule(unittest.TestCase):
 
         # delete created folder
         import shutil
-<<<<<<< HEAD
-        shutil.rmtree(install_dir)
-=======
         shutil.rmtree(install_path)
->>>>>>> 4d0c764e2c362f0f8e83c825e6693f5395236ad6

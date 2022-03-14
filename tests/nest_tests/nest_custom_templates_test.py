@@ -23,11 +23,7 @@ import unittest
 
 import nest
 
-<<<<<<< HEAD
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-=======
 from pynestml.frontend.pynestml_frontend import generate_target
->>>>>>> 4d0c764e2c362f0f8e83c825e6693f5395236ad6
 
 
 class NestCustomTemplatesTest(unittest.TestCase):
