@@ -50,7 +50,6 @@ class CodeGenerator(WithOptions):
             raise InvalidTargetException()
 
         self._target = target
-        self.is_transformed = False
 
     def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         """the base class CodeGenerator does not generate any code"""

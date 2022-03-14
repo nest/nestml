@@ -29,6 +29,7 @@ import platform
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.builder import Builder
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.exceptions.code_generator_options_exception import CodeGeneratorOptionsException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
@@ -48,7 +49,7 @@ def get_known_targets():
     return targets
 
 
-def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
     if target_name.upper() == "NEST":
@@ -66,11 +67,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
-    # cannot reach here due to earlier assert -- silence static checker warnings
-    assert "Unknown code generator requested: " + target_name
+    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -126,25 +126,26 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
     Parameters
     ----------
     input_path : str **or** Sequence[str]
-        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+        One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching ``*.nestml``.
+    target_platform : str
+        The name of the target platform to generate code for.
     target_path : str, optional (default: append "target" to `input_path`)
-        Path to the generated C++ code and install files.
+        Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
     logging_level : str, optional (default: "ERROR")
-        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+        Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are: DEBUG, INFO, WARNING, ERROR, NO.
     module_name : str, optional (default: "nestmlmodule")
-        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
+        Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in ``module``. Default is ``nestmlmodule``.
     store_log : bool, optional (default: False)
-        Whether the log should be saved to file.
+        Stores a log.txt containing all messages in JSON notation. Default is OFF.
     suffix : str, optional (default: "")
         A suffix string that will be appended to the name of all generated models.
     install_path
-        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
+        Path to the directory where the generated code will be installed.
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
-    print(codegen_opts)
     generate_target(input_path, target_platform="NEST", target_path=target_path, logging_level=logging_level,
                     module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
                     dev=dev, codegen_opts=codegen_opts)
@@ -253,12 +254,25 @@ def process_nestml_files():
     # now proceed to parse all models
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
+
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
+
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
+
+    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
+    codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
+    _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
+
+    if _builder is not None:
+        codegen_and_builder_opts = _builder.set_options(codegen_and_builder_opts)
+
+    if len(codegen_and_builder_opts) > 0:
+        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
         # generate a list of all compilation units (neurons + synapses)

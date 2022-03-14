@@ -85,8 +85,7 @@ class NESTBuilder(Builder):
             try:
                 import nest
             except ModuleNotFoundError:
-                Logger.log_message(
-                    None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths.", None, LoggingLevel.ERROR)
+                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths.", None, LoggingLevel.ERROR)
                 sys.exit(1)
 
             nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
