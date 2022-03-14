@@ -26,7 +26,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from jinja2 import Environment, FileSystemLoader

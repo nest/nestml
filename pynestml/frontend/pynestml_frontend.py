@@ -144,6 +144,7 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+    print(codegen_opts)
     generate_target(input_path, target_platform="NEST", target_path=target_path, logging_level=logging_level,
                     module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
                     dev=dev, codegen_opts=codegen_opts)
@@ -301,7 +302,7 @@ def process_nestml_files():
 def retrieve_models():
     neuronsAst, synapsesAst, errors_occurred = process_nestml_files()
     if errors_occurred:
-        raise Exception("Error(s) occurred while process_nestml_filesing the model")
+        raise Exception("Error(s) occurred while processing the model")
     _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform(),
                                                      options=FrontendConfiguration.get_codegen_opts())
     neurons, synapses = _codeGenerator.transform(neuronsAst, synapsesAst)
