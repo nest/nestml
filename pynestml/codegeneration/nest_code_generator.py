@@ -711,13 +711,17 @@ class NESTCodeGenerator(CodeGenerator):
 
         return neurons, synapses
 
-    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
+    def transform(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         if synapses is None:
             synapses = []
         if self._options and "neuron_synapse_pairs" in self._options:
             neurons, synapses = self.analyse_transform_neuron_synapse_pairs(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
+        self.is_transformed = True
+        return neurons, synapses
+
+    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)

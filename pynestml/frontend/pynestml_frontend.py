@@ -46,7 +46,7 @@ def get_known_targets():
     return targets
 
 
-def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
     if target_name.upper() == "NEST":
@@ -64,10 +64,11 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
-    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
+    # cannot reach here due to earlier assert -- silence static checker warnings
+    assert "Unknown code generator requested: " + target_name
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -81,8 +82,8 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
-                    install_path: str=None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
-                    dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                    install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                    dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the given target platform.
 
     Parameters
@@ -108,6 +109,49 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+
+    frontend_configuration_setup(input_path, target_platform, target_path, install_path, logging_level,
+                                 module_name, store_log, suffix, dev, codegen_opts)
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
+
+
+def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                         install_path: Optional[str] = None, logging_level="ERROR",
+                         module_name=None, store_log: bool = False, suffix: str = "",
+                         dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
+    r"""Generate and build code for NEST Simulator.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    install_path
+        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="NEST", target_path=target_path, logging_level=logging_level,
+                    module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
+                    dev=dev, codegen_opts=codegen_opts)
+
+
+def frontend_configuration_setup(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
+                                 install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                                 dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
+
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -149,41 +193,6 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     if codegen_opts:
         FrontendConfiguration.set_codegen_opts(codegen_opts)
 
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
-
-
-def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
-                         install_path: Optional[str] = None, logging_level="ERROR",
-                         module_name=None, store_log: bool=False, suffix: str="",
-                         dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
-    r"""Generate and build code for NEST Simulator.
-
-    Parameters
-    ----------
-    input_path : str **or** Sequence[str]
-        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
-    target_path : str, optional (default: append "target" to `input_path`)
-        Path to the generated C++ code and install files.
-    logging_level : str, optional (default: "ERROR")
-        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
-    module_name : str, optional (default: "nestmlmodule")
-        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
-    store_log : bool, optional (default: False)
-        Whether the log should be saved to file.
-    suffix : str, optional (default: "")
-        A suffix string that will be appended to the name of all generated models.
-    install_path
-        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
-    dev : bool, optional (default: False)
-        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
-    codegen_opts : Optional[Mapping[str, Any]]
-        A dictionary containing additional options for the target code generator.
-    """
-    generate_target(input_path, target_platform="NEST", target_path=target_path, logging_level=logging_level,
-                    module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
-                    dev=dev, codegen_opts=codegen_opts)
-
 
 def main() -> int:
     """
@@ -210,6 +219,25 @@ def process():
     errors_occurred : bool
         Flag indicating whether errors occurred during processing
     """
+    neurons, synapses, _codeGenerator = retrieve_models()
+    errors_occurred = generate_code(codeGenerator=_codeGenerator, neurons=neurons, synapses=synapses)
+
+    if errors_occurred:
+        raise Exception("Error(s) occurred while generating code")
+
+    # perform build
+    _builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
+                                        options=FrontendConfiguration.get_codegen_opts())
+    if _builder is not None:
+        _builder.build()
+
+    if FrontendConfiguration.store_log:
+        store_log_to_file()
+
+    return errors_occurred
+
+
+def process_nestml_files():
 
     errors_occurred = False
 
@@ -262,26 +290,29 @@ def process():
                                        log_level=LoggingLevel.INFO)
                     synapses.remove(synapse)
                     errors_occurred = True
+        return neurons, synapses, errors_occurred
+    else:
+        errors_occurred = True
+        return [], [], errors_occurred
 
-        # perform code generation
-        _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                         options=FrontendConfiguration.get_codegen_opts())
-        _codeGenerator.generate_code(neurons, synapses)
-        for astnode in neurons + synapses:
-            if Logger.has_errors(astnode):
-                errors_occurred = True
-                break
 
-    # perform build
-    if not errors_occurred:
-        _builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
-                                            options=FrontendConfiguration.get_codegen_opts())
-        if _builder is not None:
-            _builder.build()
+def retrieve_models():
+    neuronsAst, synapsesAst, errors_occurred = process_nestml_files()
+    if errors_occurred:
+        raise Exception("Error(s) occurred while processing the model")
+    _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                     options=FrontendConfiguration.get_codegen_opts())
+    neurons, synapses = _codeGenerator.transform(neuronsAst, synapsesAst)
 
-    if FrontendConfiguration.store_log:
-        store_log_to_file()
+    return neurons, synapses, _codeGenerator
 
+
+def generate_code(codeGenerator, neurons, synapses):
+    errors_occurred = False
+    codeGenerator.generate_code(neurons, synapses)
+    for astnode in neurons + synapses:
+        if Logger.has_errors(astnode):
+            errors_occurred = True
     return errors_occurred
 
 

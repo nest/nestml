@@ -55,6 +55,10 @@ class CodeGenerator(WithOptions):
         """the base class CodeGenerator does not generate any code"""
         pass
 
+    def transform(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+        """the base class CodeGenerator does not generate any code"""
+        pass
+
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
