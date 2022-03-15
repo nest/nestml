@@ -83,7 +83,7 @@ class DelayVariablesTest(unittest.TestCase):
             pass
 
         neuron = nest.Create(neuron_model_name)
-        nest.SetStatus(neuron, {"delay": delay})
+        neuron.set({"delay": delay})
 
         multimeter = nest.Create("multimeter", params={"record_from": recordables})
         nest.Connect(multimeter, neuron)
