@@ -846,6 +846,37 @@ has to be defined in the ``state`` block. Otherwise, an error message is generat
 
 The content of spike and continuous time buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
+Delay Differential Equations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The differential equations in the ``equations`` block can also be a delay differential equation, where the derivative
+at the current time depends on the derivative of a function at previous times. A state variable, say ``foo`` that is
+dependent on the time derivative of another state variable ``bar`` at previous times of ``delay`` could be written as
+
+.. code-block:: nestml
+
+   state:
+     bar real = -70.
+     foo real = 0
+   end
+
+   equations:
+     bar' = -bar / tau
+     foo' = bar(t - delay) / tau
+   end
+
+Here, the ``delay`` variable is defined in the ``parameters`` block as:
+
+.. code-block:: nestml
+
+   parameters:
+     delay ms = 5.0 ms
+   end
+
+.. note::
+   The value of the delayed variable (``foo`` in the above example) returned by the node's ``get()`` function in
+   PyNEST is always the non-delayed version, i.e., the value of the derivative of ``foo`` at time ``t``. Similarly, the
+   ``set()`` function sets the value of the actual state variable ``foo`` without the ``delay`` into consideration.
 
 Inline expressions
 ^^^^^^^^^^^^^^^^^^
