@@ -60,7 +60,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
         if method_symbol is None and symbol is not None:
             code, message = Messages.get_function_is_delay_variable(function_name)
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.WARNING)
+                               log_level=LoggingLevel.DEBUG)
             node.type = symbol.get_type_symbol()
             return
 
