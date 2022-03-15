@@ -527,6 +527,8 @@ private:
     State_();
   };
 
+  struct DelayedVariables_
+  {
 {%- if has_delay_variables %}
     // Declare helper variables for variables with delay
 {%-   for variable in neuron.get_state_symbols() %}
@@ -535,6 +537,7 @@ private:
 {%-     endif %}
 {%-   endfor %}
 {%- endif %}
+  };
 
   /**
    * Internal variables of the neuron.
@@ -672,10 +675,11 @@ private:
   // -------------------------------------------------------------------------
 
 
-  Parameters_ P_;  //!< Free parameters.
-  State_      S_;  //!< Dynamic state.
-  Variables_  V_;  //!< Internal Variables
-  Buffers_    B_;  //!< Buffers.
+  Parameters_       P_;        //!< Free parameters.
+  State_            S_;        //!< Dynamic state.
+  DelayedVariables_ DV_;       //!< Delayed state variables.
+  Variables_        V_;        //!< Internal Variables
+  Buffers_          B_;        //!< Buffers.
 
   //! Mapping of recordables names to access functions
 {%- if has_state_vectors %}

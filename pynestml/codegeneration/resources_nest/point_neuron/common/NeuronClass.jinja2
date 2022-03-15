@@ -218,6 +218,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- else %}
@@ -332,6 +333,14 @@ void {{neuronName}}::init_buffers_()
   {{ printer.print_buffer_initialization(port) }}
 {%- endfor %}
   B_.logger_.reset(); // includes resize
+{%- if has_delay_variables %}
+  // Initialize helper variables for delay-based variables
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/DelayVariablesInitialization.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+{%- endif %}
 
 {%- if paired_neuron is defined %}
   clear_history();
@@ -372,13 +381,6 @@ void {{neuronName}}::init_buffers_()
   B_.__step = nest::Time::get_resolution().get_ms();
   B_.__integration_step = nest::Time::get_resolution().get_ms();
 {%- endif %}
-
-{%-   for variable in neuron.get_state_symbols() %}
-{%-     if variable.has_delay_parameter() %}
-{%-       include "directives/DelayVariablesInitialization.jinja2" %}
-{%-     endif %}
-{%-   endfor %}
-
 }
 
 void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
@@ -456,7 +458,7 @@ void {{neuronName}}::update_delay_variables()
 {%-     if variable.has_delay_parameter() %}
 double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 {
-    return delayed_{{variable.get_symbol_name()}}[ delayed_{{variable.get_symbol_name()}}_idx ];
+    return DV_.delayed_{{variable.get_symbol_name()}}[ DV_.delayed_{{variable.get_symbol_name()}}_idx ];
 }
 {%-     endif %}
 {%-   endfor %}
