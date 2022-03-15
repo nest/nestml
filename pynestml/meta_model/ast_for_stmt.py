@@ -69,7 +69,7 @@ class ASTForStmt(ASTNode):
         """
         variable_dup = None
         if self.variable:
-            variable_dup = self.variable.clone()
+            variable_dup = str(self.variable)
         start_from_dup = None
         if self.start_from:
             start_from_dup = self.start_from.clone()
@@ -78,7 +78,7 @@ class ASTForStmt(ASTNode):
             end_at_dup = self.end_at.clone()
         step_dup = None
         if self.step:
-            step_dup = self.step.clone()
+            step_dup = float(self.step) if isinstance(self.step, float) else int(self.step)
         block_dup = None
         if self.block:
             block_dup = self.block.clone()
