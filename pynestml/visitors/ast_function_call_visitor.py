@@ -81,7 +81,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
             if isinstance(return_type, TemplateTypeSymbol):
                 # error: return type template not found among parameter type templates
-                assert (False)
+                assert False, "return type template not found among parameter type templates"
 
             # check for consistency among actual derived types for template parameters
             from pynestml.cocos.co_co_function_argument_template_types_consistent import \
