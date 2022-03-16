@@ -24,4 +24,4 @@ __all__ = ['nest_assignments_helper.py', 'nest_codegeneration.py', 'nest_declara
            'nest_printer.py', 'gsl_reference_converter.py',
            'reference_converter.py', 'idempotent_reference_converter.py', 'nest_reference_converter.py',
            'legacy_expression_printer.py',
-           'unit_converter.py', 'codegeneration.py', 'python_standalone_codegenerator.py']
+           'unit_converter.py', 'codegeneration.py']
