@@ -21,6 +21,8 @@
 
 import abc
 
+from pynestml.symbols.type_symbol import TypeSymbol
+
 
 class TypesPrinter(metaclass=abc.ABCMeta):
     """
@@ -29,5 +31,5 @@ class TypesPrinter(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def pretty_print(cls, element):
+    def convert(cls, element: TypeSymbol):
         pass

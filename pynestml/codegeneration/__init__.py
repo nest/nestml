@@ -20,8 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __all__ = ['nest_assignments_helper.py', 'nest_codegeneration.py', 'nest_declarations_helper.py',
-           'expressions_pretty_printer.py', 'pynestml_2_nest_type_converter.py',
-           'nest_names_converter.py', 'nest_printer.py', 'gsl_names_converter.py', 'gsl_reference_converter.py',
-           'i_reference_converter.py', 'idempotent_reference_converter.py', 'nest_reference_converter.py',
+           'expressions_printer.py',
+           'nest_printer.py', 'gsl_reference_converter.py',
+           'reference_converter.py', 'idempotent_reference_converter.py', 'nest_reference_converter.py',
            'legacy_expression_printer.py',
-           'unit_converter.py', 'codegeneration.py']
+           'unit_converter.py', 'codegeneration.py', 'python_standalone_codegenerator.py']

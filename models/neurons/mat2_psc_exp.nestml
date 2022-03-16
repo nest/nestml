@@ -58,7 +58,7 @@ neuron mat2_psc_exp:
     kernel I_kernel_in = exp(-1/tau_syn_in*t)
     kernel I_kernel_ex = exp(-1/tau_syn_ex*t)
 
-    inline I_syn pA = convolve(I_kernel_in, in_spikes) + convolve(I_kernel_ex, ex_spikes)
+    inline I_syn pA = convolve(I_kernel_ex, ex_spikes) - convolve(I_kernel_in, in_spikes)
     V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
   end
 

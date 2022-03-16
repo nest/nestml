@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# latex_types_printer.py
+# __init__.py
 #
 # This file is part of NEST.
 #
@@ -19,25 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Tuple
-
-from pynestml.codegeneration.types_printer import TypesPrinter
-
-
-class LatexTypesPrinter(TypesPrinter):
-    """
-    Returns a LaTeX syntax version of the handed over element.
-    """
-
-    @classmethod
-    def pretty_print(cls, element):
-        if isinstance(element, bool) and element:
-            return 'true'
-
-        if isinstance(element, bool) and not element:
-            return 'false'
-
-        if isinstance(element, int) or isinstance(element, float):
-            return str(element)
-
-        raise Exception("Tried to print unknown type: " + str(type(element)) + " (string representation: " + str(element) + ")")
+# ---------------------------------------------------------------
+# Caution: This file is required to enable Python to also include the templates
+# ---------------------------------------------------------------

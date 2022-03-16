@@ -55,7 +55,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #endif
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
 #ifndef HAVE_GSL
 #error "The GSL library is required for neurons that require a numerical solver."
@@ -101,7 +101,7 @@ namespace {{names_namespace}}
 }
 
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
 /**
  * Function computing right-hand side of ODE for GSL solver.
  * @note Must be declared here so we can befriend it in class.
@@ -444,7 +444,7 @@ private:
 {%- include 'directives/MemberDeclaration.jinja2' %}
 {%- endfor %}
 {%- endfilter %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
     double __gsl_error_tol;
 {%- endif %}
@@ -477,7 +477,7 @@ private:
   **/
   struct State_
   {
-{%- if not useGSL %}
+{%- if not uses_numeric_solver %}
 {%-   if has_state_vectors %}
 {%      include "directives/StateVariablesEnum.jinja2" %}
 {%-   endif %}
@@ -600,7 +600,7 @@ private:
     {{printer.print_buffer_getter(inputPort, true)}}
     {{printer.print_buffer_declaration_value(inputPort)}};
 {%- endfor %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
     // -----------------------------------------------------------------------
     //   GSL ODE solver data structures
@@ -680,7 +680,7 @@ private:
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
 {%- endif %}
 
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
 {% endif %}
 {%- if norm_rng %}
@@ -808,7 +808,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {%- endif %}
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   def< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. ){
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
@@ -870,7 +870,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
   }
 {%- endfor %}
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. )
   {

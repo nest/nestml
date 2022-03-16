@@ -1,0 +1,10 @@
+{% if variable.is_inline_expression and not utils.contains_convolve_call(variable) -%}
+def {{names.getter(variable)}}(self) -> {{declarations.print_variable_type(variable)}}:
+  return {{printer.print_expression(variable.get_declaring_expression())}}
+{%- else %}
+def {{names.getter(variable)}}(self) -> {{declarations.print_variable_type(variable)}}:
+  return {{printer.print_origin(variable)}}{{names.name(variable)}}
+
+def {{names.setter(variable)}}(self, __v: {{declarations.print_variable_type(variable)}}):
+  {{printer.print_origin(variable)}}{{names.name(variable)}} = __v
+{%- endif %}
