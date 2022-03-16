@@ -92,7 +92,7 @@ neuron hh_psc_alpha:
     E_Na mV = 50 mV          # Sodium reversal potential
     E_K mV = -77 mV          # Potassium reversal potential
     E_L mV = -54.402 mV      # Leak reversal Potential (aka resting potential)
-    tau_syn_exc ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
+    tau_syn_exc ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function
     tau_syn_inh ms = 2 ms    # Rise time of the inhibitory synaptic alpha function
     V_m_init mV = -65 mV     # Initial membrane potential
     alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )

@@ -62,7 +62,7 @@ neuron iaf_cond_alpha:
     E_exc mV = 0 mV          # Excitatory reversal potential
     E_inh mV = -85 mV        # Inhibitory reversal potential
     E_L mV = -70 mV          # Leak reversal potential (aka resting potential)
-    tau_syn_exc ms = 0.2 ms  # Synaptic time constant of cxcitatory synapse
+    tau_syn_exc ms = 0.2 ms  # Synaptic time constant of excitatory synapse
     tau_syn_inh ms = 2 ms    # Synaptic time constant of inhibitory synapse
 
     # constant external input current

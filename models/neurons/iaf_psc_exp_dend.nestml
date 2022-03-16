@@ -54,8 +54,8 @@ neuron iaf_psc_exp_dend:
   parameters:
     C_m pF = 250 pF           # Capacity of the membrane
     tau_m ms = 10 ms          # Membrane time constant
-    tau_syn_inh ms = 2 ms     # Time constant of synaptic current
-    tau_syn_exc ms = 2 ms     # Time constant of synaptic current
+    tau_syn_inh ms = 2 ms     # Time constant of inhibitory synaptic current
+    tau_syn_exc ms = 2 ms     # Time constant of excitatory synaptic current
     t_ref ms = 2 ms           # Duration of refractory period
     E_L  mV = -70 mV          # Resting potential
     V_reset mV = -70 mV - E_L # reset value of the membrane potential
