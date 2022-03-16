@@ -640,10 +640,12 @@ class ASTTransformers:
 
         Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
-            convolve(G, ex_spikes)
-            convolve(G, in_spikes)
+        .. code-block::
 
-        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
+           convolve(G, exc_spikes)
+           convolve(G, inh_spikes)
+
+        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
 
         :param parameters_block:
         :param kernel_buffers:
