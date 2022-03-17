@@ -37,8 +37,8 @@ neuron test_random:
   end
 
   input:
-    ex_spikes nS <- excitatory spike
-    in_spikes nS <- inhibitory spike
+    exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     currents pA <- continuous
   end
 

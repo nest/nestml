@@ -14,7 +14,7 @@ during which the membrane potential is clamped to the resting potential
 and spiking is prohibited.
 
 .. note::
-   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 

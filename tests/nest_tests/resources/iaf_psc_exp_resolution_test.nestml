@@ -16,23 +16,23 @@ neuron iaf_psc_exp_resolution_test:
   end
 
   equations:
-    kernel I_kernel_in = exp(-1/tau_syn_in*t)
-    kernel I_kernel_ex = exp(-1/tau_syn_ex*t)
+    kernel I_kernel_inh = exp(-t/tau_syn_inh)
+    kernel I_kernel_exc = exp(-t/tau_syn_exc)
     recordable inline V_m mV = V_abs + E_L # Membrane potential.
-    inline I_syn pA = convolve(I_kernel_in, in_spikes) + convolve(I_kernel_ex, ex_spikes) + I_e + I_stim
+    inline I_syn pA = convolve(I_kernel_inh, inh_spikes) + convolve(I_kernel_exc, exc_spikes) + I_e + I_stim
     V_abs' = -V_abs / tau_m + I_syn / C_m
   end
 
   parameters:
-    C_m pF = 250 pF       # Capacity of the membrane
-    tau_m ms = 10 ms      # Membrane time constant
-    tau_syn_in ms = 2 ms  # Time constant of synaptic current
-    tau_syn_ex ms = 2 ms  # Time constant of synaptic current
-    t_ref ms = 2 ms       # Duration of refractory period
-    E_L  mV = -70 mV      # Resting potential
+    C_m pF = 250 pF           # Capacitance of the membrane
+    tau_m ms = 10 ms          # Membrane time constant
+    tau_syn_inh ms = 2 ms     # Time constant of synaptic current
+    tau_syn_exc ms = 2 ms     # Time constant of synaptic current
+    t_ref ms = 2 ms           # Duration of refractory period
+    E_L  mV = -70 mV          # Resting potential
     V_reset mV = -70 mV - E_L # reset value of the membrane potential
-    Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL (!).
-                                   # I.e. the real threshold is (E_L_+V_th_)
+    Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL (!)
+                              # I.e. the real threshold is E_L + Theta
 
     # constant external input current
     I_e pA = 0 pA
@@ -45,8 +45,8 @@ neuron iaf_psc_exp_resolution_test:
   end
 
   input:
-    ex_spikes pA <- excitatory spike
-    in_spikes pA <- inhibitory spike
+    exc_spikes pA <- excitatory spike
+    inh_spikes pA <- inhibitory spike
     I_stim pA <- continuous
   end
 
