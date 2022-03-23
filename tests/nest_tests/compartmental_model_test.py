@@ -53,6 +53,19 @@ DEND_PARAMS_ACTIVE = {
     'e_K': -90. # mV
 }
 
+OPTIONS = {
+     "templates":
+     {
+         "path": "cm_templates",
+         "model_templates": {
+             "neuron": ['CompartmentCurrentsClass.jinja2', 'CompartmentCurrentsHeader.jinja2'
+                        'MainClass.jinja2', 'MainHeader.jinja2',
+                        'TreeClass.jinja2', 'TreeHeader.jinja2'],
+         },
+         "module_templates": ["setup"]
+     }
+}
+
 
 class CMTest(unittest.TestCase):
 
@@ -75,7 +88,8 @@ class CMTest(unittest.TestCase):
                              target_path=os.path.join(path_target, "compartmental_model/"),
                              module_name="cm_defaultmodule",
                              suffix="_nestml",
-                             logging_level="ERROR")
+                             logging_level="ERROR",
+                             codegen_opts=OPTIONS)
 
 
     def get_model(self, reinstall_flag=True):

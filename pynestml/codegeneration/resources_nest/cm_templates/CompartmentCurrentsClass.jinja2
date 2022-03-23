@@ -126,7 +126,7 @@ nest::{{ion_channel_name}}::append_recordables(std::map< Name, double* >* record
 
 std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v_comp)
 {
-    const double {{render_time_resolution_variable(synapse_info)}} = Time::get_resolution().get_ms();
+    const double dt = Time::get_resolution().get_ms();
 
     double g_val = 0., i_val = 0.;
     {%- set inline_expression = channel_info["ASTInlineExpression"] %}
