@@ -112,7 +112,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
 }
 
 void
-nest::{{ion_channel_name}}::append_recordables(std::map< std::string, double* >* recordables,
+nest::{{ion_channel_name}}::append_recordables(std::map< Name, double* >* recordables,
                                                const long compartment_idx)
 {
   // add state variables to recordables map
@@ -124,8 +124,10 @@ nest::{{ion_channel_name}}::append_recordables(std::map< std::string, double* >*
   {% endwith %}
 }
 
-std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v_comp, const double dt)
+std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v_comp)
 {
+    const double {{render_time_resolution_variable(synapse_info)}} = Time::get_resolution().get_ms();
+
     double g_val = 0., i_val = 0.;
     {%- set inline_expression = channel_info["ASTInlineExpression"] %}
     {%- set inline_expression_d = channel_info["inline_derivative"] %}
@@ -202,6 +204,17 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
+nest::{{synapse_name}}::{{synapse_name}}( const long syn_index )
+  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+    {% if loop.first %}: {% else %}, {% endif -%}
+    {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
+  {%- endfor %}
+{
+  syn_idx = syn_index;
+}
+
+{%- for synapse_name, synapse_info in syns_info.items() %}
+// {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
@@ -218,7 +231,7 @@ nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const Dictionary
 }
 
 void
-nest::{{synapse_name}}::append_recordables(std::map< std::string, double* >* recordables)
+nest::{{synapse_name}}::append_recordables(std::map< Name, double* >* recordables)
 {
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   ( *recordables )["{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx)] = &{{convolution}};
@@ -256,8 +269,10 @@ void nest::{{synapse_name}}::calibrate()
   {{synapse_info["buffer_name"]}}_->clear();
 }
 
-std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_comp, const double {{render_time_resolution_variable(synapse_info)}}, const long lag )
+std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_comp, const long lag )
 {
+  const double {{render_time_resolution_variable(synapse_info)}} = Time::get_resolution().get_ms();
+
   // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}

@@ -120,7 +120,7 @@ class CMTest(unittest.TestCase):
             {"parent_idx": -1, "params": SOMA_PARAMS},
             {"parent_idx":  0, "params": DEND_PARAMS_PASSIVE}
         ]
-        
+
         # create a neuron model with an active dendritic compartment
         cm_act.compartments = [
             {"parent_idx": -1, "params": SOMA_PARAMS},
@@ -326,7 +326,9 @@ class CMTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # cmtest = CMTest()
+    cmtest = CMTest()
+    cmtest.nestml_flag = 1
+    cmtest.install_nestml_model()
     # cmtest.get_nestml_model()
     # cmtest.test_compartmental_model()
-    unittest.main()
+    # unittest.main()

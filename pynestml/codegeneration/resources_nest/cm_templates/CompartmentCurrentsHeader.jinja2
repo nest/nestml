@@ -49,11 +49,11 @@ public:
         {{ variable.name}} = {{printer.print_expression(rhs_expression, with_origins = False) }};
     {%- endfor -%}
     };
-    void append_recordables(std::map< std::string, double* >* recordables,
+    void append_recordables(std::map< Name, double* >* recordables,
                             const long compartment_idx);
 
     // numerical integration step
-    std::pair< double, double > f_numstep( const double v_comp, const double dt );
+    std::pair< double, double > f_numstep( const double v_comp );
 
     // function declarations
 {%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
@@ -117,15 +117,16 @@ private:
 
 public:
   // constructor, destructor
+  {{synapse_name}}( const long syn_index);
   {{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params);
   ~{{synapse_name}}(){};
 
   // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const double {{render_time_resolution_variable(synapse_info)}}, const long lag );
+  std::pair< double, double > f_numstep( const double v_comp, const long lag );
 
   // calibration
   void calibrate();
-  void append_recordables(std::map< std::string, double* >* recordables);
+  void append_recordables(std::map< Name, double* >* recordables);
   void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
   {
     {{synapse_info["buffer_name"]}}_ = &syn_buffers[ syn_idx ];
@@ -163,7 +164,7 @@ private:
 
 public:
   CompartmentCurrents{{cm_unique_suffix}}(){};
-  CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
+  explicit CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
   {
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
@@ -196,6 +197,21 @@ public:
 
   }
 
+  void add_synapse( const std::string& type, const long syn_idx )
+  {
+  {%- with %}
+  {%- for synapse_name, synapse_info in syns_info.items() %}
+    {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
+    {
+      {{synapse_name}}_syns_.push_back( {{synapse_name}}( syn_idx ) );
+    }
+  {% endfor -%}
+  {% endwith -%}
+    else
+    {
+      assert( false );
+    }
+  };
   void add_synapse( const std::string& type, const long syn_idx, const DictionaryDatum& receptor_params )
   {
   {%- with %}
@@ -212,7 +228,25 @@ public:
     }
   };
 
-  void set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
+  void
+  add_receptor_info( ArrayDatum& ad, const long compartment_index )
+  {
+
+    {%- with %}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
+    {
+      DictionaryDatum dd = DictionaryDatum( new Dictionary );
+      def< long >( dd, names::receptor_idx, syn_it->get_syn_idx() );
+      def< long >( dd, names::comp_idx, compartment_index );
+      def< std::string >( dd, names::receptor_type, "{{synapse_name}}" );
+      ad.push_back( dd );
+    }
+    {% endfor -%}
+    {% endwith -%}
+
+  void
+  set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
   {
     // spike buffers for synapses
     {%- with %}
@@ -223,9 +257,10 @@ public:
     {% endwith -%}
   };
 
-  std::map< std::string, double* > get_recordables( const long compartment_idx )
+  std::map< Name, double* >
+  get_recordables( const long compartment_idx )
   {
-    std::map< std::string, double* > recordables;
+    std::map< Name, double* > recordables;
 
     // append ion channel state variables to recordables
     {%- with %}
@@ -245,7 +280,8 @@ public:
     return recordables;
   };
 
-  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag )
+  std::pair< double, double >
+  f_numstep( const double v_comp, const long lag )
   {
     std::pair< double, double > gi(0., 0.);
     double g_val = 0.;
@@ -254,7 +290,7 @@ public:
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
-    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp, dt );
+    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp );
 
     g_val += gi.first;
     i_val += gi.second;
@@ -269,7 +305,7 @@ public:
          syn_it != {{synapse_name}}_syns_.end();
          ++syn_it )
     {
-      gi = syn_it->f_numstep( v_comp, dt, lag );
+      gi = syn_it->f_numstep( v_comp, lag );
 
       g_val += gi.first;
       i_val += gi.second;
