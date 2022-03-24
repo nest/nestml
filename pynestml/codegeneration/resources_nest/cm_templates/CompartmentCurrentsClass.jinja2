@@ -213,7 +213,6 @@ nest::{{synapse_name}}::{{synapse_name}}( const long syn_index )
   syn_idx = syn_index;
 }
 
-{%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}

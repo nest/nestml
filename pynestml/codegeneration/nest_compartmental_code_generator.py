@@ -29,7 +29,7 @@ import jinja2.environment
 from odetoolbox import analysis
 import pynestml
 from pynestml.codegeneration.ast_transformers import ASTTransformers
-from pynestml.codegeneration.codegenerator import CodeGenerator
+from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
@@ -94,20 +94,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": 'cm_templates',
+            "path": "cm_templates",
             "model_templates": [
-                'CompartmentCurrentsClass.jinja2',
-                'CompartmentCurrentsHeader.jinja2',
-                'MainClass.jinja2',
-                'MainHeader.jinja2',
-                'TreeClass.jinja2',
-                'TreeHeader.jinja2'
+                "CompartmentCurrentsClass.jinja2",
+                "CompartmentCurrentsHeader.jinja2",
+                "MainClass.jinja2",
+                "MainHeader.jinja2",
+                "TreeClass.jinja2",
+                "TreeHeader.jinja2"
             ],
-            "module_templates": ['setup']
+            "module_templates": ["setup"]
         }
     }
 
-    _variable_matching_template = r'(\b)({})(\b)'
+    _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = list()
     _module_templates = list()
 
@@ -131,25 +131,25 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
 
         # Get templates path
-        templates_root_dir = self.get_option("templates")['path']
+        templates_root_dir = self.get_option("templates")["path"]
         if not os.path.isabs(templates_root_dir):
             # Prefix the default templates location
-            templates_root_dir = os.path.join(os.path.dirname(__file__), 'resources_nest', templates_root_dir)
+            templates_root_dir = os.path.join(os.path.dirname(__file__), "resources_nest", templates_root_dir)
             code, message = Messages.get_template_root_path_created(templates_root_dir)
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         if not os.path.isdir(templates_root_dir):
-            raise InvalidPathException('Templates path (' + templates_root_dir + ')  is not a directory')
+            raise InvalidPathException("Templates path (" + templates_root_dir + ")  is not a directory")
 
         # Setup models template environment
-        model_templates = self.get_option("templates")['model_templates']
+        model_templates = self.get_option("templates")["model_templates"]
         if not model_templates:
-            raise Exception('A list of neuron model template files/directories is missing.')
+            raise Exception("A list of neuron model template files/directories is missing.")
         self._model_templates.extend(self.__setup_template_env(model_templates, templates_root_dir))
 
         # Setup modules template environment
-        module_templates = self.get_option("templates")['module_templates']
+        module_templates = self.get_option("templates")["module_templates"]
         if not module_templates:
-            raise Exception('A list of module template files/directories is missing.')
+            raise Exception("A list of module template files/directories is missing.")
         self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
 
     def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
@@ -164,7 +164,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # Environment for neuron templates
         env = Environment(loader=FileSystemLoader(_template_dirs))
-        env.globals['raise'] = self.raise_helper
+        env.globals["raise"] = self.raise_helper
         env.globals["is_delta_kernel"] = ASTTransformers.is_delta_kernel
 
         # Load all the templates
@@ -209,15 +209,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             os.makedirs(FrontendConfiguration.get_target_path())
 
         for _module_temp in self._module_templates:
-            file_name_parts = os.path.basename(_module_temp.filename).split('.')
+            file_name_parts = os.path.basename(_module_temp.filename).split(".")
             file_extension = file_name_parts[-2]
-            if file_extension in ['cpp', 'h']:
+            if file_extension in ["cpp", "h"]:
                 filename = FrontendConfiguration.get_module_name()
             else:
                 filename = file_name_parts[0]
 
             file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
-            with open(file_path + '.' + file_extension, 'w+') as f:
+            with open(file_path + "." + file_extension, "w+") as f:
                 f.write(str(_module_temp.render(namespace)))
 
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
@@ -229,9 +229,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :param neurons: List of neurons
         :return: a context dictionary for rendering templates
         """
-        namespace = {'neurons': neurons,
-                     'moduleName': FrontendConfiguration.get_module_name(),
-                     'now': datetime.datetime.utcnow()}
+        namespace = {"neurons": neurons,
+                     "moduleName": FrontendConfiguration.get_module_name(),
+                     "now": datetime.datetime.utcnow()}
 
         # neuron specific file names in compartmental case
         neuron_name_to_filename = dict()
@@ -241,10 +241,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 "main": self.get_cm_syns_main_file_prefix(neuron),
                 "tree": self.get_cm_syns_tree_file_prefix(neuron)
             }
-        namespace['perNeuronFileNamesCm'] = neuron_name_to_filename
+        namespace["perNeuronFileNamesCm"] = neuron_name_to_filename
 
         # compartmental case files that are not neuron specific - currently empty
-        namespace['sharedFileNamesCmSyns'] = {
+        namespace["sharedFileNamesCmSyns"] = {
         }
 
         return namespace
@@ -342,7 +342,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
+                    ast_variable = ASTVariable(replace_with_var_name + "__d" * var.get_differential_order(),
                                                differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
@@ -350,14 +350,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             elif isinstance(_expr, ASTVariable):
                 var = _expr
                 if var.get_name() == replace_var_name:
-                    var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
+                    var.set_name(replace_with_var_name + "__d" * var.get_differential_order())
                     var.set_differential_order(0)
 
         for decl in neuron.get_equations_block().get_declarations():
             from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
                     and isinstance(decl.get_expression(), ASTSimpleExpression) \
-                    and '__X__' in str(decl.get_expression()):
+                    and "__X__" in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
                 neuron.accept(
                     ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
@@ -374,8 +374,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.create_ode_indict(neuron, parameters_block, kernel_buffers)
         full_solver_result = analysis(odetoolbox_indict,
                                       disable_stiffness_check=True,
-                                      preserve_expressions=self.get_option('preserve_expressions'),
-                                      simplify_expression=self.get_option('simplify_expression'),
+                                      preserve_expressions=self.get_option("preserve_expressions"),
+                                      simplify_expression=self.get_option("simplify_expression"),
                                       log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in full_solver_result if x["solver"] == "analytical"]
@@ -438,8 +438,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             solver_result = analysis(odetoolbox_indict,
                                      disable_stiffness_check=True,
                                      disable_analytic_solver=True,
-                                     preserve_expressions=self.get_option('preserve_expressions'),
-                                     simplify_expression=self.get_option('simplify_expression'),
+                                     preserve_expressions=self.get_option("preserve_expressions"),
+                                     simplify_expression=self.get_option("simplify_expression"),
                                      log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
@@ -546,7 +546,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols(
         )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
+        neuron.add_to_internal_block(ModelParser.parse_declaration("__h ms = resolution()"), index=0)
 
     def analyse_neuron(self, neuron: ASTNeuron) -> List[ASTAssignment]:
         """
@@ -675,7 +675,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     return file_prefix_calculator(neuron)
             return file_name_no_extension.lower() + "_" + neuron.get_name()
         
-        file_extension = ''
+        file_extension = ""
         if file_name_no_extension.lower().endswith("class"):
             file_extension = "cpp"
         elif file_name_no_extension.lower().endswith("header"):
@@ -684,7 +684,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             file_extension = "unknown"
         
         return str(os.path.join(FrontendConfiguration.get_target_path(),
-                                       compute_prefix(file_name_no_extension))) + '.' + file_extension
+                                       compute_prefix(file_name_no_extension))) + "." + file_extension
         
 
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
@@ -699,7 +699,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             _file = _model_temp.render(self._get_model_namespace(neuron))
             _generated_file = self.compute_name_of_generated_file(_model_temp.filename, neuron)
             print ("generated file: " + _generated_file)
-            with open(_generated_file, 'w+') as f:
+            with open(_generated_file, "w+") as f:
                 f.write(str(_file))
 
     def getUniqueSuffix(self, neuron: ASTNeuron):
@@ -725,88 +725,88 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
-        namespace['neuronName'] = neuron.get_name()
-        namespace['type_converter'] = PyNestml2NestTypeConverter()
-        namespace['neuron'] = neuron
-        namespace['moduleName'] = FrontendConfiguration.get_module_name()
-        namespace['printer'] = NestPrinter(unitless_pretty_printer)
-        namespace['assignments'] = NestAssignmentsHelper()
-        namespace['names'] = NestNamesConverter()
-        namespace['declarations'] = NestDeclarationsHelper()
-        namespace['utils'] = ASTUtils()
-        namespace['idemPrinter'] = UnitlessExpressionPrinter()
-        namespace['outputEvent'] = namespace['printer'].print_output_event(neuron.get_body())
-        namespace['has_spike_input'] = ASTUtils.has_spike_input(neuron.get_body())
-        namespace['has_continuous_input'] = ASTUtils.has_continuous_input(neuron.get_body())
-        namespace['odeTransformer'] = OdeTransformer()
-        namespace['printerGSL'] = gsl_printer
-        namespace['now'] = datetime.datetime.utcnow()
-        namespace['tracing'] = FrontendConfiguration.is_dev
+        namespace["neuronName"] = neuron.get_name()
+        namespace["type_converter"] = PyNestml2NestTypeConverter()
+        namespace["neuron"] = neuron
+        namespace["moduleName"] = FrontendConfiguration.get_module_name()
+        namespace["printer"] = NestPrinter(unitless_pretty_printer)
+        namespace["assignments"] = NestAssignmentsHelper()
+        namespace["names"] = NestNamesConverter()
+        namespace["declarations"] = NestDeclarationsHelper()
+        namespace["utils"] = ASTUtils()
+        namespace["idemPrinter"] = UnitlessExpressionPrinter()
+        namespace["outputEvent"] = namespace["printer"].print_output_event(neuron.get_body())
+        namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
+        namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
+        namespace["odeTransformer"] = OdeTransformer()
+        namespace["printerGSL"] = gsl_printer
+        namespace["now"] = datetime.datetime.utcnow()
+        namespace["tracing"] = FrontendConfiguration.is_dev
 
-        namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
-        namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')
+        namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
+        namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")
 
-        namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
-        namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
-        namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
+        namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace["UnitTypeSymbol"] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+        namespace["SymbolKind"] = pynestml.symbols.symbol.SymbolKind
 
-        namespace['initial_values'] = {}
-        namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+        namespace["initial_values"] = {}
+        namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
-        if namespace['uses_analytic_solver']:
-            namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
-            namespace['analytic_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']}
-            namespace['update_expressions'] = {}
+        if namespace["uses_analytic_solver"]:
+            namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name()]["state_variables"]
+            namespace["analytic_variable_symbols"] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]}
+            namespace["update_expressions"] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
-                namespace['initial_values'][sym] = expr
-            for sym in namespace['analytic_state_variables']:
+                namespace["initial_values"][sym] = expr
+            for sym in namespace["analytic_state_variables"]:
                 expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
-                namespace['update_expressions'][sym] = expr_ast
+                namespace["update_expressions"][sym] = expr_ast
 
-            namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
+            namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 
         # convert variables from ASTVariable instances to strings
         _names = self.non_equations_state_variables[neuron.get_name()]
         _names = [ASTTransformers.to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
-        namespace['non_equations_state_variables'] = _names
+        namespace["non_equations_state_variables"] = _names
 
-        namespace['uses_numeric_solver'] = neuron.get_name() in self.numeric_solver.keys() \
+        namespace["uses_numeric_solver"] = neuron.get_name() in self.numeric_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
-        if namespace['uses_numeric_solver']:
-            namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
-            namespace['numeric_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']}
-            assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
-            namespace['numeric_update_expressions'] = {}
+        if namespace["uses_numeric_solver"]:
+            namespace["numeric_state_variables"] = self.numeric_solver[neuron.get_name()]["state_variables"]
+            namespace["numeric_variable_symbols"] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables"]}
+            assert not any([sym is None for sym in namespace["numeric_variable_symbols"].values()])
+            namespace["numeric_update_expressions"] = {}
             for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
-                namespace['initial_values'][sym] = expr
-            for sym in namespace['numeric_state_variables']:
+                namespace["initial_values"][sym] = expr
+            for sym in namespace["numeric_state_variables"]:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
-                namespace['numeric_update_expressions'][sym] = expr_ast
+                namespace["numeric_update_expressions"][sym] = expr_ast
 
-            namespace['useGSL'] = namespace['uses_numeric_solver']
-            namespace['names'] = GSLNamesConverter()
+            namespace["useGSL"] = namespace["uses_numeric_solver"]
+            namespace["names"] = GSLNamesConverter()
             converter = NESTReferenceConverter(True)
             unitless_pretty_printer = UnitlessExpressionPrinter(converter)
-            namespace['printer'] = NestPrinter(unitless_pretty_printer)
+            namespace["printer"] = NestPrinter(unitless_pretty_printer)
 
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if
-                                                   namespace['declarations'].get_domain_from_type(
+                                                   namespace["declarations"].get_domain_from_type(
                                                        sym.get_type_symbol()) == "double" and sym.is_recordable and not ASTTransformers.is_delta_kernel(
                                                        neuron.get_kernel_by_name(sym.name))]
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if
-                                                      namespace['declarations'].get_domain_from_type(
+                                                      namespace["declarations"].get_domain_from_type(
                                                           sym.get_type_symbol()) == "double" and sym.is_recordable]
 
         # parameter symbols with initial values
@@ -816,15 +816,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
-        namespace['norm_rng'] = rng_visitor._norm_rng_is_used
+        namespace["norm_rng"] = rng_visitor._norm_rng_is_used
 
-        namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
-        namespace['chan_info'] = ASTChannelInformationCollector.get_chan_info(neuron)
-        namespace['chan_info'] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace['chan_info'])
+        namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
+        namespace["chan_info"] = ASTChannelInformationCollector.get_chan_info(neuron)
+        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
 
-        namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
+        namespace["syns_info"] = SynsProcessing.get_syns_info(neuron)
         syns_info_enricher = SynsInfoEnricher(neuron)
-        namespace['syns_info'] = syns_info_enricher.enrich_with_additional_info(neuron, namespace['syns_info'],
+        namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"],
                                                                                 self.kernel_name_to_analytic_solver)
 
         # maybe log this on DEBUG?
@@ -839,10 +839,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "tree": self.get_cm_syns_tree_file_prefix(neuron)
         }
 
-        namespace['neuronSpecificFileNamesCmSyns'] = neuron_specific_filenames
+        namespace["neuronSpecificFileNamesCmSyns"] = neuron_specific_filenames
 
         # there is no shared files any more
-        namespace['sharedFileNamesCmSyns'] = {
+        namespace["sharedFileNamesCmSyns"] = {
         }
 
         return namespace
@@ -1208,7 +1208,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def store_transformed_model(self, ast):
         if FrontendConfiguration.store_log:
-            with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
-                                       ast.get_name())) + '.txt', 'w+') as f:
+            with open(str(os.path.join(FrontendConfiguration.get_target_path(), "..", "report",
+                                       ast.get_name())) + ".txt", "w+") as f:
                 f.write(str(ast))
 
