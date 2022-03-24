@@ -118,6 +118,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
         self.setup_template_env()
+
+        self.gsl_reference_converter = GSLReferenceConverter()
+        self.gsl_printer = UnitlessExpressionPrinter(self.gsl_reference_converter)
+
+        self.nest_reference_converter = NESTReferenceConverter()
+        self.unitless_printer = UnitlessExpressionPrinter(self.nest_reference_converter)
+
         # maps kernel names to their analytic solutions separately
         # this is needed needed for the cm_syns case
         self.kernel_name_to_analytic_solver = {}
