@@ -19,11 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.base_reference_converter import BaseReferenceConverter
-from pynestml.codegeneration.reference_converter import ReferenceConverter
-from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.cpp_reference_converter import CppReferenceConverter
 from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -36,11 +33,11 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class GSLReferenceConverter(BaseReferenceConverter):
+class GSLReferenceConverter(CppReferenceConverter):
+    r"""
+    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API.
     """
-    This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
-    """
-    maximal_exponent = 10.0
+    maximal_exponent = 10.
 
     def __init__(self, is_upper_bound=False):
         """
@@ -201,61 +198,6 @@ e();'''
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
 
         return prefix + function_name + '()'
-
-    def convert_constant(self, constant_name):
-        """
-        No modifications to the constant required.
-        :param constant_name: a single constant.
-        :type constant_name: str
-        :return: the same constant
-        :rtype: str
-        """
-        return constant_name
-
-    def convert_unary_op(self, unary_operator):
-        """
-        No modifications to the operator required.
-        :param unary_operator: a string of a unary operator.
-        :type unary_operator: str
-        :return: the same operator
-        :rtype: str
-        """
-        return str(unary_operator) + '(%s)'
-
-    def convert_binary_op(self, binary_operator):
-        """
-        Converts a singe binary operator. Here, we have only to regard the pow operator in a special manner.
-        :param binary_operator: a binary operator in string representation.
-        :type binary_operator:  str
-        :return: a string representing the included binary operator.
-        :rtype: str
-        """
-        from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
-        if isinstance(binary_operator, ASTArithmeticOperator) and binary_operator.is_pow_op:
-            return 'pow(%s, %s)'
-        else:
-            return '%s' + str(binary_operator) + '%s'
-
-    def convert_logical_not(self):
-        return NESTReferenceConverter().convert_logical_not()
-
-    def convert_logical_operator(self, op):
-        return NESTReferenceConverter().convert_logical_operator(op)
-
-    def convert_comparison_operator(self, op):
-        return NESTReferenceConverter().convert_comparison_operator(op)
-
-    def convert_bit_operator(self, op):
-        return NESTReferenceConverter().convert_bit_operator(op)
-
-    def convert_encapsulated(self):
-        return NESTReferenceConverter().convert_encapsulated()
-
-    def convert_ternary_operator(self):
-        return NESTReferenceConverter().convert_ternary_operator()
-
-    def convert_arithmetic_operator(self, op):
-        return NESTReferenceConverter().convert_arithmetic_operator(op)
 
     def array_index(self, symbol):
         """

@@ -39,12 +39,10 @@ class NEST2CodeGenerator(NESTCodeGenerator):
         self._target = "NEST2"
 
         self._gsl_reference_converter = NEST2GSLReferenceConverter()
-        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter,
-                                                      types_printer=self._types_printer)
+        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter)
 
         self._nest_reference_converter = NEST2ReferenceConverter()
-        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter,
-                                                              types_printer=self._types_printer)
+        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter)
 
         self._unitless_nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
                                                   types_printer=self._types_printer,

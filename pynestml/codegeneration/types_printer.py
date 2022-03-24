@@ -25,8 +25,8 @@ from pynestml.symbols.type_symbol import TypeSymbol
 
 
 class TypesPrinter(metaclass=abc.ABCMeta):
-    """
-    Returns a processable format of the handed over element.
+    r"""
+    Returns a string format of ``TypeSymbol``s.
     """
 
     @classmethod

@@ -130,12 +130,10 @@ class NESTCodeGenerator(CodeGenerator):
         self._gsl_reference_converter = GSLReferenceConverter()
         self._nest_reference_converter = NESTReferenceConverter()
 
-        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter,
-                                                              types_printer=self._types_printer)
-        self._printer = ExpressionsPrinter(self._nest_reference_converter, self._types_printer)
-        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter, self._types_printer)
-        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter,
-                                                      types_printer=self._types_printer)
+        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter)
+        self._printer = ExpressionsPrinter(self._nest_reference_converter)
+        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter)
+        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter)
 
         self._unitless_nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
                                                   types_printer=self._types_printer,
@@ -145,7 +143,7 @@ class NESTCodeGenerator(CodeGenerator):
                                                       types_printer=self._types_printer,
                                                       expressions_printer=self._unitless_expression_printer)
 
-        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter(), self._types_printer)
+        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)

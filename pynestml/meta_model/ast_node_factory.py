@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
+from typing import Optional, Union
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
@@ -267,8 +267,7 @@ class ASTNodeFactory:
         return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
-    def create_ast_nestml_compilation_unit(cls, list_of_neurons, list_of_synapses, source_position, artifact_name):
-        # type: (list(ASTNeuron),ASTSourceLocation,str) -> ASTNestMLCompilationUnit
+    def create_ast_nestml_compilation_unit(cls, list_of_neurons, list_of_synapses, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
         instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
         for i in list_of_neurons:
             instance.add_neuron(i)
@@ -368,8 +367,7 @@ class ASTNodeFactory:
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
-    def create_ast_variable(cls, name, differential_order=0, vector_parameter=None, is_homogeneous=False, source_position=None):
-        # type: (str,int,ASTSourceLocation) -> ASTVariable
+    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, source_position: Optional[ASTSourceLocation] = None) -> ASTVariable:
         return ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
 
     @classmethod

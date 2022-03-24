@@ -47,7 +47,7 @@ Logger.init_logger(LoggingLevel.INFO)
 
 types_printer = CppTypesPrinter()
 reference_converter = NestMLReferenceConverter()
-expressions_printer = ExpressionsPrinter(reference_converter, types_printer)
+expressions_printer = ExpressionsPrinter(reference_converter)
 printer = NestPrinter(reference_converter=reference_converter,
                       types_printer=types_printer,
                       expressions_printer=expressions_printer)

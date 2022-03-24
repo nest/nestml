@@ -23,8 +23,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class ReferenceConverter:
-    """This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker or LEMS.
-    """
+    r"""This class represents a abstract super class for all possible reference converters, e.g. for NEST, SpiNNaker, or standalone Python target."""
 
     __metaclass__ = ABCMeta
 
