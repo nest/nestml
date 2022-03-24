@@ -56,9 +56,9 @@ neuron iaf_psc_exp_htum:
   end
 
   equations:
-    kernel I_kernel_inh = exp(-t / tau_syn_inh)
-    kernel I_kernel_exc = exp(-t / tau_syn_exc)
-    inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)
+    kernel I_kernel_inh = exp(-t/tau_syn_inh)
+    kernel I_kernel_exc = exp(-t/tau_syn_exc)
+    inline I_syn pA = convolve(I_kernel_inh, inh_spikes) + convolve(I_kernel_exc, exc_spikes)
     V_m' = -V_m / tau_m + (I_syn + I_e + I_stim) / C_m
   end
 

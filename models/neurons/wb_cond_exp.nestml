@@ -48,7 +48,7 @@ neuron wb_cond_exp:
     inline I_K   pA = g_K * Act_n**4 * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
 
-    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
     Act_n' = ( alpha_n(V_m) * ( 1 - Act_n ) - beta_n(V_m) * Act_n )  # n-variable
     Inact_h' = ( alpha_h(V_m) * ( 1 - Inact_h ) - beta_h(V_m) * Inact_h ) # h-variable
   end

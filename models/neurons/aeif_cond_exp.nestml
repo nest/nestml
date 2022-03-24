@@ -48,7 +48,7 @@ neuron aeif_cond_exp:
   end
 
   equations:
-    inline V_bounded mV = min(V_m, V_peak)    # prevent exponential divergence
+    inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
     kernel g_inh = exp(-t / tau_syn_inh)
     kernel g_exc = exp(-t / tau_syn_exc)
 

@@ -53,7 +53,7 @@ neuron izhikevich_psc_alpha:
     inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes)
     inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes)
 
-    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
+    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
   end
 
