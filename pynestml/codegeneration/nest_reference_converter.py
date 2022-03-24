@@ -26,7 +26,7 @@ from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope, ScopeType
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables

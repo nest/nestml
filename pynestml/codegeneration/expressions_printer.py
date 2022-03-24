@@ -27,7 +27,6 @@ from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.codegeneration.printer import Printer
 from pynestml.utils.ast_utils import ASTUtils
 
 

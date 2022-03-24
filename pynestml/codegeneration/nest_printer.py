@@ -57,14 +57,13 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class NestPrinter(Printer):

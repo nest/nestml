@@ -20,8 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.reference_converter import ReferenceConverter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 

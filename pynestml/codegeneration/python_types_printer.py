@@ -27,7 +27,6 @@ from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.string_type_symbol import StringTypeSymbol
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
