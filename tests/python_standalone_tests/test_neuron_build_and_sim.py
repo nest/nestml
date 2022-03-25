@@ -33,9 +33,27 @@ class TestPythonStandaloneNeuronBuildAndSim(unittest.TestCase):
     Tests the code generation and running a little simulation with NEST
     """
 
-    def test_python_standalone_neuron_build_and_sim(self):
+    def test_python_standalone_neuron_build_and_sim_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_cond_exp.nestml"))))
+        target_path = "nestmlmodule"
+        logging_level = "INFO"
+        suffix = ""
+        module_name = "nestmlmodule"
+        codegen_opts = {}
+
+        generate_python_standalone_target(input_path, target_path,
+                                          module_name=module_name,
+                                          logging_level=logging_level,
+                                          suffix=suffix,
+                                          codegen_opts=codegen_opts)
+
+        from nestmlmodule.test_python_standalone_module import TestSimulator
+        TestSimulator().test_simulator()
+
+    def test_python_standalone_neuron_build_and_sim_numeric(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, "models", "neurons", "aeif_cond_exp.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "INFO"
         suffix = ""

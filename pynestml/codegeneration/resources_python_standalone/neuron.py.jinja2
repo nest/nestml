@@ -31,10 +31,16 @@ class Neuron(metaclass=ABCMeta):
         self._emitted_spikes: List[float] = []
 
     @abstractmethod
+    def get_model(self) -> str:
+        r"""Get a string uniquely representing the model type, such as "iaf_psc_exp" or "hodgkin_huxley"."""
+        pass
+
+    @abstractmethod
     def step(self, origin: float, timestep: float) -> None:
         pass
 
     def handle(self, t_spike: float, w: float, port_name: str) -> None:
+        r"""Handle a spike at time ``t_spike`` with weight ``w`` on port ``port_name``."""
         pass
 
     def emit_spike(self, t: float) -> None:
@@ -44,7 +50,3 @@ class Neuron(metaclass=ABCMeta):
         spikes = self._emitted_spikes.copy()
         self._emitted_spikes = []
         return spikes
-
-    @abstractmethod
-    def get_model(self) -> str:
-        return ""
