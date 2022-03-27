@@ -434,7 +434,7 @@ class NestPrinter(Printer):
 
     def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
-        Pretty Prints the handed over rhs to a nest readable format.
+        Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
         :type node: ASTExpressionNode
         :return: the corresponding string representation
