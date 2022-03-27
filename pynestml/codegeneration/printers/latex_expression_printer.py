@@ -21,7 +21,7 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -30,15 +30,12 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class LatexExpressionPrinter:
+class LatexExpressionPrinter(ExpressionPrinter):
     r"""
     Expressions printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.
     """
 
-    def __init__(self, reference_converter: ReferenceConverter):
-        self.reference_converter = reference_converter
-
-    def print_expression(self, node: ASTExpressionNode, prefix="") -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + " * (" + self.__do_print(node, prefix=prefix) + ")"
 

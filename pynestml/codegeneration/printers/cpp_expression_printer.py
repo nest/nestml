@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# expressions_printer.py
+# cpp_expression_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,7 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -30,17 +30,12 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class ExpressionsPrinter:
+class CppExpressionPrinter(ExpressionPrinter):
     r"""
-    Converts expressions to the executable platform dependent code.
-
-    This class is used to transform only parts of the grammar and not NESTML as a whole.
+    Expressions printer for C++.
     """
 
-    def __init__(self, reference_converter: ReferenceConverter):
-        self.reference_converter = reference_converter
-
-    def print_expression(self, node, prefix=""):
+    def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
         """Print an expression.
 
         Parameters

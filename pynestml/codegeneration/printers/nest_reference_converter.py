@@ -21,8 +21,8 @@
 
 import re
 
-from pynestml.codegeneration.cpp_reference_converter import CppReferenceConverter
-from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -283,10 +283,6 @@ e();
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
-        assert isinstance(variable_symbol, VariableSymbol), \
-            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
-                variable_symbol)
-
         if variable_symbol.block_type == BlockType.STATE:
             return prefix + 'S_.'
 
@@ -306,11 +302,3 @@ e();
             return prefix + 'B_.'
 
         return ''
-
-    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        return variable_symbol.get_symbol_name() + '_grid_sum_'

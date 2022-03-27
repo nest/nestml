@@ -25,7 +25,7 @@ from typing import List, Mapping, Union, Sequence
 
 import sympy
 
-from pynestml.codegeneration.printer import Printer
+from pynestml.codegeneration.printers.printer import Printer
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock

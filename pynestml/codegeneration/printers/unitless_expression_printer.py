@@ -19,20 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
+from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.codegeneration.unit_converter import UnitConverter
 
 
-class UnitlessExpressionPrinter(ExpressionsPrinter):
+class UnitlessExpressionPrinter(CppExpressionPrinter):
     r"""
     An adjusted version of the printer which does not print units with literals.
     """
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str = '') -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         r"""Print an expression.
 
         Parameters
@@ -40,7 +40,7 @@ class UnitlessExpressionPrinter(ExpressionsPrinter):
         node
             The expression node to print.
         prefix
-            *See documentation for the function ExpressionsPrinter::print_function_call().*
+            *See documentation for the function CppExpressionsPrinter::print_function_call().*
 
         Returns
         -------

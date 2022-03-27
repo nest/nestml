@@ -19,8 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.cpp_reference_converter import CppReferenceConverter
-from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -47,13 +48,11 @@ class GSLReferenceConverter(CppReferenceConverter):
         """
         self.is_upper_bound = is_upper_bound
 
-    def convert_name_reference(self, variable: ASTVariable, prefix: str = ''):
+    def convert_name_reference(self, variable: ASTVariable, prefix: str = '') -> str:
         """
         Converts a single name reference to a gsl processable format.
         :param ast_variable: a single variable
-        :type ast_variable: ASTVariable
         :return: a gsl processable format of the variable
-        :rtype: str
         """
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
@@ -98,21 +97,21 @@ class GSLReferenceConverter(CppReferenceConverter):
 
         return prefix + 'get_' + variable_name + '()'
 
-    def convert_function_call(self, function_call, prefix=''):
+    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """Convert a single function call to C++ GSL API syntax.
 
         Parameters
         ----------
-        function_call : ASTFunctionCall
+        function_call
             The function call node to convert.
-        prefix : str
+        prefix
             Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
 
             Predefined functions will not be prefixed.
 
         Returns
         -------
-        s : str
+        s
             The function call string in C++ syntax.
         """
         function_name = function_call.get_name()
@@ -199,33 +198,21 @@ e();'''
 
         return prefix + function_name + '()'
 
-    def array_index(self, symbol):
+    def array_index(self, symbol: VariableSymbol) -> str:
         """
         Transforms the haded over symbol to a GSL processable format.
         :param symbol: a single variable symbol
-        :type symbol: VariableSymbol
         :return: the corresponding string format
-        :rtype: str
         """
         return 'State_::' + self.convert_to_cpp_name(symbol.get_symbol_name())
 
-    def name(self, symbol):
+    def name(self, symbol: VariableSymbol) -> str:
         """
         Transforms the given symbol to a format that can be processed by GSL.
         :param symbol: a single variable symbol
-        :type symbol: VariableSymbol
         :return: the corresponding string format
-        :rtype: str
         """
         if symbol.is_state() and not symbol.is_inline_expression:
             return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
 
         return super().name(symbol)
-
-    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        return variable_symbol.get_symbol_name() + '_grid_sum_'

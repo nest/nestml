@@ -22,7 +22,7 @@
 from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.codegeneration.debug_types_printer import DebugTypesPrinter
+from pynestml.codegeneration.printers.debug_types_printer import DebugTypesPrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol

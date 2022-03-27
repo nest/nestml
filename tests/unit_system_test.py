@@ -22,10 +22,10 @@
 import os
 import unittest
 
-from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
-from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
-from pynestml.codegeneration.nest_printer import NestPrinter
-from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
+from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.printers.nest_printer import NestPrinter
+from pynestml.codegeneration.printers.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -47,10 +47,10 @@ Logger.init_logger(LoggingLevel.INFO)
 
 types_printer = CppTypesPrinter()
 reference_converter = NestMLReferenceConverter()
-expressions_printer = ExpressionsPrinter(reference_converter)
+expression_printer = CppExpressionPrinter(reference_converter)
 printer = NestPrinter(reference_converter=reference_converter,
                       types_printer=types_printer,
-                      expressions_printer=expressions_printer)
+                      expression_printer=expression_printer)
 
 
 def get_first_statement_in_update_block(model):

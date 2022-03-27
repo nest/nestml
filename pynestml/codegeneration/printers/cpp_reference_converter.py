@@ -21,7 +21,7 @@
 
 from typing import Union
 
-from pynestml.codegeneration.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
@@ -37,7 +37,7 @@ class CppReferenceConverter(ReferenceConverter):
         Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp" += 1" will be converted into "G_ahp__d".
 
         :param variable_name: a single name.
-        :return: the corresponding transformed name.
+        :return: a string representation
         """
         differential_order = variable_name.count("\"")
         if differential_order > 0:
@@ -49,7 +49,7 @@ class CppReferenceConverter(ReferenceConverter):
         """
         Converts for a handed over symbol the corresponding name of the getter to a nest processable format.
         :param variable_symbol: a single variable symbol.
-        :return: the corresponding representation as a string
+        :return: a string representation
         """
         return 'get_' + self.convert_to_cpp_name(variable_symbol.get_symbol_name())
 
@@ -57,7 +57,7 @@ class CppReferenceConverter(ReferenceConverter):
         """
         Converts for a handed over symbol the corresponding name of the setter to a nest processable format.
         :param variable_symbol: a single variable symbol.
-        :return: the corresponding representation as a string
+        :return: a string representation
         """
         return 'set_' + self.convert_to_cpp_name(variable_symbol.get_symbol_name())
 
@@ -65,7 +65,7 @@ class CppReferenceConverter(ReferenceConverter):
         """
         Returns for the handed over element the corresponding nest processable string.
         :param node: a single variable symbol or variable
-        :return: the corresponding string representation
+        :return: a string representation
         """
         if isinstance(node, VariableSymbol):
             return self.convert_to_cpp_name(node.get_symbol_name())
@@ -76,7 +76,7 @@ class CppReferenceConverter(ReferenceConverter):
         """
         Converts a single handed over constant.
         :param const: a constant as string, float or int.
-        :return: the corresponding string representation
+        :return: a string representation
         """
         if const == 'inf':
             return 'std::numeric_limits<double_t>::infinity()'
@@ -94,9 +94,9 @@ class CppReferenceConverter(ReferenceConverter):
 
     def convert_unary_op(self, unary_operator: ASTUnaryOperator) -> str:
         """
-        Depending on the concretely used operator, a string is returned.
-        :param unary_operator: a single operator.
-        :return: the same operator
+        Converts a unary operator.
+        :param unary_operator: an operator object
+        :return: a string representation
         """
         if unary_operator.is_unary_plus:
             return '(' + '+' + '(%s)' + ')'
@@ -111,21 +111,21 @@ class CppReferenceConverter(ReferenceConverter):
 
     def convert_encapsulated(self) -> str:
         """
-        Converts the encapsulating parenthesis to NEST style.
-        :return: a set of parenthesis
+        Converts the encapsulating parenthesis of an expression.
+        :return: a string representation
         """
         return '(%s)'
 
     def convert_logical_not(self) -> str:
         """
-        Returns a representation of the logical not in NEST.
+        Converts a logical NOT operator.
         :return: a string representation
         """
         return '(' + '!' + '%s' + ')'
 
     def convert_logical_operator(self, op: ASTLogicalOperator) -> str:
         """
-        Prints a logical operator in NEST syntax.
+        Converts a logical operator.
         :param op: a logical operator object
         :return: a string representation
         """
@@ -139,8 +139,8 @@ class CppReferenceConverter(ReferenceConverter):
 
     def convert_comparison_operator(self, op: ASTComparisonOperator) -> str:
         """
-        Prints a logical operator in NEST syntax.
-        :param op: a logical operator object
+        Converts a comparison operator.
+        :param op: a comparison operator object
         :return: a string representation
         """
         if op.is_lt:
@@ -165,8 +165,8 @@ class CppReferenceConverter(ReferenceConverter):
 
     def convert_bit_operator(self, op: ASTBitOperator) -> str:
         """
-        Prints a logical operator in NEST syntax.
-        :param op: a logical operator object
+        Converts a bit operator in NEST syntax.
+        :param op: a bit operator object
         :return: a string representation
         """
         if op.is_bit_shift_left:
@@ -188,8 +188,8 @@ class CppReferenceConverter(ReferenceConverter):
 
     def convert_arithmetic_operator(self, op: ASTArithmeticOperator) -> str:
         """
-        Prints a logical operator in NEST syntax.
-        :param op: a logical operator object
+        Converts an arithmetic operator.
+        :param op: an arithmetic operator object
         :return: a string representation
         """
         if op.is_plus_op:
@@ -214,16 +214,16 @@ class CppReferenceConverter(ReferenceConverter):
 
     def convert_ternary_operator(self) -> str:
         """
-        Prints a ternary operator in NEST syntax.
+        Converts a ternary operator.
         :return: a string representation
         """
         return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
 
     def convert_binary_op(self, binary_operator: Union[ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator]) -> str:
         """
-        Converts a single binary operator to nest processable format.
-        :param binary_operator: a single binary operator string.
-        :return: the corresponding nest representation
+        Converts a binary operator.
+        :param binary_operator: a binary operator object
+        :return: a string representation
         """
         if isinstance(binary_operator, ASTArithmeticOperator):
             return self.convert_arithmetic_operator(binary_operator)
@@ -238,3 +238,11 @@ class CppReferenceConverter(ReferenceConverter):
             return self.convert_logical_operator(binary_operator)
 
         raise RuntimeError('Cannot determine binary operator!')
+
+    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        return variable_symbol.get_symbol_name() + '_grid_sum_'

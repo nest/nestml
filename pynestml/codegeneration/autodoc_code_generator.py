@@ -28,9 +28,9 @@ import textwrap
 from jinja2 import Environment, FileSystemLoader
 
 from pynestml.codegeneration.code_generator import CodeGenerator
-from pynestml.codegeneration.latex_expression_printer import LatexExpressionPrinter
-from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
+from pynestml.codegeneration.printers.latex_expression_printer import LatexExpressionPrinter
+from pynestml.codegeneration.printers.latex_reference_converter import LatexReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
