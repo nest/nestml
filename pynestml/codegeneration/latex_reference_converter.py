@@ -43,8 +43,8 @@ class LatexReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         return str(ast_unary_operator) + '%s'
-
-    def convert_name_reference(self, ast_variable):
+    # with_origins is currently ignored
+    def convert_name_reference(self, ast_variable, with_origins=True):
         """
         Convert name reference.
 

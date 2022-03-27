@@ -42,7 +42,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST2", "python_standalone", "autodoc", "none"]
+    targets = ["NEST", "NEST2", "NEST_COMPARTMENTAL", "python_standalone", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -59,9 +59,9 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
-    elif target_name.upper() == "COMPARTMENTAL":
-        from pynestml.codegeneration.compartmental_code_generator import NESTCompartmentalCodegenerator
-        return CompartmentalCodegenerator()
+    elif target_name.upper() == "NEST_COMPARTMENTAL":
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
+        return NESTCompartmentalCodeGenerator()
     elif target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
         code, message = Messages.get_no_code_generated()
@@ -72,11 +72,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
 
 def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
-    from pynestml.frontend.pynestml_frontend import get_known_targets
 
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
-    if target_name.upper() in ["NEST", "NEST2"]:
+    if target_name.upper() in ["NEST", "NEST2", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 
@@ -157,7 +156,7 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
-                         install_path: Optional[str] = None, logging_level="ERROR",
+                         target_platform="NEST", install_path: Optional[str] = None, logging_level="ERROR",
                          module_name=None, store_log: bool=False, suffix: str="",
                          dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for NEST Simulator.
@@ -183,7 +182,7 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
-    generate_target(input_path, target_platform="NEST", target_path=target_path, logging_level=logging_level,
+    generate_target(input_path, target_platform=target_platform, target_path=target_path, logging_level=logging_level,
                     module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
                     dev=dev, codegen_opts=codegen_opts)
 

@@ -50,16 +50,16 @@ class LatexExpressionPrinter:
         else:
             self.types_printer = LatexTypesPrinter()
 
-    def print_expression(self, node: ASTExpressionNode, prefix='') -> str:
-        return self.__do_print(node, prefix=prefix)
+    def print_expression(self, node: ASTExpressionNode, prefix='', with_origins=True) -> str:
+        return self.__do_print(node, prefix=prefix, with_origins=with_origins)
         if node.get_implicit_conversion_factor() is not None:
-            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
+            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, with_origins=with_origins) + ')'
         else:
-            return self.__do_print(node, prefix=prefix)
+            return self.__do_print(node, prefix=prefix, with_origins=with_origins)
 
-    def __do_print(self, node: ASTExpressionNode, prefix='') -> str:
+    def __do_print(self, node: ASTExpressionNode, prefix='', with_origins=True) -> str:
         if isinstance(node, ASTVariable):
-            return self.reference_converter.convert_name_reference(node)
+            return self.reference_converter.convert_name_reference(node, with_origins = with_origins)
         elif isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
@@ -67,7 +67,7 @@ class LatexExpressionPrinter:
                 if node.get_numeric_literal() != 1:
                     s += "{0:E}".format(node.get_numeric_literal())
                     s += r"\cdot"
-                s += self.reference_converter.convert_name_reference(node.get_variable())
+                s += self.reference_converter.convert_name_reference(node.get_variable(), with_origins = with_origins)
                 return s
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
@@ -80,7 +80,7 @@ class LatexExpressionPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable())
+                return self.reference_converter.convert_name_reference(node.get_variable(), with_origins = with_origins)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call())
             raise Exception('Unknown node type')

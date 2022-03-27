@@ -29,7 +29,7 @@ import jinja2.environment
 from odetoolbox import analysis
 import pynestml
 from pynestml.codegeneration.ast_transformers import ASTTransformers
-from pynestml.codegeneration.codegenerator import CodeGenerator
+from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
@@ -720,7 +720,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         gsl_converter = GSLReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)
         # helper classes and objects
-        converter = NESTReferenceConverter(False)
+        converter = NESTReferenceConverter()
         unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
