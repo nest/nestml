@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest2_reference_converter.py
+# nest2_gsl_reference_converter.py
 #
 # This file is part of NEST.
 #
@@ -19,18 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.printers.gsl_reference_converter import GSLReferenceConverter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
-class NEST2ReferenceConverter(NESTReferenceConverter):
+class NEST2GSLReferenceConverter(GSLReferenceConverter):
     """
-    This concrete reference converter is used to transfer internal names to NEST 2 syntax.
+    This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
     """
 
-    def convert_function_call(self, function_call, prefix='') -> str:
-        r"""
-        Converts a single handed over function call to C++ NEST API syntax.
+    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = ''):
+        r"""Convert a single function call to C++ GSL API syntax.
 
         Parameters
         ----------

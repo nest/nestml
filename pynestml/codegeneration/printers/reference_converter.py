@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# i_reference_converter.py
+# reference_converter.py
 #
 # This file is part of NEST.
 #
@@ -18,12 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from abc import ABCMeta, abstractmethod
 
 
-class IReferenceConverter:
-    """This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker or LEMS.
-    """
+class ReferenceConverter:
+    r"""This class represents a abstract super class for all possible reference converters, e.g. for NEST, SpiNNaker, or standalone Python target."""
 
     __metaclass__ = ABCMeta
 

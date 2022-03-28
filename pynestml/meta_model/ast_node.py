@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -102,32 +104,20 @@ class ASTNode(metaclass=ABCMeta):
         """
         pass
 
-    def set_implicit_conversion_factor(self, implicit_factor):
+    def set_implicit_conversion_factor(self, implicit_factor: Optional[float]) -> None:
         """
         Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the
         context where it is used. eg. Volt + milliVolt needs to either be
         1000*Volt + milliVolt or Volt + 0.001 * milliVolt
         :param implicit_factor: the factor to be installed
-        :type implicit_factor: Optional[float]
-        :return: nothing
         """
-        from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-        from pynestml.meta_model.ast_expression import ASTExpression
-
-        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         self.implicit_conversion_factor = implicit_factor
 
-    def get_implicit_conversion_factor(self):
+    def get_implicit_conversion_factor(self) -> Optional[float]:
         """
         Returns the factor installed as implicitConversionFactor for this expression
         :return: the conversion factor, if present, or None
-        :rtype: Optional[float]
         """
-
-        from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-        from pynestml.meta_model.ast_expression import ASTExpression
-
-        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         return self.implicit_conversion_factor
 
     def get_source_position(self):
@@ -228,5 +218,5 @@ class ASTNode(metaclass=ABCMeta):
         visitor.handle(self)
 
     def __str__(self):
-        from pynestml.utils.ast_nestml_printer import ASTNestMLPrinter
-        return ASTNestMLPrinter().print_node(self)
+        from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+        return NESTMLPrinter().print_node(self)
