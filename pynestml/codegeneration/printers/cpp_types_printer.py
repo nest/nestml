@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-<<<<<<< HEAD:pynestml/codegeneration/python_types_printer.py
-# python_types_printer.py
-=======
 # cpp_types_printer.py
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_types_printer.py
 #
 # This file is part of NEST.
 #
@@ -23,11 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-<<<<<<< HEAD:pynestml/codegeneration/python_types_printer.py
-from pynestml.codegeneration.types_printer import TypesPrinter
-=======
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_types_printer.py
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
@@ -39,15 +31,9 @@ from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-<<<<<<< HEAD:pynestml/codegeneration/python_types_printer.py
-class PythonTypesPrinter(TypesPrinter):
-    """
-    Returns a Python syntax version of the handed over type.
-=======
 class CppTypesPrinter(TypesPrinter):
     """
     Returns a C++ syntax version of the handed over type.
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_types_printer.py
     """
 
     def convert(self, type_symbol: TypeSymbol) -> str:
@@ -58,33 +44,16 @@ class CppTypesPrinter(TypesPrinter):
         """
         assert isinstance(type_symbol, TypeSymbol)
 
-<<<<<<< HEAD:pynestml/codegeneration/python_types_printer.py
-        if isinstance(type_symbol, RealTypeSymbol):
-            return "float"
-=======
         if type_symbol.is_buffer:
             return "nest::RingBuffer"
 
         if isinstance(type_symbol, RealTypeSymbol):
             return "double"
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_types_printer.py
 
         if isinstance(type_symbol, BooleanTypeSymbol):
             return "bool"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
-<<<<<<< HEAD:pynestml/codegeneration/python_types_printer.py
-            return "int"
-
-        if isinstance(type_symbol, StringTypeSymbol):
-            return "str"
-
-        if isinstance(type_symbol, VoidTypeSymbol):
-            return ""
-
-        if isinstance(type_symbol, UnitTypeSymbol):
-            return "float"
-=======
             return "long"
 
         if isinstance(type_symbol, StringTypeSymbol):
@@ -98,7 +67,6 @@ class CppTypesPrinter(TypesPrinter):
 
         if isinstance(type_symbol, NESTTimeTypeSymbol):
             return "nest::Time"
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_types_printer.py
 
         if isinstance(type_symbol, ErrorTypeSymbol):
             return "ERROR"

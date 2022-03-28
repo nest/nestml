@@ -19,8 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
-
 import re
 
 from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
@@ -279,7 +277,7 @@ e();
 
         return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
 
-    def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
+    def print_origin(self, variable_symbol: VariableSymbol, prefix: str = "") -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
@@ -304,42 +302,3 @@ e();
             return prefix + 'B_.'
 
         return ''
-
-
-    def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
-        """
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
-        """
-        assert isinstance(variable_symbol, VariableSymbol), \
-            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
-                variable_symbol)
-
-        if variable_symbol.block_type == BlockType.STATE:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.EQUATION:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.PARAMETERS:
-            return prefix + 'P_.'
-
-        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return prefix + 'cp.'
-
-        if variable_symbol.block_type == BlockType.INTERNALS:
-            return prefix + 'V_.'
-
-        if variable_symbol.block_type == BlockType.INPUT:
-            return prefix + 'B_.'
-
-        return ''
-
-    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        return variable_symbol.get_symbol_name() + '_grid_sum_'

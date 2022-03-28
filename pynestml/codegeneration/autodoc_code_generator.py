@@ -28,8 +28,6 @@ import textwrap
 from jinja2 import Environment, FileSystemLoader
 
 from pynestml.codegeneration.code_generator import CodeGenerator
-from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
-from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.printers.latex_expression_printer import LatexExpressionPrinter
 from pynestml.codegeneration.printers.latex_reference_converter import LatexReferenceConverter
@@ -52,10 +50,6 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         converter = LatexReferenceConverter()
         self._printer = LatexExpressionPrinter(converter)
-        self._reference_converter = NestMLReferenceConverter()
-        self._nest_printer = NestPrinter(reference_converter=self._reference_converter,
-                                         types_printer=self._types_printer,
-                                         expressions_printer=self._printer)
 
     def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
         """

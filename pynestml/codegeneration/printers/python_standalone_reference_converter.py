@@ -19,16 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.base_reference_converter import BaseReferenceConverter
-from pynestml.codegeneration.base_reference_converter import BaseReferenceConverter
-from pynestml.codegeneration.reference_converter import ReferenceConverter
-from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
-from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.codegeneration.printers.base_reference_converter import BaseReferenceConverter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -41,13 +34,6 @@ from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.codegeneration.reference_converter import ReferenceConverter
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.variable_symbol import BlockType
-from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.utils.ast_utils import ASTUtils
 
 
 class PythonStandaloneReferenceConverter(BaseReferenceConverter):
@@ -65,29 +51,19 @@ class PythonStandaloneReferenceConverter(BaseReferenceConverter):
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable, prefix='') -> str:
-        """
-        Returns the same string
-        :param ast_variable: a single variable
-        :type ast_variable: ASTVariable
-        :return: the same string
-        :rtype: str
-        """
-        return prefix + ast_variable.get_complete_name()
-
-    def convert_function_call(self, function_call, prefix='') -> str:
+    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """Return the function call in NESTML syntax.
 
         Parameters
         ----------
-        function_call : ASTFunctionCall
+        function_call
             The function call node to convert.
-        prefix : str
+        prefix
             The prefix argument is not relevant for rendering NESTML syntax and will be ignored.
 
         Returns
         -------
-        s : str
+        s
             The function call string in NESTML syntax.
         """
         result = function_call.get_name()

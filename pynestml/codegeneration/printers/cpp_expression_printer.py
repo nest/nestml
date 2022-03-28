@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-# expressions_printer.py
-=======
 # cpp_expression_printer.py
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
 #
 # This file is part of NEST.
 #
@@ -25,31 +21,18 @@
 
 from typing import Tuple
 
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
-=======
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.codegeneration.printer import Printer
 from pynestml.utils.ast_utils import ASTUtils
 
 
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-class ExpressionsPrinter(Printer):
-    r"""
-    Converts expressions to the executable platform dependent code.
-
-    This class is used to transform only parts of the grammar and not NESTML as a whole.
-=======
 class CppExpressionPrinter(ExpressionPrinter):
     r"""
     Expressions printer for C++.
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
     """
 
     def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
@@ -76,26 +59,11 @@ class CppExpressionPrinter(ExpressionPrinter):
     def __do_print(self, node: ASTExpressionNode, prefix: str="") -> str:
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-                return str(node.get_numeric_literal()) + '*' + \
-=======
                 return str(node.get_numeric_literal()) + "*" + \
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
                     self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
 
             if node.is_numeric_literal():
                 return str(node.get_numeric_literal())
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-            elif node.is_inf_literal:
-                return self.reference_converter.convert_constant('inf')
-            elif node.is_string():
-                return str(node.get_string())
-            elif node.is_boolean_true:
-                return self.reference_converter.convert_constant('true')
-            elif node.is_boolean_false:
-                return self.reference_converter.convert_constant('false')
-            elif node.is_variable():
-=======
 
             if node.is_inf_literal:
                 return self.reference_converter.convert_constant("inf")
@@ -110,7 +78,6 @@ class CppExpressionPrinter(ExpressionPrinter):
                 return self.reference_converter.convert_constant("false")
 
             if node.is_variable():
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
                 return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
 
             if node.is_function_call():
@@ -149,15 +116,11 @@ class CppExpressionPrinter(ExpressionPrinter):
                 if_not = self.print_expression(node.if_not, prefix=prefix)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
 
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
-=======
             raise Exception("Unknown node type")
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
     def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
         """Print a function call, including bracketed arguments list.
 
         Parameters
@@ -178,13 +141,6 @@ class CppExpressionPrinter(ExpressionPrinter):
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self.reference_converter.convert_print_statement(function_call))
-<<<<<<< HEAD:pynestml/codegeneration/expressions_printer.py
-
-            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
-
-        return function_name
-=======
->>>>>>> upstream/master:pynestml/codegeneration/printers/cpp_expression_printer.py
 
             return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
 

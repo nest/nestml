@@ -21,27 +21,9 @@
 
 from typing import Union
 
-import re
-
 from pynestml.codegeneration.reference_converter import ReferenceConverter
-from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
-from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
 
 
 class BaseReferenceConverter(ReferenceConverter):

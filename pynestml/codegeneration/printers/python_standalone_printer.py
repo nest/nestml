@@ -64,8 +64,7 @@ from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.codegeneration.printer import Printer
 from pynestml.codegeneration.types_printer import TypesPrinter
-from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class PythonStandalonePrinter(Printer):
@@ -136,6 +135,8 @@ class PythonStandalonePrinter(Printer):
             ret = self.print_compilation_unit(node)
         if isinstance(node, ASTNeuron):
             ret = self.print_neuron(node)
+        if isinstance(node, ASTSynapse):
+            ret = self.print_synapse(node)
         if isinstance(node, ASTOdeEquation):
             ret = self.print_ode_equation(node)
         if isinstance(node, ASTInlineExpression):

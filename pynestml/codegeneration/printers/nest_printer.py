@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.printer import Printer
 from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
 from pynestml.codegeneration.printers.types_printer import TypesPrinter

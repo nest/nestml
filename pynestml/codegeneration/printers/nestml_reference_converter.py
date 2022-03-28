@@ -26,9 +26,9 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class NestMLReferenceConverter(ReferenceConverter):
+class NESTMLReferenceConverter(ReferenceConverter):
     """
-    This converter preserves the initial NestML syntax.
+    This converter preserves the NESTML syntax.
     """
 
     def convert_unary_op(self, ast_unary_operator: ASTUnaryOperator) -> str:

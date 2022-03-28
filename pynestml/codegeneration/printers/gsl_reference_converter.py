@@ -216,34 +216,3 @@ e();'''
             return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
 
         return super().name(symbol)
-
-    def array_index(self, symbol):
-        """
-        Transforms the haded over symbol to a GSL processable format.
-        :param symbol: a single variable symbol
-        :type symbol: VariableSymbol
-        :return: the corresponding string format
-        :rtype: str
-        """
-        return 'State_::' + self.convert_to_cpp_name(symbol.get_symbol_name())
-
-    def name(self, symbol):
-        """
-        Transforms the given symbol to a format that can be processed by GSL.
-        :param symbol: a single variable symbol
-        :type symbol: VariableSymbol
-        :return: the corresponding string format
-        :rtype: str
-        """
-        if symbol.is_state() and not symbol.is_inline_expression:
-            return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
-
-        return super().name(symbol)
-
-    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        return variable_symbol.get_symbol_name() + '_grid_sum_'

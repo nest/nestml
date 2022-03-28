@@ -25,7 +25,7 @@ import unittest
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.printers.nest_printer import NestPrinter
-from pynestml.codegeneration.printers.nestml_reference_converter import NestMLReferenceConverter
+from pynestml.codegeneration.printers.nestml_reference_converter import NESTMLReferenceConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -46,7 +46,7 @@ PredefinedFunctions.register_functions()
 Logger.init_logger(LoggingLevel.INFO)
 
 types_printer = CppTypesPrinter()
-reference_converter = NestMLReferenceConverter()
+reference_converter = NESTMLReferenceConverter()
 expression_printer = CppExpressionPrinter(reference_converter)
 printer = NestPrinter(reference_converter=reference_converter,
                       types_printer=types_printer,

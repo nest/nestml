@@ -19,17 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Optional, Sequence
+from typing import Optional
 
 import os
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
-from pynestml.codegeneration.python_standalone_printer import PythonStandalonePrinter
-from pynestml.codegeneration.python_standalone_reference_converter import PythonStandaloneReferenceConverter
-from pynestml.codegeneration.python_types_printer import PythonTypesPrinter
-from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
+from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
+from pynestml.codegeneration.printers.python_standalone_reference_converter import PythonStandaloneReferenceConverter
+from pynestml.codegeneration.printers.python_types_printer import PythonTypesPrinter
+from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
 
 
 class PythonStandaloneCodeGenerator(CodeGenerator):

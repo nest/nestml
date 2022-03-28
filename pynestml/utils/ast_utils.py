@@ -33,6 +33,7 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable

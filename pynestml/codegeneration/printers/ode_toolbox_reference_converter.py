@@ -21,10 +21,10 @@
 
 from typing import Union
 
-from pynestml.codegeneration.printers.nestml_reference_converter import NestMLReferenceConverter
+from pynestml.codegeneration.printers.nestml_reference_converter import NESTMLReferenceConverter
 
 
-class ODEToolboxReferenceConverter(NestMLReferenceConverter):
+class ODEToolboxReferenceConverter(NESTMLReferenceConverter):
     """
     Convert into a format accepted by ODE-toolbox as input.
     """
