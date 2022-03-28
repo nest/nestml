@@ -76,42 +76,40 @@ class MessageCode(Enum):
     NOT_LAST_STATEMENT = 47
     SYMBOL_NOT_RESOLVED = 48
     SYNAPSE_SOLVED_BY_GSL = 49
-    SYNAPSE_ANALYZED = 50
-    TYPE_MISMATCH = 51
-    NO_SEMANTICS = 52
-    NEURON_SOLVED_BY_GSL = 53
-    NEURON_ANALYZED = 54
-    NO_UNIT = 55
-    NOT_NEUROSCIENCE_UNIT = 56
-    INTERNAL_WARNING = 57
-    OPERATION_NOT_DEFINED = 58
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 59
-    INPUT_PATH_NOT_FOUND = 60
-    LEXER_ERROR = 61
-    PARSER_ERROR = 62
-    UNKNOWN_TARGET = 63
-    VARIABLE_WITH_SAME_NAME_AS_UNIT = 64
-    ANALYSING_TRANSFORMING_NEURON = 65
-    ODE_NEEDS_CONSISTENT_UNITS = 66
-    TEMPLATED_ARG_TYPES_INCONSISTENT = 67
-    MODULE_NAME_INFO = 68
-    TARGET_PATH_INFO = 69
-    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 70
-    DELTA_FUNCTION_CANNOT_BE_MIXED = 71
-    UNKNOWN_TYPE = 72
-    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 73
-    KERNEL_WRONG_TYPE = 74
-    KERNEL_IV_WRONG_TYPE = 75
-    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 76
-    NO_FILES_IN_INPUT_PATH = 77
-    STATE_VARIABLES_NOT_INITIALZED = 78
-    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 79
-    TEMPLATE_ROOT_PATH_CREATED = 80
-    VECTOR_PARAMETER_WRONG_BLOCK = 81
-    VECTOR_PARAMETER_WRONG_TYPE = 82
-    VECTOR_PARAMETER_WRONG_SIZE = 83
-    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 84
-    REPEATED_PRIORITY_VALUE = 85
+    TYPE_MISMATCH = 50
+    NO_SEMANTICS = 51
+    NEURON_SOLVED_BY_GSL = 52
+    NO_UNIT = 53
+    NOT_NEUROSCIENCE_UNIT = 54
+    INTERNAL_WARNING = 55
+    OPERATION_NOT_DEFINED = 56
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 57
+    INPUT_PATH_NOT_FOUND = 58
+    LEXER_ERROR = 59
+    PARSER_ERROR = 60
+    UNKNOWN_TARGET = 61
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 62
+    ANALYSING_TRANSFORMING_NEURON = 63
+    ODE_NEEDS_CONSISTENT_UNITS = 64
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 65
+    MODULE_NAME_INFO = 66
+    TARGET_PATH_INFO = 67
+    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 68
+    DELTA_FUNCTION_CANNOT_BE_MIXED = 69
+    UNKNOWN_TYPE = 70
+    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
+    KERNEL_WRONG_TYPE = 72
+    KERNEL_IV_WRONG_TYPE = 73
+    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 74
+    NO_FILES_IN_INPUT_PATH = 75
+    STATE_VARIABLES_NOT_INITIALZED = 76
+    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 77
+    TEMPLATE_ROOT_PATH_CREATED = 78
+    VECTOR_PARAMETER_WRONG_BLOCK = 79
+    VECTOR_PARAMETER_WRONG_TYPE = 80
+    VECTOR_PARAMETER_WRONG_SIZE = 81
+    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
+    REPEATED_PRIORITY_VALUE = 83
 
 
 class Messages:
@@ -917,34 +915,6 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'The synapse \'%s\' will be solved numerically with GSL solver without modification!' % name
         return MessageCode.SYNAPSE_SOLVED_BY_GSL, message
-
-    @classmethod
-    def get_neuron_analyzed(cls, name):
-        """
-        Indicates that the analysis of a neuron will start.
-        :param name: the name of the neuron which will be analyzed.
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'The neuron \'%s\' will be analysed!' % name
-        return MessageCode.NEURON_ANALYZED, message
-
-    @classmethod
-    def get_synapse_analyzed(cls, name):
-        """
-        Indicates that the analysis of a synapse will start.
-        :param name: the name of the synapse which will be analyzed.
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'The synapse \'%s\' will be analysed!' % name
-        return MessageCode.SYNAPSE_ANALYZED, message
 
     @classmethod
     def get_could_not_be_solved(cls):
