@@ -448,7 +448,7 @@ class NestPrinter(Printer):
             # delay parameter is a variable
             return self.reference_converter.print_origin(symbol) + delay_parameter
         return delay_parameter
-        
+
     def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
         Prints the handed over rhs to a nest readable format.
