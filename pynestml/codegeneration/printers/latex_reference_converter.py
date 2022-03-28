@@ -18,40 +18,37 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import re
 
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.utils.ast_utils import ASTUtils
+from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.utils.ast_utils import ASTUtils
 
 
-class LatexReferenceConverter(IReferenceConverter):
+class LatexReferenceConverter(ReferenceConverter):
     """
     ReferenceConverter for the LaTeX target.
     """
 
-    def convert_unary_op(self, ast_unary_operator):
+    def convert_unary_op(self, ast_unary_operator) -> str:
         """
         Convert unary operator.
 
         :param ast_unary_operator: a unary operator
         :type ast_unary_operator: ASTUnaryOperator
-        :return: pretty-printed format string
-        :rtype: str
+        :return: the corresponding string representation
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable):
+    def convert_name_reference(self, ast_variable) -> str:
         """
         Convert name reference.
 
         :param ast_variable: a single variable
         :type ast_variable: ASTVariable
-        :return: pretty-printed format string
-        :rtype: str
+        :return: the corresponding string representation
         """
         var_name = ast_variable.get_name()
         var_complete_name = ast_variable.get_complete_name()
@@ -118,20 +115,18 @@ class LatexReferenceConverter(IReferenceConverter):
             "Omega": r"\\Omega"
         }
         for symbol_find, symbol_replace in symbols.items():
-            before = var_name
             var_name = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])",
                               symbol_replace, var_name)  # "whole word" match
-            after = var_name
+
         return var_name
 
-    def convert_function_call(self, function_call):
+    def convert_function_call(self, function_call) -> str:
         """
         Convert function call.
 
         :param function_call: a function call
         :type function_call: ASTFunctionCall
-        :return: pretty-printed format string
-        :rtype: str
+        :return: the corresponding string representation
         """
         result = function_call.get_name()
 
@@ -151,14 +146,13 @@ class LatexReferenceConverter(IReferenceConverter):
 
         return result
 
-    def convert_binary_op(self, ast_binary_operator, wide=False):
+    def convert_binary_op(self, ast_binary_operator, wide=False) -> str:
         """
         Convert binary operator.
 
         :param ast_binary_operator: a single binary operator
         :type ast_binary_operator: ASTBinaryOperator
-        :return: pretty-printed format string
-        :rtype: str
+        :return: the corresponding string representation
         """
         if ast_binary_operator.is_div_op:
             if wide:
@@ -172,40 +166,38 @@ class LatexReferenceConverter(IReferenceConverter):
         else:
             return r'%(lhs)s' + str(ast_binary_operator) + r'%(rhs)s'
 
-    def convert_constant(self, constant_name):
+    def convert_constant(self, constant_name) -> str:
         """
         Convert constant.
 
         :param constant_name: a constant name
         :type constant_name: str
-        :return: pretty-printed format string
-        :rtype: str
+        :return: the corresponding string representation
         """
         return constant_name
 
-    def convert_ternary_operator(self):
+    def convert_ternary_operator(self) -> str:
         """
         Convert ternary operator.
 
-        :return: pretty-printed format string
-        :rtype: str
+        :return: the corresponding string representation
         """
         return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
 
-    def convert_logical_operator(self, op):
+    def convert_logical_operator(self, op) -> str:
         return str(op)
 
-    def convert_arithmetic_operator(self, op):
+    def convert_arithmetic_operator(self, op) -> str:
         return str(op)
 
-    def convert_encapsulated(self):
+    def convert_encapsulated(self) -> str:
         return '(%s)'
 
-    def convert_comparison_operator(self, op):
+    def convert_comparison_operator(self, op) -> str:
         return str(op)
 
-    def convert_logical_not(self):
+    def convert_logical_not(self) -> str:
         return "\neg"
 
-    def convert_bit_operator(self, op):
+    def convert_bit_operator(self, op) -> str:
         return str(op)

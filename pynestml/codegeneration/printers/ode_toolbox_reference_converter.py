@@ -18,10 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.utils.ast_utils import ASTUtils
+
+from typing import Union
+
+from pynestml.codegeneration.printers.nestml_reference_converter import NestMLReferenceConverter
 
 
 class ODEToolboxReferenceConverter(NestMLReferenceConverter):
@@ -29,21 +29,31 @@ class ODEToolboxReferenceConverter(NestMLReferenceConverter):
     Convert into a format accepted by ODE-toolbox as input.
     """
 
-    def convert_name_reference(self, ast_variable, prefix=''):
+    def convert_name_reference(self, ast_variable, prefix: str = '') -> str:
         """
         Returns the same string
         :param ast_variable: a single variable
         :type ast_variable: ASTVariable
         :return: the same string
-        :rtype: str
         """
         return prefix + ast_variable.get_complete_name().replace("$", "__DOLLAR")
 
-    def convert_ternary_operator(self):
+    def convert_ternary_operator(self) -> str:
         """
         ODE-toolbox does not support ternary operator! Ignore condition, and hard-wire to first parameter.
         :return: a string representation
-        :rtype: str
         """
         s = '0 * (' + '%s' + ') + (' + '%s' + ') + 0 * (' + '%s' + ')'
         return '(' + s + ')'
+
+    def convert_constant(self, const: Union[str, float, int]) -> str:
+        """
+        Converts a single handed over constant.
+        :param constant_name: a constant as string.
+        :type constant_name: str
+        :return: the corresponding nest representation
+        """
+        if isinstance(const, float) or isinstance(const, int):
+            return str(const)
+
+        return const

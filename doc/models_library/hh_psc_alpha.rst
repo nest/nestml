@@ -57,17 +57,17 @@ Parameters
     :widths: auto
 
     
-    "t_ref", "ms", "2.0ms", "Refractory period"    
-    "g_Na", "nS", "12000.0nS", "Sodium peak conductance"    
-    "g_K", "nS", "3600.0nS", "Potassium peak conductance"    
+    "t_ref", "ms", "2ms", "Refractory period"    
+    "g_Na", "nS", "12000nS", "Sodium peak conductance"    
+    "g_K", "nS", "3600nS", "Potassium peak conductance"    
     "g_L", "nS", "30nS", "Leak conductance"    
-    "C_m", "pF", "100.0pF", "Membrane Capacitance"    
+    "C_m", "pF", "100pF", "Membrane Capacitance"    
     "E_Na", "mV", "50mV", "Sodium reversal potential"    
-    "E_K", "mV", "-77.0mV", "Potassium reversal potentia"    
+    "E_K", "mV", "-77mV", "Potassium reversal potential"    
     "E_L", "mV", "-54.402mV", "Leak reversal Potential (aka resting potential)"    
-    "tau_syn_ex", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function i"    
-    "tau_syn_in", "ms", "2.0ms", "Rise time of the inhibitory synaptic alpha function"    
-    "V_m_init", "mV", "-65.0mV", "Initial membrane potential"    
+    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function i"    
+    "tau_syn_inh", "ms", "2ms", "Rise time of the inhibitory synaptic alpha function"    
+    "V_m_init", "mV", "-65mV", "Initial membrane potential"    
     "alpha_n_init", "real", "(0.01 * (V_m_init / mV + 55.0)) / (1.0 - exp(-(V_m_init / mV + 55.0) / 10.0))", ""    
     "beta_n_init", "real", "0.125 * exp(-(V_m_init / mV + 65.0) / 80.0)", ""    
     "alpha_m_init", "real", "(0.1 * (V_m_init / mV + 40.0)) / (1.0 - exp(-(V_m_init / mV + 40.0) / 10.0))", ""    
@@ -136,10 +136,10 @@ Source code
      end
      equations:
        # synapses: alpha functions
-       kernel I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       kernel I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-       inline I_syn_exc pA = convolve(I_syn_ex,spikeExc)
-       inline I_syn_inh pA = convolve(I_syn_in,spikeInh)
+       kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+       kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
+       inline I_syn_exc pA = convolve(K_syn_exc,exc_spikes)
+       inline I_syn_inh pA = convolve(K_syn_inh,inh_spikes)
        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
        inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
        inline I_L pA = g_L * (V_m - E_L)
@@ -163,17 +163,17 @@ Source code
      end
 
      parameters:
-       t_ref ms = 2.0ms # Refractory period
-       g_Na nS = 12000.0nS # Sodium peak conductance
-       g_K nS = 3600.0nS # Potassium peak conductance
+       t_ref ms = 2ms # Refractory period
+       g_Na nS = 12000nS # Sodium peak conductance
+       g_K nS = 3600nS # Potassium peak conductance
        g_L nS = 30nS # Leak conductance
-       C_m pF = 100.0pF # Membrane Capacitance
+       C_m pF = 100pF # Membrane Capacitance
        E_Na mV = 50mV # Sodium reversal potential
-       E_K mV = -77.0mV # Potassium reversal potentia
+       E_K mV = -77mV # Potassium reversal potential
        E_L mV = -54.402mV # Leak reversal Potential (aka resting potential)
-       tau_syn_ex ms = 0.2ms # Rise time of the excitatory synaptic alpha function i
-       tau_syn_in ms = 2.0ms # Rise time of the inhibitory synaptic alpha function
-       V_m_init mV = -65.0mV # Initial membrane potential
+       tau_syn_exc ms = 0.2ms # Rise time of the excitatory synaptic alpha function i
+       tau_syn_inh ms = 2ms # Rise time of the inhibitory synaptic alpha function
+       V_m_init mV = -65mV # Initial membrane potential
        alpha_n_init real = (0.01 * (V_m_init / mV + 55.0)) / (1.0 - exp(-(V_m_init / mV + 55.0) / 10.0))
        beta_n_init real = 0.125 * exp(-(V_m_init / mV + 65.0) / 80.0)
        alpha_m_init real = (0.1 * (V_m_init / mV + 40.0)) / (1.0 - exp(-(V_m_init / mV + 40.0) / 10.0))
@@ -187,8 +187,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       spikeInh pA <-inhibitory spike
-       spikeExc pA <-excitatory spike
+       inh_spikes pA <-inhibitory spike
+       exc_spikes pA <-excitatory spike
        I_stim pA <-current
      end
 
@@ -220,4 +220,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.835354
+   Generated at 2022-03-15 22:45:21.268554
