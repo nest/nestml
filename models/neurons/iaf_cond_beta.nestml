@@ -59,33 +59,33 @@ neuron iaf_cond_beta:
   end
 
   equations:
-      kernel g_in' = g_in$ - g_in / tau_syn_rise_I,
-             g_in$' = -g_in$ / tau_syn_decay_I
+    kernel g_in' = g_in$ - g_in / tau_syn_rise_I,
+           g_in$' = -g_in$ / tau_syn_decay_I
 
-      kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
-             g_ex$' = -g_ex$ / tau_syn_decay_E
+    kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
+           g_ex$' = -g_ex$ / tau_syn_decay_E
 
-      inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
-      inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
-      inline I_leak pA = g_L * (V_m - E_L)  # pA = nS * mV
-      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+    inline I_syn_exc pA = (F_E + convolve(g_ex, exc_spikes)) * (V_m - E_ex)
+    inline I_syn_inh pA = (F_I + convolve(g_in, inh_spikes)) * (V_m - E_in)
+    inline I_leak pA = g_L * (V_m - E_L)  # pA = nS * mV
+    V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
-    E_L mV = -70. mV              # Leak reversal potential (aka resting potential)
-    C_m pF = 250. pF              # Capacitance of the membrane
-    t_ref ms = 2. ms              # Refractory period
-    V_th mV = -55. mV             # Threshold potential
-    V_reset mV = -60. mV          # Reset potential
-    E_ex mV = 0 mV                # Excitatory reversal potential
-    E_in mV = -85. mV             # Inhibitory reversal potential
-    g_L nS = 16.6667 nS           # Leak conductance
-    tau_syn_rise_I ms = .2 ms     # Synaptic time constant excitatory synapse
-    tau_syn_decay_I ms = 2. ms    # Synaptic time constant for inhibitory synapse
-    tau_syn_rise_E ms = .2 ms     # Synaptic time constant excitatory synapse
-    tau_syn_decay_E ms = 2. ms    # Synaptic time constant for inhibitory synapse
-    F_E nS = 0 nS                 # Constant external input conductance (excitatory).
-    F_I nS = 0 nS                 # Constant external input conductance (inhibitory).
+    E_L mV = -70 mV              # Leak reversal potential (aka resting potential)
+    C_m pF = 250 pF              # Capacitance of the membrane
+    t_ref ms = 2 ms              # Refractory period
+    V_th mV = -55 mV             # Threshold potential
+    V_reset mV = -60 mV          # Reset potential
+    E_ex mV = 0 mV               # Excitatory reversal potential
+    E_in mV = -85 mV             # Inhibitory reversal potential
+    g_L nS = 16.6667 nS          # Leak conductance
+    tau_syn_rise_I ms = .2 ms    # Synaptic time constant excitatory synapse
+    tau_syn_decay_I ms = 2 ms    # Synaptic time constant for inhibitory synapse
+    tau_syn_rise_E ms = .2 ms    # Synaptic time constant excitatory synapse
+    tau_syn_decay_E ms = 2 ms    # Synaptic time constant for inhibitory synapse
+    F_E nS = 0 nS                # Constant external input conductance (excitatory).
+    F_I nS = 0 nS                # Constant external input conductance (inhibitory).
 
     # constant external input current
     I_e pA = 0 pA
@@ -104,8 +104,8 @@ neuron iaf_cond_beta:
   end
 
   input:
-    spikeInh nS <- inhibitory spike
-    spikeExc nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
+    exc_spikes nS <- excitatory spike
     I_stim pA <- continuous
   end
 

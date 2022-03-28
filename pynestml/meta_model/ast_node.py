@@ -218,5 +218,5 @@ class ASTNode(metaclass=ABCMeta):
         visitor.handle(self)
 
     def __str__(self):
-        from pynestml.utils.ast_nestml_printer import ASTNestMLPrinter
-        return ASTNestMLPrinter().print_node(self)
+        from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+        return NESTMLPrinter().print_node(self)

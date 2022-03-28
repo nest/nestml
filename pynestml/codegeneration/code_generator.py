@@ -22,13 +22,10 @@
 from __future__ import annotations
 from abc import abstractmethod
 
-from typing import Any, List, Mapping, Optional, Sequence
-
-import copy
+from typing import Any, Mapping, Optional, Sequence
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel

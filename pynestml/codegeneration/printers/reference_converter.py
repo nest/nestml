@@ -23,8 +23,12 @@ from abc import ABCMeta, abstractmethod
 
 
 class ReferenceConverter:
+<<<<<<< HEAD:pynestml/codegeneration/reference_converter.py
     """This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker or LEMS.
     """
+=======
+    r"""This class represents a abstract super class for all possible reference converters, e.g. for NEST, SpiNNaker, or standalone Python target."""
+>>>>>>> upstream/master:pynestml/codegeneration/printers/reference_converter.py
 
     __metaclass__ = ABCMeta
 

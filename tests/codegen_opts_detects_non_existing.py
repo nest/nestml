@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# __init__.py
+# codegen_opts_detects_non_existing.py
 #
 # This file is part of NEST.
 #
@@ -19,5 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ast_transformers.py', 'autodoc_code_generator.py', 'builder.py', 'code_generator.py', 'nest_assignments_helper.py', 'nest_builder.py', 'nest_code_generator.py', 'nest_declarations_helper.py', 'nest2_code_generator.py',
-           'python_standalone_codegenerator.py']
+import os
+import pytest
+
+from pynestml.exceptions.code_generator_options_exception import CodeGeneratorOptionsException
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+
+@pytest.mark.xfail(strict=True, raises=CodeGeneratorOptionsException)
+def test_codegen_opts_detects_non_existing():
+    generate_nest_target(input_path="models/neurons/iaf_psc_exp.nestml",
+                         codegen_opts={"non_existing_options": "42"})

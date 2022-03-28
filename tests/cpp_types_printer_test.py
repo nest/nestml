@@ -23,7 +23,7 @@ import unittest
 
 from astropy import units
 
-from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol

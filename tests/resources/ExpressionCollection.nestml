@@ -99,8 +99,8 @@ neuron ExpressionCollection:
         tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
         tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
         I_e pA = 0pA              # Constant Current in pA
-        E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
-        E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
+        E_exc mV = 0.0 mV          # Excitatory synaptic reversal potential
+        E_inh mV = -80.0mV         # Inhibitory synaptic reversal potential
         V_m mV = E_L #  Membrane potential
         g_in nS = 0nS # Inhibitory synaptic conductance
         g_ex nS = 0nS # Excitatory synaptic conductance
@@ -166,8 +166,8 @@ neuron ExpressionCollection:
         test4 = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
         test5 = (V_bounded-V_th)/Delta_T
         test6 = g_L*Delta_T*exp(exp_arg)
-        test7 = convolve(g_ex, spikesExc) * ( V_bounded - E_ex )
-        test8 = convolve(g_in, spikesInh) * ( V_bounded - E_in )
+        test7 = convolve(g_ex, exc_spikes) * ( V_bounded - E_exc )
+        test8 = convolve(g_in, inh_spikes) * ( V_bounded - E_inh )
         test9 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
         test10 = (a*(V_m - E_L) - w)/tau_w
         test17 = nS * e / tau_syn_ex
@@ -184,8 +184,8 @@ neuron ExpressionCollection:
         test26 = exp(-1/tau_syn_ex*t)
         test27 = (V_bounded-V_th)/Delta_T
         test28 = g_L*Delta_T*exp(exp_arg)
-        test29 = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
-        test30 = convolve(g_in, spikeInh) * ( V_bounded - E_in )
+        test29 = convolve(g_ex, spikeExc) * ( V_bounded - E_exc )
+        test30 = convolve(g_in, spikeInh) * ( V_bounded - E_inh )
         test31 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
         test32  = (a*(V_bounded - E_L) - w)/tau_w
         test33 = 281.0pF     # Membrane Capacitance in pF
@@ -217,8 +217,8 @@ neuron ExpressionCollection:
         test60 = -g_ex/tau_syn_ex
         test61 = (V_bounded-V_th)/Delta_T
         test62 = g_L*Delta_T*exp(exp_arg)
-        test63 = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
-        test64 = convolve(g_in, spikeInh) * ( V_bounded - E_in )
+        test63 = convolve(g_ex, spikeExc) * ( V_bounded - E_exc )
+        test64 = convolve(g_in, spikeInh) * ( V_bounded - E_inh )
         test65 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
         test66 = (a*(V_bounded - E_L) - w)/tau_w
 
@@ -234,8 +234,8 @@ neuron ExpressionCollection:
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
         inline I_L   pA = g_L * ( V_m - E_L )
-        inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
-        inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
+        inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_inh )
         V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
 
         # channel dynamics
@@ -268,8 +268,8 @@ neuron ExpressionCollection:
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
         inline I_L   pA = g_L * ( V_m - E_L )
-        inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
-        inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
+        inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_inh )
         V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
 
         # channel dynamics

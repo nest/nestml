@@ -25,8 +25,7 @@ from typing import List, Mapping, Union, Sequence
 
 import sympy
 
-from pynestml.codegeneration.printer import Printer
-from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
+from pynestml.codegeneration.printers.printer import Printer
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -640,10 +639,12 @@ class ASTTransformers:
 
         Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
-            convolve(G, ex_spikes)
-            convolve(G, in_spikes)
+        .. code-block::
 
-        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
+           convolve(G, exc_spikes)
+           convolve(G, inh_spikes)
+
+        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
 
         :param parameters_block:
         :param kernel_buffers:
@@ -892,7 +893,6 @@ class ASTTransformers:
                     var.set_differential_order(0)
 
         for decl in neuron.get_equations_block().get_declarations():
-            from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
                and isinstance(decl.get_expression(), ASTSimpleExpression) \
                and '__X__' in str(decl.get_expression()):

@@ -31,15 +31,15 @@ import odetoolbox
 import pynestml
 from pynestml.codegeneration.ast_transformers import ASTTransformers
 from pynestml.codegeneration.code_generator import CodeGenerator
-from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
-from pynestml.codegeneration.expressions_printer import ExpressionsPrinter
-from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
-from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
-from pynestml.codegeneration.nest_printer import NestPrinter
-from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
-from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
+from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.gsl_reference_converter import GSLReferenceConverter
+from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
+from pynestml.codegeneration.printers.nest_printer import NestPrinter
+from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.printers.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -130,22 +130,19 @@ class NESTCodeGenerator(CodeGenerator):
         self._gsl_reference_converter = GSLReferenceConverter()
         self._nest_reference_converter = NESTReferenceConverter()
 
-        self._expressions_printer = UnitlessExpressionPrinter(reference_converter=self._nest_reference_converter,
-                                                              types_printer=self._types_printer)
-        self._printer = ExpressionsPrinter(self._nest_reference_converter, self._types_printer)
-        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter, self._types_printer)
-        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter,
-                                                      types_printer=self._types_printer)
+        self._printer = CppExpressionPrinter(self._nest_reference_converter)
+        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter)
+        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter)
 
-        self._unitless_nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
-                                                  types_printer=self._types_printer,
-                                                  expressions_printer=self._printer)
+        self._nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+                                         types_printer=self._types_printer,
+                                         expression_printer=self._printer)
 
         self._unitless_nest_gsl_printer = NestPrinter(reference_converter=self._nest_reference_converter,
                                                       types_printer=self._types_printer,
-                                                      expressions_printer=self._unitless_expression_printer)
+                                                      expression_printer=self._unitless_expression_printer)
 
-        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter(), self._types_printer)
+        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -226,6 +223,12 @@ class NESTCodeGenerator(CodeGenerator):
                 _abs_template_paths.append(_path)
 
         return _abs_template_paths
+
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        ret = super().set_options(options)
+        self.setup_template_env()
+
+        return ret
 
     def update_blocktype_for_common_parameters(self, node):
         """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
@@ -1095,7 +1098,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["astnode"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["printer"] = self._unitless_nest_gsl_printer
-        namespace["nest_printer"] = self._unitless_nest_printer
+        namespace["nest_printer"] = self._nest_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_reference_converter
         namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
@@ -1290,7 +1293,7 @@ class NESTCodeGenerator(CodeGenerator):
         r"""
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
-        For example, a resulting `assignment_str` could be "I_kernel_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
+        For example, a resulting `assignment_str` could be "I_kernel_in += (inh_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
 
         Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
 

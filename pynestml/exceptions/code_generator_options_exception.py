@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# __init__.py
+# code_generator_options_exception.py
 #
 # This file is part of NEST.
 #
@@ -19,5 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ast_transformers.py', 'autodoc_code_generator.py', 'builder.py', 'code_generator.py', 'nest_assignments_helper.py', 'nest_builder.py', 'nest_code_generator.py', 'nest_declarations_helper.py', 'nest2_code_generator.py',
-           'python_standalone_codegenerator.py']
+
+class CodeGeneratorOptionsException(Exception):
+    r"""
+    This exception is thrown whenever a non-existing option is passed to the code generator (or builder).
+    """
+    pass

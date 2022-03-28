@@ -21,7 +21,7 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.printer import Printer
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -30,12 +30,12 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class LatexExpressionPrinter(Printer):
-    """
-    Pretty printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.
+class LatexExpressionPrinter(ExpressionPrinter):
+    r"""
+    Expressions printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.
     """
 
-    def print_expression(self, node: ASTExpressionNode, prefix="") -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + " * (" + self.__do_print(node, prefix=prefix) + ")"
 
@@ -114,17 +114,18 @@ class LatexExpressionPrinter(Printer):
 
             raise Exception("Unknown node type")
 
-        raise RuntimeError("Unsupported rhs in rhs pretty printer!")
+        raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
     def print_function_call(self, function_call: ASTFunctionCall) -> str:
         function_name = self.reference_converter.convert_function_call(function_call)
         if ASTUtils.needs_arguments(function_call):
             return function_name % self.print_function_call_argument_list(function_call)
-        else:
-            return function_name
+
+        return function_name
 
     def print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []
         for arg in function_call.get_args():
             ret.append(self.print_expression(arg))
+
         return tuple(ret)

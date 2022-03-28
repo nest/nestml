@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printer import Printer
-from pynestml.codegeneration.reference_converter import ReferenceConverter
-from pynestml.codegeneration.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.printer import Printer
+from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -57,14 +57,13 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class NestPrinter(Printer):
@@ -75,10 +74,10 @@ class NestPrinter(Printer):
     def __init__(self,
                  reference_converter: ReferenceConverter,
                  types_printer: TypesPrinter,
-                 expressions_printer: Printer):
+                 expression_printer: ExpressionPrinter):
         super().__init__(reference_converter=reference_converter,
                          types_printer=types_printer)
-        self._expressions_printer = expressions_printer
+        self._expression_printer = expression_printer
 
     def print_node(self, node) -> str:
         if isinstance(node, ASTArithmeticOperator):
@@ -201,7 +200,6 @@ class NestPrinter(Printer):
         :param for_stmt: a single for stmt
         :type for_stmt: ASTForStmt
         :return: a string representation
-        :rtype: str
         """
         step = for_stmt.get_step()
         if step < 0:
@@ -218,7 +216,6 @@ class NestPrinter(Printer):
         :param for_stmt: a single for stmt
         :type for_stmt: ASTForStmt
         :return: a string representation
-        :rtype: str
         """
         assert isinstance(for_stmt, ASTForStmt), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(for_stmt)
@@ -324,7 +321,6 @@ class NestPrinter(Printer):
         :param ast_buffer: a single buffer Variable Symbol
         :type ast_buffer: VariableSymbol
         :return: a string representation of the getter
-        :rtype: str
         """
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
@@ -343,7 +339,6 @@ class NestPrinter(Printer):
         :param is_in_struct: indicates whether this getter is used in a struct or not
         :type is_in_struct: bool
         :return: a string representation of the getter.
-        :rtype: str
         """
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestMl.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
@@ -369,7 +364,6 @@ class NestPrinter(Printer):
         Returns a string representation for the declaration of a buffer's value.
         :param ast_buffer: a single buffer variable symbol
         :return: the corresponding string representation
-        :rtype: str
         """
         if ast_buffer.has_vector_parameter():
             return 'std::vector<double> ' + self.reference_converter.buffer_value(ast_buffer)
@@ -382,7 +376,6 @@ class NestPrinter(Printer):
         :param ast_buffer: a single buffer variable symbol
         :type ast_buffer: VariableSymbol
         :return: the corresponding string representation
-        :rtype: str
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
@@ -397,9 +390,7 @@ class NestPrinter(Printer):
         """
         Prints the comment as stated over the buffer declaration.
         :param ast_buffer: a single buffer variable symbol.
-        :type ast_buffer: VariableSymbol
         :return: the corresponding string representation
-        :rtype: str
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
@@ -443,12 +434,12 @@ class NestPrinter(Printer):
 
     def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
-        Pretty Prints the handed over rhs to a nest readable format.
+        Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
         :type node: ASTExpressionNode
         :return: the corresponding string representation
         """
-        return self._expressions_printer.print_expression(node, prefix=prefix)
+        return self._expression_printer.print_expression(node, prefix=prefix)
 
     def print_function_call(self, node: ASTFunctionCall) -> str:
         """
@@ -457,7 +448,7 @@ class NestPrinter(Printer):
         :type node: ASTFunctionCall
         :return: the corresponding string representation.
         """
-        return self._expressions_printer.print_function_call(node)
+        return self._expression_printer.print_function_call(node)
 
     def print_origin(self, variable_symbol, prefix='') -> str:
         return self.reference_converter.print_origin(variable_symbol)

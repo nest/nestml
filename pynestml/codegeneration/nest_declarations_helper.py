@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
