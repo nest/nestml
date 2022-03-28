@@ -81,7 +81,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right) 
 
 
 .. math::
@@ -116,7 +116,7 @@ Source code
        inline I_Na pA = g_Na * _subexpr(V_m) * Inact_h * (V_m - E_Na)
        inline I_K pA = g_K * Act_n ** 4 * (V_m - E_K)
        inline I_L pA = g_L * (V_m - E_L)
-       V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_inh + I_syn_exc) / C_m
+       V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
        Act_n'=(alpha_n(V_m) * (1 - Act_n) - beta_n(V_m) * Act_n) # n-variable
        Inact_h'=(alpha_h(V_m) * (1 - Inact_h) - beta_h(V_m) * Inact_h) # h-variable
      end
@@ -209,4 +209,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.638229
+   Generated at 2022-03-28 19:04:29.829103

@@ -120,7 +120,7 @@ Source code
      equations:
        kernel I_kernel_inh = exp(-t / tau_syn_inh)
        kernel I_kernel_exc = exp(-t / tau_syn_exc)
-       inline I_syn pA = convolve(I_kernel_inh,inh_spikes) + convolve(I_kernel_exc,exc_spikes)
+       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
        V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 
@@ -186,4 +186,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.160152
+   Generated at 2022-03-28 19:04:29.030654
