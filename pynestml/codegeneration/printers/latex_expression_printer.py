@@ -21,9 +21,7 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
-from pynestml.codegeneration.types_printer import TypesPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
