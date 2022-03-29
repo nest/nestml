@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# latex_types_printer.py
+# types_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,25 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Tuple
+import abc
 
-from pynestml.codegeneration.types_printer import TypesPrinter
+from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class LatexTypesPrinter(TypesPrinter):
-    """
-    Returns a LaTeX syntax version of the handed over element.
+class TypesPrinter(metaclass=abc.ABCMeta):
+    r"""
+    Returns a string format of ``TypeSymbol``s.
     """
 
     @classmethod
-    def pretty_print(cls, element):
-        if isinstance(element, bool) and element:
-            return 'true'
-
-        if isinstance(element, bool) and not element:
-            return 'false'
-
-        if isinstance(element, int) or isinstance(element, float):
-            return str(element)
-
-        raise Exception("Tried to print unknown type: " + str(type(element)) + " (string representation: " + str(element) + ")")
+    @abc.abstractmethod
+    def convert(cls, element: TypeSymbol):
+        pass

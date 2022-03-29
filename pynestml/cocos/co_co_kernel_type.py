@@ -22,7 +22,7 @@
 from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.codegeneration.debug_type_converter import DebugTypeConverter
+from pynestml.codegeneration.printers.debug_types_printer import DebugTypesPrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
@@ -93,7 +93,7 @@ class KernelTypeVisitor(ASTVisitor):
                 )) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
                 if not iv.get_type_symbol().get_value().is_castable_to(PredefinedTypes.get_type("ms")**-order):
-                    actual_type_str = DebugTypeConverter.convert(iv.get_type_symbol())
+                    actual_type_str = DebugTypesPrinter().convert(iv.get_type_symbol())
                     expected_type_str = "s^-" + str(order)
                     code, message = Messages.get_kernel_iv_wrong_type(iv_name, actual_type_str, expected_type_str)
                     Logger.log_message(error_position=node.get_source_position(),
