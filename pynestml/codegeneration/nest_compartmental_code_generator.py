@@ -495,7 +495,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # restore state variables that were referenced by kernels
         # and set their initial values by those suggested by ODE-toolbox
-        self.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
+        ASTTransformers.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
 
         # Inside all remaining expressions, translate all remaining variable names
         # according to the naming conventions of ODE-toolbox.
@@ -570,7 +570,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_model_namespace(self, neuron: ASTNeuron) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
@@ -718,29 +718,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     return var
         return None
 
-    def create_initial_values_for_kernels(self, neuron, solver_dicts, kernels):
-        """
-        Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST
-        """
-        for solver_dict in solver_dicts:
-            if solver_dict is None:
-                continue
-            for var_name in solver_dict["initial_values"].keys():
-                if ASTTransformers.variable_in_kernels(var_name, kernels):
-                    # original initial value expressions should have been removed to make place for ode-toolbox results
-                    assert not ASTTransformers.declaration_in_state_block(neuron, var_name)
-
-        for solver_dict in solver_dicts:
-            if solver_dict is None:
-                continue
-
-            for var_name, expr in solver_dict["initial_values"].items():
-                # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
-                if ASTTransformers.variable_in_kernels(var_name, kernels):
-                    expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
-                    if not ASTTransformers.declaration_in_state_block(neuron, var_name):
-                        ASTTransformers.add_declaration_to_state_block(neuron, var_name, expr)
-
     def create_initial_values_for_ode_toolbox_odes(self, neuron, solver_dicts, kernel_buffers, kernels):
         """
         Add the variables used in ODEs from the ode-toolbox result dictionary as ODEs in NESTML AST.
@@ -772,6 +749,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         For example, a resulting `assignment_str` could be "I_kernel_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
 
         Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
+
+        XXX: TODO: update this function signature (+ templates) to match NESTCodegenerator::get_spike_update_expressions().
+
+
         """
         spike_updates = []
 
@@ -799,8 +780,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     assignment_str = kernel_spike_buf_name + " += "
                     assignment_str += "(" + str(spike_input_port) + ")"
                     if not expr in ["1.", "1.0", "1"]:
-                        assignment_str += " * (" + \
-                                          self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+                        assignment_str += " * (" + expr + ")"
 
                     if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
                         assignment_str += " / (" + buffer_type.print_nestml_type() + ")"

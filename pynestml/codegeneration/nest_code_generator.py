@@ -1363,7 +1363,6 @@ class NESTCodeGenerator(CodeGenerator):
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
-                        print("adding post assignment string: " + str(ast_assignment))
                         spike_updates[str(spike_input_port)].append(ast_assignment)
                     else:
                         spike_updates[str(spike_input_port)].append(ast_assignment)
