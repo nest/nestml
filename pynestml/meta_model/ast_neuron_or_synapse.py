@@ -25,7 +25,6 @@ from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.symbol import SymbolKind
@@ -689,7 +688,7 @@ class ASTNeuronOrSynapse(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTNeuron):
+        if not isinstance(other, ASTNeuronOrSynapse):
             return False
         return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
 

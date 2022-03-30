@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from typing import Dict, List, Optional, Union
 
 from pynestml.meta_model.ast_input_block import ASTInputBlock
