@@ -226,3 +226,9 @@ To generate code that is compatible with NEST Simulator major version 2 (in part
    }}
 
 The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.
+
+
+Python-standalone target
+------------------------
+
+...
