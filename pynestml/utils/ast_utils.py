@@ -843,9 +843,6 @@ class ASTUtils:
             existing_symbol.set_ode_or_kernel(ode_equation)
 
             ode_equation.get_scope().update_variable_symbol(existing_symbol)
-            code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
-            Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
-                               code=code, message=message, log_level=LoggingLevel.INFO)
 
     @classmethod
     def get_statements_from_block(cls, var_name, block):
