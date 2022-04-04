@@ -851,7 +851,7 @@ Delay Differential Equations
 
 The differential equations in the ``equations`` block can also be a delay differential equation, where the derivative
 at the current time depends on the derivative of a function at previous times. A state variable, say ``foo`` that is
-dependent on the time derivative of another state variable ``bar`` at previous times of ``delay`` could be written as
+dependent on another state variable ``bar`` at a constant time offset (here, ``delay``) in the past, can be written as
 
 .. code-block:: nestml
 
@@ -870,13 +870,14 @@ Here, the ``delay`` variable is defined in the ``parameters`` block as:
 .. code-block:: nestml
 
    parameters:
+     tau ms = 3.5 ms
      delay ms = 5.0 ms
    end
 
 .. note::
-   The value of the delayed variable (``foo`` in the above example) returned by the node's ``get()`` function in
-   PyNEST is always the non-delayed version, i.e., the value of the derivative of ``foo`` at time ``t``. Similarly, the
-   ``set()`` function sets the value of the actual state variable ``foo`` without the ``delay`` into consideration.
+   The value of the delayed variable (``bar`` in the above example) returned by the node's ``get()`` function in
+   PyNEST is always the non-delayed version, i.e., the value of the derivative of ``bar`` at time ``t``. Similarly, the
+   ``set()`` function sets the value of the actual state variable ``bar`` without the ``delay`` into consideration.
 
 Inline expressions
 ^^^^^^^^^^^^^^^^^^
