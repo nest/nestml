@@ -55,7 +55,7 @@ In this case, all spike events will be processed through the ``all_spikes`` inpu
 
 In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
 
-It is equivalent if either both ``inhibitory`` and ``excitatory`` are given or neither of them. If only a single one is given, another input port has to be present and specify the inverse keyword.
+It is equivalent if either both `inhibitory` and `excitatory` are given, or neither: an unmarked port will by default handle all incoming presynaptic spikes.
 
 .. list-table::
    :header-rows: 1
