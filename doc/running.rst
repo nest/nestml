@@ -5,11 +5,26 @@ Running NESTML causes several processing steps to occur:
 
 1. The model is parsed from file and checked (syntax, consistent physical units, and so on).
 2. Code is generated from the model by one of the "code generators" selected when NESTML was invoked.
-
-   .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python_standalone/doc/fig/code_generators.png
-      :alt: Code generators supported
-
 3. If necessary, the code is compiled and built by the "builder" that belongs to the selected code generator.
+
+Currently, the following code generators are supported:
+
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/python_standalone/doc/fig/code_generators.png
+    :alt: Code generators supported
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 30 30
+
+   * - Name
+     - NESTML features supported
+     - Notes
+   * - NEST
+     - neurons, synapses, vectors, guards
+     - NEST 2 and NEST 3 are supported
+   * - Python-standalone
+     - neurons
+     -
 
 
 Running NESTML from Python
