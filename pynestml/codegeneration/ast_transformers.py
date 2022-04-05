@@ -25,8 +25,7 @@ from typing import List, Mapping, Union, Sequence
 
 import sympy
 
-from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
-from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
+from pynestml.codegeneration.printers.printer import Printer
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -634,16 +633,18 @@ class ASTTransformers:
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables,
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort]) -> dict:
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: Printer) -> dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 
         Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
-            convolve(G, ex_spikes)
-            convolve(G, in_spikes)
+        .. code-block::
 
-        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
+           convolve(G, exc_spikes)
+           convolve(G, inh_spikes)
+
+        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
 
         :param parameters_block:
         :param kernel_buffers:
@@ -652,15 +653,12 @@ class ASTTransformers:
         """
         odetoolbox_indict = {}
 
-        gsl_converter = ODEToolboxReferenceConverter()
-        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
-
         odetoolbox_indict["dynamics"] = []
         equations_block = neuron.get_equations_block()
         for equation in equations_block.get_ode_equations():
             # n.b. includes single quotation marks to indicate differential order
             lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
-            rhs = gsl_printer.print_expression(equation.get_rhs())
+            rhs = printer.print_expression(equation.get_rhs())
             entry = {"expression": lhs + " = " + rhs}
             symbol_name = equation.get_lhs().get_name()
             symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
@@ -671,7 +669,7 @@ class ASTTransformers:
                 iv_symbol_name = symbol_name + "'" * order
                 initial_value_expr = neuron.get_initial_value(iv_symbol_name)
                 if initial_value_expr:
-                    expr = gsl_printer.print_expression(initial_value_expr)
+                    expr = printer.print_expression(initial_value_expr)
                     entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
             odetoolbox_indict["dynamics"].append(entry)
 
@@ -702,7 +700,7 @@ class ASTTransformers:
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_
                     initial_value_expr = symbol.get_declaring_expression()
                     assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = gsl_printer.print_expression(initial_value_expr)
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print_expression(initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
 
@@ -711,7 +709,7 @@ class ASTTransformers:
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
                     odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = gsl_printer.print_expression(decl.get_expression())
+                    )] = printer.print_expression(decl.get_expression())
 
         return odetoolbox_indict
 
@@ -895,7 +893,6 @@ class ASTTransformers:
                     var.set_differential_order(0)
 
         for decl in neuron.get_equations_block().get_declarations():
-            from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
                and isinstance(decl.get_expression(), ASTSimpleExpression) \
                and '__X__' in str(decl.get_expression()):

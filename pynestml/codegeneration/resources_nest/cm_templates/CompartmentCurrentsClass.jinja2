@@ -14,6 +14,16 @@
     {{ pure_variable_name~"_"~ion_channel_name }}
 {%- endmacro -%}
 
+{% macro render_time_resolution_variable(synapse_info) -%}
+{# we assume here that there is only one such variable ! #}
+{%- with %}
+{%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
+{%- if analytic_helper_info["is_time_resolution"] -%}
+    {{ analytic_helper_name }}
+{%- endif -%}
+{%- endfor -%}
+{% endwith %}
+{%- endmacro %}
 
 {% macro render_function_return_type(function) -%}
 {%- with -%}
@@ -190,18 +200,6 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 {% endwith %}
 ////////////////////////////////////////////////////////////////////////////////
 
-{% macro render_time_resolution_variable(synapse_info) -%}
-{# we assume here that there is only one such variable ! #}
-{%- with %}
-{%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
-{%- if analytic_helper_info["is_time_resolution"] -%}
-    {{ analytic_helper_name }}
-{%- endif -%}
-{%- endfor -%}
-{% endwith %}
-{%- endmacro %}
-
-
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}::{{synapse_name}}( const long syn_index )
@@ -213,7 +211,6 @@ nest::{{synapse_name}}::{{synapse_name}}( const long syn_index )
   syn_idx = syn_index;
 }
 
-{%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}

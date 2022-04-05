@@ -35,7 +35,7 @@ except BaseException:
 
 
 class TestOUConductanceNoise(unittest.TestCase):
-    record_from = ["g_noise_ex", "g_noise_in"]
+    record_from = ["g_noise_exc", "g_noise_inh"]
 
     def simulate_OU_noise_neuron(self, resolution):
         r"""
@@ -102,23 +102,23 @@ class TestOUConductanceNoise(unittest.TestCase):
         times = state["times"]
 
         # excitatory noise
-        sigma_ex = neuron.get("sigma_noise_ex")
-        mean_ex = neuron.get("g_noise_ex0")
-        tau_ex = neuron.get("tau_syn_ex")
-        var_ex = sigma_ex**2 / (2 / tau_ex)
+        sigma_exc = neuron.get("sigma_noise_exc")
+        mean_exc = neuron.get("g_noise_exc0")
+        tau_exc = neuron.get("tau_syn_exc")
+        var_exc = sigma_exc**2 / (2 / tau_exc)
 
         # inhibitory noise
-        sigma_in = neuron.get("sigma_noise_in")
-        mean_in = neuron.get("g_noise_in0")
-        tau_in = neuron.get("tau_syn_in")
-        var_in = sigma_in**2 / (2 / tau_in)
+        sigma_inh = neuron.get("sigma_noise_inh")
+        mean_inh = neuron.get("g_noise_inh0")
+        tau_inh = neuron.get("tau_syn_inh")
+        var_inh = sigma_inh**2 / (2 / tau_inh)
 
         # variances
         print("\n____variances_______________________________________")
-        vex = np.var(state["g_noise_ex"])
-        vin = np.var(state["g_noise_in"])
-        vex_trgt = sigma_ex**2
-        vin_trgt = sigma_in**2
+        vex = np.var(state["g_noise_exc"])
+        vin = np.var(state["g_noise_inh"])
+        vex_trgt = sigma_exc**2
+        vin_trgt = sigma_inh**2
         diff_perc_vex = np.abs(1 - vex / vex_trgt) * 100
         diff_perc_vin = np.abs(1 - vin / vin_trgt) * 100
         print("ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)".format(
@@ -130,16 +130,16 @@ class TestOUConductanceNoise(unittest.TestCase):
 
         # means
         print("\n____means___________________________________________")
-        m_ex_data = np.mean(state["g_noise_ex"])
-        m_in_data = np.mean(state["g_noise_in"])
-        diff_perc_mex = np.abs(1 - m_ex_data / mean_ex) * 100
-        diff_perc_min = np.abs(1 - m_in_data / mean_in) * 100
+        m_exc_data = np.mean(state["g_noise_exc"])
+        m_inh_data = np.mean(state["g_noise_inh"])
+        diff_perc_mexc = np.abs(1 - m_exc_data / mean_exc) * 100
+        diff_perc_minh = np.abs(1 - m_inh_data / mean_inh) * 100
         print("ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)".format(
-            m_ex_data, mean_ex, np.abs(m_ex_data - mean_ex), diff_perc_mex))
+            m_exc_data, mean_exc, np.abs(m_exc_data - mean_exc), diff_perc_mexc))
         print("in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)\n".format(
-            m_in_data, mean_in, np.abs(m_in_data - mean_in), diff_perc_min))
-        assert 0. < diff_perc_mex < MAX_MEAN_DIFF_PERC
-        assert 0. < diff_perc_min < MAX_MEAN_DIFF_PERC
+            m_inh_data, mean_inh, np.abs(m_inh_data - mean_inh), diff_perc_minh))
+        assert 0. < diff_perc_mexc < MAX_MEAN_DIFF_PERC
+        assert 0. < diff_perc_minh < MAX_MEAN_DIFF_PERC
 
     def plot_results(self, state):
         """Reproduces figures 2A and 2B from Destexhe et al. 2001.

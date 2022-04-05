@@ -254,7 +254,7 @@ private:
   *         assignment operator to copy those members.
   */
   struct State_{
-{%- if not useGSL %}
+{%- if not uses_numeric_solver %}
 {%-   filter indent(4,True) %}
 {%-   for variable in synapse.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
@@ -366,7 +366,7 @@ private:
 {%- endfor %}
 {%- endfilter %}
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
     double __gsl_error_tol;
 {% endif %}
 
@@ -821,10 +821,11 @@ public:
     **/
 
 {# {%- for inputLine in synapse.get_spike_buffers() %} #}
-{%- for spike_update in spike_updates: %}
+{%- for spike_updates_for_port in spike_updates.values() %}
+{%-     for spike_update in spike_updates_for_port -%}
     // XXX: TODO: increment with initial value instead of 1
     S_.{{names.name(synapse.get_state_blocks().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
-{#    S_.{{names.name(spike_update.get_variable())}} += 1.; #}
+{%-     endfor %}
 {%- endfor %}
 
     /**
@@ -1094,7 +1095,7 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespa
     throw nest::BadProperty("The constraint '{{idemPrinter.print_expression(invariant)}}' is violated!");
   }
 {%- endfor %}
-{% if useGSL %}
+{% if uses_numeric_solver %}
 
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. ){

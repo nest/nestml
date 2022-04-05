@@ -40,19 +40,19 @@ Parameters
     :widths: auto
 
     
-    "t_ref", "ms", "2.0ms", "Refractory period"    
-    "g_Na", "nS", "3500.0nS", "Sodium peak conductance"    
-    "g_K", "nS", "900.0nS", "Potassium peak conductance"    
+    "t_ref", "ms", "2ms", "Refractory period"    
+    "g_Na", "nS", "3500nS", "Sodium peak conductance"    
+    "g_K", "nS", "900nS", "Potassium peak conductance"    
     "g_L", "nS", "10nS", "Leak conductance"    
-    "C_m", "pF", "100.0pF", "Membrane Capacitance"    
-    "E_Na", "mV", "55.0mV", "Sodium reversal potential"    
-    "E_K", "mV", "-90.0mV", "Potassium reversal potentia"    
-    "E_L", "mV", "-65.0mV", "Leak reversal Potential (aka resting potential)"    
-    "V_Tr", "mV", "-55.0mV", "Spike Threshold"    
-    "tau_syn_ex", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function i"    
-    "tau_syn_in", "ms", "10.0ms", "Rise time of the inhibitory synaptic alpha function"    
-    "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
-    "E_in", "mV", "-75.0mV", "Inhibitory synaptic reversal potential"    
+    "C_m", "pF", "100pF", "Membrane capacitance"    
+    "E_Na", "mV", "55mV", "Sodium reversal potential"    
+    "E_K", "mV", "-90mV", "Potassium reversal potential"    
+    "E_L", "mV", "-65mV", "Leak reversal potential (aka resting potential)"    
+    "V_Tr", "mV", "-55mV", "Spike threshold"    
+    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"    
+    "tau_syn_inh", "ms", "10ms", "Rise time of the inhibitory synaptic alpha function"    
+    "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
+    "E_inh", "mV", "-75mV", "Inhibitory synaptic reversal potential"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -109,10 +109,10 @@ Source code
      end
      equations:
        # synapses: exponential conductance
-       kernel g_in = exp(-1.0 / tau_syn_in * t)
-       kernel g_ex = exp(-1.0 / tau_syn_ex * t)
-   recordable    inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
-   recordable    inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
+       kernel g_inh = exp(-t / tau_syn_inh)
+       kernel g_exc = exp(-t / tau_syn_exc)
+   recordable    inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+   recordable    inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
        inline I_Na pA = g_Na * _subexpr(V_m) * Inact_h * (V_m - E_Na)
        inline I_K pA = g_K * Act_n ** 4 * (V_m - E_K)
        inline I_L pA = g_L * (V_m - E_L)
@@ -122,19 +122,19 @@ Source code
      end
 
      parameters:
-       t_ref ms = 2.0ms # Refractory period
-       g_Na nS = 3500.0nS # Sodium peak conductance
-       g_K nS = 900.0nS # Potassium peak conductance
+       t_ref ms = 2ms # Refractory period
+       g_Na nS = 3500nS # Sodium peak conductance
+       g_K nS = 900nS # Potassium peak conductance
        g_L nS = 10nS # Leak conductance
-       C_m pF = 100.0pF # Membrane Capacitance
-       E_Na mV = 55.0mV # Sodium reversal potential
-       E_K mV = -90.0mV # Potassium reversal potentia
-       E_L mV = -65.0mV # Leak reversal Potential (aka resting potential)
-       V_Tr mV = -55.0mV # Spike Threshold
-       tau_syn_ex ms = 0.2ms # Rise time of the excitatory synaptic alpha function i
-       tau_syn_in ms = 10.0ms # Rise time of the inhibitory synaptic alpha function
-       E_ex mV = 0.0mV # Excitatory synaptic reversal potential
-       E_in mV = -75.0mV # Inhibitory synaptic reversal potential
+       C_m pF = 100pF # Membrane capacitance
+       E_Na mV = 55mV # Sodium reversal potential
+       E_K mV = -90mV # Potassium reversal potential
+       E_L mV = -65mV # Leak reversal potential (aka resting potential)
+       V_Tr mV = -55mV # Spike threshold
+       tau_syn_exc ms = 0.2ms # Rise time of the excitatory synaptic alpha function
+       tau_syn_inh ms = 10ms # Rise time of the inhibitory synaptic alpha function
+       E_exc mV = 0mV # Excitatory synaptic reversal potential
+       E_inh mV = -75mV # Inhibitory synaptic reversal potential
        # constant external input current
 
        # constant external input current
@@ -148,8 +148,8 @@ Source code
        beta_h_init 1/ms = 5.0 / (exp(-0.1 / mV * (E_L + 28.0mV)) + 1.0) / ms
      end
      input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -209,4 +209,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.985441
+   Generated at 2022-03-15 22:45:21.638229

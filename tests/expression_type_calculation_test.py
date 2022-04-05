@@ -21,8 +21,7 @@
 import os
 import unittest
 
-from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -30,6 +29,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser

@@ -42,31 +42,35 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST2", "python_standalone", "autodoc", "none"]
+    targets = ["NEST", "NEST2", "NEST_compartmental", "python_standalone", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
-    elif target_name.upper() == "NEST2":
+
+    if target_name.upper() == "NEST2":
         from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
         return NEST2CodeGenerator(options)
-    elif target_name.upper() == "AUTODOC":
+
+    if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
-    elif target_name.upper() == "COMPARTMENTAL":
-        from pynestml.codegeneration.compartmental_code_generator import NESTCompartmentalCodegenerator
-        return CompartmentalCodegenerator()
+    elif target_name.upper() == "NEST_COMPARTMENTAL":
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
+        return NESTCompartmentalCodeGenerator()
     elif target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
+
     assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
 
 
@@ -187,6 +191,37 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
                     module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
                     dev=dev, codegen_opts=codegen_opts)
 
+
+def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                                       install_path: Optional[str] = None, logging_level="ERROR",
+                                       module_name=None, store_log: bool=False, suffix: str="",
+                                       dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    r"""Generate and build compartmental model code for NEST Simulator.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    install_path
+        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="NEST_compartmental", target_path=target_path,
+                    logging_level=logging_level, module_name=module_name, store_log=store_log,
+                    suffix=suffix, install_path=install_path, dev=dev, codegen_opts=codegen_opts)
 
 def main() -> int:
     """

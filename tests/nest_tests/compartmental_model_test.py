@@ -4,7 +4,7 @@ compartment and a two-compartment model with a passive dendritic compartment.
 """
 
 import nest, pynestml
-from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 import os
 import unittest
@@ -84,13 +84,11 @@ class CMTest(unittest.TestCase):
         if not os.path.exists(path_target):
                 os.makedirs(path_target)
 
-        generate_nest_target(input_path=os.path.join(path_nestml, "../models/cm_default.nestml"),
-                             target_path=os.path.join(path_target, "compartmental_model/"),
-                             module_name="cm_defaultmodule",
-                             suffix="_nestml",
-                             logging_level="ERROR",
-                             codegen_opts=OPTIONS)
-
+        generate_nest_compartmental_target(input_path=os.path.join(path_nestml, "../models/cm_default.nestml"),
+                                           target_path=os.path.join(path_target, "compartmental_model/"),
+                                           module_name="cm_defaultmodule",
+                                           suffix="_nestml",
+                                           logging_level="DEBUG")
 
     def get_model(self, reinstall_flag=True):
         if self.nestml_flag:
