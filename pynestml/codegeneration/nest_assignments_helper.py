@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Optional
+
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
@@ -30,13 +33,11 @@ class NestAssignmentsHelper:
     """
 
     @classmethod
-    def lhs_variable(cls, assignment):
+    def lhs_variable(cls, assignment: ASTAssignment) -> Optional[VariableSymbol]:
         """
         Returns the corresponding symbol of the assignment.
         :param assignment: a single assignment.
-        :type assignment: ASTAssignment.
         :return: a single variable symbol
-        :rtype: variable_symbol
         """
         assert isinstance(assignment, ASTAssignment), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
@@ -44,9 +45,9 @@ class NestAssignmentsHelper:
                                                           SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
-        else:
-            Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
-            return
+
+        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+        return None
 
     @classmethod
     def lhs_vector_variable(cls, assignment: ASTAssignment) -> VariableSymbol:

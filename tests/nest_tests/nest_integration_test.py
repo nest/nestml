@@ -46,7 +46,6 @@ def get_model_doc_title(model_fname: str):
 class NestIntegrationTest(unittest.TestCase):
 
     def generate_all_models(self):
-        all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
         generate_nest_target(input_path=["models"],
                              target_path="/tmp/nestml-allmodels",
                              logging_level="INFO",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# debug_type_converter.py
+# debug_types_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
@@ -31,21 +32,20 @@ from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.utils.either import Either
 
 
-class DebugTypeConverter:
+class DebugTypesPrinter(TypesPrinter):
     """
-    Convert NESTML types to a string format that is suitable for info/warning/error messages.
+    Returns a string format that is suitable for info/warning/error messages.
     """
 
-    @classmethod
-    def convert(cls, type_symbol: TypeSymbol) -> str:
+    def convert(self, type_symbol: TypeSymbol) -> str:
         """
-        Converts the name of the type symbol to a corresponding string representation.
+        Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol
         :return: the corresponding string representation.
         """
         if isinstance(type_symbol, Either):
             if type_symbol.is_value():
-                return cls.convert(type_symbol.get_value())
+                return self.convert(type_symbol.get_value())
             else:
                 assert type_symbol.is_error()
                 return type_symbol.get_error()
@@ -69,7 +69,7 @@ class DebugTypeConverter:
             return 'void'
 
         if isinstance(type_symbol, UnitTypeSymbol):
-            return type_symbol.get_value().unit.unit
+            return type_symbol.unit.unit.to_string()
 
         if isinstance(type_symbol, NESTTimeTypeSymbol):
             return 'nest::Time'
