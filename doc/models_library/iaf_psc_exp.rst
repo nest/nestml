@@ -55,7 +55,7 @@ Parameters
     "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
     "t_ref", "ms", "2ms", "Duration of refractory period"    
     "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70mV - E_L", "reset value of the membrane potential"    
+    "V_reset", "mV", "-70mV - E_L", "Reset value of the membrane potential"    
     "Theta", "mV", "-55mV - E_L", "Threshold, RELATIVE TO RESTING POTENTIAL (!)"    
     "I_e", "pA", "0pA", "constant external input current"
 
@@ -83,7 +83,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac{ I_{syn} } { C_{m} }
+   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -102,9 +102,9 @@ Source code
      equations:
        kernel I_kernel_inh = exp(-t / tau_syn_inh)
        kernel I_kernel_exc = exp(-t / tau_syn_exc)
-   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       inline I_syn pA = convolve(I_kernel_inh,inh_spikes) + convolve(I_kernel_exc,exc_spikes) + I_e + I_stim
-       V_abs'=-V_abs / tau_m + I_syn / C_m
+   recordable    inline V_m mV = V_abs + E_L # Membrane potential
+       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
+       V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 
      parameters:
@@ -114,7 +114,7 @@ Source code
        tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
        t_ref ms = 2ms # Duration of refractory period
        E_L mV = -70mV # Resting potential
-       V_reset mV = -70mV - E_L # reset value of the membrane potential
+       V_reset mV = -70mV - E_L # Reset value of the membrane potential
        Theta mV = -55mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL (!)
        # I.e. the real threshold is (E_L + Theta)
 
@@ -157,4 +157,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.611037
+   Generated at 2022-03-28 19:16:43.533857

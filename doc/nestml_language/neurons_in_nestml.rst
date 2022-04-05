@@ -19,23 +19,57 @@ Neuronal interactions
 Input
 ~~~~~
 
-A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named input port, or if they should be separated into differently named input ports based on their sign. The ``input`` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
-
-::
-
-    port_name <- inhibitory? excitatory? (spike | continuous)
-
-This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following ``input`` block would be appropriate:
+A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values. This can be indicated using the following syntax:
 
 .. code-block:: nestml
 
    input:
      I_stim pA <- continuous
-     inh_spikes pA <- inhibitory spike
-     exc_spikes pA <- excitatory spike
+     AMPA_spikes pA <- spike
    end
 
-Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
+The general syntax is:
+
+::
+
+    port_name dataType <- inputQualifier* (spike | continuous)
+
+For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
+
+.. code-block:: nestml
+
+   input:
+     # [...]
+     all_spikes pA <- spike
+   end
+
+In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
+
+.. code-block:: nestml
+
+   input:
+     # [...]
+     AMPA_spikes pA <- excitatory spike
+     GABA_spikes pA <- inhibitory spike
+   end
+
+In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
+
+It is equivalent if either both `inhibitory` and `excitatory` are given, or neither: an unmarked port will by default handle all incoming presynaptic spikes.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 60
+
+   * - Keyword
+     - The incoming weight :math:`w`...
+   * - none, or ``excitatory`` and ``inhibitory``
+     - ... may be positive or negative. It is added to the buffer with signed value :math:`w` (positive or negative).
+   * - ``excitatory``
+     - ... should not be negative. It is added to the buffer with non-negative magnitude :math:`w`.
+   * - ``inhibitory``
+     - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
+
 
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -44,7 +78,14 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
 
 .. code-block:: nestml
 
-   V_m' = -V_m/tau_m + ... + I_stim
+   equations
+     V_m' = -V_m/tau_m + ... + I_stim
+   end
+
+   input:
+     I_stim pA <- continuous
+   end
+
 
 
 Integrating spiking input
@@ -120,7 +161,7 @@ The name ``h_dend`` now acts as an alias for this particular convolution. We can
 
 For more information, see the :doc:`Active dendrite tutorial <tutorial/active_dendrite_tutorial>`
 
-   
+
 
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
