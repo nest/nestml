@@ -88,12 +88,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "templates": {
             "path": "cm_templates",
             "model_templates": {
-                "neuron": ["CompartmentCurrentsClass.cpp.jinja2",
-                           "CompartmentCurrentsHeader.h.jinja2",
-                           "MainClass.cpp.jinja2",
-                           "MainHeader.h.jinja2",
-                           "TreeClass.cpp.jinja2",
-                           "TreeHeader.h.jinja2"
+                "neuron": ["cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
+                           "cm_compartmentcurrents_@NEURON_NAME@.h.jinja2",
+                           "cm_main_@NEURON_NAME@.cpp.jinja2",
+                           "cm_main_@NEURON_NAME@.h.jinja2",
+                           "cm_tree_@NEURON_NAME@.cpp.jinja2",
+                           "cm_tree_@NEURON_NAME@.h.jinja2"
             ]},
             "module_templates": ["setup"]
         }
@@ -331,9 +331,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             # no equations defined -> no changes to the neuron
             return None, None
 
-        code, message = Messages.get_neuron_analyzed(neuron.get_name())
-        Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-
         parameters_block = neuron.get_parameter_blocks()
 
         kernel_name_to_analytic_solver = dict()
@@ -355,9 +352,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
-
-        code, message = Messages.get_neuron_analyzed(neuron.get_name())
-        Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
         parameters_block = neuron.get_parameter_blocks()
 
@@ -521,10 +515,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates
-    
+
     def compute_name_of_generated_file(self, jinja_file_name, neuron):
         file_name_no_extension = os.path.basename(jinja_file_name).split(".")[0]
-        
+
         file_name_calculators = {
             "CompartmentCurrents": self.get_cm_syns_compartmentcurrents_file_prefix,
             "Tree":  self.get_cm_syns_tree_file_prefix,
@@ -536,7 +530,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 if file_name.lower().startswith(indication.lower()):
                     return file_prefix_calculator(neuron)
             return file_name_no_extension.lower() + "_" + neuron.get_name()
-        
+
         file_extension = ""
         if file_name_no_extension.lower().endswith("class"):
             file_extension = "cpp"
@@ -544,26 +538,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             file_extension = "h"
         else:
             file_extension = "unknown"
-        
+
         return str(os.path.join(FrontendConfiguration.get_target_path(),
                                        compute_prefix(file_name_no_extension))) + "." + file_extension
-        
-
-    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
-        """
-        For a handed over neuron, this method generates the corresponding header and implementation file.
-        :param neuron: a single neuron object.
-        """
-        if not os.path.isdir(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-        for _model_templ in self._model_templates["neuron"]:
-            file_extension = _model_templ.filename.split(".")[-2]
-            _file = _model_templ.render(self._get_neuron_model_namespace(neuron))
-            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                       neuron.get_name())) + "." + file_extension, "w+") as f:
-                print("XXXXXXXXXX Rendering template " + str(os.path.join(FrontendConfiguration.get_target_path(),
-                                       neuron.get_name())) + "." + file_extension)
-                f.write(str(_file))
 
     def getUniqueSuffix(self, neuron: ASTNeuron):
         ret = neuron.get_name().capitalize()

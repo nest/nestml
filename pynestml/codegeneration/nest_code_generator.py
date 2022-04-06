@@ -107,8 +107,8 @@ class NESTCodeGenerator(CodeGenerator):
         "templates": {
             "path": "point_neuron",
             "model_templates": {
-                "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-                "synapse": ["SynapseHeader.h.jinja2"]
+                "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
             },
             "module_templates": ["setup"]
         }
@@ -926,34 +926,6 @@ class NESTCodeGenerator(CodeGenerator):
         self.update_blocktype_for_common_parameters(synapse)
 
         return spike_updates
-
-    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
-        """
-        For a handed over neuron, this method generates the corresponding header and implementation file.
-        :param neuron: a single neuron object.
-        """
-        if not os.path.isdir(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-        for _model_templ in self._model_templates["neuron"]:
-            file_extension = _model_templ.filename.split(".")[-2]
-            _file = _model_templ.render(self._get_neuron_model_namespace(neuron))
-            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                       neuron.get_name())) + "." + file_extension, "w+") as f:
-                f.write(str(_file))
-
-    def generate_synapse_code(self, synapse: ASTSynapse) -> None:
-        """
-        For a handed over synapse, this method generates the corresponding header and implementation file.
-        :param synapse: a single synapse object.
-        """
-        if not os.path.isdir(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-        for _model_templ in self._model_templates["synapse"]:
-            file_extension = _model_templ.filename.split(".")[-2]
-            _file = _model_templ.render(self._get_synapse_model_namespace(synapse))
-            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                       synapse.get_name())) + "." + file_extension, "w+") as f:
-                f.write(str(_file))
 
     def _get_synapse_model_namespace(self, synapse: ASTSynapse) -> Dict:
         """

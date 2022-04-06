@@ -22,9 +22,14 @@
 from __future__ import annotations
 from abc import abstractmethod
 
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Dict, Mapping, List, Optional, Sequence, Union
+
+import os
+
+from jinja2 import Template
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import Logger
@@ -51,10 +56,6 @@ class CodeGenerator(WithOptions):
 
     @abstractmethod
     def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
-        """the base class CodeGenerator does not generate any code"""
-        pass
-
-    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 
@@ -85,3 +86,42 @@ class CodeGenerator(WithOptions):
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
+
+    def generate_model_code(self,
+                            model: Union[ASTNeuron, ASTSynapse],
+                            model_templates: List[Template],
+                            template_namespace: Dict[str, Any],
+                            model_name_escape_string: str="@MODEL_NAME@") -> None:
+        """
+        For a handed over model, this method generates the corresponding header and implementation file.
+        :param model: a single neuron or synapse
+        """
+        if not os.path.isdir(FrontendConfiguration.get_target_path()):
+            os.makedirs(FrontendConfiguration.get_target_path())
+
+        for _model_templ in model_templates:
+            if not len(_model_templ.filename.split(".")) == 3:
+                raise Exception("Template file name should be of the form: \"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
+            templ_file_name = os.path.basename(_model_templ.filename)
+            templ_file_name = templ_file_name.split(".")[0]   # for example, "cm_main_@NEURON_NAME@"
+            templ_file_name = templ_file_name.replace(model_name_escape_string, model.get_name())
+            file_extension = _model_templ.filename.split(".")[-2]   # for example, "cpp"
+            rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
+                                                    templ_file_name + "." + file_extension)
+            _file = _model_templ.render(template_namespace)
+            Logger.log_message(message="Rendering template " + rendered_templ_file_name,
+                               log_level=LoggingLevel.INFO)
+            with open(rendered_templ_file_name, "w+") as f:
+                f.write(str(_file))
+
+    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
+        self.generate_model_code(neuron,
+                                 model_templates = self._model_templates["neuron"],
+                                 template_namespace = self._get_neuron_model_namespace(neuron),
+                                 model_name_escape_string = "@NEURON_NAME@")
+
+    def generate_synapse_code(self, synapse: ASTNeuron) -> None:
+        self.generate_model_code(synapse,
+                                 model_templates = self._model_templates["synapse"],
+                                 template_namespace = self._get_neuron_model_namespace(synapse),
+                                 model_name_escape_string = "@SYNAPSE_NAME@")
