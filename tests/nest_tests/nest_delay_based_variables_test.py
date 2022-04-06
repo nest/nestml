@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import unittest
+import numpy as np
 from typing import List
 
 import nest
@@ -97,7 +98,7 @@ class DelayVariablesTest(unittest.TestCase):
             cgs.set({"amplitude": 25.})
             nest.Connect(cgs, neuron)
 
-        nest.Simulate(100.0)
+        nest.Simulate(10.0)
 
         events = multimeter.get("events")
         times = events["times"]
@@ -119,15 +120,20 @@ class DelayVariablesTest(unittest.TestCase):
                              module_name=module_name,
                              suffix=self.suffix)
         recordables = ["u_bar_plus", "foo"]
+        delay = 5.0
 
         # Run the simulation with delay value of 5.0 ms
-        recordable_events_delay, times = self.run_simulation(neuron_model_name, module_name, recordables, delay=5.0)
+        recordable_events_delay, times = self.run_simulation(neuron_model_name, module_name, recordables,
+                                                             delay=delay)
 
         # Run the simulation with no delay (0 ms)
         recordable_events, times = self.run_simulation(neuron_model_name, module_name, recordables, delay=0.0)
 
         if TEST_PLOTS:
             self.plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
+
+        np.testing.assert_allclose(recordable_events_delay[recordables[1]][int(delay):],
+                                   recordable_events[recordables[1]][:-int(delay)])
 
     def test_eqns_with_delay_vars_numerical_solver(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
@@ -139,22 +145,29 @@ class DelayVariablesTest(unittest.TestCase):
                              logging_level=self.logging_level,
                              module_name=module_name,
                              suffix=self.suffix)
-        recordables = ["V_m", "U_m"]
+        recordables = ["x", "z"]
+        delay = 2
 
         # Run simulation with delay
         recordable_events_delay, times = self.run_simulation(neuron_model_name,
                                                              module_name,
                                                              recordables,
-                                                             delay=5.0, dc_gen=True)
+                                                             delay=delay, dc_gen=False)
 
         # Run the simulation with no delay
         recordable_events, times = self.run_simulation(neuron_model_name,
                                                        module_name,
                                                        recordables,
-                                                       delay=0.0, dc_gen=True)
+                                                       delay=0, dc_gen=False)
 
         if TEST_PLOTS:
             self.plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
+
+        print(recordable_events_delay["z"])
+        print(recordable_events["z"])
+
+        np.testing.assert_allclose(recordable_events_delay[recordables[1]][int(delay):],
+                                   recordable_events[recordables[1]][:-int(delay)], atol=1e-06, rtol=1e-06)
 
     def test_eqns_with_delay_vars_mixed_solver(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
@@ -185,15 +198,17 @@ class DelayVariablesTest(unittest.TestCase):
         if TEST_PLOTS:
             self.plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
 
+        # np.testing.assert_allclose(recordable_events_delay[45:], recordable_events[:45])
+
     @pytest.fixture(scope="function", autouse=True)
     def cleanup(self):
         # Run the test
         yield
 
         # clean up
-        import shutil
-        if self.target_path:
-            try:
-                shutil.rmtree(self.target_path)
-            except Exception:
-                pass
+        # import shutil
+        # if self.target_path:
+        #     try:
+        #         shutil.rmtree(self.target_path)
+        #     except Exception:
+        #         pass

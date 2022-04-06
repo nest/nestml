@@ -2,87 +2,50 @@
 DelayBasedVariablesWithNumericalSolver.nestml
 #############################################
 
-Description
-+++++++++++
+Copyright statement
++++++++++++++++++++
 
-Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by:
+This file is part of NEST.
 
-.. math::
+Copyright (C) 2004 The NEST Initiative
 
-   dv/dt &= 0.04 v^2 + 5 v + 140 - u + I\\
-   du/dt &= a (b v - u)
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
 
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-.. math::
-
-   &\text{if}\;\; v \geq V_{th}:\\
-   &\;\;\;\; v \text{ is set to } c\\
-   &\;\;\;\; u \text{ is incremented by } d\\
-   & \, \\
-   &v \text{ jumps on each spike arrival by the weight of the spike}
-
-As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
-
-1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value
-2) the variable :math:`v` is updated using a time step half the size of that used to update variable :math:`u`.
-
-This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
-
-
-References
-++++++++++
-
-.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron izhikevich_delay:
 
   state:
-    V_m mV = V_m_init         # Membrane potential
-    U_m real = b * V_m_init   # Membrane potential recovery variable
+    x real = 0.01
+    z real = 0.01
   end
 
   equations:
-    V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (I_e + I_stim) * GOhm ) ) / ms
-    U_m' = a * (b * V_m(t - delay) - U_m * mV) / (mV*ms)
+    inline eta_act real = (etaX - epsilon) * (1 + etaX**n_act)
+    x' = etaX - x / ms
+    z' = epsilon + eta_act / ((1 + x(t - delay)**n_act) * ms) - z
   end
 
   parameters:
-    a real = 0.02        # describes time scale of recovery variable
-    b real = 0.2         # sensitivity of recovery variable
-    c mV = -65 mV        # after-spike reset value of V_m
-    d real = 8.0         # after-spike reset value of U_m
-    V_m_init mV = -65 mV # initial membrane potential
-    V_min mV = -inf * mV # Absolute lower value for the membrane potential.
-
-    # constant external input current
-    I_e pA = 0 pA
+    etaX integer = 6
+    n_act integer = -2
+    epsilon real = 0
 
     # delay parameter
-    delay ms = 4.0 ms
+    delay integer = 2
   end
-
-  input:
-    spikes mV <- spike
-    I_stim pA <- continuous
-  end
-
-  output: spike
 
   update:
     integrate_odes()
-    # Add synaptic current
-    V_m += spikes
-
-    # lower bound of membrane potential
-    V_m = (V_m < V_min)? V_min : V_m
-
-    # threshold crossing
-    if V_m >= 30 mV:
-      V_m = c
-      U_m += d
-      emit_spike()
-    end
-
   end
 
 end
