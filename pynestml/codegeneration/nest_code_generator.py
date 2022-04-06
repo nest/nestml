@@ -726,15 +726,9 @@ class NESTCodeGenerator(CodeGenerator):
             neurons, synapses = self.analyse_transform_neuron_synapse_pairs(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
-        self.is_transformed = True
         return neurons, synapses
 
     def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
-        if not self.is_transformed:
-            import warnings
-            msg = f"the instance of {self.__class__.__name__} didn't call the 'transform' function before calling 'generate_code'."
-            warnings.warn(msg)
-
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
