@@ -1255,9 +1255,6 @@ class NESTCodeGenerator(CodeGenerator):
             # no equations defined -> no changes to the neuron
             return None, None
 
-        code, message = Messages.get_neuron_analyzed(neuron.get_name())
-        Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-
         parameters_block = neuron.get_parameter_blocks()
         odetoolbox_indict = ASTTransformers.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers, printer=self._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
