@@ -88,12 +88,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "templates": {
             "path": "cm_templates",
             "model_templates": {
-                "neuron": ["CompartmentCurrentsClass.jinja2",
-                           "CompartmentCurrentsHeader.jinja2",
-                           "MainClass.jinja2",
-                           "MainHeader.jinja2",
-                           "TreeClass.jinja2",
-                           "TreeHeader.jinja2"
+                "neuron": ["CompartmentCurrentsClass.cpp.jinja2",
+                           "CompartmentCurrentsHeader.h.jinja2",
+                           "MainClass.cpp.jinja2",
+                           "MainHeader.h.jinja2",
+                           "TreeClass.cpp.jinja2",
+                           "TreeHeader.h.jinja2"
             ]},
             "module_templates": ["setup"]
         }
@@ -236,6 +236,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         for _module_templ in self._module_templates:
             file_name_parts = os.path.basename(_module_templ.filename).split(".")
+            assert len(file_name_parts) >= 3, "Template file name should be in the format: ``<rendered file name>.<rendered file extension>.jinja2``"
             file_extension = file_name_parts[-2]
             if file_extension in ["cpp", "h"]:
                 filename = FrontendConfiguration.get_module_name()
@@ -560,6 +561,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             _file = _model_templ.render(self._get_neuron_model_namespace(neuron))
             with open(str(os.path.join(FrontendConfiguration.get_target_path(),
                                        neuron.get_name())) + "." + file_extension, "w+") as f:
+                print("XXXXXXXXXX Rendering template " + str(os.path.join(FrontendConfiguration.get_target_path(),
+                                       neuron.get_name())) + "." + file_extension)
                 f.write(str(_file))
 
     def getUniqueSuffix(self, neuron: ASTNeuron):
@@ -695,6 +698,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # there is no shared files any more
         namespace["sharedFileNamesCmSyns"] = {
         }
+
+        namespace["types_printer"] = self._types_printer
 
         return namespace
 

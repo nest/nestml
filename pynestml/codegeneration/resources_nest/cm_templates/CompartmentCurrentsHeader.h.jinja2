@@ -8,7 +8,7 @@
 {% macro render_variable_type(variable) -%}
 {%- with -%}
     {%- set symbol = variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE) -%}
-    {{ type_converter.convert(symbol.type_symbol) }}
+    {{ types_printer.convert(symbol.type_symbol) }}
 {%- endwith -%}
 {%- endmacro %}
 

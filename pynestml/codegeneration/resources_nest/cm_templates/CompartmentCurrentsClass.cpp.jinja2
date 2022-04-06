@@ -28,14 +28,14 @@
 {% macro render_function_return_type(function) -%}
 {%- with -%}
     {%- set symbol = function.get_scope().resolve_to_symbol(function.get_name(), SymbolKind.FUNCTION) -%}
-    {{ type_converter.convert(symbol.get_return_type()) }}
+    {{ types_printer.convert(symbol.get_return_type()) }}
 {%- endwith -%}
 {%- endmacro -%}
 
 {% macro render_inline_expression_type(inline_expression) -%}
 {%- with -%}
     {%- set symbol = inline_expression.get_scope().resolve_to_symbol(inline_expression.variable_name, SymbolKind.VARIABLE) -%}
-    {{ type_converter.convert(symbol.get_type_symbol()) }}
+    {{ types_printer.convert(symbol.get_type_symbol()) }}
 {%- endwith -%}
 {%- endmacro -%}
 
