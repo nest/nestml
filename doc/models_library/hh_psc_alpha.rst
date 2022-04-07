@@ -65,7 +65,7 @@ Parameters
     "E_Na", "mV", "50mV", "Sodium reversal potential"    
     "E_K", "mV", "-77mV", "Potassium reversal potential"    
     "E_L", "mV", "-54.402mV", "Leak reversal Potential (aka resting potential)"    
-    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function i"    
+    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"    
     "tau_syn_inh", "ms", "2ms", "Rise time of the inhibitory synaptic alpha function"    
     "V_m_init", "mV", "-65mV", "Initial membrane potential"    
     "alpha_n_init", "real", "(0.01 * (V_m_init / mV + 55.0)) / (1.0 - exp(-(V_m_init / mV + 55.0) / 10.0))", ""    
@@ -115,7 +115,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right) 
 
 
 
@@ -159,7 +159,7 @@ Source code
        inline alpha_h real = 0.07 * exp(-(V_m / mV + 65.0) / 20.0)
        inline beta_h real = 1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0))
        Inact_h'=(alpha_h * (1 - Inact_h) - beta_h * Inact_h) / ms # h-variable
-       V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_inh + I_syn_exc) / C_m
+       V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
      end
 
      parameters:
@@ -171,7 +171,7 @@ Source code
        E_Na mV = 50mV # Sodium reversal potential
        E_K mV = -77mV # Potassium reversal potential
        E_L mV = -54.402mV # Leak reversal Potential (aka resting potential)
-       tau_syn_exc ms = 0.2ms # Rise time of the excitatory synaptic alpha function i
+       tau_syn_exc ms = 0.2ms # Rise time of the excitatory synaptic alpha function
        tau_syn_inh ms = 2ms # Rise time of the inhibitory synaptic alpha function
        V_m_init mV = -65mV # Initial membrane potential
        alpha_n_init real = (0.01 * (V_m_init / mV + 55.0)) / (1.0 - exp(-(V_m_init / mV + 55.0) / 10.0))
@@ -220,4 +220,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.268554
+   Generated at 2022-03-28 19:04:29.257544

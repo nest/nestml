@@ -531,23 +531,26 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   const double weight = e.get_weight();
   const double multiplicity = e.get_multiplicity();
 {%-   for port in neuron.get_spike_input_ports() %}
-{%-     if port.is_excitatory() %}
+{%-     if port.is_excitatory() and port.is_inhibitory() %}
+  // this port receives both excitatory and inhibitory spikes (where inhibitory spikes are those where weight < 0)
+  get_{{port.get_symbol_name()}}().
+      add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+                     weight * multiplicity );
+{%-     elif port.is_excitatory() %}
+  // this port receives excitatory spikes
   if ( weight >= 0.0 )
   {
-    // excitatory
     get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                        weight * multiplicity );
   }
-  {%-     endif %}
-  {%-     if port.is_inhibitory() %}
+{%-     elif port.is_inhibitory() %}
+  // this port receives inhibitory spikes
   if ( weight < 0.0 )
   {
-    // inhibitory
     get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                      {% if port.is_conductance_based() %} // ensure conductance is positive {% endif %}
-                      {% if port.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
+                  -weight * multiplicity );
   }
 {%-     endif %}
 {%-   endfor %}

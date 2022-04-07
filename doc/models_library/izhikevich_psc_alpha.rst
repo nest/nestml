@@ -53,7 +53,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right) 
 
 
 .. math::
@@ -80,7 +80,7 @@ Source code
        kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
        inline I_syn_exc pA = convolve(K_syn_exc,exc_spikes)
        inline I_syn_inh pA = convolve(K_syn_inh,inh_spikes)
-       V_m'=(k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_inh + I_syn_exc) / C_m
+       V_m'=(k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
        U_m'=a * (b * (V_m - V_r) - U_m)
      end
 
@@ -138,4 +138,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.864452
+   Generated at 2022-03-28 19:04:30.156838

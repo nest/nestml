@@ -62,7 +62,7 @@ neuron hh_psc_alpha:
     inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes)
     inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes)
     inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
-    inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+    inline I_K   pA = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
 
     # Act_n
@@ -80,7 +80,7 @@ neuron hh_psc_alpha:
     inline beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
     Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
 
-    V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
+    V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
   end
 
   parameters:
