@@ -1,6 +1,6 @@
 """
-DelayBasedVariablesWithNumericalSolver.nestml
-#############################################
+DelayDifferentialEquationsWithMixedSolver.nestml
+################################################
 
 Copyright statement
 +++++++++++++++++++
@@ -22,7 +22,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron izhikevich_delay:
+neuron dde_mixed:
 
   state:
     x real = 0.01
@@ -38,7 +38,7 @@ neuron izhikevich_delay:
   parameters:
     etaX integer = 6
     n_act integer = -2
-    epsilon real = 0
+    epsilon real = 0.5
 
     # delay parameter
     delay integer = 2

@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
-import unittest
 import numpy as np
 from typing import List
 
@@ -35,170 +34,83 @@ except BaseException:
     TEST_PLOTS = False
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_types import PredefinedTypes
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.utils.logger import Logger, LoggingLevel
+
+target_path = "target_delay"
+logging_level = "DEBUG"
+suffix = "_nestml"
 
 
-class DelayVariablesTest(unittest.TestCase):
-    """
-    Tests the behavior of delay variables in differential equations.
-    """
+def plot_fig(times, recordable_events_delay: dict, recordable_events: dict, filename: str):
+    fig, axes = plt.subplots(len(recordable_events), 1, figsize=(7, 9), sharex=True)
+    for i, recordable_name in enumerate(recordable_events_delay.keys()):
+        axes[i].plot(times, recordable_events_delay[recordable_name], label=recordable_name + "(delay)")
+        axes[i].plot(times, recordable_events[recordable_name], label=recordable_name)
+        axes[i].set_xlabel("times")
+        axes[i].set_ylabel(recordable_name)
+        axes[i].legend()
 
-    def setUp(self):
-        PredefinedUnits.register_units()
-        PredefinedTypes.register_types()
-        PredefinedFunctions.register_functions()
-        PredefinedVariables.register_variables()
-        SymbolTable.initialize_symbol_table(
-            ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-        Logger.init_logger(LoggingLevel.INFO)
+    fig.savefig("/tmp/" + filename)
 
-        self.target_path = "target_delay"
-        self.logging_level = "DEBUG"
-        self.suffix = "_nestml"
 
-    def plot_fig(self, times, recordable_events_delay: dict, recordable_events: dict, filename: str):
-        fig, axes = plt.subplots(len(recordable_events), 1, figsize=(7, 9), sharex=True)
-        for i, recordable_name in enumerate(recordable_events_delay.keys()):
-            axes[i].plot(times, recordable_events_delay[recordable_name], label=recordable_name + "(delay)")
-            axes[i].plot(times, recordable_events[recordable_name], label=recordable_name)
-            axes[i].set_xlabel("times")
-            axes[i].set_ylabel(recordable_name)
-            axes[i].legend()
+def run_simulation(neuron_model_name: str, module_name: str, recordables: List[str], delay: float):
+    nest.set_verbosity("M_ALL")
+    nest.ResetKernel()
 
-        fig.savefig("/tmp/" + filename)
+    try:
+        nest.Install(module_name)
+    except BaseException:
+        pass
 
-    def run_simulation(self, neuron_model_name: str, module_name: str, recordables: List[str], delay: float,
-                       dc_gen=False, spikes=None):
-        nest.set_verbosity("M_ALL")
-        nest.ResetKernel()
+    neuron = nest.Create(neuron_model_name)
+    neuron.set({"delay": delay})
 
-        try:
-            nest.Install(module_name)
-        except BaseException:
-            pass
+    multimeter = nest.Create("multimeter", params={"record_from": recordables})
+    nest.Connect(multimeter, neuron)
 
-        neuron = nest.Create(neuron_model_name)
-        neuron.set({"delay": delay})
+    nest.Simulate(100.0)
 
-        multimeter = nest.Create("multimeter", params={"record_from": recordables})
-        nest.Connect(multimeter, neuron)
+    events = multimeter.get("events")
+    times = events["times"]
 
-        if spikes is not None:
-            sg = nest.Create("spike_generator", params={"spike_times": spikes})
-            nest.Connect(sg, neuron)
+    recordable_events = {}
+    for recordable in recordables:
+        recordable_events[recordable] = events[recordable]
 
-        if dc_gen:
-            cgs = nest.Create("dc_generator")
-            cgs.set({"amplitude": 25.})
-            nest.Connect(cgs, neuron)
+    return recordable_events, times
 
-        nest.Simulate(10.0)
 
-        events = multimeter.get("events")
-        times = events["times"]
+@pytest.mark.parametrize("file_name, neuron_model_name, recordables",
+                         [("DelayDifferentialEquationsWithAnalyticSolver.nestml", "dde_analytic_nestml",
+                           ["u_bar_plus", "foo"]),
+                          ("DelayDifferentialEquationsWithNumericSolver.nestml", "dde_numeric_nestml", ["x", "z"]),
+                          ("DelayDifferentialEquationsWithMixedSolver.nestml", "dde_mixed_nestml", ["x", "z"])])
+def test_dde_with_analytic_solver(file_name: str, neuron_model_name: str, recordables: List[str]):
+    input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", file_name)))
+    module_name = neuron_model_name + "_module"
+    print("Module name: ", module_name)
+    generate_nest_target(input_path=input_path,
+                         target_path=target_path,
+                         logging_level=logging_level,
+                         module_name=module_name,
+                         suffix=suffix)
+    delay = 5
 
-        recordable_events = {}
-        for recordable in recordables:
-            recordable_events[recordable] = events[recordable]
+    # Run the simulation with delay value of 5.0 ms
+    recordable_events_delay, times = run_simulation(neuron_model_name, module_name, recordables,
+                                                    delay=delay)
 
-        return recordable_events, times
+    # Run the simulation with no delay (0 ms)
+    recordable_events, times = run_simulation(neuron_model_name, module_name, recordables, delay=0)
 
-    def test_eqns_with_delay_vars_analytic_solver(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
-                                                                "DelayBasedVariablesWithAnalyticSolver.nestml")))
-        neuron_model_name = "delay_variables_nestml"
-        module_name = neuron_model_name + "_module"
-        generate_nest_target(input_path=input_path,
-                             target_path=self.target_path,
-                             logging_level=self.logging_level,
-                             module_name=module_name,
-                             suffix=self.suffix)
-        recordables = ["u_bar_plus", "foo"]
-        delay = 5.0
+    if TEST_PLOTS:
+        plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
 
-        # Run the simulation with delay value of 5.0 ms
-        recordable_events_delay, times = self.run_simulation(neuron_model_name, module_name, recordables,
-                                                             delay=delay)
-
-        # Run the simulation with no delay (0 ms)
-        recordable_events, times = self.run_simulation(neuron_model_name, module_name, recordables, delay=0.0)
-
-        if TEST_PLOTS:
-            self.plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
-
+    # Assert only the analytical solver case.
+    # Delayed and non-delayed results for non-linear equations produce completely different results and hence it's
+    # difficult to perform a direct assert.
+    if neuron_model_name == "dde_analytic_nestml":
         np.testing.assert_allclose(recordable_events_delay[recordables[1]][int(delay):],
                                    recordable_events[recordables[1]][:-int(delay)])
-
-    def test_eqns_with_delay_vars_numerical_solver(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
-                                                                "DelayBasedVariablesWithNumericalSolver.nestml")))
-        neuron_model_name = "izhikevich_delay_nestml"
-        module_name = neuron_model_name + "_module"
-        generate_nest_target(input_path=input_path,
-                             target_path=self.target_path,
-                             logging_level=self.logging_level,
-                             module_name=module_name,
-                             suffix=self.suffix)
-        recordables = ["x", "z"]
-        delay = 2
-
-        # Run simulation with delay
-        recordable_events_delay, times = self.run_simulation(neuron_model_name,
-                                                             module_name,
-                                                             recordables,
-                                                             delay=delay, dc_gen=False)
-
-        # Run the simulation with no delay
-        recordable_events, times = self.run_simulation(neuron_model_name,
-                                                       module_name,
-                                                       recordables,
-                                                       delay=0, dc_gen=False)
-
-        if TEST_PLOTS:
-            self.plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
-
-        print(recordable_events_delay["z"])
-        print(recordable_events["z"])
-
-        np.testing.assert_allclose(recordable_events_delay[recordables[1]][int(delay):],
-                                   recordable_events[recordables[1]][:-int(delay)], atol=1e-06, rtol=1e-06)
-
-    def test_eqns_with_delay_vars_mixed_solver(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
-                                                                "DelayBasedVariablesWithMixedSolver.nestml")))
-        neuron_model_name = "delay_variables_mixed_solver_nestml"
-        module_name = neuron_model_name + "_module"
-        generate_nest_target(input_path=input_path,
-                             target_path=self.target_path,
-                             logging_level=self.logging_level,
-                             module_name=module_name,
-                             suffix=self.suffix)
-        recordables = ["V_m", "w"]
-        spikes = [1.0, 1.0, 1.5, 1.5, 6.7, 10.0, 10.5, 10.5, 10.5, 10.5, 11.3, 11.3, 11.4, 11.4, 20., 22.5, 30.,
-                  40., 42., 42., 42., 50.5, 50.5, 75., 88., 93., 95., 96.7, 98.8]
-
-        # Simulate with delay
-        recordable_events_delay, times = self.run_simulation(neuron_model_name,
-                                                             module_name,
-                                                             recordables,
-                                                             delay=45.0, spikes=spikes)
-
-        # Simulate without delay
-        recordable_events, times = self.run_simulation(neuron_model_name,
-                                                       module_name,
-                                                       recordables,
-                                                       delay=0., spikes=spikes)
-
-        if TEST_PLOTS:
-            self.plot_fig(times, recordable_events_delay, recordable_events, neuron_model_name + ".png")
-
-        # np.testing.assert_allclose(recordable_events_delay[45:], recordable_events[:45])
 
     @pytest.fixture(scope="function", autouse=True)
     def cleanup(self):
@@ -206,9 +118,9 @@ class DelayVariablesTest(unittest.TestCase):
         yield
 
         # clean up
-        # import shutil
-        # if self.target_path:
-        #     try:
-        #         shutil.rmtree(self.target_path)
-        #     except Exception:
-        #         pass
+        import shutil
+        if self.target_path:
+            try:
+                shutil.rmtree(self.target_path)
+            except Exception:
+                pass

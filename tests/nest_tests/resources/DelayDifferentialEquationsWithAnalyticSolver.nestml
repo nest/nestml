@@ -24,7 +24,7 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron delay_variables:
+neuron dde_analytic:
     state:
         u_bar_plus real = -70.
         foo real = 0
