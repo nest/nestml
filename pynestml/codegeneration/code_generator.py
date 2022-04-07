@@ -116,12 +116,12 @@ class CodeGenerator(WithOptions):
 
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         self.generate_model_code(neuron,
-                                 model_templates = self._model_templates["neuron"],
-                                 template_namespace = self._get_neuron_model_namespace(neuron),
-                                 model_name_escape_string = "@NEURON_NAME@")
+                                 model_templates=self._model_templates["neuron"],
+                                 template_namespace=self._get_neuron_model_namespace(neuron),
+                                 model_name_escape_string="@NEURON_NAME@")
 
     def generate_synapse_code(self, synapse: ASTNeuron) -> None:
         self.generate_model_code(synapse,
-                                 model_templates = self._model_templates["synapse"],
-                                 template_namespace = self._get_neuron_model_namespace(synapse),
-                                 model_name_escape_string = "@SYNAPSE_NAME@")
+                                 model_templates=self._model_templates["synapse"],
+                                 template_namespace=self._get_synapse_model_namespace(synapse),
+                                 model_name_escape_string="@SYNAPSE_NAME@")
