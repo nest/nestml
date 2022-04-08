@@ -51,11 +51,11 @@ class Nest2CompatTest(unittest.TestCase):
                 "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pynestml", "codegeneration",
                                      "resources_nest", "point_neuron_nest2"),
                 "model_templates": {
-                    "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-                    "synapse": ["SynapseHeader.h.jinja2"]
+                    "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                    "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
                 },
-                "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/ModuleHeader.h.jinja2",
-                                     "setup/ModuleClass.cpp.jinja2"]}}
+                "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/@MODULE_NAME@.h.jinja2",
+                                     "setup/@MODULE_NAME@.cpp.jinja2"]}}
 
         generate_target(input_path, target_platform, target_path,
                         logging_level=logging_level,
