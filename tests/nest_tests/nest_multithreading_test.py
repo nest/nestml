@@ -76,9 +76,11 @@ class TestNestMultithreading:
 
     def test_neuron_multithreading(self, number_of_threads: int) -> None:
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
-        nest.SetKernelStatus({"resolution": 0.1, "local_num_threads": number_of_threads})
-        spike_times = np.arange(10, 100, 9).astype(np.float)
+        nest.resolution = 0.1
+        nest.local_num_threads = number_of_threads
+        spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,
+                                35., 36., 38., 40., 42., 46., 51., 53., 54., 55., 56., 59., 63., 64.,
+                                65., 66., 68., 72., 73., 76., 79., 80., 83., 84., 86., 87., 90., 95.])
         sg = nest.Create("spike_generator",
                          params={"spike_times": spike_times})
 
@@ -88,23 +90,28 @@ class TestNestMultithreading:
         multimeter = nest.Create("multimeter", params={"record_from": ["V_m"]})
         nest.Connect(multimeter, n)
 
-        nest.Simulate(1000.)
+        connections = nest.GetConnections()
+        gid_post = np.unique(np.array(connections.get("target")))[0]
+        nest.Simulate(100.)
+
         events = multimeter.get("events")
         v_m = events["V_m"]
-        np.testing.assert_almost_equal(v_m[-1], -70.)
+        senders = events["senders"]
+        v_m_sender = v_m[senders == gid_post]
+        np.testing.assert_almost_equal(v_m_sender[-1], -69.97074345103816)
 
     def test_neuron_synapse_multithreading(self, number_of_threads: int) -> None:
-        pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-                                    35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-                                    65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.])
-        post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-                                     25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-                                     48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-                                     80.,  81.,  83.,  88.,  93.,  94.,  97.,  99.])
+        pre_spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,
+                                    35., 36., 38., 40., 42., 46., 51., 53., 54., 55., 56., 59., 63., 64.,
+                                    65., 66., 68., 72., 73., 76., 79., 80., 83., 84., 86., 87., 90., 95.])
+        post_spike_times = np.array([4., 5., 6., 7., 10., 11., 12., 16., 17., 18., 19., 20., 22., 23.,
+                                     25., 27., 29., 30., 31., 32., 34., 36., 37., 38., 39., 42., 44., 46.,
+                                     48., 49., 50., 54., 56., 57., 59., 60., 61., 62., 67., 74., 76., 79.,
+                                     80., 81., 83., 88., 93., 94., 97., 99.])
 
         nest.ResetKernel()
-        nest.set_verbosity("M_ALL")
-        nest.SetKernelStatus({"resolution": 0.1, "local_num_threads": number_of_threads})
+        nest.resolution = 0.1
+        nest.local_num_threads = number_of_threads
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.neuron_synapse_synapse_model, "stdp_nestml_rec",
@@ -132,6 +139,10 @@ class TestNestMultithreading:
 
         nest.Simulate(100.)
 
-        V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-        print(V_m)
-        np.testing.assert_almost_equal(V_m[-4], -59.17946541)
+        connections = nest.GetConnections(synapse_model="stdp_nestml_rec")
+        gid_post = np.unique(np.array(connections.get("target")))[0]
+        events = mm.get("events")
+        senders = events["senders"]
+        V_m = events["V_m"]
+        V_m_sender = V_m[senders == gid_post]
+        np.testing.assert_almost_equal(V_m_sender[-4], -59.17946541)
