@@ -41,10 +41,12 @@ class NestCustomTemplatesTest(unittest.TestCase):
         suffix = "_nestml"
 
         codegen_opts = {"templates": {"path": "point_neuron",
-                                      "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                                      "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2",
+                                                                     "@NEURON_NAME@.h.jinja2"],
                                                           "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                                           "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
+                                                           "setup/@MODULE_NAME@.h.jinja2",
+                                                           "setup/@MODULE_NAME@.cpp.jinja2"]}}
 
         generate_target(input_path, target_platform, target_path,
                         logging_level=logging_level,
@@ -90,9 +92,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                      "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
             }
         }
-
-        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
-        synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
 
         generate_target(input_paths, target_platform, target_path,
                         logging_level=logging_level,

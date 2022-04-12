@@ -47,7 +47,7 @@ def get_known_targets():
     return targets
 
 
-def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
@@ -70,10 +70,11 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
+    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence
+    # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -83,26 +84,30 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 
-    return None   # no builder requested or available
+    return None  # no builder requested or available
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
-                    install_path: str=None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
-                    dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                    install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                    dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the given target platform.
 
     Parameters
     ----------
     input_path : str **or** Sequence[str]
-        One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching ``*.nestml``.
+        One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories
+        will be searched recursively for files matching ``*.nestml``.
     target_platform : str
         The name of the target platform to generate code for.
     target_path : str, optional (default: append "target" to `input_path`)
-        Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
+        Path to target directory where generated code will be written into. Default is ``target``, which will be
+        created in the current working directory if it does not yet exist.
     logging_level : str, optional (default: "ERROR")
-        Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are: DEBUG, INFO, WARNING, ERROR, NO.
+        Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are:
+        DEBUG, INFO, WARNING, ERROR, NO.
     module_name : str, optional (default: "nestmlmodule")
-        Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in ``module``. Default is ``nestmlmodule``.
+        Sets the name of the module which shall be generated. Default is the name of the directory containing the
+        models. The name has to end in ``module``. Default is ``nestmlmodule``.
     store_log : bool, optional (default: False)
         Stores a log.txt containing all messages in JSON notation. Default is OFF.
     suffix : str, optional (default: "")
@@ -110,7 +115,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     install_path
         Path to the directory where the generated code will be installed.
     dev : bool, optional (default: False)
-        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+        Enable development mode: code generation is attempted even for models that contain errors, and extra
+        information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
@@ -161,8 +167,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                          install_path: Optional[str] = None, logging_level="ERROR",
-                         module_name=None, store_log: bool=False, suffix: str="",
-                         dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                         module_name=None, store_log: bool = False, suffix: str = "",
+                         dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters
@@ -172,7 +178,8 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
     logging_level : str, optional (default: "ERROR")
-        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO",
+        or "NO").
     module_name : str, optional (default: "nestmlmodule")
         Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
     store_log : bool, optional (default: False)
@@ -180,9 +187,12 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
     suffix : str, optional (default: "")
         A suffix string that will be appended to the name of all generated models.
     install_path
-        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
+        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not
+        specified, the module will be installed into the NEST Simulator installation directory, as reported by
+        nest-config.
     dev : bool, optional (default: False)
-        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information
+        is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
@@ -203,7 +213,8 @@ def main() -> int:
         FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException as e:
         return 1
-    # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
+    # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor
+    # on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
     # after all argument have been collected, start the actual processing
     return int(process())
@@ -239,14 +250,14 @@ def process():
 
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
     _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
-    codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
     _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
 
     if _builder is not None:
         codegen_and_builder_opts = _builder.set_options(codegen_and_builder_opts)
 
     if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+        raise CodeGeneratorOptionsException("The code generator option(s) \"" +
+                                            ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
         # generate a list of all compilation units (neurons + synapses)
