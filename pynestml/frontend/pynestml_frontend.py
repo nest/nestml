@@ -256,8 +256,7 @@ def process():
         codegen_and_builder_opts = _builder.set_options(codegen_and_builder_opts)
 
     if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" +
-                                            ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
         # generate a list of all compilation units (neurons + synapses)
