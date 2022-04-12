@@ -190,7 +190,7 @@ class CodeGenerator(WithOptions):
             os.makedirs(FrontendConfiguration.get_target_path())
 
         for _model_templ in model_templates:
-            if not len(_model_templ.filename.split(".")) == 3:
+            if not len(_model_templ.filename.split("/")[-1].split(".")) == 3:
                 raise Exception("Template file name should be of the form: "
                                 "\"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
             templ_file_name = os.path.basename(_model_templ.filename)

@@ -250,6 +250,7 @@ def process():
 
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
     _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
+    codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
     _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
 
     if _builder is not None:
