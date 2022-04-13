@@ -101,7 +101,7 @@ class CodeGenerator(WithOptions):
 
         for _model_templ in model_templates:
             templ_file_name = os.path.basename(_model_templ.filename)
-            if not len(templ_file_name.filename.split(".")) == 3:
+            if not len(templ_file_name.split(".")) == 3:
                 raise Exception("Template file name \"" + templ_file_name + "\" should be of the form \"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
             templ_file_name = templ_file_name.split(".")[0]   # for example, "cm_main_@NEURON_NAME@"
             templ_file_name = templ_file_name.replace(model_name_escape_string, model_name)
