@@ -29,18 +29,18 @@ neuron while_loop:
         y real = 0.025
     end
 
-#    parameters:
-#      N integer = 5
-#    end
-#
-#    update:
-#      k integer = 3
-#      j integer = 0
-#      while j <= N:
-#        y = max(k, j)
-#        y += 0.011
-#        j += 1
-#      end
-#    end
+    parameters:
+      N integer = 5
+    end
+
+    update:
+      k integer = 3
+      j integer = 0
+      while j <= N:
+        y = max(k, j)
+        y += 0.011
+        j += 1
+      end
+    end
 
 end
