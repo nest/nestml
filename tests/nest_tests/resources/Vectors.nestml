@@ -32,9 +32,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 neuron vectors:
     state:
-        V_m mV = 0 mV
+        # V_m mV = 0 mV
         g_in [20] mV = 11mV
-        g_ex [ten] mV = 1mV
+        # g_ex [ten] mV = 1mV
     end
 
     parameters:
@@ -45,8 +45,8 @@ neuron vectors:
 
     update:
         i integer = 0
-        g_ex[1] = -2 mV
+        # g_ex[1] = -2 mV
         i = 1
-        V_m += -0.03 mV
+        #V_m += -0.03 mV
     end
 end
