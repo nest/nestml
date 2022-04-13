@@ -34,9 +34,9 @@ jobs:
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          wget http://www.antlr.org/download/antlr-4.9.1-complete.jar
+          wget http://www.antlr.org/download/antlr-4.10-complete.jar
           echo \#\!/bin/bash > antlr4
-          echo java -cp \"`pwd`/antlr-4.9.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo java -cp \"`pwd`/antlr-4.10-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
           echo PATH=$PATH:`pwd` >> $GITHUB_ENV
