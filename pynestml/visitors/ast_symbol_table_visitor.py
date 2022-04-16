@@ -63,7 +63,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.INFO)
+                           message=message, log_level=LoggingLevel.DEBUG)
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
         node.update_scope(scope)
         node.get_body().update_scope(scope)
@@ -109,7 +109,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.INFO)
+                           message=message, log_level=LoggingLevel.DEBUG)
         # before starting the work on the synapse, make everything which was implicit explicit
         # but if we have a model without an equations block, just skip this step
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())

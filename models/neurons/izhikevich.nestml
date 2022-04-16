@@ -21,6 +21,8 @@ Implementation of the simple spiking neuron model introduced by Izhikevich [1]_.
    & \, \\
    &v \text{ jumps on each spike arrival by the weight of the spike}
 
+Incoming spikes cause an instantaneous jump in the membrane potential proportional to the strength of the synapse.
+
 As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
 
 1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value

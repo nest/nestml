@@ -20,7 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Any, List, Mapping, Optional, Sequence
+
+from typing import Any, Mapping, Optional, Sequence, Union
 
 import os
 import platform
@@ -140,8 +141,8 @@ class NESTBuilder(Builder):
 
         # first call cmake with all the arguments
         try:
-            result = subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, shell=shell,
-                                           cwd=str(os.path.join(target_path)))
+            subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException('Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')
 

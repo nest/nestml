@@ -19,11 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
-from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
-from pynestml.codegeneration.nest_names_converter import NestNamesConverter
-from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
+from pynestml.codegeneration.printers.printer import Printer
+from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -59,134 +58,123 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol
 
 
-class NestPrinter:
+class NestPrinter(Printer):
+    r"""
+    Printer for NEST C++ syntax.
     """
-    This class contains all methods as required to transform
-    """
 
-    def __init__(self, expression_pretty_printer, reference_convert=None, names_converter=None):
-        """
-        The standard constructor.
-        :param reference_convert: a single reference converter
-        :type reference_convert: IReferenceConverter
-        """
-        if expression_pretty_printer is not None:
-            self.expression_pretty_printer = expression_pretty_printer
-        else:
-            self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
+    def __init__(self,
+                 reference_converter: ReferenceConverter,
+                 types_printer: TypesPrinter,
+                 expression_printer: ExpressionPrinter):
+        super().__init__(reference_converter=reference_converter,
+                         types_printer=types_printer)
+        self._expression_printer = expression_printer
 
-        if names_converter is not None:
-            self.names_converter = names_converter
-        else:
-            self.names_converter = GSLNamesConverter
-
-    def print_node(self, node):
-        ret = ''
+    def print_node(self, node) -> str:
         if isinstance(node, ASTArithmeticOperator):
-            ret = self.print_arithmetic_operator(node)
+            return self.print_arithmetic_operator(node)
         if isinstance(node, ASTAssignment):
-            ret = self.print_assignment(node)
+            return self.print_assignment(node)
         if isinstance(node, ASTBitOperator):
-            ret = self.print_bit_operator(node)
+            return self.print_bit_operator(node)
         if isinstance(node, ASTBlock):
-            ret = self.print_block(node)
+            return self.print_block(node)
         if isinstance(node, ASTBlockWithVariables):
-            ret = self.print_block_with_variables(node)
+            return self.print_block_with_variables(node)
         if isinstance(node, ASTNeuronOrSynapseBody):
-            ret = self.print_neuron_or_synapse_body(node)
+            return self.print_neuron_or_synapse_body(node)
         if isinstance(node, ASTComparisonOperator):
-            ret = self.print_comparison_operator(node)
+            return self.print_comparison_operator(node)
         if isinstance(node, ASTCompoundStmt):
-            ret = self.print_compound_stmt(node)
+            return self.print_compound_stmt(node)
         if isinstance(node, ASTDataType):
-            ret = self.print_data_type(node)
+            return self.print_data_type(node)
         if isinstance(node, ASTDeclaration):
-            ret = self.print_declaration(node)
+            return self.print_declaration(node)
         if isinstance(node, ASTElifClause):
-            ret = self.print_elif_clause(node)
+            return self.print_elif_clause(node)
         if isinstance(node, ASTElseClause):
-            ret = self.print_else_clause(node)
+            return self.print_else_clause(node)
         if isinstance(node, ASTEquationsBlock):
-            ret = self.print_equations_block(node)
+            return self.print_equations_block(node)
         if isinstance(node, ASTExpression):
-            ret = self.print_expression(node)
+            return self.print_expression(node)
         if isinstance(node, ASTForStmt):
-            ret = self.print_for_stmt(node)
+            return self.print_for_stmt(node)
         if isinstance(node, ASTFunction):
-            ret = self.print_function(node)
+            return self.print_function(node)
         if isinstance(node, ASTFunctionCall):
-            ret = self.print_function_call(node)
+            return self.print_function_call(node)
         if isinstance(node, ASTIfClause):
-            ret = self.print_if_clause(node)
+            return self.print_if_clause(node)
         if isinstance(node, ASTIfStmt):
-            ret = self.print_if_stmt(node)
+            return self.print_if_stmt(node)
         if isinstance(node, ASTInputBlock):
-            ret = self.print_input_block(node)
+            return self.print_input_block(node)
         if isinstance(node, ASTInputPort):
-            ret = self.print_input_port(node)
+            return self.print_input_port(node)
         if isinstance(node, ASTInputQualifier):
-            ret = self.print_input_qualifier(node)
+            return self.print_input_qualifier(node)
         if isinstance(node, ASTLogicalOperator):
-            ret = self.print_logical_operator(node)
+            return self.print_logical_operator(node)
         if isinstance(node, ASTNestMLCompilationUnit):
-            ret = self.print_compilation_unit(node)
+            return self.print_compilation_unit(node)
         if isinstance(node, ASTNeuron):
-            ret = self.print_neuron(node)
+            return self.print_neuron(node)
         if isinstance(node, ASTOdeEquation):
-            ret = self.print_ode_equation(node)
+            return self.print_ode_equation(node)
         if isinstance(node, ASTInlineExpression):
-            ret = self.print_inline_expression(node)
+            return self.print_inline_expression(node)
         if isinstance(node, ASTKernel):
-            ret = self.print_kernel(node)
+            return self.print_kernel(node)
         if isinstance(node, ASTOutputBlock):
-            ret = self.print_output_block(node)
+            return self.print_output_block(node)
         if isinstance(node, ASTParameter):
-            ret = self.print_parameter(node)
+            return self.print_parameter(node)
         if isinstance(node, ASTReturnStmt):
-            ret = self.print_return_stmt(node)
+            return self.print_return_stmt(node)
         if isinstance(node, ASTSimpleExpression):
-            ret = self.print_simple_expression(node)
+            return self.print_simple_expression(node)
         if isinstance(node, ASTSmallStmt):
-            ret = self.print_small_stmt(node)
+            return self.print_small_stmt(node)
         if isinstance(node, ASTUnaryOperator):
-            ret = self.print_unary_operator(node)
+            return self.print_unary_operator(node)
         if isinstance(node, ASTUnitType):
-            ret = self.print_unit_type(node)
+            return self.print_unit_type(node)
         if isinstance(node, ASTUpdateBlock):
-            ret = self.print_update_block(node)
+            return self.print_update_block(node)
         if isinstance(node, ASTVariable):
-            ret = self.print_variable(node)
+            return self.print_variable(node)
         if isinstance(node, ASTWhileStmt):
-            ret = self.print_while_stmt(node)
+            return self.print_while_stmt(node)
         if isinstance(node, ASTStmt):
-            ret = self.print_stmt(node)
-        return ret
+            return self.print_stmt(node)
+        return ''
 
     def print_simple_expression(self, node, prefix=""):
         return self.print_expression(node, prefix=prefix)
 
-    def print_small_stmt(self, node, prefix=""):
+    def print_small_stmt(self, node, prefix="") -> str:
         if node.is_assignment():
             return self.print_assignment(node.assignment, prefix=prefix)
 
-    def print_stmt(self, node, prefix=""):
+    def print_stmt(self, node, prefix="") -> str:
         if node.is_small_stmt:
             return self.print_small_stmt(node.small_stmt, prefix=prefix)
 
-    def print_assignment(self, node, prefix=""):
-        # type: (ASTAssignment) -> str
+    def print_assignment(self, node, prefix="") -> str:
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.print_origin(symbol) + self.names_converter.name(symbol) + ' '
+        ret = self.reference_converter.print_origin(symbol) + self.reference_converter.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -202,96 +190,39 @@ class NestPrinter:
 
     def print_variable(self, node: ASTVariable) -> str:
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.print_origin(symbol) + node.name
+        ret = self.reference_converter.print_origin(symbol) + node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"
         return ret
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
-        """
-        Pretty Prints the handed over rhs to a nest readable format.
-        :param node: a single meta_model node.
-        :type node: ASTExpressionNode
-        :return: the corresponding string representation
-        :rtype: str
-        """
-        return self.expression_pretty_printer.print_expression(node, prefix=prefix)
-
-    def print_method_call(self, node: ASTFunctionCall) -> str:
-        """
-        Prints a single handed over function call.
-        :param node: a single function call.
-        :type node: ASTFunctionCall
-        :return: the corresponding string representation.
-        :rtype: str
-        """
-        return self.expression_pretty_printer.print_function_call(node)
-
-    @classmethod
-    def print_comparison_operator(cls, for_stmt):
+    def print_comparison_operator(self, for_stmt) -> str:
         """
         Prints a single handed over comparison operator for a for stmt to a Nest processable format.
         :param for_stmt: a single for stmt
         :type for_stmt: ASTForStmt
         :return: a string representation
-        :rtype: str
         """
         step = for_stmt.get_step()
         if step < 0:
             return '>'
-        elif step > 0:
-            return '<'
-        else:
-            return '!='
 
-    @classmethod
-    def print_step(cls, for_stmt):
+        if step > 0:
+            return '<'
+
+        return '!='
+
+    def print_step(self, for_stmt) -> str:
         """
         Prints the step length to a nest processable format.
         :param for_stmt: a single for stmt
         :type for_stmt: ASTForStmt
         :return: a string representation
-        :rtype: str
         """
         assert isinstance(for_stmt, ASTForStmt), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(for_stmt)
         return for_stmt.get_step()
 
-    @classmethod
-    def print_origin(cls, variable_symbol, prefix=''):
-        """
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :type variable_symbol: VariableSymbol
-        :return: the corresponding prefix
-        :rtype: str
-        """
-        assert isinstance(variable_symbol, VariableSymbol), \
-            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
-                variable_symbol)
-
-        if variable_symbol.block_type == BlockType.STATE:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.EQUATION:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.PARAMETERS:
-            return prefix + 'P_.'
-
-        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return prefix + 'cp.'
-
-        if variable_symbol.block_type == BlockType.INTERNALS:
-            return prefix + 'V_.'
-
-        if variable_symbol.block_type == BlockType.INPUT:
-            return prefix + 'B_.'
-
-        return ''
-
-    @classmethod
-    def print_output_event(cls, ast_body: ASTNeuronOrSynapseBody) -> str:
+    def print_output_event(self, ast_body: ASTNeuronOrSynapseBody) -> str:
         """
         For the handed over neuron, print its defined output type.
         :param ast_body: a single neuron body
@@ -313,25 +244,21 @@ class NestPrinter:
 
         raise RuntimeError('Unexpected output type. Must be continuous or spike, is %s.' % str(output))
 
-    @classmethod
-    def print_buffer_initialization(cls, variable_symbol):
+    def print_buffer_initialization(self, variable_symbol) -> str:
         """
         Prints the buffer initialization.
         :param variable_symbol: a single variable symbol.
         :type variable_symbol: VariableSymbol
         :return: a buffer initialization
-        :rtype: str
         """
         return 'get_' + variable_symbol.get_symbol_name() + '().clear(); //includes resize'
 
-    @classmethod
-    def print_function_declaration(cls, ast_function):
+    def print_function_declaration(self, ast_function) -> str:
         """
         Returns a nest processable function declaration head, i.e. the part which appears in the .h file.
         :param ast_function: a single function.
         :type ast_function: ASTFunction
         :return: the corresponding string representation.
-        :rtype: str
         """
         from pynestml.meta_model.ast_function import ASTFunction
         from pynestml.symbols.symbol import SymbolKind
@@ -341,19 +268,18 @@ class NestPrinter:
         if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
         declaration = ast_function.print_comment('//') + '\n'
-        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
         declaration += ' '
         declaration += ast_function.get_name() + '('
         for typeSym in function_symbol.get_parameter_types():
-            declaration += PyNestml2NestTypeConverter.convert(typeSym)
+            declaration += self.types_printer.convert(typeSym)
             if function_symbol.get_parameter_types().index(typeSym) < len(
                     function_symbol.get_parameter_types()) - 1:
                 declaration += ', '
         declaration += ') const\n'
         return declaration
 
-    @classmethod
-    def print_function_definition(cls, ast_function, namespace):
+    def print_function_definition(self, ast_function, namespace) -> str:
         """
         Returns a nest processable function definition, i.e. the part which appears in the .cpp file.
         :param ast_function: a single function.
@@ -361,7 +287,6 @@ class NestPrinter:
         :param namespace: the namespace in which this function is defined in
         :type namespace: str
         :return: the corresponding string representation.
-        :rtype: str
         """
         assert isinstance(ast_function, ASTFunction), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)
@@ -375,14 +300,14 @@ class NestPrinter:
         for param in ast_function.get_parameters():
             params.append(param.get_name())
         declaration = ast_function.print_comment('//') + '\n'
-        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
         declaration += ' '
         if namespace is not None:
             declaration += namespace + '::'
         declaration += ast_function.get_name() + '('
         for typeSym in function_symbol.get_parameter_types():
             # create the type name combination, e.g. double Tau
-            declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
+            declaration += self.types_printer.convert(typeSym) + ' ' + \
                 params[function_symbol.get_parameter_types().index(typeSym)]
             # if not the last component, separate by ','
             if function_symbol.get_parameter_types().index(typeSym) < \
@@ -391,25 +316,23 @@ class NestPrinter:
         declaration += ') const\n'
         return declaration
 
-    def print_buffer_array_getter(self, ast_buffer):
+    def print_buffer_array_getter(self, ast_buffer) -> str:
         """
         Returns a string containing the nest declaration for a multi-receptor spike buffer.
         :param ast_buffer: a single buffer Variable Symbol
         :type ast_buffer: VariableSymbol
         :return: a string representation of the getter
-        :rtype: str
         """
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         if ast_buffer.is_spike_input_port() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
-            return 'inline ' + PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
+            return 'inline ' + self.types_printer.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
                    + ast_buffer.get_symbol_name() + '() {' + \
                    '  return spike_inputs_[' + ast_buffer.get_symbol_name().upper() + ' - 1]; }'
         else:
             return self.print_buffer_getter(ast_buffer, True)
 
-    @classmethod
-    def print_buffer_getter(cls, ast_buffer, is_in_struct=False):
+    def print_buffer_getter(self, ast_buffer, is_in_struct=False) -> str:
         """
         Returns a string representation declaring a buffer getter as required in nest.
         :param ast_buffer: a single variable symbol representing a buffer.
@@ -417,7 +340,6 @@ class NestPrinter:
         :param is_in_struct: indicates whether this getter is used in a struct or not
         :type is_in_struct: bool
         :return: a string representation of the getter.
-        :rtype: str
         """
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestMl.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
@@ -426,10 +348,10 @@ class NestPrinter:
         declaration = 'inline '
         if ast_buffer.has_vector_parameter():
             declaration += 'std::vector<'
-            declaration += PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol())
+            declaration += self.types_printer.convert(ast_buffer.get_type_symbol())
             declaration += '> &'
         else:
-            declaration += PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + '&'
+            declaration += self.types_printer.convert(ast_buffer.get_type_symbol()) + '&'
         declaration += ' get_' + ast_buffer.get_symbol_name() + '() {'
         if is_in_struct:
             declaration += 'return ' + ast_buffer.get_symbol_name() + ';'
@@ -438,48 +360,38 @@ class NestPrinter:
         declaration += '}'
         return declaration
 
-    @classmethod
-    def print_buffer_declaration_value(cls, ast_buffer):
+    def print_buffer_declaration_value(self, ast_buffer: VariableSymbol) -> str:
         """
         Returns a string representation for the declaration of a buffer's value.
         :param ast_buffer: a single buffer variable symbol
-        :type ast_buffer: VariableSymbol
         :return: the corresponding string representation
-        :rtype: str
         """
-        assert isinstance(ast_buffer, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         if ast_buffer.has_vector_parameter():
-            return 'std::vector<double> ' + NestNamesConverter.buffer_value(ast_buffer)
-        else:
-            return 'double ' + NestNamesConverter.buffer_value(ast_buffer)
+            return 'std::vector<double> ' + self.reference_converter.buffer_value(ast_buffer)
 
-    @classmethod
-    def print_buffer_declaration(cls, ast_buffer):
+        return 'double ' + self.reference_converter.buffer_value(ast_buffer)
+
+    def print_buffer_declaration(self, ast_buffer) -> str:
         """
         Returns a string representation for the declaration of a buffer.
         :param ast_buffer: a single buffer variable symbol
         :type ast_buffer: VariableSymbol
         :return: the corresponding string representation
-        :rtype: str
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         if ast_buffer.has_vector_parameter():
-            buffer_type = 'std::vector< ' + PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + ' >'
+            buffer_type = 'std::vector< ' + self.types_printer.convert(ast_buffer.get_type_symbol()) + ' >'
         else:
-            buffer_type = PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol())
+            buffer_type = self.types_printer.convert(ast_buffer.get_type_symbol())
         buffer_type.replace(".", "::")
         return buffer_type + " " + ast_buffer.get_symbol_name()
 
-    @classmethod
-    def print_buffer_declaration_header(cls, ast_buffer):
+    def print_buffer_declaration_header(self, ast_buffer) -> str:
         """
         Prints the comment as stated over the buffer declaration.
         :param ast_buffer: a single buffer variable symbol.
-        :type ast_buffer: VariableSymbol
         :return: the corresponding string representation
-        :rtype: str
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
@@ -498,7 +410,7 @@ class NestPrinter:
         vector_param = ""
         if symbol is not None:
             # size parameter is a variable
-            vector_param += self.print_origin(symbol) + vector_parameter
+            vector_param += self.reference_converter.print_origin(symbol) + vector_parameter
         else:
             # size parameter is an integer
             vector_param += vector_parameter
@@ -514,8 +426,30 @@ class NestPrinter:
         assert isinstance(variable, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
 
-        decl_str = self.print_origin(variable) + variable.get_symbol_name() + \
+        decl_str = self.reference_converter.print_origin(variable) + variable.get_symbol_name() + \
             ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
             self.print_expression(variable.get_declaring_expression()) + \
             ");"
+
         return decl_str
+
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
+        """
+        Prints the handed over rhs to a nest readable format.
+        :param node: a single meta_model node.
+        :type node: ASTExpressionNode
+        :return: the corresponding string representation
+        """
+        return self._expression_printer.print_expression(node, prefix=prefix)
+
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        """
+        Prints a single handed over function call.
+        :param node: a single function call.
+        :type node: ASTFunctionCall
+        :return: the corresponding string representation.
+        """
+        return self._expression_printer.print_function_call(node)
+
+    def print_origin(self, variable_symbol, prefix='') -> str:
+        return self.reference_converter.print_origin(variable_symbol)

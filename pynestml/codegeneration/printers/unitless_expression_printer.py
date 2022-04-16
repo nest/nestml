@@ -19,51 +19,39 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
-from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.codegeneration.unit_converter import UnitConverter
 
 
-class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
+class UnitlessExpressionPrinter(CppExpressionPrinter):
+    r"""
+    An adjusted version of the printer which does not print units with literals.
     """
-    An adjusted version of the pretty printer which does not print units with literals.
-    """
 
-    def __init__(self, reference_converter=None, types_printer=None):
-        """
-        Standard constructor.
-        :param reference_converter: a single reference converter object.
-        :type reference_converter: IReferenceConverter
-        """
-        super(UnitlessExpressionPrinter, self).__init__(
-            reference_converter=reference_converter, types_printer=types_printer)
-
-    def print_expression(self, node, prefix=''):
-        """Print an expression.
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
+        r"""Print an expression.
 
         Parameters
         ----------
-        node : ASTExpressionNode
+        node
             The expression node to print.
-        prefix : str
-            *See documentation for the function ExpressionsPrettyPrinter::print_function_call().*
-
+        prefix
+            *See documentation for the function CppExpressionsPrinter::print_function_call().*
 
         Returns
         -------
-        s : str
+        s
             The expression string.
         """
-        # todo : printing of literals etc. should be done by constant converter, not a type converter
         if isinstance(node, ASTSimpleExpression):
             if node.is_numeric_literal():
-                return self.types_printer.pretty_print(node.get_numeric_literal())
-            elif node.is_variable() and node.get_scope() is not None:
+                return self.reference_converter.convert_constant(node.get_numeric_literal())
+
+            if node.is_variable() and node.get_scope() is not None:
                 node_is_variable_symbol = node.get_scope().resolve_to_symbol(
                     node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
                 if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
