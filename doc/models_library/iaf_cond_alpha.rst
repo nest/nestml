@@ -57,7 +57,7 @@ Parameters
     "E_exc", "mV", "0mV", "Excitatory reversal potential"    
     "E_inh", "mV", "-85mV", "Inhibitory reversal potential"    
     "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
-    "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of cxcitatory synapse"    
+    "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "2ms", "Synaptic time constant of inhibitory synapse"    
     "I_e", "pA", "0pA", "constant external input current"
 
@@ -119,7 +119,7 @@ Source code
        E_exc mV = 0mV # Excitatory reversal potential
        E_inh mV = -85mV # Inhibitory reversal potential
        E_L mV = -70mV # Leak reversal potential (aka resting potential)
-       tau_syn_exc ms = 0.2ms # Synaptic time constant of cxcitatory synapse
+       tau_syn_exc ms = 0.2ms # Synaptic time constant of excitatory synapse
        tau_syn_inh ms = 2ms # Synaptic time constant of inhibitory synapse
        # constant external input current
 
@@ -161,4 +161,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.144329
+   Generated at 2022-03-28 19:04:28.988795

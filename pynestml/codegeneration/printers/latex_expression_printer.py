@@ -36,7 +36,8 @@ class LatexExpressionPrinter(ExpressionPrinter):
     """
 
     def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
-        if node.get_implicit_conversion_factor() is not None:
+        if node.get_implicit_conversion_factor() is not None \
+           and str(node.get_implicit_conversion_factor()) not in ["1.", "1.0", "1"]:
             return str(node.get_implicit_conversion_factor()) + " * (" + self.__do_print(node, prefix=prefix) + ")"
 
         return self.__do_print(node, prefix=prefix)

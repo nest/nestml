@@ -46,8 +46,8 @@ neuron iaf_psc_exp:
     kernel I_kernel_inh = exp(-t / tau_syn_inh)
     kernel I_kernel_exc = exp(-t / tau_syn_exc)
     recordable inline V_m mV = V_abs + E_L    # Membrane potential
-    inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes) + I_e + I_stim
-    V_abs' = -V_abs / tau_m + I_syn / C_m
+    inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)
+    V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
   end
 
   parameters:

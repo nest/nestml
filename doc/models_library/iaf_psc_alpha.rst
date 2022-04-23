@@ -123,8 +123,8 @@ Source code
      equations:
        kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
        kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       inline I pA = convolve(I_kernel_inh,inh_spikes) + convolve(I_kernel_exc,exc_spikes) + I_e + I_stim
+   recordable    inline V_m mV = V_abs + E_L # Membrane potential
+       inline I pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes) + I_e + I_stim
        V_abs'=-V_abs / tau_m + I / C_m
      end
 
@@ -182,4 +182,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-15 22:45:21.418215
+   Generated at 2022-03-28 19:04:29.478484
