@@ -27,12 +27,6 @@ References
 .. [4] Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons. Neuron
 
 
-Author
-++++++
-
-Tobias Schulte to Brinke
-
-
 See also
 ++++++++
 
@@ -58,15 +52,15 @@ Parameters
     "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
     "E_L", "mV", "-80.0mV", "Leak reversal Potential (aka resting potential)"    
     "V_T", "mV", "-58.0mV", "Voltage offset that controls dynamics. For default"    
-    "tau_syn_ex", "ms", "2.7ms", "parameters, V_T = -63mV results in a threshold around -50mV.Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "10.5ms", "Synaptic Time Constant for Inhibitory Synapse"    
-    "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
-    "E_in", "mV", "-75.0mV", "Inhibitory synaptic reversal potential"    
+    "tau_syn_exc", "ms", "2.7ms", "parameters, V_T = -63mV results in a threshold around -50mV.Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_inh", "ms", "10.5ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "E_exc", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
+    "E_inh", "mV", "-75.0mV", "Inhibitory synaptic reversal potential"    
     "g_M", "nS", "173.18nS", "Conductance of non-inactivating K+ channel"    
-    "g_noise_ex0", "uS", "0.012uS", "Conductance OU noiseMean of the excitatory noise conductance"    
-    "g_noise_in0", "uS", "0.057uS", "Mean of the inhibitory noise conductance"    
-    "sigma_noise_ex", "uS", "0.003uS", "Standard deviation of the excitatory noise conductance"    
-    "sigma_noise_in", "uS", "0.0066uS", "Standard deviation of the inhibitory noise conductance"    
+    "g_noise_exc0", "uS", "0.012uS", "Conductance OU noiseMean of the excitatory noise conductance"    
+    "g_noise_inh0", "uS", "0.057uS", "Mean of the inhibitory noise conductance"    
+    "sigma_noise_exc", "uS", "0.003uS", "Standard deviation of the excitatory noise conductance"    
+    "sigma_noise_inh", "uS", "0.0066uS", "Standard deviation of the inhibitory noise conductance"    
     "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
     "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
     "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", ""    
@@ -89,8 +83,8 @@ State variables
 
     
     "r", "integer", "0", "counts number of tick during the refractory period"    
-    "g_noise_ex", "uS", "g_noise_ex0", ""    
-    "g_noise_in", "uS", "g_noise_in0", ""    
+    "g_noise_exc", "uS", "g_noise_exc0", ""    
+    "g_noise_inh", "uS", "g_noise_inh0", ""    
     "V_m", "mV", "E_L", "Membrane potential"    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
     "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
@@ -137,8 +131,8 @@ Source code
    neuron hh_cond_exp_destexhe:
      state:
        r integer = 0 # counts number of tick during the refractory period
-       g_noise_ex uS = g_noise_ex0
-       g_noise_in uS = g_noise_in0
+       g_noise_exc uS = g_noise_exc0
+       g_noise_inh uS = g_noise_inh0
        V_m mV = E_L # Membrane potential
        Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
        Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
@@ -147,16 +141,16 @@ Source code
      end
      equations:
        # synapses: exponential conductance
-       kernel g_in = exp(-1 / tau_syn_in * t)
-       kernel g_ex = exp(-1 / tau_syn_ex * t)
+       kernel g_inh = exp(-t / tau_syn_inh)
+       kernel g_exc = exp(-t / tau_syn_exc)
        # Add aliases to simplify the equation definition of V_m
        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
        inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
        inline I_L pA = g_L * (V_m - E_L)
        inline I_M pA = g_M * Noninact_p * (V_m - E_K)
-       inline I_noise pA = (g_noise_ex * (V_m - E_ex) + g_noise_in * (V_m - E_in))
-       inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
-       inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
+       inline I_noise pA = (g_noise_exc * (V_m - E_exc) + g_noise_inh * (V_m - E_inh))
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
        V_m'=(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
        # channel dynamics
        inline V_rel mV = V_m - V_T
@@ -186,18 +180,18 @@ Source code
        # parameters, V_T = -63mV results in a threshold around -50mV.
 
        # parameters, V_T = -63mV results in a threshold around -50mV.
-       tau_syn_ex ms = 2.7ms # Synaptic Time Constant Excitatory Synapse
-       tau_syn_in ms = 10.5ms # Synaptic Time Constant for Inhibitory Synapse
-       E_ex mV = 0.0mV # Excitatory synaptic reversal potential
-       E_in mV = -75.0mV # Inhibitory synaptic reversal potential
+       tau_syn_exc ms = 2.7ms # Synaptic Time Constant Excitatory Synapse
+       tau_syn_inh ms = 10.5ms # Synaptic Time Constant for Inhibitory Synapse
+       E_exc mV = 0.0mV # Excitatory synaptic reversal potential
+       E_inh mV = -75.0mV # Inhibitory synaptic reversal potential
        g_M nS = 173.18nS # Conductance of non-inactivating K+ channel
        # Conductance OU noise
 
        # Conductance OU noise
-       g_noise_ex0 uS = 0.012uS # Mean of the excitatory noise conductance
-       g_noise_in0 uS = 0.057uS # Mean of the inhibitory noise conductance
-       sigma_noise_ex uS = 0.003uS # Standard deviation of the excitatory noise conductance
-       sigma_noise_in uS = 0.0066uS # Standard deviation of the inhibitory noise conductance
+       g_noise_exc0 uS = 0.012uS # Mean of the excitatory noise conductance
+       g_noise_inh0 uS = 0.057uS # Mean of the inhibitory noise conductance
+       sigma_noise_exc uS = 0.003uS # Standard deviation of the excitatory noise conductance
+       sigma_noise_inh uS = 0.0066uS # Standard deviation of the inhibitory noise conductance
        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)
        beta_n_init 1/ms = 0.5 / ms * exp((10.0mV - V_m) / 40.0mV)
        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)
@@ -211,14 +205,14 @@ Source code
      end
      internals:
        RefractoryCounts integer = 20
-       D_ex uS**2/ms = 2 * sigma_noise_ex ** 2 / tau_syn_ex
-       D_in uS**2/ms = 2 * sigma_noise_in ** 2 / tau_syn_in
-       A_ex uS = ((D_ex * tau_syn_ex / 2) * (1 - exp(-2 * resolution() / tau_syn_ex))) ** 0.5
-       A_in uS = ((D_in * tau_syn_in / 2) * (1 - exp(-2 * resolution() / tau_syn_in))) ** 0.5
+       D_exc uS**2/ms = 2 * sigma_noise_exc ** 2 / tau_syn_exc
+       D_inh uS**2/ms = 2 * sigma_noise_inh ** 2 / tau_syn_inh
+       A_exc uS = ((D_exc * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc))) ** 0.5
+       A_inh uS = ((D_inh * tau_syn_inh / 2) * (1 - exp(-2 * resolution() / tau_syn_inh))) ** 0.5
      end
      input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -227,8 +221,8 @@ Source code
      update:
        U_old mV = V_m
        integrate_odes()
-       g_noise_ex = g_noise_ex0 + (g_noise_ex - g_noise_ex0) * exp(-resolution() / tau_syn_ex) + A_ex * random_normal(0,1)
-       g_noise_in = g_noise_in0 + (g_noise_in - g_noise_in0) * exp(-resolution() / tau_syn_in) + A_in * random_normal(0,1)
+       g_noise_exc = g_noise_exc0 + (g_noise_exc - g_noise_exc0) * exp(-resolution() / tau_syn_exc) + A_exc * random_normal(0,1)
+       g_noise_inh = g_noise_inh0 + (g_noise_inh - g_noise_inh0) * exp(-resolution() / tau_syn_inh) + A_inh * random_normal(0,1)
        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
        if r > 0:
          r -= 1
@@ -250,4 +244,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.898160
+   Generated at 2022-03-28 19:04:29.925703

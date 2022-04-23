@@ -57,18 +57,18 @@ Parameters
     :widths: auto
 
     
-    "E_L", "mV", "-70.0mV", "Leak reversal potential (aka resting potential)"    
-    "C_m", "pF", "250.0pF", "Capacitance of the membrane"    
-    "t_ref", "ms", "2.0ms", "Refractory period"    
-    "V_th", "mV", "-55.0mV", "Threshold potential"    
-    "V_reset", "mV", "-60.0mV", "Reset potential"    
+    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
+    "C_m", "pF", "250pF", "Capacitance of the membrane"    
+    "t_ref", "ms", "2ms", "Refractory period"    
+    "V_th", "mV", "-55mV", "Threshold potential"    
+    "V_reset", "mV", "-60mV", "Reset potential"    
     "E_ex", "mV", "0mV", "Excitatory reversal potential"    
-    "E_in", "mV", "-85.0mV", "Inhibitory reversal potential"    
+    "E_in", "mV", "-85mV", "Inhibitory reversal potential"    
     "g_L", "nS", "16.6667nS", "Leak conductance"    
     "tau_syn_rise_I", "ms", "0.2ms", "Synaptic time constant excitatory synapse"    
-    "tau_syn_decay_I", "ms", "2.0ms", "Synaptic time constant for inhibitory synapse"    
+    "tau_syn_decay_I", "ms", "2ms", "Synaptic time constant for inhibitory synapse"    
     "tau_syn_rise_E", "ms", "0.2ms", "Synaptic time constant excitatory synapse"    
-    "tau_syn_decay_E", "ms", "2.0ms", "Synaptic time constant for inhibitory synapse"    
+    "tau_syn_decay_E", "ms", "2ms", "Synaptic time constant for inhibitory synapse"    
     "F_E", "nS", "0nS", "Constant external input conductance (excitatory)."    
     "F_I", "nS", "0nS", "Constant external input conductance (inhibitory)."    
     "I_e", "pA", "0pA", "constant external input current"
@@ -128,25 +128,25 @@ Source code
      equations:
        kernel g_in' = g_in$ - g_in / tau_syn_rise_I, g_in$' = -g_in$ / tau_syn_decay_I
        kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E, g_ex$' = -g_ex$ / tau_syn_decay_E
-       inline I_syn_exc pA = (F_E + convolve(g_ex,spikeExc)) * (V_m - E_ex)
-       inline I_syn_inh pA = (F_I + convolve(g_in,spikeInh)) * (V_m - E_in)
+       inline I_syn_exc pA = (F_E + convolve(g_ex,exc_spikes)) * (V_m - E_ex)
+       inline I_syn_inh pA = (F_I + convolve(g_in,inh_spikes)) * (V_m - E_in)
        inline I_leak pA = g_L * (V_m - E_L) # pA = nS * mV
        V_m'=(-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
      end
 
      parameters:
-       E_L mV = -70.0mV # Leak reversal potential (aka resting potential)
-       C_m pF = 250.0pF # Capacitance of the membrane
-       t_ref ms = 2.0ms # Refractory period
-       V_th mV = -55.0mV # Threshold potential
-       V_reset mV = -60.0mV # Reset potential
+       E_L mV = -70mV # Leak reversal potential (aka resting potential)
+       C_m pF = 250pF # Capacitance of the membrane
+       t_ref ms = 2ms # Refractory period
+       V_th mV = -55mV # Threshold potential
+       V_reset mV = -60mV # Reset potential
        E_ex mV = 0mV # Excitatory reversal potential
-       E_in mV = -85.0mV # Inhibitory reversal potential
+       E_in mV = -85mV # Inhibitory reversal potential
        g_L nS = 16.6667nS # Leak conductance
        tau_syn_rise_I ms = 0.2ms # Synaptic time constant excitatory synapse
-       tau_syn_decay_I ms = 2.0ms # Synaptic time constant for inhibitory synapse
+       tau_syn_decay_I ms = 2ms # Synaptic time constant for inhibitory synapse
        tau_syn_rise_E ms = 0.2ms # Synaptic time constant excitatory synapse
-       tau_syn_decay_E ms = 2.0ms # Synaptic time constant for inhibitory synapse
+       tau_syn_decay_E ms = 2ms # Synaptic time constant for inhibitory synapse
        F_E nS = 0nS # Constant external input conductance (excitatory).
        F_I nS = 0nS # Constant external input conductance (inhibitory).
        # constant external input current
@@ -164,8 +164,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -195,4 +195,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.384634
+   Generated at 2022-03-28 19:04:29.689632

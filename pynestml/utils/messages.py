@@ -35,84 +35,81 @@ class MessageCode(Enum):
     TYPE_DIFFERENT_FROM_EXPECTED = 6
     ADD_SUB_TYPE_MISMATCH = 7
     BUFFER_SET_TO_CONDUCTANCE_BASED = 8
-    ODE_UPDATED = 9
-    NO_VARIABLE_FOUND = 10
-    SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 11
-    MODEL_CONTAINS_ERRORS = 12
-    START_PROCESSING_MODEL = 13
-    CODE_SUCCESSFULLY_GENERATED = 14
-    MODULE_SUCCESSFULLY_GENERATED = 15
-    NO_CODE_GENERATED = 16
-    VARIABLE_USED_BEFORE_DECLARATION = 17
-    VARIABLE_DEFINED_RECURSIVELY = 18
-    VALUE_ASSIGNED_TO_BUFFER = 19
-    ARG_NOT_KERNEL_OR_EQUATION = 20
-    ARG_NOT_SPIKE_INPUT = 21
-    NUMERATOR_NOT_ONE = 22
-    ORDER_NOT_DECLARED = 23
-    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 24
-    BLOCK_NOT_CORRECT = 25
-    VARIABLE_NOT_IN_STATE_BLOCK = 26
-    WRONG_NUMBER_OF_ARGS = 27
-    NO_RHS = 28
-    SEVERAL_LHS = 29
-    FUNCTION_REDECLARED = 30
-    FUNCTION_NOT_DECLARED = 31
-    NO_ODE = 32
-    NO_INIT_VALUE = 33
-    MODEL_REDECLARED = 34
-    NEST_COLLISION = 35
-    KERNEL_OUTSIDE_CONVOLVE = 36
-    NAME_COLLISION = 37
-    TYPE_NOT_SPECIFIED = 38
-    NO_TYPE_ALLOWED = 39
-    NO_ASSIGNMENT_ALLOWED = 40
-    NOT_A_VARIABLE = 41
-    MULTIPLE_KEYWORDS = 42
-    VECTOR_IN_NON_VECTOR = 43
-    VARIABLE_REDECLARED = 44
-    SOFT_INCOMPATIBILITY = 45
-    HARD_INCOMPATIBILITY = 46
-    NO_RETURN = 47
-    NOT_LAST_STATEMENT = 48
-    SYMBOL_NOT_RESOLVED = 49
-    SYNAPSE_SOLVED_BY_GSL = 520
-    SYNAPSE_ANALYZED = 530
+    NO_VARIABLE_FOUND = 9
+    SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 10
+    MODEL_CONTAINS_ERRORS = 11
+    START_PROCESSING_MODEL = 12
+    CODE_SUCCESSFULLY_GENERATED = 13
+    MODULE_SUCCESSFULLY_GENERATED = 14
+    NO_CODE_GENERATED = 15
+    VARIABLE_USED_BEFORE_DECLARATION = 16
+    VARIABLE_DEFINED_RECURSIVELY = 17
+    VALUE_ASSIGNED_TO_BUFFER = 18
+    ARG_NOT_KERNEL_OR_EQUATION = 19
+    ARG_NOT_SPIKE_INPUT = 20
+    NUMERATOR_NOT_ONE = 21
+    ORDER_NOT_DECLARED = 22
+    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 23
+    BLOCK_NOT_CORRECT = 24
+    VARIABLE_NOT_IN_STATE_BLOCK = 25
+    WRONG_NUMBER_OF_ARGS = 26
+    NO_RHS = 27
+    SEVERAL_LHS = 28
+    FUNCTION_REDECLARED = 29
+    FUNCTION_NOT_DECLARED = 30
+    NO_ODE = 31
+    NO_INIT_VALUE = 32
+    MODEL_REDECLARED = 33
+    NEST_COLLISION = 34
+    KERNEL_OUTSIDE_CONVOLVE = 35
+    NAME_COLLISION = 36
+    TYPE_NOT_SPECIFIED = 37
+    NO_TYPE_ALLOWED = 38
+    NO_ASSIGNMENT_ALLOWED = 39
+    NOT_A_VARIABLE = 40
+    MULTIPLE_KEYWORDS = 41
+    VECTOR_IN_NON_VECTOR = 42
+    VARIABLE_REDECLARED = 43
+    SOFT_INCOMPATIBILITY = 44
+    HARD_INCOMPATIBILITY = 45
+    NO_RETURN = 46
+    NOT_LAST_STATEMENT = 47
+    SYMBOL_NOT_RESOLVED = 48
+    SYNAPSE_SOLVED_BY_GSL = 49
     TYPE_MISMATCH = 50
     NO_SEMANTICS = 51
     NEURON_SOLVED_BY_GSL = 52
-    NEURON_ANALYZED = 53
-    NO_UNIT = 54
-    NOT_NEUROSCIENCE_UNIT = 55
-    INTERNAL_WARNING = 56
-    OPERATION_NOT_DEFINED = 57
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 58
-    INPUT_PATH_NOT_FOUND = 59
-    LEXER_ERROR = 60
-    PARSER_ERROR = 61
-    UNKNOWN_TARGET = 62
-    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
-    ANALYSING_TRANSFORMING_NEURON = 64
-    ODE_NEEDS_CONSISTENT_UNITS = 65
-    TEMPLATED_ARG_TYPES_INCONSISTENT = 66
-    MODULE_NAME_INFO = 67
-    TARGET_PATH_INFO = 68
-    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 69
-    DELTA_FUNCTION_CANNOT_BE_MIXED = 70
-    UNKNOWN_TYPE = 71
-    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 72
-    KERNEL_WRONG_TYPE = 73
-    KERNEL_IV_WRONG_TYPE = 74
-    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
-    NO_FILES_IN_INPUT_PATH = 76
-    STATE_VARIABLES_NOT_INITIALZED = 77
-    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
-    TEMPLATE_ROOT_PATH_CREATED = 79
-    VECTOR_PARAMETER_WRONG_BLOCK = 80
-    VECTOR_PARAMETER_WRONG_TYPE = 81
-    VECTOR_PARAMETER_WRONG_SIZE = 82
-    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 83
-    REPEATED_PRIORITY_VALUE = 84
+    NO_UNIT = 53
+    NOT_NEUROSCIENCE_UNIT = 54
+    INTERNAL_WARNING = 55
+    OPERATION_NOT_DEFINED = 56
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 57
+    INPUT_PATH_NOT_FOUND = 58
+    LEXER_ERROR = 59
+    PARSER_ERROR = 60
+    UNKNOWN_TARGET = 61
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 62
+    ANALYSING_TRANSFORMING_NEURON = 63
+    ODE_NEEDS_CONSISTENT_UNITS = 64
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 65
+    MODULE_NAME_INFO = 66
+    TARGET_PATH_INFO = 67
+    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 68
+    DELTA_FUNCTION_CANNOT_BE_MIXED = 69
+    UNKNOWN_TYPE = 70
+    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
+    KERNEL_WRONG_TYPE = 72
+    KERNEL_IV_WRONG_TYPE = 73
+    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 74
+    NO_FILES_IN_INPUT_PATH = 75
+    STATE_VARIABLES_NOT_INITIALZED = 76
+    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 77
+    TEMPLATE_ROOT_PATH_CREATED = 78
+    VECTOR_PARAMETER_WRONG_BLOCK = 79
+    VECTOR_PARAMETER_WRONG_TYPE = 80
+    VECTOR_PARAMETER_WRONG_SIZE = 81
+    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
+    REPEATED_PRIORITY_VALUE = 83
 
 
 class Messages:
@@ -318,20 +315,6 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer)
         message = 'Buffer \'%s\' set to conductance based!' % buffer
         return MessageCode.BUFFER_SET_TO_CONDUCTANCE_BASED, message
-
-    @classmethod
-    def get_ode_updated(cls, variable_name):
-        """
-        Returns a message indicating that the ode of a variable has been updated.
-        :param variable_name: the name of the variable
-        :type variable_name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (variable_name is not None and isinstance(variable_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
-        message = 'Ode of \'%s\' updated!' % variable_name
-        return MessageCode.ODE_UPDATED, message
 
     @classmethod
     def get_no_variable_found(cls, variable_name):
@@ -932,34 +915,6 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'The synapse \'%s\' will be solved numerically with GSL solver without modification!' % name
         return MessageCode.SYNAPSE_SOLVED_BY_GSL, message
-
-    @classmethod
-    def get_neuron_analyzed(cls, name):
-        """
-        Indicates that the analysis of a neuron will start.
-        :param name: the name of the neuron which will be analyzed.
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'The neuron \'%s\' will be analysed!' % name
-        return MessageCode.NEURON_ANALYZED, message
-
-    @classmethod
-    def get_synapse_analyzed(cls, name):
-        """
-        Indicates that the analysis of a synapse will start.
-        :param name: the name of the synapse which will be analyzed.
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'The synapse \'%s\' will be analysed!' % name
-        return MessageCode.SYNAPSE_ANALYZED, message
 
     @classmethod
     def get_could_not_be_solved(cls):

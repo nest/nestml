@@ -65,10 +65,10 @@ Parameters
     "tau_w", "ms", "144.0ms", "Adaptation time constant"    
     "V_th", "mV", "-50.4mV", "Threshold Potential"    
     "V_peak", "mV", "0mV", "Spike detection threshold"    
-    "E_ex", "mV", "0mV", "synaptic parametersExcitatory reversal Potential"    
-    "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
-    "E_in", "mV", "-85.0mV", "Inhibitory reversal Potential"    
-    "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "E_exc", "mV", "0mV", "synaptic parametersExcitatory reversal Potential"    
+    "tau_syn_exc", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
+    "E_inh", "mV", "-85.0mV", "Inhibitory reversal Potential"    
+    "tau_syn_inh", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -117,13 +117,13 @@ Source code
      end
      equations:
        inline V_bounded mV = min(V_m,V_peak) # prevent exponential divergence
-       kernel g_in = exp(-t / tau_syn_in)
-       kernel g_ex = exp(-t / tau_syn_ex)
+       kernel g_inh = exp(-t / tau_syn_inh)
+       kernel g_exc = exp(-t / tau_syn_exc)
        # Add inlines to simplify the equation definition of V_m
        inline exp_arg real = (V_bounded - V_th) / Delta_T
        inline I_spike pA = g_L * Delta_T * exp(exp_arg)
-       inline I_syn_exc pA = convolve(g_ex,spikesExc) * (V_bounded - E_ex)
-       inline I_syn_inh pA = convolve(g_in,spikesInh) * (V_bounded - E_in)
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_bounded - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_bounded - E_inh)
        V_m'=(-g_L * (V_bounded - E_L) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
        w'=(a * (V_bounded - E_L) - w) / tau_w
      end
@@ -147,10 +147,10 @@ Source code
        # synaptic parameters
 
        # synaptic parameters
-       E_ex mV = 0mV # Excitatory reversal Potential
-       tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
-       E_in mV = -85.0mV # Inhibitory reversal Potential
-       tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
+       E_exc mV = 0mV # Excitatory reversal Potential
+       tau_syn_exc ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
+       E_inh mV = -85.0mV # Inhibitory reversal Potential
+       tau_syn_inh ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
        # constant external input current
 
        # constant external input current
@@ -165,8 +165,8 @@ Source code
        r integer 
      end
      input:
-       spikesInh nS <-inhibitory spike
-       spikesExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -197,4 +197,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.578943
+   Generated at 2022-03-28 19:04:29.501988

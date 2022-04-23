@@ -50,12 +50,6 @@ See also
 hh_psc_alpha
 
 
-Author
-++++++
-
-Schrader
-
-
 
 Parameters
 ++++++++++
@@ -67,19 +61,19 @@ Parameters
     :widths: auto
 
     
-    "g_Na", "nS", "20000.0nS", "Na Conductance"    
-    "g_K", "nS", "6000.0nS", "K Conductance"    
+    "g_Na", "nS", "20000nS", "Na Conductance"    
+    "g_K", "nS", "6000nS", "K Conductance"    
     "g_L", "nS", "10nS", "Leak Conductance"    
-    "C_m", "pF", "200.0pF", "Membrane Capacitance"    
+    "C_m", "pF", "200pF", "Membrane Capacitance"    
     "E_Na", "mV", "50mV", "Reversal potentials"    
-    "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
-    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
-    "V_T", "mV", "-63.0mV", "Voltage offset that controls dynamics. For default"    
-    "tau_syn_ex", "ms", "5.0ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
-    "t_ref", "ms", "2.0ms", "Refractory period"    
-    "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
-    "E_in", "mV", "-80.0mV", "Inhibitory synaptic reversal potential"    
+    "E_K", "mV", "-90mV", "Potassium reversal potential"    
+    "E_L", "mV", "-60mV", "Leak reversal potential (aka resting potential)"    
+    "V_T", "mV", "-63mV", "Voltage offset that controls dynamics. For default"    
+    "tau_syn_exc", "ms", "5ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic time constant of excitatory synapse"    
+    "tau_syn_inh", "ms", "10ms", "Synaptic time constant of inhibitory synapse"    
+    "t_ref", "ms", "2ms", "Refractory period"    
+    "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
+    "E_inh", "mV", "-80mV", "Inhibitory synaptic reversal potential"    
     "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)", ""    
     "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - E_L) / 40.0mV)", ""    
     "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)", ""    
@@ -148,14 +142,14 @@ Source code
      end
      equations:
        # synapses: exponential conductance
-       kernel g_in = exp(-1 / tau_syn_in * t)
-       kernel g_ex = exp(-1 / tau_syn_ex * t)
+       kernel g_inh = exp(-t / tau_syn_inh)
+       kernel g_exc = exp(-t / tau_syn_exc)
        # Add aliases to simplify the equation definition of V_m
        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
        inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
        inline I_L pA = g_L * (V_m - E_L)
-       inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
-       inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
        V_m'=(-I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
        # channel dynamics
        inline V_rel mV = V_m - V_T
@@ -171,22 +165,22 @@ Source code
      end
 
      parameters:
-       g_Na nS = 20000.0nS # Na Conductance
-       g_K nS = 6000.0nS # K Conductance
+       g_Na nS = 20000nS # Na Conductance
+       g_K nS = 6000nS # K Conductance
        g_L nS = 10nS # Leak Conductance
-       C_m pF = 200.0pF # Membrane Capacitance
+       C_m pF = 200pF # Membrane Capacitance
        E_Na mV = 50mV # Reversal potentials
-       E_K mV = -90.0mV # Potassium reversal potential
-       E_L mV = -60.0mV # Leak reversal Potential (aka resting potential)
-       V_T mV = -63.0mV # Voltage offset that controls dynamics. For default
+       E_K mV = -90mV # Potassium reversal potential
+       E_L mV = -60mV # Leak reversal potential (aka resting potential)
+       V_T mV = -63mV # Voltage offset that controls dynamics. For default
        # parameters, V_T = -63 mV results in a threshold around -50 mV.
 
        # parameters, V_T = -63 mV results in a threshold around -50 mV.
-       tau_syn_ex ms = 5.0ms # Synaptic Time Constant Excitatory Synapse
-       tau_syn_in ms = 10.0ms # Synaptic Time Constant for Inhibitory Synapse
-       t_ref ms = 2.0ms # Refractory period
-       E_ex mV = 0.0mV # Excitatory synaptic reversal potential
-       E_in mV = -80.0mV # Inhibitory synaptic reversal potential
+       tau_syn_exc ms = 5ms # Synaptic time constant of excitatory synapse
+       tau_syn_inh ms = 10ms # Synaptic time constant of inhibitory synapse
+       t_ref ms = 2ms # Refractory period
+       E_exc mV = 0mV # Excitatory synaptic reversal potential
+       E_inh mV = -80mV # Inhibitory synaptic reversal potential
        alpha_n_init 1/ms = 0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)
        beta_n_init 1/ms = 0.5 / ms * exp((10.0mV - E_L) / 40.0mV)
        alpha_m_init 1/ms = 0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)
@@ -200,8 +194,8 @@ Source code
        RefractoryCounts integer = steps(t_ref)
      end
      input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -231,4 +225,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.166780
+   Generated at 2022-03-28 19:04:29.349088

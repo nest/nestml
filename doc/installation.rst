@@ -101,3 +101,11 @@ The corresponding paths in ``ipython`` are:
    generate_nest_target(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml",
                         target_path="/tmp/nestml-component",
                         logging_level="INFO")
+
+
+Docker installation
+-------------------
+
+NESTML is installed as part of the official NEST Simulator `Docker <https://docker.io/>`_ image.
+
+For detailed instructions, please see https://nest-simulator.readthedocs.io/en/latest/installation/index.html.

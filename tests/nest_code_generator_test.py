@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import json
 import os
 import unittest
@@ -120,11 +121,11 @@ class CodeGeneratorTest(unittest.TestCase):
         codegen_opts = {"templates": {
             "path": "point_neuron",
             "model_templates": {
-                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+                "neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2'],
                 "synapse": []
             },
             "module_templates": ['setup/CMakeLists.txt.jinja2',
-                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
+                                 'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
         }}
 
         with open(code_opts_path, 'w+') as f:
@@ -155,9 +156,9 @@ class CodeGeneratorTest(unittest.TestCase):
                                                            os.path.join('resources', 'code_options.json'))))
         codegen_opts = {"templates": {
             "path": "point_neuron",
-            "model_templates": {"neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2']},
+            "model_templates": {"neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2']},
             "module_templates": ['setup/CMakeLists.txt.jinja2',
-                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
+                                 'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
         }}
 
         with open(code_opts_path, 'w+') as f:

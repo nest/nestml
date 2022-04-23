@@ -27,6 +27,7 @@ import sys
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.builder import Builder
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.exceptions.code_generator_options_exception import CodeGeneratorOptionsException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
@@ -59,21 +60,26 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
-    elif target_name.upper() == "NEST2":
+
+    if target_name.upper() == "NEST2":
         from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
         return NEST2CodeGenerator(options)
-    elif target_name.upper() == "AUTODOC":
+
+    if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
-    elif target_name.upper() == "NONE":
+
+    if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
+
     assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
 
 
@@ -234,12 +240,25 @@ def process():
     # now proceed to parse all models
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
+
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
+
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
+
+    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
+    codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
+    _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
+
+    if _builder is not None:
+        codegen_and_builder_opts = _builder.set_options(codegen_and_builder_opts)
+
+    if len(codegen_and_builder_opts) > 0:
+        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
         # generate a list of all compilation units (neurons + synapses)
@@ -276,8 +295,6 @@ def process():
                     errors_occurred = True
 
         # perform code generation
-        _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                         options=FrontendConfiguration.get_codegen_opts())
         _codeGenerator.generate_code(neurons, synapses)
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
@@ -285,11 +302,8 @@ def process():
                 break
 
     # perform build
-    if not errors_occurred:
-        _builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
-                                            options=FrontendConfiguration.get_codegen_opts())
-        if _builder is not None:
-            _builder.build()
+    if not errors_occurred and _builder is not None:
+        _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()

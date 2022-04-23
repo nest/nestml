@@ -33,15 +33,15 @@ neuron traub_psc_alpha:
 
   equations:
     # synapses: alpha functions
-    kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
-    kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+    kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
+    kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
 
-    inline I_syn_exc pA = convolve(I_syn_ex, spikeExc)
-    inline I_syn_inh pA = convolve(I_syn_in, spikeInh)
+    inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes)
+    inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes)
     inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
     inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
-    V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
+    V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
 
     # Act_n
     inline alpha_n real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))
@@ -60,17 +60,17 @@ neuron traub_psc_alpha:
   end
 
   parameters:
-    t_ref ms = 2.0 ms           # Refractory period 2.0
-    g_Na nS = 10000.0 nS        # Sodium peak conductance
-    g_K nS = 8000.0 nS          # Potassium peak conductance
-    g_L nS = 10 nS              # Leak conductance
-    C_m pF = 100.0 pF           # Membrane Capacitance
-    E_Na mV = 50. mV            # Sodium reversal potential
-    E_K mV = -100. mV           # Potassium reversal potentia
-    E_L mV = -67. mV            # Leak reversal Potential (aka resting potential)
-    V_Tr mV = -20. mV           # Spike Threshold
-    tau_syn_ex ms = 0.2 ms      # Rise time of the excitatory synaptic alpha function
-    tau_syn_in ms = 2. ms       # Rise time of the inhibitory synaptic alpha function
+    t_ref ms = 2 ms           # Refractory period
+    g_Na nS = 10000 nS        # Sodium peak conductance
+    g_K nS = 8000 nS          # Potassium peak conductance
+    g_L nS = 10 nS            # Leak conductance
+    C_m pF = 100 pF           # Membrane capacitance
+    E_Na mV = 50 mV           # Sodium reversal potential
+    E_K mV = -100 mV          # Potassium reversal potential
+    E_L mV = -67 mV           # Leak reversal potential (aka resting potential)
+    V_Tr mV = -20 mV          # Spike threshold
+    tau_syn_exc ms = 0.2 ms   # Rise time of the excitatory synaptic alpha function
+    tau_syn_inh ms = 2 ms     # Rise time of the inhibitory synaptic alpha function
 
     # constant external input current
     I_e pA = 0 pA
@@ -88,8 +88,8 @@ neuron traub_psc_alpha:
   end
 
   input:
-    spikeInh pA <- inhibitory spike
-    spikeExc pA <- excitatory spike
+    inh_spikes pA <- inhibitory spike
+    exc_spikes pA <- excitatory spike
     I_stim pA <- continuous
   end
 

@@ -18,11 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.nest_names_converter import NestNamesConverter
-from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
-from pynestml.codegeneration.unit_converter import UnitConverter
+
+from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -30,16 +28,17 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class GSLReferenceConverter(IReferenceConverter):
+class GSLReferenceConverter(CppReferenceConverter):
+    r"""
+    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API.
     """
-    This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
-    """
-    maximal_exponent = 10.0
+    maximal_exponent = 10.
 
     def __init__(self, is_upper_bound=False):
         """
@@ -49,13 +48,11 @@ class GSLReferenceConverter(IReferenceConverter):
         """
         self.is_upper_bound = is_upper_bound
 
-    def convert_name_reference(self, variable: ASTVariable, prefix: str = ''):
+    def convert_name_reference(self, variable: ASTVariable, prefix: str = '') -> str:
         """
         Converts a single name reference to a gsl processable format.
         :param ast_variable: a single variable
-        :type ast_variable: ASTVariable
         :return: a gsl processable format of the variable
-        :rtype: str
         """
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
@@ -73,7 +70,7 @@ class GSLReferenceConverter(IReferenceConverter):
             return ''
 
         if symbol.is_state():
-            return GSLNamesConverter.name(symbol)
+            return self.name(symbol)
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -83,14 +80,14 @@ class GSLReferenceConverter(IReferenceConverter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += prefix + 'B_.' + NestNamesConverter.buffer_value(symbol)
+            s += prefix + 'B_.' + self.buffer_value(symbol)
             if symbol.has_vector_parameter():
                 s += '[i]'
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
-        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_name())
+        variable_name = self.convert_to_cpp_name(variable.get_name())
 
         if symbol.is_local() or symbol.is_inline_expression:
             return variable_name
@@ -100,21 +97,21 @@ class GSLReferenceConverter(IReferenceConverter):
 
         return prefix + 'get_' + variable_name + '()'
 
-    def convert_function_call(self, function_call, prefix=''):
+    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """Convert a single function call to C++ GSL API syntax.
 
         Parameters
         ----------
-        function_call : ASTFunctionCall
+        function_call
             The function call node to convert.
-        prefix : str
+        prefix
             Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
 
             Predefined functions will not be prefixed.
 
         Returns
         -------
-        s : str
+        s
             The function call string in C++ syntax.
         """
         function_name = function_call.get_name()
@@ -201,57 +198,21 @@ e();'''
 
         return prefix + function_name + '()'
 
-    def convert_constant(self, constant_name):
+    def array_index(self, symbol: VariableSymbol) -> str:
         """
-        No modifications to the constant required.
-        :param constant_name: a single constant.
-        :type constant_name: str
-        :return: the same constant
-        :rtype: str
+        Transforms the haded over symbol to a GSL processable format.
+        :param symbol: a single variable symbol
+        :return: the corresponding string format
         """
-        return constant_name
+        return 'State_::' + self.convert_to_cpp_name(symbol.get_symbol_name())
 
-    def convert_unary_op(self, unary_operator):
+    def name(self, symbol: VariableSymbol) -> str:
         """
-        No modifications to the operator required.
-        :param unary_operator: a string of a unary operator.
-        :type unary_operator: str
-        :return: the same operator
-        :rtype: str
+        Transforms the given symbol to a format that can be processed by GSL.
+        :param symbol: a single variable symbol
+        :return: the corresponding string format
         """
-        return str(unary_operator) + '(%s)'
+        if symbol.is_state() and not symbol.is_inline_expression:
+            return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
 
-    def convert_binary_op(self, binary_operator):
-        """
-        Converts a singe binary operator. Here, we have only to regard the pow operator in a special manner.
-        :param binary_operator: a binary operator in string representation.
-        :type binary_operator:  str
-        :return: a string representing the included binary operator.
-        :rtype: str
-        """
-        from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
-        if isinstance(binary_operator, ASTArithmeticOperator) and binary_operator.is_pow_op:
-            return 'pow(%s, %s)'
-        else:
-            return '%s' + str(binary_operator) + '%s'
-
-    def convert_logical_not(self):
-        return NESTReferenceConverter().convert_logical_not()
-
-    def convert_logical_operator(self, op):
-        return NESTReferenceConverter().convert_logical_operator(op)
-
-    def convert_comparison_operator(self, op):
-        return NESTReferenceConverter().convert_comparison_operator(op)
-
-    def convert_bit_operator(self, op):
-        return NESTReferenceConverter().convert_bit_operator(op)
-
-    def convert_encapsulated(self):
-        return NESTReferenceConverter().convert_encapsulated()
-
-    def convert_ternary_operator(self):
-        return NESTReferenceConverter().convert_ternary_operator()
-
-    def convert_arithmetic_operator(self, op):
-        return NESTReferenceConverter().convert_arithmetic_operator(op)
+        return super().name(symbol)

@@ -52,12 +52,6 @@ See also
 iaf_psc_alpha, iaf_psc_exp
 
 
-Authors
-+++++++
-
-Diesmann, Gewaltig (September 1999)
-
-
 
 Parameters
 ++++++++++
@@ -193,4 +187,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.516821
+   Generated at 2022-03-28 19:04:29.888326

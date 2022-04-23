@@ -21,12 +21,13 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Mapping, Optional, Sequence
-
-import copy
+from typing import Any, Mapping, Optional
 
 from abc import ABCMeta, abstractmethod
 
+from pynestml.exceptions.invalid_target_exception import InvalidTargetException
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
 from pynestml.utils.with_options import WithOptions
 
 

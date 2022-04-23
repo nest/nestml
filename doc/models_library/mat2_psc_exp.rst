@@ -20,7 +20,7 @@ potential exceeds the threshold. The membrane potential is NOT reset,
 but continuously integrated.
 
 .. note::
-   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 
@@ -44,11 +44,6 @@ References
        threshold. Frontiers in Computuational Neuroscience 3:9.
        DOI: https://doi.org/10.3389/neuro.10.009.2009
 
-Author
-++++++
-
-Thomas Pfeil (modified iaf_psc_exp model of Moritz Helias)
-
 
 
 Parameters
@@ -62,16 +57,16 @@ Parameters
 
     
     "tau_m", "ms", "5ms", "Membrane time constant"    
-    "C_m", "pF", "100pF", "Capacity of the membrane"    
+    "C_m", "pF", "100pF", "Capacitance of the membrane"    
     "t_ref", "ms", "2ms", "Duration of absolute refractory period (no spiking)"    
-    "E_L", "mV", "-70.0mV", "Resting potential"    
-    "tau_syn_ex", "ms", "1ms", "Time constant of postsynaptic excitatory currents"    
-    "tau_syn_in", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"    
+    "E_L", "mV", "-70mV", "Resting potential"    
+    "tau_syn_exc", "ms", "1ms", "Time constant of postsynaptic excitatory currents"    
+    "tau_syn_inh", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"    
     "tau_1", "ms", "10ms", "Short time constant of adaptive threshold"    
     "tau_2", "ms", "200ms", "Long time constant of adaptive threshold"    
-    "alpha_1", "mV", "37.0mV", "Amplitude of short time threshold adaption [3]"    
-    "alpha_2", "mV", "2.0mV", "Amplitude of long time threshold adaption [3]"    
-    "omega", "mV", "19.0mV", "Resting spike threshold (absolute value, not relative to E_L)"    
+    "alpha_1", "mV", "37mV", "Amplitude of short time threshold adaption [3]"    
+    "alpha_2", "mV", "2mV", "Amplitude of long time threshold adaption [3]"    
+    "omega", "mV", "19mV", "Resting spike threshold (absolute value, not relative to E_L)"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -123,24 +118,24 @@ Source code
 
      end
      equations:
-       kernel I_kernel_in = exp(-1 / tau_syn_in * t)
-       kernel I_kernel_ex = exp(-1 / tau_syn_ex * t)
-       inline I_syn pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes)
+       kernel I_kernel_inh = exp(-t / tau_syn_inh)
+       kernel I_kernel_exc = exp(-t / tau_syn_exc)
+       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
        V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 
      parameters:
        tau_m ms = 5ms # Membrane time constant
-       C_m pF = 100pF # Capacity of the membrane
+       C_m pF = 100pF # Capacitance of the membrane
        t_ref ms = 2ms # Duration of absolute refractory period (no spiking)
-       E_L mV = -70.0mV # Resting potential
-       tau_syn_ex ms = 1ms # Time constant of postsynaptic excitatory currents
-       tau_syn_in ms = 3ms # Time constant of postsynaptic inhibitory currents
+       E_L mV = -70mV # Resting potential
+       tau_syn_exc ms = 1ms # Time constant of postsynaptic excitatory currents
+       tau_syn_inh ms = 3ms # Time constant of postsynaptic inhibitory currents
        tau_1 ms = 10ms # Short time constant of adaptive threshold
        tau_2 ms = 200ms # Long time constant of adaptive threshold
-       alpha_1 mV = 37.0mV # Amplitude of short time threshold adaption [3]
-       alpha_2 mV = 2.0mV # Amplitude of long time threshold adaption [3]
-       omega mV = 19.0mV # Resting spike threshold (absolute value, not relative to E_L)
+       alpha_1 mV = 37mV # Amplitude of short time threshold adaption [3]
+       alpha_2 mV = 2mV # Amplitude of long time threshold adaption [3]
+       omega mV = 19mV # Resting spike threshold (absolute value, not relative to E_L)
        # constant external input current
 
        # constant external input current
@@ -153,8 +148,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       ex_spikes pA <-excitatory spike
-       in_spikes pA <-inhibitory spike
+       exc_spikes pA <-excitatory spike
+       inh_spikes pA <-inhibitory spike
        I_stim pA <-current
      end
 
@@ -191,4 +186,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.971934
+   Generated at 2022-03-28 19:04:29.030654

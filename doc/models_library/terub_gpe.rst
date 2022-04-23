@@ -30,11 +30,6 @@ References
        Pathological Thalamic Rhythmicity in a Computational Model
        Journal of Computational Neuroscience, 16, 211-235 (2004)
 
-Author
-++++++
-
-Martin Ebert
-
 
 
 Parameters
@@ -47,21 +42,21 @@ Parameters
     :widths: auto
 
     
-    "E_L", "mV", "-55mV", "Resting membrane potential."    
-    "g_L", "nS", "0.1nS", "Leak conductance."    
-    "C_m", "pF", "1.0pF", "Capacity of the membrane."    
-    "E_Na", "mV", "55mV", "Sodium reversal potential."    
-    "g_Na", "nS", "120nS", "Sodium peak conductance."    
-    "E_K", "mV", "-80.0mV", "Potassium reversal potential."    
-    "g_K", "nS", "30.0nS", "Potassium peak conductance."    
-    "E_Ca", "mV", "120mV", "Calcium reversal potential."    
-    "g_Ca", "nS", "0.15nS", "Calcium peak conductance."    
-    "g_T", "nS", "0.5nS", "T-type Calcium channel peak conductance."    
-    "g_ahp", "nS", "30nS", "afterpolarization current peak conductance."    
-    "tau_syn_ex", "ms", "1.0ms", "Rise time of the excitatory synaptic alpha function."    
-    "tau_syn_in", "ms", "12.5ms", "Rise time of the inhibitory synaptic alpha function."    
-    "E_gg", "mV", "-100mV", "reversal potential for inhibitory input (from GPe)"    
-    "t_ref", "ms", "2ms", "refractory time"    
+    "E_L", "mV", "-55mV", "Resting membrane potential"    
+    "g_L", "nS", "0.1nS", "Leak conductance"    
+    "C_m", "pF", "1pF", "Capacitance of the membrane"    
+    "E_Na", "mV", "55mV", "Sodium reversal potential"    
+    "g_Na", "nS", "120nS", "Sodium peak conductance"    
+    "E_K", "mV", "-80.0mV", "Potassium reversal potential"    
+    "g_K", "nS", "30.0nS", "Potassium peak conductance"    
+    "E_Ca", "mV", "120mV", "Calcium reversal potential"    
+    "g_Ca", "nS", "0.15nS", "Calcium peak conductance"    
+    "g_T", "nS", "0.5nS", "T-type Calcium channel peak conductance"    
+    "g_ahp", "nS", "30nS", "Afterpolarization current peak conductance"    
+    "tau_syn_exc", "ms", "1ms", "Rise time of the excitatory synaptic alpha function"    
+    "tau_syn_inh", "ms", "12.5ms", "Rise time of the inhibitory synaptic alpha function"    
+    "E_gg", "mV", "-100mV", "Reversal potential for inhibitory input (from GPe)"    
+    "t_ref", "ms", "2ms", "Refractory time"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -75,7 +70,7 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
+    "r", "integer", "0", "counts number of ticks during the refractory period"    
     "V_m", "mV", "E_L", "Membrane potential"    
     "gate_h", "real", "0.0", "gating variable h"    
     "gate_n", "real", "0.0", "gating variable n"    
@@ -92,7 +87,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{ex,mod} \cdot \mathrm{pA} + I_{in,mod} \cdot \mathrm{pA}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{exc,mod} \cdot \mathrm{pA} + I_{inh,mod} \cdot \mathrm{pA}) } \right) 
 
 
 .. math::
@@ -121,7 +116,7 @@ Source code
 
    neuron terub_gpe:
      state:
-       r integer = 0 # counts number of tick during the refractory period
+       r integer = 0 # counts number of ticks during the refractory period
        V_m mV = E_L # Membrane potential
        gate_h real = 0.0 # gating variable h
        gate_n real = 0.0 # gating variable n
@@ -160,8 +155,8 @@ Source code
        inline g_epsilon 1/ms = 0.0001 / ms
        inline g_k_Ca real = 15.0 # Report:15,  Terman Rubin 2002: 20.0
        inline g_k1 real = 30.0
-       inline I_ex_mod real = -convolve(g_ex,spikeExc) * V_m
-       inline I_in_mod real = convolve(g_in,spikeInh) * (V_m - E_gg)
+       inline I_exc_mod real = -convolve(g_exc,exc_spikes) * V_m
+       inline I_inh_mod real = convolve(g_inh,inh_spikes) * (V_m - E_gg)
        inline tau_n real = g_tau_n_0 + g_tau_n_1 / (1.0 + exp(-(V_m - g_theta_n_tau) / g_sigma_n_tau))
        inline tau_h real = g_tau_h_0 + g_tau_h_1 / (1.0 + exp(-(V_m - g_theta_h_tau) / g_sigma_h_tau))
        inline tau_r real = g_tau_r
@@ -178,14 +173,14 @@ Source code
        inline I_Ca real = g_Ca * s_inf * s_inf * (V_m - E_Ca)
        inline I_ahp real = g_ahp * (Ca_con / (Ca_con + g_k1)) * (V_m - E_K)
        # synapses: alpha functions
-       # alpha function for the g_in
-       kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       # alpha function for the g_ex
+       # alpha function for the g_inh
+       kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+       # alpha function for the g_exc
 
-       # alpha function for the g_ex
-       kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+       # alpha function for the g_exc
+       kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
        # V dot -- synaptic input are currents, inhib current is negative
-       V_m'=(-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
+       V_m'=(-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_exc_mod * pA + I_inh_mod * pA) / C_m
        # channel dynamics
        gate_h'=g_phi_h * ((h_inf - gate_h) / tau_h) / ms # h-variable
        gate_n'=g_phi_n * ((n_inf - gate_n) / tau_n) / ms # n-variable
@@ -197,21 +192,21 @@ Source code
      end
 
      parameters:
-       E_L mV = -55mV # Resting membrane potential.
-       g_L nS = 0.1nS # Leak conductance.
-       C_m pF = 1.0pF # Capacity of the membrane.
-       E_Na mV = 55mV # Sodium reversal potential.
-       g_Na nS = 120nS # Sodium peak conductance.
-       E_K mV = -80.0mV # Potassium reversal potential.
-       g_K nS = 30.0nS # Potassium peak conductance.
-       E_Ca mV = 120mV # Calcium reversal potential.
-       g_Ca nS = 0.15nS # Calcium peak conductance.
-       g_T nS = 0.5nS # T-type Calcium channel peak conductance.
-       g_ahp nS = 30nS # afterpolarization current peak conductance.
-       tau_syn_ex ms = 1.0ms # Rise time of the excitatory synaptic alpha function.
-       tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function.
-       E_gg mV = -100mV # reversal potential for inhibitory input (from GPe)
-       t_ref ms = 2ms # refractory time
+       E_L mV = -55mV # Resting membrane potential
+       g_L nS = 0.1nS # Leak conductance
+       C_m pF = 1pF # Capacitance of the membrane
+       E_Na mV = 55mV # Sodium reversal potential
+       g_Na nS = 120nS # Sodium peak conductance
+       E_K mV = -80.0mV # Potassium reversal potential
+       g_K nS = 30.0nS # Potassium peak conductance
+       E_Ca mV = 120mV # Calcium reversal potential
+       g_Ca nS = 0.15nS # Calcium peak conductance
+       g_T nS = 0.5nS # T-type Calcium channel peak conductance
+       g_ahp nS = 30nS # Afterpolarization current peak conductance
+       tau_syn_exc ms = 1ms # Rise time of the excitatory synaptic alpha function
+       tau_syn_inh ms = 12.5ms # Rise time of the inhibitory synaptic alpha function
+       E_gg mV = -100mV # Reversal potential for inhibitory input (from GPe)
+       t_ref ms = 2ms # Refractory time
        # constant external input current
 
        # constant external input current
@@ -221,8 +216,8 @@ Source code
        refractory_counts integer = steps(t_ref)
      end
      input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -252,4 +247,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.222749
+   Generated at 2022-03-28 19:04:28.746026

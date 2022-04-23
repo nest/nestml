@@ -31,9 +31,9 @@ neuron traub_cond_multisyn:
 
     V_m mV = -70. mV # Membrane potential
 
-    Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )     # Activation variable m for Na
+    Act_m real = alpha_m_init / ( alpha_m_init + beta_m_init )      # Activation variable m for Na
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
-    Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)        # Activation variable n for K
+    Act_n real = alpha_n_init / ( alpha_n_init + beta_n_init )      # Activation variable n for K
 
     g_AMPA real = 0
     g_NMDA real = 0
@@ -53,7 +53,7 @@ neuron traub_cond_multisyn:
     recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
     inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
-    inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+    inline I_K   pA = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
 
     V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn ) / C_m
