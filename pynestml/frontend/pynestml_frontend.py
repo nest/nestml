@@ -46,6 +46,16 @@ def get_known_targets():
     return targets
 
 
+def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> List[Transformer]:
+    """Static factory method that returns a list of new instances of a child class of Transformers"""
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+    if target_name.upper() in ["NEST", "NEST2"]:
+        from pynestml.transformers.variable_name_rewriter import VariableNameRewriter
+        # rewrite all C++ keywords
+        # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
+        return [VariableNameRewriter({"illegal_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})]
+
+
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
@@ -204,7 +214,9 @@ def main() -> int:
 
 
 def process():
-    """
+    r"""
+    The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
+
     Returns
     -------
     errors_occurred : bool
