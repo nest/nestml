@@ -204,7 +204,7 @@ e();'''
         :param symbol: a single variable symbol
         :return: the corresponding string format
         """
-        return 'State_::' + self.convert_to_cpp_name(symbol.get_symbol_name())
+        return 'State_::STATE_VEC_VAR_' + self.convert_to_cpp_name(symbol.get_symbol_name())
 
     def name(self, symbol: VariableSymbol) -> str:
         """
@@ -213,6 +213,6 @@ e();'''
         :return: the corresponding string format
         """
         if symbol.is_state() and not symbol.is_inline_expression:
-            return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
+            return 'ode_state[State_::STATE_VEC_VAR_' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
 
         return super().name(symbol)

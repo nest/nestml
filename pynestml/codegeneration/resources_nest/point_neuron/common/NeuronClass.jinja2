@@ -87,7 +87,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if has_state_vectors %}
 {%-   for sym in recordable_state_variables %}
 {%-     if not sym.has_vector_parameter() %}
-    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{names.name(sym).upper()}} ));
+    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::STATE_VEC_VAR_{{names.name(sym).upper()}} ));
 {%-     endif %}
 {%-   endfor %}
 {%- else %}
@@ -127,7 +127,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- for variable in neuron.get_vector_state_symbols() %}
       for (size_t i = 0; i < {{printer.print_vector_size_parameter(variable)}}; i++)
       {
-        size_t elem = {{neuronName}}::State_::{{names.name(variable).upper()}} + i;
+        size_t elem = {{neuronName}}::State_::STATE_VEC_VAR_{{names.name(variable).upper()}} + i;
         recordablesMap_.insert(get_var_name(i, "{{names.name(variable).upper()}}_"), this->get_data_access_functor(elem));
       }
 {%- endfor %}
@@ -679,7 +679,7 @@ void
 double ode_state_bak[State_::STATE_VEC_SIZE];
 
 {%-   for variable_name in numeric_state_variables %}
-ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
+ode_state_bak[State_::STATE_VEC_VAR_{{variable_name}}] = S_.ode_state[State_::STATE_VEC_VAR_{{variable_name}}];
 {%-     endfor %}
 
 {%- if uses_numeric_solver %}
@@ -688,12 +688,12 @@ ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}
 
 // restore non-synapse->neuron-moved variables
 {%-   for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+S_.ode_state[State_::STATE_VEC_VAR_{{variable_name}}] = ode_state_bak[State_::STATE_VEC_VAR_{{variable_name}}];
 {%-     endfor %}
 
 // restore variables solved analytically
 {%-   for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+S_.ode_state[State_::STATE_VEC_VAR_{{variable_name}}] = ode_state_bak[State_::STATE_VEC_VAR_{{variable_name}}];
 {%-     endfor %}
 {%- endif %}
 
@@ -829,7 +829,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- for variable_name in numeric_state_variables_moved|sort %}
 {%- if not variable_name in analytic_state_variables_moved %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
+S_.ode_state[State_::STATE_VEC_VAR_{{variable_name}}] = ode_state_tmp[State_::STATE_VEC_VAR_{{variable_name}}];
 {%- endif %}
 {%- endfor %}
 {%- endif %}
@@ -911,7 +911,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- for variable_name in numeric_state_variables_moved|sort %}
 {%- if not variable_name in analytic_state_variables_moved %}
-  S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
+  S_.ode_state[State_::STATE_VEC_VAR_{{variable_name}}] = ode_state_tmp[State_::STATE_VEC_VAR_{{variable_name}}];
 {%- endif %}
 {%- endfor %}
 {%- endif %}

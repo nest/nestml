@@ -496,25 +496,25 @@ private:
 {#- N.B. numeric solver contains all state variables, including those that will be solved by analytic solver #}
 {%-   if uses_numeric_solver %}
 {%-     for variable_name in numeric_state_variables %}
-      {{variable_name}},
+      STATE_VEC_VAR_{{variable_name}},
 {%-     endfor %}
       // moved state variables from synapse
 {%-     for variable_name in purely_numeric_state_variables_moved|sort %}
-      {{variable_name}},
+      STATE_VEC_VAR_{{variable_name}},
 {%-     endfor %}
 {%-     for variable_name in analytic_state_variables_moved|sort %}
-      {{variable_name}},
+      STATE_VEC_VAR_{{variable_name}},
 {%-     endfor %}
 {%-     for variable_name in non_equations_state_variables: %}
-      {{variable_name}},
+      STATE_VEC_VAR_{{variable_name}},
 {%-     endfor %}
 {%-   else %}
 {#-     analytic solver only #}
 {%-     for variable_name in analytic_state_variables: %}
-      {{variable_name}},
+      STATE_VEC_VAR_{{variable_name}},
 {%-     endfor %}
 {%-     for variable_name in non_equations_state_variables: %}
-      {{variable_name}},
+      STATE_VEC_VAR_{{variable_name}},
 {%-     endfor %}
 {%-   endif %}
       STATE_VEC_SIZE
