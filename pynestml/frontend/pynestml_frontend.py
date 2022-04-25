@@ -61,8 +61,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
 
     if target_name.upper() == "PYTHON_STANDALONE":
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
-        assert options is None or options == {}, "\"autodoc\" code generator does not support options"
-        return PythonStandaloneCodeGenerator()
+        return PythonStandaloneCodeGenerator(options)
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
