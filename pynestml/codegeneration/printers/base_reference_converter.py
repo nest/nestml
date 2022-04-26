@@ -21,7 +21,7 @@
 
 from typing import Union
 
-from pynestml.codegeneration.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
 

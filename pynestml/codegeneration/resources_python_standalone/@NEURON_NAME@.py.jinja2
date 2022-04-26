@@ -1,5 +1,5 @@
 {#-
-Neuron.py.jinja2
+@NEURON_NAME@.py.jinja2
 
 This file is part of NEST.
 
@@ -54,6 +54,7 @@ import scipy.integrate
 
 from .neuron import Neuron
 from .utils import steps
+from .vectorizable import Vectorizable
 
 DEBUG = 1
 
@@ -69,34 +70,12 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 {%- endfilter %}
 
-  class State_:
+  class State_(Vectorizable):
 {%- filter indent(4,True) %}
 {%- for variable in neuron.get_state_symbols() %}
 {%-   include 'directives/MemberDeclaration.jinja2' %}
 {%- endfor %}
 {%- endfilter %}
-
-    def to_vector(self) -> List[float]:
-      vars = [(k, v) for k, v in self.__dict__.items() if (not k.startswith('__')) and (not k.endswith('__'))]
-      dim: int = len(vars)
-      vals = np.empty(dim, dtype=float)
-      for i, (var_name, value) in enumerate(vars):
-        vals[i] = self.__dict__[var_name]
-      return vals
-
-    def from_vector(self, vals: List[float]) -> None:
-      vars = [(k, v) for k, v in self.__dict__.items() if (not k.startswith('__')) and (not k.endswith('__'))]
-      dim: int = len(vars)
-      for i, (var_name, value) in enumerate(vars):
-        self.__dict__[var_name] = vals[i]
-
-    def name_to_vector_index(self) -> Mapping[str, int]:
-      vars = [(k, v) for k, v in self.__dict__.items() if (not k.startswith('__')) and (not k.endswith('__'))]
-      name_to_vector_index_: Mapping[str, int] = {}
-      for i, (var_name, value) in enumerate(vars):
-        name_to_vector_index_[var_name] = i
-      return name_to_vector_index_
-
 
   class Variables_:
 {%- filter indent(4,True) %}
@@ -154,23 +133,25 @@ class Neuron_{{neuronName}}(Neuron):
     self.calibrate(timestep)
 
 {%- if paired_synapse is defined %}
-    # state variables for archiving state for paired synapse
-    n_incoming_ = 0
-    max_delay_ = 0
-    last_spike_ = -1.
+    # -----------------------------
+    #    code for paired synapse
+    # -----------------------------
 
-  # cache initial values
+    # state variables for archiving state for paired synapse
+    self.n_incoming_ = 0.
+    self.max_delay_ = 0.
+    self.last_spike_ = -1.
+
+    # cache initial values
 {%- for var in transferred_variables %}
 {%- with var_sym = transferred_variables_syms[var] %}
 {%- if not var == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%- endif %}
-  {{var}}__iv = {{names.getter(var_sym)}}()
+    {{var}}__iv = {{names.getter(var_sym)}}()
 {%- endwith %}
 {%- endfor %}
-{%- endif %}
 
-{%- if paired_neuron is defined %}
     self.clear_history()
 {%- endif %}
 
@@ -321,7 +302,7 @@ class Neuron_{{neuronName}}(Neuron):
   #   Synapse co-generation
   # -------------------------------------------------------------------------
   def get_spiketime_ms(self):
-    return last_spike_
+    return self.last_spike_
 
   def register_stdp_connection(self, t_first_read: float, delay: float):
     # Mark all entries in the deque, which we will not read in future as read by
@@ -329,36 +310,35 @@ class Neuron_{{neuronName}}(Neuron):
     # connections afterwards without leaving spikes in the history.
     # For details see bug #218. MH 08-04-22
 
-    for ( std::deque< histentry__{{neuronName}} >::iterator runner = history_.begin();
-        runner != history_.end() and ( t_first_read - runner->t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps() );
-        ++runner )
-      runner->access_counter_ += 1
+    for i, hist_entry in self.history_:
+      #if ( t_first_read - hist_entry.t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps():
+      if t_first_read - hist_entry.t_ > -1E-6:
+        break
+      hist_entry.access_counter_ += 1
 
-    n_incoming_ += 1
-    max_delay_ = max(delay, max_delay_)
+    self.n_incoming_ += 1
+    self.max_delay_ = max(delay, self.max_delay_)
 
   def get_history__(t1: float, t2: float):
-    *finish = history_.end();
-    if ( history_.empty() )
-    {
-      *start = *finish;
-      return;
-    }
-    std::deque< histentry__{{neuronName}} >::reverse_iterator runner = history_.rbegin();
-    const double t2_lim = t2 + nest::kernel().connection_manager.get_stdp_eps();
-    const double t1_lim = t1 + nest::kernel().connection_manager.get_stdp_eps();
-    while ( runner != history_.rend() and runner->t_ >= t2_lim )
-    {
-      ++runner;
-    }
-    *finish = runner.base();
-    while ( runner != history_.rend() and runner->t_ >= t1_lim )
-    {
-      runner->access_counter_++;
-      ++runner;
-    }
-    *start = runner.base();
+    if len(history_) == 0:
+      return
 
+    t2_lim: float = t2 + 1E-6
+    t1_lim: float = t1 + 1E-6
+
+    histentry_times = [histentry.t_ for histentry in self.history_]
+
+    for start_idx, histentry in enumerate(self.history_):
+      if histentry.t_ < t2_lim:
+        break
+
+    for end_idx, histentry in enumerate(self.history_):
+      histentry.access_counter_ += 1
+      if histentry.t_ < t1_lim:
+        break
+
+    return self.history_[start_idx:end_idx]
+{#
   def set_spiketime(t_sp: float, offset: float):
     num_transferred_variables: int = 0
 {%- for var in transferred_variables %}
@@ -375,48 +355,40 @@ class Neuron_{{neuronName}}(Neuron):
         # - there is another, later spike, that is strictly more than
         #     (max_delay_ + eps) away from the new spike (at t_sp_ms)
         while len(self.history_) > 1:
-            const double next_t_sp = history_[ 1 ].t_
-            if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
-                and t_sp_ms - next_t_sp > max_delay_ + nest::kernel().connection_manager.get_stdp_eps() )
-            {
-                history_.pop_front();
-            }
-            else
-            {
-                break;
-            }
-        }
+            next_t_sp: float = self.history_[0].t_
+            if ( self.history_[0].access_counter_ >= n_incoming_ * num_transferred_variables
+                and t_sp_ms - next_t_sp > max_delay_ + 1E-6 ):
+                # remove the first element
+                self.history_ = self.history_[1:]
+            else:
+                break
 
-        if (history_.size() > 0) {
-            assert(history_.back().t_ == last_spike_);
+        if len(self.history_) > 0:
+          assert self.history_[-1].t_ == last_spike_
 
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+          self.S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = self.history_[-1].{{var}}_
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+          self.S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = self.history_[-1].{{var}}_;
 {%- endfor %}
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; # initial value for convolution is always 0
+          self.S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.  # initial value for convolution is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; # initial value for convolution is always 0
+          self.S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.  # initial value for convolution is always 0
 {%- endfor %}
-        }
-
-
 
         # update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
 
-        const double old___h = self.V_.__h;
-        self.V_.__h = t_sp_ms - last_spike_;
-        if (self.V_.__h > 1E-12) {
-          calibrate_variables(true);
+        float old___h = self.V_.__h
+        self.V_.__h = t_sp_ms - last_spike_
+        if self.V_.__h > 1E-12:
+          self.calibrate_variables(true)
 
 #  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-
 
 {%- filter indent(6, True) %}
 {%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
@@ -425,10 +397,10 @@ class Neuron_{{neuronName}}(Neuron):
 
 {%- if uses_numeric_solver %}
 # update only synapse->neuron moved variables; back-up and restore the rest
-double ode_state_bak[State_::STATE_VEC_SIZE];
+ode_state_bak = {}
 
 {%-   for variable_name in numeric_state_variables %}
-ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
+ode_state_bak["{{variable_name}}"] = S_.ode_state["{{variable_name}}"]
 {%-     endfor %}
 
 {%- if uses_numeric_solver %}
@@ -437,12 +409,12 @@ ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}
 
 # restore non-synapse->neuron-moved variables
 {%-   for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+S_.ode_state["{{variable_name}}"] = ode_state_bak["{{variable_name}}"];
 {%-     endfor %}
 
 # restore variables solved analytically
 {%-   for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+S_.ode_state["{{variable_name}}"] = ode_state_bak["{{variable_name}}"];
 {%-     endfor %}
 
 {%- endif %}
@@ -452,13 +424,12 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- endwith %}
 
 {%- endfilter %}
-        V_.__h = old___h;
-        calibrate_variables(true);
-      }
+        self.V_.__h = old___h
+        self.calibrate_variables(true)
 
-        /**
-         * apply spike updates
-        **/
+        #
+        #    apply spike updates
+        #
 
 {%- for stmt in spike_update_stmts %}
 {%- if uses_numeric_solver %}
@@ -490,12 +461,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 }
 
 
-void
-{{neuronName}}::clear_history()
-{
-  last_spike_ = -1.0;
-  history_.clear();
-}
+  def clear_history():
+    self.last_spike_ = -1.0;
+    self.history_ = []
 
 
 #	generate getter functions for the transferred variables
@@ -578,7 +546,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- for variable_name in numeric_state_variables_moved|sort %}
 {%- if not variable_name in analytic_state_variables_moved %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
+S_.ode_state["{{variable_name}}"] = ode_state_tmp["{{variable_name}}"];
 {%- endif %}
 {%- endfor %}
 {%- endif %}
@@ -659,7 +627,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- for variable_name in numeric_state_variables_moved|sort %}
 {%- if not variable_name in analytic_state_variables_moved %}
-  S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
+  S_.ode_state["{{variable_name}}"] = ode_state_tmp["{{variable_name}}"];
 {%- endif %}
 {%- endfor %}
 {%- endif %}
@@ -676,5 +644,6 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 }
 {%- endwith -%}
 {%- endfor %}
+#}
 
 {%- endif %}
