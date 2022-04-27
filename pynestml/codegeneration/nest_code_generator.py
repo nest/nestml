@@ -738,31 +738,6 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
 
-    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
-        """
-        Generates code that is necessary to integrate neuron models into the NEST infrastructure.
-        :param neurons: a list of neurons
-        :type neurons: list(ASTNeuron)
-        """
-        namespace = self._get_module_namespace(neurons, synapses)
-        if not os.path.exists(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-
-        for _module_templ in self._module_templates:
-            file_name_parts = os.path.basename(_module_templ.filename).split(".")
-            file_extension = file_name_parts[-2]
-            if file_extension in ["cpp", "h"]:
-                filename = FrontendConfiguration.get_module_name()
-            else:
-                filename = file_name_parts[0]
-
-            file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
-            with open(file_path + "." + file_extension, "w+") as f:
-                f.write(str(_module_templ.render(namespace)))
-
-        code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
-        Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-
     def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code

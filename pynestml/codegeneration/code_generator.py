@@ -100,11 +100,11 @@ class CodeGenerator(WithOptions):
             os.makedirs(FrontendConfiguration.get_target_path())
 
         for _model_templ in model_templates:
-            if not len(_model_templ.filename.split(".")) == 3:
-                raise Exception("Template file name should be of the form: \"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
             templ_file_name = os.path.basename(_model_templ.filename)
+            if not len(templ_file_name.split(".")) == 3:
+                raise Exception("Template file name \"" + templ_file_name + "\" should be of the form \"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
             templ_file_name = templ_file_name.split(".")[0]   # for example, "cm_main_@NEURON_NAME@"
-            templ_file_name = templ_file_name.replace(model_name_escape_string, model.get_name())
+            templ_file_name = templ_file_name.replace(model_name_escape_string, model_name)
             file_extension = _model_templ.filename.split(".")[-2]   # for example, "cpp"
             rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
                                                     templ_file_name + "." + file_extension)
@@ -125,3 +125,11 @@ class CodeGenerator(WithOptions):
                                  model_templates=self._model_templates["synapse"],
                                  template_namespace=self._get_synapse_model_namespace(synapse),
                                  model_name_escape_string="@SYNAPSE_NAME@")
+
+    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+        self.generate_model_code(FrontendConfiguration.get_module_name(),
+                                 model_templates=self._module_templates,
+                                 template_namespace=self._get_module_namespace(neurons, synapses),
+                                 model_name_escape_string="@MODULE_NAME@")
+        code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
+        Logger.log_message(None, code, message, None, LoggingLevel.INFO)
