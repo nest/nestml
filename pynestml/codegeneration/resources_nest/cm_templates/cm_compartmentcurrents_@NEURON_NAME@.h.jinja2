@@ -121,6 +121,12 @@ public:
   {{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params);
   ~{{synapse_name}}(){};
 
+  long
+  get_syn_idx()
+  {
+    return syn_idx;
+  };
+
   // numerical integration step
   std::pair< double, double > f_numstep( const double v_comp, const long lag );
 
