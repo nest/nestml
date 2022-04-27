@@ -340,7 +340,7 @@ class CMTest(unittest.TestCase):
 if __name__ == "__main__":
     cmtest = CMTest()
     cmtest.nestml_flag = 1
-    cmtest.install_nestml_model()
+    # cmtest.install_nestml_model()
     # cmtest.get_nestml_model()
-    # cmtest.test_compartmental_model()
+    cmtest.test_compartmental_model()
     # unittest.main()
