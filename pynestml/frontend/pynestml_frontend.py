@@ -62,10 +62,12 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
-    elif target_name.upper() == "NEST_COMPARTMENTAL":
+
+    if target_name.upper() == "NEST_COMPARTMENTAL":
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         return NESTCompartmentalCodeGenerator()
-    elif target_name.upper() == "NONE":
+
+    if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
@@ -80,7 +82,7 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
 
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
-    if target_name.upper() in ["NEST", "NEST2"]:
+    if target_name.upper() in ["NEST", "NEST2", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 
