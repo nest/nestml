@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, List, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import os
 import sys
@@ -48,17 +48,33 @@ def get_known_targets():
     return targets
 
 
-def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> List[Transformer]:
+def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Transformer, Dict[str, Any]]:
     """Static factory method that returns a list of new instances of a child class of Transformers"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
+    if options is None:
+        options = {}
+
+    transformers: List[Transformer] = []
+
     if target_name.upper() in ["NEST", "NEST2"]:
         from pynestml.transformers.variable_name_rewriter import VariableNameRewriter
+        from pynestml.transformers.synapse_post_neuron_cogeneration import SynapsePostNeuronCogeneration
+
         # rewrite all C++ keywords
         # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
-        return [VariableNameRewriter({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})]
+        variable_name_rewriter = VariableNameRewriter({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
+        transformers.append(variable_name_rewriter)
 
-    return []
+        # co-generate neuron and synapse
+        synapse_post_neuron_co_generation = SynapsePostNeuronCogeneration()
+        options = synapse_post_neuron_co_generation.set_options(options)
+        transformers.append(synapse_post_neuron_co_generation)
+        import pdb;pdb.set_trace()
+        return transformers, options
+
+    # default: no transformers (empty list); options unchanged
+    return transformers, options
 
 
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
@@ -253,14 +269,10 @@ def process():
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
 
-    # run transformers
-    transformers = transformers_from_target_name(FrontendConfiguration.get_target_platform())
-    for transformer in transformers:
-        for i, compilation_unit in enumerate(compilation_units):
-            compilation_units[i] = transformer.transform(compilation_unit)
-
-    # initialize code generator and builder
+    # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                           options=codegen_and_builder_opts)
     _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
     _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
@@ -304,6 +316,10 @@ def process():
                                        log_level=LoggingLevel.INFO)
                     synapses.remove(synapse)
                     errors_occurred = True
+
+        # run transformers
+        for transformer in transformers:
+            compilation_units = transformer.transform(compilation_units)
 
         # perform code generation
         _codeGenerator.generate_code(neurons, synapses)
