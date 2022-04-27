@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
 import glob
@@ -45,15 +45,12 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -65,7 +62,6 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -265,158 +261,9 @@ class NESTCodeGenerator(CodeGenerator):
         visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
         node.accept(visitor)
 
-    def is_continuous_port(self, port_name: str, parent_node: ASTNeuronOrSynapse):
-        for port in parent_node.get_input_blocks().get_input_ports():
-            if port.is_continuous() and port_name == port.get_name():
-                return True
-        return False
-
-    def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
-        """
-        Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense
-        for synapses.
-        """
-        assert special_type in ["post", "vt"]
-        if not "neuron_synapse_pairs" in self._options.keys():
-            return False
-
-        for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
-                continue
-
-            if not special_type + "_ports" in neuron_synapse_pair.keys():
-                return False
-
-            post_ports = neuron_synapse_pair[special_type + "_ports"]
-            if not isinstance(post_ports, list):
-                # only one port name given, not a list
-                return port_name == post_ports
-
-            for post_port in post_ports:
-                if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_port_name) tuple
-                    post_port = post_port[0]
-                if type(post_port) is not str and len(post_port) == 1:  # (syn_port_name)
-                    return post_port[0] == port_name
-                if port_name == post_port:
-                    return True
-        return False
-
-    def is_post_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
-        return self.is_special_port("post", port_name, neuron_name, synapse_name)
-
-    def is_vt_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
-        return self.is_special_port("vt", port_name, neuron_name, synapse_name)
-
-    def get_spiking_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
-        post_port_names = []
-        for port in synapse.get_input_blocks().get_input_ports():
-            if self.is_post_port(port.name, neuron_name, synapse_name) and port.is_spike():
-                post_port_names.append(port.get_name())
-        return post_port_names
-
-    def get_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
-        post_port_names = []
-        for port in synapse.get_input_blocks().get_input_ports():
-            if self.is_post_port(port.name, neuron_name, synapse_name):
-                post_port_names.append(port.get_name())
-        return post_port_names
-
-    def get_vt_port_names(self, synapse, neuron_name: str, synapse_name: str):
-        post_port_names = []
-        for port in synapse.get_input_blocks().get_input_ports():
-            if self.is_vt_port(port.name, neuron_name, synapse_name):
-                post_port_names.append(port.get_name())
-        return post_port_names
-
-    def get_neuron_var_name_from_syn_port_name(self, port_name: str, neuron_name: str, synapse_name: str) -> Optional[str]:
-        """
-        Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense for synapses.
-        """
-        if not "neuron_synapse_pairs" in self._options.keys():
-            return False
-
-        for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
-                continue
-
-            if not "post_ports" in neuron_synapse_pair.keys():
-                return None
-
-            post_ports = neuron_synapse_pair["post_ports"]
-
-            for post_port in post_ports:
-                if type(post_port) is not str and len(post_port) == 2:  # (syn_port_name, neuron_var_name) tuple
-                    if port_name == post_port[0]:
-                        return post_port[1]
-
-            return None
-
-        return None
-
-    def get_all_variables_assigned_to(self, node):
-        class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
-            _variables = []
-
-            def __init__(self, synapse):
-                super(ASTAssignedToVariablesFinderVisitor, self).__init__()
-                self.synapse = synapse
-
-            def visit_assignment(self, node):
-                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
-                assert symbol is not None  # should have been checked in a CoCo before
-                self._variables.append(symbol)
-
-        if node is None:
-            return []
-
-        visitor = ASTAssignedToVariablesFinderVisitor(node)
-        node.accept(visitor)
-
-        return [v.name for v in visitor._variables]
-
-    def get_convolve_with_not_post_vars(self, node, neuron_name, synapse_name, parent_node):
-        class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
-            _variables = []
-
-            def __init__(self, node: ASTNode, parent_node: ASTNode, codegen_class):
-                super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
-                self.node = node
-                self.parent_node = parent_node
-                self.codegen_class = codegen_class
-
-            def visit_function_call(self, node):
-                func_name = node.get_name()
-                if func_name == "convolve":
-                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
-                                                                       SymbolKind.VARIABLE)
-                    input_port = ASTTransformers.get_input_port_by_name(
-                        self.parent_node.get_input_blocks(), symbol_buffer.name)
-                    if input_port and not self.codegen_class.is_post_port(input_port.name, neuron_name, synapse_name):
-                        kernel_name = node.get_args()[0].get_variable().name
-                        self._variables.append(kernel_name)
-
-                        found_parent_assignment = False
-                        node_ = node
-                        while not found_parent_assignment:
-                            node_ = self.parent_node.get_parent(node_)
-                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
-                            if isinstance(node_, ASTInlineExpression):
-                                found_parent_assignment = True
-                        var_name = node_.get_variable_name()
-                        self._variables.append(var_name)
-
-        if node is None:
-            return []
-
-        visitor = ASTVariablesUsedInConvolutionVisitor(node, parent_node, self)
-        node.accept(visitor)
-        return visitor._variables
-
-    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
-        if synapses is None:
-            synapses = []
+    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+        neurons = [model for model in models if isinstance(model, ASTNeuron)]
+        synapses = [model for model in models if isinstance(model, ASTSynapse)]
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -589,13 +436,10 @@ class NESTCodeGenerator(CodeGenerator):
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
             namespace["paired_neuron"] = synapse.paired_neuron.get_name()
-            base_neuron_name = namespace["paired_neuron"][:namespace["paired_neuron"].index(
-                "__with_") - len(FrontendConfiguration.suffix)]
-            base_synapse_name = synapse.name[:synapse.name.index("__with_") - len(FrontendConfiguration.suffix)]
-            namespace["post_ports"] = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
-            namespace["spiking_post_ports"] = self.get_spiking_post_port_names(
-                synapse, base_neuron_name, base_synapse_name)
-            namespace["vt_ports"] = self.get_vt_port_names(synapse, base_neuron_name, base_synapse_name)
+            namespace["post_ports"] = synapse.post_port_names
+
+            namespace["spiking_post_ports"] = synapse.spiking_post_port_names
+            namespace["vt_ports"] = synapse.vt_port_names
             all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
             namespace["pre_ports"] = list(set(all_input_port_names)
                                           - set(namespace["post_ports"]) - set(namespace["vt_ports"]))

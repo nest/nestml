@@ -55,7 +55,7 @@ class CodeGenerator(WithOptions):
         self._target = target
 
     @abstractmethod
-    def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 

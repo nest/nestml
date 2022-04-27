@@ -30,16 +30,19 @@ from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import Symbol, SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
+from pynestml.symbols.variable_symbol import VariableType
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -534,7 +537,7 @@ class ASTUtils:
         """add suffix to variable names recursively throughout astnode"""
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         from pynestml.symbols.variable_symbol import BlockType
-        from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
+        from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 
         if not isinstance(astnode, ASTNode):
             for node in astnode:
@@ -856,3 +859,11 @@ class ASTUtils:
                and node.small_stmt.get_assignment().lhs.get_name() == var_name:
                 stmts.append(node)
         return stmts
+
+    @classmethod
+    def find_model_by_name(cls, model_name: str, models: Iterable[Union[ASTNeuron, ASTSynapse]]) -> Optional[Union[ASTNeuron, ASTSynapse]]:
+        for model in models:
+            if model.get_name() == model_name:
+                return model
+
+        return None

@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, List, Mapping, Optional, Union
+from typing import Any, Callable, Iterable, List, Mapping, Optional, Union, Sequence
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
@@ -101,7 +101,7 @@ class VariableNameRewriter(Transformer):
 
         return name
 
-    def transform(self, models: Union[ASTNode, Iterable[ASTNode]])-> Union[ASTNode, Iterable[ASTNode]]:
+    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
         single = False
         if isinstance(models, ASTNode):
             single = True
@@ -113,5 +113,5 @@ class VariableNameRewriter(Transformer):
 
         if single:
             return models[0]
-        else:
-            return models
+
+        return models

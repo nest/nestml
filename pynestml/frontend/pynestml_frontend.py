@@ -32,6 +32,8 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration, Inva
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
     qualifier_dev_arg, qualifier_codegen_opts_arg, qualifier_install_path_arg
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -70,7 +72,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         synapse_post_neuron_co_generation = SynapsePostNeuronCogeneration()
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
-        import pdb;pdb.set_trace()
+
         return transformers, options
 
     # default: no transformers (empty list); options unchanged
@@ -284,48 +286,34 @@ def process():
         raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
-        # generate a list of all compilation units (neurons + synapses)
-        neurons = list()
-        synapses = list()
+        # generate a list of all neurons + synapses
+        models: Sequence[Union[ASTNeuron, ASTSynapse]] = []
         for compilationUnit in compilation_units:
-            neurons.extend(compilationUnit.get_neuron_list())
-            synapses.extend(compilationUnit.get_synapse_list())
+            models.extend(compilationUnit.get_neuron_list())
+            models.extend(compilationUnit.get_synapse_list())
 
-            # check if across two files neurons with duplicate names have been defined
-            CoCosManager.check_no_duplicate_compilation_unit_names(neurons)
-
-            # check if across two files synapses with duplicate names have been defined
-            CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
+        # check that no models with duplicate names have been defined
+        CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
         # now exclude those which are broken, i.e. have errors.
         if not FrontendConfiguration.is_dev:
-            for neuron in neurons:
-                if Logger.has_errors(neuron):
-                    code, message = Messages.get_model_contains_errors(neuron.get_name())
-                    Logger.log_message(node=neuron, code=code, message=message,
-                                       error_position=neuron.get_source_position(),
-                                       log_level=LoggingLevel.INFO)
-                    neurons.remove(neuron)
-                    errors_occurred = True
-
-            for synapse in synapses:
-                if Logger.has_errors(synapse):
-                    code, message = Messages.get_model_contains_errors(synapse.get_name())
-                    Logger.log_message(node=synapse, code=code, message=message,
-                                       error_position=synapse.get_source_position(),
-                                       log_level=LoggingLevel.INFO)
-                    synapses.remove(synapse)
+            for model in models:
+                if Logger.has_errors(model):
+                    code, message = Messages.get_model_contains_errors(model.get_name())
+                    Logger.log_message(node=model, code=code, message=message,
+                                       error_position=model.get_source_position(),
+                                       log_level=LoggingLevel.WARNING)
+                    models.remove(model)
                     errors_occurred = True
 
         # run transformers
         for transformer in transformers:
-            compilation_units = transformer.transform(compilation_units)
+            models = transformer.transform(models)
 
         # perform code generation
-        _codeGenerator.generate_code(neurons, synapses)
-        for astnode in neurons + synapses:
-            print(astnode)
-            if Logger.has_errors(astnode):
+        _codeGenerator.generate_code(models)
+        for model in models:
+            if Logger.has_errors(model):
                 errors_occurred = True
                 break
 
