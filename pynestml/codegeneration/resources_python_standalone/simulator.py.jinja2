@@ -63,6 +63,12 @@ class Simulator:
 
     def __init__(self):
         self._t = 0.       # time [ms]
+        self.log = {}
+        self.neurons = []
+        self.connections = {}
+        self.connection_weights = {}
+        self.connection_ports = {}
+
 
     def log_step(self):
         if not "t" in self.log.keys():

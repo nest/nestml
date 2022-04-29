@@ -448,7 +448,7 @@ class NESTCodeGenerator(CodeGenerator):
             all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
             namespace["pre_ports"] = all_input_port_names
 
-        assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
+        # assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port" # XXX: this should be enabled for the NEST code generator, but not enabled for the Python-standalone code generator!
 
         namespace["synapseName"] = synapse.get_name()
         namespace["synapse"] = synapse

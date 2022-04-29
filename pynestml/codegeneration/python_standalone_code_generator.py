@@ -19,10 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, Sequence, Union
 
 import os
 
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
@@ -74,11 +76,11 @@ class PythonStandaloneCodeGenerator(CodeGenerator):
         self.codegen_int._options["templates"]["path"] = os.path.join(os.path.dirname(__file__), "resources_python_standalone")
         self.codegen_int._options["templates"]["model_templates"]["neuron"] = ["@NEURON_NAME@.py.jinja2"]
         self.codegen_int._options["templates"]["model_templates"]["synapse"] = ["@SYNAPSE_NAME@.py.jinja2"]
-        self.codegen_int._options["templates"]["module_templates"] = ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2", "vectorizable.py.jinja2"]
+        self.codegen_int._options["templates"]["module_templates"] = ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "synapse.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2", "vectorizable.py.jinja2"]
         self.codegen_int.setup_template_env()
 
-    def generate_code(self, neurons, synapses):
-        self.codegen_int.generate_code(neurons, synapses)
+    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+        self.codegen_int.generate_code(models)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         return self.codegen_int.set_options(options)
