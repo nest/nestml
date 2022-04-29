@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Sequence
+from typing import List, Sequence, Union
 
 import datetime
 import os
@@ -51,12 +51,14 @@ class AutoDocCodeGenerator(CodeGenerator):
         converter = LatexReferenceConverter()
         self._printer = LatexExpressionPrinter(converter)
 
-    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
+    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         """
         Generate model documentation and index page for each neuron and synapse that is provided.
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
+        neurons = [model for model in models if isinstance(model, ASTNeuron)]
+        synapses = [model for model in models if isinstance(model, ASTSynapse)]
         self.generate_index(neurons, synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)

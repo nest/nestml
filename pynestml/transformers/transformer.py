@@ -21,21 +21,22 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Mapping, Optional, Sequence
+from typing import Any, Sequence, Mapping, Optional, Union, Sequence
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.with_options import WithOptions
 
 from abc import ABCMeta, abstractmethod
-import copy
 
 
 class Transformer(WithOptions, metaclass=ABCMeta):
-    r"""Perform a model transformation step, for instance, rewriting disallowed variable names like "lambda" because it conflicts with a keyword."""
+    r"""Perform a transformation step on models, for instance, rewriting disallowed variable names like "lambda" because it conflicts with a keyword.
+
+    Some transformers operate on individual models, and some operate on tuples of models (for instance, a pair (neuron, synapse))."""
 
     def __init__(self, options: Optional[Mapping[str, Any]]=None):
         super(Transformer, self).__init__(options)
 
     @abstractmethod
-    def transform(self, model: ASTNode) -> ASTNode:
-        pass
+    def transform(self, model: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+        assert False

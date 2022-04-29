@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Mapping, Optional, Sequence
+from typing import Any, Callable, Iterable, List, Mapping, Optional, Union, Sequence
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
@@ -97,12 +97,21 @@ class VariableNameRewriter(Transformer):
         if not name == name_orig and not (name, name_orig) in self.rewritten_names_:
             self.rewritten_names_.append((name, name_orig))
             msg = "Rewrote variable \"" + name_orig + "\" to \"" + name + "\""
-            Logger.log_message(None, None, msg, None, LoggingLevel.INFO)
+            Logger.log_message(None, None, msg, None, LoggingLevel.WARNING)
 
         return name
 
-    def transform(self, model: ASTNode) -> ASTNode:
-        model.accept(self.VariableNameRewriterVisitor(self.get_option("forbidden_names"), self.fix_name_func_))
-        model.accept(ASTSymbolTableVisitor())
+    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+        single = False
+        if isinstance(models, ASTNode):
+            single = True
+            models = [models]
 
-        return model
+        for model in models:
+            model.accept(self.VariableNameRewriterVisitor(self.get_option("forbidden_names"), self.fix_name_func_))
+            model.accept(ASTSymbolTableVisitor())
+
+        if single:
+            return models[0]
+
+        return models
