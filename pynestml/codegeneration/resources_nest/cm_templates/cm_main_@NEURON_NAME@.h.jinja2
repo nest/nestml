@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CM_{{cm_unique_suffix | upper }}_H
-#define CM_{{cm_unique_suffix | upper }}_H
+#ifndef CM_DEFAULT_H
+#define CM_DEFAULT_H
 
 // Includes from nestkernel:
 #include "archiving_node.h"
@@ -46,7 +46,7 @@ Currently, AMPA, GABA or AMPA+NMDA receptors.
 Description
 +++++++++++
 
-``{{neuronSpecificFileNamesCmSyns["main"]}}`` is an implementation of a compartmental model. The structure of the
+``cm_default`` is an implementation of a compartmental model. The structure of the
 neuron -- soma, dendrites, axon -- is user-defined at runtime by adding
 compartments through ``nest.SetStatus()``. Each compartment can be assigned
 receptors, also through ``nest.SetStatus()``.
@@ -65,7 +65,7 @@ in the standard manner:
 
 .. code-block:: Python
 
-  cm =  nest.Create('{{neuronSpecificFileNamesCmSyns["main"]}}')
+  cm =  nest.Create('cm_default')
 
 compartments can be added as follows:
 
@@ -253,7 +253,7 @@ private:
   void add_receptor_( DictionaryDatum& dd );
 
   void init_recordables_pointers_();
-  void calibrate();
+  void pre_run_hook();
 
   void update( Time const&, const long, const long );
 

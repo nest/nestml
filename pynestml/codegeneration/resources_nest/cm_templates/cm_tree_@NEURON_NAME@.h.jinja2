@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CM_TREE_{{cm_unique_suffix | upper }}_H
-#define CM_TREE_{{cm_unique_suffix | upper }}_H
+#ifndef CM_TREE_H
+#define CM_TREE_H
 
 #include <stdlib.h>
 
@@ -64,7 +64,7 @@ public:
   Compartment{{cm_unique_suffix}}* parent;
   std::vector< Compartment{{cm_unique_suffix}} > children;
   // vector for synapses
-  Compartment{{cm_unique_suffix}}Currents compartment_currents;
+  CompartmentCurrents{{cm_unique_suffix}} compartment_currents;
 
   // buffer for currents
   RingBuffer currents;
@@ -94,7 +94,7 @@ public:
   ~Compartment{{cm_unique_suffix}}(){};
 
   // initialization
-  void calibrate();
+  void pre_run_hook();
   std::map< Name, double* > get_recordables();
 
   // matrix construction
@@ -104,7 +104,7 @@ public:
   inline void gather_input( const std::pair< double, double >& in );
   inline std::pair< double, double > io();
   inline double calc_v( const double v_in );
-}; // Compartment{{cm_unique_suffix}}
+}; // Compartment
 
 
 /*
@@ -174,7 +174,7 @@ public:
   void add_compartment( const long parent_index );
   void add_compartment( const long parent_index, const DictionaryDatum& compartment_params );
   void add_compartment( Compartment{{cm_unique_suffix}}* compartment, const long parent_index );
-  void calibrate();
+  void pre_run_hook();
   void init_pointers();
   void set_syn_buffers( std::vector< RingBuffer >& syn_buffers );
   std::map< Name, double* > get_recordables();
@@ -207,7 +207,7 @@ public:
 
   // print function
   void print_tree() const;
-}; // CompTree{{cm_unique_suffix}}
+}; // CompTree
 
 } // namespace
 

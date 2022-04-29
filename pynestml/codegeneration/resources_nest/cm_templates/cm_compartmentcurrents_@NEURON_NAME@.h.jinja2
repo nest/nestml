@@ -200,8 +200,7 @@ public:
     }
   {% endfor -%}
   {% endwith -%}
-
-  }
+  };
 
   void add_synapse( const std::string& type, const long syn_idx )
   {
@@ -250,7 +249,7 @@ public:
     }
     {% endfor -%}
     {% endwith -%}
-  }
+  };
 
   void
   set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
@@ -321,9 +320,7 @@ public:
   {% endwith -%}
 
     return std::make_pair(g_val, i_val);
-  }
-}
-
+  };
 };
 
 } // namespace
