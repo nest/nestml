@@ -29,18 +29,17 @@ class TypeCaster:
     @staticmethod
     def do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression):
         """
-        determine conversion factor from rhs to lhs, register it with the relevant expression, drop warning
+        determine conversion factor from rhs to lhs, register it with the relevant expression
         """
         _containing_expression.set_implicit_conversion_factor(
             UnitTypeSymbol.get_conversion_factor(_lhs_type_symbol.astropy_unit,
                                                  _rhs_type_symbol.astropy_unit))
         _containing_expression.type = _lhs_type_symbol
-
         code, message = Messages.get_implicit_magnitude_conversion(_lhs_type_symbol, _rhs_type_symbol,
                                                                    _containing_expression.get_implicit_conversion_factor())
         Logger.log_message(code=code, message=message,
                            error_position=_containing_expression.get_source_position(),
-                           log_level=LoggingLevel.WARNING)
+                           log_level=LoggingLevel.INFO)
 
     @staticmethod
     def try_to_recover_or_error(_lhs_type_symbol, _rhs_type_symbol, _containing_expression):
