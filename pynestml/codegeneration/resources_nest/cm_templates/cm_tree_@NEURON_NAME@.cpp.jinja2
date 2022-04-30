@@ -1,5 +1,5 @@
 /*
- *  {{neuronSpecificFileNamesCmSyns["tree"]}}.cpp
+ *  cm_tree.cpp
  *
  *  This file is part of NEST.
  *
@@ -45,7 +45,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 {
   v_comp = el;
 
-  compartment_currents = Compartment{{cm_unique_suffix}}Currents();
+  compartment_currents = CompartmentCurrents{{cm_unique_suffix}}();
 }
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
   const long parent_index,
@@ -78,13 +78,13 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 
   v_comp = el;
 
-  compartment_currents = Compartment{{cm_unique_suffix}}Currents( compartment_params );
+  compartment_currents = CompartmentCurrents{{cm_unique_suffix}}( compartment_params );
 }
 
 void
-nest::Compartment{{cm_unique_suffix}}::calibrate()
+nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
 {
-  compartment_currents.calibrate();
+  compartment_currents.pre_run_hook();
 
   const double dt = Time::get_resolution().get_ms();
   ca__div__dt = ca / dt;
@@ -185,7 +185,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( Compartment{{cm_unique_suff
   if ( parent_index >= 0 )
   {
     /**
-     * we do not raise an UnknownCompartment{{cm_unique_suffix}} exception from within
+     * we do not raise an UnknownCompartment exception from within
      * get_compartment(), because we want to print a more informative
      * exception message
      */
@@ -193,7 +193,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( Compartment{{cm_unique_suff
     if ( parent == nullptr )
     {
       std::string msg = "does not exist in tree, but was specified as a parent compartment";
-      throw UnknownCompartment{{cm_unique_suffix}}( parent_index, msg );
+      throw UnknownCompartment( parent_index, msg );
     }
 
     parent->children.push_back( *compartment );
@@ -204,7 +204,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( Compartment{{cm_unique_suff
     if ( root_.comp_index >= 0 )
     {
       std::string msg = ", the root, has already been instantiated";
-      throw UnknownCompartment{{cm_unique_suffix}}( root_.comp_index, msg );
+      throw UnknownCompartment( root_.comp_index, msg );
     }
     root_ = *compartment;
   }
@@ -251,7 +251,7 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment( const long compartment_inde
   if ( ( not r_compartment ) && raise_flag )
   {
     std::string msg = "does not exist in tree";
-    throw UnknownCompartment{{cm_unique_suffix}}( compartment_index, msg );
+    throw UnknownCompartment( compartment_index, msg );
   }
 
   return r_compartment;
@@ -364,18 +364,18 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
  * Initialize state variables
  */
 void
-nest::CompTree{{cm_unique_suffix}}::calibrate()
+nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
 {
   if ( root_.comp_index < 0 )
   {
     std::string msg = "does not exist in tree, meaning that no compartments have been added";
-    throw UnknownCompartment{{cm_unique_suffix}}( 0, msg );
+    throw UnknownCompartment( 0, msg );
   }
 
   // initialize the compartments
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
-    ( *compartment_it )->calibrate();
+    ( *compartment_it )->pre_run_hook();
   }
 }
 

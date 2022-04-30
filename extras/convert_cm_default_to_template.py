@@ -19,14 +19,50 @@ def get_replacement_patterns():
     return repl_patterns
 
 
+def get_trailing_characters():
+    trailing_characters = [
+        ' ', # declarations
+        '::', # function definition
+        '(', # constructor, destructor,...
+        '*', # pointer declarations
+        '&', # references
+        '.h', # includes
+    ]
+    return trailing_characters
+
+def get_leading_characters():
+    leading_characters = [
+        'class ',
+    ]
+    return leading_characters
+
+def get_excluded_substrings():
+    excluded_substrings = {
+        'UnknownCompartment': '#'
+    }
+    return excluded_substrings
+
+
 def get_replacement_filenames():
     repl_fnames = {
-        'cm_default.h': 'MainHeader.jinja2',
-        'cm_default.cpp': 'MainClass.jinja2',
-        'cm_tree.h': 'TreeHeader.jinja2',
-        'cm_tree.cpp': 'TreeClass.jinja2'
+        'cm_default.h': 'cm_main_@NEURON_NAME@.h.jinja2',
+        'cm_default.cpp': 'cm_main_@NEURON_NAME@.cpp.jinja2',
+        'cm_tree.h': 'cm_tree_@NEURON_NAME@.h.jinja2',
+        'cm_tree.cpp': 'cm_tree_@NEURON_NAME@.cpp.jinja2'
     }
     return repl_fnames
+
+
+def replace_with_exclusion(source_string, target_string, line):
+    if len([substr for substr in get_excluded_substrings() if substr in line]) > 0:
+
+        line.replace(source_string, target_string)
+
+        for exclstr in get_excluded_substrings():
+            line.replace('#'*len(exclstr), exclstr)
+
+    else:
+        line.replace(source_string, target_string)
 
 
 def parse_command_line():
@@ -50,8 +86,29 @@ def replace_in_file(source_path, target_path, source_name, target_name):
     with open(os.path.join(source_path, source_name), "rt") as fin:
         with open(os.path.join(target_path, target_name), "wt") as fout:
             for line in fin:
+
                 for cm_default_str, jinja_templ_str in get_replacement_patterns().items():
-                    line = line.replace(cm_default_str, jinja_templ_str)
+                    # we safeguard excluded substrings for replacement by
+                    # temporarily chaning there name into a pattern that does
+                    # not occur in the replacement patterns
+                    for excl_str, repl_char in get_excluded_substrings().items():
+                        line = line.replace(excl_str, repl_char*len(excl_str))
+
+                    for trail_chr in get_trailing_characters():
+                        line = line.replace(
+                            cm_default_str + trail_chr,
+                            jinja_templ_str + trail_chr
+                        )
+
+                    for lead_chr in get_leading_characters():
+                        line = line.replace(
+                            lead_chr + cm_default_str,
+                            lead_chr + jinja_templ_str
+                        )
+
+                    for excl_str, repl_char in get_excluded_substrings().items():
+                        line = line.replace(repl_char*len(excl_str), excl_str)
+
                 fout.write(line)
 
 

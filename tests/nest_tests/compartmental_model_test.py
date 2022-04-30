@@ -2,6 +2,8 @@
 Example comparison of a two-compartment model with an active dendritic
 compartment and a two-compartment model with a passive dendritic compartment.
 """
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 import nest, pynestml
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
@@ -90,18 +92,18 @@ class CMTest(unittest.TestCase):
                                            suffix="_nestml",
                                            logging_level="DEBUG")
 
-    def get_model(self, reinstall_flag=True):
+    def get_model(self, reinstall_flag=False):
         if self.nestml_flag:
-            try:
-                if reinstall_flag:
-                    raise AssertionError
+            # try:
+            #     if reinstall_flag:
+            #         raise AssertionError
 
-                nest.Install("cm_defaultmodule")
+            # nest.Install("cm_defaultmodule")
 
-            except (nest.NESTError, AssertionError) as e:
-                self.install_nestml_model()
+            # except (nest.NESTError, AssertionError) as e:
+            self.install_nestml_model()
 
-                nest.Install("cm_defaultmodule")
+            nest.Install("cm_defaultmodule")
 
             cm_act = nest.Create("cm_main_cm_default_nestml")
             cm_pas = nest.Create("cm_main_cm_default_nestml")
