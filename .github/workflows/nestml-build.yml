@@ -237,3 +237,7 @@ jobs:
           rc=0
           pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest2_compat_test.py || rc=1
           exit $rc
+
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
