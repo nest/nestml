@@ -189,8 +189,11 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
+#if NEST2_COMPAT
+  calibrate();
+#else
   pre_run_hook();
+#endif
 {%- if uses_numeric_solver %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
@@ -396,7 +399,11 @@ void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
   }
 }
 
+#if NEST2_COMPAT
+void {{neuronName}}::calibrate() {
+#else
 void {{neuronName}}::pre_run_hook() {
+#endif
   B_.logger_.init();
 
   recompute_internal_variables();
