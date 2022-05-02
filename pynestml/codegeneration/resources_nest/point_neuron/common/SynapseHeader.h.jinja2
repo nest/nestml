@@ -379,10 +379,10 @@ private:
   *
   {{synapse.print_internal_comment('*')}}
   *
-  * These variables must be initialized by @c calibrate, which is called before
+  * These variables must be initialized by @c pre_run_hook, which is called before
   * the first call to @c update() upon each call to @c Simulate.
   * @node Variables_ needs neither constructor, copy constructor or assignment operator,
-  *       since it is initialized by @c calibrate(). If Variables_ has members that
+  *       since it is initialized by @c pre_run_hook(). If Variables_ has members that
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {
@@ -1122,7 +1122,7 @@ void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
 
 {%- for variable in synapse.get_internal_symbols() %}
 {%-     if not variable.get_symbol_name() == "__h" %}
-{%-         include "directives/Calibrate.jinja2" %}
+{%-         include "directives/PreRunHook.jinja2" %}
 {%-     endif %}
 {%- endfor %}
 }

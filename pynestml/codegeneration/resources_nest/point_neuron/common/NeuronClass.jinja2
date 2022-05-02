@@ -190,7 +190,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-  calibrate();
+  pre_run_hook();
 {%- if uses_numeric_solver %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
@@ -374,14 +374,14 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 }
 
-void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
+void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   if (exclude_timestep) {
 {%- filter indent(4,True) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%- if variable.name != "__h" %}
-{%-   include "directives/Calibrate.jinja2" %}
+{%-   include "directives/PreRunHook.jinja2" %}
 {%- endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -390,16 +390,16 @@ void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
     // internals V_
 {%- filter indent(4) %}
 {%- for variable in neuron.get_internal_symbols() %}
-{%-   include "directives/Calibrate.jinja2" %}
+{%-   include "directives/PreRunHook.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
   }
 }
 
-void {{neuronName}}::calibrate() {
+void {{neuronName}}::pre_run_hook() {
   B_.logger_.init();
 
-  calibrate_variables();
+  recompute_internal_variables();
 
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
@@ -664,7 +664,7 @@ void
         const double old___h = V_.__h;
         V_.__h = t_sp_ms - last_spike_;
         if (V_.__h > 1E-12) {
-          calibrate_variables(true);
+          recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -703,7 +703,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 
 {%- endfilter %}
         V_.__h = old___h;
-        calibrate_variables(true);
+        recompute_internal_variables(true);
       }
 
         /**
@@ -806,7 +806,7 @@ double
         const double old___h = V_.__h;
         V_.__h = t - history_[i].t_;
         assert(V_.__h > 0);
-        calibrate_variables(true);
+        recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -840,7 +840,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endfilter %}
 
         V_.__h = old___h;
-        calibrate_variables(true);
+        recompute_internal_variables(true);
       }
 
 #ifdef DEBUG
@@ -889,7 +889,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   const double old___h = V_.__h;
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
-  calibrate_variables(true);
+  recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -922,7 +922,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- endfilter %}
   V_.__h = old___h;
-  calibrate_variables(true);
+  recompute_internal_variables(true);
 
   return {{names.getter(var_sym)}}();
 }
