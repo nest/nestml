@@ -188,10 +188,8 @@ class Messages:
 
     @classmethod
     def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor):
-        message = 'Non-matching unit types at %s +/- %s! ' \
-                  'Implicitly replaced by %s +/- %s * %s.' % (
-                      lhs.print_symbol(), rhs.print_symbol(), lhs.print_symbol(), conversion_factor,
-                      rhs.print_symbol())
+        message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
+                      lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
