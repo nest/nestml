@@ -177,9 +177,9 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
         // compute the conductance of the {{ion_channel_name}} channel
-        double i_tot = {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }};
+        double i_tot = {{ local_variables_printer.print_expression(inline_expression.get_expression(), with_origins = False) }};
         // derivative
-        double d_i_tot_dv = {{ printer.print_expression(inline_expression_d, with_origins = False) }};
+        double d_i_tot_dv = {{ local_variables_printer.print_expression(inline_expression_d, with_origins = False) }};
 
         // for numerical integration
         g_val = - d_i_tot_dv / 2.;
@@ -235,7 +235,7 @@ nest::{{synapse_name}}::append_recordables(std::map< Name, double* >* recordable
   {%- endfor %}
 }
 
-void nest::{{synapse_name}}::calibrate()
+void nest::{{synapse_name}}::pre_run_hook()
 {
 
   // initial values for user defined states
@@ -273,7 +273,7 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
   // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-  {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {{state_variable_name}} = {{local_variables_printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
   {%- endfor %}
   {%- endfor %}
 
@@ -283,20 +283,20 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
   // update kernel state variable / compute synaptic conductance
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-  {{state_variable_name}} = {{printer.print_expression(state_variable_info["update_expression"], with_origins = False)}};
-  {{state_variable_name}} += s_val * {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {{state_variable_name}} = {{local_variables_printer.print_expression(state_variable_info["update_expression"], with_origins = False)}};
+  {{state_variable_name}} += s_val * {{local_variables_printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
 
   {%- endfor %}
   {%- endfor %}
 
   // total current
   // this expression should be the transformed inline expression
-  double i_tot = {{printer.print_expression(synapse_info["inline_expression"].get_expression(), with_origins = False)}};
+  double i_tot = {{local_variables_printer.print_expression(synapse_info["inline_expression"].get_expression(), with_origins = False)}};
 
   // derivative of that expression
   // voltage derivative of total current
   // compute derivative with respect to current with sympy
-  double d_i_tot_dv = {{printer.print_expression(synapse_info["inline_expression_d"], with_origins = False)}};
+  double d_i_tot_dv = {{local_variables_printer.print_expression(synapse_info["inline_expression_d"], with_origins = False)}};
 
   // for numerical integration
   double g_val = - d_i_tot_dv / 2.;

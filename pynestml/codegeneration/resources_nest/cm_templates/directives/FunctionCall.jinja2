@@ -11,5 +11,5 @@
 {%- include "directives/AnalyticIntegrationStep_end.jinja2" %}
 {%- include "directives/ApplySpikesFromBuffers.jinja2" %}
 {%- else %}
-{{printer.print_method_call(ast)}};
+{{printer.print_method_call(ast, with_origin=False)}};
 {%- endif %}

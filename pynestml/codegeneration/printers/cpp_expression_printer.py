@@ -152,7 +152,7 @@ class CppExpressionPrinter(ExpressionPrinter):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self.reference_converter.convert_print_statement(function_call))
 
-            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix, with_origins=with_origins))
 
         return function_name
 
