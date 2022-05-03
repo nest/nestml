@@ -7,15 +7,17 @@ inline double get_state_element(size_t elem)
   {
 {%- set len = recordable_state_variables | length %}
 {%- for variable in recordable_state_variables %}
+{%- set condition = true %}
 {%-  if loop.index == 1 %}
     if
 {%-  elif loop.index == len %}
     else
+{%- set condition = false %}
 {%-  else %}
     else if
 {%-  endif %}
 
-{%- if loop.index == 1 or loop.index < len %}
+{%- if condition == true %}
 {%-   if variable.has_vector_parameter() %}
 {%-   set size =  variable.get_vector_parameter() %}
 {%-     if size|int == 0 %}
@@ -23,7 +25,7 @@ inline double get_state_element(size_t elem)
 {%-     endif -%}
     (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
     }
 {%-   else %}
     (elem == State_::{{names.name(variable).upper()}})
@@ -34,7 +36,7 @@ inline double get_state_element(size_t elem)
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
     }
 {%-   else %}
     {
