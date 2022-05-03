@@ -1122,7 +1122,7 @@ void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
 
 {%- for variable in synapse.get_internal_symbols() %}
 {%-     if not variable.get_symbol_name() == "__h" %}
-{%-         include "directives/PreRunHook.jinja2" %}
+{%-         include "directives/MemberInitialization.jinja2" %}
 {%-     endif %}
 {%- endfor %}
 }
