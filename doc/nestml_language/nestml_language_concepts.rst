@@ -881,7 +881,7 @@ Here, the ``delay`` variable is defined in the ``parameters`` block as:
 
 .. note::
    - Delay differential equations where the derivative of a variable is dependent on the derivative of the same
-variable at previous times, for example, `The Mackey-Glass equation <http://www.scholarpedia.org/article/Mackey-Glass_equation>`, are not supported currently.
+     variable at previous times, for example, `The Mackey-Glass equation <http://www.scholarpedia.org/article/Mackey-Glass_equation>`, are not supported currently.
    - Delay differential equations with multiple delay values for the same variable are also not supported.
 
 Inline expressions
