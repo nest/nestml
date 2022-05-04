@@ -91,8 +91,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "model_templates": {
                 "neuron": ["cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
                            "cm_compartmentcurrents_@NEURON_NAME@.h.jinja2",
-                           "cm_main_@NEURON_NAME@.cpp.jinja2",
-                           "cm_main_@NEURON_NAME@.h.jinja2",
+                           "@NEURON_NAME@.cpp.jinja2",
+                           "@NEURON_NAME@.h.jinja2",
                            "cm_tree_@NEURON_NAME@.cpp.jinja2",
                            "cm_tree_@NEURON_NAME@.h.jinja2"
             ]},
@@ -287,7 +287,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         return "cm_compartmentcurrents_" + neuron.get_name()
 
     def get_cm_syns_main_file_prefix(self, neuron):
-        return "cm_main_" + neuron.get_name()
+        return neuron.get_name()
 
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()

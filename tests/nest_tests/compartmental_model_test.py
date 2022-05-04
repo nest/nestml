@@ -102,8 +102,8 @@ class CMTest(unittest.TestCase):
 
                 nest.Install("cm_defaultmodule")
 
-            cm_act = nest.Create("cm_main_cm_default_nestml")
-            cm_pas = nest.Create("cm_main_cm_default_nestml")
+            cm_act = nest.Create("cm_default_nestml")
+            cm_pas = nest.Create("cm_default_nestml")
 
         else:
             # models built into NEST Simulator
