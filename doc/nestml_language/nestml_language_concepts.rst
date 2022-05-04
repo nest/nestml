@@ -875,11 +875,13 @@ Here, the ``delay`` variable is defined in the ``parameters`` block as:
    end
 
 .. note::
+
    The value of the delayed variable (``bar`` in the above example) returned by the node's ``get()`` function in
    PyNEST is always the non-delayed version, i.e., the value of the derivative of ``bar`` at time ``t``. Similarly, the
    ``set()`` function sets the value of the actual state variable ``bar`` without the ``delay`` into consideration.
 
 .. note::
+
    - Delay differential equations where the derivative of a variable is dependent on the derivative of the same
      variable at previous times, for example, `The Mackey-Glass equation <http://www.scholarpedia.org/article/Mackey-Glass_equation>`, are not supported currently.
    - Delay differential equations with multiple delay values for the same variable are also not supported.
