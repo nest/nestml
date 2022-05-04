@@ -2,9 +2,6 @@
 Example comparison of a two-compartment model with an active dendritic
 compartment and a two-compartment model with a passive dendritic compartment.
 """
-import os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
 import nest, pynestml
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
@@ -24,7 +21,7 @@ DT = .001
 SOMA_PARAMS = {
     # passive parameters
     'C_m': 89.245535, # pF
-    'g_c': 0.0, # soma has no parameters
+    'g_C': 0.0, # soma has no parent
     'g_L': 8.924572508, # nS
     'e_L': -75.0,
     # E-type specific
@@ -36,7 +33,7 @@ SOMA_PARAMS = {
 DEND_PARAMS_PASSIVE = {
     # passive parameters
     'C_m': 1.929929,
-    'g_c': 1.255439494,
+    'g_C': 1.255439494,
     'g_L': 0.192992878,
     'e_L': -75.0,
     # by default, active conducances are set to zero, so we don't need to specify
@@ -45,7 +42,7 @@ DEND_PARAMS_PASSIVE = {
 DEND_PARAMS_ACTIVE = {
     # passive parameters
     'C_m': 1.929929, # pF
-    'g_c': 1.255439494, # nS
+    'g_C': 1.255439494, # nS
     'g_L': 0.192992878, # nS
     'e_L': -70.0, # mV
     # E-type specific
@@ -94,16 +91,16 @@ class CMTest(unittest.TestCase):
 
     def get_model(self, reinstall_flag=False):
         if self.nestml_flag:
-            # try:
-            #     if reinstall_flag:
-            #         raise AssertionError
+            try:
+                if reinstall_flag:
+                    raise AssertionError
 
-            # nest.Install("cm_defaultmodule")
+                nest.Install("cm_defaultmodule")
 
-            # except (nest.NESTError, AssertionError) as e:
-            self.install_nestml_model()
+            except (nest.NESTError, AssertionError) as e:
+                self.install_nestml_model()
 
-            nest.Install("cm_defaultmodule")
+                nest.Install("cm_defaultmodule")
 
             cm_act = nest.Create("cm_main_cm_default_nestml")
             cm_pas = nest.Create("cm_main_cm_default_nestml")
@@ -142,8 +139,8 @@ class CMTest(unittest.TestCase):
         ]
 
         # set spike thresholds
-        nest.SetStatus(cm_pas, {'V_th': -50.})
-        nest.SetStatus(cm_act, {'V_th': -50.})
+        cm_pas.V_th = -50.
+        cm_act.V_th = -50.
 
         # add somatic and dendritic receptor to passive dendrite model
         cm_pas.receptors = [
@@ -167,14 +164,14 @@ class CMTest(unittest.TestCase):
 
         # connect spike generators to passive dendrite model (weight in nS)
         nest.Connect(sg_soma, cm_pas, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 5., 'delay': 5*DT, 'receptor_type': syn_idx_soma_pas})
+            'synapse_model': 'static_synapse', 'weight': 5., 'delay': .5, 'receptor_type': syn_idx_soma_pas})
         nest.Connect(sg_dend, cm_pas, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 2., 'delay': 5*DT, 'receptor_type': syn_idx_dend_pas})
+            'synapse_model': 'static_synapse', 'weight': 2., 'delay': .5, 'receptor_type': syn_idx_dend_pas})
         # connect spike generators to active dendrite model (weight in nS)
         nest.Connect(sg_soma, cm_act, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 5., 'delay': 5*DT, 'receptor_type': syn_idx_soma_act})
+            'synapse_model': 'static_synapse', 'weight': 5., 'delay': .5, 'receptor_type': syn_idx_soma_act})
         nest.Connect(sg_dend, cm_act, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 2., 'delay': 5*DT, 'receptor_type': syn_idx_dend_act})
+            'synapse_model': 'static_synapse', 'weight': 2., 'delay': .5, 'receptor_type': syn_idx_dend_act})
 
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
@@ -341,7 +338,7 @@ class CMTest(unittest.TestCase):
 
 if __name__ == "__main__":
     cmtest = CMTest()
-    cmtest.nestml_flag = 1
+    # cmtest.nestml_flag = 1
     # cmtest.install_nestml_model()
     # cmtest.get_nestml_model()
     cmtest.test_compartmental_model()
