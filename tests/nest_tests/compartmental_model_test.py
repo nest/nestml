@@ -52,19 +52,6 @@ DEND_PARAMS_ACTIVE = {
     'e_K': -90. # mV
 }
 
-OPTIONS = {
-     "templates":
-     {
-         "path": "cm_templates",
-         "model_templates": {
-             "neuron": ['CompartmentCurrentsClass.jinja2', 'CompartmentCurrentsHeader.jinja2'
-                        'MainClass.jinja2', 'MainHeader.jinja2',
-                        'TreeClass.jinja2', 'TreeHeader.jinja2'],
-         },
-         "module_templates": ["setup"]
-     }
-}
-
 
 class CMTest(unittest.TestCase):
 
@@ -337,9 +324,4 @@ class CMTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    cmtest = CMTest()
-    # cmtest.nestml_flag = 1
-    # cmtest.install_nestml_model()
-    # cmtest.get_nestml_model()
-    cmtest.test_compartmental_model()
-    # unittest.main()
+    unittest.main()
