@@ -88,7 +88,7 @@ private:
   // global synapse index
   long syn_idx = 0;
 
-  // propagators, initialized via pre_run_hook() to 0, refreshed in numstep
+  // propagators, initialized via pre_run_hook()
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
   double {{state_variable_name}};
