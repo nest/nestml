@@ -35,6 +35,7 @@ from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHel
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.printers.gsl_reference_converter import GSLReferenceConverter
+from pynestml.codegeneration.printers.nest_local_variables_reference_converter import NESTLocalVariablesReferenceConverter
 from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.printers.nest_printer import NestPrinter
 from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
@@ -126,6 +127,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._unitless_nest_gsl_printer = NestPrinter(reference_converter=self._nest_reference_converter,
                                                       types_printer=self._types_printer,
                                                       expression_printer=self._unitless_expression_printer)
+
+        self._local_variables_reference_converter = NESTLocalVariablesReferenceConverter()
+        self._unitless_local_variables_expression_printer = UnitlessExpressionPrinter(self._local_variables_reference_converter)
+        self._unitless_local_variables_nest_gsl_printer = NestPrinter(reference_converter=self._local_variables_reference_converter,
+                                                                      types_printer=self._types_printer,
+                                                                      expression_printer=self._unitless_local_variables_expression_printer)
 
         self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
 
@@ -563,6 +570,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["neuron"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["printer"] = self._unitless_nest_gsl_printer
+        namespace["local_variables_printer"] = self._unitless_local_variables_nest_gsl_printer
         namespace["nest_printer"] = self._nest_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_reference_converter
@@ -629,7 +637,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
             namespace["useGSL"] = namespace["uses_numeric_solver"]
             namespace["names"] = self._gsl_reference_converter
-            namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if
