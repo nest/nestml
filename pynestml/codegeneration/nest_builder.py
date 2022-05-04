@@ -123,9 +123,11 @@ class NESTBuilder(Builder):
                 install_path = os.path.abspath(install_path)
             install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
 
+        n_cpu = len(os.sched_getaffinity(0))  # compile multithreaded
+
         nest_config_path = f"-Dwith-nest={os.path.join(nest_path, 'bin', 'nest-config')}"
         cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
-        make_all_cmd = ['make', 'all']
+        make_all_cmd = ['make', '-j' + str(n_cpu), 'all']
         make_install_cmd = ['make', 'install']
 
         # remove CMakeCache.txt if exists
