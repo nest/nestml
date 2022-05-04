@@ -129,7 +129,7 @@ nest::{{ion_channel_name}}::append_recordables(std::map< Name, double* >* record
   {%- with %}
   {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
   {%- set variable = variable_info["state_variable"] %}
-  ( *recordables )["{{variable.name}}" + std::to_string(compartment_idx)] = &{{variable.name}};
+  ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
   {% endwith %}
 }
@@ -231,7 +231,7 @@ void
 nest::{{synapse_name}}::append_recordables(std::map< Name, double* >* recordables)
 {
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  ( *recordables )["{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx)] = &{{convolution}};
+  ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx) )] = &{{convolution}};
   {%- endfor %}
 }
 
