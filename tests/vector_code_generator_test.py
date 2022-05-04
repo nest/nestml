@@ -22,6 +22,7 @@ import os
 import unittest
 
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 from pynestml.utils.model_parser import ModelParser
 
@@ -71,6 +72,13 @@ class VectorCodeGenerationTest(unittest.TestCase):
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+
+    def test_vector_code_generation_and_build(self):
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources",
+                                                       "SimpleVectorsModel.nestml")))
+        generate_nest_target(input_path=input_path,
+                             target_path=self.target_path,
+                             logging_level="INFO")
 
     def tearDown(self) -> None:
         import shutil
