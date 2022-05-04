@@ -7,17 +7,15 @@ inline double get_state_element(size_t elem)
   {
 {%- set len = recordable_state_variables | length %}
 {%- for variable in recordable_state_variables %}
-{%- set with_condition = true %}
 {%-  if loop.index == 1 %}
     if
 {%-  elif loop.index == len %}
     else
-{%- set with_condition = false %}
 {%-  else %}
     else if
 {%-  endif %}
 
-{%- if with_condition == true %}
+{%- if len == 1 or loop.index < len %}
 {%-   if variable.has_vector_parameter() %}
 {%-   set size =  variable.get_vector_parameter() %}
 {%-     if size|int == 0 %}
