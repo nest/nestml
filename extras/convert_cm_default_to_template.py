@@ -45,8 +45,8 @@ def get_excluded_substrings():
 
 def get_replacement_filenames():
     repl_fnames = {
-        'cm_default.h': 'cm_main_@NEURON_NAME@.h.jinja2',
-        'cm_default.cpp': 'cm_main_@NEURON_NAME@.cpp.jinja2',
+        'cm_default.h': '@NEURON_NAME@.h.jinja2',
+        'cm_default.cpp': '@NEURON_NAME@.cpp.jinja2',
         'cm_tree.h': 'cm_tree_@NEURON_NAME@.h.jinja2',
         'cm_tree.cpp': 'cm_tree_@NEURON_NAME@.cpp.jinja2'
     }
