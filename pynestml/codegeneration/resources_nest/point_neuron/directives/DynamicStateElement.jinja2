@@ -21,12 +21,12 @@ inline double get_state_element(size_t elem)
 {%-     if size|int == 0 %}
 {%-     set size = printer.print_vector_size_parameter(variable) %}
 {%-     endif -%}
-    (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
+    (elem >= State_::STATE_VEC_VAR_{{names.name(variable).upper()}} && elem < State_::STATE_VEC_VAR_{{names.name(variable).upper()}} + {{size}})
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+      return S_.{{names.name(variable)}}[ elem - State_::STATE_VEC_VAR_{{names.name(variable).upper()}}];
     }
 {%-   else %}
-    (elem == State_::{{names.name(variable).upper()}})
+    (elem == State_::STATE_VEC_VAR_{{names.name(variable).upper()}})
     {
       return S_.{{names.name(variable)}};
     }
@@ -34,7 +34,7 @@ inline double get_state_element(size_t elem)
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+      return S_.{{names.name(variable)}}[ elem - State_::STATE_VEC_VAR_{{names.name(variable).upper()}}];
     }
 {%-   else %}
     {
