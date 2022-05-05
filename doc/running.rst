@@ -155,9 +155,8 @@ Custom templates
 See :ref:`Running NESTML with custom templates`.
 
 
-
 NEST 2.* compatibility mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.\*), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
 

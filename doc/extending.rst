@@ -1,0 +1,60 @@
+Extending NESTML
+################
+
+The NESTML toolchain is modular and extensible.
+
+Internal workflow
+-----------------
+
+When NESTML is invoked, ...
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/internal_workflow.png
+   :alt: NESTML model(s) → Parsing and validation → Transform → (+ Templates) → Generate code (and build) → Executable (binary) code
+
+:doc:`pynestml_toolchain/index`
+
+
+Adding a new target platform
+----------------------------
+
+
+Running NESTML with custom templates
+------------------------------------
+
+NESTML generates model-specific code using a set of Jinja templates. The templates for each target platform are located in the `pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__ subdirectories. (For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.) For example, for NEST, NESTML by default uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. These defaults are specified in the code generator within its default values dictionary (``_default_options``, see for instance https://github.com/nest/nestml/blob/master/pynestml/codegeneration/nest_code_generator.py).
+
+The default directory can be changed by specifying code generator options that override the default values. This can be done either by passing these options via the ``codegen_opts`` parameter of the NESTML Python API call to ``generate_target()``, or on the command line, through the ``--codegen_opts`` parameter to a JSON file. For example:
+
+.. code-block:: bash
+
+   nestml --input_path models/neurons/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
+
+An example ``codegen_options.json`` file for NEST could look as follows:
+
+.. code-block:: json
+
+   {
+        "templates":
+        {
+            "path": "/home/nest/work/custom_templates",
+            "model_templates": {
+                "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
+            },
+            "module_templates": ["setup/CMakeLists.txt.jinja2",
+                                 "setup/@MODULE_NAME@.h.jinja2","setup/@MODULE_NAME@.cpp.jinja2"]
+        }
+   }
+
+The ``templates`` option in the JSON file contains information on the custom Jinja templates to be used for code generation.
+* The ``path`` option indicates the root directory of the custom Jinja templates.
+* The ``model_templates`` option indicates the names of the Jinja templates for neuron and synapse model(s) or relative path to a directory containing the neuron and synapse model(s) templates.
+* The ``module_templates`` option indicates the names or relative path to a directory containing the Jinja templates for the module.
+
+The escape sequence ``@NEURON_NAME@`` (resp. ``@SYNAPSE_NAME@``, ``@MODULE_NAME@``) will be replaced with the name of the neuron model (resp. synapse model or name of the module) during code generation.
+
+If a directory is given, the directory is recursively searched for templates (files ending in the ``.jinja2`` extension), for example:
+
+.. code-block:: python
+
+   codegen_opts = {"templates": {"module_templates": ["setup"]}}
