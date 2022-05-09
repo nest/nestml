@@ -1070,6 +1070,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["initial_values"] = {}
         namespace["variable_symbols"] = {}
+
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
         if namespace["uses_analytic_solver"]:
@@ -1106,6 +1107,15 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["update_expressions"][sym] = expr_ast
 
             namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
+
+            namespace["propagators_are_state_dependent"] = 0  # boolean flag
+            for prop_name, prop_expr in namespace["propagators"].items():
+                prop_expr_ast = ModelParser.parse_expression(prop_expr)
+
+                for decl in neuron.get_state_blocks().get_declarations():
+                    for var in decl.get_variables():
+                        if var.get_name() in [var.get_name() for var in prop_expr_ast.get_variables()]:
+                            namespace["propagators_are_state_dependent"] = 1
 
         # convert variables from ASTVariable instances to strings
         _names = self.non_equations_state_variables[neuron.get_name()]

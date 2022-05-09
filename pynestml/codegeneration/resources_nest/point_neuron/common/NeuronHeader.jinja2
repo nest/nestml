@@ -881,6 +881,9 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
   }
 {%- endif %}
+
+  // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
+  recompute_internal_variables();
 };
 
 #endif /* #ifndef {{neuronName.upper()}} */
