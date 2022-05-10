@@ -175,9 +175,6 @@ public:
         }
       }
 {%- endif %}
-
-      // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
-      recompute_internal_variables();
     }
 
     // N.B.: we define all parameters as public for easy reference conversion later on.
@@ -1112,6 +1109,9 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespa
 {{ names.getter(parameter) }}()
 {%-     endif %}
 {%- endfor %});
+
+  // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
+  recompute_internal_variables();
 }
 
 /**
