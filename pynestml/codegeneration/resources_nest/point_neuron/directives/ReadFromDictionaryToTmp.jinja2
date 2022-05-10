@@ -30,9 +30,11 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_n
 
 {%- if variable.has_vector_parameter() %}
 {%- set vector_param = variable.get_vector_parameter() %}
-{%- if vector_param|int == 0 %}
+{# If the vector parameter is not an integer (i.e., a variable) #}
+{%- if not vector_param is number %}
 {%- set vector_param = "tmp_" + vector_param %}
 {%- endif %}
+// Check if the new vector size matches its original size
 if ( tmp_{{names.name(variable)}}.size() != {{vector_param}} )
 {
   std::stringstream msg;
