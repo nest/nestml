@@ -23,7 +23,8 @@ import os
 import nest
 import unittest
 import numpy as np
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -43,17 +44,14 @@ class NestSTNExpTest(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "../../models/neurons", "terub_stn.nestml")))
         target_path = "target"
-        module_name = 'terub_stn_module'
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        suffix = '_nestml'
+        module_name = "terub_stn_module"
+        suffix = "_nestml"
 
-        to_nest(input_path=input_path,
-                target_path=target_path,
-                logging_level="INFO",
-                suffix=suffix,
-                module_name=module_name)
-
-        install_nest(target_path, nest_path)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level="INFO",
+                             suffix=suffix,
+                             module_name=module_name)
 
         nest.Install(module_name)
         model = "terub_stn_nestml"
@@ -65,7 +63,7 @@ class NestSTNExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-        neuron.set({'I_e': 10.0})
+        neuron.set({"I_e": 10.0})
         multimeter = nest.Create("multimeter")
         multimeter.set({"record_from": ["V_m"],
                         "interval": dt})
@@ -77,8 +75,8 @@ class NestSTNExpTest(unittest.TestCase):
         dmm = nest.GetStatus(multimeter)[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
-        dSD = nest.GetStatus(spike_recorder, keys='events')[0]
-        spikes = dSD['senders']
+        dSD = nest.GetStatus(spike_recorder, keys="events")[0]
+        spikes = dSD["senders"]
         ts = dSD["times"]
 
         firing_rate = len(spikes) / t_simulation * 1000
@@ -92,7 +90,7 @@ class NestSTNExpTest(unittest.TestCase):
 
             fig, ax = plt.subplots(2, figsize=(8, 4), sharex=True)
             ax[0].plot(tv, Voltages, lw=2, color="k")
-            ax[1].plot(ts, spikes, 'ko')
+            ax[1].plot(ts, spikes, "ko")
             ax[1].set_xlabel("Time [ms]")
             ax[1].set_xlim(0, t_simulation)
             ax[1].set_ylabel("Spikes")

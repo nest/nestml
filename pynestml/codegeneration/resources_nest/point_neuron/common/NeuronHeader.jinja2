@@ -48,9 +48,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- if norm_rng %}
 
 // Includes for random number generator
-#include "random_generators.h"
+#if NEST2_COMPAT
+#include "normal_randomdev.h"
+#include "uniform_randomdev.h"
+#else
+#include <random>
+#endif
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
 #ifndef HAVE_GSL
 #error "The GSL library is required for neurons that require a numerical solver."
@@ -73,7 +78,30 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from sli:
 #include "dictdatum.h"
 
-{% if useGSL %}
+namespace nest
+{
+namespace {{names_namespace}}
+{
+{%- if neuron.get_state_symbols()|length > 0 %}
+{%- for sym in neuron.get_state_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if recordable_inline_expressions|length > 0 %}
+{%- for sym in recordable_inline_expressions %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if neuron.get_parameter_symbols()|length > 0 %}
+{%- for sym in neuron.get_parameter_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
+}
+
+
+{% if uses_numeric_solver %}
 /**
  * Function computing right-hand side of ODE for GSL solver.
  * @note Must be declared here so we can befriend it in class.
@@ -171,7 +199,7 @@ public:
    * The copy constructor is used to create model copies and instances of the model.
    * @node The copy constructor needs to initialize the parameters and the state.
    *       Initialization of buffers and interal variables is deferred to
-   *       @c init_buffers_() and @c calibrate().
+   *       @c init_buffers_() and @c pre_run_hook() (or calibrate() in NEST 2.x).
   **/
   {{neuronName}}(const {{neuronName}} &);
 
@@ -314,7 +342,7 @@ protected:
 {%- endif %}
 
 private:
-  void calibrate_variables(bool exclude_timestep=false);
+  void recompute_internal_variables(bool exclude_timestep=false);
 
 
 {%- if paired_synapse is defined %}
@@ -372,7 +400,11 @@ private:
   /**
    * Initialize auxiliary quantities, leave parameters and state untouched.
   **/
+#if NEST2_COMPAT
   void calibrate();
+#else
+  void pre_run_hook();
+#endif
 
   /**
    * Take neuron through given time interval
@@ -416,7 +448,7 @@ private:
 {%- include 'directives/MemberDeclaration.jinja2' %}
 {%- endfor %}
 {%- endfilter %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
     double __gsl_error_tol;
 {%- endif %}
@@ -449,19 +481,19 @@ private:
   **/
   struct State_
   {
-{%- if not useGSL %}
-{%- if has_state_vectors %}
-{%  include "directives/StateVariablesEnum.jinja2" %}
-{%- endif %}
+{%- if not uses_numeric_solver %}
+{%-   if has_state_vectors %}
+{%      include "directives/StateVariablesEnum.jinja2" %}
+{%-   endif %}
 {%-   filter indent(4,True) %}
 {%-   for variable in neuron.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
-{%- if has_state_vectors %}
-{%- include "directives/VectorVariablesEnum.jinja2" %}
-{%- endif %}
+{%-   if has_state_vectors %}
+{%-     include "directives/VectorVariablesEnum.jinja2" %}
+{%-   endif %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
     {
@@ -504,10 +536,10 @@ private:
    *
    {{neuron.print_internal_comment('*')}}
    *
-   * These variables must be initialized by @c calibrate, which is called before
+   * These variables must be initialized by @c pre_run_hook (or calibrate in NEST 2.x), which is called before
    * the first call to @c update() upon each call to @c Simulate.
    * @node Variables_ needs neither constructor, copy constructor or assignment operator,
-   *       since it is initialized by @c calibrate(). If Variables_ has members that
+   *       since it is initialized by @c pre_run_hook() (or calibrate() in NEST 2.x). If Variables_ has members that
    *       cannot destroy themselves, Variables_ will need a destructor.
   **/
   struct Variables_
@@ -523,7 +555,7 @@ private:
    * Buffers of the neuron.
    * Usually buffers for incoming spikes and data logged for analog recorders.
    * Buffers must be initialized by @c init_buffers_(), which is called before
-   * @c calibrate() on the first call to @c Simulate after the start of NEST,
+   * @c pre_run_hook() (or calibrate() in NEST 2.x) on the first call to @c Simulate after the start of NEST,
    * ResetKernel or ResetNetwork.
    * @node Buffers_ needs neither constructor, copy constructor or assignment operator,
    *       since it is initialized by @c init_nodes_(). If Buffers_ has members that
@@ -572,7 +604,7 @@ private:
     {{printer.print_buffer_getter(inputPort, true)}}
     {{printer.print_buffer_declaration_value(inputPort)}};
 {%- endfor %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
     // -----------------------------------------------------------------------
     //   GSL ODE solver data structures
@@ -652,12 +684,16 @@ private:
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
 {%- endif %}
 
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
 {% endif %}
 {%- if norm_rng %}
 
+#if NEST2_COMPAT
+  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+#else
   nest::normal_distribution normal_dev_; //!< random deviate generator
+#endif
 {%- endif %}
 
 
@@ -776,7 +812,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {%- endif %}
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   def< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. ){
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
@@ -838,7 +874,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
   }
 {%- endfor %}
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. )
   {

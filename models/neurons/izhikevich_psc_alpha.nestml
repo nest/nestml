@@ -40,36 +40,36 @@ References
 neuron izhikevich_psc_alpha:
 
   state:
-    r integer = 0 # number of steps in the current refractory phase
+    r integer = 0   # Number of steps in the current refractory phase
     V_m mV = -65 mV # Membrane potential
     U_m pA = 0 pA   # Membrane potential recovery variable
   end
 
   equations:
     # synapses: alpha functions
-    kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
-    kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+    kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
+    kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
 
-    inline I_syn_exc pA = convolve(I_syn_ex, spikesExc)
-    inline I_syn_inh pA = convolve(I_syn_in, spikesInh)
+    inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes)
+    inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes)
 
-    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
+    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
   end
 
   parameters:
-    C_m pF = 200. pF           # Membrane capacitance
-    k pF/mV/ms = 8. pF/mV/ms   # Spiking slope
-    V_r mV = -65. mV           # resting potential
-    V_t mV = -45. mV           # threshold potential
-    a 1/ms = 0.01 /ms          # describes time scale of recovery variable
-    b nS = 9. nS               # sensitivity of recovery variable
-    c mV = -65 mV              # after-spike reset value of V_m
-    d pA = 60. pA              # after-spike reset value of U_m
-    V_peak mV = 0. mV          # Spike detection threashold (reset condition)
-    tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse
-    tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse
-    t_ref ms = 2.0 ms          # Refractory period
+    C_m pF = 200 pF           # Membrane capacitance
+    k pF/mV/ms = 8 pF/mV/ms   # Spiking slope
+    V_r mV = -65 mV           # Resting potential
+    V_t mV = -45 mV           # Threshold potential
+    a 1/ms = 0.01 /ms         # Time scale of recovery variable
+    b nS = 9 nS               # Sensitivity of recovery variable
+    c mV = -65 mV             # After-spike reset value of V_m
+    d pA = 60 pA              # After-spike reset value of U_m
+    V_peak mV = 0 mV          # Spike detection threshold (reset condition)
+    tau_syn_exc ms = 0.2 ms   # Synaptic time constant of excitatory synapse
+    tau_syn_inh ms = 2 ms     # Synaptic time constant of inhibitory synapse
+    t_ref ms = 2 ms           # Refractory period
 
     # constant external input current
     I_e pA = 0 pA
@@ -80,8 +80,8 @@ neuron izhikevich_psc_alpha:
   end
 
   input:
-    spikesInh pA <- inhibitory spike
-    spikesExc pA <- excitatory spike
+    inh_spikes pA <- inhibitory spike
+    exc_spikes pA <- excitatory spike
     I_stim pA <- continuous
   end
 

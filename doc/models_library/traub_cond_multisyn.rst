@@ -2,6 +2,31 @@ traub_cond_multisyn
 ###################
 
 
+traub_cond_multisyn - Traub model according to Borgers 2017
+
+Description
++++++++++++
+
+Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus [1]_.
+parameters got from reference [2]_ chapter 5.
+
+AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+beta-function (difference of two exponentials) time course corresponding
+to "hill_tononi" model.
+
+
+References
+++++++++++
+
+.. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
+.. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
+
+
+See also
+++++++++
+
+hh_cond_exp_traub
+
 
 
 Parameters
@@ -215,7 +240,7 @@ Source code
      update:
        U_old mV = V_m
        integrate_odes()
-       # sending spikes: 
+       # sending spikes:
        if r > 0: # is refractory?
          r -= 1
        elif V_m > V_Tr and U_old > V_Tr:
@@ -248,4 +273,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.752649
+   Generated at 2022-03-28 19:04:28.885171

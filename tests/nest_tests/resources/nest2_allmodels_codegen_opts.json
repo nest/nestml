@@ -1,0 +1,15 @@
+{
+   "nest_path": "%NEST_PATH%",
+   "neuron_parent_class": "Archiving_Node",
+   "neuron_parent_class_include": "archiving_node.h",
+    "templates":
+    {
+        "path": "point_neuron_nest2",
+        "model_templates":
+        {
+            "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+            "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
+        },
+        "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
+    }
+}

@@ -38,35 +38,35 @@ neuron wb_cond_exp:
 
   equations:
     # synapses: exponential conductance
-    kernel g_in = exp(-1.0 / tau_syn_in * t)
-    kernel g_ex = exp(-1.0 / tau_syn_ex * t)
+    kernel g_inh = exp(-t / tau_syn_inh)
+    kernel g_exc = exp(-t / tau_syn_exc)
 
-    recordable inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
-    recordable inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
+    recordable inline I_syn_exc pA = convolve(g_exc, exc_spikes) * ( V_m - E_exc )
+    recordable inline I_syn_inh pA = convolve(g_inh, inh_spikes) * ( V_m - E_inh )
     
     inline I_Na  pA = g_Na * _subexpr(V_m) * Inact_h * ( V_m - E_Na )
-    inline I_K   pA  = g_K * Act_n**4 * ( V_m - E_K )
+    inline I_K   pA = g_K * Act_n**4 * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
 
-    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
     Act_n' = ( alpha_n(V_m) * ( 1 - Act_n ) - beta_n(V_m) * Act_n )  # n-variable
     Inact_h' = ( alpha_h(V_m) * ( 1 - Inact_h ) - beta_h(V_m) * Inact_h ) # h-variable
   end
 
   parameters:
-    t_ref ms = 2.0 ms           # Refractory period
-    g_Na nS = 3500.0 nS         # Sodium peak conductance
-    g_K nS = 900.0 nS           # Potassium peak conductance
-    g_L nS = 10 nS              # Leak conductance
-    C_m pF = 100.0 pF           # Membrane Capacitance
-    E_Na mV = 55.0 mV           # Sodium reversal potential
-    E_K mV = -90.0 mV           # Potassium reversal potentia
-    E_L mV = -65.0 mV           # Leak reversal Potential (aka resting potential)
-    V_Tr mV = -55.0 mV          # Spike Threshold
-    tau_syn_ex ms = 0.2 ms      # Rise time of the excitatory synaptic alpha function i
-    tau_syn_in ms = 10.0 ms     # Rise time of the inhibitory synaptic alpha function
-    E_ex mV = 0.0 mV            # Excitatory synaptic reversal potential
-    E_in mV = -75.0 mV          # Inhibitory synaptic reversal potential
+    t_ref ms = 2 ms           # Refractory period
+    g_Na nS = 3500 nS         # Sodium peak conductance
+    g_K nS = 900 nS           # Potassium peak conductance
+    g_L nS = 10 nS            # Leak conductance
+    C_m pF = 100 pF           # Membrane capacitance
+    E_Na mV = 55 mV           # Sodium reversal potential
+    E_K mV = -90 mV           # Potassium reversal potential
+    E_L mV = -65 mV           # Leak reversal potential (aka resting potential)
+    V_Tr mV = -55 mV          # Spike threshold
+    tau_syn_exc ms = 0.2 ms   # Rise time of the excitatory synaptic alpha function
+    tau_syn_inh ms = 10 ms    # Rise time of the inhibitory synaptic alpha function
+    E_exc mV = 0 mV           # Excitatory synaptic reversal potential
+    E_inh mV = -75 mV         # Inhibitory synaptic reversal potential
 
     # constant external input current
     I_e pA = 0 pA
@@ -82,8 +82,8 @@ neuron wb_cond_exp:
   end
 
   input:
-    spikeInh nS <- inhibitory spike
-    spikeExc nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
+    exc_spikes nS <- excitatory spike
     I_stim pA <- continuous
   end
 

@@ -47,20 +47,20 @@ Parameters
     :widths: auto
 
     
-    "V_th", "mV", "-57.0mV", "Threshold Potential"    
-    "V_reset", "mV", "-70.0mV", "Reset Potential"    
+    "V_th", "mV", "-57.0mV", "Threshold potential"    
+    "V_reset", "mV", "-70.0mV", "Reset potential"    
     "t_ref", "ms", "0.5ms", "Refractory period"    
-    "g_L", "nS", "28.95nS", "Leak Conductance"    
-    "C_m", "pF", "289.5pF", "Membrane Capacitance"    
-    "E_ex", "mV", "0mV", "Excitatory reversal Potential"    
-    "E_in", "mV", "-75.0mV", "Inhibitory reversal Potential"    
-    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential)"    
-    "tau_syn_ex", "ms", "1.5ms", "Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "g_L", "nS", "28.95nS", "Leak conductance"    
+    "C_m", "pF", "289.5pF", "Membrane capacitance"    
+    "E_exc", "mV", "0mV", "Excitatory reversal potential"    
+    "E_inh", "mV", "-75.0mV", "Inhibitory reversal potential"    
+    "E_L", "mV", "-70.0mV", "Leak reversal potential (aka resting potential)"    
+    "tau_syn_exc", "ms", "1.5ms", "Synaptic time constant of excitatory synapse"    
+    "tau_syn_inh", "ms", "10.0ms", "Synaptic time constant of inhibitory synapse"    
     "q_sfa", "nS", "14.48nS", "Outgoing spike activated quantal spike-frequency adaptation conductance increase"    
-    "q_rr", "nS", "3214.0nS", "Outgoing spike activated quantal relative refractory conductance increase."    
-    "tau_sfa", "ms", "110.0ms", "Time constant of spike-frequency adaptation."    
-    "tau_rr", "ms", "1.97ms", "Time constant of the relative refractory mechanism."    
+    "q_rr", "nS", "3214.0nS", "Outgoing spike activated quantal relative refractory conductance increase"    
+    "tau_sfa", "ms", "110.0ms", "Time constant of spike-frequency adaptation"    
+    "tau_rr", "ms", "1.97ms", "Time constant of the relative refractory mechanism"    
     "E_sfa", "mV", "-70.0mV", "spike-frequency adaptation conductance reversal potential"    
     "E_rr", "mV", "-70.0mV", "relative refractory mechanism conductance reversal potential"    
     "I_e", "pA", "0pA", "constant external input current"
@@ -118,12 +118,12 @@ Source code
        g_rr nS = 0nS # inputs from the rr conductance
      end
      equations:
-       kernel g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
-       kernel g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
+       kernel g_inh = exp(-t / tau_syn_inh) # inputs from the inh conductance
+       kernel g_exc = exp(-t / tau_syn_exc) # inputs from the exc conductance
        g_sfa'=-g_sfa / tau_sfa
        g_rr'=-g_rr / tau_rr
-       inline I_syn_exc pA = convolve(g_ex,spikesExc) * (V_m - E_ex)
-       inline I_syn_inh pA = convolve(g_in,spikesInh) * (V_m - E_in)
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
        inline I_L pA = g_L * (V_m - E_L)
        inline I_sfa pA = g_sfa * (V_m - E_sfa)
        inline I_rr pA = g_rr * (V_m - E_rr)
@@ -131,20 +131,20 @@ Source code
      end
 
      parameters:
-       V_th mV = -57.0mV # Threshold Potential
-       V_reset mV = -70.0mV # Reset Potential
+       V_th mV = -57.0mV # Threshold potential
+       V_reset mV = -70.0mV # Reset potential
        t_ref ms = 0.5ms # Refractory period
-       g_L nS = 28.95nS # Leak Conductance
-       C_m pF = 289.5pF # Membrane Capacitance
-       E_ex mV = 0mV # Excitatory reversal Potential
-       E_in mV = -75.0mV # Inhibitory reversal Potential
-       E_L mV = -70.0mV # Leak reversal Potential (aka resting potential)
-       tau_syn_ex ms = 1.5ms # Synaptic Time Constant Excitatory Synapse
-       tau_syn_in ms = 10.0ms # Synaptic Time Constant for Inhibitory Synapse
+       g_L nS = 28.95nS # Leak conductance
+       C_m pF = 289.5pF # Membrane capacitance
+       E_exc mV = 0mV # Excitatory reversal potential
+       E_inh mV = -75.0mV # Inhibitory reversal potential
+       E_L mV = -70.0mV # Leak reversal potential (aka resting potential)
+       tau_syn_exc ms = 1.5ms # Synaptic time constant of excitatory synapse
+       tau_syn_inh ms = 10.0ms # Synaptic time constant of inhibitory synapse
        q_sfa nS = 14.48nS # Outgoing spike activated quantal spike-frequency adaptation conductance increase
-       q_rr nS = 3214.0nS # Outgoing spike activated quantal relative refractory conductance increase.
-       tau_sfa ms = 110.0ms # Time constant of spike-frequency adaptation.
-       tau_rr ms = 1.97ms # Time constant of the relative refractory mechanism.
+       q_rr nS = 3214.0nS # Outgoing spike activated quantal relative refractory conductance increase
+       tau_sfa ms = 110.0ms # Time constant of spike-frequency adaptation
+       tau_rr ms = 1.97ms # Time constant of the relative refractory mechanism
        E_sfa mV = -70.0mV # spike-frequency adaptation conductance reversal potential
        E_rr mV = -70.0mV # relative refractory mechanism conductance reversal potential
        # constant external input current
@@ -156,8 +156,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       spikesInh nS <-inhibitory spike
-       spikesExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -189,4 +189,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.601654
+   Generated at 2022-03-28 19:04:29.555731

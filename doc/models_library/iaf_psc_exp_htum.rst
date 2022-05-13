@@ -22,7 +22,7 @@ larger or equal to the absolute refractory time. If equal, the
 refractoriness of the model if equivalent to the other models of NEST.
 
 .. note::
-   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 
@@ -48,11 +48,6 @@ References
        networks. Neurocomputing 38-40:565-571.
        DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
 
-Author
-++++++
-
-Moritz Helias (March 2006)
-
 
 
 Parameters
@@ -65,15 +60,15 @@ Parameters
     :widths: auto
 
     
-    "C_m", "pF", "250pF", "Capacity of the membrane"    
-    "tau_m", "ms", "10ms", "Membrane time constant."    
-    "tau_syn_in", "ms", "2ms", "Time constant of synaptic current."    
-    "tau_syn_ex", "ms", "2ms", "Time constant of synaptic current."    
-    "t_ref_abs", "ms", "2ms", "absolute refractory period."    
-    "t_ref_tot", "ms", "2ms", "total refractory periodif t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"    
-    "E_L", "mV", "-70mV", "Resting potential."    
+    "C_m", "pF", "250pF", "Capacitance of the membrane"    
+    "tau_m", "ms", "10ms", "Membrane time constant"    
+    "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"    
+    "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
+    "t_ref_abs", "ms", "2ms", "Absolute refractory period"    
+    "t_ref_tot", "ms", "2ms", "total refractory period"    
+    "E_L", "mV", "-70mV", "if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_expResting potential"    
     "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potential"    
-    "V_th", "mV", "-55.0mV - E_L", "RELATIVE TO RESTING POTENTIAL(!).I.e. the real threshold is (V_reset + E_L).Threshold, RELATIVE TO RESTING POTENTIAL(!)."    
+    "V_th", "mV", "-55.0mV - E_L", "RELATIVE TO RESTING POTENTIAL(!)I.e. the real threshold is (V_reset + E_L).Threshold, RELATIVE TO RESTING POTENTIAL(!)"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -119,31 +114,31 @@ Source code
        V_m mV = 0.0mV # Membrane potential
      end
      equations:
-       kernel I_kernel_in = exp(-1 / tau_syn_in * t)
-       kernel I_kernel_ex = exp(-1 / tau_syn_ex * t)
-       inline I_syn pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes)
+       kernel I_kernel_inh = exp(-t / tau_syn_inh)
+       kernel I_kernel_exc = exp(-t / tau_syn_exc)
+       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
        V_m'=-V_m / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 
      parameters:
-       C_m pF = 250pF # Capacity of the membrane
-       tau_m ms = 10ms # Membrane time constant.
-       tau_syn_in ms = 2ms # Time constant of synaptic current.
-       tau_syn_ex ms = 2ms # Time constant of synaptic current.
-       t_ref_abs ms = 2ms # absolute refractory period.
-       # total refractory period
+       C_m pF = 250pF # Capacitance of the membrane
+       tau_m ms = 10ms # Membrane time constant
+       tau_syn_inh ms = 2ms # Time constant of inhibitory synaptic current
+       tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
+       t_ref_abs ms = 2ms # Absolute refractory period
+       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # total refractory period
+       # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
 
-       # total refractory period
-       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
-       E_L mV = -70mV # Resting potential.
+       # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
+       E_L mV = -70mV # Resting potential
        V_reset mV = -70.0mV - E_L # Reset value of the membrane potential
-       # RELATIVE TO RESTING POTENTIAL(!).
+       # RELATIVE TO RESTING POTENTIAL(!)
        # I.e. the real threshold is (V_reset + E_L).
 
-       # RELATIVE TO RESTING POTENTIAL(!).
+       # RELATIVE TO RESTING POTENTIAL(!)
        # I.e. the real threshold is (V_reset + E_L).
-       V_th mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-       # I.e. the real threshold is (E_L+V_th).
+       V_th mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!)
+       # I.e. the real threshold is (E_L + V_th)
 
        # constant external input current
        I_e pA = 0pA
@@ -168,8 +163,8 @@ Source code
        RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
      end
      input:
-       ex_spikes pA <-excitatory spike
-       in_spikes pA <-inhibitory spike
+       exc_spikes pA <-excitatory spike
+       inh_spikes pA <-inhibitory spike
        I_stim pA <-current
      end
 
@@ -205,4 +200,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.684880
+   Generated at 2022-03-28 19:04:30.127400

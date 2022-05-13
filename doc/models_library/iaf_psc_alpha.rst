@@ -28,32 +28,12 @@ enough to exhibit non-trivial dynamics and simple enough compute
 relevant measures analytically.
 
 .. note::
-   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 
    For details, please see ``IAF_neurons_singularity.ipynb`` in
    the NEST source code (``docs/model_details``).
-
-
-Parameters
-++++++++++
-
-The following parameters can be set in the status dictionary.
-
-=========== ======  ==========================================================
- V_m        mV      Membrane potential
- E_L        mV      Resting membrane potential
- C_m        pF      Capacity of the membrane
- tau_m      ms      Membrane time constant
- t_ref      ms      Duration of refractory period
- V_th       mV      Spike threshold
- V_reset    mV      Reset potential of the membrane
- tau_syn_ex ms      Rise time of the excitatory synaptic alpha function
- tau_syn_in ms      Rise time of the inhibitory synaptic alpha function
- I_e        pA      Constant input current
- V_min      mV      Absolute lower value for the membrane potenial
-=========== ======  ==========================================================
 
 
 References
@@ -79,12 +59,6 @@ See also
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 
 
-Authors
-+++++++
-
-Diesmann, Gewaltig
-
-
 
 Parameters
 ++++++++++
@@ -98,8 +72,8 @@ Parameters
     
     "C_m", "pF", "250pF", "Capacitance of the membrane"    
     "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_in", "ms", "2ms", "Time constant of synaptic current"    
-    "tau_syn_ex", "ms", "2ms", "Time constant of synaptic current"    
+    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"    
+    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"    
     "t_ref", "ms", "2ms", "Duration of refractory period"    
     "E_L", "mV", "-70mV", "Resting potential"    
     "V_reset", "mV", "-70mV - E_L", "Reset potential of the membrane"    
@@ -147,18 +121,18 @@ Source code
        V_abs mV = 0mV
      end
      equations:
-       kernel I_kernel_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       kernel I_kernel_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       inline I pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes) + I_e + I_stim
+       kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+       kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
+   recordable    inline V_m mV = V_abs + E_L # Membrane potential
+       inline I pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes) + I_e + I_stim
        V_abs'=-V_abs / tau_m + I / C_m
      end
 
      parameters:
        C_m pF = 250pF # Capacitance of the membrane
        tau_m ms = 10ms # Membrane time constant
-       tau_syn_in ms = 2ms # Time constant of synaptic current
-       tau_syn_ex ms = 2ms # Time constant of synaptic current
+       tau_syn_inh ms = 2ms # Time constant of synaptic current
+       tau_syn_exc ms = 2ms # Time constant of synaptic current
        t_ref ms = 2ms # Duration of refractory period
        E_L mV = -70mV # Resting potential
        V_reset mV = -70mV - E_L # Reset potential of the membrane
@@ -172,8 +146,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       ex_spikes pA <-excitatory spike
-       in_spikes pA <-inhibitory spike
+       exc_spikes pA <-excitatory spike
+       inh_spikes pA <-inhibitory spike
        I_stim pA <-current
      end
 
@@ -208,4 +182,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.507179
+   Generated at 2022-03-28 19:04:29.478484

@@ -2,28 +2,25 @@ traub_psc_alpha
 ###############
 
 
-Name: traub_psc_alpha - Traub model according to Borgers 2017.
+traub_psc_alpha - Traub model according to Borgers 2017
 
-Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus[1].
-parameters got from reference [2].
+Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus [1]_.
+parameters got from reference [2]_.
 
-(1) Post-synaptic currents
- Incoming spike events induce a post-synaptic change of current modelled
- by an alpha function.
+Incoming spike events induce a post-synaptic change of current modelled
+by an alpha function.
 
-(2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
+References
+++++++++++
 
-
-References:
-
-[1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
-[2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
+.. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
+.. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
 
 
-SeeAlso: hh_cond_exp_traub
+See also
+++++++++
+
+hh_cond_exp_traub
 
 
 
@@ -37,17 +34,17 @@ Parameters
     :widths: auto
 
     
-    "t_ref", "ms", "2.0ms", "Refractory period 2.0"    
-    "g_Na", "nS", "10000.0nS", "Sodium peak conductance"    
-    "g_K", "nS", "8000.0nS", "Potassium peak conductance"    
+    "t_ref", "ms", "2ms", "Refractory period"    
+    "g_Na", "nS", "10000nS", "Sodium peak conductance"    
+    "g_K", "nS", "8000nS", "Potassium peak conductance"    
     "g_L", "nS", "10nS", "Leak conductance"    
-    "C_m", "pF", "100.0pF", "Membrane Capacitance"    
-    "E_Na", "mV", "50.0mV", "Sodium reversal potential"    
-    "E_K", "mV", "-100.0mV", "Potassium reversal potentia"    
-    "E_L", "mV", "-67.0mV", "Leak reversal Potential (aka resting potential)"    
-    "V_Tr", "mV", "-20.0mV", "Spike Threshold"    
-    "tau_syn_ex", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"    
-    "tau_syn_in", "ms", "2.0ms", "Rise time of the inhibitory synaptic alpha function"    
+    "C_m", "pF", "100pF", "Membrane capacitance"    
+    "E_Na", "mV", "50mV", "Sodium reversal potential"    
+    "E_K", "mV", "-100mV", "Potassium reversal potential"    
+    "E_L", "mV", "-67mV", "Leak reversal potential (aka resting potential)"    
+    "V_Tr", "mV", "-20mV", "Spike threshold"    
+    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"    
+    "tau_syn_inh", "ms", "2ms", "Rise time of the inhibitory synaptic alpha function"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -77,7 +74,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right) 
 
 
 .. math::
@@ -110,14 +107,14 @@ Source code
      end
      equations:
        # synapses: alpha functions
-       kernel I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       kernel I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-       inline I_syn_exc pA = convolve(I_syn_ex,spikeExc)
-       inline I_syn_inh pA = convolve(I_syn_in,spikeInh)
+       kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+       kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
+       inline I_syn_exc pA = convolve(K_syn_exc,exc_spikes)
+       inline I_syn_inh pA = convolve(K_syn_inh,inh_spikes)
        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
        inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
        inline I_L pA = g_L * (V_m - E_L)
-       V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_inh + I_syn_exc) / C_m
+       V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
        # Act_n
        inline alpha_n real = 0.032 * (V_m / mV + 52.0) / (1.0 - exp(-(V_m / mV + 52.0) / 5.0))
        inline beta_n real = 0.5 * exp(-(V_m / mV + 57.0) / 40.0)
@@ -137,17 +134,17 @@ Source code
      end
 
      parameters:
-       t_ref ms = 2.0ms # Refractory period 2.0
-       g_Na nS = 10000.0nS # Sodium peak conductance
-       g_K nS = 8000.0nS # Potassium peak conductance
+       t_ref ms = 2ms # Refractory period
+       g_Na nS = 10000nS # Sodium peak conductance
+       g_K nS = 8000nS # Potassium peak conductance
        g_L nS = 10nS # Leak conductance
-       C_m pF = 100.0pF # Membrane Capacitance
-       E_Na mV = 50.0mV # Sodium reversal potential
-       E_K mV = -100.0mV # Potassium reversal potentia
-       E_L mV = -67.0mV # Leak reversal Potential (aka resting potential)
-       V_Tr mV = -20.0mV # Spike Threshold
-       tau_syn_ex ms = 0.2ms # Rise time of the excitatory synaptic alpha function
-       tau_syn_in ms = 2.0ms # Rise time of the inhibitory synaptic alpha function
+       C_m pF = 100pF # Membrane capacitance
+       E_Na mV = 50mV # Sodium reversal potential
+       E_K mV = -100mV # Potassium reversal potential
+       E_L mV = -67mV # Leak reversal potential (aka resting potential)
+       V_Tr mV = -20mV # Spike threshold
+       tau_syn_exc ms = 0.2ms # Rise time of the excitatory synaptic alpha function
+       tau_syn_inh ms = 2ms # Rise time of the inhibitory synaptic alpha function
        # constant external input current
 
        # constant external input current
@@ -163,8 +160,8 @@ Source code
        beta_h_init real = 4.0 / (1.0 + exp(-(V_m / mV + 27.0) / 5.0))
      end
      input:
-       spikeInh pA <-inhibitory spike
-       spikeExc pA <-excitatory spike
+       inh_spikes pA <-inhibitory spike
+       exc_spikes pA <-excitatory spike
        I_stim pA <-current
      end
 
@@ -196,4 +193,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.300452
+   Generated at 2022-03-28 19:04:29.609967

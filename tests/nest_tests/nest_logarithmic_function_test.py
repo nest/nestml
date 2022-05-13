@@ -23,7 +23,8 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestLogarithmicFunctionTest(unittest.TestCase):
@@ -34,25 +35,26 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest.nestml"))),
                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest_invalid.nestml")))]
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("logarithm_function_test_nestml")
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
 
-        ln_state_specifier = 'ln_state'
-        log10_state_specifier = 'log10_state'
+        ln_state_specifier = "ln_state"
+        log10_state_specifier = "log10_state"
         mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
@@ -73,10 +75,10 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
         nest.ResetKernel()
         nrn = nest.Create("logarithm_function_test_invalid_nestml")
 
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
 
-        ln_state_specifier = 'ln_state'
-        log10_state_specifier = 'log10_state'
+        ln_state_specifier = "ln_state"
+        log10_state_specifier = "log10_state"
         mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)

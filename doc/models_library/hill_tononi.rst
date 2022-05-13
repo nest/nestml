@@ -36,11 +36,6 @@ References
        in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
        DOI: https://doi.org/10.1152/jn.01038.2002
 
-Author
-++++++
-
-Hans Ekkehard Plesser
-
 
 
 Parameters
@@ -352,4 +347,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.399780
+   Generated at 2022-03-28 19:04:29.077699

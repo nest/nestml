@@ -38,12 +38,6 @@ See also
 iaf_cond_exp
 
 
-Author
-++++++
-
-Moritz Helias
-
-
 
 Parameters
 ++++++++++
@@ -57,8 +51,8 @@ Parameters
     
     "C_m", "pF", "250pF", "Capacity of the membrane"    
     "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_in", "ms", "2ms", "Time constant of synaptic current"    
-    "tau_syn_ex", "ms", "2ms", "Time constant of synaptic current"    
+    "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"    
+    "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
     "t_ref", "ms", "2ms", "Duration of refractory period"    
     "E_L", "mV", "-70mV", "Resting potential"    
     "V_reset", "mV", "-70mV - E_L", "reset value of the membrane potential"    
@@ -90,7 +84,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac{ I_{syn} } { C_{m} }
+   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -108,18 +102,18 @@ Source code
        I_dend pA = 0pA # third factor, to be read out by synapse during weight update
      end
      equations:
-       kernel I_kernel_in = exp(-1 / tau_syn_in * t)
-       kernel I_kernel_ex = exp(-1 / tau_syn_ex * t)
+       kernel I_kernel_inh = exp(-t / tau_syn_inh)
+       kernel I_kernel_exc = exp(-t / tau_syn_exc)
    recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       inline I_syn pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes) + I_e + I_stim
-       V_abs'=-V_abs / tau_m + I_syn / C_m
+       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
+       V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 
      parameters:
        C_m pF = 250pF # Capacity of the membrane
        tau_m ms = 10ms # Membrane time constant
-       tau_syn_in ms = 2ms # Time constant of synaptic current
-       tau_syn_ex ms = 2ms # Time constant of synaptic current
+       tau_syn_inh ms = 2ms # Time constant of inhibitory synaptic current
+       tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
        t_ref ms = 2ms # Duration of refractory period
        E_L mV = -70mV # Resting potential
        V_reset mV = -70mV - E_L # reset value of the membrane potential
@@ -133,8 +127,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       ex_spikes pA <-excitatory spike
-       in_spikes pA <-inhibitory spike
+       exc_spikes pA <-excitatory spike
+       inh_spikes pA <-inhibitory spike
        I_stim pA <-current
      end
 
@@ -166,4 +160,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.569392
+   Generated at 2022-03-28 19:04:29.801538

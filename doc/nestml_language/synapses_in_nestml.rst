@@ -58,7 +58,7 @@ The corresponding event handler has the general structure:
    onReceive(pre_spikes):
      print("Info: processing a presynaptic spike at time t = {t}")
      # ... plasticity dynamics go here ...
-     deliver_spike(w, d)     
+     deliver_spike(w, d)
    end
 
 The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
@@ -313,7 +313,7 @@ STDP synapse with nearest-neighbour spike pairing
 This synapse model extends the STDP model by restrictions on interactions between pre- and post spikes.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
-   
+
    Figure 7 from Morrison, Diesmann and Gerstner [1]_. Original caption: "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron j and a postsynaptic neuron i. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)"
 
 
@@ -508,11 +508,11 @@ To indicate which neurons will be connected to by which synapses during simulati
      "neuron_synapse_pairs": [["iaf_psc_exp", "stdp"]]
    }
 
-This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_codegenerator_opts_triplet.json``:
+This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_code_generator_opts_triplet.json``:
 
 .. code:: sh
 
-   nestml --input_path my_models/ --codegen_opts=nest_codegenerator_opts_triplet.json
+   nestml --input_path my_models/ --codegen_opts=nest_code_generator_opts_triplet.json
 
 Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
 
@@ -552,21 +552,21 @@ When NESTML is invoked to generate code for plastic synapses, the code generator
 
 .. code-block:: python
 
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp"}]})
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp"}]})
 
 Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
 .. code-block:: python
 
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp",
-                                                    "post_ports": ["post_spikes",
-                                                                  ["I_post_dend", "I_dend"]]}]})
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp",
+                                                           "post_ports": ["post_spikes",
+                                                                          ["I_post_dend", "I_dend"]]}]})
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
 
@@ -574,11 +574,11 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
 
 .. code-block:: python
 
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp",
-                                                   "vt_ports": ["dopa_spikes"]}]})
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp",
+                                                            "vt_ports": ["dopa_spikes"]}]})
 
 
 

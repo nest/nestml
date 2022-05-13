@@ -38,12 +38,6 @@ See also
 iaf_cond_exp
 
 
-Authors
-+++++++
-
-Schrader, Plesser
-
-
 
 Parameters
 ++++++++++
@@ -55,16 +49,16 @@ Parameters
     :widths: auto
 
     
-    "V_th", "mV", "-55.0mV", "Threshold Potential"    
-    "V_reset", "mV", "-60.0mV", "Reset Potential"    
-    "t_ref", "ms", "2.0ms", "Refractory period"    
-    "g_L", "nS", "16.6667nS", "Leak Conductance"    
-    "C_m", "pF", "250.0pF", "Membrane Capacitance"    
-    "E_ex", "mV", "0mV", "Excitatory reversal Potential"    
-    "E_in", "mV", "-85.0mV", "Inhibitory reversal Potential"    
-    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential)"    
-    "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "V_th", "mV", "-55mV", "Threshold potential"    
+    "V_reset", "mV", "-60mV", "Reset potential"    
+    "t_ref", "ms", "2ms", "Refractory period"    
+    "g_L", "nS", "16.6667nS", "Leak conductance"    
+    "C_m", "pF", "250pF", "Membrane capacitance"    
+    "E_exc", "mV", "0mV", "Excitatory reversal potential"    
+    "E_inh", "mV", "-85mV", "Inhibitory reversal potential"    
+    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
+    "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of excitatory synapse"    
+    "tau_syn_inh", "ms", "2ms", "Synaptic time constant of inhibitory synapse"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -108,25 +102,25 @@ Source code
        V_m mV = E_L # membrane potential
      end
      equations:
-       kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-       inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
-       inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
+       kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+       kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
        inline I_leak pA = g_L * (V_m - E_L)
        V_m'=(-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
      end
 
      parameters:
-       V_th mV = -55.0mV # Threshold Potential
-       V_reset mV = -60.0mV # Reset Potential
-       t_ref ms = 2.0ms # Refractory period
-       g_L nS = 16.6667nS # Leak Conductance
-       C_m pF = 250.0pF # Membrane Capacitance
-       E_ex mV = 0mV # Excitatory reversal Potential
-       E_in mV = -85.0mV # Inhibitory reversal Potential
-       E_L mV = -70.0mV # Leak reversal Potential (aka resting potential)
-       tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
-       tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
+       V_th mV = -55mV # Threshold potential
+       V_reset mV = -60mV # Reset potential
+       t_ref ms = 2ms # Refractory period
+       g_L nS = 16.6667nS # Leak conductance
+       C_m pF = 250pF # Membrane capacitance
+       E_exc mV = 0mV # Excitatory reversal potential
+       E_inh mV = -85mV # Inhibitory reversal potential
+       E_L mV = -70mV # Leak reversal potential (aka resting potential)
+       tau_syn_exc ms = 0.2ms # Synaptic time constant of excitatory synapse
+       tau_syn_inh ms = 2ms # Synaptic time constant of inhibitory synapse
        # constant external input current
 
        # constant external input current
@@ -136,8 +130,8 @@ Source code
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
      input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
        I_stim pA <-current
      end
 
@@ -167,4 +161,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.624026
+   Generated at 2022-03-28 19:04:28.988795

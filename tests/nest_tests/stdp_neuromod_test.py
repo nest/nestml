@@ -23,7 +23,7 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -40,9 +40,10 @@ sim_ref = True
 
 
 class NestSTDPNeuromodTest(unittest.TestCase):
-    """
+    r"""
     Test the neuromodulated (for instance, dopamine-modulated) synapse, by numerically comparing it to the NEST "stdp_dopamine" synapse in a representative simulation run.
     """
+
     neuron_model_name = "iaf_psc_exp_nestml__with_neuromodulated_stdp_nestml"
     synapse_model_name = "neuromodulated_stdp_nestml__with_iaf_psc_exp_nestml"
 
@@ -50,30 +51,26 @@ class NestSTDPNeuromodTest(unittest.TestCase):
     ref_synapse_model_name = "stdp_dopamine_synapse"
 
     def setUp(self):
-        """generate code for neuron and synapse and build NEST user module"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+        r"""generate code for neuron and synapse and build NEST user module"""
+        generate_nest_target(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/neuromodulated_stdp.nestml"],
+                             target_path="/tmp/nestml-jit",
+                             logging_level="INFO",
+                             module_name="nestml_jit_module",
+                             suffix="_nestml",
+                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                                           "neuron_parent_class_include": "structural_plasticity_node.h",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                                     "synapse": "neuromodulated_stdp",
+                                                                     "post_ports": ["post_spikes"],
+                                                                     "vt_ports": ["mod_spikes"]}]})
 
-        to_nest(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/neuromodulated_stdp.nestml"],
-                target_path="/tmp/nestml-jit",
-                logging_level="INFO",
-                module_name="nestml_jit_module",
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                        "synapse": "neuromodulated_stdp",
-                                                        "post_ports": ["post_spikes"],
-                                                        "vt_ports": ["mod_spikes"]}]})
-        install_nest("/tmp/nestml-jit", nest_path)
-
-        to_nest(input_path="models/neurons/iaf_psc_exp.nestml",
-                target_path="/tmp/nestml-non-jit",
-                logging_level="INFO",
-                module_name="nestml_non_jit_module",
-                suffix="_nestml_non_jit",
-                codegen_opts={"neuron_parent_class": "ArchivingNode",
-                              "neuron_parent_class_include": "archiving_node.h"})
-        install_nest("/tmp/nestml-non-jit", nest_path)
+        generate_nest_target(input_path="models/neurons/iaf_psc_exp.nestml",
+                             target_path="/tmp/nestml-non-jit",
+                             logging_level="INFO",
+                             module_name="nestml_non_jit_module",
+                             suffix="_nestml_non_jit",
+                             codegen_opts={"neuron_parent_class": "ArchivingNode",
+                                           "neuron_parent_class_include": "archiving_node.h"})
 
     def test_nest_stdp_synapse(self):
 

@@ -73,6 +73,7 @@ nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
 {%- endif %}
 namespace nest
 {
+
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
 {%- if has_state_vectors %}
@@ -92,7 +93,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- else %}
     // add state variables to recordables map
 {%-   for sym in recordable_state_variables %}
-   insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+   insert_({{names_namespace}}::_{{sym.get_symbol_name()}}, &{{neuronName}}::{{names.getter(sym)}});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}
@@ -100,7 +101,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if recordable_inline_expressions|length > 0 %}
     // add recordable inline expressions to recordables map
 {%- for sym in recordable_inline_expressions %}
-	insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+	insert_({{names_namespace}}::_{{sym.get_symbol_name()}}, &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
 
@@ -162,7 +163,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if neuron.get_multiple_receptors()|length > 1 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   , __s( 0 ), __c( 0 ), __e( 0 )
 {%- endif %}
 {
@@ -174,7 +175,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if neuron.get_multiple_receptors()|length > 1 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   , __s( 0 ), __c( 0 ), __e( 0 )
 {%- endif %}
 {
@@ -188,9 +189,12 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
+#if NEST2_COMPAT
   calibrate();
-{%- if useGSL %}
+#else
+  pre_run_hook();
+#endif
+{%- if uses_numeric_solver %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
@@ -293,7 +297,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {{neuronName}}::~{{neuronName}}()
 {
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
   // GSL structs may not have been allocated, so we need to protect destruction
 
   if (B_.__s)
@@ -335,7 +339,7 @@ void {{neuronName}}::init_buffers_()
 {%- if paired_neuron is defined %}
   clear_history();
 {%- endif %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 
   if ( B_.__s == 0 )
   {
@@ -373,14 +377,14 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 }
 
-void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
+void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   if (exclude_timestep) {
 {%- filter indent(4,True) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%- if variable.name != "__h" %}
-{%-   include "directives/Calibrate.jinja2" %}
+{%-   include "directives/MemberInitialization.jinja2" %}
 {%- endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -389,16 +393,20 @@ void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
     // internals V_
 {%- filter indent(4) %}
 {%- for variable in neuron.get_internal_symbols() %}
-{%-   include "directives/Calibrate.jinja2" %}
+{%-   include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
   }
 }
 
+#if NEST2_COMPAT
 void {{neuronName}}::calibrate() {
+#else
+void {{neuronName}}::pre_run_hook() {
+#endif
   B_.logger_.init();
 
-  calibrate_variables();
+  recompute_internal_variables();
 
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
@@ -430,7 +438,7 @@ void {{neuronName}}::calibrate() {
 //   Update and spike handling functions
 // ---------------------------------------------------------------------------
 
-{% if useGSL %}
+{% if uses_numeric_solver %}
 {%- include "directives/GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
@@ -481,11 +489,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 {% if has_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
-#if NEST2_COMPAT
-  assert(e.get_delay() > 0);
-#else
   assert(e.get_delay_steps() > 0);
-#endif
 {%- if neuron.is_multisynapse_spikes() %}
 {%-   set port = neuron.get_spike_input_ports()[0] %}
   B_.{{port.get_symbol_name()}}[e.get_rport() - 1].add_value(
@@ -501,23 +505,26 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   const double weight = e.get_weight();
   const double multiplicity = e.get_multiplicity();
 {%-   for port in neuron.get_spike_input_ports() %}
-{%-     if port.is_excitatory() %}
+{%-     if port.is_excitatory() and port.is_inhibitory() %}
+  // this port receives both excitatory and inhibitory spikes (where inhibitory spikes are those where weight < 0)
+  get_{{port.get_symbol_name()}}().
+      add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+                     weight * multiplicity );
+{%-     elif port.is_excitatory() %}
+  // this port receives excitatory spikes
   if ( weight >= 0.0 )
   {
-    // excitatory
     get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                        weight * multiplicity );
   }
-{%-     endif %}
-{%-     if port.is_inhibitory() %}
+{%-     elif port.is_inhibitory() %}
+  // this port receives inhibitory spikes
   if ( weight < 0.0 )
   {
-    // inhibitory
     get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                      {% if port.is_conductance_based() %} // ensure conductance is positive {% endif %}
-                      {% if port.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
+                  -weight * multiplicity );
   }
 {%-     endif %}
 {%-   endfor %}
@@ -529,11 +536,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {
-#if NEST2_COMPAT
-  assert(e.get_delay() > 0);
-#else
   assert(e.get_delay_steps() > 0);
-#endif
 
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
   const double weight = e.get_weight();
@@ -653,10 +656,10 @@ void
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
 {%- endfor %}
         }
 
@@ -668,7 +671,7 @@ void
         const double old___h = V_.__h;
         V_.__h = t_sp_ms - last_spike_;
         if (V_.__h > 1E-12) {
-          calibrate_variables(true);
+          recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -678,7 +681,7 @@ void
 {%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
 {%- endwith %}
 
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
 // update only synapse->neuron moved variables; back-up and restore the rest
 double ode_state_bak[State_::STATE_VEC_SIZE];
 
@@ -699,7 +702,6 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%-   for variable_name in numeric_state_variables %}
 S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
 {%-     endfor %}
-
 {%- endif %}
 
 {%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
@@ -708,7 +710,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 
 {%- endfilter %}
         V_.__h = old___h;
-        calibrate_variables(true);
+        recompute_internal_variables(true);
       }
 
         /**
@@ -716,7 +718,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
         **/
 
 {%- for stmt in spike_update_stmts %}
-{%- if useGSL %}
+{%- if uses_numeric_solver %}
         {{printer.print_node(stmt)}};
 {%- else %}
         {{nest_printer.print_node(stmt)}};
@@ -811,7 +813,7 @@ double
         const double old___h = V_.__h;
         V_.__h = t - history_[i].t_;
         assert(V_.__h > 0);
-        calibrate_variables(true);
+        recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -845,7 +847,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endfilter %}
 
         V_.__h = old___h;
-        calibrate_variables(true);
+        recompute_internal_variables(true);
       }
 
 #ifdef DEBUG
@@ -879,22 +881,22 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 #endif
 
   if (t == 0.) {
-    return 0.;  // initial value for convoluation is always 0
+    return 0.;  // initial value for convolution is always 0
   }
 
   // set to initial value
 {%- for var_ in purely_numeric_state_variables_moved %}
-  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
+  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
+  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
   // propagate in time
   const double old___h = V_.__h;
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
-  calibrate_variables(true);
+  recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -927,7 +929,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- endfilter %}
   V_.__h = old___h;
-  calibrate_variables(true);
+  recompute_internal_variables(true);
 
   return {{names.getter(var_sym)}}();
 }
