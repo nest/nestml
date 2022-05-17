@@ -14,9 +14,9 @@ When NESTML is invoked, several steps are executed in sequence. First, the model
 
 A more detailed description of the internal architecture of NESTML can be found in the following places:
 
-* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) `PDF <extending/Tammo_Ippen_Master_Thesis.pdf>`_
-* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) `PDF <extending/Konstantin_Perun_Master_thesis.pdf>`_
-* Dimitri Plotnikov, "NESTML - die Domänenspezifische Sprache für den NEST-Simulator Neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) `PDF <extending/Dimitri_Plotnikov_Doctoral_Thesis.pdf>`_
+* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) `PDF <extending/Tammo_Ippen_Master_Thesis.pdf>`__
+* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) `PDF <extending/Konstantin_Perun_Master_thesis.pdf>`__
+* Dimitri Plotnikov, "NESTML - die Domänenspezifische Sprache für den NEST-Simulator Neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) `PDF <extending/Dimitri_Plotnikov_Doctoral_Thesis.pdf>`__
   * A condensed online English version is available: :doc:`pynestml_toolchain/index`
 
 
@@ -29,7 +29,7 @@ API documentation is automatically generated from source code and can be browsed
 Running NESTML with custom templates
 ------------------------------------
 
-NESTML generates model-specific code using a set of Jinja templates. The templates for each target platform are located in the `pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__ subdirectories. (For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.) For example, for NEST, NESTML by default uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. These defaults are specified in the code generator within its default values dictionary (``_default_options``, see for instance https://github.com/nest/nestml/blob/master/pynestml/codegeneration/nest_code_generator.py).
+NESTML generates model-specific code using a set of Jinja templates. The templates for each target platform are located in the `pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`___ subdirectories. (For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.) For example, for NEST, NESTML by default uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`___. These defaults are specified in the code generator within its default values dictionary (``_default_options``, see for instance https://github.com/nest/nestml/blob/master/pynestml/codegeneration/nest_code_generator.py).
 
 The default directory can be changed by specifying code generator options that override the default values. This can be done either by passing these options via the ``codegen_opts`` parameter of the NESTML Python API call to ``generate_target()``, or on the command line, through the ``--codegen_opts`` parameter to a JSON file. For example:
 
@@ -71,7 +71,7 @@ If a directory is given, the directory is recursively searched for templates (fi
 Adding a new target platform
 ----------------------------
 
-* Add a new set of templates in a new directory under `https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`_.
+* Add a new set of templates in a new directory under `https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__.
 * Implement a new code generator, for example based on the existing `nest_code_generator.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_code_generator.py`_.
 * Optionally, implement a new builder, for example based on the existing `nest_builder.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_builder.py`_.
-* Add the new target platform to the frontend in `pynestml_frontend.py <https://github.com/nest/nestml/blob/master/pynestml/frontend/pynestml_frontend.py>`_.
+* Add the new target platform to the frontend in `pynestml_frontend.py <https://github.com/nest/nestml/blob/master/pynestml/frontend/pynestml_frontend.py>`__.
