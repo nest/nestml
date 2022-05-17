@@ -9,8 +9,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="519.58203mm"
-   height="46.146614mm"
-   viewBox="0 0 519.58202 46.146615"
+   height="105.13645mm"
+   viewBox="0 0 519.58202 105.13645"
    version="1.1"
    id="svg8"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
@@ -980,14 +980,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1"
      inkscape:cx="1305.7684"
-     inkscape:cy="268.26574"
+     inkscape:cy="268.26575"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1051"
-     inkscape:window-x="0"
+     inkscape:window-width="2560"
+     inkscape:window-height="1411"
+     inkscape:window-x="1080"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      fit-margin-top="0"
@@ -997,8 +997,8 @@
     <inkscape:grid
        type="xygrid"
        id="grid1491"
-       originx="384.12203"
-       originy="40.800341" />
+       originx="384.12204"
+       originy="40.800342" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">

@@ -1,21 +1,29 @@
 Extending NESTML
 ################
 
-The NESTML toolchain is modular and extensible.
+The NESTML toolchain is lightweight, modular and extensible.
+
 
 Internal workflow
 -----------------
 
-When NESTML is invoked, ...
+When NESTML is invoked, several steps are executed in sequence. First, the model(s) are parsed and validated. Then, depending on which target platform has been selected, transformations may occur, such as variable name rewriting in case of conflict with a keyword in the target language). The transformed models are then passed to the code generator, which combines then with a set of templates. Finally, an optional build stage compiles and builds the code, for example to yield a dynamically loadable library (``.so`` or ``.dll`` file).
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/internal_workflow.png
    :alt: NESTML model(s) → Parsing and validation → Transform → (+ Templates) → Generate code (and build) → Executable (binary) code
 
-:doc:`pynestml_toolchain/index`
+A more detailed description of the internal architecture of NESTML can be found in the following places:
+
+* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) `PDF <Tammo_Ippen_Master_Thesis.pdf>`_
+* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) `PDF <Konstantin_Perun_Master_thesis.pdf>`_
+* Dimitri Plotnikov, "NESTML - die domänenspezifische Sprache für den NEST-Simulator neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) `PDF <Dimitri_Plotnikov_Doctoral_Thesis.pdf>`_
+  * A condensed online English version is available: :doc:`pynestml_toolchain/index`
 
 
-Adding a new target platform
-----------------------------
+API documentation
+-----------------
+
+API documentation is automatically generated from source code and can be browsed here: :mod:`pynestml` **module index**
 
 
 Running NESTML with custom templates
@@ -58,3 +66,12 @@ If a directory is given, the directory is recursively searched for templates (fi
 .. code-block:: python
 
    codegen_opts = {"templates": {"module_templates": ["setup"]}}
+
+
+Adding a new target platform
+----------------------------
+
+* Add a new set of templates in a new directory under `https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`_.
+* Implement a new code generator, for example based on the existing `nest_code_generator.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_code_generator.py`_.
+* Optionally, implement a new builder, for example based on the existing `nest_builder.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_builder.py`_.
+* Add the new target platform to the frontend in `pynestml_frontend.py <https://github.com/nest/nestml/blob/master/pynestml/frontend/pynestml_frontend.py>`_.
