@@ -14,9 +14,9 @@ When NESTML is invoked, several steps are executed in sequence. First, the model
 
 A more detailed description of the internal architecture of NESTML can be found in the following places:
 
-* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) `PDF <Tammo_Ippen_Master_Thesis.pdf>`_
-* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) `PDF <Konstantin_Perun_Master_thesis.pdf>`_
-* Dimitri Plotnikov, "NESTML - die domänenspezifische Sprache für den NEST-Simulator neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) `PDF <Dimitri_Plotnikov_Doctoral_Thesis.pdf>`_
+* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) `PDF <extending/Tammo_Ippen_Master_Thesis.pdf>`_
+* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) `PDF <extending/Konstantin_Perun_Master_thesis.pdf>`_
+* Dimitri Plotnikov, "NESTML - die Domänenspezifische Sprache für den NEST-Simulator Neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) `PDF <extending/Dimitri_Plotnikov_Doctoral_Thesis.pdf>`_
   * A condensed online English version is available: :doc:`pynestml_toolchain/index`
 
 
