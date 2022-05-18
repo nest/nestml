@@ -865,7 +865,7 @@ dependent on another state variable ``bar`` at a constant time offset (here, ``d
      foo' = bar(t - delay) / tau
    end
 
-Here, the ``delay`` variable is defined in the ``parameters`` block as:
+Note that the ``delay`` can be a numeric constant or a constant defined in the ``parameters`` block. In the above example, the ``delay`` variable is defined in the ``parameters`` block as:
 
 .. code-block:: nestml
 
@@ -874,11 +874,14 @@ Here, the ``delay`` variable is defined in the ``parameters`` block as:
      delay ms = 5.0 ms
    end
 
+For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_delay_based_variables_test.py>`_.
+
 .. note::
 
-   The value of the delayed variable (``bar`` in the above example) returned by the node's ``get()`` function in
-   PyNEST is always the non-delayed version, i.e., the value of the derivative of ``bar`` at time ``t``. Similarly, the
-   ``set()`` function sets the value of the actual state variable ``bar`` without the ``delay`` into consideration.
+   - The value of the delayed variable (``bar`` in the above example) returned by the node's ``get()`` function in
+     PyNEST is always the non-delayed version, i.e., the value of the derivative of ``bar`` at time ``t``. Similarly, the
+     ``set()`` function sets the value of the actual state variable ``bar`` without the ``delay`` into consideration.
+   - The ``delay`` variable can be set from PyNEST using the ``set()`` function before running the simulation. Setting the value after the simulation can give rise to unpredictable results and is not currently supported.
 
 .. note::
 
