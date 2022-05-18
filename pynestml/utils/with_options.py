@@ -25,7 +25,7 @@ import copy
 
 
 class WithOptions:
-    r"""This class allows options (indexed by strings) to be set and retrieved. A set of default options may be supplied by overriding the `_default_options` member in the inheriting class. """
+    r"""This class allows options (indexed by strings) to be set and retrieved. A set of default options may be supplied by overriding the `_default_options` member in the inheriting class."""
 
     _default_options: Mapping[str, Any] = {}
 
@@ -44,7 +44,7 @@ class WithOptions:
         return k in self._options.keys()
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
-        r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options. """
+        r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
         unhandled_options = {}
         for k in options.keys():
             if k in self.__class__._default_options:
