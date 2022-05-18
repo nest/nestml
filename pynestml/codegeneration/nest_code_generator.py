@@ -114,9 +114,6 @@ class NESTCodeGenerator(CodeGenerator):
         }
     }
 
-    _model_templates = dict()
-    _module_templates = list()
-
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
         self.analytic_solver = {}
@@ -145,83 +142,6 @@ class NESTCodeGenerator(CodeGenerator):
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
-
-    def setup_template_env(self):
-        """
-        Setup the Jinja2 template environment
-        """
-
-        # Get templates path
-        templates_root_dir = self.get_option("templates")["path"]
-        if not os.path.isabs(templates_root_dir):
-            # Prefix the default templates location
-            templates_root_dir = os.path.join(os.path.dirname(__file__), "resources_nest", templates_root_dir)
-            code, message = Messages.get_template_root_path_created(templates_root_dir)
-            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-        if not os.path.isdir(templates_root_dir):
-            raise InvalidPathException("Templates path (" + templates_root_dir + ")  is not a directory")
-
-        # Setup neuron template environment
-        neuron_model_templates = self.get_option("templates")["model_templates"]["neuron"]
-        if not neuron_model_templates:
-            raise Exception("A list of neuron model template files/directories is missing.")
-        self._model_templates["neuron"] = list()
-        self._model_templates["neuron"].extend(self.__setup_template_env(neuron_model_templates, templates_root_dir))
-
-        # Setup synapse template environment
-        if "synapse" in self.get_option("templates")["model_templates"]:
-            synapse_model_templates = self.get_option("templates")["model_templates"]["synapse"]
-            if synapse_model_templates:
-                self._model_templates["synapse"] = list()
-                self._model_templates["synapse"].extend(
-                    self.__setup_template_env(synapse_model_templates, templates_root_dir))
-
-        # Setup modules template environment
-        module_templates = self.get_option("templates")["module_templates"]
-        if not module_templates:
-            raise Exception("A list of module template files/directories is missing.")
-        self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
-
-    def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
-        """
-        A helper function to setup the jinja2 template environment
-        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
-        :param templates_root_dir: path of the root directory containing all the jinja2 templates
-        :return: A list of jinja2 template objects
-        """
-        _template_files = self._get_abs_template_paths(template_files, templates_root_dir)
-        _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
-
-        # Environment for neuron templates
-        env = Environment(loader=FileSystemLoader(_template_dirs))
-        env.globals["raise"] = self.raise_helper
-        env.globals["is_delta_kernel"] = ASTTransformers.is_delta_kernel
-
-        # Load all the templates
-        _templates = list()
-        for _templ_file in _template_files:
-            _templates.append(env.get_template(os.path.basename(_templ_file)))
-
-        return _templates
-
-    def _get_abs_template_paths(self, template_files: List[str], templates_root_dir: str) -> List[str]:
-        """
-        Resolve the directory paths and get the absolute paths of the jinja templates.
-        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
-        :param templates_root_dir: path of the root directory containing all the jinja2 templates
-        :return: A list of absolute paths of the ``template_files``
-        """
-        _abs_template_paths = list()
-        for _path in template_files:
-            # Convert from relative to absolute path
-            _path = os.path.join(templates_root_dir, _path)
-            if os.path.isdir(_path):
-                for file in glob.glob(os.path.join(_path, "*.jinja2")):
-                    _abs_template_paths.append(os.path.join(_path, file))
-            else:
-                _abs_template_paths.append(_path)
-
-        return _abs_template_paths
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         ret = super().set_options(options)

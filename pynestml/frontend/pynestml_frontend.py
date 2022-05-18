@@ -47,7 +47,7 @@ def get_known_targets():
     return targets
 
 
-def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
@@ -70,10 +70,11 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
+    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence
+    # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -83,12 +84,12 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 
-    return None   # no builder requested or available
+    return None  # no builder requested or available
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
-                    install_path: str=None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
-                    dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                    install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                    dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the given target platform.
 
     Parameters
@@ -161,8 +162,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                          install_path: Optional[str] = None, logging_level="ERROR",
-                         module_name=None, store_log: bool=False, suffix: str="",
-                         dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                         module_name=None, store_log: bool = False, suffix: str = "",
+                         dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters
