@@ -202,7 +202,8 @@ e();
         if symbol.is_inline_expression:
             return self.getter(symbol) + "()" + vector_param
 
-        assert not symbol.is_kernel(), "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
+        assert not symbol.is_kernel(), "NEST reference converter cannot print kernel; kernel should have been " \
+                                       "converted during code generation code generation "
 
         if symbol.is_state() or symbol.is_inline_expression:
             return self.getter(symbol) + "()" + vector_param
@@ -213,6 +214,18 @@ e();
 
         return self.print_origin(symbol, prefix=prefix) + \
             self.name(symbol) + vector_param
+
+    def convert_delay_variable(self, variable: ASTVariable, prefix=''):
+        """
+        Converts a delay variable to NEST processable format
+        :param variable:
+        :return:
+        """
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol:
+            if symbol.is_state() and symbol.has_delay_parameter():
+                return "get_delayed_" + variable.get_name() + "()"
+        return ""
 
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()

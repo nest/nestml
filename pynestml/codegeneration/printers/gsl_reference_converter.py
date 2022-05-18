@@ -67,7 +67,7 @@ class GSLReferenceConverter(CppReferenceConverter):
             code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                error_position=variable.get_source_position())
-            return ''
+            return ""
 
         if symbol.is_state():
             return self.name(symbol)
@@ -82,7 +82,7 @@ class GSLReferenceConverter(CppReferenceConverter):
                 s += "(" + str(units_conversion_factor) + " * "
             s += prefix + 'B_.' + self.buffer_value(symbol)
             if symbol.has_vector_parameter():
-                s += '[i]'
+                s += "[i]"
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -93,9 +93,21 @@ class GSLReferenceConverter(CppReferenceConverter):
             return variable_name
 
         if symbol.has_vector_parameter():
-            return prefix + 'get_' + variable_name + '()[i]'
+            return prefix + "get_" + variable_name + "()[i]"
 
-        return prefix + 'get_' + variable_name + '()'
+        return prefix + "get_" + variable_name + "()"
+
+    def convert_delay_variable(self, variable: ASTVariable, prefix: str =""):
+        """
+        Converts a delay variable to GSL processable format
+        :param variable: variable to be converted
+        :return: GSL processable format of the delay variable
+        """
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol:
+            if symbol.is_state() and symbol.has_delay_parameter():
+                return prefix + "get_delayed_" + variable.get_name() + "()"
+        raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
 
     def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """Convert a single function call to C++ GSL API syntax.
@@ -118,62 +130,62 @@ class GSLReferenceConverter(CppReferenceConverter):
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             # context dependent; we assume the template contains the necessary definitions
-            return '__resolution'
+            return "__resolution"
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return 'nest::Time(nest::Time::ms((double) {!s})).get_steps()'
+            return "nest::Time(nest::Time::ms((double) {!s})).get_steps()"
 
         if function_name == PredefinedFunctions.MAX:
-            return 'std::max({!s}, {!s})'
+            return "std::max({!s}, {!s})"
 
         if function_name == PredefinedFunctions.MIN:
-            return 'std::min({!s}, {!s})'
+            return "std::min({!s}, {!s})"
 
         if function_name == PredefinedFunctions.CLIP:
             # warning: the arguments of this function have been swapped and
             # are therefore [v_max, v_min, v], hence its structure
-            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
+            return "std::min({2!s}, std::max({1!s}, {0!s}))"
 
         if function_name == PredefinedFunctions.EXP:
             if self.is_upper_bound:
-                return 'std::exp(std::min({!s},' + str(self.maximal_exponent) + '))'
+                return "std::exp(std::min({!s}," + str(self.maximal_exponent) + "))"
             else:
-                return 'std::exp({!s})'
+                return "std::exp({!s})"
 
         if function_name == PredefinedFunctions.COSH:
             if self.is_upper_bound:
-                return 'std::cosh(std::min(std::abs({!s}),' + str(self.maximal_exponent) + '))'
+                return "std::cosh(std::min(std::abs({!s})," + str(self.maximal_exponent) + "))"
             else:
-                return 'std::cosh({!s})'
+                return "std::cosh({!s})"
 
         if function_name == PredefinedFunctions.SINH:
             if self.is_upper_bound:
-                return 'std::sinh(({!s} > 0 ? 1 : -1)*std::min(std::abs({!s}),' + str(self.maximal_exponent) + '))'
+                return "std::sinh(({!s} > 0 ? 1 : -1)*std::min(std::abs({!s})," + str(self.maximal_exponent) + "))"
             else:
-                return 'std::sinh({!s})'
+                return "std::sinh({!s})"
 
         if function_name == PredefinedFunctions.TANH:
             return 'std::tanh({!s})'
 
         if function_name == PredefinedFunctions.LN:
-            return 'std::log({!s})'
+            return "std::log({!s})"
 
         if function_name == PredefinedFunctions.LOG10:
-            return 'std::log10({!s})'
+            return "std::log10({!s})"
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1({!s})'
+            return "numerics::expm1({!s})"
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::get_vp_specific_rng( ' + prefix + 'get_thread() ) ))'
+            return "(({!s}) + ({!s}) * " + prefix + "normal_dev_( nest::get_vp_specific_rng( " + prefix + "get_thread() ) ))"
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + prefix + 'get_thread() )->drand())'
+            return "(({!s}) + ({!s}) * nest::get_vp_specific_rng( " + prefix + "get_thread() )->drand())"
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
-                   'nest::SpikeEvent se;\n' \
-                   'nest::kernel().event_delivery_manager.send(*this, se, lag)'
+            return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" \
+                   "nest::SpikeEvent se;\n" \
+                   "nest::kernel().event_delivery_manager.send(*this, se, lag)"
 
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
             return '''set_delay( {1!s} );
@@ -194,9 +206,9 @@ e();'''
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+            return prefix + function_name + "(" + ", ".join(["{!s}" for _ in range(n_args)]) + ")"
 
-        return prefix + function_name + '()'
+        return prefix + function_name + "()"
 
     def array_index(self, symbol: VariableSymbol) -> str:
         """
@@ -204,7 +216,7 @@ e();'''
         :param symbol: a single variable symbol
         :return: the corresponding string format
         """
-        return 'State_::' + self.convert_to_cpp_name(symbol.get_symbol_name())
+        return "State_::" + self.convert_to_cpp_name(symbol.get_symbol_name())
 
     def name(self, symbol: VariableSymbol) -> str:
         """
@@ -213,6 +225,6 @@ e();'''
         :return: the corresponding string format
         """
         if symbol.is_state() and not symbol.is_inline_expression:
-            return 'ode_state[State_::' + self.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
+            return "ode_state[State_::" + self.convert_to_cpp_name(symbol.get_symbol_name()) + "]"
 
         return super().name(symbol)
