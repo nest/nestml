@@ -15,7 +15,7 @@ inline double get_state_element(size_t elem)
     else if
 {%-  endif %}
 
-{%- if loop.index != len %}
+{%- if len == 1 or loop.index < len %}
 {%-   if variable.has_vector_parameter() %}
 {%-   set size =  variable.get_vector_parameter() %}
 {%-     if size|int == 0 %}
@@ -23,7 +23,7 @@ inline double get_state_element(size_t elem)
 {%-     endif -%}
     (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
     }
 {%-   else %}
     (elem == State_::{{names.name(variable).upper()}})
@@ -34,7 +34,7 @@ inline double get_state_element(size_t elem)
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
     }
 {%-   else %}
     {

@@ -165,7 +165,7 @@ e();
             return "((POST_NEURON_TYPE*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
-            return 'numerics::e'
+            return "numerics::e"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
@@ -176,10 +176,14 @@ e();
             code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                error_position=variable.get_source_position())
-            return ''
+            return ""
 
-        if symbol.is_local():
-            return variable.get_name() + ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
+        vector_param = ""
+        if symbol.has_vector_parameter():
+            vector_param = "[" + variable.get_vector_parameter() + "]"
+
+        # if symbol.is_local():
+        #     return variable.get_name() + vector_param
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -190,34 +194,26 @@ e();
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
             s += self.print_origin(symbol, prefix=prefix) + self.buffer_value(symbol)
-            if symbol.has_vector_parameter():
-                s += '[' + variable.get_vector_parameter() + ']'
+            s += vector_param
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
         if symbol.is_inline_expression:
-            return 'get_' + variable.get_name() + '()' + ('[i]' if symbol.has_vector_parameter() else '')
+            return self.getter(symbol) + "()" + vector_param
 
         assert not symbol.is_kernel(), "NEST reference converter cannot print kernel; kernel should have been " \
                                        "converted during code generation code generation "
 
-        if symbol.is_state():
-            temp = ""
-            temp += self.getter(symbol) + "()"
-            temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
-            return temp
+        if symbol.is_state() or symbol.is_inline_expression:
+            return self.getter(symbol) + "()" + vector_param
 
         variable_name = self.convert_to_cpp_name(variable.get_complete_name())
         if symbol.is_local():
-            return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
-
-        if symbol.is_inline_expression:
-            return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
+            return variable_name + vector_param
 
         return self.print_origin(symbol, prefix=prefix) + \
-            self.name(symbol) + \
-            ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
+            self.name(symbol) + vector_param
 
     def convert_delay_variable(self, variable: ASTVariable, prefix=''):
         """

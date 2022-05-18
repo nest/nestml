@@ -19,15 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
-import unittest
 import numpy as np
 
 import nest
+import pytest
+from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-class NestVectorsIntegrationTest(unittest.TestCase):
+class TestNestVectorsIntegration:
     r"""
     Tests the code generation and vector operations from NESTML to NEST.
     """
@@ -70,3 +71,26 @@ class NestVectorsIntegrationTest(unittest.TestCase):
         v_m = multimeter.get("events")["V_m"]
         print("V_m: {}".format(v_m))
         np.testing.assert_almost_equal(v_m[-1], -0.3)
+
+    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
+    def test_vectors_resize(self):
+        input_path = os.path.join(
+            os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml")))
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "vectorsmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
+        nest.set_verbosity("M_ALL")
+
+        nest.ResetKernel()
+        nest.Install(module_name)
+
+        neuron = nest.Create("vector_resize_nestml", params={"N": 200})
+        neuron.set(x=[1.0, 1.0, 4.0])
+        nest.Simulate(10)
