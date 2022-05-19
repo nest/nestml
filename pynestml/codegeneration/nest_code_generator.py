@@ -1108,14 +1108,13 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 
-            namespace["propagators_are_state_dependent"] = 0  # boolean flag
+            namespace["propagators_are_state_dependent"] = False
             for prop_name, prop_expr in namespace["propagators"].items():
                 prop_expr_ast = ModelParser.parse_expression(prop_expr)
 
-                for decl in neuron.get_state_blocks().get_declarations():
-                    for var in decl.get_variables():
-                        if var.get_name() in [var.get_name() for var in prop_expr_ast.get_variables()]:
-                            namespace["propagators_are_state_dependent"] = 1
+                for var_sym in neuron.get_state_symbols():
+                    if var_sym.get_symbol_name() in [var.get_name() for var in prop_expr_ast.get_variables()]:
+                        namespace["propagators_are_state_dependent"] = True
 
         # convert variables from ASTVariable instances to strings
         _names = self.non_equations_state_variables[neuron.get_name()]
