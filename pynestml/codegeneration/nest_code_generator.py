@@ -51,6 +51,7 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -58,13 +59,16 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
+from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
+from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -114,14 +118,11 @@ class NESTCodeGenerator(CodeGenerator):
         }
     }
 
-    _model_templates = dict()
-    _module_templates = list()
-
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
         self.analytic_solver = {}
         self.numeric_solver = {}
-        self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
+        self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
 
@@ -145,83 +146,6 @@ class NESTCodeGenerator(CodeGenerator):
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
-
-    def setup_template_env(self):
-        """
-        Setup the Jinja2 template environment
-        """
-
-        # Get templates path
-        templates_root_dir = self.get_option("templates")["path"]
-        if not os.path.isabs(templates_root_dir):
-            # Prefix the default templates location
-            templates_root_dir = os.path.join(os.path.dirname(__file__), "resources_nest", templates_root_dir)
-            code, message = Messages.get_template_root_path_created(templates_root_dir)
-            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-        if not os.path.isdir(templates_root_dir):
-            raise InvalidPathException("Templates path (" + templates_root_dir + ")  is not a directory")
-
-        # Setup neuron template environment
-        neuron_model_templates = self.get_option("templates")["model_templates"]["neuron"]
-        if not neuron_model_templates:
-            raise Exception("A list of neuron model template files/directories is missing.")
-        self._model_templates["neuron"] = list()
-        self._model_templates["neuron"].extend(self.__setup_template_env(neuron_model_templates, templates_root_dir))
-
-        # Setup synapse template environment
-        if "synapse" in self.get_option("templates")["model_templates"]:
-            synapse_model_templates = self.get_option("templates")["model_templates"]["synapse"]
-            if synapse_model_templates:
-                self._model_templates["synapse"] = list()
-                self._model_templates["synapse"].extend(
-                    self.__setup_template_env(synapse_model_templates, templates_root_dir))
-
-        # Setup modules template environment
-        module_templates = self.get_option("templates")["module_templates"]
-        if not module_templates:
-            raise Exception("A list of module template files/directories is missing.")
-        self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
-
-    def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
-        """
-        A helper function to setup the jinja2 template environment
-        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
-        :param templates_root_dir: path of the root directory containing all the jinja2 templates
-        :return: A list of jinja2 template objects
-        """
-        _template_files = self._get_abs_template_paths(template_files, templates_root_dir)
-        _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
-
-        # Environment for neuron templates
-        env = Environment(loader=FileSystemLoader(_template_dirs))
-        env.globals["raise"] = self.raise_helper
-        env.globals["is_delta_kernel"] = ASTTransformers.is_delta_kernel
-
-        # Load all the templates
-        _templates = list()
-        for _templ_file in _template_files:
-            _templates.append(env.get_template(os.path.basename(_templ_file)))
-
-        return _templates
-
-    def _get_abs_template_paths(self, template_files: List[str], templates_root_dir: str) -> List[str]:
-        """
-        Resolve the directory paths and get the absolute paths of the jinja templates.
-        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
-        :param templates_root_dir: path of the root directory containing all the jinja2 templates
-        :return: A list of absolute paths of the ``template_files``
-        """
-        _abs_template_paths = list()
-        for _path in template_files:
-            # Convert from relative to absolute path
-            _path = os.path.join(templates_root_dir, _path)
-            if os.path.isdir(_path):
-                for file in glob.glob(os.path.join(_path, "*.jinja2")):
-                    _abs_template_paths.append(os.path.join(_path, file))
-            else:
-                _abs_template_paths.append(_path)
-
-        return _abs_template_paths
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         ret = super().set_options(options)
@@ -420,7 +344,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         Does not modify existing neurons or synapses, but returns lists with additional elements representing new pair neuron and synapse
         """
-        from pynestml.utils.ast_utils import ASTUtils
         if not "neuron_synapse_pairs" in self._options:
             return neurons, synapses
 
@@ -758,9 +681,10 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_neuron(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates = self.analyse_neuron(neuron)
+            spike_updates, post_spike_updates, equations_with_delay_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
+            neuron.equations_with_delay_vars = equations_with_delay_vars
 
     def analyse_transform_synapses(self, synapses: List[ASTSynapse]) -> None:
         """
@@ -773,11 +697,14 @@ class NESTCodeGenerator(CodeGenerator):
             spike_updates = self.analyse_synapse(synapse)
             synapse.spike_updates = spike_updates
 
-    def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
+    def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment],
+                                                         List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
         :return: see documentation for get_spike_update_expressions() for more information.
+        :return: post_spike_updates: list of post-synaptic spike update expressions
+        :return: equations_with_delay_vars: list of equations containing delay variables
         """
         code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -785,13 +712,12 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_block()
 
         if equations_block is None:
-            from pynestml.utils.ast_utils import ASTUtils
             # add all declared state variables as none of them are used in equations block
             self.non_equations_state_variables[neuron.get_name()] = []
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
-            return [], []
+            return [], [], []
 
         delta_factors = ASTTransformers.get_delta_factors_(neuron, equations_block)
         kernel_buffers = ASTTransformers.generate_kernel_buffers_(neuron, equations_block)
@@ -799,6 +725,11 @@ class NESTCodeGenerator(CodeGenerator):
         ASTTransformers.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTTransformers.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+
+        # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
+        equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
+        neuron.accept(equations_with_delay_vars_visitor)
+        equations_with_delay_vars = equations_with_delay_vars_visitor.equations
 
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
@@ -839,11 +770,16 @@ class NESTCodeGenerator(CodeGenerator):
             neuron = ASTTransformers.add_declarations_to_internals(
                 neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
-        self.update_symbol_table(neuron, kernel_buffers)
+        state_vars_before_update = neuron.get_state_symbols()
+        self.update_symbol_table(neuron)
+
+        # Update the delay parameter parameters after symbol table update
+        ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
+
         spike_updates, post_spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-        return spike_updates, post_spike_updates
+        return spike_updates, post_spike_updates, equations_with_delay_vars
 
     def analyse_synapse(self, synapse: ASTSynapse) -> Dict[str, ASTAssignment]:
         """
@@ -874,13 +810,13 @@ class NESTCodeGenerator(CodeGenerator):
             ASTTransformers.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTTransformers.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             ASTTransformers.add_timestep_symbol(synapse)
-            self.update_symbol_table(synapse, kernel_buffers)
+            self.update_symbol_table(synapse)
 
             if not self.analytic_solver[synapse.get_name()] is None:
                 synapse = ASTTransformers.add_declarations_to_internals(
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
-            self.update_symbol_table(synapse, kernel_buffers)
+            self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(
                 synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
         else:
@@ -897,8 +833,6 @@ class NESTCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        from pynestml.utils.ast_utils import ASTUtils
-
         namespace = dict()
 
         if "paired_neuron" in dir(synapse):
@@ -937,6 +871,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["tracing"] = FrontendConfiguration.is_dev
         namespace["has_state_vectors"] = False
         namespace["vector_symbols"] = []
+        namespace['has_delay_variables'] = synapse.has_delay_variables()
         namespace['names_namespace'] = synapse.get_name() + "_names"
 
         # event handlers priority
@@ -973,7 +908,8 @@ class NESTCodeGenerator(CodeGenerator):
             for sym in namespace["analytic_state_variables"]:
                 expr_str = self.analytic_solver[synapse.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
                 expr_ast.update_scope(synapse.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
@@ -993,7 +929,8 @@ class NESTCodeGenerator(CodeGenerator):
             for sym in namespace["numeric_state_variables"]:
                 expr_str = self.numeric_solver[synapse.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
                 expr_ast.update_scope(synapse.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
@@ -1023,8 +960,6 @@ class NESTCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        from pynestml.utils.ast_utils import ASTUtils
-
         namespace = dict()
 
         if "paired_synapse" in dir(neuron):
@@ -1059,7 +994,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["tracing"] = FrontendConfiguration.is_dev
         namespace["has_state_vectors"] = neuron.has_state_vectors()
         namespace["vector_symbols"] = neuron.get_vector_symbols()
-        namespace['names_namespace'] = neuron.get_name() + "_names"
+        namespace["has_delay_variables"] = neuron.has_delay_variables()
+        namespace["names_namespace"] = neuron.get_name() + "_names"
 
         namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
         namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")
@@ -1101,10 +1037,16 @@ class NESTCodeGenerator(CodeGenerator):
             for sym in namespace["analytic_state_variables"] + namespace["analytic_state_variables_moved"]:
                 expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
+
+                # Check if the update expression has delay variables
+                if ASTUtils.has_equation_with_delay_variable(neuron.equations_with_delay_vars, sym):
+                    marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
+                    expr_ast.accept(marks_delay_vars_visitor)
 
             namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 
@@ -1152,15 +1094,22 @@ class NESTCodeGenerator(CodeGenerator):
             for sym in namespace["numeric_state_variables"] + namespace["numeric_state_variables_moved"]:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block, which should always be present,
+                # as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
+
+                # Check if the update expression has delay variables
+                if ASTUtils.has_equation_with_delay_variable(neuron.equations_with_delay_vars, sym):
+                    marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
+                    expr_ast.accept(marks_delay_vars_visitor)
 
             if namespace["uses_numeric_solver"]:
                 if "analytic_state_variables_moved" in namespace.keys():
                     namespace["purely_numeric_state_variables_moved"] = list(
                         set(namespace["numeric_state_variables_moved"]) - set(namespace["analytic_state_variables_moved"]))
+
                 else:
                     namespace["purely_numeric_state_variables_moved"] = namespace["numeric_state_variables_moved"]
 
@@ -1231,7 +1180,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return analytic_solver, numeric_solver
 
-    def update_symbol_table(self, neuron, kernel_buffers):
+    def update_symbol_table(self, neuron) -> None:
         """
         Update symbol table and scope.
         """
@@ -1243,12 +1192,15 @@ class NESTCodeGenerator(CodeGenerator):
 
     def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         r"""
-        Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
+        Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after
+        ode-toolbox.
 
         For example, a resulting `assignment_str` could be "I_kernel_in += (inh_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
+        from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from
+        user specification in the model.
 
-        Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
-
+        Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the
+        initial value of the corresponding ODE dimension.
         ``spike_updates`` is a mapping from input port name (as a string) to update expressions.
 
         ``post_spike_updates`` is a mapping from kernel name (as a string) to update expressions.

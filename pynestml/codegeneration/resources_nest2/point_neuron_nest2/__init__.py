@@ -19,15 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "5.0.0-post-dev"
-
-__all__ = ['cocos',
-           'codegeneration',
-           'exceptions',
-           'frontend',
-           'generated',
-           'meta_model',
-           'symbols',
-           'symbol_table',
-           'utils',
-           'visitors']
+# ---------------------------------------------------------------
+# Caution: This file is required to enable Python to also include the templates
+# ---------------------------------------------------------------
