@@ -110,6 +110,7 @@ class MessageCode(Enum):
     VECTOR_PARAMETER_WRONG_SIZE = 81
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
+    DELAY_VARIABLE = 84
 
 
 class Messages:
@@ -1180,3 +1181,8 @@ class Messages:
     def get_repeated_priorty_value(cls):
         message = "Priority values for event handlers need to be unique"
         return MessageCode.REPEATED_PRIORITY_VALUE, message
+
+    @classmethod
+    def get_function_is_delay_variable(cls, func):
+        message = "Function '" + func + "' is not a function but a delay variable."
+        return MessageCode.DELAY_VARIABLE, message

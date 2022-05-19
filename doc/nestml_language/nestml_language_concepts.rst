@@ -846,6 +846,48 @@ has to be defined in the ``state`` block. Otherwise, an error message is generat
 
 The content of spike and continuous time buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
+Delay Differential Equations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The differential equations in the ``equations`` block can also be a delay differential equation, where the derivative
+at the current time depends on the derivative of a function at previous times. A state variable, say ``foo`` that is
+dependent on another state variable ``bar`` at a constant time offset (here, ``delay``) in the past, can be written as
+
+.. code-block:: nestml
+
+   state:
+     bar real = -70.
+     foo real = 0
+   end
+
+   equations:
+     bar' = -bar / tau
+     foo' = bar(t - delay) / tau
+   end
+
+Note that the ``delay`` can be a numeric constant or a constant defined in the ``parameters`` block. In the above example, the ``delay`` variable is defined in the ``parameters`` block as:
+
+.. code-block:: nestml
+
+   parameters:
+     tau ms = 3.5 ms
+     delay ms = 5.0 ms
+   end
+
+For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_delay_based_variables_test.py>`_.
+
+.. note::
+
+   - The value of the delayed variable (``bar`` in the above example) returned by the node's ``get()`` function in
+     PyNEST is always the non-delayed version, i.e., the value of the derivative of ``bar`` at time ``t``. Similarly, the
+     ``set()`` function sets the value of the actual state variable ``bar`` without the ``delay`` into consideration.
+   - The ``delay`` variable can be set from PyNEST using the ``set()`` function before running the simulation. Setting the value after the simulation can give rise to unpredictable results and is not currently supported.
+
+.. note::
+
+   - Delay differential equations where the derivative of a variable is dependent on the derivative of the same
+     variable at previous times, for example, `The Mackey-Glass equation <http://www.scholarpedia.org/article/Mackey-Glass_equation>`_, are not supported currently.
+   - Delay differential equations with multiple delay values for the same variable are also not supported.
 
 Inline expressions
 ^^^^^^^^^^^^^^^^^^

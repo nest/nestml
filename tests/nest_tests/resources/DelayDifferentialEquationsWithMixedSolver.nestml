@@ -1,0 +1,51 @@
+"""
+DelayDifferentialEquationsWithMixedSolver.nestml
+################################################
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron dde_mixed:
+
+  state:
+    x real = 0.01
+    z real = 0.01
+  end
+
+  equations:
+    inline eta_act real = (etaX - epsilon) * (1 + etaX**n_act)
+    x' = etaX - x / ms
+    z' = epsilon + eta_act / ((1 + x(t - delay)**n_act) * ms) - z
+  end
+
+  parameters:
+    etaX integer = 6
+    n_act integer = -2
+    epsilon real = 0.5
+
+    # delay parameter
+    delay integer = 2
+  end
+
+  update:
+    integrate_odes()
+  end
+
+end
