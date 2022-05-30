@@ -661,6 +661,10 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
 
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                raise Exception("Error(s) occurred during code generation")
+
     def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
