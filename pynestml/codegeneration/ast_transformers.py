@@ -25,6 +25,9 @@ from typing import List, Mapping, Union, Sequence
 
 import sympy
 
+import odetoolbox
+import odetoolbox.shapes
+
 from pynestml.codegeneration.printers.printer import Printer
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -801,9 +804,9 @@ class ASTTransformers:
                 if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
                     inport = conv_call.args[1].get_variable()
                     expr_str = str(expr)
-                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.shapes.Shape._sympy_globals)
                     sympy_expr = sympy.expand(sympy_expr)
-                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call))
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.shapes.Shape._sympy_globals)
                     factor_str = []
                     for term in sympy.Add.make_args(sympy_expr):
                         if term.find(sympy_conv_expr):
