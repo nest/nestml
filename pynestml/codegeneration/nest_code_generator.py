@@ -29,7 +29,6 @@ from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
 import odetoolbox
 
 import pynestml
-from pynestml.codegeneration.ast_transformers import ASTTransformers
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
@@ -75,7 +74,7 @@ def find_spiking_post_port(synapse, namespace):
         for post_port_name in namespace["post_ports"]:
             if synapse.get_input_blocks() \
                     and synapse.get_input_blocks().get_input_ports() \
-                    and ASTTransformers.get_input_port_by_name(synapse.get_input_blocks(), post_port_name).is_spike():
+                    and ASTUtils.get_input_port_by_name(synapse.get_input_blocks(), post_port_name).is_spike():
                 return post_port_name
     return None
 
@@ -252,11 +251,11 @@ class NESTCodeGenerator(CodeGenerator):
 
             return [], [], []
 
-        delta_factors = ASTTransformers.get_delta_factors_(neuron, equations_block)
-        kernel_buffers = ASTTransformers.generate_kernel_buffers_(neuron, equations_block)
-        ASTTransformers.replace_convolve_calls_with_buffers_(neuron, equations_block)
-        ASTTransformers.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-        ASTTransformers.replace_inline_expressions_through_defining_expressions(
+        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+        kernel_buffers = ASTUtils.generate_kernel_buffers_(neuron, equations_block)
+        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
+        ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+        ASTUtils.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
 
         # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
@@ -290,17 +289,17 @@ class NESTCodeGenerator(CodeGenerator):
                 if not used_in_eq:
                     self.non_equations_state_variables[neuron.get_name()].append(var)
 
-        ASTTransformers.remove_initial_values_for_kernels(neuron)
-        kernels = ASTTransformers.remove_kernel_definitions_from_equations_block(neuron)
-        ASTTransformers.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
-        ASTTransformers.remove_ode_definitions_from_equations_block(neuron)
-        ASTTransformers.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
-        ASTTransformers.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
-        ASTTransformers.replace_convolution_aliasing_inlines(neuron)
-        ASTTransformers.add_timestep_symbol(neuron)
+        ASTUtils.remove_initial_values_for_kernels(neuron)
+        kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
+        ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
+        ASTUtils.remove_ode_definitions_from_equations_block(neuron)
+        ASTUtils.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
+        ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+        ASTUtils.replace_convolution_aliasing_inlines(neuron)
+        ASTUtils.add_timestep_symbol(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
-            neuron = ASTTransformers.add_declarations_to_internals(
+            neuron = ASTUtils.add_declarations_to_internals(
                 neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         state_vars_before_update = neuron.get_state_symbols()
@@ -325,35 +324,35 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = synapse.get_equations_block()
         spike_updates = {}
         if equations_block is not None:
-            delta_factors = ASTTransformers.get_delta_factors_(synapse, equations_block)
-            kernel_buffers = ASTTransformers.generate_kernel_buffers_(synapse, equations_block)
-            ASTTransformers.replace_convolve_calls_with_buffers_(synapse, equations_block)
-            ASTTransformers.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-            ASTTransformers.replace_inline_expressions_through_defining_expressions(
+            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
+            kernel_buffers = ASTUtils.generate_kernel_buffers_(synapse, equations_block)
+            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
+            ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+            ASTUtils.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver
             self.numeric_solver[synapse.get_name()] = numeric_solver
 
-            ASTTransformers.remove_initial_values_for_kernels(synapse)
-            kernels = ASTTransformers.remove_kernel_definitions_from_equations_block(synapse)
-            ASTTransformers.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
-            ASTTransformers.remove_ode_definitions_from_equations_block(synapse)
-            ASTTransformers.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
-            ASTTransformers.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
-            ASTTransformers.add_timestep_symbol(synapse)
+            ASTUtils.remove_initial_values_for_kernels(synapse)
+            kernels = ASTUtils.remove_kernel_definitions_from_equations_block(synapse)
+            ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
+            ASTUtils.remove_ode_definitions_from_equations_block(synapse)
+            ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
+            ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
+            ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
 
             if not self.analytic_solver[synapse.get_name()] is None:
-                synapse = ASTTransformers.add_declarations_to_internals(
+                synapse = ASTUtils.add_declarations_to_internals(
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(
                 synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
         else:
-            ASTTransformers.add_timestep_symbol(synapse)
+            ASTUtils.add_timestep_symbol(synapse)
 
         self.update_blocktype_for_common_parameters(synapse)
 
@@ -581,7 +580,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         # convert variables from ASTVariable instances to strings
         _names = self.non_equations_state_variables[neuron.get_name()]
-        _names = [ASTTransformers.to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
+        _names = [ASTUtils.to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
         namespace["non_equations_state_variables"] = _names
 
         namespace["uses_numeric_solver"] = neuron.get_name() in self.numeric_solver.keys() \
@@ -641,7 +640,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()
                                                    if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
                                                    and sym.is_recordable
-                                                   and not ASTTransformers.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
+                                                   and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
 
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
                                                       if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
@@ -670,7 +669,7 @@ class NESTCodeGenerator(CodeGenerator):
             return None, None
 
         parameters_block = neuron.get_parameter_blocks()
-        odetoolbox_indict = ASTTransformers.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers, printer=self._ode_toolbox_printer)
+        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers, printer=self._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
@@ -730,7 +729,7 @@ class NESTCodeGenerator(CodeGenerator):
         post_spike_updates = {}
 
         for kernel, spike_input_port in kernel_buffers:
-            if ASTTransformers.is_delta_kernel(kernel):
+            if ASTUtils.is_delta_kernel(kernel):
                 continue
 
             if not str(spike_input_port) in spike_updates.keys():
@@ -747,10 +746,10 @@ class NESTCodeGenerator(CodeGenerator):
             assert not buffer_type is None
 
             for kernel_var in kernel.get_variables():
-                for var_order in range(ASTTransformers.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
-                    kernel_spike_buf_name = ASTTransformers.construct_kernel_X_spike_buf_name(
+                for var_order in range(ASTUtils.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
+                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, var_order)
-                    expr = ASTTransformers.get_initial_value_from_ode_toolbox_result(
+                    expr = ASTUtils.get_initial_value_from_ode_toolbox_result(
                         kernel_spike_buf_name, solver_dicts)
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)

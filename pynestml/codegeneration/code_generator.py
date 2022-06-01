@@ -30,12 +30,12 @@ import os
 
 from jinja2 import Template, Environment, FileSystemLoader
 
-from pynestml.codegeneration.ast_transformers import ASTTransformers
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
@@ -112,7 +112,7 @@ class CodeGenerator(WithOptions):
         # Environment for neuron templates
         env = Environment(loader=FileSystemLoader(_template_dirs))
         env.globals["raise"] = self.raise_helper
-        env.globals["is_delta_kernel"] = ASTTransformers.is_delta_kernel
+        env.globals["is_delta_kernel"] = ASTUtils.is_delta_kernel
 
         # Load all the templates
         _templates = list()

@@ -24,16 +24,6 @@ from __future__ import annotations
 from typing import Any, Sequence, Mapping, Optional, Union
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.transformers.transformer import Transformer
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger
-from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.with_options import WithOptions
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.codegeneration.ast_transformers import ASTTransformers
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
@@ -42,15 +32,15 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.transformers.transformer import Transformer
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
+from pynestml.utils.with_options import WithOptions
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
-
-from abc import ABCMeta, abstractmethod
-import copy
 
 
 class SynapsePostNeuronCogeneration(Transformer, WithOptions):
@@ -205,7 +195,7 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
                 if func_name == "convolve":
                     symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
                                                                        SymbolKind.VARIABLE)
-                    input_port = ASTTransformers.get_input_port_by_name(
+                    input_port = ASTUtils.get_input_port_by_name(
                         self.parent_node.get_input_blocks(), symbol_buffer.name)
                     if input_port and not self.codegen_class.is_post_port(input_port.name, neuron_name, synapse_name):
                         kernel_name = node.get_args()[0].get_variable().name
@@ -278,7 +268,7 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
         all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(synapse.get_equations_blocks(), synapse)
 
         # add names of kernels
-        kernel_buffers = ASTTransformers.generate_kernel_buffers_(synapse, synapse.get_equations_blocks())
+        kernel_buffers = ASTUtils.generate_kernel_buffers_(synapse, synapse.get_equations_blocks())
         all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
 
         # if any variable is assigned to in any block that is not connected to a postsynaptic port
@@ -300,7 +290,7 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
         #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
         #
 
-        recursive_vars_used = ASTTransformers.recursive_dependent_variables_search(syn_to_neuron_state_vars, synapse)
+        recursive_vars_used = ASTUtils.recursive_dependent_variables_search(syn_to_neuron_state_vars, synapse)
         new_neuron.recursive_vars_used = recursive_vars_used
         new_neuron._transferred_variables = [neuron_state_var + var_name_suffix
                                              for neuron_state_var in syn_to_neuron_state_vars
@@ -319,10 +309,10 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
         # parameters used in the declarations of the state variables
         vars_used = []
         for var in syn_to_neuron_state_vars:
-            decls = ASTTransformers.get_declarations_from_block(var, neuron.get_state_blocks())
+            decls = ASTUtils.get_declarations_from_block(var, neuron.get_state_blocks())
             for decl in decls:
                 if decl.has_expression():
-                    vars_used.extend(ASTTransformers.collect_variable_names_in_expression(decl.get_expression()))
+                    vars_used.extend(ASTUtils.collect_variable_names_in_expression(decl.get_expression()))
 
             # parameters used in equations
             vars_used.extend(ASTUtils.collects_vars_used_in_equation(var, neuron.get_equations_blocks()))
@@ -428,7 +418,7 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
                     Logger.log_message(None, -1, "Moving state var updates for " + state_var
                                        + " from synapse to neuron", None, LoggingLevel.INFO)
                     for stmt in stmts:
-                        vars_used.extend(ASTTransformers.collect_variable_names_in_expression(stmt))
+                        vars_used.extend(ASTUtils.collect_variable_names_in_expression(stmt))
                         post_receive_block.block.stmts.remove(stmt)
                         ASTUtils.add_suffix_to_decl_lhs(stmt, suffix=var_name_suffix)
                         ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix)
