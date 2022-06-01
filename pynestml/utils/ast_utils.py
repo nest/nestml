@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Mapping, Optional, Sequence, Union
+from typing import Iterable, List, Mapping, Optional, Sequence, Union
 
 import re
 import sympy
@@ -46,6 +46,7 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -54,10 +55,8 @@ from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
-from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -934,6 +933,9 @@ class ASTUtils:
         :param init_expression: initialization expression
         :return: the neuron extended by the variable
         """
+        from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
         tmp = ModelParser.parse_expression(init_expression)
         vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
 
@@ -973,6 +975,9 @@ class ASTUtils:
         :param initial_value: corresponding initial value
         :return: a modified neuron
         """
+        from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
         tmp = ModelParser.parse_expression(initial_value)
         vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
         declaration_string = variable + ' real' + (
@@ -1057,6 +1062,7 @@ class ASTUtils:
         :param update_expressions: map of variables to corresponding updates during the update step.
         :return: a modified version of the neuron
         """
+        from pynestml.utils.model_parser import ModelParser
         for variable, update_expression in update_expressions.items():
             declaration_statement = variable + '__tmp real = ' + update_expression
             cls.add_declaration_to_update_block(ModelParser.parse_declaration(declaration_statement), neuron)
@@ -1440,6 +1446,7 @@ class ASTUtils:
         Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
+        from pynestml.utils.model_parser import ModelParser
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
 
         if neuron.get_state_blocks() is None:
@@ -1594,6 +1601,9 @@ class ASTUtils:
         :param inline_expressions: A sorted list with entries ASTInlineExpression.
         :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
         """
+        from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
         for source in inline_expressions:
             source_position = source.get_source_position()
             for target in inline_expressions:
@@ -1622,6 +1632,9 @@ class ASTUtils:
         :param inline_expressions: A list of inline expression definitions.
         :return: A list of updated ODE definitions (same as the ``definitions`` parameter).
         """
+        from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
         for m in inline_expressions:
             source_position = m.get_source_position()
             for target in definitions:
@@ -1691,6 +1704,7 @@ class ASTUtils:
         """
         Add timestep variable to the internals block
         """
+        from pynestml.utils.model_parser import ModelParser
         assert neuron.get_initial_value(
             "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols(
@@ -1856,3 +1870,11 @@ class ASTUtils:
 
         visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
         node.accept(visitor)
+
+    @classmethod
+    def find_model_by_name(cls, model_name: str, models: Iterable[Union[ASTNeuron, ASTSynapse]]) -> Optional[Union[ASTNeuron, ASTSynapse]]:
+        for model in models:
+            if model.get_name() == model_name:
+                return model
+
+        return None

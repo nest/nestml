@@ -18,13 +18,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ast_neuron import ASTNeuron
+
+from typing import Union
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
+class CoCoEachBlockDefinedAtMostOnce(CoCo):
     """
     This context condition ensures that each block is defined at most once.
 
@@ -42,14 +46,11 @@ class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: Union[ASTNeuron, ASTSynapse]):
         """
         Checks whether each block is define at most once.
-        :param node: a single neuron.
-        :type node: ASTNeuron
+        :param node: a single neuron or synapse.
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.BlocksUniques) No or wrong type of neuron provided (%s)!' % type(node)
         if isinstance(node.get_state_blocks(), list) and len(node.get_state_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('State', False)
             Logger.log_message(code=code, message=message, node=node, error_position=node.get_source_position(),
