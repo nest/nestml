@@ -53,3 +53,4 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
   ```
 
 - Delete the release branch (in this example, `release-v5.0.1`).
+- Add the new tag ("v5.0.0") as an _active version_ in ReadTheDocs, and then change the _default version_ to this tag.
