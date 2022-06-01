@@ -632,6 +632,9 @@ class ASTUtils:
     @classmethod
     def get_all_variables(cls, node: ASTNode) -> List[str]:
         """Make a list of all variable symbol names that are in ``node``"""
+        if node is None:
+            return []
+
         class ASTVariablesFinderVisitor(ASTVisitor):
             _variables = []
 
@@ -649,9 +652,6 @@ class ASTUtils:
 
                 self._variables.append(symbol)
 
-        if node is None:
-            return []
-
         visitor = ASTVariablesFinderVisitor()
         node.accept(visitor)
         all_variables = [v.name for v in visitor._variables]
@@ -660,6 +660,8 @@ class ASTUtils:
     @classmethod
     def get_all_variables_used_in_convolutions(cls, node: ASTNode, parent_node: ASTNode) -> List[str]:
         """Make a list of all variable symbol names that are in ``node`` and used in a convolution"""
+        if node is None:
+            return []
 
         class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
             _variables = []
@@ -687,9 +689,6 @@ class ASTUtils:
                                 found_parent_assignment = True
                         var_name = node_.get_variable_name()
                         self._variables.append(var_name)
-
-        if node is None:
-            return []
 
         visitor = ASTAllVariablesUsedInConvolutionVisitor(node, parent_node)
         node.accept(visitor)
@@ -1836,6 +1835,9 @@ class ASTUtils:
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
         """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
+        if node is None:
+            return
+
         # get all homogeneous parameters
         all_homogeneous_parameters = []
         for parameter in node.get_parameter_symbols():
@@ -1863,9 +1865,6 @@ class ASTUtils:
                     symbol.block_type = BlockType.COMMON_PARAMETERS
                     Logger.log_message(None, -1, "Changing block type of variable " + str(node.get_complete_name()),
                                        None, LoggingLevel.INFO)
-
-        if node is None:
-            return
 
         visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
         node.accept(visitor)
