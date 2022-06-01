@@ -55,7 +55,6 @@ from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
-from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -1662,7 +1661,7 @@ class ASTUtils:
         for ode_eq in equations_block.get_ode_equations():
             var = ode_eq.get_lhs()
             expr = ode_eq.get_rhs()
-            conv_calls = OdeTransformer.get_convolve_function_calls(expr)
+            conv_calls = ASTUtils.get_convolve_function_calls(expr)
             for conv_call in conv_calls:
                 assert len(
                     conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
@@ -1718,7 +1717,7 @@ class ASTUtils:
         """
 
         kernel_buffers = set()
-        convolve_calls = OdeTransformer.get_convolve_function_calls(equations_block)
+        convolve_calls = ASTUtils.get_convolve_function_calls(equations_block)
         for convolve in convolve_calls:
             el = (convolve.get_args()[0], convolve.get_args()[1])
             sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
@@ -1878,3 +1877,44 @@ class ASTUtils:
                 return model
 
         return None
+
+    @classmethod
+    def get_convolve_function_calls(cls, ast):
+        """
+        Returns all sum function calls in the handed over meta_model node or one of its children.
+        :param ast: a single meta_model node.
+        :type ast: ASTNode
+        """
+        return cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)
+
+    @classmethod
+    def contains_convolve_function_call(cls, ast):
+        """
+        Indicates whether _ast or one of its child nodes contains a sum call.
+        :param ast: a single meta_model
+        :type ast: ASTNode
+        :return: True if sum is contained, otherwise False.
+        :rtype: bool
+        """
+        return len(cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)) > 0
+
+    @classmethod
+    def get_function_calls(cls, ast_node, function_list):
+        """
+        For a handed over list of function names, this method retrieves all functions in the meta_model.
+        :param ast_node: a single meta_model node
+        :type ast_node: ASTNode
+        :param function_list: a list of function names
+        :type function_list: list(str)
+        :return: a list of all functions in the meta_model
+        :rtype: list(ASTFunctionCall)
+        """
+        res = list()
+        if ast_node is None:
+            return res
+        from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+        from pynestml.meta_model.ast_function_call import ASTFunctionCall
+        fun = (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in function_list else True)
+        vis = ASTHigherOrderVisitor(visit_funcs=fun)
+        ast_node.accept(vis)
+        return res

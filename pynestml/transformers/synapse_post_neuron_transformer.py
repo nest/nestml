@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# synapse_post_neuron_cogeneration.py
+# synapse_post_neuron_transformer.py
 #
 # This file is part of NEST.
 #

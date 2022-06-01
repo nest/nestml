@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_each_neuron_block_unique_and_defined.py
+# co_co_each_block_defined_at_most_once.py
 #
 # This file is part of NEST.
 #

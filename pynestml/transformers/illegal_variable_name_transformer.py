@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# variable_name_rewriter.py
+# illegal_variable_name_transformer.py
 #
 # This file is part of NEST.
 #

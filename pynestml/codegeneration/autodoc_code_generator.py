@@ -35,7 +35,6 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.ode_transformer import OdeTransformer
 
 
 class AutoDocCodeGenerator(CodeGenerator):
@@ -107,7 +106,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['odeTransformer'] = OdeTransformer()
 
         import textwrap
         pre_comments_bak = neuron.pre_comments
@@ -133,7 +131,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['odeTransformer'] = OdeTransformer()
 
         pre_comments_bak = synapse.pre_comments
         synapse.pre_comments = []
@@ -161,6 +158,5 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['odeTransformer'] = OdeTransformer()
 
         return namespace
