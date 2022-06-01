@@ -21,21 +21,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, List, Mapping, Optional, Union, Sequence
+from typing import Any, Callable, List, Mapping, Optional, Tuple, Union, Sequence
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.with_options import WithOptions
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
-from abc import ABCMeta, abstractmethod
-import copy
 
-
-class VariableNameRewriter(Transformer):
+class IllegalVariableNameTransformer(Transformer):
     r"""Perform a model transformation step, for instance, rewriting disallowed variable names like "lambda" because it conflicts with a keyword."""
 
     _default_options = {
@@ -43,8 +39,8 @@ class VariableNameRewriter(Transformer):
         "strategy": "append_underscores"
     }
 
-    fix_name_func_: Callable[[str], str]
-    rewritten_names_: List[Tuple[str, str]]
+    fix_name_func_: Callable[[str], str]    # callable to transform a variable name (string to string)
+    rewritten_names_: List[Tuple[str, str]]   # list of tuples (name, name_orig), one for each rewritten variable
 
     class VariableNameRewriterVisitor(ASTVisitor):
         forbidden_names_: List[str]

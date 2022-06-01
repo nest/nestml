@@ -54,10 +54,10 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     """Static factory method that returns a list of new instances of a child class of Transformers"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
+    # default: no transformers (empty list); options unchanged
+    transformers: List[Transformer] = []
     if options is None:
         options = {}
-
-    transformers: List[Transformer] = []
 
     if target_name.upper() in ["NEST", "NEST2"]:
         from pynestml.transformers.variable_name_rewriter import VariableNameRewriter
@@ -73,9 +73,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-        return transformers, options
-
-    # default: no transformers (empty list); options unchanged
     return transformers, options
 
 

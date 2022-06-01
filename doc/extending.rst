@@ -7,7 +7,7 @@ The NESTML toolchain is lightweight, modular and extensible.
 Internal workflow
 -----------------
 
-When NESTML is invoked, several steps are executed in sequence. First, the model(s) are parsed and validated. Then, depending on which target platform has been selected, transformations may occur, such as variable name rewriting in case of conflict with a keyword in the target language). The transformed models are then passed to the code generator, which combines then with a set of templates. Finally, an optional build stage compiles and builds the code, for example to yield a dynamically loadable library (``.so`` or ``.dll`` file).
+When NESTML is invoked, several steps are executed in sequence. First, the model(s) are parsed and validated. Then, depending on which target platform has been selected, transformations may occur, such as variable name rewriting in case of conflict with a keyword in the target language). The transformed models are then passed to the code generator, which combines them with a set of templates. Finally, an optional build stage compiles and builds the code, for example to yield a dynamically loadable library (``.so`` or ``.dll`` file).
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/internal_workflow.png
    :alt: NESTML model(s) → Parsing and validation → Transform → (+ Templates) → Generate code (and build) → Executable (binary) code
@@ -56,6 +56,7 @@ An example ``codegen_options.json`` file for NEST could look as follows:
    }
 
 The ``templates`` option in the JSON file contains information on the custom Jinja templates to be used for code generation.
+
 * The ``path`` option indicates the root directory of the custom Jinja templates.
 * The ``model_templates`` option indicates the names of the Jinja templates for neuron and synapse model(s) or relative path to a directory containing the neuron and synapse model(s) templates.
 * The ``module_templates`` option indicates the names or relative path to a directory containing the Jinja templates for the module.

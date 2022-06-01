@@ -25,6 +25,7 @@ import re
 import sympy
 
 from pynestml.codegeneration.printers.printer import Printer
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -1818,3 +1819,40 @@ class ASTUtils:
             return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
         equations_block.accept(ASTHigherOrderVisitor(func))
+
+    @classmethod
+    def update_blocktype_for_common_parameters(cls, node):
+        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
+        # get all homogeneous parameters
+        all_homogeneous_parameters = []
+        for parameter in node.get_parameter_symbols():
+            is_homogeneous = PyNestMLLexer.DECORATOR_HOMOGENEOUS in parameter.get_decorators()
+            if is_homogeneous:
+                all_homogeneous_parameters.append(parameter.name)
+
+        # change the block type
+        class ASTHomogeneousParametersBlockTypeChangeVisitor(ASTVisitor):
+            def __init__(self, all_homogeneous_parameters):
+                super(ASTHomogeneousParametersBlockTypeChangeVisitor, self).__init__()
+                self._all_homogeneous_parameters = all_homogeneous_parameters
+
+            def visit_variable(self, node: ASTNode):
+                if node.get_name() in self._all_homogeneous_parameters:
+                    symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(),
+                                                                SymbolKind.VARIABLE)
+                    if symbol is None:
+                        code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                           log_level=LoggingLevel.ERROR, astnode=node)
+                        return
+
+                    assert symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
+                    symbol.block_type = BlockType.COMMON_PARAMETERS
+                    Logger.log_message(None, -1, "Changing block type of variable " + str(node.get_complete_name()),
+                                       None, LoggingLevel.INFO)
+
+        if node is None:
+            return
+
+        visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
+        node.accept(visitor)

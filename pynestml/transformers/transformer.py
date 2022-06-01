@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence, Mapping, Optional, Union, Sequence
+from typing import Any, Mapping, Optional, Union, Sequence
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.with_options import WithOptions

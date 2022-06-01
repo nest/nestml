@@ -24,7 +24,6 @@ from __future__ import annotations
 from typing import Any, Sequence, Mapping, Optional, Union
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
@@ -36,21 +35,19 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.messages import Messages
-from pynestml.utils.with_options import WithOptions
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class SynapsePostNeuronCogeneration(Transformer, WithOptions):
+class SynapsePostNeuronTransformer(Transformer):
     r"""In a (pre neuron, synapse, post neuron) tuple, process (synapse, post_neuron) to move all variables that are only triggered by postsynaptic events to the postsynaptic neuron."""
 
     _default_options = {
         "neuron_synapse_pairs": []
     }
 
-    def __init__(self, options: Optional[Mapping[str, Any]]=None):
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
 
     def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
@@ -117,42 +114,6 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
             if self.is_vt_port(port.name, neuron_name, synapse_name):
                 post_port_names.append(port.get_name())
         return post_port_names
-
-    def update_blocktype_for_common_parameters(self, node):
-        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
-        # get all homogeneous parameters
-        all_homogeneous_parameters = []
-        for parameter in node.get_parameter_symbols():
-            is_homogeneous = PyNestMLLexer.DECORATOR_HOMOGENEOUS in parameter.get_decorators()
-            if is_homogeneous:
-                all_homogeneous_parameters.append(parameter.name)
-
-        # change the block type
-        class ASTHomogeneousParametersBlockTypeChangeVisitor(ASTVisitor):
-            def __init__(self, all_homogeneous_parameters):
-                super(ASTHomogeneousParametersBlockTypeChangeVisitor, self).__init__()
-                self._all_homogeneous_parameters = all_homogeneous_parameters
-
-            def visit_variable(self, node: ASTNode):
-                if node.get_name() in self._all_homogeneous_parameters:
-                    symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(),
-                                                                SymbolKind.VARIABLE)
-                    if symbol is None:
-                        code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
-                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                           log_level=LoggingLevel.ERROR, astnode=node)
-                        return
-
-                    assert symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
-                    symbol.block_type = BlockType.COMMON_PARAMETERS
-                    Logger.log_message(None, -1, "Changing block type of variable " + str(node.get_complete_name()),
-                                       None, LoggingLevel.INFO)
-
-        if node is None:
-            return
-
-        visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
-        node.accept(visitor)
 
     def get_neuron_var_name_from_syn_port_name(self, port_name: str, neuron_name: str, synapse_name: str) -> Optional[str]:
         """
@@ -245,8 +206,6 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
 
         Does not modify existing neurons or synapses, but returns lists with additional elements representing new pair neuron and synapse
         """
-
-        paired_synapses = []
 
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
@@ -493,8 +452,6 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
         name_separator_str = "__with_"
 
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
-        # self.analytic_solver[new_neuron_name] = self.analytic_solver[neuron.get_name()]
-        # self.numeric_solver[new_neuron_name] = self.numeric_solver[neuron.get_name()]
         new_neuron.set_name(new_neuron_name)
         new_neuron.paired_synapse = new_synapse
 
@@ -503,8 +460,6 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
         #
 
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
-        # self.analytic_solver[new_synapse_name] = self.analytic_solver[synapse.get_name()]
-        # self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
         new_synapse.set_name(new_synapse_name)
         new_synapse.paired_neuron = new_neuron
         new_neuron.paired_synapse = new_synapse
@@ -522,7 +477,7 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
         new_neuron.accept(ASTSymbolTableVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())
 
-        self.update_blocktype_for_common_parameters(new_synapse)
+        ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 
         Logger.log_message(None, -1, "Successfully constructed neuron-synapse pair "
                            + new_neuron.name + ", " + new_synapse.name, None, LoggingLevel.INFO)
@@ -539,7 +494,7 @@ class SynapsePostNeuronCogeneration(Transformer, WithOptions):
 
             synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
             if synapse is None:
-                raise Exception("Synapse used in pair (\"" + neuron_name + "\") not found")  # XXX: log error
+                raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
 
             new_neuron, new_synapse = self.transform_neuron_synapse_pair_(neuron, synapse)
 

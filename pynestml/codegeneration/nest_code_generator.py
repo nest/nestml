@@ -22,10 +22,9 @@
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
-import glob
-import os
 
-from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
+from jinja2 import TemplateRuntimeError
+
 import odetoolbox
 
 import pynestml
@@ -39,15 +38,11 @@ from pynestml.codegeneration.printers.unitless_expression_printer import Unitles
 from pynestml.codegeneration.printers.nest_printer import NestPrinter
 from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
 from pynestml.codegeneration.printers.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
-from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -64,9 +59,7 @@ from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.symbols.variable_symbol import BlockType
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 def find_spiking_post_port(synapse, namespace):
@@ -147,42 +140,6 @@ class NESTCodeGenerator(CodeGenerator):
         self.setup_template_env()
 
         return ret
-
-    def update_blocktype_for_common_parameters(self, node):
-        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
-        # get all homogeneous parameters
-        all_homogeneous_parameters = []
-        for parameter in node.get_parameter_symbols():
-            is_homogeneous = PyNestMLLexer.DECORATOR_HOMOGENEOUS in parameter.get_decorators()
-            if is_homogeneous:
-                all_homogeneous_parameters.append(parameter.name)
-
-        # change the block type
-        class ASTHomogeneousParametersBlockTypeChangeVisitor(ASTVisitor):
-            def __init__(self, all_homogeneous_parameters):
-                super(ASTHomogeneousParametersBlockTypeChangeVisitor, self).__init__()
-                self._all_homogeneous_parameters = all_homogeneous_parameters
-
-            def visit_variable(self, node: ASTNode):
-                if node.get_name() in self._all_homogeneous_parameters:
-                    symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(),
-                                                                SymbolKind.VARIABLE)
-                    if symbol is None:
-                        code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
-                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                           log_level=LoggingLevel.ERROR, astnode=node)
-                        return
-
-                    assert symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
-                    symbol.block_type = BlockType.COMMON_PARAMETERS
-                    Logger.log_message(None, -1, "Changing block type of variable " + str(node.get_complete_name()),
-                                       None, LoggingLevel.INFO)
-
-        if node is None:
-            return
-
-        visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
-        node.accept(visitor)
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         neurons = [model for model in models if isinstance(model, ASTNeuron)]
@@ -354,7 +311,7 @@ class NESTCodeGenerator(CodeGenerator):
         else:
             ASTUtils.add_timestep_symbol(synapse)
 
-        self.update_blocktype_for_common_parameters(synapse)
+        ASTUtils.update_blocktype_for_common_parameters(synapse)
 
         return spike_updates
 
