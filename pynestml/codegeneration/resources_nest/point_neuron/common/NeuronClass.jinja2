@@ -480,6 +480,11 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
+{% if propagators_are_state_dependent %}
+  // the propagators are state dependent; update them!
+  recompute_internal_variables();
+{%- endif %}
+
   for ( long lag = from ; lag < to ; ++lag )
   {
 {%- for inputPort in neuron.get_input_ports() %}
