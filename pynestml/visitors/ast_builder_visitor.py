@@ -22,8 +22,6 @@
 import ntpath
 import re
 
-from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
-from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
@@ -486,9 +484,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_node(neuron)
-        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=neuron)
-        Logger.set_current_node(neuron)
-        # now the meta_model seems to be correct, return it
+
         return neuron
 
     def visitNamespaceDecoratorNamespace(self, ctx):
@@ -512,8 +508,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitSynapse(self, ctx):
-        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.synapseBody()) if ctx.synapseBody() is not None else None
 
@@ -531,10 +525,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # update the comments
         update_node_comments(synapse, self.__comments.visit(ctx))
 
-        # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.set_current_node(synapse)
-        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(node=synapse)
-        # now the meta_model seems to be correct, return it
+        # in order to enable the logger to print correct messages set as the source the corresponding synapse
         Logger.set_current_node(synapse)
 
         return synapse
