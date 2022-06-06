@@ -70,7 +70,7 @@ class CodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_model(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list(), compilation_unit.get_synapse_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -89,7 +89,7 @@ class CodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_model(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list(), compilation_unit.get_synapse_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -110,7 +110,7 @@ class CodeGeneratorTest(unittest.TestCase):
         iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(iaf_cond_alpha_functional, [])
+        nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
 
     def test_iaf_psc_alpha_with_codegen_opts(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -124,39 +124,6 @@ class CodeGeneratorTest(unittest.TestCase):
                 "neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2'],
                 "synapse": []
             },
-            "module_templates": ['setup/CMakeLists.txt.jinja2',
-                                 'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
-        }}
-
-        with open(code_opts_path, 'w+') as f:
-            json.dump(codegen_opts, f)
-
-        params = list()
-        params.append('--input_path')
-        params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
-        params.append(self.target_path)
-        params.append('--dev')
-        params.append('--codegen_opts')
-        params.append(code_opts_path)
-        FrontendConfiguration.parse_config(params)
-
-        compilation_unit = ModelParser.parse_model(input_path)
-
-        nestCodeGenerator = NESTCodeGenerator(codegen_opts)
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list(), list())
-
-    def test_iaf_psc_alpha_with_codegen_opts(self):
-        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
-
-        code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                           os.path.join('resources', 'code_options.json'))))
-        codegen_opts = {"templates": {
-            "path": "point_neuron",
-            "model_templates": {"neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2']},
             "module_templates": ['setup/CMakeLists.txt.jinja2',
                                  'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
         }}

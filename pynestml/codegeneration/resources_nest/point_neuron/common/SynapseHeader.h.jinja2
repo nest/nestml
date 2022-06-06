@@ -379,10 +379,10 @@ private:
   *
   {{synapse.print_internal_comment('*')}}
   *
-  * These variables must be initialized by @c calibrate, which is called before
+  * These variables must be initialized by @c pre_run_hook (or calibrate in NEST 2.x), which is called before
   * the first call to @c update() upon each call to @c Simulate.
   * @node Variables_ needs neither constructor, copy constructor or assignment operator,
-  *       since it is initialized by @c calibrate(). If Variables_ has members that
+  *       since it is initialized by @c pre_run_hook() (or calibrate() in NEST 2.x). If Variables_ has members that
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {
@@ -455,7 +455,7 @@ public:
   update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
 {%- endif %}
 
-    void init_internals_block_symbols();
+    void recompute_internal_variables();
 
   // Explicitly declare all methods inherited from the dependent base
   // ConnectionBase. This avoids explicit name prefixes in all places these
@@ -478,42 +478,42 @@ public:
     port
     handles_test_event( SpikeEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( RateEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( DataLoggingRequest&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( CurrentEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( ConductanceEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( DoubleDataEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( DSSpikeEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
     port
     handles_test_event( DSCurrentEvent&, rport )
     {
-      return invalid_port_;
+      return invalid_port;
     }
   };
 
@@ -708,7 +708,7 @@ public:
         const double old___h = V_.__h;
         V_.__h = (start->t_ + __dendritic_delay) - t_lastspike_;
         timestep += V_.__h;
-        init_internals_block_symbols();
+        recompute_internal_variables();
 {%- filter indent(8, True) %}
 {%- with analytic_state_variables_ = analytic_state_variables %}
 {%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
@@ -721,7 +721,7 @@ public:
 {%- endwith %}
 {%- endfilter %}
         V_.__h = old___h;
-        init_internals_block_symbols();  // XXX: can be skipped?
+        recompute_internal_variables();  // XXX: can be skipped?
 
         const double _tr_t = start->t_;
 
@@ -775,7 +775,7 @@ public:
     const double old___h = V_.__h;
     V_.__h = __t_spike - t_lastspike_;
     if (V_.__h > 1E-12) {
-      init_internals_block_symbols();
+      recompute_internal_variables();
 {%- filter indent(6, True) %}
 {%- with analytic_state_variables_ = analytic_state_variables %}
 {%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
@@ -789,8 +789,7 @@ public:
 {%- endfilter %}
     }
     V_.__h = old___h;
-    init_internals_block_symbols();  // XXX: can be skipped?
-
+    recompute_internal_variables();  // XXX: can be skipped?
 
     const double _tr_t = __t_spike - __dendritic_delay;
 
@@ -1110,21 +1109,26 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespa
 {{ names.getter(parameter) }}()
 {%-     endif %}
 {%- endfor %});
+
+  // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
+  recompute_internal_variables();
 }
 
 /**
  * NESTML internals block symbols initialisation
 **/
 template < typename targetidentifierT >
-void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
+void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-{%- for variable in synapse.get_internal_symbols() %}
-{%-     if not variable.get_symbol_name() == "__h" %}
-{%-         include "directives/Calibrate.jinja2" %}
-{%-     endif %}
-{%- endfor %}
+{% filter indent(2) %}
+{%-   for variable in synapse.get_internal_symbols() %}
+{%-       if not variable.get_symbol_name() == "__h" %}
+{%-           include "directives/MemberInitialization.jinja2" %}
+{%-         endif %}
+{%-     endfor %}
+{%- endfilter %}
 }
 
 /**
@@ -1145,7 +1149,7 @@ template < typename targetidentifierT >
 {%- endfor %}
 
   V_.__h = nest::Time::get_resolution().get_ms();
-  init_internals_block_symbols();
+  recompute_internal_variables();
 
   // initial values for state variables in ODE or kernel
 {%- for init in synapse.get_state_symbols() %}
@@ -1213,7 +1217,7 @@ std::cout << "\tUpdating state from pre_tr = " << S_.pre_tr << " to " ;
 #endif
   const double old___h = V_.__h;
   V_.__h = timestep;
-  init_internals_block_symbols();
+  recompute_internal_variables();
 {%- filter indent(2, True) %}
 {%- with analytic_state_variables_ = analytic_state_variables %}
 {%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
@@ -1226,7 +1230,7 @@ std::cout << "\tUpdating state from pre_tr = " << S_.pre_tr << " to " ;
 {%- endwith %}
 {%- endfilter %}
     V_.__h = old___h;
-    init_internals_block_symbols();  // XXX: can be skipped?
+    recompute_internal_variables();  // XXX: can be skipped?
 #ifdef DEBUG
  std::cout << S_.pre_tr << "\n";
  std::cout << "\tUpdating state from w = " << S_.w << " (with c = " << S_.c << ", n = " << S_.n << ", dt = " << __resolution << ") to ";
