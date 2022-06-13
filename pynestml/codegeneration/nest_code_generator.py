@@ -23,8 +23,6 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
 
-from jinja2 import TemplateRuntimeError
-
 import odetoolbox
 
 import pynestml
@@ -130,9 +128,6 @@ class NESTCodeGenerator(CodeGenerator):
                                                       expression_printer=self._unitless_expression_printer)
 
         self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
-
-    def raise_helper(self, msg):
-        raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         ret = super().set_options(options)
@@ -439,10 +434,9 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
         Returns a standard namespace with often required functionality.
-        :param neuron: a single neuron instance
+        :param neuron: a sing  le neuron instance
         :type neuron: ASTNeuron
         :return: a map from name to functionality.
-        :rtype: dict
         """
         namespace = dict()
 

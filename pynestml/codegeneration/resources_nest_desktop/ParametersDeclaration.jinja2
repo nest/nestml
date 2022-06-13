@@ -1,0 +1,17 @@
+
+"params": [
+    {%- for decl in block.get_declarations() %}
+    {%-   for v in decl.get_variables() %}
+    {%-         set name = v.get_name() %}
+    {%-         set type_symbol = v.get_type_symbol().get_value().print_symbol() %}
+    {%-         set default_value = decl.get_expression() %}
+      {
+        "id": "{{name}}",
+        "label": "{{name}}",
+        "unit": "{{type_symbol}}",
+        "value": {{default_value}},
+        "input": "arrayInput"
+      },
+    {%-   endfor %}
+    {%- endfor %}
+   ]

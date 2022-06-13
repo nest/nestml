@@ -28,7 +28,7 @@ from typing import Any, Dict, Mapping, List, Optional, Sequence, Union
 
 import os
 
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Template, Environment, FileSystemLoader, TemplateRuntimeError
 
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
@@ -97,6 +97,9 @@ class CodeGenerator(WithOptions):
             if not module_templates:
                 raise Exception("A list of module template files/directories is missing.")
             self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
+
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
 
     def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
         """

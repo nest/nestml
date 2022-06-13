@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST2", "autodoc", "none"]
+    targets = ["NEST", "NEST2", "autodoc", "NEST_DESKTOP", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -92,6 +92,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
+
+    if target_name.upper() == "NEST_DESKTOP":
+        from pynestml.codegeneration.nest_desktop_code_generator import NESTDesktopCodeGenerator
+        return NESTDesktopCodeGenerator(options)
 
     if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
