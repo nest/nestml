@@ -116,9 +116,12 @@ class NESTCodeGenerator(CodeGenerator):
         self._types_printer = CppTypesPrinter()
         self._gsl_reference_converter = GSLReferenceConverter()
         self._nest_reference_converter = NESTReferenceConverter()
+        self._nest_reference_converter_no_origin = NESTReferenceConverter()
+        self._nest_reference_converter_no_origin.with_origin = False
 
         self._printer = CppExpressionPrinter(self._nest_reference_converter)
         self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter)
+        self._unitless_expression_printer_no_origin = UnitlessExpressionPrinter(self._nest_reference_converter_no_origin)
         self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter)
 
         self._nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
@@ -148,6 +151,10 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
+
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                raise Exception("Error(s) occurred during code generation")
 
     def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
         """
@@ -752,7 +759,7 @@ class NESTCodeGenerator(CodeGenerator):
                 factor_expr = ModelParser.parse_expression(factor)
                 factor_expr.update_scope(neuron.get_scope())
                 factor_expr.accept(ASTSymbolTableVisitor())
-                assignment_str += "(" + self._unitless_expression_printer.print_expression(factor_expr) + ") * "
+                assignment_str += "(" + self._unitless_expression_printer_no_origin.print_expression(factor_expr) + ") * "
 
             assignment_str += str(inport)
             ast_assignment = ModelParser.parse_assignment(assignment_str)
