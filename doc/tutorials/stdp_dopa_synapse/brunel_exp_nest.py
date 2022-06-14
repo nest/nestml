@@ -149,15 +149,19 @@ neuron_params_inh = {"C_m": CMem,
 #J = 15.        # postsynaptic amplitude in mV
 #J_unit = ComputePSPnorm(tauMem, CMem, tauSyn)
 #J_ex = J / J_unit  # amplitude of excitatory postsynaptic current
-J_ex = 500.  #100 amplitude of excitatory postsynaptic current
+#J_ex = 100.  #100 amplitude of excitatory postsynaptic current
+# XXX: J_ex should be large enough so that when stimulus excites the subgroup cells, the subgroup cells cause an excitatory transient in the network
+J_ex = 250.  #100 amplitude of excitatory postsynaptic current
 J_in = -g * J_ex    # amplitude of inhibitory postsynaptic current
 
-J_poisson = 2500  # 1.5 nA peak EPSC
+J_poisson = 2500.
+# J_stim = 5000.
+J_stim = 10000.
 
 
-learning_rate = 1.   # multiplier for weight updates
+learning_rate = .1   # multiplier for weight updates
 
-reinforced_subgroup_idx = 1
+reinforced_subgroup_idx = 0
 stimulus_rate = 5.   # [s^-1]
 
 min_stimulus_presentation_delay = 10.   # [ms]
@@ -166,10 +170,10 @@ min_stimulus_presentation_delay = 10.   # [ms]
 # min_dopa_reinforcement_delay = 10. # [ms]
 # max_dopa_reinforcement_delay = 1000. # [ms]
 
-min_dopa_reinforcement_delay = 100. # [ms]
-max_dopa_reinforcement_delay = 300. # [ms]
+min_dopa_reinforcement_delay = 10. # [ms]
+max_dopa_reinforcement_delay = 30. # [ms]
 
-total_t_sim = 50000.  # [ms]
+total_t_sim = 10000.  # [ms]
 
 ###############################################################################
 # Definition of threshold rate, which is the external rate needed to fix the
@@ -177,7 +181,7 @@ total_t_sim = 50000.  # [ms]
 # rate of the poisson generator which is multiplied by the in-degree CE and
 # converted to Hz by multiplication by 1000.
 
-p_rate = 10.   # [Hz]
+p_rate = 5.   # [Hz]
 
 ################################################################################
 # Configuration of the simulation kernel by the previously defined time
@@ -221,7 +225,6 @@ nest.Connect(vt_parrot, vt, syn_spec={"synapse_model": "static_synapse",
                                       "delay": 1.})   # delay is ignored?!
 vt_gid = vt.get("global_id")
 
-
 # set up custom synapse models
 wr = nest.Create("weight_recorder")
 nest.CopyModel(synapse_model_name, "excitatory",
@@ -237,10 +240,10 @@ nest.CopyModel("static_synapse", "poisson",
 subgroup_indices = n_subgroups * [[]]
 for i in range(n_subgroups):
     ids_nonoverlapping = False
+#         ids_nonoverlapping[i] = np.random.choice(N_ex, size=neurons_per_group, replace=False)
     while not ids_nonoverlapping:
         ids = np.random.randint(0, NE, subgroup_size)
         ids_nonoverlapping = len(np.unique(ids)) == subgroup_size
-
     ids.sort()
     subgroup_indices[i] = ids
     
@@ -264,7 +267,7 @@ nest.Connect(mm, nodes_ex[0])
 nest.Connect(stim_sg, stim_parrots, "one_to_one")
 
 for i in range(n_subgroups):
-        nest.Connect(stim_parrots[i], nodes_ex[subgroup_indices[i]], "all_to_all", syn_spec={"weight": 5000.})
+    nest.Connect(stim_parrots[i], nodes_ex[subgroup_indices[i]], "all_to_all", syn_spec={"weight": J_stim})
 
 conn_params_ex = {'rule': 'fixed_indegree', 'indegree': CE}
 nest.Connect(nodes_ex, nodes_ex + nodes_in, conn_params_ex, "excitatory")
@@ -279,7 +282,7 @@ nest.Connect(nodes_in, ispikes, syn_spec="static_synapse")
 
 
 
-syn = nest.GetConnections(source=nodes_ex, synapse_model="excitatory")
+syn = nest.GetConnections(source=nodes_ex, target=nodes_ex, synapse_model="excitatory")
 
 ###############################################################################
 # Storage of the time point after the buildup of the network in a variable.
@@ -327,8 +330,100 @@ print("t_dopa_spikes = " + str(t_dopa_spikes))
 # run the simulation
 print("Simulating")
 
-nest.Simulate(total_t_sim)
+# nest.Simulate(total_t_sim)
+
+time_tr = []
+tr_group = []
+tr_group2 = []
+tr_nongroup = []
+tr_nongroup2 = []
+dopa_tr_group = []
+dopa_tr_nongroup = []
+w = []
+w_nongroup = []
+w_net = []
+syn_reinforced_subgroup_mean_w = []
+syn_nonreinforced_subgroup_mean_w = []
+nest.Prepare()
+for i in range(25):
+    nest.Run(total_t_sim//25)
+    print("subgroup gids: " + str(nodes_ex[subgroup_indices[reinforced_subgroup_idx]]))
     
+    # logging
+    time_tr.append(nest.GetKernelStatus("biological_time"))
+    
+    syn_reinforced_subgroup = nest.GetConnections(source=nodes_ex[subgroup_indices[reinforced_subgroup_idx]], synapse_model="excitatory")
+    syn_nonreinforced_subgroup = nest.GetConnections(source=nodes_ex[subgroup_indices[1 - reinforced_subgroup_idx]], synapse_model="excitatory")
+    syn_all = nest.GetConnections(source=nodes_ex, synapse_model="excitatory")
+
+    syn_reinforced_subgroup_mean_w.append(np.mean(syn_reinforced_subgroup.w))
+    syn_nonreinforced_subgroup_mean_w.append(np.mean(syn_nonreinforced_subgroup.w))
+    w_net.append(np.mean(syn_all.w))
+
+    _syn = syn_reinforced_subgroup[0]
+    tr_group.append(_syn.get("c"))
+    w.append(_syn.get("w"))
+    dopa_tr_group.append(_syn.get("n"))
+    
+    _syn = syn_nonreinforced_subgroup[0]
+    tr_nongroup.append(_syn.get("c"))
+    w_nongroup.append(_syn.get("w"))
+    
+    
+    tr_group2.append(np.sum(syn_reinforced_subgroup.c))
+    tr_nongroup2.append(np.sum(syn_nonreinforced_subgroup.c))
+    
+    _syn = syn_nonreinforced_subgroup[1]
+    dopa_tr_nongroup.append(_syn.get("n"))
+    
+    
+    
+
+    
+#     for j in range(len(syn)):
+#         if list(syn[j].sources())[0] in nodes_ex[subgroup_indices[reinforced_subgroup_idx]]:
+#             print("Source gid: " + str(list(syn[j].sources())[0]))
+#             time_tr.append(nest.GetKernelStatus("biological_time"))
+#             tr_group.append(syn[j].get("c"))
+#             w.append(syn[j].get("w"))
+#             dopa_tr.append(syn[j].get("n"))
+#             break
+#     for j in range(len(syn)):
+#         if list(syn[j].sources())[0] not in nodes_ex[subgroup_indices[reinforced_subgroup_idx]]:
+#             tr_nongroup.append(syn[j].get("c"))
+#             break
+
+fig,ax = plt.subplots(nrows=4)
+ax2 = ax[0].twinx()
+ax[0].plot(time_tr, tr_group, label="elig group example")
+ax[0].plot(time_tr, tr_group2, label="elig group sum")
+ax[0].plot(time_tr, tr_nongroup, label="elig nongroup example")
+ax[0].plot(time_tr, tr_nongroup2, label="elig nongroup sum")
+ax[0].scatter(t_dopa_spikes, np.zeros_like(t_dopa_spikes), marker="d", c="orange", alpha=.8, zorder=99)
+ax[0].legend()
+
+ax[1].plot(time_tr, dopa_tr_group, label="dopa group", linestyle=":", alpha=.7, marker="x")
+ax[1].plot(time_tr, dopa_tr_nongroup, label="dopa nongroup", linestyle="--", alpha=.7, marker="o")
+ax[1].legend()
+
+ax[2].plot(time_tr, w, label="w group")
+ax[2].plot(time_tr, w_nongroup, label="w nongroup")
+ax[2].plot(time_tr, w_net, label="w net")
+ax[2].legend()
+
+ax[3].plot(time_tr,syn_reinforced_subgroup_mean_w, label="group")
+ax[3].plot(time_tr, syn_nonreinforced_subgroup_mean_w, label="nongroup")
+ax[3].legend()
+
+for _ax in ax:
+    _ax.set_xlim(0., total_t_sim)
+
+plt.show()
+
+
+
+
+
 endsimulate = time.time()
 
 ###############################################################################
@@ -385,7 +480,7 @@ group_weight_times = [[] for _ in range(n_subgroups)]
 group_weight_values = [[] for _ in range(n_subgroups)]
                                         
 senders = np.array(wr.events["senders"])
-                               
+
 for subgroup_idx in range(n_subgroups):
     nodes_ex_gids = nodes_ex[subgroup_indices[subgroup_idx]].tolist()
     idx = [np.where(senders == nodes_ex_gids[i])[0] for i in range(subgroup_size)]
@@ -397,13 +492,12 @@ fig, ax = plt.subplots()
 for subgroup_idx in range(n_subgroups):
     if subgroup_idx == reinforced_subgroup_idx:
         c = "red"
-        zorder=99
+        zorder = 99
     else:
         c = "blue"
         zorder=1
         
     ax.scatter(group_weight_times[subgroup_idx], group_weight_values[subgroup_idx], c=c, alpha=.5, zorder=zorder)
-
     
 plt.show()
     
@@ -488,7 +582,7 @@ def _histogram(a, bins=10, bin_range=None, normed=False):
         return n, bins
 
 def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0,
-               grayscale=False, title=None, xlabel=None):
+               grayscale=False, title=None, xlabel=None, t_dopa_spikes=None):
     """Generic plotting routine.
 
     Constructs a raster plot along with an optional histogram (common part in
@@ -536,6 +630,8 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0,
     if hist:
         ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
         plotid = plt.plot(ts1, node_ids, color_marker)
+        if t_dopa_spikes is not None:
+            plt.scatter(t_dopa_spikes, np.zeros_like(t_dopa_spikes), marker="d", c="orange", alpha=.8, zorder=99)
         plt.ylabel(ylabel)
         plt.xticks([])
         xlim = plt.xlim()
@@ -576,6 +672,6 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0,
 ev = espikes.get("events")
 ts, node_ids = ev["times"], ev["senders"]
 
-_make_plot(ts, ts, node_ids, node_ids, xlabel="Time (ms)")
+_make_plot(ts, ts, node_ids, node_ids, xlabel="Time (ms)", t_dopa_spikes=t_dopa_spikes)
 
 plt.show()
