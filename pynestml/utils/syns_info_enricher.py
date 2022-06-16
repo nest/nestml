@@ -1,11 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-input: a neuron after ODE-toolbox transformations
+#
+# syns_info_enrichter.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-the kernel analysis solves all kernels at the same time
-this splits the variables on per kernel basis
-
-"""        
 from _collections import defaultdict
 import copy
 
@@ -21,7 +34,13 @@ import sympy
 
 
 class SynsInfoEnricher(ASTVisitor):
-    
+    """
+    input: a neuron after ODE-toolbox transformations
+
+    the kernel analysis solves all kernels at the same time
+    this splits the variables on per kernel basis
+
+    """   
     variables_to_internal_declarations = {}
     internal_variable_name_to_variable = {}
     inline_name_to_transformed_inline = {}
