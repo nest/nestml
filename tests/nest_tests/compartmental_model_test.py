@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example comparison of a two-compartment model with an active dendritic
 compartment and a two-compartment model with a passive dendritic compartment.

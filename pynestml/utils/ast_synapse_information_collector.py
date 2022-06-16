@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 for each inline expression inside the equations block,
 collect all synapse relevant information

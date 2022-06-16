@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 input: a neuron after ODE-toolbox transformations
 

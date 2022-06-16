@@ -1,4 +1,4 @@
-      
+# -*- coding: utf-8 -*-      
 import copy
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
