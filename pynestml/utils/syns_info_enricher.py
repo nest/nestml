@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# syns_info_enrichter.py
+# syns_info_enricher.py
 #
 # This file is part of NEST.
 #

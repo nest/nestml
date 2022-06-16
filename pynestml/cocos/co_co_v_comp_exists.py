@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_all_v_comp_exists.py
+# co_co_v_comp_exists.py
 #
 # This file is part of NEST.
 #

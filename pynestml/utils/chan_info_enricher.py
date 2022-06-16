@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# chan_info_enrichter.py
+# chan_info_enricher.py
 #
 # This file is part of NEST.
 #

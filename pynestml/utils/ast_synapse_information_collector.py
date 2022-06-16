@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-#
+# -*- coding: utf-8 -*-
 #
 # ast_synapse_information_collector.py
 #
