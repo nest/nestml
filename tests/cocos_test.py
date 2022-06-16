@@ -647,7 +647,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCmVariableName.nestml'))
-        #assert there is exactly one error
+        # assert there is exactly one error
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
@@ -656,7 +656,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCmVariableName.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -664,7 +664,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCmFunctionExists.nestml'))
-        #assert there are exactly 2 errors
+        # assert there are exactly 2 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
@@ -673,7 +673,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCmFunctionExists.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -681,7 +681,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCmVariablesDeclared.nestml'))
-        #assert there are exactly 3 errors
+        # assert there are exactly 3 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 3)
 
@@ -690,7 +690,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCmVariablesDeclared.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -698,7 +698,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCmFunctionOneArg.nestml'))
-        #assert there are exactly 2 errors
+        # assert there are exactly 2 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
@@ -707,7 +707,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCmFunctionOneArg.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -715,7 +715,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCmFunctionReturnsReal.nestml'))
-        #assert there are exactly 4 errors
+        # assert there are exactly 4 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
 
@@ -724,7 +724,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCmFunctionReturnsReal.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -732,7 +732,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSynsOneBuffer.nestml'))
-        #assert there are exactly 1 errors
+        # assert there are exactly 1 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
@@ -741,7 +741,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoSynsOneBuffer.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -750,7 +750,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCmVariableHasRhs.nestml'))
-        #assert there are exactly 5 errors
+        # assert there are exactly 5 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 5)
 
@@ -759,7 +759,7 @@ class CoCosTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCmVariableHasRhs.nestml'))
-        #assert there is exactly 0 errors
+        # assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 

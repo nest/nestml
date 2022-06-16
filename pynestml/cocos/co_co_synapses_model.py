@@ -25,8 +25,7 @@ from pynestml.utils.syns_processing import SynsProcessing
 
 
 class CoCoSynapsesModel(CoCo):
-    
-    
+
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
@@ -36,4 +35,3 @@ class CoCoSynapsesModel(CoCo):
         :type neuron: ast_neuron
         """
         return SynsProcessing.check_co_co(neuron)
-

@@ -189,8 +189,7 @@ class SynsInfoEnricher(ASTVisitor):
                 analytic_solution = kernel_name_to_analytic_solver[neuron.get_name()][kernel_name]
                 enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = analytic_solution
         return enriched_syns_info     
-                
-                
+
     """
     cm_syns_info input structure
 
@@ -340,10 +339,8 @@ class SynsInfoEnricher(ASTVisitor):
         }
         ...
     }
-        
-    
-    """              
-                
+    """
+
     @classmethod
     def transform_analytic_solution (cls, neuron: ASTNeuron, cm_syns_info: dict):
 
@@ -583,10 +580,7 @@ class SynsInfoEnricher(ASTVisitor):
             enriched_syns_info[synapse_name]["internals_used_declared"] = user_internals_sorted
             
         return enriched_syns_info
-            
-            
-        
-    
+
     @classmethod
     def prettyPrint(cls, syns_info, indent=2):
         print('\t' * indent + "{")
@@ -597,7 +591,7 @@ class SynsInfoEnricher(ASTVisitor):
             else:
                 print('\t' * (indent+1) + str(value).replace("\n", '\n'+ '\t' * (indent+1)) + ", ")
         print('\t' * indent + "},")
-    
+
     @classmethod
     def computeExpressionDerivative(cls, inline_expression: ASTInlineExpression) -> ASTExpression:
         expr_str = str(inline_expression.get_expression())

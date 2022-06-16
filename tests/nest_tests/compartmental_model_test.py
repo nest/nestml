@@ -84,13 +84,15 @@ class CMTest(unittest.TestCase):
         path_nest = nest.ll_api.sli_func("statusdict/prefix ::")
 
         if not os.path.exists(path_target):
-                os.makedirs(path_target)
+            os.makedirs(path_target)
 
-        generate_nest_compartmental_target(input_path=os.path.join(path_nestml, "../models/cm_default.nestml"),
-                                           target_path=os.path.join(path_target, "compartmental_model/"),
-                                           module_name="cm_defaultmodule",
-                                           suffix="_nestml",
-                                           logging_level="DEBUG")
+        generate_nest_compartmental_target(
+            input_path=os.path.join(path_nestml, "../models/cm_default.nestml"),
+            target_path=os.path.join(path_target, "compartmental_model/"),
+            module_name="cm_defaultmodule",
+            suffix="_nestml",
+            logging_level="DEBUG"
+        )
 
     def get_model(self, reinstall_flag=True):
         if self.nestml_flag:
@@ -162,8 +164,8 @@ class CMTest(unittest.TestCase):
         syn_idx_dend_act = 1
 
         # create a two spike generators
-        sg_soma = nest.Create('spike_generator', 1, {'spike_times': [10.,13.,16.]})
-        sg_dend = nest.Create('spike_generator', 1, {'spike_times': [70.,73.,76.]})
+        sg_soma = nest.Create('spike_generator', 1, {'spike_times': [10., 13., 16.]})
+        sg_dend = nest.Create('spike_generator', 1, {'spike_times': [70., 73., 76.]})
 
         # connect spike generators to passive dendrite model (weight in nS)
         nest.Connect(sg_soma, cm_pas, syn_spec={
@@ -205,15 +207,15 @@ class CMTest(unittest.TestCase):
             self.assertTrue(np.allclose(res_act_nest[var_nest], res_act_nestml[var_nestml], atol=5e-1))
 
         # check if synaptic conductances are equal
-        self.assertTrue(np.allclose(res_act_nest['g_r_AN_AMPA_1']+res_act_nest['g_d_AN_AMPA_1'],
+        self.assertTrue(np.allclose(res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
                                     res_act_nestml['g_AN_AMPA1'], 5e-3))
-        self.assertTrue(np.allclose(res_act_nest['g_r_AN_NMDA_1']+res_act_nest['g_d_AN_NMDA_1'],
+        self.assertTrue(np.allclose(res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
                                     res_act_nestml['g_AN_NMDA1'], 5e-3))
 
         if TEST_PLOTS:
             w_legends = False
 
-            plt.figure('voltage', figsize=(6,6))
+            plt.figure('voltage', figsize=(6, 6))
             # NEST
             # plot voltage for somatic compartment
             ax_soma = plt.subplot(221)
@@ -231,10 +233,10 @@ class CMTest(unittest.TestCase):
             ax_dend.plot(res_act_nest['times'], res_act_nest['v_comp1'], c='r', ls='--', lw=2., label='active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'$v_{dend}$ (mV)')
-            ax_dend.set_ylim((-90.,40.))
+            ax_dend.set_ylim((-90., 40.))
             if w_legends: ax_dend.legend(loc=0)
 
-            ## NESTML
+            # NESTML
             # plot voltage for somatic compartment
             ax_soma = plt.subplot(223)
             ax_soma.set_title('NESTML')
@@ -242,7 +244,7 @@ class CMTest(unittest.TestCase):
             ax_soma.plot(res_act_nestml['times'], res_act_nestml['v_comp0'], c='b', ls='--', lw=2., label='active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
             ax_soma.set_ylabel(r'$v_{soma}$ (mV)')
-            ax_soma.set_ylim((-90.,40.))
+            ax_soma.set_ylim((-90., 40.))
             if w_legends: ax_soma.legend(loc=0)
             # plot voltage for dendritic compartment
             ax_dend = plt.subplot(224)
@@ -251,11 +253,11 @@ class CMTest(unittest.TestCase):
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['v_comp1'], c='r', ls='--', lw=2., label='active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'$v_{dend}$ (mV)')
-            ax_dend.set_ylim((-90.,40.))
+            ax_dend.set_ylim((-90., 40.))
             if w_legends: ax_dend.legend(loc=0)
 
-            plt.figure('channel state variables', figsize=(6,6))
-            ## NEST
+            plt.figure('channel state variables', figsize=(6, 6))
+            # NEST
             # plot traces for somatic compartment
             ax_soma = plt.subplot(221)
             ax_soma.set_title('NEST')
@@ -267,7 +269,7 @@ class CMTest(unittest.TestCase):
             ax_soma.plot(res_act_nest['times'], res_act_nest['n_K_0'], c='g', ls='--', lw=2., label='n_K active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
             ax_soma.set_ylabel(r'svar')
-            ax_soma.set_ylim((0.,1.))
+            ax_soma.set_ylim((0., 1.))
             if w_legends: ax_soma.legend(loc=0)
             # plot voltage for dendritic compartment
             ax_dend = plt.subplot(222)
@@ -280,10 +282,10 @@ class CMTest(unittest.TestCase):
             ax_dend.plot(res_act_nest['times'], res_act_nest['n_K_1'], c='g', ls='--', lw=2., label='n_K active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'svar')
-            ax_dend.set_ylim((0.,1.))
+            ax_dend.set_ylim((0., 1.))
             if w_legends: ax_dend.legend(loc=0)
 
-            ## NESTML
+            # NESTML
             # plot traces for somatic compartment
             ax_soma = plt.subplot(223)
             ax_soma.set_title('NESTML')
@@ -295,7 +297,7 @@ class CMTest(unittest.TestCase):
             ax_soma.plot(res_act_nestml['times'], res_act_nestml['n_K0'], c='g', ls='--', lw=2., label='n_K active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
             ax_soma.set_ylabel(r'svar')
-            ax_soma.set_ylim((0.,1.))
+            ax_soma.set_ylim((0., 1.))
             if w_legends: ax_soma.legend(loc=0)
             # plot voltage for dendritic compartment
             ax_dend = plt.subplot(224)
@@ -308,11 +310,11 @@ class CMTest(unittest.TestCase):
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['n_K1'], c='g', ls='--', lw=2., label='n_K active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'svar')
-            ax_dend.set_ylim((0.,1.))
+            ax_dend.set_ylim((0., 1.))
             if w_legends: ax_dend.legend(loc=0)
 
-            plt.figure('dendritic synapse conductances', figsize=(3,6))
-            ## NEST
+            plt.figure('dendritic synapse conductances', figsize=(3, 6))
+            # NEST
             # plot traces for dendritic compartment
             ax_dend = plt.subplot(211)
             ax_dend.set_title('NEST')
@@ -324,7 +326,7 @@ class CMTest(unittest.TestCase):
             ax_dend.set_ylabel(r'$g_{syn1}$ (uS)')
             if w_legends: ax_dend.legend(loc=0)
             # plot traces for dendritic compartment
-            ## NESTML
+            # NESTML
             ax_dend = plt.subplot(212)
             ax_dend.set_title('NESTML')
             ax_dend.plot(res_pas_nestml['times'], res_pas_nestml['g_AN_AMPA1'], c='b', label='AMPA passive dend')

@@ -25,8 +25,6 @@ from pynestml.utils.ast_channel_information_collector import ASTChannelInformati
 
 
 class CoCoCompartmentalModel(CoCo):
-    
-    
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
@@ -36,4 +34,3 @@ class CoCoCompartmentalModel(CoCo):
         :type neuron: ast_neuron
         """
         return ASTChannelInformationCollector.check_co_co(neuron)
-
