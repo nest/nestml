@@ -194,34 +194,6 @@ class NESTCodeGenerator(CodeGenerator):
 
     def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment],
                                                          List[ASTOdeEquation]]:
-        for decl in neuron.get_state_blocks().get_declarations():
-            for var in decl.get_variables():
-                # check if this variable is not in equations
-
-                # if there is no equations, all variables are not in equations
-                if not neuron.get_equations_blocks():
-                    non_equations_state_variables.append(var)
-                    continue
-
-                    # check if equation name is also a state variable
-                used_in_eq = False
-                for ode_eq in neuron.get_equations_blocks().get_ode_equations():
-                    if ode_eq.get_lhs().get_name() == var.get_name():
-                        used_in_eq = True
-                        break
-
-                # check for any state variables being used by a kernel
-                for kern in neuron.get_equations_blocks().get_kernels():
-                    for kern_var in kern.get_variables():
-                        if kern_var.get_name() == var.get_name():
-                            used_in_eq = True
-                            break
-
-                # if no usage found at this point, we have a non-equation state variable
-                if not used_in_eq:
-                    non_equations_state_variables.append(var)
-        return non_equations_state_variables
-
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -258,9 +230,27 @@ class NESTCodeGenerator(CodeGenerator):
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
 
-        # get all variables from state block that are not found in equations
-        self.non_equations_state_variables[neuron.get_name()] = \
-            self.find_non_equations_state_variables(neuron)
+        self.non_equations_state_variables[neuron.get_name()] = []
+        for decl in neuron.get_state_blocks().get_declarations():
+            for var in decl.get_variables():
+                # check if this variable is not in equations
+                if not neuron.get_equations_blocks():
+                    self.non_equations_state_variables[neuron.get_name()].append(var)
+                    continue
+
+                used_in_eq = False
+                for ode_eq in neuron.get_equations_blocks().get_ode_equations():
+                    if ode_eq.get_lhs().get_name() == var.get_name():
+                        used_in_eq = True
+                        break
+                for kern in neuron.get_equations_blocks().get_kernels():
+                    for kern_var in kern.get_variables():
+                        if kern_var.get_name() == var.get_name():
+                            used_in_eq = True
+                            break
+
+                if not used_in_eq:
+                    self.non_equations_state_variables[neuron.get_name()].append(var)
 
         ASTUtils.remove_initial_values_for_kernels(neuron)
         kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
@@ -756,6 +746,7 @@ class NESTCodeGenerator(CodeGenerator):
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
+                        print("adding post assignment string: " + str(ast_assignment))
                         spike_updates[str(spike_input_port)].append(ast_assignment)
                     else:
                         spike_updates[str(spike_input_port)].append(ast_assignment)
