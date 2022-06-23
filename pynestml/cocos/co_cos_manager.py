@@ -19,16 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
-from pynestml.cocos.co_co_synapses_model import CoCoSynapsesModel
+from typing import Union
+
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
-from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
-from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
@@ -64,6 +63,7 @@ from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoV
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 
 
 class CoCosManager:
@@ -79,21 +79,12 @@ class CoCosManager:
         CoCoFunctionUnique.check_co_co(neuron)
 
     @classmethod
-    def check_each_block_unique_and_defined(cls, neuron: ASTNeuron):
+    def check_each_block_defined_at_most_once(cls, node: Union[ASTNeuron, ASTSynapse]):
         """
-        Checks if in the handed over neuron each block is defined at most once and mandatory blocks are defined.
-        :param neuron: a single neuron instance
+        Checks if in the handed over neuron or synapse, each block is defined at most once and mandatory blocks are defined.
+        :param node: a single neuron or synapse instance
         """
-        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(neuron)
-
-    @classmethod
-    def check_each_synapse_block_unique_and_defined(cls, neuron):
-        """
-        Checks if in the handed over neuron each block is defined at most once and mandatory blocks are defined.
-        :param neuron: a single neuron instance
-        :type neuron: ast_neuron
-        """
-        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(neuron)
+        CoCoEachBlockDefinedAtMostOnce.check_co_co(node)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, neuron: ASTNeuron):
@@ -431,6 +422,7 @@ class CoCosManager:
         Checks all context conditions.
         :param neuron: a single neuron object.
         """
+        cls.check_each_block_defined_at_most_once(neuron)
         cls.check_function_defined(neuron)
         cls.check_function_declared_and_correctly_typed(neuron)
         cls.check_variables_unique_in_scope(neuron)

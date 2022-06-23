@@ -48,8 +48,7 @@ class Nest2CompatTest(unittest.TestCase):
             "neuron_parent_class_include": "archiving_node.h",
             "neuron_parent_class": "Archiving_Node",
             "templates": {
-                "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pynestml", "codegeneration",
-                                     "resources_nest", "point_neuron_nest2"),
+                "path": "point_neuron_nest2",
                 "model_templates": {
                     "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                     "synapse": ["@SYNAPSE_NAME@.h.jinja2"]

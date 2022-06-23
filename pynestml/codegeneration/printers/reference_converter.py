@@ -40,6 +40,10 @@ class ReferenceConverter:
         pass
 
     @abstractmethod
+    def convert_delay_variable(self, variable, prefix=''):
+        pass
+
+    @abstractmethod
     def convert_constant(self, constant_name):
         pass
 

@@ -221,6 +221,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- else %}
@@ -335,6 +336,14 @@ void {{neuronName}}::init_buffers_()
   {{ printer.print_buffer_initialization(port) }}
 {%- endfor %}
   B_.logger_.reset(); // includes resize
+{%- if has_delay_variables %}
+  // Initialize helper variables for delay-based variables
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/DelayVariablesInitialization.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+{%- endif %}
 
 {%- if paired_neuron is defined %}
   clear_history();
@@ -442,6 +451,26 @@ void {{neuronName}}::pre_run_hook() {
 {%- include "directives/GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
+{%- if has_delay_variables %}
+void {{neuronName}}::update_delay_variables()
+{
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/UpdateDelayVariables.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+}
+
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
+{
+    return DV_.delayed_{{variable.get_symbol_name()}}[ DV_.delayed_{{variable.get_symbol_name()}}_idx ];
+}
+{%-     endif %}
+{%-   endfor %}
+
+{%- endif %}
 {%- if neuron.print_dynamics_comment('*')|length > 1 %}
 /*
  {{neuron.print_dynamics_comment('*')}}
@@ -450,6 +479,11 @@ void {{neuronName}}::pre_run_hook() {
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
+{% if propagators_are_state_dependent %}
+  // the propagators are state dependent; update them!
+  recompute_internal_variables();
+{%- endif %}
 
   for ( long lag = from ; lag < to ; ++lag )
   {
@@ -463,6 +497,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     B_.{{names.buffer_value(inputPort)}} = get_{{names.name(inputPort)}}().get_value(lag);
 {%-   endif %}
 {%- endfor %}
+
+{%- if has_delay_variables %}
+    update_delay_variables();
+{%- endif %}
 
     // NESTML generated code for the update block:
 

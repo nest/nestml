@@ -79,6 +79,9 @@ class CppExpressionPrinter(ExpressionPrinter):
             if node.is_boolean_true:
                 return self.reference_converter.convert_constant("true")
 
+            if node.is_delay_variable():
+                return self.reference_converter.convert_delay_variable(node.get_variable(), prefix=prefix)
+
             if node.is_boolean_false:
                 return self.reference_converter.convert_constant("false")
 

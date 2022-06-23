@@ -433,6 +433,23 @@ class NestPrinter(Printer):
 
         return decl_str
 
+    def print_delay_parameter(self, variable: VariableSymbol) -> str:
+        """
+        Prints the delay parameter
+        :param variable: Variable with delay parameter
+        :return: the corresponding delay parameter
+        """
+        assert isinstance(variable, VariableSymbol), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+        delay_parameter = variable.get_delay_parameter()
+        delay_parameter_var = ASTVariable(delay_parameter, scope=variable.get_corresponding_scope())
+        symbol = delay_parameter_var.get_scope().resolve_to_symbol(delay_parameter_var.get_complete_name(),
+                                                                   SymbolKind.VARIABLE)
+        if symbol is not None:
+            # delay parameter is a variable
+            return self.reference_converter.print_origin(symbol) + delay_parameter
+        return delay_parameter
+
     def print_expression(self, node: ASTExpressionNode, prefix: str = "", with_origins = True) -> str:
         """
         Prints the handed over rhs to a nest readable format.

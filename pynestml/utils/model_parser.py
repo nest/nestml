@@ -44,21 +44,22 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
@@ -66,16 +67,17 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.utils.error_listener import NestMLErrorListener
 
 
 class ModelParser:
-
     @classmethod
     def parse_model(cls, file_path=None):
         """
@@ -205,8 +207,7 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_neuron_or_synapse_body(cls, string):
-        # type: (str) -> ASTNeuronOrSynapseBody
+    def parse_neuron_or_synapse_body(cls, string: str) -> ASTNeuronOrSynapseBody:
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.body())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
