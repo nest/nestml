@@ -31,11 +31,10 @@ def generate_code_for(nestml_neuron_model: str,
                       nestml_synapse_model: str,
                       post_ports: Optional[List[str]] = None,
                       mod_ports: Optional[List[str]] = None,
-                      uniq_id: Optional[str] = None):
+                      uniq_id: Optional[str] = None,
+                      logging_level: str = "WARNING"):
     """Generate code for a given neuron and synapse model, passed as a string.
-
     NEST cannot yet unload or reload modules. This function implements a workaround using UUIDs to generate unique names.
-
     The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
     """
 
@@ -57,7 +56,7 @@ def generate_code_for(nestml_neuron_model: str,
         uniq_id = str(uuid.uuid4().hex)
 
     # update neuron model name inside the file
-    neuron_model_name_orig = re.find(r"neuron\ [^:\s]*:", nestml_neuron_model)[0]
+    neuron_model_name_orig = re.findall(r"neuron\ [^:\s]*:", nestml_neuron_model)[0][7:-1]
     neuron_model_name_uniq = neuron_model_name_orig + uniq_id
     nestml_model = re.sub(r"neuron\ [^:\s]*:",
                           "neuron " + neuron_model_name_uniq + ":", nestml_neuron_model)
@@ -66,7 +65,7 @@ def generate_code_for(nestml_neuron_model: str,
         print(nestml_model, file=f)
 
     # update synapse model name inside the file
-    synapse_model_name_orig = re.find(r"synapse\ [^:\s]*:", nestml_synapse_model)[0]
+    synapse_model_name_orig = re.findall(r"synapse\ [^:\s]*:", nestml_synapse_model)[0][8:-1]
     synapse_model_name_uniq = synapse_model_name_orig + uniq_id
     nestml_model = re.sub(r"synapse\ [^:\s]*:",
                           "synapse " + synapse_model_name_uniq + ":", nestml_synapse_model)
@@ -77,7 +76,7 @@ def generate_code_for(nestml_neuron_model: str,
     # generate the code for neuron and synapse (co-generated)
     module_name = "nestml_" + uniq_id + "_module"
     generate_nest_target(input_path=[neuron_uniq_fn, synapse_uniq_fn],
-                         logging_level="ERROR",
+                         logging_level=logging_level,
                          module_name=module_name,
                          suffix="_nestml",
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
