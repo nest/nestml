@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_assignments_helper.py
+# nest_code_generator_helper.py
 #
 # This file is part of NEST.
 #
@@ -57,18 +57,18 @@ def generate_code_for(nestml_neuron_model: str,
         uniq_id = str(uuid.uuid4().hex)
 
     # update neuron model name inside the file
-    neuron_model_name_orig = re.find("neuron\ [^:\s]*:", nestml_neuron_model)[0]
+    neuron_model_name_orig = re.find(r"neuron\ [^:\s]*:", nestml_neuron_model)[0]
     neuron_model_name_uniq = neuron_model_name_orig + uniq_id
-    nestml_model = re.sub("neuron\ [^:\s]*:",
+    nestml_model = re.sub(r"neuron\ [^:\s]*:",
                           "neuron " + neuron_model_name_uniq + ":", nestml_neuron_model)
     neuron_uniq_fn = neuron_model_name_uniq + ".nestml"
     with open(neuron_uniq_fn, "w") as f:
         print(nestml_model, file=f)
 
     # update synapse model name inside the file
-    synapse_model_name_orig = re.find("synapse\ [^:\s]*:", nestml_synapse_model)[0]
+    synapse_model_name_orig = re.find(r"synapse\ [^:\s]*:", nestml_synapse_model)[0]
     synapse_model_name_uniq = synapse_model_name_orig + uniq_id
-    nestml_model = re.sub("synapse\ [^:\s]*:",
+    nestml_model = re.sub(r"synapse\ [^:\s]*:",
                           "synapse " + synapse_model_name_uniq + ":", nestml_synapse_model)
     synapse_uniq_fn = synapse_model_name_uniq + ".nestml"
     with open(synapse_uniq_fn, "w") as f:
