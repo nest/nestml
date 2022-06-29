@@ -51,7 +51,11 @@ class SynsInfoEnricher(ASTVisitor):
     declarations_ordered = []
 
     @classmethod
-    def enrich_with_additional_info(cls, neuron: ASTNeuron, cm_syns_info: dict, kernel_name_to_analytic_solver: dict):
+    def enrich_with_additional_info(
+            cls,
+            neuron: ASTNeuron,
+            cm_syns_info: dict,
+            kernel_name_to_analytic_solver: dict):
         cm_syns_info = cls.add_kernel_analysis(
             neuron, cm_syns_info, kernel_name_to_analytic_solver)
         cm_syns_info = cls.transform_analytic_solution(neuron, cm_syns_info)
@@ -60,18 +64,18 @@ class SynsInfoEnricher(ASTVisitor):
 
     """
     cm_syns_info input structure
-    
+
     {
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
             "buffers_used": {"b_spikes"},
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
             },
@@ -84,21 +88,21 @@ class SynsInfoEnricher(ASTVisitor):
             ,
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     }
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
                     }
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -106,7 +110,7 @@ class SynsInfoEnricher(ASTVisitor):
         }
         ...
     }
-    
+
     output
 
     {
@@ -114,15 +118,15 @@ class SynsInfoEnricher(ASTVisitor):
         {
             "inline_expression": ASTInlineExpression,
             "buffers_used": {"b_spikes"},
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
@@ -132,14 +136,14 @@ class SynsInfoEnricher(ASTVisitor):
             ,
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     }
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
@@ -149,11 +153,11 @@ class SynsInfoEnricher(ASTVisitor):
                         'propagators':
                         {
                             '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes':
-                                'exp(-__h/tau_syn_AMPA)'    
+                                'exp(-__h/tau_syn_AMPA)'
                         },
                         'update_expressions':
                         {
-                            'g_ex_AMPA__X__b_spikes': 
+                            'g_ex_AMPA__X__b_spikes':
                                 '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes*g_ex_AMPA__X__b_spikes'
                         },
                         'state_variables': ['g_ex_AMPA__X__b_spikes'],
@@ -169,7 +173,7 @@ class SynsInfoEnricher(ASTVisitor):
                     }
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -177,15 +181,20 @@ class SynsInfoEnricher(ASTVisitor):
         }
         ...
     }
-        
-    
+
+
     """
 
     @classmethod
-    def add_kernel_analysis(cls, neuron: ASTNeuron, cm_syns_info: dict, kernel_name_to_analytic_solver: dict):
+    def add_kernel_analysis(
+            cls,
+            neuron: ASTNeuron,
+            cm_syns_info: dict,
+            kernel_name_to_analytic_solver: dict):
         enriched_syns_info = copy.copy(cm_syns_info)
         for synapse_name, synapse_info in cm_syns_info.items():
-            for convolution_name, convolution_info in synapse_info["convolutions"].items():
+            for convolution_name, convolution_info in synapse_info["convolutions"].items(
+            ):
                 kernel_name = convolution_info["kernel"]["name"]
                 analytic_solution = kernel_name_to_analytic_solver[neuron.get_name(
                 )][kernel_name]
@@ -200,15 +209,15 @@ class SynsInfoEnricher(ASTVisitor):
         {
             "inline_expression": ASTInlineExpression,
             "buffers_used": {"b_spikes"},
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
@@ -218,14 +227,14 @@ class SynsInfoEnricher(ASTVisitor):
             ,
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
@@ -235,11 +244,11 @@ class SynsInfoEnricher(ASTVisitor):
                         'propagators':
                         {
                             '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes':
-                                'exp(-__h/tau_syn_AMPA)'    
+                                'exp(-__h/tau_syn_AMPA)'
                         },
                         'update_expressions':
                         {
-                            'g_ex_AMPA__X__b_spikes': 
+                            'g_ex_AMPA__X__b_spikes':
                                 '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes*g_ex_AMPA__X__b_spikes'
                         },
                         'state_variables': ['g_ex_AMPA__X__b_spikes'],
@@ -255,7 +264,7 @@ class SynsInfoEnricher(ASTVisitor):
                     }
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -263,24 +272,24 @@ class SynsInfoEnricher(ASTVisitor):
         }
         ...
     }
-    
+
     output
-    
+
     {
         "AMPA":
         {
             "inline_expression": ASTInlineExpression, #transformed version
             "inline_expression_d": ASTExpression,
             "buffer_name": "b_spikes",
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
@@ -299,14 +308,14 @@ class SynsInfoEnricher(ASTVisitor):
             }
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
@@ -324,7 +333,7 @@ class SynsInfoEnricher(ASTVisitor):
                         },
                         'propagators':
                         {
-                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes: 
+                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes:
                             {
                                 "ASTVariable": ASTVariable,
                                 "init_expression": ASTExpression,
@@ -333,7 +342,7 @@ class SynsInfoEnricher(ASTVisitor):
                     }
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -344,7 +353,10 @@ class SynsInfoEnricher(ASTVisitor):
     """
 
     @classmethod
-    def transform_analytic_solution(cls, neuron: ASTNeuron, cm_syns_info: dict):
+    def transform_analytic_solution(
+            cls,
+            neuron: ASTNeuron,
+            cm_syns_info: dict):
 
         enriched_syns_info = copy.copy(cm_syns_info)
         for synapse_name, synapse_info in cm_syns_info.items():
@@ -354,13 +366,15 @@ class SynsInfoEnricher(ASTVisitor):
                 analytic_solution_transformed = defaultdict(
                     lambda: defaultdict())
 
-                for variable_name, expression_str in analytic_solution["initial_values"].items():
+                for variable_name, expression_str in analytic_solution["initial_values"].items(
+                ):
                     variable = neuron.get_equations_block().get_scope(
                     ).resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
 
                     expression = ModelParser.parse_expression(expression_str)
                     # pretend that update expressions are in "equations" block,
-                    # which should always be present, as synapses have been defined to get here
+                    # which should always be present, as synapses have been
+                    # defined to get here
                     expression.update_scope(
                         neuron.get_equations_blocks().get_scope())
                     expression.accept(ASTSymbolTableVisitor())
@@ -368,7 +382,9 @@ class SynsInfoEnricher(ASTVisitor):
                     update_expr_str = analytic_solution["update_expressions"][variable_name]
                     update_expr_ast = ModelParser.parse_expression(
                         update_expr_str)
-                    # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                    # pretend that update expressions are in "equations" block,
+                    # which should always be present, as differential equations
+                    # must have been defined to get here
                     update_expr_ast.update_scope(
                         neuron.get_equations_blocks().get_scope())
                     update_expr_ast.accept(ASTSymbolTableVisitor())
@@ -379,19 +395,19 @@ class SynsInfoEnricher(ASTVisitor):
                         "update_expression": update_expr_ast,
                     }
 
-                for variable_name, expression_string in analytic_solution["propagators"].items():
+                for variable_name, expression_string in analytic_solution["propagators"].items(
+                ):
                     variable = cls.internal_variable_name_to_variable[variable_name]
                     expression = ModelParser.parse_expression(
                         expression_string)
                     # pretend that update expressions are in "equations" block,
-                    # which should always be present, as synapses have been defined to get here
+                    # which should always be present, as synapses have been
+                    # defined to get here
                     expression.update_scope(
                         neuron.get_equations_blocks().get_scope())
                     expression.accept(ASTSymbolTableVisitor())
                     analytic_solution_transformed['propagators'][variable_name] = {
-                        "ASTVariable": variable,
-                        "init_expression": expression,
-                    }
+                        "ASTVariable": variable, "init_expression": expression, }
 
                 enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = analytic_solution_transformed
 
@@ -424,15 +440,15 @@ class SynsInfoEnricher(ASTVisitor):
             "inline_expression": ASTInlineExpression, #transformed version
             "inline_expression_d": ASTExpression,
             "buffer_name": "b_spikes",
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
@@ -451,14 +467,14 @@ class SynsInfoEnricher(ASTVisitor):
             }
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
@@ -476,7 +492,7 @@ class SynsInfoEnricher(ASTVisitor):
                         },
                         'propagators':
                         {
-                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes: 
+                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes:
                             {
                                 "ASTVariable": ASTVariable,
                                 "init_expression": ASTExpression,
@@ -485,7 +501,7 @@ class SynsInfoEnricher(ASTVisitor):
                     }
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -493,7 +509,7 @@ class SynsInfoEnricher(ASTVisitor):
         }
         ...
     }
-    
+
     output:
     {
         "AMPA":
@@ -501,15 +517,15 @@ class SynsInfoEnricher(ASTVisitor):
             "inline_expression": ASTInlineExpression, #transformed version
             "inline_expression_d": ASTExpression,
             "buffer_name": "b_spikes",
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             [
                 ("td", ASTDeclaration),
@@ -528,14 +544,14 @@ class SynsInfoEnricher(ASTVisitor):
             }
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
@@ -553,7 +569,7 @@ class SynsInfoEnricher(ASTVisitor):
                         },
                         'propagators':
                         {
-                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes: 
+                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes:
                             {
                                 "ASTVariable": ASTVariable,
                                 "init_expression": ASTExpression,
@@ -562,7 +578,7 @@ class SynsInfoEnricher(ASTVisitor):
                     }
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -580,9 +596,11 @@ class SynsInfoEnricher(ASTVisitor):
     def restoreOrderInternals(cls, neuron: ASTNeuron, cm_syns_info: dict):
 
         # assign each variable a rank
-        # that corresponds to the order in SynsInfoEnricher.declarations_ordered
+        # that corresponds to the order in
+        # SynsInfoEnricher.declarations_ordered
         variable_name_to_order = {}
-        for index, declaration in enumerate(SynsInfoEnricher.declarations_ordered):
+        for index, declaration in enumerate(
+                SynsInfoEnricher.declarations_ordered):
             variable_name = declaration.get_variables()[0].get_name()
             variable_name_to_order[variable_name] = index
 
@@ -599,16 +617,17 @@ class SynsInfoEnricher(ASTVisitor):
     def prettyPrint(cls, syns_info, indent=2):
         print('\t' * indent + "{")
         for key, value in syns_info.items():
-            print('\t' * indent + "\""+str(key)+"\":")
+            print('\t' * indent + "\"" + str(key) + "\":")
             if isinstance(value, dict):
-                cls.prettyPrint(value, indent+1)
+                cls.prettyPrint(value, indent + 1)
             else:
-                print('\t' * (indent+1) + str(value).replace("\n",
-                      '\n' + '\t' * (indent+1)) + ", ")
+                print('\t' * (indent + 1) + str(value).replace("\n",
+                      '\n' + '\t' * (indent + 1)) + ", ")
         print('\t' * indent + "},")
 
     @classmethod
-    def computeExpressionDerivative(cls, inline_expression: ASTInlineExpression) -> ASTExpression:
+    def computeExpressionDerivative(
+            cls, inline_expression: ASTInlineExpression) -> ASTExpression:
         expr_str = str(inline_expression.get_expression())
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
         sympy_expr = sympy.diff(sympy_expr, "v_comp")
@@ -636,11 +655,13 @@ class SynsInfoEnricher(ASTVisitor):
 
         analytic_solution_vars = set()
         # get all variables from transformed analytic solution
-        for convolution_name, convolution_info in single_synapse_info["convolutions"].items():
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items(
+        ):
             analytic_sol = convolution_info["analytic_solution"]
             # get variables from init and update expressions
             # for each kernel
-            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items():
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items(
+            ):
                 analytic_solution_vars.add(kernel_var_name)
 
                 update_vars = cls.get_variable_names_used(
@@ -654,7 +675,8 @@ class SynsInfoEnricher(ASTVisitor):
             # get variables from init expressions
             # for each propagator
             # include propagator variable itself
-            for propagator_var_name, propagator_info in analytic_sol["propagators"].items():
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items(
+            ):
                 analytic_solution_vars.add(propagator_var_name)
 
                 init_vars = cls.get_variable_names_used(
@@ -666,7 +688,8 @@ class SynsInfoEnricher(ASTVisitor):
 
     @classmethod
     def get_new_variables_after_transformation(cls, single_synapse_info):
-        return cls.get_all_synapse_variables(single_synapse_info).difference(single_synapse_info["total_used_declared"])
+        return cls.get_all_synapse_variables(single_synapse_info).difference(
+            single_synapse_info["total_used_declared"])
 
     # get new variables that only occur on the right hand side of analytic solution Expressions
     # but for wich analytic solution does not offer any values
@@ -676,18 +699,22 @@ class SynsInfoEnricher(ASTVisitor):
     def get_analytic_helper_variable_names(cls, single_synapse_info):
         analytic_lhs_vars = set()
 
-        for convolution_name, convolution_info in single_synapse_info["convolutions"].items():
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items(
+        ):
             analytic_sol = convolution_info["analytic_solution"]
 
             # get variables representing convolutions by kernel
-            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items():
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items(
+            ):
                 analytic_lhs_vars.add(kernel_var_name)
 
             # get propagator variable names
-            for propagator_var_name, propagator_info in analytic_sol["propagators"].items():
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items(
+            ):
                 analytic_lhs_vars.add(propagator_var_name)
 
-        return cls.get_new_variables_after_transformation(single_synapse_info).symmetric_difference(analytic_lhs_vars)
+        return cls.get_new_variables_after_transformation(
+            single_synapse_info).symmetric_difference(analytic_lhs_vars)
 
     @classmethod
     def get_analytic_helper_variable_declarations(cls, single_synapse_info):
@@ -703,7 +730,8 @@ class SynsInfoEnricher(ASTVisitor):
                 "ASTVariable": variable,
                 "init_expression": expression,
             }
-            if expression.is_function_call() and expression.get_function_call().callee_name == PredefinedFunctions.TIME_RESOLUTION:
+            if expression.is_function_call() and expression.get_function_call(
+            ).callee_name == PredefinedFunctions.TIME_RESOLUTION:
                 result[variable_name]["is_time_resolution"] = True
             else:
                 result[variable_name]["is_time_resolution"] = False

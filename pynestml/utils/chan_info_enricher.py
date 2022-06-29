@@ -33,8 +33,8 @@ class ChanInfoEnricher():
     """
     Adds derivative of inline expression to chan_info
     This needs to be done used from within nest_codegenerator
-    because the import of ModelParser will otherwise cause 
-    a circular dependency when this is used 
+    because the import of ModelParser will otherwise cause
+    a circular dependency when this is used
     inside CmProcessing
 
     input:
@@ -56,43 +56,43 @@ class ChanInfoEnricher():
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         }
             }
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "state_variable": ASTVariable,
                     "expected_functions":
                     {
                         "tau":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "state_variable": ASTVariable,
                     "expected_functions":
                     {
                         "tau":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
@@ -127,43 +127,43 @@ class ChanInfoEnricher():
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         }
             }
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "state_variable": ASTVariable,
                     "expected_functions":
                     {
                         "tau":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "state_variable": ASTVariable,
                     "expected_functions":
                     {
                         "tau":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
@@ -189,7 +189,8 @@ class ChanInfoEnricher():
         return chan_info
 
     @classmethod
-    def computeExpressionDerivative(cls, inline_expression: ASTInlineExpression) -> ASTExpression:
+    def computeExpressionDerivative(
+            cls, inline_expression: ASTInlineExpression) -> ASTExpression:
         expr_str = str(inline_expression.get_expression())
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
         sympy_expr = sympy.diff(sympy_expr, "v_comp")

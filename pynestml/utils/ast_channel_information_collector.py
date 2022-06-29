@@ -36,7 +36,7 @@ class ASTChannelInformationCollector(object):
     This class is used to enforce constraint conditions on a compartmental model neuron
 
     While checking compartmental model constraints it also builds a nested
-    data structure (chan_info) that can be used for code generation later 
+    data structure (chan_info) that can be used for code generation later
 
     Constraints:
 
@@ -49,7 +49,7 @@ class ASTChannelInformationCollector(object):
 
 
     Example:
-        equations: 
+        equations:
             inline Na real = m_Na_**3 * h_Na_**1
         end
 
@@ -58,11 +58,11 @@ class ASTChannelInformationCollector(object):
             return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
         end
 
-        function tau_h_Na(v_comp real) real: 
+        function tau_h_Na(v_comp real) real:
             return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
         end
 
-    Moreover it checks 
+    Moreover it checks
     -if all expected sates are defined,
     -that at least one gating variable exists (which is recognize when variable name ends with _{channel_name} )
     -that no gating variable repeats inside the inline expression that triggers cm mechanism
@@ -104,15 +104,15 @@ class ASTChannelInformationCollector(object):
 
     """
     detect_cm_inline_expressions
-    
-    analyzes any inline without kernels and returns 
+
+    analyzes any inline without kernels and returns
 
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
             "gating_variables": [ASTVariable, ASTVariable, ASTVariable, ...], # potential gating variables
-            
+
         },
         "K":
         {
@@ -136,7 +136,8 @@ class ASTChannelInformationCollector(object):
         relevant_inline_expressions_to_variables = defaultdict(lambda: list())
         for expression, variables in inline_expressions_dict.items():
             inline_expression_name = expression.variable_name
-            if not inline_expressions_inside_equations_block_collector_visitor.is_synapse_inline(inline_expression_name):
+            if not inline_expressions_inside_equations_block_collector_visitor.is_synapse_inline(
+                    inline_expression_name):
                 relevant_inline_expressions_to_variables[expression] = variables
 
         # create info structure
@@ -169,39 +170,47 @@ class ASTChannelInformationCollector(object):
     # i.e  Na -> gbar_Na
     @classmethod
     def get_expected_gbar_name(cls, ion_channel_name):
-        return cls.gbar_string+cls.padding_character+ion_channel_name
+        return cls.gbar_string + cls.padding_character + ion_channel_name
 
     # generate equilibrium variable name from ion channel name
     # i.e  Na -> e_Na
     @classmethod
     def get_expected_equilibrium_var_name(cls, ion_channel_name):
-        return cls.equilibrium_string+cls.padding_character+ion_channel_name
+        return cls.equilibrium_string + cls.padding_character + ion_channel_name
 
     # generate tau function name from ion channel name
     # i.e  Na, p -> tau_p_Na
     @classmethod
-    def get_expected_tau_result_var_name(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.get_expected_tau_function_name(ion_channel_name, pure_variable_name)
+    def get_expected_tau_result_var_name(
+            cls, ion_channel_name, pure_variable_name):
+        return cls.padding_character + \
+            cls.get_expected_tau_function_name(ion_channel_name, pure_variable_name)
 
     # generate tau variable name (stores return value)
     # from ion channel name and pure variable name
     # i.e  Na, p -> _tau_p_Na
     @classmethod
-    def get_expected_tau_function_name(cls, ion_channel_name, pure_variable_name):
-        return cls.tau_sring+cls.padding_character+pure_variable_name+cls.padding_character+ion_channel_name
+    def get_expected_tau_function_name(
+            cls, ion_channel_name, pure_variable_name):
+        return cls.tau_sring + cls.padding_character + \
+            pure_variable_name + cls.padding_character + ion_channel_name
 
     # generate inf function name from ion channel name and pure variable name
     # i.e  Na, p -> p_inf_Na
     @classmethod
-    def get_expected_inf_result_var_name(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.get_expected_inf_function_name(ion_channel_name, pure_variable_name)
+    def get_expected_inf_result_var_name(
+            cls, ion_channel_name, pure_variable_name):
+        return cls.padding_character + \
+            cls.get_expected_inf_function_name(ion_channel_name, pure_variable_name)
 
     # generate inf variable name (stores return value)
     # from ion channel name and pure variable name
     # i.e  Na, p -> _p_inf_Na
     @classmethod
-    def get_expected_inf_function_name(cls, ion_channel_name, pure_variable_name):
-        return pure_variable_name+cls.padding_character+cls.inf_string+cls.padding_character + ion_channel_name
+    def get_expected_inf_function_name(
+            cls, ion_channel_name, pure_variable_name):
+        return pure_variable_name + cls.padding_character + \
+            cls.inf_string + cls.padding_character + ion_channel_name
 
     # calculate function names that must be implemented
     # i.e
@@ -217,33 +226,33 @@ class ASTChannelInformationCollector(object):
         {
             "ASTInlineExpression": ASTInlineExpression,
             "gating_variables": [ASTVariable, ASTVariable, ASTVariable, ...]
-            
+
         },
         "K":
         {
             ...
         }
     }
-    
+
     output:
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": str,
                         "inf": str
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": str,
@@ -258,7 +267,7 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-    
+
     """
 
     @classmethod
@@ -284,12 +293,17 @@ class ASTChannelInformationCollector(object):
                 if variable_name in channel_parameters_exclude:
                     continue
 
-                # enforce unique variable names per channel, i.e n and m , not n and n
+                # enforce unique variable names per channel, i.e n and m , not
+                # n and n
                 if variable_name in variable_names_seen:
                     code, message = Messages.get_cm_inline_expression_variable_used_mulitple_times(
                         cm_expression, variable_name, ion_channel_name)
-                    Logger.log_message(code=code, message=message, error_position=variable_used.get_source_position(
-                    ), log_level=LoggingLevel.ERROR, node=variable_used)
+                    Logger.log_message(
+                        code=code,
+                        message=message,
+                        error_position=variable_used.get_source_position(),
+                        log_level=LoggingLevel.ERROR,
+                        node=variable_used)
                     continue
                 else:
                     variable_names_seen.add(variable_name)
@@ -317,26 +331,26 @@ class ASTChannelInformationCollector(object):
     """
     generate Errors on invalid variable names
     and add channel_parameters section to each channel
-    
+
     input:
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -351,9 +365,9 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-    
+
     output:
-    
+
     {
         "Na":
         {
@@ -363,20 +377,20 @@ class ASTChannelInformationCollector(object):
                 "gbar":{"expected_name": "gbar_Na"},
                 "e":{"expected_name": "e_Na"}
             }
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -391,10 +405,11 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-    
+
     """
     @classmethod
-    def add_channel_parameters_section_and_enforce_proper_variable_names(cls, node, chan_info):
+    def add_channel_parameters_section_and_enforce_proper_variable_names(
+            cls, node, chan_info):
         ret = copy.copy(chan_info)
 
         channel_parameters = defaultdict()
@@ -412,8 +427,12 @@ class ASTChannelInformationCollector(object):
                 cm_inline_expr = channel_info["ASTInlineExpression"]
                 code, message = Messages.get_no_gating_variables(
                     cm_inline_expr, ion_channel_name)
-                Logger.log_message(code=code, message=message, error_position=cm_inline_expr.get_source_position(
-                ), log_level=LoggingLevel.ERROR, node=cm_inline_expr)
+                Logger.log_message(
+                    code=code,
+                    message=message,
+                    error_position=cm_inline_expr.get_source_position(),
+                    log_level=LoggingLevel.ERROR,
+                    node=cm_inline_expr)
                 continue
 
         for ion_channel_name, channel_info in chan_info.items():
@@ -424,26 +443,26 @@ class ASTChannelInformationCollector(object):
     """
     checks if all expected functions exist and have the proper naming and signature
     also finds their corresponding ASTFunction objects
-    
+
     input
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": str,
                         "inf": str
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": str,
@@ -458,26 +477,26 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-    
+
     output
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -505,14 +524,20 @@ class ASTChannelInformationCollector(object):
 
         # check for missing functions
         for ion_channel_name, channel_info in chan_info.items():
-            for pure_variable_name, variable_info in channel_info["gating_variables"].items():
+            for pure_variable_name, variable_info in channel_info["gating_variables"].items(
+            ):
                 if "expected_functions" in variable_info.keys():
-                    for function_type, expected_function_name in variable_info["expected_functions"].items():
+                    for function_type, expected_function_name in variable_info["expected_functions"].items(
+                    ):
                         if expected_function_name not in function_name_to_function.keys():
                             code, message = Messages.get_expected_cm_function_missing(
                                 ion_channel_name, variable_info["ASTVariable"].name, expected_function_name)
-                            Logger.log_message(code=code, message=message, error_position=neuron.get_source_position(
-                            ), log_level=LoggingLevel.ERROR, node=neuron)
+                            Logger.log_message(
+                                code=code,
+                                message=message,
+                                error_position=neuron.get_source_position(),
+                                log_level=LoggingLevel.ERROR,
+                                node=neuron)
                         else:
                             ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
                             ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][
@@ -526,15 +551,23 @@ class ASTChannelInformationCollector(object):
                             if len(astfun.parameters) != 1:
                                 code, message = Messages.get_expected_cm_function_wrong_args_count(
                                     ion_channel_name, variable_info["ASTVariable"].name, astfun)
-                                Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(
-                                ), log_level=LoggingLevel.ERROR, node=astfun)
+                                Logger.log_message(
+                                    code=code,
+                                    message=message,
+                                    error_position=astfun.get_source_position(),
+                                    log_level=LoggingLevel.ERROR,
+                                    node=astfun)
 
                             # function must return real
                             if not astfun.get_return_type().is_real:
                                 code, message = Messages.get_expected_cm_function_bad_return_type(
                                     ion_channel_name, astfun)
-                                Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(
-                                ), log_level=LoggingLevel.ERROR, node=astfun)
+                                Logger.log_message(
+                                    code=code,
+                                    message=message,
+                                    error_position=astfun.get_source_position(),
+                                    log_level=LoggingLevel.ERROR,
+                                    node=astfun)
 
                             if function_type == "tau":
                                 ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type][
@@ -544,7 +577,10 @@ class ASTChannelInformationCollector(object):
                                     "result_variable_name"] = cls.get_expected_inf_result_var_name(ion_channel_name, pure_variable_name)
                             else:
                                 raise RuntimeError(
-                                    'This should never happen! Unsupported function type '+function_type+' from variable ' + pure_variable_name)
+                                    'This should never happen! Unsupported function type ' +
+                                    function_type +
+                                    ' from variable ' +
+                                    pure_variable_name)
 
         return ret
 
@@ -606,9 +642,9 @@ class ASTChannelInformationCollector(object):
 """
     Finds the actual ASTVariables in state block
     For each expected variable extract their right hand side expression
-    which contains the desired state value 
-    
-    
+    which contains the desired state value
+
+
     chan_info input
     {
         "Na":
@@ -619,20 +655,20 @@ class ASTChannelInformationCollector(object):
                 "gbar":{"expected_name": "gbar_Na"},
                 "e":{"expected_name": "e_Na"}
             }
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -647,7 +683,7 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-    
+
     chan_info output
     {
         "Na":
@@ -666,43 +702,43 @@ class ASTChannelInformationCollector(object):
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         }
             }
-            "gating_variables": 
+            "gating_variables":
             {
                 "m":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "state_variable": ASTVariable,
                     "expected_functions":
                     {
                         "tau":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
                     }
-                }, 
-                "h":  
+                },
+                "h":
                 {
-                    "ASTVariable": ASTVariable, 
+                    "ASTVariable": ASTVariable,
                     "state_variable": ASTVariable,
                     "expected_functions":
                     {
                         "tau":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
-                                    "ASTFunction": ASTFunction, 
-                                    "function_name": str, 
+                                    "ASTFunction": ASTFunction,
+                                    "function_name": str,
                                     "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
@@ -716,7 +752,7 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-        
+
 """
 
 
@@ -732,7 +768,8 @@ class VariableMissingVisitor(ASTVisitor):
 
         self.values_expected_from_channel = set()
         for ion_channel_name, channel_info in self.chan_info.items():
-            for channel_variable_type, channel_variable_info in channel_info["channel_parameters"].items():
+            for channel_variable_type, channel_variable_info in channel_info["channel_parameters"].items(
+            ):
                 self.values_expected_from_channel.add(
                     channel_variable_info["expected_name"])
                 self.expected_to_object[channel_variable_info["expected_name"]
@@ -740,13 +777,15 @@ class VariableMissingVisitor(ASTVisitor):
 
         self.values_expected_from_variables = set()
         for ion_channel_name, channel_info in self.chan_info.items():
-            for pure_variable_type, variable_info in channel_info["gating_variables"].items():
+            for pure_variable_type, variable_info in channel_info["gating_variables"].items(
+            ):
                 self.values_expected_from_variables.add(
                     variable_info["ASTVariable"].name)
                 self.expected_to_object[variable_info["ASTVariable"]
                                         .name] = variable_info["ASTVariable"]
 
-        self.not_yet_found_variables = set(self.values_expected_from_channel).union(
+        self.not_yet_found_variables = set(
+            self.values_expected_from_channel).union(
             self.values_expected_from_variables)
 
         self.inside_state_block = False
@@ -767,28 +806,37 @@ class VariableMissingVisitor(ASTVisitor):
         if self.inside_state_block and self.inside_declaration:
             varname = node.name
             if varname in self.not_yet_found_variables:
-                Logger.log_message(message="Expected state variable '"+varname+"' found inside state block",
-                                   log_level=LoggingLevel.INFO)
+                Logger.log_message(
+                    message="Expected state variable '" +
+                    varname +
+                    "' found inside state block",
+                    log_level=LoggingLevel.INFO)
                 self.not_yet_found_variables.difference_update({varname})
 
                 # make a copy because we can't write into the structure directly
                 # while iterating over it
                 chan_info_updated = copy.copy(self.chan_info)
 
-                # now that we found the satate defintion, extract information into chan_info
+                # now that we found the satate defintion, extract information
+                # into chan_info
 
                 # state variables
                 if varname in self.values_expected_from_variables:
                     for ion_channel_name, channel_info in self.chan_info.items():
-                        for pure_variable_name, variable_info in channel_info["gating_variables"].items():
+                        for pure_variable_name, variable_info in channel_info["gating_variables"].items(
+                        ):
                             if variable_info["ASTVariable"].name == varname:
                                 chan_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["state_variable"] = node
                                 rhs_expression = self.current_declaration.get_expression()
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(
                                         varname)
-                                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(
-                                    ), log_level=LoggingLevel.ERROR, node=node)
+                                    Logger.log_message(
+                                        code=code,
+                                        message=message,
+                                        error_position=node.get_source_position(),
+                                        log_level=LoggingLevel.ERROR,
+                                        node=node)
 
                                 chan_info_updated[ion_channel_name]["gating_variables"][
                                     pure_variable_name]["rhs_expression"] = rhs_expression
@@ -797,19 +845,24 @@ class VariableMissingVisitor(ASTVisitor):
         if self.inside_parameter_block and self.inside_declaration:
             varname = node.name
             if varname in self.not_yet_found_variables:
-                Logger.log_message(message="Expected variable '"+varname+"' found inside parameter block",
-                                   log_level=LoggingLevel.INFO)
+                Logger.log_message(
+                    message="Expected variable '" +
+                    varname +
+                    "' found inside parameter block",
+                    log_level=LoggingLevel.INFO)
                 self.not_yet_found_variables.difference_update({varname})
 
                 # make a copy because we can't write into the structure directly
                 # while iterating over it
                 chan_info_updated = copy.copy(self.chan_info)
-                # now that we found the defintion, extract information into chan_info
+                # now that we found the defintion, extract information into
+                # chan_info
 
                 # channel parameters
                 if varname in self.values_expected_from_channel:
                     for ion_channel_name, channel_info in self.chan_info.items():
-                        for variable_type, variable_info in channel_info["channel_parameters"].items():
+                        for variable_type, variable_info in channel_info["channel_parameters"].items(
+                        ):
                             if variable_info["expected_name"] == varname:
                                 chan_info_updated[ion_channel_name]["channel_parameters"][
                                     variable_type]["parameter_block_variable"] = node
@@ -817,8 +870,12 @@ class VariableMissingVisitor(ASTVisitor):
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(
                                         varname)
-                                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(
-                                    ), log_level=LoggingLevel.ERROR, node=node)
+                                    Logger.log_message(
+                                        code=code,
+                                        message=message,
+                                        error_position=node.get_source_position(),
+                                        log_level=LoggingLevel.ERROR,
+                                        node=node)
 
                                 chan_info_updated[ion_channel_name]["channel_parameters"][
                                     variable_type]["rhs_expression"] = rhs_expression
@@ -835,8 +892,12 @@ class VariableMissingVisitor(ASTVisitor):
         if self.not_yet_found_variables:
             code, message = Messages.get_expected_cm_variables_missing_in_blocks(
                 missing_variable_to_proper_block, self.expected_to_object)
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(
-            ), log_level=LoggingLevel.ERROR, node=node)
+            Logger.log_message(
+                code=code,
+                message=message,
+                error_position=node.get_source_position(),
+                log_level=LoggingLevel.ERROR,
+                node=node)
 
     def visit_block_with_variables(self, node):
         if node.is_state:

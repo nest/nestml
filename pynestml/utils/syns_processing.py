@@ -53,17 +53,17 @@ class SynsProcessing(object):
 
     """
     returns
-    
+
     {
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
             },
@@ -76,21 +76,21 @@ class SynsProcessing(object):
             ,
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
                     },
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -123,8 +123,7 @@ class SynsProcessing(object):
                 "states_used": info_collector.get_synapse_specific_state_declarations(synapse_inline),
                 "internals_used_declared": info_collector.get_synapse_specific_internal_declarations(synapse_inline),
                 "total_used_declared": info_collector.get_variable_names_of_synapse(synapse_inline),
-                "convolutions": {}
-            }
+                "convolutions": {}}
 
             kernel_arg_pairs = info_collector.get_extracted_kernel_args(
                 synapse_inline)
@@ -152,15 +151,15 @@ class SynsProcessing(object):
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
@@ -170,21 +169,21 @@ class SynsProcessing(object):
             ,
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
                     },
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -192,22 +191,22 @@ class SynsProcessing(object):
         }
         ...
     }
-    
-    output:    
+
+    output:
     {
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
             "buffers_used": {"b_spikes"},
-            "parameters_used": 
+            "parameters_used":
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             },
-            "states_used": 
+            "states_used":
             {
                 "v_comp": ASTDeclaration,
-            },            
+            },
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
@@ -217,21 +216,21 @@ class SynsProcessing(object):
             ,
             "convolutions":
             {
-                "g_ex_AMPA__X__b_spikes": 
+                "g_ex_AMPA__X__b_spikes":
                 {
-                    "kernel": 
+                    "kernel":
                     {
                         "name": "g_ex_AMPA",
                         "ASTKernel": ASTKernel
                     },
-                    "spikes": 
+                    "spikes":
                     {
                         "name": "b_spikes",
                         "ASTInputPort": ASTInputPort
                     },
                 }
             }
-                
+
         },
         "GABA":
         {
@@ -241,13 +240,18 @@ class SynsProcessing(object):
     }
     """
     @classmethod
-    def collect_and_check_inputs_per_synapse(cls, neuron: ASTNeuron, info_collector: ASTSynapseInformationCollector, syns_info: dict):
+    def collect_and_check_inputs_per_synapse(
+            cls,
+            neuron: ASTNeuron,
+            info_collector: ASTSynapseInformationCollector,
+            syns_info: dict):
         new_syns_info = copy.copy(syns_info)
 
         # collect all buffers used
         for synapse_name, synapse_info in syns_info.items():
             new_syns_info[synapse_name]["buffers_used"] = set()
-            for convolution_name, convolution_info in synapse_info["convolutions"].items():
+            for convolution_name, convolution_info in synapse_info["convolutions"].items(
+            ):
                 input_name = convolution_info["spikes"]["name"]
                 new_syns_info[synapse_name]["buffers_used"].add(input_name)
 
@@ -258,8 +262,12 @@ class SynsProcessing(object):
                 code, message = Messages.get_syns_bad_buffer_count(
                     buffers, synapse_name)
                 causing_object = synapse_info["inline_expression"]
-                Logger.log_message(code=code, message=message, error_position=causing_object.get_source_position(
-                ), log_level=LoggingLevel.ERROR, node=causing_object)
+                Logger.log_message(
+                    code=code,
+                    message=message,
+                    error_position=causing_object.get_source_position(),
+                    log_level=LoggingLevel.ERROR,
+                    node=causing_object)
 
         return new_syns_info
 
@@ -278,7 +286,7 @@ class SynsProcessing(object):
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
-        Checks if synapse conditions apply for the handed over neuron. 
+        Checks if synapse conditions apply for the handed over neuron.
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
