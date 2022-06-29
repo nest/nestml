@@ -87,16 +87,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "templates": {
             "path": "cm_neuron",
             "model_templates": {
-                "neuron": ["cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
-                           "cm_compartmentcurrents_@NEURON_NAME@.h.jinja2",
-                           "@NEURON_NAME@.cpp.jinja2",
-                           "@NEURON_NAME@.h.jinja2",
-                           "cm_tree_@NEURON_NAME@.cpp.jinja2",
-                           "cm_tree_@NEURON_NAME@.h.jinja2"
-                           ]},
-            "module_templates": ["setup"]
-        }
-    }
+                "neuron": [
+                    "cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
+                    "cm_compartmentcurrents_@NEURON_NAME@.h.jinja2",
+                    "@NEURON_NAME@.cpp.jinja2",
+                    "@NEURON_NAME@.h.jinja2",
+                    "cm_tree_@NEURON_NAME@.cpp.jinja2",
+                    "cm_tree_@NEURON_NAME@.h.jinja2"]},
+            "module_templates": ["setup"]}}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
@@ -121,20 +119,23 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._gsl_printer = UnitlessExpressionPrinter(
             reference_converter=self._gsl_reference_converter)
 
-        self._nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
-                                         types_printer=self._types_printer,
-                                         expression_printer=self._printer)
+        self._nest_printer = NestPrinter(
+            reference_converter=self._nest_reference_converter,
+            types_printer=self._types_printer,
+            expression_printer=self._printer)
 
-        self._unitless_nest_gsl_printer = NestPrinter(reference_converter=self._nest_reference_converter,
-                                                      types_printer=self._types_printer,
-                                                      expression_printer=self._unitless_expression_printer)
+        self._unitless_nest_gsl_printer = NestPrinter(
+            reference_converter=self._nest_reference_converter,
+            types_printer=self._types_printer,
+            expression_printer=self._unitless_expression_printer)
 
         self._local_variables_reference_converter = NESTLocalVariablesReferenceConverter()
         self._unitless_local_variables_expression_printer = UnitlessExpressionPrinter(
             self._local_variables_reference_converter)
-        self._unitless_local_variables_nest_gsl_printer = NestPrinter(reference_converter=self._local_variables_reference_converter,
-                                                                      types_printer=self._types_printer,
-                                                                      expression_printer=self._unitless_local_variables_expression_printer)
+        self._unitless_local_variables_nest_gsl_printer = NestPrinter(
+            reference_converter=self._local_variables_reference_converter,
+            types_printer=self._types_printer,
+            expression_printer=self._unitless_local_variables_expression_printer)
 
         self._ode_toolbox_printer = UnitlessExpressionPrinter(
             ODEToolboxReferenceConverter())
@@ -152,7 +153,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return ret
 
-    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
+    def generate_code(
+            self,
+            neurons: List[ASTNeuron],
+            synapses: List[ASTSynapse] = None) -> None:
         self.analyse_transform_neurons(neurons)
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
@@ -207,7 +211,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             }
         namespace["perNeuronFileNamesCm"] = neuron_name_to_filename
 
-        # compartmental case files that are not neuron specific - currently empty
+        # compartmental case files that are not neuron specific - currently
+        # empty
         namespace["sharedFileNamesCmSyns"] = {
         }
 
@@ -234,25 +239,30 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             spike_updates = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
 
-    def create_ode_indict(self, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables,
-                          kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+    def create_ode_indict(self,
+                          neuron: ASTNeuron,
+                          parameters_block: ASTBlockWithVariables,
+                          kernel_buffers: Mapping[ASTKernel,
+                                                  ASTInputPort]):
         odetoolbox_indict = self.transform_ode_and_kernels_to_json(
             neuron, parameters_block, kernel_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         return odetoolbox_indict
 
-    def ode_solve_analytically(self, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables,
-                               kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+    def ode_solve_analytically(self,
+                               neuron: ASTNeuron,
+                               parameters_block: ASTBlockWithVariables,
+                               kernel_buffers: Mapping[ASTKernel,
+                                                       ASTInputPort]):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
-        full_solver_result = analysis(odetoolbox_indict,
-                                      disable_stiffness_check=True,
-                                      preserve_expressions=self.get_option(
-                                          "preserve_expressions"),
-                                      simplify_expression=self.get_option(
-                                          "simplify_expression"),
-                                      log_level=FrontendConfiguration.logging_level)
+        full_solver_result = analysis(
+            odetoolbox_indict,
+            disable_stiffness_check=True,
+            preserve_expressions=self.get_option("preserve_expressions"),
+            simplify_expression=self.get_option("simplify_expression"),
+            log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [
             x for x in full_solver_result if x["solver"] == "analytical"]
@@ -263,7 +273,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return full_solver_result, analytic_solver
 
-    def ode_toolbox_anaysis_cm_syns(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+    def ode_toolbox_anaysis_cm_syns(
+            self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
@@ -272,7 +283,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_block()
 
-        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
+        if len(equations_block.get_kernels()) == 0 and len(
+                equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
 
@@ -287,7 +299,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return kernel_name_to_analytic_solver
 
-    def ode_toolbox_analysis(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+    def ode_toolbox_analysis(self, neuron: ASTNeuron,
+                             kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
@@ -296,7 +309,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_block()
 
-        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
+        if len(equations_block.get_kernels()) == 0 and len(
+                equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
 
@@ -305,7 +319,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         solver_result, analytic_solver = self.ode_solve_analytically(
             neuron, parameters_block, kernel_buffers)
 
-        # if numeric solver is required, generate a stepping function that includes each state variable
+        # if numeric solver is required, generate a stepping function that
+        # includes each state variable
         numeric_solver = None
         numeric_solvers = [
             x for x in solver_result if x["solver"].startswith("numeric")]
@@ -313,14 +328,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         if numeric_solvers:
             odetoolbox_indict = self.create_ode_indict(
                 neuron, parameters_block, kernel_buffers)
-            solver_result = analysis(odetoolbox_indict,
-                                     disable_stiffness_check=True,
-                                     disable_analytic_solver=True,
-                                     preserve_expressions=self.get_option(
-                                         "preserve_expressions"),
-                                     simplify_expression=self.get_option(
-                                         "simplify_expression"),
-                                     log_level=FrontendConfiguration.logging_level)
+            solver_result = analysis(
+                odetoolbox_indict,
+                disable_stiffness_check=True,
+                disable_analytic_solver=True,
+                preserve_expressions=self.get_option("preserve_expressions"),
+                simplify_expression=self.get_option("simplify_expression"),
+                log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [
                 x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(
@@ -355,7 +369,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                             used_in_eq = True
                             break
 
-                # if no usage found at this point, we have a non-equation state variable
+                # if no usage found at this point, we have a non-equation state
+                # variable
                 if not used_in_eq:
                     non_equations_state_variables.append(var)
         return non_equations_state_variables
@@ -373,7 +388,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_block()
 
         if equations_block is None:
-            # add all declared state variables as none of them are used in equations block
+            # add all declared state variables as none of them are used in
+            # equations block
             self.non_equations_state_variables[neuron.get_name()] = []
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
@@ -417,8 +433,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # separate analytic solutions by kernel
         # this is is needed for the synaptic case
-        self.kernel_name_to_analytic_solver[neuron.get_name()] = self.ode_toolbox_anaysis_cm_syns(neuron,
-                                                                                                  kernel_buffers)
+        self.kernel_name_to_analytic_solver[neuron.get_name(
+        )] = self.ode_toolbox_anaysis_cm_syns(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
 
@@ -440,12 +456,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # Every ODE variable (a variable of order > 0) is renamed according to ODE-toolbox conventions
         # their initial values are replaced by expressions suggested by ODE-toolbox.
         # Differential order can now be set to 0, becase they can directly represent the value of the derivative now.
-        # initial value can be the same value as the originally stated one but it doesn't have to be
+        # initial value can be the same value as the originally stated one but
+        # it doesn't have to be
         ASTUtils.update_initial_values_for_odes(
             neuron, [analytic_solver, numeric_solver])
 
         # remove differential equations from equations block
-        # those are now resolved into zero order variables and their corresponding updates
+        # those are now resolved into zero order variables and their
+        # corresponding updates
         ASTUtils.remove_ode_definitions_from_equations_block(neuron)
 
         # restore state variables that were referenced by kernels
@@ -460,13 +478,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # find all inline kernels defined as ASTSimpleExpression
         # that have a single kernel convolution aliasing variable ('__X__')
-        # translate all remaining variable names according to the naming conventions of ODE-toolbox
+        # translate all remaining variable names according to the naming
+        # conventions of ODE-toolbox
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
         # add variable __h to internals block
         ASTUtils.add_timestep_symbol(neuron)
 
-        # add propagator variables calculated by odetoolbox into internal blocks
+        # add propagator variables calculated by odetoolbox into internal
+        # blocks
         if self.analytic_solver[neuron.get_name()] is not None:
             neuron = ASTUtils.add_declarations_to_internals(
                 neuron, self.analytic_solver[neuron.get_name()]["propagators"])
@@ -485,7 +505,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         file_name_calculators = {
             "CompartmentCurrents": self.get_cm_syns_compartmentcurrents_file_prefix,
-            "Tree":  self.get_cm_syns_tree_file_prefix,
+            "Tree": self.get_cm_syns_tree_file_prefix,
             "Main": self.get_cm_syns_main_file_prefix,
         }
 
@@ -503,14 +523,16 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         else:
             file_extension = "unknown"
 
-        return str(os.path.join(FrontendConfiguration.get_target_path(),
-                                compute_prefix(file_name_no_extension))) + "." + file_extension
+        return str(
+            os.path.join(
+                FrontendConfiguration.get_target_path(),
+                compute_prefix(file_name_no_extension))) + "." + file_extension
 
     def getUniqueSuffix(self, neuron: ASTNeuron):
         ret = neuron.get_name().capitalize()
         underscore_pos = ret.find("_")
         while underscore_pos != -1:
-            ret = ret[:underscore_pos] + ret[underscore_pos+1:].capitalize()
+            ret = ret[:underscore_pos] + ret[underscore_pos + 1:].capitalize()
             underscore_pos = ret.find("_")
         return ret
 
@@ -554,21 +576,25 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["SymbolKind"] = pynestml.symbols.symbol.SymbolKind
 
         namespace["initial_values"] = {}
-        namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
-            and self.analytic_solver[neuron.get_name()] is not None
+        namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys(
+        ) and self.analytic_solver[neuron.get_name()] is not None
         if namespace["uses_analytic_solver"]:
             namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name(
             )]["state_variables"]
-            namespace["analytic_variable_symbols"] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]}
+            namespace["analytic_variable_symbols"] = {
+                sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                    sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]}
             namespace["update_expressions"] = {}
-            for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
+            for sym, expr in self.analytic_solver[neuron.get_name(
+            )]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
             for sym in namespace["analytic_state_variables"]:
                 expr_str = self.analytic_solver[neuron.get_name(
                 )]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block,
+                # which should always be present, as differential equations
+                # must have been defined to get here
                 expr_ast.update_scope(
                     neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
@@ -583,23 +609,27 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             var.get_complete_name()) for var in _names]
         namespace["non_equations_state_variables"] = _names
 
-        namespace["uses_numeric_solver"] = neuron.get_name() in self.numeric_solver.keys() \
-            and self.numeric_solver[neuron.get_name()] is not None
+        namespace["uses_numeric_solver"] = neuron.get_name() in self.numeric_solver.keys(
+        ) and self.numeric_solver[neuron.get_name()] is not None
         if namespace["uses_numeric_solver"]:
             namespace["numeric_state_variables"] = self.numeric_solver[neuron.get_name(
             )]["state_variables"]
-            namespace["numeric_variable_symbols"] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables"]}
+            namespace["numeric_variable_symbols"] = {
+                sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                    sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables"]}
             assert not any(
                 [sym is None for sym in namespace["numeric_variable_symbols"].values()])
             namespace["numeric_update_expressions"] = {}
-            for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
+            for sym, expr in self.numeric_solver[neuron.get_name(
+            )]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
             for sym in namespace["numeric_state_variables"]:
                 expr_str = self.numeric_solver[neuron.get_name(
                 )]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                # pretend that update expressions are in "equations" block,
+                # which should always be present, as differential equations
+                # must have been defined to get here
                 expr_ast.update_scope(
                     neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
@@ -609,18 +639,18 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             namespace["names"] = self._gsl_reference_converter
         namespace["spike_updates"] = neuron.spike_updates
 
-        namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if
-                                                   namespace["declarations"].get_domain_from_type(
-                                                       sym.get_type_symbol()) == "double" and sym.is_recordable and not ASTUtils.is_delta_kernel(
-                                                       neuron.get_kernel_by_name(sym.name))]
-        namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if
-                                                      namespace["declarations"].get_domain_from_type(
-                                                          sym.get_type_symbol()) == "double" and sym.is_recordable]
+        namespace["recordable_state_variables"] = [
+            sym for sym in neuron.get_state_symbols() if namespace["declarations"].get_domain_from_type(
+                sym.get_type_symbol()) == "double" and sym.is_recordable and not ASTUtils.is_delta_kernel(
+                neuron.get_kernel_by_name(
+                    sym.name))]
+        namespace["recordable_inline_expressions"] = [
+            sym for sym in neuron.get_inline_expression_symbols() if namespace["declarations"].get_domain_from_type(
+                sym.get_type_symbol()) == "double" and sym.is_recordable]
 
         # parameter symbols with initial values
-        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if
-                                               sym.has_declaring_expression() and (
-                                                   not neuron.get_kernel_by_name(sym.name))]
+        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols(
+        ) if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
@@ -634,8 +664,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace["syns_info"] = SynsProcessing.get_syns_info(neuron)
         syns_info_enricher = SynsInfoEnricher(neuron)
-        namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"],
-                                                                                self.kernel_name_to_analytic_solver)
+        namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(
+            neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
 
         # maybe log this on DEBUG?
         # print("syns_info: ")
@@ -646,8 +676,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron_specific_filenames = {
             "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
-            "tree": self.get_cm_syns_tree_file_prefix(neuron)
-        }
+            "tree": self.get_cm_syns_tree_file_prefix(neuron)}
 
         namespace["neuronSpecificFileNamesCmSyns"] = neuron_specific_filenames
 
@@ -679,7 +708,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     return var
         return None
 
-    def create_initial_values_for_ode_toolbox_odes(self, neuron, solver_dicts, kernel_buffers, kernels):
+    def create_initial_values_for_ode_toolbox_odes(
+            self, neuron, solver_dicts, kernel_buffers, kernels):
         """
         Add the variables used in ODEs from the ode-toolbox result dictionary as ODEs in NESTML AST.
         """
@@ -687,7 +717,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             if solver_dict is None:
                 continue
             for var_name in solver_dict["initial_values"].keys():
-                # original initial value expressions should have been removed to make place for ode-toolbox results
+                # original initial value expressions should have been removed
+                # to make place for ode-toolbox results
                 assert not ASTUtils.declaration_in_state_block(
                     neuron, var_name)
 
@@ -696,7 +727,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 continue
 
             for var_name, expr in solver_dict["initial_values"].items():
-                # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
+                # here, overwrite is allowed because initial values might be
+                # repeated between numeric and analytic solver
 
                 if ASTUtils.variable_in_kernels(var_name, kernels):
                     expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
@@ -705,7 +737,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     ASTUtils.add_declaration_to_state_block(
                         neuron, var_name, expr)
 
-    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
+    def get_spike_update_expressions(
+            self,
+            neuron: ASTNeuron,
+            kernel_buffers,
+            solver_dicts,
+            delta_factors) -> List[ASTAssignment]:
         """
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
@@ -720,18 +757,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         spike_updates = []
 
         for kernel, spike_input_port in kernel_buffers:
-            if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+            if neuron.get_scope().resolve_to_symbol(
+                    str(spike_input_port), SymbolKind.VARIABLE) is None:
                 continue
 
-            buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port),
-                                                               SymbolKind.VARIABLE).get_type_symbol()
+            buffer_type = neuron.get_scope().resolve_to_symbol(
+                str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 
             if ASTUtils.is_delta_kernel(kernel):
                 continue
 
             for kernel_var in kernel.get_variables():
                 for var_order in range(
-                        ASTUtils.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
+                    ASTUtils.get_kernel_var_order_from_ode_toolbox_result(
+                        kernel_var.get_name(), solver_dicts)):
                     kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, var_order)
                     expr = ASTUtils.get_initial_value_from_ode_toolbox_result(
@@ -743,10 +782,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
                     assignment_str = kernel_spike_buf_name + " += "
                     assignment_str += "(" + str(spike_input_port) + ")"
-                    if not expr in ["1.", "1.0", "1"]:
+                    if expr not in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + expr + ")"
 
-                    if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                    if not buffer_type.print_nestml_type() in [
+                            "1.", "1.0", "1"]:
                         assignment_str += " / (" + \
                             buffer_type.print_nestml_type() + ")"
 
@@ -761,7 +801,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             var = k[0]
             inport = k[1]
             assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
-            if not factor in ["1.", "1.0", "1"]:
+            if factor not in ["1.", "1.0", "1"]:
                 assignment_str += "(" + self._printer.print_expression(
                     ModelParser.parse_expression(factor)) + ") * "
             assignment_str += str(inport)
@@ -773,7 +813,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return spike_updates
 
-    def transform_ode_and_kernels_to_json(self, neuron: ASTNeuron, parameters_block, kernel_buffers):
+    def transform_ode_and_kernels_to_json(
+            self,
+            neuron: ASTNeuron,
+            parameters_block,
+            kernel_buffers):
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 
@@ -795,7 +839,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         odetoolbox_indict["dynamics"] = []
         equations_block = neuron.get_equations_block()
         for equation in equations_block.get_ode_equations():
-            # n.b. includes single quotation marks to indicate differential order
+            # n.b. includes single quotation marks to indicate differential
+            # order
             lhs = ASTUtils.to_ode_toolbox_name(
                 equation.get_lhs().get_complete_name())
             rhs = gsl_printer.print_expression(equation.get_rhs())
@@ -835,7 +880,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 entry["expression"] = kernel_X_spike_buf_name_ticks + \
                     " = " + str(expr)
 
-                # initial values need to be declared for order 1 up to kernel order (e.g. none for kernel function f(t) = ...; 1 for kernel ODE f'(t) = ...; 2 for f''(t) = ... and so on)
+                # initial values need to be declared for order 1 up to kernel
+                # order (e.g. none for kernel function f(t) = ...; 1 for kernel
+                # ODE f'(t) = ...; 2 for f''(t) = ... and so on)
                 entry["initial_values"] = {}
                 for order in range(kernel_order):
                     iv_sym_name_ode_toolbox = ASTUtils.construct_kernel_X_spike_buf_name(

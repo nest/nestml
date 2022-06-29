@@ -126,9 +126,19 @@ class CMTest(unittest.TestCase):
                     'm_Na0', 'h_Na0', 'n_K0', 'm_Na1', 'h_Na1', 'n_K1',
                     'g_AN_AMPA1', 'g_AN_NMDA1']
         else:
-            return ['v_comp0', 'v_comp1',
-                    'm_Na_0', 'h_Na_0', 'n_K_0', 'm_Na_1', 'h_Na_1', 'n_K_1',
-                    'g_r_AN_AMPA_1', 'g_d_AN_AMPA_1', 'g_r_AN_NMDA_1', 'g_d_AN_NMDA_1']
+            return [
+                'v_comp0',
+                'v_comp1',
+                'm_Na_0',
+                'h_Na_0',
+                'n_K_0',
+                'm_Na_1',
+                'h_Na_1',
+                'n_K_1',
+                'g_r_AN_AMPA_1',
+                'g_d_AN_AMPA_1',
+                'g_r_AN_NMDA_1',
+                'g_d_AN_NMDA_1']
 
     def run_model(self):
         self.reset_nest()
@@ -137,13 +147,13 @@ class CMTest(unittest.TestCase):
         # create a neuron model with a passive dendritic compartment
         cm_pas.compartments = [
             {"parent_idx": -1, "params": SOMA_PARAMS},
-            {"parent_idx":  0, "params": DEND_PARAMS_PASSIVE}
+            {"parent_idx": 0, "params": DEND_PARAMS_PASSIVE}
         ]
 
         # create a neuron model with an active dendritic compartment
         cm_act.compartments = [
             {"parent_idx": -1, "params": SOMA_PARAMS},
-            {"parent_idx":  0, "params": DEND_PARAMS_ACTIVE}
+            {"parent_idx": 0, "params": DEND_PARAMS_ACTIVE}
         ]
 
         # set spike thresholds
@@ -173,15 +183,39 @@ class CMTest(unittest.TestCase):
                               'spike_times': [70., 73., 76.]})
 
         # connect spike generators to passive dendrite model (weight in nS)
-        nest.Connect(sg_soma, cm_pas, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 5., 'delay': .5, 'receptor_type': syn_idx_soma_pas})
-        nest.Connect(sg_dend, cm_pas, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 2., 'delay': .5, 'receptor_type': syn_idx_dend_pas})
+        nest.Connect(
+            sg_soma,
+            cm_pas,
+            syn_spec={
+                'synapse_model': 'static_synapse',
+                'weight': 5.,
+                'delay': .5,
+                'receptor_type': syn_idx_soma_pas})
+        nest.Connect(
+            sg_dend,
+            cm_pas,
+            syn_spec={
+                'synapse_model': 'static_synapse',
+                'weight': 2.,
+                'delay': .5,
+                'receptor_type': syn_idx_dend_pas})
         # connect spike generators to active dendrite model (weight in nS)
-        nest.Connect(sg_soma, cm_act, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 5., 'delay': .5, 'receptor_type': syn_idx_soma_act})
-        nest.Connect(sg_dend, cm_act, syn_spec={
-            'synapse_model': 'static_synapse', 'weight': 2., 'delay': .5, 'receptor_type': syn_idx_dend_act})
+        nest.Connect(
+            sg_soma,
+            cm_act,
+            syn_spec={
+                'synapse_model': 'static_synapse',
+                'weight': 5.,
+                'delay': .5,
+                'receptor_type': syn_idx_soma_act})
+        nest.Connect(
+            sg_dend,
+            cm_act,
+            syn_spec={
+                'synapse_model': 'static_synapse',
+                'weight': 2.,
+                'delay': .5,
+                'receptor_type': syn_idx_dend_act})
 
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
@@ -210,15 +244,24 @@ class CMTest(unittest.TestCase):
         res_act_nestml, res_pas_nestml = self.run_model()
 
         # check if voltages, ion channels state variables are equal
-        for var_nest, var_nestml in zip(recordables_nest[:8], recordables_nestml[:8]):
+        for var_nest, var_nestml in zip(
+                recordables_nest[:8], recordables_nestml[:8]):
             self.assertTrue(np.allclose(
                 res_act_nest[var_nest], res_act_nestml[var_nestml], atol=5e-1))
 
         # check if synaptic conductances are equal
-        self.assertTrue(np.allclose(res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
-                                    res_act_nestml['g_AN_AMPA1'], 5e-3))
-        self.assertTrue(np.allclose(res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
-                                    res_act_nestml['g_AN_NMDA1'], 5e-3))
+        self.assertTrue(
+            np.allclose(
+                res_act_nest['g_r_AN_AMPA_1'] +
+                res_act_nest['g_d_AN_AMPA_1'],
+                res_act_nestml['g_AN_AMPA1'],
+                5e-3))
+        self.assertTrue(
+            np.allclose(
+                res_act_nest['g_r_AN_NMDA_1'] +
+                res_act_nest['g_d_AN_NMDA_1'],
+                res_act_nestml['g_AN_NMDA1'],
+                5e-3))
 
         if TEST_PLOTS:
             w_legends = False
@@ -229,7 +272,10 @@ class CMTest(unittest.TestCase):
             ax_soma = plt.subplot(221)
             ax_soma.set_title('NEST')
             ax_soma.plot(
-                res_pas_nest['times'], res_pas_nest['v_comp0'], c='b', label='passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['v_comp0'],
+                c='b',
+                label='passive dend')
             ax_soma.plot(res_act_nest['times'], res_act_nest['v_comp0'],
                          c='b', ls='--', lw=2., label='active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
@@ -241,7 +287,10 @@ class CMTest(unittest.TestCase):
             ax_dend = plt.subplot(222)
             ax_dend.set_title('NEST')
             ax_dend.plot(
-                res_pas_nest['times'], res_pas_nest['v_comp1'], c='r', label='passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['v_comp1'],
+                c='r',
+                label='passive dend')
             ax_dend.plot(res_act_nest['times'], res_act_nest['v_comp1'],
                          c='r', ls='--', lw=2., label='active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
@@ -255,7 +304,10 @@ class CMTest(unittest.TestCase):
             ax_soma = plt.subplot(223)
             ax_soma.set_title('NESTML')
             ax_soma.plot(
-                res_pas_nestml['times'], res_pas_nestml['v_comp0'], c='b', label='passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['v_comp0'],
+                c='b',
+                label='passive dend')
             ax_soma.plot(res_act_nestml['times'], res_act_nestml['v_comp0'],
                          c='b', ls='--', lw=2., label='active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
@@ -267,7 +319,10 @@ class CMTest(unittest.TestCase):
             ax_dend = plt.subplot(224)
             ax_dend.set_title('NESTML')
             ax_dend.plot(
-                res_pas_nestml['times'], res_pas_nestml['v_comp1'], c='r', label='passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['v_comp1'],
+                c='r',
+                label='passive dend')
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['v_comp1'],
                          c='r', ls='--', lw=2., label='active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
@@ -282,11 +337,20 @@ class CMTest(unittest.TestCase):
             ax_soma = plt.subplot(221)
             ax_soma.set_title('NEST')
             ax_soma.plot(
-                res_pas_nest['times'], res_pas_nest['m_Na_0'], c='b', label='m_Na passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['m_Na_0'],
+                c='b',
+                label='m_Na passive dend')
             ax_soma.plot(
-                res_pas_nest['times'], res_pas_nest['h_Na_0'], c='r', label='h_Na passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['h_Na_0'],
+                c='r',
+                label='h_Na passive dend')
             ax_soma.plot(
-                res_pas_nest['times'], res_pas_nest['n_K_0'], c='g', label='n_K passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['n_K_0'],
+                c='g',
+                label='n_K passive dend')
             ax_soma.plot(res_act_nest['times'], res_act_nest['m_Na_0'],
                          c='b', ls='--', lw=2., label='m_Na active dend')
             ax_soma.plot(res_act_nest['times'], res_act_nest['h_Na_0'],
@@ -302,11 +366,20 @@ class CMTest(unittest.TestCase):
             ax_dend = plt.subplot(222)
             ax_dend.set_title('NEST')
             ax_dend.plot(
-                res_pas_nest['times'], res_pas_nest['m_Na_1'], c='b', label='m_Na passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['m_Na_1'],
+                c='b',
+                label='m_Na passive dend')
             ax_dend.plot(
-                res_pas_nest['times'], res_pas_nest['h_Na_1'], c='r', label='h_Na passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['h_Na_1'],
+                c='r',
+                label='h_Na passive dend')
             ax_dend.plot(
-                res_pas_nest['times'], res_pas_nest['n_K_1'], c='g', label='n_K passive dend')
+                res_pas_nest['times'],
+                res_pas_nest['n_K_1'],
+                c='g',
+                label='n_K passive dend')
             ax_dend.plot(res_act_nest['times'], res_act_nest['m_Na_1'],
                          c='b', ls='--', lw=2., label='m_Na active dend')
             ax_dend.plot(res_act_nest['times'], res_act_nest['h_Na_1'],
@@ -324,11 +397,20 @@ class CMTest(unittest.TestCase):
             ax_soma = plt.subplot(223)
             ax_soma.set_title('NESTML')
             ax_soma.plot(
-                res_pas_nestml['times'], res_pas_nestml['m_Na0'], c='b', label='m_Na passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['m_Na0'],
+                c='b',
+                label='m_Na passive dend')
             ax_soma.plot(
-                res_pas_nestml['times'], res_pas_nestml['h_Na0'], c='r', label='h_Na passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['h_Na0'],
+                c='r',
+                label='h_Na passive dend')
             ax_soma.plot(
-                res_pas_nestml['times'], res_pas_nestml['n_K0'], c='g', label='n_K passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['n_K0'],
+                c='g',
+                label='n_K passive dend')
             ax_soma.plot(res_act_nestml['times'], res_act_nestml['m_Na0'],
                          c='b', ls='--', lw=2., label='m_Na active dend')
             ax_soma.plot(res_act_nestml['times'], res_act_nestml['h_Na0'],
@@ -344,11 +426,20 @@ class CMTest(unittest.TestCase):
             ax_dend = plt.subplot(224)
             ax_dend.set_title('NESTML')
             ax_dend.plot(
-                res_pas_nestml['times'], res_pas_nestml['m_Na1'], c='b', label='m_Na passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['m_Na1'],
+                c='b',
+                label='m_Na passive dend')
             ax_dend.plot(
-                res_pas_nestml['times'], res_pas_nestml['h_Na1'], c='r', label='h_Na passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['h_Na1'],
+                c='r',
+                label='h_Na passive dend')
             ax_dend.plot(
-                res_pas_nestml['times'], res_pas_nestml['n_K1'], c='g', label='n_K passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['n_K1'],
+                c='g',
+                label='n_K passive dend')
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['m_Na1'],
                          c='b', ls='--', lw=2., label='m_Na active dend')
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['h_Na1'],
@@ -366,14 +457,34 @@ class CMTest(unittest.TestCase):
             # plot traces for dendritic compartment
             ax_dend = plt.subplot(211)
             ax_dend.set_title('NEST')
-            ax_dend.plot(res_pas_nest['times'], res_pas_nest['g_r_AN_AMPA_1'] +
-                         res_pas_nest['g_d_AN_AMPA_1'], c='b', label='AMPA passive dend')
-            ax_dend.plot(res_pas_nest['times'], res_pas_nest['g_r_AN_NMDA_1'] +
-                         res_pas_nest['g_d_AN_NMDA_1'], c='r', label='NMDA passive dend')
-            ax_dend.plot(res_act_nest['times'], res_act_nest['g_r_AN_AMPA_1'] +
-                         res_act_nest['g_d_AN_AMPA_1'], c='b', ls='--', lw=2., label='AMPA active dend')
-            ax_dend.plot(res_act_nest['times'], res_act_nest['g_r_AN_NMDA_1'] +
-                         res_act_nest['g_d_AN_NMDA_1'], c='r', ls='--', lw=2., label='NMDA active dend')
+            ax_dend.plot(
+                res_pas_nest['times'],
+                res_pas_nest['g_r_AN_AMPA_1'] +
+                res_pas_nest['g_d_AN_AMPA_1'],
+                c='b',
+                label='AMPA passive dend')
+            ax_dend.plot(
+                res_pas_nest['times'],
+                res_pas_nest['g_r_AN_NMDA_1'] +
+                res_pas_nest['g_d_AN_NMDA_1'],
+                c='r',
+                label='NMDA passive dend')
+            ax_dend.plot(
+                res_act_nest['times'],
+                res_act_nest['g_r_AN_AMPA_1'] +
+                res_act_nest['g_d_AN_AMPA_1'],
+                c='b',
+                ls='--',
+                lw=2.,
+                label='AMPA active dend')
+            ax_dend.plot(
+                res_act_nest['times'],
+                res_act_nest['g_r_AN_NMDA_1'] +
+                res_act_nest['g_d_AN_NMDA_1'],
+                c='r',
+                ls='--',
+                lw=2.,
+                label='NMDA active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'$g_{syn1}$ (uS)')
             if w_legends:
@@ -383,9 +494,15 @@ class CMTest(unittest.TestCase):
             ax_dend = plt.subplot(212)
             ax_dend.set_title('NESTML')
             ax_dend.plot(
-                res_pas_nestml['times'], res_pas_nestml['g_AN_AMPA1'], c='b', label='AMPA passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['g_AN_AMPA1'],
+                c='b',
+                label='AMPA passive dend')
             ax_dend.plot(
-                res_pas_nestml['times'], res_pas_nestml['g_AN_NMDA1'], c='r', label='NMDA passive dend')
+                res_pas_nestml['times'],
+                res_pas_nestml['g_AN_NMDA1'],
+                c='r',
+                label='NMDA passive dend')
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_AMPA1'],
                          c='b', ls='--', lw=2., label='AMPA active dend')
             ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_NMDA1'],

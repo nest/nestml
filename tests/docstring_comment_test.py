@@ -47,7 +47,12 @@ PredefinedUnits.register_units()
 PredefinedTypes.register_types()
 PredefinedFunctions.register_functions()
 PredefinedVariables.register_variables()
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+SymbolTable.initialize_symbol_table(
+    ASTSourceLocation(
+        start_line=0,
+        start_column=0,
+        end_line=0,
+        end_column=0))
 Logger.init_logger(LoggingLevel.ERROR)
 
 
@@ -62,16 +67,19 @@ class DocstringCommentTest(unittest.TestCase):
 
     # for some reason xfail is completely ignored when executing on my machine (python 3.8.5)
     # pytest bug?
-    @pytest.mark.xfail(strict=True, raises=DocstringCommentException) 
-
+    @pytest.mark.xfail(strict=True, raises=DocstringCommentException)
     def test_docstring_failure(self):
         self.run_docstring_test('invalid')
 
     def run_docstring_test(self, case: str):
         assert case in ['valid', 'invalid']
         input_file = FileStream(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), case)),
-                         'DocstringCommentTest.nestml'))
+            os.path.join(
+                os.path.realpath(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        case)),
+                'DocstringCommentTest.nestml'))
         lexer = PyNestMLLexer(input_file)
         lexer._errHandler = BailErrorStrategy()
         lexer._errHandler.reset(lexer)
@@ -86,19 +94,25 @@ class DocstringCommentTest(unittest.TestCase):
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        neuron_or_synapse_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
+        neuron_or_synapse_body_elements = ast.get_neuron_list()[
+            0].get_body().get_body_elements()
 
         # now run the docstring checker visitor
         visitor = CommentCollectorVisitor(stream.tokens, strip_delim=False)
         compilation_unit.accept(visitor)
         # test whether ``"""`` is used correctly
-        assert len(ast.get_neuron_list()) == 1, "Neuron failed to load correctly"
+        assert len(ast.get_neuron_list()
+                   ) == 1, "Neuron failed to load correctly"
 
         class CommentCheckerVisitor(ASTVisitor):
             def visit(self, ast):
                 for comment in ast.get_comments():
-                    if "\"\"\"" in comment \
-                       and not (isinstance(ast, ASTNeuron) or isinstance(ast, ASTNestMLCompilationUnit)):
+                    if "\"\"\"" in comment and not (
+                        isinstance(
+                            ast,
+                            ASTNeuron) or isinstance(
+                            ast,
+                            ASTNestMLCompilationUnit)):
                         raise DocstringCommentException()
                 for comment in ast.get_post_comments():
                     if "\"\"\"" in comment:
