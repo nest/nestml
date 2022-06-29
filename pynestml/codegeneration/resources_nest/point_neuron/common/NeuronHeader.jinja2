@@ -531,6 +531,18 @@ private:
     State_();
   };
 
+  struct DelayedVariables_
+  {
+{%- if has_delay_variables %}
+    // Declare helper variables for variables with delay
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/DelayVariablesDeclaration.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+{%- endif %}
+  };
+
   /**
    * Internal variables of the neuron.
    *
@@ -622,6 +634,7 @@ private:
     double __step;             //!< step size in ms
     double __integration_step; //!< current integration time step, updated by GSL
 {%- endif %}
+
   };
 
   // -------------------------------------------------------------------------
@@ -666,10 +679,11 @@ private:
   // -------------------------------------------------------------------------
 
 
-  Parameters_ P_;  //!< Free parameters.
-  State_      S_;  //!< Dynamic state.
-  Variables_  V_;  //!< Internal Variables
-  Buffers_    B_;  //!< Buffers.
+  Parameters_       P_;        //!< Free parameters.
+  State_            S_;        //!< Dynamic state.
+  DelayedVariables_ DV_;       //!< Delayed state variables.
+  Variables_        V_;        //!< Internal Variables
+  Buffers_          B_;        //!< Buffers.
 
   //! Mapping of recordables names to access functions
 {%- if has_state_vectors %}
@@ -695,11 +709,18 @@ private:
   nest::normal_distribution normal_dev_; //!< random deviate generator
 #endif
 {%- endif %}
+{%- if has_delay_variables %}
+  void update_delay_variables();
 
-
-
-
-
+  // Getters for the delayed variables
+  // These are obtained from the vector helper variables defined
+  // for the state variable that is used with a delay parameter
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+  double get_delayed_{{variable.get_symbol_name()}}() const;
+{%-     endif %}
+{%-   endfor %}
+{%- endif %}
 
 }; /* neuron {{neuronName}} */
 
@@ -881,6 +902,9 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
   }
 {%- endif %}
+
+  // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
+  recompute_internal_variables();
 };
 
 #endif /* #ifndef {{neuronName.upper()}} */

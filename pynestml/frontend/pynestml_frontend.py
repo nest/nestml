@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import os
 import sys
@@ -32,10 +32,13 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration, Inva
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
     qualifier_dev_arg, qualifier_codegen_opts_arg, qualifier_install_path_arg
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
@@ -46,7 +49,33 @@ def get_known_targets():
     targets = [s.upper() for s in targets]
     return targets
 
-def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Transformer, Dict[str, Any]]:
+    """Static factory method that returns a list of new instances of a child class of Transformers"""
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+
+    # default: no transformers (empty list); options unchanged
+    transformers: List[Transformer] = []
+    if options is None:
+        options = {}
+
+    if target_name.upper() in ["NEST", "NEST2"]:
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
+
+        # rewrite all C++ keywords
+        # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
+        transformers.append(variable_name_rewriter)
+
+        # co-generate neuron and synapse
+        synapse_post_neuron_co_generation = SynapsePostNeuronTransformer()
+        options = synapse_post_neuron_co_generation.set_options(options)
+        transformers.append(synapse_post_neuron_co_generation)
+
+    return transformers, options
+
+
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
@@ -73,10 +102,11 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
+    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence
+    # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -86,12 +116,12 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 
-    return None   # no builder requested or available
+    return None  # no builder requested or available
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
-                    install_path: str=None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
-                    dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                    install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                    dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the given target platform.
 
     Parameters
@@ -164,8 +194,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                          install_path: Optional[str] = None, logging_level="ERROR",
-                         module_name=None, store_log: bool=False, suffix: str="",
-                         dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                         module_name=None, store_log: bool = False, suffix: str = "",
+                         dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters
@@ -244,7 +274,9 @@ def main() -> int:
 
 
 def process():
-    """
+    r"""
+    The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
+
     Returns
     -------
     errors_occurred : bool
@@ -271,7 +303,10 @@ def process():
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
 
+    # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                           options=codegen_and_builder_opts)
     _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
     _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
@@ -283,43 +318,34 @@ def process():
         raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
-        # generate a list of all compilation units (neurons + synapses)
-        neurons = list()
-        synapses = list()
+        # generate a list of all neurons + synapses
+        models: Sequence[Union[ASTNeuron, ASTSynapse]] = []
         for compilationUnit in compilation_units:
-            neurons.extend(compilationUnit.get_neuron_list())
-            synapses.extend(compilationUnit.get_synapse_list())
+            models.extend(compilationUnit.get_neuron_list())
+            models.extend(compilationUnit.get_synapse_list())
 
-            # check if across two files neurons with duplicate names have been defined
-            CoCosManager.check_no_duplicate_compilation_unit_names(neurons)
-
-            # check if across two files synapses with duplicate names have been defined
-            CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
+        # check that no models with duplicate names have been defined
+        CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
         # now exclude those which are broken, i.e. have errors.
         if not FrontendConfiguration.is_dev:
-            for neuron in neurons:
-                if Logger.has_errors(neuron):
-                    code, message = Messages.get_model_contains_errors(neuron.get_name())
-                    Logger.log_message(node=neuron, code=code, message=message,
-                                       error_position=neuron.get_source_position(),
-                                       log_level=LoggingLevel.INFO)
-                    neurons.remove(neuron)
+            for model in models:
+                if Logger.has_errors(model):
+                    code, message = Messages.get_model_contains_errors(model.get_name())
+                    Logger.log_message(node=model, code=code, message=message,
+                                       error_position=model.get_source_position(),
+                                       log_level=LoggingLevel.WARNING)
+                    models.remove(model)
                     errors_occurred = True
 
-            for synapse in synapses:
-                if Logger.has_errors(synapse):
-                    code, message = Messages.get_model_contains_errors(synapse.get_name())
-                    Logger.log_message(node=synapse, code=code, message=message,
-                                       error_position=synapse.get_source_position(),
-                                       log_level=LoggingLevel.INFO)
-                    synapses.remove(synapse)
-                    errors_occurred = True
+        # run transformers
+        for transformer in transformers:
+            models = transformer.transform(models)
 
         # perform code generation
-        _codeGenerator.generate_code(neurons, synapses)
-        for astnode in neurons + synapses:
-            if Logger.has_errors(astnode):
+        _codeGenerator.generate_code(models)
+        for model in models:
+            if Logger.has_errors(model):
                 errors_occurred = True
                 break
 

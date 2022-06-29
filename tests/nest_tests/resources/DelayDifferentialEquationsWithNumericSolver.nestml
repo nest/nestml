@@ -1,0 +1,53 @@
+"""
+DelayDifferentialEquationsWithNumericSolver.nestml
+##################################################
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron dde_numeric:
+
+  state:
+    x real = 0
+    z real = 0
+  end
+
+  equations:
+    x' = alpha_x / ((1 + x**n_x) * ms) - beta_x * x
+    z' = alpha_z / ((1 + x(t-delay)**n_z) * ms) - beta_z * z
+  end
+
+  parameters:
+    alpha_x real = 0.5
+    alpha_z real = 0.3529
+    beta_x real = 0.5
+    beta_z real = 0.5
+    n_x integer = 2
+    n_z integer = 2
+
+    # delay parameter
+    delay ms = 5.0 ms
+  end
+
+  update:
+    integrate_odes()
+  end
+
+end

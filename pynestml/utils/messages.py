@@ -114,6 +114,7 @@ class MessageCode(Enum):
     VECTOR_PARAMETER_WRONG_SIZE = 81
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
+    DELAY_VARIABLE = 84
     CM_NO_GATING_VARIABLES = 100
     CM_FUNCTION_MISSING = 101
     CM_VARIABLES_NOT_DECLARED = 102
@@ -1139,12 +1140,6 @@ class Messages:
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
 
     @classmethod
-    def get_could_not_determine_cond_based(cls, type_str, name):
-        message = "Unable to determine based on type '" + type_str + \
-            "' of variable '" + name + "' whether conductance-based or current-based"
-        return MessageCode.LEXER_ERROR, message
-
-    @classmethod
     def get_no_files_in_input_path(cls, path: str):
         message = "No files found matching '*.nestml' in provided input path '" + path + "'"
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
@@ -1192,6 +1187,11 @@ class Messages:
     def get_repeated_priorty_value(cls):
         message = "Priority values for event handlers need to be unique"
         return MessageCode.REPEATED_PRIORITY_VALUE, message
+
+    @classmethod
+    def get_function_is_delay_variable(cls, func):
+        message = "Function '" + func + "' is not a function but a delay variable."
+        return MessageCode.DELAY_VARIABLE, message
 
     @classmethod
     def get_no_gating_variables(cls, cm_inline_expr: ASTInlineExpression, ion_channel_name: str):

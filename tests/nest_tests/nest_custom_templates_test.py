@@ -91,9 +91,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
             }
         }
 
-        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
-        synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
-
         generate_target(input_paths, target_platform, target_path,
                         logging_level=logging_level,
                         module_name=module_name,
