@@ -31,7 +31,6 @@ from pynestml.utils.messages import Messages
 
 class SynsProcessing(object):
     padding_character = "_"
-    #syns_expression_prefix = "I_SYN_"
     tau_sring = "tau"
     equilibrium_string = "e"
 
