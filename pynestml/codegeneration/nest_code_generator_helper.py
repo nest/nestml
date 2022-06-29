@@ -28,26 +28,38 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 def generate_code_for(nestml_neuron_model: str,
-                      nestml_synapse_model: str,
+                      nestml_synapse_model: Optional[str],
                       post_ports: Optional[List[str]] = None,
                       mod_ports: Optional[List[str]] = None,
                       uniq_id: Optional[str] = None,
                       logging_level: str = "WARNING"):
-    """Generate code for a given neuron and synapse model, passed as a string.
+    """Generate code for a given neuron, and, optionally, co-generate it with a given synapse model.
+
     NEST cannot yet unload or reload modules. This function implements a workaround using UUIDs to generate unique names.
+
     The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
+
+    Return
+    ------
+
+    If we only generated code for a neuron, return the tuple ``(module_name, neuron_name)``.
+
+    If we generated code for a neuron and a synapse (co-generation), return the tuple ``(module_name, neuron_name, synapse_name)``.
     """
 
     if uniq_id is None:
         uniq_id = str(uuid.uuid4().hex)
 
     # read neuron model from file?
-    if not "\n" in nestml_neuron_model and ".nestml" in nestml_neuron_model:
+    if "\n" not in nestml_neuron_model \
+       and ".nestml" in nestml_neuron_model:
         with open(nestml_neuron_model, "r") as nestml_model_file:
             nestml_neuron_model = nestml_model_file.read()
 
     # read synapse model from file?
-    if not "\n" in nestml_synapse_model and ".nestml" in nestml_synapse_model:
+    if nestml_synapse_model is not None \
+       and "\n" not in nestml_synapse_model \
+       and ".nestml" in nestml_synapse_model:
         with open(nestml_synapse_model, "r") as nestml_model_file:
             nestml_synapse_model = nestml_model_file.read()
 
@@ -65,27 +77,40 @@ def generate_code_for(nestml_neuron_model: str,
         print(nestml_model, file=f)
 
     # update synapse model name inside the file
-    synapse_model_name_orig = re.findall(r"synapse\ [^:\s]*:", nestml_synapse_model)[0][8:-1]
-    synapse_model_name_uniq = synapse_model_name_orig + uniq_id
-    nestml_model = re.sub(r"synapse\ [^:\s]*:",
-                          "synapse " + synapse_model_name_uniq + ":", nestml_synapse_model)
-    synapse_uniq_fn = synapse_model_name_uniq + ".nestml"
-    with open(synapse_uniq_fn, "w") as f:
-        print(nestml_model, file=f)
+    if nestml_synapse_model is not None \
+        synapse_model_name_orig = re.findall(r"synapse\ [^:\s]*:", nestml_synapse_model)[0][8:-1]
+        synapse_model_name_uniq = synapse_model_name_orig + uniq_id
+        nestml_model = re.sub(r"synapse\ [^:\s]*:",
+                              "synapse " + synapse_model_name_uniq + ":", nestml_synapse_model)
+        synapse_uniq_fn = synapse_model_name_uniq + ".nestml"
+        with open(synapse_uniq_fn, "w") as f:
+            print(nestml_model, file=f)
 
     # generate the code for neuron and synapse (co-generated)
     module_name = "nestml_" + uniq_id + "_module"
-    generate_nest_target(input_path=[neuron_uniq_fn, synapse_uniq_fn],
+    input_path = neuron_uniq_fn
+
+    codegen_opts = None
+    if nestml_synapse_model is not None:
+        input_path.append(synapse_uniq_fn)
+        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                        "neuron_parent_class_include": "structural_plasticity_node.h",
+                        "neuron_synapse_pairs": [{"neuron": neuron_model_name_uniq,
+                                                  "synapse": synapse_model_name_uniq,
+                                                  "post_ports": post_ports,
+                                                  "vt_ports": mod_ports}]})
+
+    generate_nest_target(input_path=input_path,
                          logging_level=logging_level,
                          module_name=module_name,
                          suffix="_nestml",
-                         codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                                       "neuron_parent_class_include": "structural_plasticity_node.h",
-                                       "neuron_synapse_pairs": [{"neuron": neuron_model_name_uniq,
-                                                                 "synapse": synapse_model_name_uniq,
-                                                                 "post_ports": post_ports,
-                                                                 "vt_ports": mod_ports}]})
-    mangled_neuron_name = neuron_model_name_uniq + "_nestml__with_" + synapse_model_name_uniq + "_nestml"
-    mangled_synapse_name = synapse_model_name_uniq + "_nestml__with_" + neuron_model_name_uniq + "_nestml"
+                         codegen_opts=codegen_opts)
 
-    return module_name, mangled_neuron_name, mangled_synapse_name
+    if nestml_synapse_model is None:
+        return module_name, neuron_model_name_uniq
+    else:
+        # compute names after co-generation
+        mangled_neuron_name = neuron_model_name_uniq + "_nestml__with_" + synapse_model_name_uniq + "_nestml"
+        mangled_synapse_name = synapse_model_name_uniq + "_nestml__with_" + neuron_model_name_uniq + "_nestml"
+
+        return module_name, mangled_neuron_name, mangled_synapse_name
