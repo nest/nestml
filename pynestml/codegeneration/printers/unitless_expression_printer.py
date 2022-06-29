@@ -58,4 +58,4 @@ class UnitlessExpressionPrinter(CppExpressionPrinter):
                     # case for a literal unit, e.g. "ms"
                     return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
-        return super(UnitlessExpressionPrinter, self).print_expression(node, prefix=prefix, with_origins = with_origins)
+        return super(UnitlessExpressionPrinter, self).print_expression(node, prefix=prefix, with_origins=with_origins)

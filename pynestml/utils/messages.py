@@ -125,6 +125,7 @@ class MessageCode(Enum):
     SYNS_BAD_BUFFER_COUNT = 107
     CM_NO_V_COMP = 108
 
+
 class Messages:
     """
     This class contains a collection of error messages which enables a centralized maintaining and modifications of
@@ -201,7 +202,8 @@ class Messages:
 
     @classmethod
     def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor):
-        message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
+        message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
+            lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -266,7 +268,8 @@ class Messages:
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (rhs_type, lhs_type)
+        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (
+            rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -305,7 +308,8 @@ class Messages:
         """
         from pynestml.symbols.type_symbol import TypeSymbol
         assert (expected_type is not None and isinstance(expected_type, TypeSymbol)), \
-            '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(expected_type)
+            '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(
+                expected_type)
         assert (got_type is not None and isinstance(got_type, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(got_type)
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
@@ -349,7 +353,8 @@ class Messages:
         :rtype: (MessageCode,str)
         """
         assert (input_port_name is not None and isinstance(input_port_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(input_port_name)
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(
+                input_port_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
         message = 'No type declared for spiking input port \'%s\'!' % input_port_name
         return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
@@ -393,7 +398,8 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
-        message = 'Successfully generated code for the model: \'' + model_name + '\' in: \'' + path + '\' !'
+        message = 'Successfully generated code for the model: \'' + \
+            model_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -533,7 +539,8 @@ class Messages:
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (name, keyword)
+        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (
+            name, keyword)
         return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
@@ -730,7 +737,8 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(art1)
         assert (art2 is not None and isinstance(art2, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(art2)
-        message = 'Name collision of \'%s\' in \'%s\' and \'%s\'!' % (name, art1, art2)
+        message = 'Name collision of \'%s\' in \'%s\' and \'%s\'!' % (
+            name, art1, art2)
         return MessageCode.NAME_COLLISION, message
 
     @classmethod
@@ -818,7 +826,8 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(vector)
         assert (non_vector is not None and isinstance(non_vector, list)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(non_vector)
-        message = 'Vector value \'%s\' used in a non-vector declaration of variables \'%s\'!' % (vector, non_vector)
+        message = 'Vector value \'%s\' used in a non-vector declaration of variables \'%s\'!' % (
+            vector, non_vector)
         return MessageCode.VECTOR_IN_NON_VECTOR, message
 
     @classmethod
@@ -1001,7 +1010,8 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'ODE definition for \''
         if differential_order > 1:
-            message += 'd^' + str(differential_order) + ' ' + name + ' / dt^' + str(differential_order) + '\''
+            message += 'd^' + str(differential_order) + ' ' + \
+                name + ' / dt^' + str(differential_order) + '\''
         if differential_order > 0:
             message += 'd ' + name + ' / dt\''
         else:
@@ -1057,7 +1067,8 @@ class Messages:
         """
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
             str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
-            ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+            ', '.join([str(_ + 1) for _ in other_args_idx]) + \
+            ', which have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod
@@ -1136,7 +1147,8 @@ class Messages:
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
-        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
+        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (
+            iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
 
     @classmethod
@@ -1157,7 +1169,8 @@ class Messages:
     @classmethod
     def get_template_root_path_created(cls, templates_root_dir: str):
         message = "Given template root path is not an absolute path. " \
-                  "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
+                  "Creating the absolute path with default templates directory '" + \
+            templates_root_dir + "'"
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
 
     @classmethod
@@ -1180,7 +1193,8 @@ class Messages:
 
     @classmethod
     def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
-        message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
+        message = "Priority defined for only one event handler (" + \
+            event_handler_port_name + ")"
         return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message
 
     @classmethod
@@ -1204,7 +1218,8 @@ class Messages:
         :rtype: (MessageCode,str)
         """
 
-        message = "No gating variables found inside declaration of '" + cm_inline_expr.variable_name+"', "
+        message = "No gating variables found inside declaration of '" + \
+            cm_inline_expr.variable_name+"', "
         message += "\nmeaning no variable ends with the suffix '_"+ion_channel_name+"' here. "
         message += "This suffix indicates that a variable is a gating variable. "
         message += "At least one gating variable is expected to exist."
@@ -1213,7 +1228,8 @@ class Messages:
 
     @classmethod
     def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr: ASTInlineExpression, bad_variable_name: str, ion_channel_name: str):
-        message = "Variable name '"+ bad_variable_name + "' seems to be used multiple times"
+        message = "Variable name '" + bad_variable_name + \
+            "' seems to be used multiple times"
         message += "' inside inline expression '" + cm_inline_expr.variable_name+"'. "
         message += "\nVariables are not allowed to occur multiple times here."
 
@@ -1222,18 +1238,22 @@ class Messages:
     @classmethod
     def get_expected_cm_function_missing(cls, ion_channel_name: str, variable_name: str, function_name: str):
         message = "Implementation of a function called '" + function_name + "' not found. "
-        message += "It is expected because of variable '"+variable_name+"' in the ion channel '"+ion_channel_name+"'"
+        message += "It is expected because of variable '" + \
+            variable_name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
 
     @classmethod
     def get_expected_cm_function_wrong_args_count(cls, ion_channel_name: str, variable_name, astfun: ASTFunction):
-        message = "Function '" + astfun.name + "' is expected to have exactly one Argument. "
-        message += "It is related to variable '"+variable_name+"' in the ion channel '"+ion_channel_name+"'"
+        message = "Function '" + astfun.name + \
+            "' is expected to have exactly one Argument. "
+        message += "It is related to variable '"+variable_name + \
+            "' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
 
     @classmethod
     def get_expected_cm_function_bad_return_type(cls, ion_channel_name: str, astfun: ASTFunction):
-        message = "'"+ion_channel_name + "' channel function '" + astfun.name + "' must return real. "
+        message = "'"+ion_channel_name + "' channel function '" + \
+            astfun.name + "' must return real. "
         return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message
 
     @classmethod
@@ -1241,8 +1261,10 @@ class Messages:
         message = "The following variables not found:\n"
         for missing_var, proper_location in missing_variable_to_proper_block.items():
             message += "Variable with name '" + missing_var
-            message += "' not found but expected to exist inside of " + proper_location + " because of position "
-            message += str(expected_variables_to_reason[missing_var].get_source_position())+"\n"
+            message += "' not found but expected to exist inside of " + \
+                proper_location + " because of position "
+            message += str(
+                expected_variables_to_reason[missing_var].get_source_position())+"\n"
         return MessageCode.CM_VARIABLES_NOT_DECLARED, message
 
     @classmethod
@@ -1253,7 +1275,7 @@ class Messages:
     @classmethod
     def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name):
         message = "Missing state variable '" + missing_variable_name
-        message += "' in side of neuron +'" +neuron_name+ "'+. "
+        message += "' in side of neuron +'" + neuron_name + "'+. "
         message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
         message += "In this mode, such variable must be declared in the state block.\n"
         message += "This variable represents the dynamically calculated value of membrane potential "
@@ -1262,7 +1284,7 @@ class Messages:
 
     @classmethod
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
-        message = "Synapse `\'%s\' uses the following input buffers: %s" % (synapse_name, buffers)
+        message = "Synapse `\'%s\' uses the following input buffers: %s" % (
+            synapse_name, buffers)
         message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
-

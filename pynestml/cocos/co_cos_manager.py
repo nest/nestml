@@ -120,9 +120,9 @@ class CoCosManager:
         :param neuron: a single neuron.
         """
         CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
-        
+
     @classmethod
-    def check_synapses_model (cls, neuron: ASTNeuron) -> None:
+    def check_synapses_model(cls, neuron: ASTNeuron) -> None:
         """
         similar to check_compartmental_model, but checks for synapses
         synapses are defined by inlines that use kernels
@@ -137,28 +137,27 @@ class CoCosManager:
         """
         CoCoVCompDefined.check_co_co(neuron, after_ast_rewrite)
 
-
     @classmethod
     def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
         searches ASTEquationsBlock for inline expressions without kernels 
-        
+
         If such inline expression is found
         -finds all gatomg variables x_{channel_name} used in that expression
         -makes sure following functions are defined:
-        
+
         x_inf_{channelType}(somevariable real) real
         tau_x_{channelType}(somevariable real) real
-        
+
         -makes sure that all such functions have exactly one argument and that
         they return real
-        
+
         -makes sure that all Variables x are defined in state block
         -makes sure that state block contains
-        
+
         gbar_{channelType}
         e_{channelType}
-        
+
         -makes sure that in the key inline expression every variable is used only once
         -makes sure there is at least one gating variable per cm inline expression
         :param neuron: a single neuron.
@@ -451,7 +450,8 @@ class CoCosManager:
         if not after_ast_rewrite:
             # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
             cls.check_odes_have_consistent_units(neuron)
-            cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
+            # ODE functions have been removed at this point
+            cls.check_ode_functions_have_consistent_units(neuron)
             cls.check_correct_usage_of_kernels(neuron)
             cls.check_integrate_odes_called_if_equations_defined(neuron)
         cls.check_invariant_type_correct(neuron)

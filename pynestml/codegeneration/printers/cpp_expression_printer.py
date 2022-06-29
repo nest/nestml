@@ -36,7 +36,7 @@ class CppExpressionPrinter(ExpressionPrinter):
     Expressions printer for C++.
     """
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str = "", with_origins = True):
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "", with_origins=True):
         """Print an expression.
 
         Parameters
@@ -57,14 +57,14 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         return self.__do_print(node, prefix=prefix, with_origins=with_origins)
 
-    def __do_print(self, node: ASTExpressionNode, prefix: str="", with_origins = True) -> str:
+    def __do_print(self, node: ASTExpressionNode, prefix: str = "", with_origins=True) -> str:
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 if isinstance(self.reference_converter, NESTReferenceConverter):
-                    # NESTReferenceConverter takes the extra with_origins parameter 
+                    # NESTReferenceConverter takes the extra with_origins parameter
                     # which is used in compartmental models
                     return str(node.get_numeric_literal()) + "*" + self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins=with_origins)
-                
+
                 return str(node.get_numeric_literal()) + "*" + self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
 
             if node.is_numeric_literal():
@@ -87,7 +87,7 @@ class CppExpressionPrinter(ExpressionPrinter):
 
             if node.is_variable():
                 if isinstance(self.reference_converter, NESTReferenceConverter):
-                    # NESTReferenceConverter takes the extra with_origins parameter 
+                    # NESTReferenceConverter takes the extra with_origins parameter
                     # which is used in compartmental models
                     return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins=with_origins)
 
@@ -101,8 +101,10 @@ class CppExpressionPrinter(ExpressionPrinter):
         if isinstance(node, ASTExpression):
             # a unary operator
             if node.is_unary_operator():
-                op = self.reference_converter.convert_unary_op(node.get_unary_operator())
-                rhs = self.print_expression(node.get_expression(), prefix=prefix, with_origins=with_origins)
+                op = self.reference_converter.convert_unary_op(
+                    node.get_unary_operator())
+                rhs = self.print_expression(
+                    node.get_expression(), prefix=prefix, with_origins=with_origins)
                 return op % rhs
 
             # encapsulated in brackets
@@ -113,27 +115,35 @@ class CppExpressionPrinter(ExpressionPrinter):
             # logical not
             if node.is_logical_not:
                 op = self.reference_converter.convert_logical_not()
-                rhs = self.print_expression(node.get_expression(), prefix=prefix, with_origins=with_origins)
+                rhs = self.print_expression(
+                    node.get_expression(), prefix=prefix, with_origins=with_origins)
                 return op % rhs
 
             # compound rhs with lhs + rhs
             if node.is_compound_expression():
-                lhs = self.print_expression(node.get_lhs(), prefix=prefix, with_origins=with_origins)
-                op = self.reference_converter.convert_binary_op(node.get_binary_operator())
-                rhs = self.print_expression(node.get_rhs(), prefix=prefix, with_origins=with_origins)
+                lhs = self.print_expression(
+                    node.get_lhs(), prefix=prefix, with_origins=with_origins)
+                op = self.reference_converter.convert_binary_op(
+                    node.get_binary_operator())
+                rhs = self.print_expression(
+                    node.get_rhs(), prefix=prefix, with_origins=with_origins)
                 return op % (lhs, rhs)
 
             if node.is_ternary_operator():
-                condition = self.print_expression(node.get_condition(), prefix=prefix, with_origins=with_origins)
-                if_true = self.print_expression(node.get_if_true(), prefix=prefix, with_origins=with_origins)
-                if_not = self.print_expression(node.if_not, prefix=prefix, with_origins=with_origins)
+                condition = self.print_expression(
+                    node.get_condition(), prefix=prefix, with_origins=with_origins)
+                if_true = self.print_expression(
+                    node.get_if_true(), prefix=prefix, with_origins=with_origins)
+                if_not = self.print_expression(
+                    node.if_not, prefix=prefix, with_origins=with_origins)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
 
             raise Exception("Unknown node type")
 
-        raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
+        raise RuntimeError(
+            "Tried to print unknown expression: \"%s\"" % str(node))
 
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "", with_origins = True) -> str:
+    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "", with_origins=True) -> str:
         """Print a function call, including bracketed arguments list.
 
         Parameters
@@ -150,7 +160,8 @@ class CppExpressionPrinter(ExpressionPrinter):
         s
             The function call string.
         """
-        function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
+        function_name = self.reference_converter.convert_function_call(
+            function_call, prefix=prefix)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self.reference_converter.convert_print_statement(function_call))
@@ -159,10 +170,11 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         return function_name
 
-    def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str="", with_origins = True) -> Tuple[str, ...]:
+    def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str = "", with_origins=True) -> Tuple[str, ...]:
         ret = []
 
         for arg in function_call.get_args():
-            ret.append(self.print_expression(arg, prefix=prefix, with_origins=with_origins))
+            ret.append(self.print_expression(
+                arg, prefix=prefix, with_origins=with_origins))
 
         return tuple(ret)

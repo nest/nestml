@@ -34,20 +34,20 @@ class SynsProcessing(object):
     #syns_expression_prefix = "I_SYN_"
     tau_sring = "tau"
     equilibrium_string = "e"
-    
+
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co
     first_time_run = defaultdict(lambda: True)
     # stores syns_info from the first call of check_co_co
     syns_info = defaultdict()
-    
+
     def __init__(self, params):
         '''
         Constructor
         '''
-    # @classmethod    
-    # def extract_synapse_name(cls, name: str) -> str: 
-    #     return name   
+    # @classmethod
+    # def extract_synapse_name(cls, name: str) -> str:
+    #     return name
     #     #return name[len(cls.syns_expression_prefix):].strip(cls.padding_character)
     #
 
@@ -101,18 +101,18 @@ class SynsProcessing(object):
     """
     @classmethod
     def detectSyns(cls, neuron):
-            
+
         # search for synapse_inline expressions inside equations block
         # but do not traverse yet because tests run this as well
         info_collector = ASTSynapseInformationCollector()
-        
+
         syns_info = defaultdict()
         if not FrontendConfiguration.target_is_compartmental():
             return syns_info, info_collector
-        
+
         # tests will arrive here if we actually have compartmental model
         neuron.accept(info_collector)
-            
+
         synapse_inlines = info_collector.get_inline_expressions_with_kernels()
         for synapse_inline in synapse_inlines:
 
@@ -121,16 +121,18 @@ class SynsProcessing(object):
                 "inline_expression": synapse_inline,
                 "parameters_used": info_collector.get_synapse_specific_parameter_declarations(synapse_inline),
                 "states_used": info_collector.get_synapse_specific_state_declarations(synapse_inline),
-                "internals_used_declared": info_collector.get_synapse_specific_internal_declarations(synapse_inline), 
+                "internals_used_declared": info_collector.get_synapse_specific_internal_declarations(synapse_inline),
                 "total_used_declared": info_collector.get_variable_names_of_synapse(synapse_inline),
-                "convolutions":{}
-                }
-        
-            kernel_arg_pairs = info_collector.get_extracted_kernel_args(synapse_inline)
+                "convolutions": {}
+            }
+
+            kernel_arg_pairs = info_collector.get_extracted_kernel_args(
+                synapse_inline)
             for kernel_var, spikes_var in kernel_arg_pairs:
                 kernel_name = kernel_var.get_name()
                 spikes_name = spikes_var.get_name()
-                convolution_name = info_collector.construct_kernel_X_spike_buf_name(kernel_name, spikes_name, 0)
+                convolution_name = info_collector.construct_kernel_X_spike_buf_name(
+                    kernel_name, spikes_name, 0)
                 syns_info[synapse_name]["convolutions"][convolution_name] = {
                     "kernel": {
                         "name": kernel_name,
@@ -141,7 +143,7 @@ class SynsProcessing(object):
                         "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
                     },
                 }
-        
+
         return syns_info, info_collector
 
     """
@@ -237,11 +239,11 @@ class SynsProcessing(object):
         }
         ...
     }
-    """    
+    """
     @classmethod
     def collect_and_check_inputs_per_synapse(cls, neuron: ASTNeuron, info_collector: ASTSynapseInformationCollector, syns_info: dict):
         new_syns_info = copy.copy(syns_info)
-        
+
         # collect all buffers used
         for synapse_name, synapse_info in syns_info.items():
             new_syns_info[synapse_name]["buffers_used"] = set()
@@ -253,12 +255,13 @@ class SynsProcessing(object):
         for synapse_name, synapse_info in syns_info.items():
             buffers = new_syns_info[synapse_name]["buffers_used"]
             if len(buffers) != 1:
-                code, message = Messages.get_syns_bad_buffer_count(buffers, synapse_name)
+                code, message = Messages.get_syns_bad_buffer_count(
+                    buffers, synapse_name)
                 causing_object = synapse_info["inline_expression"]
-                Logger.log_message(code=code, message=message, error_position=causing_object.get_source_position(), log_level=LoggingLevel.ERROR, node=causing_object)
-        
-        return new_syns_info        
+                Logger.log_message(code=code, message=message, error_position=causing_object.get_source_position(
+                ), log_level=LoggingLevel.ERROR, node=causing_object)
 
+        return new_syns_info
 
     @classmethod
     def get_syns_info(cls, neuron: ASTNeuron):
@@ -269,10 +272,9 @@ class SynsProcessing(object):
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
-  
+
         return copy.deepcopy(cls.syns_info[neuron])
 
-    
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
@@ -280,7 +282,7 @@ class SynsProcessing(object):
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
-        
+
         # make sure we only run this a single time
         # subsequent calls will be after AST has been transformed
         # and there would be no kernels or inlines any more
@@ -289,34 +291,8 @@ class SynsProcessing(object):
             if len(syns_info) > 0:
                 # only do this if any synapses found
                 # otherwise tests may fail
-                syns_info = cls.collect_and_check_inputs_per_synapse(neuron, info_collector, syns_info)
-            
+                syns_info = cls.collect_and_check_inputs_per_synapse(
+                    neuron, info_collector, syns_info)
+
             cls.syns_info[neuron] = syns_info
             cls.first_time_run[neuron] = False
-        
-
-    
-    
-
-        
-        
-
-                    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

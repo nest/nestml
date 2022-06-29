@@ -64,7 +64,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.DEBUG)
-        scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
+        scope = Scope(scope_type=ScopeType.GLOBAL,
+                      source_position=node.get_source_position())
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
@@ -80,7 +81,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
+        CoCosManager.post_symbol_table_builder_checks(
+            node, after_ast_rewrite=self.after_ast_rewrite_)
 
         # update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
@@ -112,7 +114,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
                            message=message, log_level=LoggingLevel.DEBUG)
         # before starting the work on the synapse, make everything which was implicit explicit
         # but if we have a model without an equations block, just skip this step
-        scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
+        scope = Scope(scope_type=ScopeType.GLOBAL,
+                      source_position=node.get_source_position())
 
         node.update_scope(scope)
         node.get_body().update_scope(scope)
@@ -151,7 +154,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a function block object.
         :type node: ast_function
         """
-        self.block_type_stack.push(BlockType.LOCAL)  # before entering, update the current node type
+        self.block_type_stack.push(
+            BlockType.LOCAL)  # before entering, update the current node type
         symbol = FunctionSymbol(scope=node.get_scope(), element_reference=node, param_types=list(),
                                 name=node.get_name(), is_predefined=False, return_type=None)
         # put it on the stack for the endvisit method
@@ -190,14 +194,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
             var_symbol = VariableSymbol(element_reference=arg, scope=scope, name=arg.get_name(),
                                         block_type=BlockType.LOCAL, is_predefined=False, is_inline_expression=False,
                                         is_recordable=False,
-                                        type_symbol=PredefinedTypes.get_type(type_name),
+                                        type_symbol=PredefinedTypes.get_type(
+                                            type_name),
                                         variable_type=VariableType.VARIABLE)
             assert isinstance(scope, Scope)
             scope.add_symbol(var_symbol)
         if node.has_return_type():
             data_type_visitor = ASTDataTypeVisitor()
             node.get_return_type().accept(data_type_visitor)
-            symbol.set_return_type(PredefinedTypes.get_type(data_type_visitor.result))
+            symbol.set_return_type(
+                PredefinedTypes.get_type(data_type_visitor.result))
         else:
             symbol.set_return_type(PredefinedTypes.get_void_type())
         self.block_type_stack.pop()  # before leaving update the type
@@ -312,14 +318,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
-        init_value = node.get_expression() if self.block_type_stack.top() == BlockType.STATE else None
+        init_value = node.get_expression(
+        ) if self.block_type_stack.top() == BlockType.STATE else None
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []
         namespace_decorators = {}
         for d in node.get_decorators():
             if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(d.get_name())
+                namespace_decorators[str(d.get_namespace())] = str(
+                    d.get_name())
             else:
                 decorators.append(d)
 
@@ -584,9 +592,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ASTInputPort
         """
         if not node.has_datatype():
-            code, message = Messages.get_input_port_type_not_defined(node.get_name())
+            code, message = Messages.get_input_port_type_not_defined(
+                node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR, node = node)
+                               log_level=LoggingLevel.ERROR, node=node)
         else:
             node.get_datatype().update_scope(node.get_scope())
 
