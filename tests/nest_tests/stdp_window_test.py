@@ -46,6 +46,7 @@ def nestml_generate_target():
                          target_path="/tmp/nestml-jit",
                          logging_level="INFO",
                          module_name="nestml_jit_module",
+                         suffix="_nestml",
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                        "neuron_parent_class_include": "structural_plasticity_node.h",
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
