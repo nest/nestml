@@ -29,7 +29,7 @@ class CoCoSynapsesModel(CoCo):
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
-        Checks if this compartmental conditions apply for the handed over neuron. 
+        Checks if this compartmental conditions apply for the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
         :param neuron: a single neuron instance.
         :type neuron: ast_neuron

@@ -194,7 +194,7 @@ e();
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
             if with_origins:
-                s += self.print_origin(symbol, prefix=prefix) 
+                s += self.print_origin(symbol, prefix=prefix)
             s += vector_param
             s += self.buffer_value(symbol)
             if not units_conversion_factor == 1:

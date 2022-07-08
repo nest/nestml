@@ -577,10 +577,7 @@ class ASTChannelInformationCollector(object):
                                     "result_variable_name"] = cls.get_expected_inf_result_var_name(ion_channel_name, pure_variable_name)
                             else:
                                 raise RuntimeError(
-                                    'This should never happen! Unsupported function type ' +
-                                    function_type +
-                                    ' from variable ' +
-                                    pure_variable_name)
+                                    'This should never happen! Unsupported function type ' + function_type + ' from variable ' + pure_variable_name)
 
         return ret
 
@@ -806,11 +803,7 @@ class VariableMissingVisitor(ASTVisitor):
         if self.inside_state_block and self.inside_declaration:
             varname = node.name
             if varname in self.not_yet_found_variables:
-                Logger.log_message(
-                    message="Expected state variable '" +
-                    varname +
-                    "' found inside state block",
-                    log_level=LoggingLevel.INFO)
+                Logger.log_message(message="Expected state variable '" + varname + "' found inside state block", log_level=LoggingLevel.INFO)
                 self.not_yet_found_variables.difference_update({varname})
 
                 # make a copy because we can't write into the structure directly
@@ -845,11 +838,7 @@ class VariableMissingVisitor(ASTVisitor):
         if self.inside_parameter_block and self.inside_declaration:
             varname = node.name
             if varname in self.not_yet_found_variables:
-                Logger.log_message(
-                    message="Expected variable '" +
-                    varname +
-                    "' found inside parameter block",
-                    log_level=LoggingLevel.INFO)
+                Logger.log_message(message="Expected variable '" + varname + "' found inside parameter block", log_level=LoggingLevel.INFO)
                 self.not_yet_found_variables.difference_update({varname})
 
                 # make a copy because we can't write into the structure directly

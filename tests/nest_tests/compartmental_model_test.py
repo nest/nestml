@@ -252,14 +252,12 @@ class CMTest(unittest.TestCase):
         # check if synaptic conductances are equal
         self.assertTrue(
             np.allclose(
-                res_act_nest['g_r_AN_AMPA_1'] +
-                res_act_nest['g_d_AN_AMPA_1'],
+                res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
                 res_act_nestml['g_AN_AMPA1'],
                 5e-3))
         self.assertTrue(
             np.allclose(
-                res_act_nest['g_r_AN_NMDA_1'] +
-                res_act_nest['g_d_AN_NMDA_1'],
+                res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
                 res_act_nestml['g_AN_NMDA1'],
                 5e-3))
 
@@ -459,28 +457,24 @@ class CMTest(unittest.TestCase):
             ax_dend.set_title('NEST')
             ax_dend.plot(
                 res_pas_nest['times'],
-                res_pas_nest['g_r_AN_AMPA_1'] +
-                res_pas_nest['g_d_AN_AMPA_1'],
+                res_pas_nest['g_r_AN_AMPA_1'] + res_pas_nest['g_d_AN_AMPA_1'],
                 c='b',
                 label='AMPA passive dend')
             ax_dend.plot(
                 res_pas_nest['times'],
-                res_pas_nest['g_r_AN_NMDA_1'] +
-                res_pas_nest['g_d_AN_NMDA_1'],
+                res_pas_nest['g_r_AN_NMDA_1'] + res_pas_nest['g_d_AN_NMDA_1'],
                 c='r',
                 label='NMDA passive dend')
             ax_dend.plot(
                 res_act_nest['times'],
-                res_act_nest['g_r_AN_AMPA_1'] +
-                res_act_nest['g_d_AN_AMPA_1'],
+                res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
                 c='b',
                 ls='--',
                 lw=2.,
                 label='AMPA active dend')
             ax_dend.plot(
                 res_act_nest['times'],
-                res_act_nest['g_r_AN_NMDA_1'] +
-                res_act_nest['g_d_AN_NMDA_1'],
+                res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
                 c='r',
                 ls='--',
                 lw=2.,

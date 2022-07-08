@@ -140,7 +140,7 @@ class CoCosManager:
     @classmethod
     def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
-        searches ASTEquationsBlock for inline expressions without kernels 
+        searches ASTEquationsBlock for inline expressions without kernels
 
         If such inline expression is found
         -finds all gatomg variables x_{channel_name} used in that expression

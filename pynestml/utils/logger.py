@@ -154,7 +154,7 @@ class Logger:
                 node_name = "unknown node"
             else:
                 node_name = node.get_name()
-                
+
             to_print = '[' + str(cls.curr_message) + ','
             to_print = (to_print + (node_name + ', ' if node is not None else
                                     cls.current_node.get_name() + ', ' if cls.current_node is not None else 'GLOBAL, '))

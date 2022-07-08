@@ -193,10 +193,10 @@ class ASTSynapseInformationCollector(ASTVisitor):
     """
     for every occurence of convolve(port, spikes) generate "port__X__spikes" variable
     gather those variables for this synapse inline and return their list
-    
+
     note that those variables will occur as substring in other kernel variables
     i.e  "port__X__spikes__d" or "__P__port__X__spikes__port__X__spikes"
-    
+
     so we can use the result to identify all the other kernel variables related to the
     specific synapse inline declaration
     """
