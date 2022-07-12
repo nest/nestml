@@ -187,8 +187,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param synapses: a list of synapses.
         """
         for synapse in synapses:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Analysing/transforming synapse {}.".format(synapse.get_name()))
+            Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
             spike_updates = self.analyse_synapse(synapse)
             synapse.spike_updates = spike_updates
 
@@ -746,7 +745,7 @@ class NESTCodeGenerator(CodeGenerator):
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
-                        print("adding post assignment string: " + str(ast_assignment))
+                        Logger.log_message(None, None, "Adding post assignment string: " + str(ast_assignment), None, LoggingLevel.INFO)
                         spike_updates[str(spike_input_port)].append(ast_assignment)
                     else:
                         spike_updates[str(spike_input_port)].append(ast_assignment)
