@@ -175,7 +175,7 @@ class CodeGenerator(WithOptions):
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
     def generate_model_code(self,
-                            model: Union[ASTNeuron, ASTSynapse],
+                            model_name: str,
                             model_templates: List[Template],
                             template_namespace: Dict[str, Any],
                             model_name_escape_string: str = "@MODEL_NAME@") -> None:
@@ -197,7 +197,7 @@ class CodeGenerator(WithOptions):
             if not len(templ_file_name.split(".")) == 3:
                 raise Exception("Template file name \"" + templ_file_name + "\" should be of the form \"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
             templ_file_name = templ_file_name.split(".")[0]  # for example, "cm_main_@NEURON_NAME@"
-            templ_file_name = templ_file_name.replace(model_name_escape_string, model.get_name())
+            templ_file_name = templ_file_name.replace(model_name_escape_string, model_name)
             file_extension = _model_templ.filename.split(".")[-2]  # for example, "cpp"
             rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
                                                     templ_file_name + "." + file_extension)
@@ -208,13 +208,13 @@ class CodeGenerator(WithOptions):
                 f.write(str(_file))
 
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
-        self.generate_model_code(neuron,
+        self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron),
                                  model_name_escape_string="@NEURON_NAME@")
 
     def generate_synapse_code(self, synapse: ASTNeuron) -> None:
-        self.generate_model_code(synapse,
+        self.generate_model_code(synapse.get_name(),
                                  model_templates=self._model_templates["synapse"],
                                  template_namespace=self._get_synapse_model_namespace(synapse),
                                  model_name_escape_string="@SYNAPSE_NAME@")
