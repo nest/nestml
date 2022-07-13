@@ -41,13 +41,13 @@ sim_ref = False
 
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_dend_nestml__with_third_factor_stdp_nestml"
+    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp"
     ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
 
-    synapse_model_name = "third_factor_stdp_nestml__with_iaf_psc_exp_dend_nestml"
+    synapse_model_name = "third_factor_stdp__with_iaf_psc_exp_dend"
     ref_synapse_model_name = "third_factor_stdp_synapse"
 
-    post_trace_var = "I_dend"  # "post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"
+    post_trace_var = "I_dend"
 
     def setUp(self):
         r"""Generate the neuron model code"""
@@ -57,7 +57,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                              target_path="/tmp/nestml-jit",
                              logging_level="INFO",
                              module_name="nestml_jit_module",
-                             suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",

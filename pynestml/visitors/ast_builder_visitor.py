@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 import ntpath
 import re
 
@@ -26,6 +28,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
 from pynestml.utils.port_signal_type import PortSignalType
@@ -704,7 +707,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        parameters = list()
+        parameters: List[ASTParameter] = []
         if type(ctx.parameter()) is list:
             for par in ctx.parameter():
                 parameters.append(self.visit(par))
