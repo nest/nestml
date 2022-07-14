@@ -32,6 +32,7 @@ try:
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+TEST_PLOTS = False
 
 DT = .001
 
@@ -88,6 +89,9 @@ class CMTest(unittest.TestCase):
         if not os.path.exists(path_target):
             os.makedirs(path_target)
 
+
+        print("\n!!!!!!!!\n", path_target, "\n!!!!!!!!!\n")
+
         generate_nest_compartmental_target(
             input_path=os.path.join(
                 path_nestml, "../models/cm_default.nestml"),
@@ -98,6 +102,7 @@ class CMTest(unittest.TestCase):
         )
 
     def get_model(self, reinstall_flag=True):
+        print("\n!!!!!!!!\nnestml_flag =", self.nestml_flag, "\n!!!!!!!!!\n")
         if self.nestml_flag:
             try:
                 if reinstall_flag:
@@ -113,10 +118,14 @@ class CMTest(unittest.TestCase):
             cm_act = nest.Create("cm_default_nestml")
             cm_pas = nest.Create("cm_default_nestml")
 
+            print("\n!!!!!!!!\nReturning NESTML model\n!!!!!!!!!\n")
+
         else:
             # models built into NEST Simulator
             cm_pas = nest.Create('cm_default')
             cm_act = nest.Create('cm_default')
+
+            print("\n!!!!!!!!\nReturning NEST model\n!!!!!!!!!\n")
 
         return cm_act, cm_pas
 
@@ -219,6 +228,7 @@ class CMTest(unittest.TestCase):
 
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
+        print("\n!!!!!!!!\n", rec_list, "\n!!!!!!!!!\n")
         mm_pas = nest.Create(
             'multimeter', 1, {'record_from': rec_list, 'interval': DT})
         mm_act = nest.Create(
