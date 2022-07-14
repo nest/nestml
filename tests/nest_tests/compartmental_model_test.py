@@ -89,7 +89,6 @@ class CMTest(unittest.TestCase):
         if not os.path.exists(path_target):
             os.makedirs(path_target)
 
-
         print("\n!!!!!!!!\n", path_target, "\n!!!!!!!!!\n")
 
         generate_nest_compartmental_target(
