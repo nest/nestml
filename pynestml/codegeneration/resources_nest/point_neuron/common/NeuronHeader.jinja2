@@ -48,12 +48,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- if norm_rng %}
 
 // Includes for random number generator
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
 #include "normal_randomdev.h"
 #include "uniform_randomdev.h"
-#else
+{%- else %}
 #include <random>
-#endif
+{%- endif %}
 {%- endif %}
 {%- if uses_numeric_solver %}
 
@@ -385,12 +385,12 @@ private:
   };
 {%- endif %}
 
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
   /**
    * Reset state of neuron.
   **/
   void init_state_(const Node& proto);
-#endif
+{%- endif %}
 
   /**
    * Reset internal buffers of neuron.
@@ -400,11 +400,11 @@ private:
   /**
    * Initialize auxiliary quantities, leave parameters and state untouched.
   **/
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
   void calibrate();
-#else
+{%- else %}
   void pre_run_hook();
-#endif
+{%- endif %}
 
   /**
    * Take neuron through given time interval
@@ -703,11 +703,11 @@ private:
 {% endif %}
 {%- if norm_rng %}
 
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
-#else
+{%- else %}
   nest::normal_distribution normal_dev_; //!< random deviate generator
-#endif
+{%- endif %}
 {%- endif %}
 {%- if has_delay_variables %}
   void update_delay_variables();

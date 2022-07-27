@@ -56,12 +56,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- if norm_rng %}
 
 // Includes for random number generator
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
 #include "normal_randomdev.h"
 #include "uniform_randomdev.h"
-#else
+{%- else %}
 #include <random>
-#endif
+{%- endif %}
 {%- endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 // Includes for volume transmitter
@@ -478,43 +478,68 @@ public:
     port
     handles_test_event( SpikeEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
+{%- endif %}
     }
     port
     handles_test_event( RateEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
     port
     handles_test_event( DataLoggingRequest&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
     port
     handles_test_event( CurrentEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
     port
     handles_test_event( ConductanceEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
     port
     handles_test_event( DoubleDataEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
     port
     handles_test_event( DSSpikeEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
     port
     handles_test_event( DSCurrentEvent&, rport )
     {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+      return invalid_port_;
+{%- else %}
       return invalid_port;
-    }
+{%- endif %}    }
   };
 
 
@@ -866,12 +891,11 @@ std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_
   void set_status( const DictionaryDatum& d, ConnectorModel& cm );
 
 {%- if norm_rng %}
-
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
-#else
+{%- else %}
   nest::normal_distribution normal_dev_; //!< random deviate generator
-#endif
+{%- endif %}
 {%- endif %}
 };
 
