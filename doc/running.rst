@@ -160,5 +160,6 @@ Compatibility with different versions of NEST
 
 To generate code that is compatible with particular release versions of NEST Simulator, the code generator option  ``nest_version`` can be used. It takes a string as its value that corresponds to a git tag or git branch name. The following values are supported:
 
+- The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
 - ``"v2.20.2"``: Latest NEST 2 release.
 - ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).

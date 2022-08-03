@@ -87,7 +87,7 @@ class NESTCodeGenerator(CodeGenerator):
             - **neuron**: A list of neuron model jinja templates.
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
-    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     """
 
     _default_options = {
@@ -104,7 +104,7 @@ class NESTCodeGenerator(CodeGenerator):
             },
             "module_templates": ["setup"]
         },
-        "nest_version": "master"
+        "nest_version": ""
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -112,22 +112,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         # auto-detect NEST Simulator installed version
         if not self.option_exists("nest_version") or not self.get_option("nest_version"):
-            # XXX: NEST version detection needs improvement. See https://github.com/nest/nest-simulator/issues/2116
-            try:
-                import nest
-                if "DataConnect" in dir(nest):
-                    nest_version = "v2.20.2"
-                elif "kernel_status" not in dir(nest):
-                    nest_version = "v3.0"
-                else:
-                    nest_version = "master"
-            except ModuleNotFoundError:
-                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.", None, LoggingLevel.ERROR)
-                sys.exit(1)
-
+            from pynestml.codegeneration.nest_tools import NESTTools
+            nest_version = NESTTools.detect_nest_version()
             self.set_options({"nest_version": nest_version})
-            Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None, LoggingLevel.INFO)
-
             if self.get_option("nest_version").startswith("v2"):
                 self.set_options({"neuron_parent_class": "Archiving_Node",
                                   "neuron_parent_class_include": "archiving_node.h"})
@@ -141,6 +128,8 @@ class NESTCodeGenerator(CodeGenerator):
         self._types_printer = CppTypesPrinter()
 
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+            from pynestml.codegeneration.printers.nest2_gsl_reference_converter import NEST2GSLReferenceConverter
+            from pynestml.codegeneration.printers.nest2_reference_converter import NEST2ReferenceConverter
             self._gsl_reference_converter = NEST2GSLReferenceConverter()
             self._nest_reference_converter = NEST2ReferenceConverter()
             self._nest_reference_converter_no_origin = NEST2ReferenceConverter()
