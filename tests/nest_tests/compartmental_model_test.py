@@ -81,20 +81,26 @@ class CMTest(unittest.TestCase):
         print(
             "Compiled nestml model \'cm_main_cm_default_nestml\' not found, installing...")
 
-        path_nestml = pynestml.__path__[0]
-        path_target = "target/"
-        # get the path to the nest installation
-        path_nest = nest.ll_api.sli_func("statusdict/prefix ::")
 
-        if not os.path.exists(path_target):
-            os.makedirs(path_target)
+        tests_path = os.path.realpath(os.path.dirname(__file__))
+        input_path = os.path.join(
+            tests_path,
+            "resources",
+            "cm_default.nestml"
+        )
+        target_path = os.path.join(
+            tests_path,
+            "target/"
+        )
 
-        print("\n!!!!!!!!\n", path_target, "\n!!!!!!!!!\n")
+        if not os.path.exists(target_path):
+            os.makedirs(target_path)
+
+        print("\n!!!!!!!!\n", target_path, "\n!!!!!!!!!\n")
 
         generate_nest_compartmental_target(
-            input_path=os.path.join(
-                path_nestml, "../models/cm_default.nestml"),
-            target_path=os.path.join(path_target, "compartmental_model/"),
+            input_path=input_path,
+            target_path=os.path.join(target_path, "compartmental_model/"),
             module_name="cm_defaultmodule",
             suffix="_nestml",
             logging_level="DEBUG"
