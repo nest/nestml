@@ -78,10 +78,6 @@ class CMTest(unittest.TestCase):
         nest.SetKernelStatus(dict(resolution=DT))
 
     def install_nestml_model(self):
-        print(
-            "Compiled nestml model \'cm_main_cm_default_nestml\' not found, installing...")
-
-
         tests_path = os.path.realpath(os.path.dirname(__file__))
         input_path = os.path.join(
             tests_path,
@@ -96,7 +92,10 @@ class CMTest(unittest.TestCase):
         if not os.path.exists(target_path):
             os.makedirs(target_path)
 
-        print("\n!!!!!!!!\n", target_path, "\n!!!!!!!!!\n")
+        print(
+            f"Compiled nestml model \'cm_main_cm_default_nestml\' not found, installing in:" \
+            f"    {target_path}"
+        )
 
         generate_nest_compartmental_target(
             input_path=input_path,
