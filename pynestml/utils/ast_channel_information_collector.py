@@ -155,7 +155,7 @@ class ASTChannelInformationCollector(object):
     # i.e  Na_ -> channel name is Na
     @classmethod
     def cm_expression_to_channel_name(cls, expr):
-        assert(isinstance(expr, ASTInlineExpression))
+        assert isinstance(expr, ASTInlineExpression)
         return expr.variable_name.strip(cls.padding_character)
 
     # extract pure variable name from inline expression variable name
@@ -163,7 +163,7 @@ class ASTChannelInformationCollector(object):
     @classmethod
     def extract_pure_variable_name(cls, varname, ic_name):
         varname = varname.strip(cls.padding_character)
-        assert(varname.endswith(ic_name))
+        assert varname.endswith(ic_name)
         return varname[:-len(ic_name)].strip(cls.padding_character)
 
     # generate gbar variable name from ion channel name

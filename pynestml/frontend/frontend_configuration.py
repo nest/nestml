@@ -292,7 +292,7 @@ appropriate numeric solver otherwise.
 
         # check if the installation path exists
         if not os.path.isdir(path):
-            raise(InvalidPathException("Installation path \"" + str(path) + "\" not found."))
+            raise InvalidPathException("Installation path \"" + str(path) + "\" not found.")
 
     @classmethod
     def handle_input_path(cls, path) -> None:
