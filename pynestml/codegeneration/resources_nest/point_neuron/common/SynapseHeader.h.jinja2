@@ -284,18 +284,18 @@ private:
    {{synapse.print_parameter_comment("*")}}
    *
    * These are the parameters that can be set by the user through @c SetStatus.
-  * Parameters do not change during calls to ``send()`` and are not reset by
-  * @c ResetNetwork.
-  *
-  * @note Parameters_ need neither copy constructor nor @c operator=(), since
-  *       all its members are copied properly by the default copy constructor
-  *       and assignment operator. Important:
-  *       - If Parameters_ contained @c Time members, you need to define the
-  *         assignment operator to recalibrate all members of type @c Time . You
-  *         may also want to define the assignment operator.
-  *       - If Parameters_ contained members that cannot copy themselves, such
-  *         as C-style arrays, you need to define the copy constructor and
-  *         assignment operator to copy those members.
+   * Parameters do not change during calls to ``send()`` and are not reset by
+   * @c ResetNetwork.
+   *
+   * @note Parameters_ need neither copy constructor nor @c operator=(), since
+   *       all its members are copied properly by the default copy constructor
+   *       and assignment operator. Important:
+   *       - If Parameters_ contained @c Time members, you need to define the
+   *         assignment operator to recalibrate all members of type @c Time . You
+   *         may also want to define the assignment operator.
+   *       - If Parameters_ contained members that cannot copy themselves, such
+   *         as C-style arrays, you need to define the copy constructor and
+   *         assignment operator to copy those members.
   */
   struct Parameters_{
 {%- filter indent(4,True) %}
@@ -322,11 +322,7 @@ private:
    *
    {{synapse.print_internal_comment('*')}}
    *
-   * These variables must be initialized by @c pre_run_hook (or calibrate in NEST 2.x), which is called before
-   * the first call to @c update() upon each call to @c Simulate.
-   * @node Variables_ needs neither constructor, copy constructor or assignment operator,
-   *       since it is initialized by @c pre_run_hook() (or calibrate() in NEST 2.x). If Variables_ has members that
-   *       cannot destroy themselves, Variables_ will need a destructor.
+   * These variables must be initialized by recompute_internal_variables().
   **/
   struct Variables_
   {
@@ -389,7 +385,7 @@ private:
 {%- endfilter %}
 
   /**
-   * Update internal state (``S_``) of the synapse according to the dynamical equations defined in the model
+   * Update internal state (``S_``) of the synapse according to the dynamical equations defined in the model and the statements in the ``update`` block.
   **/
   inline void
   update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
