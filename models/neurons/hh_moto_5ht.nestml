@@ -55,14 +55,14 @@ neuron hh_moto_5ht:
     inline I_syn_exc pA = convolve(I_syn_ex, spikeExc)
     inline I_syn_inh pA = convolve(I_syn_in, spikeInh)
 
-    inline E_Ca mV = ((1000.0 * R_const * T_current)/(2. * F_const))*log10(Ca_out/Ca_in)
+    inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in)
 
     inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     inline I_K   pA  = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
     inline I_Ca_N pA = g_Ca_N *  Act_mc * Act_mc * Act_hc * (V_m - E_Ca)
     inline I_Ca_L pA = g_Ca_L * Act_p * (V_m - E_Ca)
-    inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in)/(Ca_in * Ca_in + 0.014 * 0.014))*(V_m - E_K)
+    inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in) / (Ca_in * Ca_in + 0.014 * 0.014)) * (V_m - E_K)
 
     V_m' =( -( I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
 
@@ -73,7 +73,7 @@ neuron hh_moto_5ht:
     Act_mc' = (mc_inf(V_m) - Act_mc) / mc_tau
     Act_hc' = (hc_inf(V_m) - Act_hc) / hc_tau
 
-    Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4.*Ca_in)
+    Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
   end
 
   parameters:
@@ -100,7 +100,7 @@ neuron hh_moto_5ht:
     F_const real = 96485.34
     T_current real = 309.15 # 36 Celcius
 
-    tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
+    tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
     I_e pA = 0pA            # Constant Current in pA
     
@@ -139,39 +139,39 @@ neuron hh_moto_5ht:
   end
   
   function h_inf(V_m mV) real:
-    return 1. / (1. + exp((V_m + 65.)/7.))
+    return 1. / (1. + exp((V_m + 65.) / 7.))
   end
   
   function h_tau(V_m mV) ms:
-    return (30. * ms) / (exp((V_m + 60.)/15.) + exp(-(V_m + 60.)/16.))
+    return (30. * ms) / (exp((V_m + 60.) / 15.) + exp(-(V_m + 60.) / 16.))
   end
   
   function p_inf(V_m mV) real:
-    return 1. / (1. + exp(-(V_m + 55.8)/3.7))
+    return 1. / (1. + exp(-(V_m + 55.8) / 3.7))
   end
   
   function mc_inf(V_m mV) real:
-    return 1. / (1. + exp(-(V_m + 32.)/5.))
+    return 1. / (1. + exp(-(V_m + 32.) / 5.))
   end
   
   function hc_inf(V_m mV) real:
-    return 1. / (1. + exp((V_m + 50.)/5.))
+    return 1. / (1. + exp((V_m + 50.) / 5.))
   end
   
   function n_inf(V_m mV) real:
-    return 1. / (1. + exp(-(V_m + 38.)/15.))
+    return 1. / (1. + exp(-(V_m + 38.) / 15.))
   end
   
   function n_tau(V_m mV) ms:
-    return (5. * ms) / (exp((V_m + 50.)/40.) + exp(-(V_m + 50.)/50.))
+    return (5. * ms) / (exp((V_m + 50.) / 40.) + exp(-(V_m + 50.) / 50.))
   end
   
   function alpha_m(V_m mV) 1/ms:
-    return (0.4 * (V_m + 66.)) / mV / (1. - exp(-(V_m + 66.)/(5. mV)))/ms
+    return (0.4 * (V_m + 66.)) / mV / (1. - exp(-(V_m + 66.) / (5. mV))) / ms
   end
 
   function beta_m(V_m mV) 1/ms:
-    return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.)/(5. mV)))/ms
+    return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.) / (5. mV))) / ms
   end
 
 end
