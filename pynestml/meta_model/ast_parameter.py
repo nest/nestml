@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -27,9 +26,7 @@ from pynestml.meta_model.ast_node import ASTNode
 class ASTParameter(ASTNode):
     """
     This class is used to store a single function parameter definition.
-    ASTParameter represents singe:
-      output: spike
-    @attribute compartments Lists with compartments.
+
     Grammar:
         parameter : NAME datatype;
     Attributes:
@@ -37,7 +34,7 @@ class ASTParameter(ASTNode):
         data_type (ASTDataType): The data type of the parameter.
     """
 
-    def __init__(self, name=None, data_type=None, *args, **kwargs):
+    def __init__(self, name: str, data_type: ASTDataType, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the parameter.
@@ -45,10 +42,6 @@ class ASTParameter(ASTNode):
         :param data_type: the type of the parameter.
         :type data_type: ASTDataType
         """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(name)
-        assert (data_type is not None and isinstance(data_type, ASTDataType)), \
-            '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(data_type)
         super(ASTParameter, self).__init__(*args, **kwargs)
         self.data_type = data_type
         self.name = name
