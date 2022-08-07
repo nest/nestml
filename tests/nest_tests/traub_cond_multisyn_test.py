@@ -73,24 +73,33 @@ class NestWBCondExpTest(unittest.TestCase):
                                  "AMPA_g_peak": 0.1})
 
         multimeter = nest.Create("multimeter", 2)
-        nest.SetStatus([multimeter[0]], {"record_from": ["V_m"],
-                                         "interval": dt})
+        if nest_version.startswith("v2"):
+            nest.SetStatus([multimeter[0]], {"record_from": ["V_m"],
+                                             "interval": dt})
+        else:
+            nest.SetStatus(multimeter[0], {"record_from": ["V_m"],
+                                           "interval": dt})
         record_from = ["V_m", "I_syn_ampa",
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
-        nest.SetStatus([multimeter[1]], {"record_from": record_from,
-                                         "interval": dt})
+        if nest_version.startswith("v2"):
+            nest.SetStatus([multimeter[1]], {"record_from": record_from,
+                                             "interval": dt})
+        else:
+            nest.SetStatus(multimeter[1], {"record_from": record_from,
+                                           "interval": dt})
         # {"AMPA": 1, "NMDA": 2, "GABA_A": 3, "GABA_B": 4}
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 2})  # NMDA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 4})  # GABAB
 
-        nest.Connect([multimeter[0]], neuron1, "one_to_one")
-        nest.Connect([multimeter[1]], neuron2)
-
         if nest_version.startswith("v2"):
+            nest.Connect([multimeter[0]], neuron1, "one_to_one")
+            nest.Connect([multimeter[1]], neuron2)
             spike_recorder = nest.Create("spike_detector")
         else:
+            nest.Connect(multimeter[0], neuron1, "one_to_one")
+            nest.Connect(multimeter[1], neuron2)
             spike_recorder = nest.Create("spike_recorder")
         nest.Connect(neuron1, spike_recorder)
         nest.Simulate(t_simulation)
