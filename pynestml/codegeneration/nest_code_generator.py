@@ -115,9 +115,11 @@ class NESTCodeGenerator(CodeGenerator):
             from pynestml.codegeneration.nest_tools import NESTTools
             nest_version = NESTTools.detect_nest_version()
             self.set_options({"nest_version": nest_version})
-            if self.get_option("nest_version").startswith("v2"):
-                self.set_options({"neuron_parent_class": "Archiving_Node",
-                                  "neuron_parent_class_include": "archiving_node.h"})
+
+        # insist on using the old Archiving_Node class for NEST 2
+        if self.get_option("nest_version").startswith("v2"):
+            self.set_options({"neuron_parent_class": "Archiving_Node",
+                              "neuron_parent_class_include": "archiving_node.h"})
 
         self.analytic_solver = {}
         self.numeric_solver = {}
@@ -159,6 +161,12 @@ class NESTCodeGenerator(CodeGenerator):
         raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        # insist on using the old Archiving_Node class for NEST 2
+        if self.get_option("nest_version").startswith("v2"):
+            Logger.log_message(None, -1, "Overriding parent class for NEST 2 compatibility", None, LoggingLevel.WARNING)
+            options["neuron_parent_class"] = "Archiving_Node"
+            options["neuron_parent_class_include"] = "archiving_node.h"
+
         ret = super().set_options(options)
         self.setup_template_env()
 
