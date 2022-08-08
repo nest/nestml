@@ -167,7 +167,11 @@ public:
       if ( updateValue< long >( d, names::vt, vtnode_id ) )
       {
         const thread tid = kernel().vp_manager.get_thread_id();
+{%- if nest_version.startswith("v2") %}
+        Node* vt = kernel().node_manager.get_node( vtnode_id, tid );
+{%- else %}
         Node* vt = kernel().node_manager.get_node_or_proxy( vtnode_id, tid );
+{%- endif %}
         vt_ = dynamic_cast< volume_transmitter* >( vt );
         if ( vt_ == 0 )
         {
@@ -195,7 +199,11 @@ public:
     {
       if ( vt_ != 0 )
       {
+{%- if nest_version.startswith("v2") %}
+        return vt_->get_gid();
+{%- else %}
         return vt_->get_node_id();
+{%- endif %}
       }
       else
       {
