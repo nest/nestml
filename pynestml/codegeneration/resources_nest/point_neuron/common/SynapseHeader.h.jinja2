@@ -485,7 +485,7 @@ public:
     port
     handles_test_event( SpikeEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -494,7 +494,7 @@ public:
     port
     handles_test_event( RateEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -502,7 +502,7 @@ public:
     port
     handles_test_event( DataLoggingRequest&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -510,7 +510,7 @@ public:
     port
     handles_test_event( CurrentEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -518,7 +518,7 @@ public:
     port
     handles_test_event( ConductanceEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -526,7 +526,7 @@ public:
     port
     handles_test_event( DoubleDataEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -534,7 +534,7 @@ public:
     port
     handles_test_event( DSSpikeEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
@@ -542,7 +542,7 @@ public:
     port
     handles_test_event( DSCurrentEvent&, rport )
     {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
       return invalid_port;
