@@ -43,7 +43,7 @@ class NESTTools:
 
             try:
                 neuron = nest.Create('hh_psc_alpha_clopath')
-            except:
+            except Exception:
                 pass
 
             if "DataConnect" in dir(nest):
