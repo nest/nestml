@@ -387,10 +387,9 @@ private:
   *
   {{synapse.print_internal_comment('*')}}
   *
-  * These variables must be initialized by @c pre_run_hook (or calibrate in NEST 2.x), which is called before
-  * the first call to @c update() upon each call to @c Simulate.
+  * These variables must be initialized by recompute_internal_variables().
   * @node Variables_ needs neither constructor, copy constructor or assignment operator,
-  *       since it is initialized by @c pre_run_hook() (or calibrate() in NEST 2.x). If Variables_ has members that
+  *       since it is initialized by @c recompute_internal_variables(). If Variables_ has members that
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {

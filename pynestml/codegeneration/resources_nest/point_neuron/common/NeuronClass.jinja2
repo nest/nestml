@@ -189,7 +189,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   calibrate();
 {%- else %}
   pre_run_hook();
@@ -409,7 +409,7 @@ void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
   }
 }
 
-{%- if nest_version.startswith("v2") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
 void {{neuronName}}::calibrate() {
 {%- else %}
 void {{neuronName}}::pre_run_hook() {
