@@ -138,7 +138,7 @@ jobs:
 
       # Run IPython/Jupyter notebooks
       - name: Run Jupyter notebooks
-        if: ${{ matrix.nest_branch == "master" }}
+        if: ${{ matrix.nest_branch == 'master' }}
         run: |
           cd $GITHUB_WORKSPACE
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
