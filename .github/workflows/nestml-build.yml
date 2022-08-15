@@ -2,19 +2,6 @@ name: NESTML compatibility check with older NEST versions
 
 on: [push, pull_request]
 
-#on:
-#  schedule:
-    #        ┌───────────── minute (0 - 59)
-    #        │ ┌───────────── hour (0 - 23)
-    #        │ │ ┌───────────── day of the month (1 - 31)
-    #        │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
-    #        │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
-    #        │ │ │ │ │
-    #        │ │ │ │ │
-    #        │ │ │ │ │
-    #        * * * * *
-#    - cron: '30 5 * * 0'
-
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
