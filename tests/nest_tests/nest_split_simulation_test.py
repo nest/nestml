@@ -20,9 +20,14 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import nest
 import numpy as np
+import pytest
 import unittest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+
 
 try:
     import matplotlib
@@ -30,6 +35,8 @@ try:
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class NestSplitSimulationTest(unittest.TestCase):
@@ -80,6 +87,8 @@ class NestSplitSimulationTest(unittest.TestCase):
 
         return ts, Vms
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_nest_split_simulation(self):
         ts, Vms = self.run_simulation(T_sim=100., split=False)
         ts_split, Vms_split = self.run_simulation(T_sim=100., split=True)

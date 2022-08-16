@@ -19,10 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -34,6 +38,7 @@ try:
 except Exception:
     TEST_PLOTS = False
 
+nest_version = NESTTools.detect_nest_version()
 
 sim_mdl = True
 sim_ref = True
@@ -72,6 +77,8 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                              codegen_opts={"neuron_parent_class": "ArchivingNode",
                                            "neuron_parent_class_include": "archiving_node.h"})
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_nest_stdp_synapse(self):
 
         fname_snip = ""
@@ -80,24 +87,6 @@ class NestSTDPNeuromodTest(unittest.TestCase):
         post_spike_times = [6., 16., 26.]  # [ms]
 
         vt_spike_times = [14., 23.]    # [ms]
-
-#         post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-#         pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
-#         post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-#         pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-
-#         pre_spike_times = np.array([  2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-#   35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-#   65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-#   99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
-#  152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-#         post_spike_times = np.array([  4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-#   25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-#   48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-#   80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
-#  116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
-#  188., 194., 202., 245., 249., 289., 454.])
 
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,

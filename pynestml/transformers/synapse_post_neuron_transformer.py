@@ -464,8 +464,9 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse.paired_neuron = new_neuron
         new_neuron.paired_synapse = new_synapse
 
-        base_neuron_name = neuron.get_name()[:-len(FrontendConfiguration.suffix)]
-        base_synapse_name = synapse.get_name()[:-len(FrontendConfiguration.suffix)]
+        base_neuron_name = neuron.get_name().removesuffix(FrontendConfiguration.suffix)
+        base_synapse_name = synapse.get_name().removesuffix(FrontendConfiguration.suffix)
+
         new_synapse.post_port_names = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
         new_synapse.spiking_post_port_names = self.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name)
         new_synapse.vt_port_names = self.get_vt_port_names(synapse, base_neuron_name, base_synapse_name)

@@ -83,6 +83,8 @@ neuron ExpressionCollection:
         test15 mV = -70.6mV         ## Leak reversal Potential (aka resting potential) in mV
         test16 pA = 0pA
 
+        beta real = 1.            # check for conflict with sympy built-in functions like beta()
+
         #hh_cond_exp_traub_neuron
         test70 nS = 0nS # Inhibitory synaptic conductance
 

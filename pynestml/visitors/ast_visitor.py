@@ -1243,9 +1243,8 @@ class ASTVisitor:
         return
 
     def traverse_function(self, node):
-        if node.get_parameters() is not None:
-            for sub_node in node.get_parameters():
-                sub_node.accept(self.get_real_self())
+        for sub_node in node.get_parameters():
+            sub_node.accept(self.get_real_self())
         if node.get_return_type() is not None:
             node.get_return_type().accept(self.get_real_self())
         if node.get_block() is not None:

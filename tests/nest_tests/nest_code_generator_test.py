@@ -22,9 +22,6 @@
 import json
 import os
 import unittest
-import json
-
-from pynestml.utils.ast_source_location import ASTSourceLocation
 
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -33,6 +30,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
@@ -51,11 +49,11 @@ class CodeGeneratorTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
 
         self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'target'))))
+            os.pardir, os.pardir, 'target'))))
 
     def test_iaf_psc_alpha(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -74,7 +72,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'neurons', 'iaf_psc_delta.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_delta.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -93,7 +91,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'neurons', 'iaf_cond_alpha.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_cond_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -114,7 +112,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha_with_codegen_opts(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))

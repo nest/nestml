@@ -19,11 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -34,6 +37,8 @@ try:
     TEST_PLOTS = True
 except Exception:
     TEST_PLOTS = False
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class NestSynapsePriorityTest(unittest.TestCase):
@@ -57,6 +62,8 @@ class NestSynapsePriorityTest(unittest.TestCase):
                                                                      "synapse": "synapse_event_inv_priority_test",
                                                                      "post_ports": ["post_spikes"]}]})
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_synapse_event_priority(self):
 
         fname_snip = ""
@@ -141,6 +148,7 @@ class NestSynapsePriorityTest(unittest.TestCase):
         syn = nest.GetConnections(source=pre_neuron, synapse_model="syn_nestml")
 
         nest.Simulate(sim_time)
+
         return syn.get("tr")
 
     def run_synapse_test(self,

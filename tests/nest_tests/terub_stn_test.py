@@ -20,10 +20,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import nest
 import unittest
 import numpy as np
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -32,6 +34,8 @@ try:
     TEST_PLOTS = True
 except ImportError:
     TEST_PLOTS = False
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class NestSTNExpTest(unittest.TestCase):
@@ -63,11 +67,14 @@ class NestSTNExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-        neuron.set({"I_e": 10.0})
+        nest.SetStatus(neuron, {"I_e": 10.0})
         multimeter = nest.Create("multimeter")
-        multimeter.set({"record_from": ["V_m"],
-                        "interval": dt})
-        spike_recorder = nest.Create("spike_recorder")
+        nest.SetStatus(multimeter, {"record_from": ["V_m"],
+                                    "interval": dt})
+        if nest_version.startswith("v2"):
+            spike_recorder = nest.Create("spike_detector")
+        else:
+            spike_recorder = nest.Create("spike_recorder")
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spike_recorder)
         nest.Simulate(t_simulation)

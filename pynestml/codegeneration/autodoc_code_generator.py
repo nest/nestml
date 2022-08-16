@@ -35,6 +35,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger
 
 
 class AutoDocCodeGenerator(CodeGenerator):
@@ -61,6 +62,10 @@ class AutoDocCodeGenerator(CodeGenerator):
         self.generate_index(neurons, synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
+
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                raise Exception("Error(s) occurred during code generation")
 
     def generate_index(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         """
