@@ -19,12 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class NestResolutionBuiltinTest(unittest.TestCase):
@@ -43,6 +49,8 @@ class NestResolutionBuiltinTest(unittest.TestCase):
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test",
                                                                      "synapse": "CoCoResolutionLegallyUsed"}]})
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_resolution_function(self):
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()

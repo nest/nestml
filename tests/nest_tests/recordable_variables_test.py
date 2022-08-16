@@ -18,10 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import numpy as np
 import unittest
 import os
+
 import nest
-import numpy as np
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 

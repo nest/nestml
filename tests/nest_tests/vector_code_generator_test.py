@@ -56,7 +56,7 @@ class VectorCodeGenerationTest(unittest.TestCase):
 
     def test_vector_code_generation(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'valid', 'VectorsDeclarationAndAssignment.nestml'))))
+            'resources', 'VectorsDeclarationAndAssignment.nestml'))))
 
         params = list()
         params.append('--input_path')

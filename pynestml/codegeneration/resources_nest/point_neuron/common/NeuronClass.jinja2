@@ -189,11 +189,12 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   calibrate();
-#else
+{%- else %}
   pre_run_hook();
-#endif
+{%- endif %}
+
 {%- if uses_numeric_solver %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
@@ -322,13 +323,13 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
 void {{neuronName}}::init_state_(const Node& proto)
 {
   const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
 }
-#endif
+{%- endif %}
 
 void {{neuronName}}::init_buffers_()
 {
@@ -408,11 +409,11 @@ void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
   }
 }
 
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
 void {{neuronName}}::calibrate() {
-#else
+{%- else %}
 void {{neuronName}}::pre_run_hook() {
-#endif
+{%- endif %}
   B_.logger_.init();
 
   recompute_internal_variables();
