@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import os
 
 import numpy as np
 import pytest
@@ -36,15 +37,15 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
-
 @pytest.fixture(autouse=True,
                 scope="module")
 def nestml_generate_target():
     r"""Generate the neuron model code"""
 
-    generate_nest_target(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"],
+    files = ["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"]
+    input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+        os.pardir, os.pardir, s))) for s in files]
+    generate_nest_target(input_path=input_path,
                          target_path="/tmp/nestml-triplet-stdp",
                          logging_level="INFO",
                          module_name="nestml_triplet_pair_module",
@@ -506,6 +507,9 @@ def test_stdp_triplet_synapse_delay_5(spike_times_len):
 # import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
 # @pytest.mark.xfail(strict=True, raises=Exception)
 # @pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+
+
+nest_version = NESTTools.detect_nest_version()
 
 
 @pytest.mark.parametrize('spike_times_len', [10])

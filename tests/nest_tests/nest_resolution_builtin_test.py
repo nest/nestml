@@ -39,7 +39,9 @@ class NestResolutionBuiltinTest(unittest.TestCase):
     def setUp(self):
         """Generate the model code"""
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        generate_nest_target(input_path=["tests/nest_tests/resources/iaf_psc_exp_resolution_test.nestml", os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "valid", "CoCoResolutionLegallyUsed.nestml")))],
+        input_files = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_psc_exp_resolution_test.nestml"))),
+                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "valid", "CoCoResolutionLegallyUsed.nestml")))]
+        generate_nest_target(input_path=input_files,
                              target_path="target",
                              logging_level="INFO",
                              module_name="nestmlmodule",

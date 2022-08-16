@@ -46,7 +46,10 @@ def nestml_generate_target():
     r"""Generate the neuron model code"""
 
     # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-    generate_nest_target(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_synapse.nestml"],
+    files = ["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_synapse.nestml"]
+    input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+        os.pardir, os.pardir, s))) for s in files]
+    generate_nest_target(input_path=input_path,
                          target_path="/tmp/nestml-jit",
                          logging_level="INFO",
                          module_name="nestml_jit_module",

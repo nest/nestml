@@ -48,7 +48,9 @@ class NoisySynapseTest(unittest.TestCase):
 
     def setUp(self):
         """Generate and build the model code"""
-        generate_nest_target(input_path="models/synapses/noisy_synapse.nestml",
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                       os.path.join(os.pardir, os.pardir, 'models', 'synapses', 'noisy_synapse.nestml'))))
+        generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-noisy-synapse",
                              logging_level="INFO",
                              module_name="nestml_noisy_synapse_module",
