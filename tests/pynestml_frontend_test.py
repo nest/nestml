@@ -40,27 +40,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
     Tests if the frontend works as intended and is able to process handed over arguments.
     """
 
-    def test_codegeneration_for_single_model(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join('..', 'models', 'neurons', 'iaf_psc_exp.nestml'))))
-        params = list()
-        params.append('nestml')
-        params.append('--input_path')
-        params.append(path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
-        params.append('target/models')
-        params.append('--store_log')
-        params.append('--dev')
-        params.append('--codegen_opts')
-        params.append('tests/nest_tests/resources/nest_codegen_opts.json')
-
-        exit_code = None
-        with patch.object(sys, 'argv', params):
-            exit_code = main()
-        self.assertTrue(exit_code == 0)
-
     def test_codegeneration_autodoc(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                  os.path.join('..', 'models', 'neurons', 'iaf_psc_exp.nestml'))))

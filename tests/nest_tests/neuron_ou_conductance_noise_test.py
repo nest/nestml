@@ -19,11 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -32,6 +35,8 @@ try:
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class TestOUConductanceNoise(unittest.TestCase):
@@ -180,6 +185,8 @@ class TestOUConductanceNoise(unittest.TestCase):
 
         plt.savefig("figure2AB_destexhe2001.pdf")
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_ou_conductance_noise(self):
         state, neuron = self.simulate_OU_noise_neuron(resolution=1.)
         self.calc_statistics(state, neuron)

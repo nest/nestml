@@ -45,8 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST2", "NEST_compartmental",
-               "python_standalone", "autodoc", "none"]
+    targets = ["NEST", "NEST_compartmental", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -61,7 +60,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "NEST2"]:
+    if target_name.upper() == "NEST":
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
@@ -87,10 +86,6 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
-
-    if target_name.upper() == "NEST2":
-        from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
-        return NEST2CodeGenerator(options)
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
@@ -120,7 +115,7 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     assert target_name.upper() in get_known_targets(
     ), "Unknown target platform requested: \"" + str(target_name) + "\""
 
-    if target_name.upper() in ["NEST", "NEST2", "NEST_COMPARTMENTAL"]:
+    if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 

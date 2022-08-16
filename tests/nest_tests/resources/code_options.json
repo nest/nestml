@@ -1,0 +1,1 @@
+{"templates": {"path": "point_neuron", "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"], "synapse": []}, "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
