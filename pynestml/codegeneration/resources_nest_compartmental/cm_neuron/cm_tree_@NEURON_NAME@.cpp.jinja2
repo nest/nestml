@@ -82,9 +82,17 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 }
 
 void
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+nest::Compartment{{cm_unique_suffix}}::calibrate()
+{%- else %}
 nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
+{%- endif %}
 {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  compartment_currents.calibrate();
+{%- else %}
   compartment_currents.pre_run_hook();
+{%- endif %}
 
   const double dt = Time::get_resolution().get_ms();
   ca__div__dt = ca / dt;
@@ -364,7 +372,11 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
  * Initialize state variables
  */
 void
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+nest::CompTree{{cm_unique_suffix}}::calibrate()
+{%- else %}
 nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
+{%- endif %}
 {
   if ( root_.comp_index < 0 )
   {
@@ -375,7 +387,11 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
   // initialize the compartments
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+    ( *compartment_it )->calibrate();
+{%- else %}
     ( *compartment_it )->pre_run_hook();
+{%- endif %}
   }
 }
 

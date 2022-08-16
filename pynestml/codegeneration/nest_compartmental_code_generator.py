@@ -77,6 +77,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
         - **model_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to the neuron model(s).
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     """
 
     _default_options = {
@@ -94,7 +95,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     "@NEURON_NAME@.h.jinja2",
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
                     "cm_tree_@NEURON_NAME@.h.jinja2"]},
-            "module_templates": ["setup"]}}
+            "module_templates": ["setup"]},
+        "nest_version": ""}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
@@ -102,6 +104,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST_COMPARTMENTAL", options)
+
+        # auto-detect NEST Simulator installed version
+        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
+            from pynestml.codegeneration.nest_tools import NESTTools
+            nest_version = NESTTools.detect_nest_version()
+            self.set_options({"nest_version": nest_version})
+
         self.analytic_solver = {}
         self.numeric_solver = {}
         # those state variables not defined as an ODE in the equations block
@@ -200,6 +209,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace = {"neurons": neurons,
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
+
+        # auto-detect NEST Simulator installed version
+        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
+            from pynestml.codegeneration.nest_tools import NESTTools
+            nest_version = NESTTools.detect_nest_version()
+            self.set_options({"nest_version": nest_version})
 
         # neuron specific file names in compartmental case
         neuron_name_to_filename = dict()
@@ -544,6 +559,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         namespace = dict()
+
+        namespace["nest_version"] = self.get_option("nest_version")
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron

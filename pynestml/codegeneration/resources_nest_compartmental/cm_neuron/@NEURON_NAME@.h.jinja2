@@ -253,7 +253,11 @@ private:
   void add_receptor_( DictionaryDatum& dd );
 
   void init_recordables_pointers_();
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  void calibrate();
+{%- else %}
   void pre_run_hook();
+{%- endif %}
 
   void update( Time const&, const long, const long );
 

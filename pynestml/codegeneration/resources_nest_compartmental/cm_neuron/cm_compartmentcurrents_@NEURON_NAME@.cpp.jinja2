@@ -129,7 +129,7 @@ nest::{{ion_channel_name}}::append_recordables(std::map< Name, double* >* record
   {%- with %}
   {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
   {%- set variable = variable_info["state_variable"] %}
-  ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
+  ( *recordables )[ Name( "{{variable.name}}_" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
   {% endwith %}
 }
@@ -231,11 +231,15 @@ void
 nest::{{synapse_name}}::append_recordables(std::map< Name, double* >* recordables)
 {
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx) )] = &{{convolution}};
+  ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}_" + std::to_string(syn_idx) )] = &{{convolution}};
   {%- endfor %}
 }
 
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void nest::{{synapse_name}}::calibrate()
+{%- else %}
 void nest::{{synapse_name}}::pre_run_hook()
+{%- endif %}
 {
 
   const double {{render_time_resolution_variable(synapse_info)}} = Time::get_resolution().get_ms();
