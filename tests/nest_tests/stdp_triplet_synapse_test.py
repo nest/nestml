@@ -37,6 +37,7 @@ try:
 except Exception:
     TEST_PLOTS = False
 
+
 @pytest.fixture(autouse=True,
                 scope="module")
 def nestml_generate_target():
