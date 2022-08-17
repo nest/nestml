@@ -62,7 +62,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
             jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = ["models/neurons/iaf_psc_exp.nestml", "models/synapses/stdp_synapse.nestml"]
+        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+                 os.path.join("models", "synapses", "stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,

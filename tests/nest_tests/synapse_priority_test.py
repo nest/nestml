@@ -45,9 +45,9 @@ class NestSynapsePriorityTest(unittest.TestCase):
 
     def setUp(self):
         r"""Generate the model code"""
-        files = ["models/neurons/iaf_psc_delta.nestml",
-                 "tests/resources/synapse_event_priority_test.nestml",
-                 "tests/resources/synapse_event_inv_priority_test.nestml"]
+        files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
+                 os.path.join("tests", "resources", "synapse_event_priority_test.nestml"),
+                 os.path.join("tests", "resources", "synapse_event_inv_priority_test.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,

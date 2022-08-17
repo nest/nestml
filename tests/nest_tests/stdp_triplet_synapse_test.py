@@ -18,9 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import os
-
 import numpy as np
+import os
 import pytest
 
 import nest
@@ -43,7 +42,8 @@ except Exception:
 def nestml_generate_target():
     r"""Generate the neuron model code"""
 
-    files = ["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"]
+    files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
+             os.path.join("models", "synapses", "stdp_triplet_naive.nestml")]
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
