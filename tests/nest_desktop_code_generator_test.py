@@ -20,8 +20,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import os
+import pytest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class TestNestDesktopCodeGenerator:
@@ -29,6 +33,8 @@ class TestNestDesktopCodeGenerator:
     Test for NEST-Desktop code generator
     """
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_nest_desktop_code_generator(self):
         """
         Test to generate the json file for NEST Desktop target for the given neuron model
