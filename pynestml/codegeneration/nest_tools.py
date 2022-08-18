@@ -20,8 +20,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import multiprocessing as mp
+import os
 import sys
 
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 
@@ -43,9 +45,9 @@ def _detect_nest_version(user_args):
             nest_version = "v3.0"
         elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
             nest_version = "master"
-        elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
+        elif "tau_u_bar_minus" in neuron.get().keys():  # added in v3.3
             nest_version = "v3.3"
-        elif "tau_Ca" in vt.get().keys():   # removed in v3.2
+        elif "tau_Ca" in vt.get().keys():  # removed in v3.2
             nest_version = "v3.1"
         else:
             nest_version = "v3.2"
@@ -56,12 +58,37 @@ def _detect_nest_version(user_args):
     return nest_version
 
 
+def _get_model_parameters(model_name: str, queue: mp.Queue):
+    try:
+        import nest
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, "models", "neurons", model_name + ".nestml"))))
+        target_path = "target"
+        suffix = "_nestml"
+        module_name = "nest_desktop_module"
+        generate_nest_target(input_path=input_path,
+                             target_path=target_path,
+                             suffix=suffix,
+                             module_name=module_name,
+                             logging_level="INFO")
+        # Install the nest module and query all the parameters
+        nest.Install(module_name)
+        n = nest.Create(model_name + suffix)
+        parameters = n.get()
+
+    except ModuleNotFoundError:
+        parameters = {}
+
+    queue.put(parameters)
+
+
 class NESTTools:
     r"""Helper functions for NEST Simulator"""
 
     @classmethod
     def detect_nest_version(cls) -> str:
-        r"""Auto-detect NEST Simulator installed version. The returned string corresponds to a git tag or git branch name.
+        r"""Auto-detect NEST Simulator installed version. The returned string corresponds to a git tag or git branch
+        name.
 
         Do this in a separate process to avoid potential side-effects of import the ``nest`` Python module.
 
@@ -75,9 +102,46 @@ class NESTTools:
         p.close()
 
         if nest_version == "":
-            Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.", None, LoggingLevel.ERROR)
+            Logger.log_message(None, -1,
+                               "An error occurred while importing the `nest` module in Python. Please check your NEST "
+                               "installation-related environment variables and paths, or specify ``nest_version`` "
+                               "manually in the code generator options.",
+                               None, LoggingLevel.ERROR)
             sys.exit(1)
 
-        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None, LoggingLevel.INFO)
+        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None,
+                           LoggingLevel.INFO)
 
         return nest_version
+
+    @classmethod
+    def get_neuron_parameters(cls, neuron_model_name: str) -> dict:
+        r"""
+        Get the parameters for the given neuron model. The code is generated for the model and installed into NEST.
+        The parameters are then queried by creating the neuron in NEST.
+        :param neuron_model_name: Name of the neuron model
+        :return: A dictionary of parameters
+        """
+        # This function internally calls the nest_code_generator which calls the detect_nest_version() function that
+        # uses mp.Pool. If a Pool is used here instead of a Process, it gives the error "daemonic processes are not
+        # allowed to have children". Since creating a Pool inside a Pool is not allowed, we create a Process
+        # object here instead.
+        _queue = mp.Queue()
+        p = mp.Process(target=_get_model_parameters, args=(neuron_model_name, _queue))
+        p.start()
+        p.join()
+        parameters = _queue.get()
+        p.close()
+
+        if not parameters:
+            Logger.log_message(None, -1,
+                               "An error occurred while importing the `nest` module in Python. Please check your NEST "
+                               "installation-related environment variables and paths, or specify ``nest_version`` "
+                               "manually in the code generator options.",
+                               None, LoggingLevel.ERROR)
+            sys.exit(1)
+        else:
+            Logger.log_message(None, -1, "The model parameters were successfully queried from NEST simulator",
+                               None, LoggingLevel.INFO)
+
+        return parameters

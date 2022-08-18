@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_code_generator.py
+# nest_desktop_code_generator.py
 #
 # This file is part of NEST.
 #
@@ -49,8 +49,7 @@ class NESTDesktopCodeGenerator(CodeGenerator):
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         """
         Generate the .json files for the given neuron and synapse models
-        :param models:
-        :return:
+        :param models: list of neuron models
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
@@ -65,8 +64,9 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         :param neuron:
         :return:
         """
+        from pynestml.codegeneration.nest_tools import NESTTools
         namespace = dict()
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-
+        namespace["parameters"] = NESTTools.get_neuron_parameters(neuron.get_name())
         return namespace
