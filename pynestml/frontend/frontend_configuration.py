@@ -36,7 +36,7 @@ from pynestml.utils.messages import Messages, MessageCode
 help_input_path = 'One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching \'*.nestml\'.'
 help_target_path = 'Path to a directory where generated code should be written to. Standard is "target".'
 help_install_path = 'Path to the directory where the generated code will be installed.'
-help_target = 'Name of the target platform to build code for. Default is NEST.'
+help_target_platform = 'Name of the target platform to build code for. The available targets are NEST and NEST_DESKTOP. Default is NEST.'
 help_logging = 'Indicates which messages shall be logged and printed to the screen. Standard is ERROR.'
 help_module = 'Indicates the name of the module. Optional. If not indicated, the name of the directory containing the models is used'
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
@@ -97,7 +97,7 @@ appropriate numeric solver otherwise.
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
         cls.argument_parser.add_argument(qualifier_install_path_arg, metavar='PATH', type=str, help=help_install_path)
-        cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=get_known_targets(), type=str.upper, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=get_known_targets(), type=str.upper, help=help_target_platform, default='NEST')
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
                                          'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
