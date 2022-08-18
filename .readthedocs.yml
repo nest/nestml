@@ -3,7 +3,7 @@ version: 2
 build:
     image: latest
     tools:
-        python: 3.9
+        python: "3.9"
 
 sphinx:
     configuration: doc/sphinx-apidoc/conf.py
