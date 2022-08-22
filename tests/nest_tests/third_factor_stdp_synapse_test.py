@@ -18,8 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 import numpy as np
+import os
 import unittest
 
 import nest
@@ -66,7 +66,11 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        generate_nest_target(input_path=["models/neurons/iaf_psc_exp_dend.nestml", "models/synapses/third_factor_stdp_synapse.nestml"],
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_dend.nestml"),
+                 os.path.join("models", "synapses", "third_factor_stdp_synapse.nestml")]
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
+        generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-jit",
                              logging_level="INFO",
                              module_name="nestml_jit_module",

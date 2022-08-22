@@ -64,7 +64,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         nest.SetKernelStatus({"resolution": resolution, "rng_seed": seed + 1})
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                "..", "..", "models", "neurons", "hh_cond_exp_destexhe.nestml")))
+                                                                os.pardir, os.pardir, "models", "neurons", "hh_cond_exp_destexhe.nestml")))
         target_path = "target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
