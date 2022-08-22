@@ -87,8 +87,7 @@ class NESTTools:
 
     @classmethod
     def detect_nest_version(cls) -> str:
-        r"""Auto-detect NEST Simulator installed version. The returned string corresponds to a git tag or git branch
-        name.
+        r"""Auto-detect NEST Simulator installed version. The returned string corresponds to a git tag or git branch name.
 
         Do this in a separate process to avoid potential side-effects of import the ``nest`` Python module.
 
@@ -102,15 +101,10 @@ class NESTTools:
         p.close()
 
         if nest_version == "":
-            Logger.log_message(None, -1,
-                               "An error occurred while importing the `nest` module in Python. Please check your NEST "
-                               "installation-related environment variables and paths, or specify ``nest_version`` "
-                               "manually in the code generator options.",
-                               None, LoggingLevel.ERROR)
+            Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.", None, LoggingLevel.ERROR)
             sys.exit(1)
 
-        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None,
-                           LoggingLevel.INFO)
+        Logger.log_message(None, -1, "The NEST Simulator version was automatically detected as: " + nest_version, None, LoggingLevel.INFO)
 
         return nest_version
 

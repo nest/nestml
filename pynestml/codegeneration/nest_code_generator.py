@@ -471,8 +471,7 @@ class NESTCodeGenerator(CodeGenerator):
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
         Returns a standard namespace with often required functionality.
-        :param neuron: a sing  le neuron instance
-        :type neuron: ASTNeuron
+        :param neuron: a single neuron instance
         :return: a map from name to functionality.
         """
         namespace = dict()

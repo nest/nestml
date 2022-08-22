@@ -36,7 +36,6 @@ class NESTDesktopCodeGenerator(CodeGenerator):
             "path": "",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.json.jinja2"],
-                # "synapse": ["@SYNAPSE_NAME@.json.jinja2"]
             }
         }
     }
@@ -60,9 +59,9 @@ class NESTDesktopCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
-
-        :param neuron:
-        :return:
+        Returns a standard namespace with often required functionality.
+        :param neuron: a single neuron instance
+        :return: a map from name to functionality.
         """
         from pynestml.codegeneration.nest_tools import NESTTools
         namespace = dict()
