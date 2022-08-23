@@ -40,114 +40,93 @@ class PyNestMLFrontendTest(unittest.TestCase):
     Tests if the frontend works as intended and is able to process handed over arguments.
     """
 
-    def test_codegeneration_for_single_model(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join('..', 'models', 'neurons', 'iaf_psc_exp.nestml'))))
-        params = list()
-        params.append('nestml')
-        params.append('--input_path')
-        params.append(path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
-        params.append('target/models')
-        params.append('--store_log')
-        params.append('--dev')
-        params.append('--codegen_opts')
-        params.append('tests/nest_tests/resources/nest_codegen_opts.json')
-
-        exit_code = None
-        with patch.object(sys, 'argv', params):
-            exit_code = main()
-        self.assertTrue(exit_code == 0)
-
     def test_codegeneration_autodoc(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join('..', 'models', 'neurons', 'iaf_psc_exp.nestml'))))
+                                                 os.path.join(os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         params = list()
-        params.append('nestml')
-        params.append('--input_path')
+        params.append("nestml")
+        params.append("--input_path")
         params.append(path)
-        params.append('--target_platform')
-        params.append('autodoc')
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
-        params.append('target_autodoc')
-        params.append('--store_log')
-        params.append('--dev')
+        params.append("--target_platform")
+        params.append("autodoc")
+        params.append("--logging_level")
+        params.append("INFO")
+        params.append("--target_path")
+        params.append("target_autodoc")
+        params.append("--store_log")
+        params.append("--dev")
 
         exit_code = None
-        with patch.object(sys, 'argv', params):
+        with patch.object(sys, "argv", params):
             exit_code = main()
         self.assertTrue(exit_code == 0)
 
     def test_module_name_parsing_right_module_name_specified(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, "models"))))
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(path)
-        params.append('--module_name')
-        params.append('xyzzymodule')
+        params.append("--module_name")
+        params.append("xyzzymodule")
         FrontendConfiguration.parse_config(params)
 
         assert FrontendConfiguration.module_name == 'xyzzymodule'
 
     def test_module_name_parsing_wrong_module_name_specified(self):
         with pytest.raises(Exception):
-            path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
+            path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, "models"))))
 
             params = list()
-            params.append('--input_path')
+            params.append("--input_path")
             params.append(path)
-            params.append('--module_name')
-            params.append('xyzzy')
+            params.append("--module_name")
+            params.append("xyzzy")
             FrontendConfiguration.parse_config(params)
 
     def test_input_path_handling_empty_dir(self):
         with pytest.raises(Exception):
-            path = tempfile.mkdtemp(prefix='nestml-')
+            path = tempfile.mkdtemp(prefix="nestml-")
 
             params = list()
-            params.append('--input_path')
+            params.append("--input_path")
             params.append(path)
-            params.append('--logging_level')
-            params.append('INFO')
+            params.append("--logging_level")
+            params.append("INFO")
             FrontendConfiguration.parse_config(params)
 
     def test_input_path_handling_dir_one_file(self):
-        path = tempfile.mkdtemp(prefix='nestml-')
-        fd, fpath = tempfile.mkstemp(dir=path, suffix='.nestml')
-        with open(fpath, 'w') as f:
-            f.write('neuron foo:\nend\n')
+        path = tempfile.mkdtemp(prefix="nestml-")
+        fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
+        with open(fpath, "w") as f:
+            f.write("neuron foo:\nend\n")
             os.close(fd)
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(path)
-        params.append('--logging_level')
-        params.append('INFO')
+        params.append("--logging_level")
+        params.append("INFO")
         FrontendConfiguration.parse_config(params)
 
         assert len(FrontendConfiguration.paths_to_compilation_units) == 1
 
     def test_input_path_handling_dir_two_files(self):
-        path = tempfile.mkdtemp(prefix='nestml-')
-        fd, fpath = tempfile.mkstemp(dir=path, suffix='.nestml')
-        with open(fpath, 'w') as f:
-            f.write('neuron foo:\nend\n')
+        path = tempfile.mkdtemp(prefix="nestml-")
+        fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
+        with open(fpath, "w") as f:
+            f.write("neuron foo:\nend\n")
             os.close(fd)
-        fd, fpath = tempfile.mkstemp(dir=path, suffix='.nestml')
-        with open(fpath, 'w') as f:
-            f.write('neuron bar:\nend\n')
+        fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
+        with open(fpath, "w") as f:
+            f.write("neuron bar:\nend\n")
             os.close(fd)
 
         params = list()
-        params.append('--input_path')
+        params.append("--input_path")
         params.append(path)
-        params.append('--logging_level')
-        params.append('INFO')
+        params.append("--logging_level")
+        params.append("INFO")
         FrontendConfiguration.parse_config(params)
 
         assert len(FrontendConfiguration.paths_to_compilation_units) == 2
@@ -162,5 +141,5 @@ class PyNestMLFrontendTest(unittest.TestCase):
                 pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

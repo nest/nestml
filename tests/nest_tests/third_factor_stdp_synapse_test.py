@@ -18,21 +18,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-import nest
 import numpy as np
+import os
 import unittest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except Exception:
     TEST_PLOTS = False
+
+nest_version = NESTTools.detect_nest_version()
 
 
 sim_mdl = True
@@ -52,17 +56,25 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
     def setUp(self):
         r"""Generate the neuron model code"""
 
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                  "synapse": "third_factor_stdp",
+                                                  "post_ports": ["post_spikes",
+                                                                 ["I_post_dend", "I_dend"]]}]}
+
+        if not nest_version.startswith("v2"):
+            codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
+            codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
+
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        generate_nest_target(input_path=["models/neurons/iaf_psc_exp_dend.nestml", "models/synapses/third_factor_stdp_synapse.nestml"],
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_dend.nestml"),
+                 os.path.join("models", "synapses", "third_factor_stdp_synapse.nestml")]
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
+        generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-jit",
                              logging_level="INFO",
                              module_name="nestml_jit_module",
-                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                                           "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                                     "synapse": "third_factor_stdp",
-                                                                     "post_ports": ["post_spikes",
-                                                                                    ["I_post_dend", "I_dend"]]}]})
+                             codegen_opts=codegen_opts)
 
     def test_nest_stdp_synapse(self):
 
@@ -111,7 +123,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.Install("nestml_jit_module")
-        nest.Install("nestml_non_jit_module")
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -119,10 +130,10 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         nest.set_verbosity("M_WARNING")
 
         nest.ResetKernel()
-        nest.SetKernelStatus({'resolution': resolution})
+        nest.SetKernelStatus({"resolution": resolution})
 
-        wr = nest.Create('weight_recorder')
-        wr_ref = nest.Create('weight_recorder')
+        wr = nest.Create("weight_recorder")
+        wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0, "lambda": .001})
         if sim_ref:
@@ -134,7 +145,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                              params={"spike_times": pre_spike_times})
         post_sg = nest.Create("spike_generator",
                               params={"spike_times": post_spike_times,
-                                      'allow_offgrid_times': True})
+                                      "allow_offgrid_times": True})
 
         # create parrot neurons and connect spike_generators
         if sim_mdl:
@@ -146,26 +157,41 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             post_neuron_ref = nest.Create(ref_neuron_model_name)
 
         if sim_mdl:
-            spikedet_pre = nest.Create("spike_recorder")
-            spikedet_post = nest.Create("spike_recorder")
+            if nest_version.startswith("v2"):
+                spikedet_pre = nest.Create("spike_detector")
+                spikedet_post = nest.Create("spike_detector")
+            else:
+                spikedet_pre = nest.Create("spike_recorder")
+                spikedet_post = nest.Create("spike_recorder")
             mm = nest.Create("multimeter", params={"record_from": ["V_m", self.post_trace_var]})
         if sim_ref:
-            spikedet_pre_ref = nest.Create("spike_recorder")
-            spikedet_post_ref = nest.Create("spike_recorder")
+            if nest_version.startswith("v2"):
+                spikedet_pre_ref = nest.Create("spike_detector")
+                spikedet_post_ref = nest.Create("spike_detector")
+            else:
+                spikedet_pre_ref = nest.Create("spike_recorder")
+                spikedet_post_ref = nest.Create("spike_recorder")
             mm_ref = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
         if sim_mdl:
             nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec'})
+            if nest_version.startswith("v2"):
+                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
+            else:
+                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
             nest.Connect(mm, post_neuron)
             nest.Connect(pre_neuron, spikedet_pre)
             nest.Connect(post_neuron, spikedet_post)
         if sim_ref:
             nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                         syn_spec={'synapse_model': ref_synapse_model_name})
+            if nest_version.startswith("v2"):
+                nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
+                             syn_spec={"model": ref_synapse_model_name})
+            else:
+                nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
+                             syn_spec={"synapse_model": ref_synapse_model_name})
             nest.Connect(mm_ref, post_neuron_ref)
             nest.Connect(pre_neuron_ref, spikedet_pre_ref)
             nest.Connect(post_neuron_ref, spikedet_post_ref)
@@ -185,19 +211,19 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         state = 0
         while t <= sim_time:
             if t > sim_time / 6. and state == 0:
-                post_neuron.set({"I_dend": 1.})
+                nest.SetStatus(post_neuron, {"I_dend": 1.})
                 state = 1
             if t > 2 * sim_time / 6 and state == 1:
-                post_neuron.set({"I_dend": 1.})
+                nest.SetStatus(post_neuron, {"I_dend": 1.})
             if t > 2 * sim_time / 3. and state == 1:
                 state = 2
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
             if sim_ref:
-                w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
+                w_hist_ref.append(nest.GetStatus(syn_ref)[0]["weight"])
             if sim_mdl:
-                w_hist.append(nest.GetStatus(syn)[0]['w'])
+                w_hist.append(nest.GetStatus(syn)[0]["w"])
 
         third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
         timevec = nest.GetStatus(mm, "events")[0]["times"]

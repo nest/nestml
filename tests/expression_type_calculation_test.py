@@ -80,7 +80,6 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     A simple test that prints all top-level expression types in a file.
     """
 
-    # TODO: this test needs to be refactored.
     def test(self):
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
@@ -88,10 +87,9 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         Logger.set_current_node(model.get_neuron_list()[0])
         model.accept(ExpressionTestVisitor())
-        # ExpressionTestVisitor().handle(model)
         Logger.set_current_node(None)
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
-                                                                          LoggingLevel.ERROR)), 2)
+                                                                          LoggingLevel.ERROR)), 0)
 
 
 if __name__ == '__main__':

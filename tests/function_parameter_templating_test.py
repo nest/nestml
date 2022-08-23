@@ -53,7 +53,7 @@ class FunctionParameterTemplatingTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       'resources', 'FunctionParameterTemplatingTest.nestml'))))
+                                                       "resources", "FunctionParameterTemplatingTest.nestml"))))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
                                                                           LoggingLevel.ERROR)), 7)
 
