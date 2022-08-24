@@ -190,7 +190,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-  calibrate();
+  pre_run_hook();
 {%- if useGSL %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
@@ -396,7 +396,7 @@ void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
   }
 }
 
-void {{neuronName}}::calibrate() {
+void {{neuronName}}::pre_run_hook() {
   B_.logger_.init();
 
   calibrate_variables();
