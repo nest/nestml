@@ -399,6 +399,9 @@ private:
   update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
 
   void recompute_internal_variables();
+  {%- if norm_rng %}
+  int get_thread();
+  {%- endif %}
 
 {#
   /**
@@ -1090,6 +1093,15 @@ void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 {%-     endfor %}
 {%- endfilter %}
 }
+
+{%- if norm_rng %}
+template < typename targetidentifierT >
+int {{synapseName}}< targetidentifierT >::get_thread()
+{
+    const thread tid = kernel().vp_manager.get_thread_id();
+    return tid;
+}
+{%- endif %}
 
 /**
  * constructor
