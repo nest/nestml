@@ -18,14 +18,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import numpy as np
+import pytest
 
 import nest
-import pytest
 from nest.lib.hl_api_exceptions import NESTErrors
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class TestNestVectorsIntegration:
@@ -33,6 +38,8 @@ class TestNestVectorsIntegration:
     Tests the code generation and vector operations from NESTML to NEST.
     """
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_vectors(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml")))
         target_path = "target"
@@ -72,6 +79,8 @@ class TestNestVectorsIntegration:
         print("V_m: {}".format(v_m))
         np.testing.assert_almost_equal(v_m[-1], -0.3)
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
     def test_vectors_resize(self):
         input_path = os.path.join(

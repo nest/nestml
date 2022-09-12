@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-# ---------------------------------------------------------------
-# Caution: This file is required to enable Python to also include the templates
-# ---------------------------------------------------------------
+__all__ = [
+    'illegal_variable_name_transformer',
+    'synapse_post_neuron_transformer',
+    'transformer'
+]

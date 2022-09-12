@@ -155,20 +155,11 @@ Custom templates
 See :ref:`Running NESTML with custom templates`.
 
 
-NEST 2.* compatibility mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compatibility with different versions of NEST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.\*), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
+To generate code that is compatible with particular release versions of NEST Simulator, the code generator option  ``nest_version`` can be used. It takes a string as its value that corresponds to a git tag or git branch name. The following values are supported:
 
-.. code-block:: python
-
-   codegen_opts = {
-       "templates": {
-           "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pynestml", "codegeneration",
-                                "resources_nest", "point_neuron_nest2"),
-           "model_templates": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
-           "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/SLI_Init.sli.jinja2",
-                                "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
-   }}
-
-The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.
+- The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).

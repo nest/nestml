@@ -82,16 +82,17 @@ class NESTBuilder(Builder):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
 
+        # auto-detect NEST Simulator install path
         if not self.option_exists("nest_path") or not self.get_option("nest_path"):
             try:
                 import nest
             except ModuleNotFoundError:
-                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths.", None, LoggingLevel.ERROR)
+                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_path`` manually in the code generator options.", None, LoggingLevel.ERROR)
                 sys.exit(1)
 
             nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
             self.set_options({"nest_path": nest_path})
-            Logger.log_message(None, -1, "The NEST installation was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, "The NEST Simulator installation path was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
 
     def build(self) -> None:
         r"""

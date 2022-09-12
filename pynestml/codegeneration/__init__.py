@@ -19,4 +19,4 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ast_transformers.py', 'autodoc_code_generator.py', 'builder.py', 'code_generator.py', 'nest_assignments_helper.py', 'nest_builder.py', 'nest_code_generator.py', 'nest_declarations_helper.py', 'nest2_code_generator.py']
+__all__ = ['ast_transformers.py', 'autodoc_code_generator.py', 'builder.py', 'code_generator.py', 'nest_assignments_helper.py', 'nest_builder.py', 'nest_code_generator.py', 'nest_declarations_helper.py']

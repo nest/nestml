@@ -87,6 +87,7 @@ class NESTCodeGenerator(CodeGenerator):
             - **neuron**: A list of neuron model jinja templates.
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
+    - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     """
 
     _default_options = {
@@ -102,11 +103,24 @@ class NESTCodeGenerator(CodeGenerator):
                 "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
             },
             "module_templates": ["setup"]
-        }
+        },
+        "nest_version": ""
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
+
+        # auto-detect NEST Simulator installed version
+        if not self.option_exists("nest_version") or not self.get_option("nest_version"):
+            from pynestml.codegeneration.nest_tools import NESTTools
+            nest_version = NESTTools.detect_nest_version()
+            self.set_options({"nest_version": nest_version})
+
+        # insist on using the old Archiving_Node class for NEST 2
+        if self.get_option("nest_version").startswith("v2"):
+            self.set_options({"neuron_parent_class": "Archiving_Node",
+                              "neuron_parent_class_include": "archiving_node.h"})
+
         self.analytic_solver = {}
         self.numeric_solver = {}
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
@@ -114,11 +128,23 @@ class NESTCodeGenerator(CodeGenerator):
         self.setup_template_env()
 
         self._types_printer = CppTypesPrinter()
-        self._gsl_reference_converter = GSLReferenceConverter()
-        self._nest_reference_converter = NESTReferenceConverter()
+
+        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+            from pynestml.codegeneration.printers.nest2_gsl_reference_converter import NEST2GSLReferenceConverter
+            from pynestml.codegeneration.printers.nest2_reference_converter import NEST2ReferenceConverter
+            self._gsl_reference_converter = NEST2GSLReferenceConverter()
+            self._nest_reference_converter = NEST2ReferenceConverter()
+            self._nest_reference_converter_no_origin = NEST2ReferenceConverter()
+            self._nest_reference_converter_no_origin.with_origin = False
+        else:
+            self._gsl_reference_converter = GSLReferenceConverter()
+            self._nest_reference_converter = NESTReferenceConverter()
+            self._nest_reference_converter_no_origin = NESTReferenceConverter()
+            self._nest_reference_converter_no_origin.with_origin = False
 
         self._printer = CppExpressionPrinter(self._nest_reference_converter)
         self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter)
+        self._unitless_expression_printer_no_origin = UnitlessExpressionPrinter(self._nest_reference_converter_no_origin)
         self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter)
 
         self._nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
@@ -135,6 +161,12 @@ class NESTCodeGenerator(CodeGenerator):
         raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        # insist on using the old Archiving_Node class for NEST 2
+        if self.get_option("nest_version").startswith("v2"):
+            Logger.log_message(None, -1, "Overriding parent class for NEST 2 compatibility", None, LoggingLevel.WARNING)
+            options["neuron_parent_class"] = "Archiving_Node"
+            options["neuron_parent_class_include"] = "archiving_node.h"
+
         ret = super().set_options(options)
         self.setup_template_env()
 
@@ -148,6 +180,10 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
+
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                raise Exception("Error(s) occurred during code generation")
 
     def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
         """
@@ -180,8 +216,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param synapses: a list of synapses.
         """
         for synapse in synapses:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Analysing/transforming synapse {}.".format(synapse.get_name()))
+            Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
             spike_updates = self.analyse_synapse(synapse)
             synapse.spike_updates = spike_updates
 
@@ -323,6 +358,8 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = dict()
 
+        namespace["nest_version"] = self.get_option("nest_version")
+
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
             namespace["paired_neuron"] = synapse.paired_neuron.get_name()
@@ -445,6 +482,8 @@ class NESTCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         namespace = dict()
+
+        namespace["nest_version"] = self.get_option("nest_version")
 
         if "paired_synapse" in dir(neuron):
             namespace["paired_synapse"] = neuron.paired_synapse.get_name()
@@ -739,7 +778,7 @@ class NESTCodeGenerator(CodeGenerator):
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
-                        print("adding post assignment string: " + str(ast_assignment))
+                        Logger.log_message(None, None, "Adding post assignment string: " + str(ast_assignment), None, LoggingLevel.INFO)
                         spike_updates[str(spike_input_port)].append(ast_assignment)
                     else:
                         spike_updates[str(spike_input_port)].append(ast_assignment)
@@ -752,7 +791,7 @@ class NESTCodeGenerator(CodeGenerator):
                 factor_expr = ModelParser.parse_expression(factor)
                 factor_expr.update_scope(neuron.get_scope())
                 factor_expr.accept(ASTSymbolTableVisitor())
-                assignment_str += "(" + self._unitless_expression_printer.print_expression(factor_expr) + ") * "
+                assignment_str += "(" + self._unitless_expression_printer_no_origin.print_expression(factor_expr) + ") * "
 
             assignment_str += str(inport)
             ast_assignment = ModelParser.parse_assignment(assignment_str)

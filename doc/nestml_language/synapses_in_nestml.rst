@@ -533,6 +533,8 @@ Event-based updating
 
 NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
 
+The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
+
 
 Dendritic delay
 ~~~~~~~~~~~~~~~
@@ -544,6 +546,7 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
    parameters:
      dend_delay ms = 1 ms     @nest::delay
    end
+
 
 Generating code
 ---------------

@@ -18,13 +18,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import os
-import unittest
+
 import numpy as np
+import os
+import pytest
+import unittest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class NestLoopsIntegrationTest(unittest.TestCase):
@@ -32,6 +38,8 @@ class NestLoopsIntegrationTest(unittest.TestCase):
     Tests the code generation and working of for and while loops from NESTML to NEST
     """
 
+    @pytest.mark.skipif(nest_version.startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_for_and_while_loop(self):
         files = ["ForLoop.nestml", "WhileLoop.nestml"]
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", s))) for s in

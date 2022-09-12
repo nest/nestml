@@ -19,10 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import nest
-import unittest
 import numpy as np
+import os
+import unittest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -31,6 +34,8 @@ try:
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+nest_version = NESTTools.detect_nest_version()
 
 
 class NestWBCondExpTest(unittest.TestCase):
@@ -41,7 +46,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "../../models/neurons", "traub_psc_alpha.nestml")))
+            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "traub_psc_alpha.nestml")))
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"
@@ -60,13 +65,15 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.SetKernelStatus({"resolution": dt})
 
         neuron = nest.Create(model)
-        parameters = nest.GetDefaults(model)
 
-        neuron.set({"I_e": 130.0})
+        nest.SetStatus(neuron, {"I_e": 130.0})
         multimeter = nest.Create("multimeter")
-        multimeter.set({"record_from": ["V_m"],
-                        "interval": dt})
-        spike_recorder = nest.Create("spike_recorder")
+        nest.SetStatus(multimeter, {"record_from": ["V_m"],
+                                    "interval": dt})
+        if nest_version.startswith("v2"):
+            spike_recorder = nest.Create("spike_detector")
+        else:
+            spike_recorder = nest.Create("spike_recorder")
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spike_recorder)
         nest.Simulate(t_simulation)
@@ -99,7 +106,6 @@ class NestWBCondExpTest(unittest.TestCase):
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
             plt.savefig("traub_psc_alpha.png")
-            # plt.show()
 
 
 if __name__ == "__main__":

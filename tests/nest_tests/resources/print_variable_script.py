@@ -26,7 +26,7 @@ import shutil
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), "PrintVariables.nestml")))
-target_path = "../target"
+target_path = "target"
 logging_level = "INFO"
 module_name = "nestmlmodule"
 suffix = "_nestml"
