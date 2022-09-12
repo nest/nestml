@@ -5,6 +5,10 @@ Creating neuron models
 
   Learn how to write the Izhikevich spiking neuron model in NESTML.
 
+* :doc:`Spike-frequency adaptation </tutorials/spike_frequency_adaptation/nestml_spike_frequency_adaptation_tutorial.ipynb>`
+
+  Spike-frequency adaptation (SFA) is the empirically observed phenomenon where the firing rate of a neuron decreases for a sustained, constant stimulus. Learn how to model SFA using threshold adaptation and an adaptation current.
+
 * :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`
 
   Learn how to model a dendritic action potential in an existing NESTML neuron.
