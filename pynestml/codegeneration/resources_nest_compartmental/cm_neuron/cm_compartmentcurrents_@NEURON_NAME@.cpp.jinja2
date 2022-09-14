@@ -58,7 +58,7 @@
 
 {% macro render_channel_function(function, ion_channel_name) -%}
 {%- with %}
-{{printer.print_function_definition(function, "nest::"~ion_channel_name)}}
+{{printer.print_function_definition(function, "nest::"~ion_channel_name~cm_unique_suffix)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}
@@ -74,7 +74,7 @@
 {%- for ion_channel_name, channel_info in chan_info.items() %}
 
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
-nest::{{ion_channel_name}}::{{ion_channel_name}}()
+nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_suffix}}()
 
 {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
 // state variable {{pure_variable_name -}}
@@ -92,7 +92,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}()
 {%- endfor -%}
 {}
 
-nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_params)
+nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
 
 {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
 // state variable {{pure_variable_name -}}
@@ -122,7 +122,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
 }
 
 void
-nest::{{ion_channel_name}}::append_recordables(std::map< Name, double* >* recordables,
+nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables,
                                                const long compartment_idx)
 {
   // add state variables to recordables map
@@ -134,7 +134,7 @@ nest::{{ion_channel_name}}::append_recordables(std::map< Name, double* >* record
   {% endwith %}
 }
 
-std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v_comp)
+std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp)
 {
     const double dt = Time::get_resolution().get_ms();
 
@@ -202,7 +202,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
-nest::{{synapse_name}}::{{synapse_name}}( const long syn_index )
+nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
@@ -212,7 +212,7 @@ nest::{{synapse_name}}::{{synapse_name}}( const long syn_index )
 }
 
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
-nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params )
+nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
@@ -228,7 +228,7 @@ nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const Dictionary
 }
 
 void
-nest::{{synapse_name}}::append_recordables(std::map< Name, double* >* recordables)
+nest::{{synapse_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables)
 {
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx) )] = &{{convolution}};
@@ -236,9 +236,9 @@ nest::{{synapse_name}}::append_recordables(std::map< Name, double* >* recordable
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void nest::{{synapse_name}}::calibrate()
+void nest::{{synapse_name}}{{cm_unique_suffix}}::calibrate()
 {%- else %}
-void nest::{{synapse_name}}::pre_run_hook()
+void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
 
@@ -272,7 +272,7 @@ void nest::{{synapse_name}}::pre_run_hook()
   {{synapse_info["buffer_name"]}}_->clear();
 }
 
-std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_comp, const long lag )
+std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numstep( const double v_comp, const long lag )
 {
   // get spikes
   double s_val = {{synapse_info["buffer_name"]}}_->get_value( lag ); //  * g_norm_;
@@ -304,7 +304,7 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
 }
 
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_definition(function, namespace = "nest::"+synapse_name)}}
+{{printer.print_function_definition(function, namespace = "nest::"~synapse_name~cm_unique_suffix)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}

@@ -112,7 +112,7 @@ class CMTest(unittest.TestCase):
             logging_level="DEBUG"
         )
 
-    def get_model(self, reinstall_flag=False):
+    def get_model(self, reinstall_flag=True):
         print("\n!!!!!!!!\nnestml_flag =", self.nestml_flag, "\n!!!!!!!!!\n")
         if self.nestml_flag:
             try:

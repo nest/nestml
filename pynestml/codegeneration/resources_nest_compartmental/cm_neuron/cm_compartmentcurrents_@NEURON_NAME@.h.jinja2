@@ -18,7 +18,7 @@ namespace nest
 {%- with %}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
 
-class {{ion_channel_name}}{
+class {{ion_channel_name}}{{cm_unique_suffix}}{
 private:
 // user-defined parameters {{ion_channel_name}} channel (maximal conductance, reversal potential)
     {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
@@ -37,9 +37,9 @@ private:
 
 public:
     // constructor, destructor
-    {{ion_channel_name}}();
-    {{ion_channel_name}}(const DictionaryDatum& channel_params);
-    ~{{ion_channel_name}}(){};
+    {{ion_channel_name}}{{cm_unique_suffix}}();
+    {{ion_channel_name}}{{cm_unique_suffix}}(const DictionaryDatum& channel_params);
+    ~{{ion_channel_name}}{{cm_unique_suffix}}(){};
 
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -87,7 +87,7 @@ public:
 {%- with %}
 {%- for synapse_name, synapse_info in syns_info.items() %}
 
-class {{synapse_name}}{
+class {{synapse_name}}{{cm_unique_suffix}}{
 private:
   // global synapse index
   long syn_idx = 0;
@@ -121,9 +121,9 @@ private:
 
 public:
   // constructor, destructor
-  {{synapse_name}}( const long syn_index);
-  {{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params);
-  ~{{synapse_name}}(){};
+  {{synapse_name}}{{cm_unique_suffix}}( const long syn_index);
+  {{synapse_name}}{{cm_unique_suffix}}( const long syn_index, const DictionaryDatum& receptor_params);
+  ~{{synapse_name}}{{cm_unique_suffix}}(){};
 
   long
   get_syn_idx()
@@ -165,14 +165,14 @@ private:
   // ion channels
 {% with %}
   {%- for ion_channel_name, channel_info in chan_info.items() %}
-  {{ion_channel_name}} {{ion_channel_name}}{{channel_suffix}};
+  {{ion_channel_name}}{{cm_unique_suffix}} {{ion_channel_name}}{{channel_suffix}};
   {% endfor -%}
 {% endwith %}
 
   // synapses
   {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
-  std::vector < {{synapse_name}} > {{synapse_name}}_syns_;
+  std::vector < {{synapse_name}}{{cm_unique_suffix}} > {{synapse_name}}_syns_;
   {% endfor -%}
   {% endwith -%}
 
@@ -182,7 +182,7 @@ public:
   {
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}( channel_params );
+    {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}{{cm_unique_suffix}}( channel_params );
     {% endfor -%}
   {% endwith -%}
   };
@@ -228,7 +228,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}_syns_.push_back( {{synapse_name}}( syn_idx ) );
+      {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx ) );
     }
   {% endfor -%}
   {% endwith -%}
@@ -243,7 +243,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}_syns_.push_back( {{synapse_name}}( syn_idx, receptor_params ) );
+      {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx, receptor_params ) );
     }
   {% endfor -%}
   {% endwith -%}
