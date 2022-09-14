@@ -157,9 +157,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
 
-    def raise_helper(self, msg):
-        raise TemplateRuntimeError(msg)
-
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         # insist on using the old Archiving_Node class for NEST 2
         if self.get_option("nest_version").startswith("v2"):

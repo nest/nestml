@@ -24,51 +24,65 @@ from typing import Sequence, Union, Optional, Mapping, Any, Dict
 import os
 
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
+from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
+
 
 
 class SpiNNakerCodeGenerator(CodeGenerator):
     """
     Code generator for SpiNNaker
     """
+
+    codegen_int: Optional[NESTCodeGenerator] = None
+
     _default_options = {
+        "neuron_synapse_pairs": [],
+        "preserve_expressions": False,
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": "",
+            "path": "point_neuron",
             "model_templates": {
-                "neuron": ["@NEURON_NAME@.cpp.jinja2"],
-            }
+                "neuron": ["@NEURON_NAME@.h.jinja2"],
+            },
+            "module_templates": []
         }
     }
+
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         self._target = "SPINNAKER"
         super().__init__(self._target, options)
-        self.setup_template_env()
+
+        self.codegen_int = NESTCodeGenerator(options)
+        #self.codegen_int._types_printer = PythonTypesPrinter()
+        #self.codegen_int._gsl_reference_converter = PythonStandaloneReferenceConverter()
+        #self.codegen_int._nest_reference_converter = PythonStandaloneReferenceConverter()
+        #self.codegen_int._expressions_printer = UnitlessExpressionPrinter(reference_converter=self.codegen_int._nest_reference_converter)
+
+        #self.codegen_int._gsl_printer = PythonStandalonePrinter(reference_converter=self.codegen_int._nest_reference_converter,
+                                                                #types_printer=self.codegen_int._types_printer,
+                                                                #expressions_printer=self.codegen_int._expressions_printer)
+
+        #self.codegen_int._unitless_nest_printer = PythonStandalonePrinter(reference_converter=self.codegen_int._nest_reference_converter,
+                                                                          #types_printer=self.codegen_int._types_printer,
+                                                                          #expressions_printer=self.codegen_int._expressions_printer)
+
+        #self.codegen_int._unitless_nest_gsl_printer = PythonStandalonePrinter(reference_converter=self.codegen_int._nest_reference_converter,
+                                                                              #types_printer=self.codegen_int._types_printer,
+                                                                              #expressions_printer=self.codegen_int._expressions_printer)
+
+        self.codegen_int._options["templates"]["path"] = os.path.join(os.path.dirname(__file__), "resources_spinnaker")
+        self.codegen_int._options["templates"]["model_templates"]["neuron"] = ["@NEURON_NAME@.h.jinja2"]
+        self.codegen_int._options["templates"]["model_templates"]["synapse"] = []
+        self.codegen_int._options["templates"]["module_templates"] = ["Makefile.jinja2"]
+        self.codegen_int.setup_template_env()
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        """
-        Generate the code for the given neuron and synapse models
-        :param models: list of models
-        """
-        if not os.path.isdir(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-        neurons = [model for model in models if isinstance(model, ASTNeuron)]
-        synapses = [model for model in models if isinstance(model, ASTSynapse)]
-        self.generate_neurons(neurons)
-        self.generate_synapses(synapses)
+        self.codegen_int.generate_code(models)
 
-    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
-        """
-        Returns a standard namespace with often required functionality.
-        :param neuron: a single neuron instance
-        :return: a map from name to functionality.
-        """
-        from pynestml.codegeneration.nest_tools import NESTTools
-        namespace = dict()
-        namespace["neuronName"] = neuron.get_name()
-        namespace["neuron"] = neuron
-        namespace["parameters"] = NESTTools.get_neuron_parameters(neuron.get_name())
-        return namespace
-
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        return self.codegen_int.set_options(options)
