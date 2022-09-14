@@ -25,6 +25,7 @@ import os
 import unittest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class NestLogarithmicFunctionTest(unittest.TestCase):
@@ -40,13 +41,14 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
+        nest_version = NESTTools.detect_nest_version()
+
+        nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
-
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
@@ -55,15 +57,20 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         ln_state_specifier = "ln_state"
         log10_state_specifier = "log10_state"
-        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        nest.SetStatus(mm, {"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
-        timevec = mm.get("events")["x"]
-        ln_state_ts = mm.get("events")[ln_state_specifier]
-        log10_state_ts = mm.get("events")[log10_state_specifier]
+        if nest_version.startswith("v2"):
+            timevec = nest.GetStatus(mm, "events")[0]["x"]
+            ln_state_ts = nest.GetStatus(mm, "events")[0][ln_state_specifier]
+            log10_state_ts = nest.GetStatus(mm, "events")[0][log10_state_specifier]
+        else:
+            timevec = mm.get("events")["x"]
+            ln_state_ts = mm.get("events")[ln_state_specifier]
+            log10_state_ts = mm.get("events")[log10_state_specifier]
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
 
@@ -79,15 +86,20 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         ln_state_specifier = "ln_state"
         log10_state_specifier = "log10_state"
-        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        nest.SetStatus(mm, {"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
-        timevec = mm.get("events")["x"]
-        ln_state_ts = mm.get("events")[ln_state_specifier]
-        log10_state_ts = mm.get("events")[log10_state_specifier]
+        if nest_version.startswith("v2"):
+            timevec = nest.GetStatus(mm, "events")[0]["times"]
+            ln_state_ts = nest.GetStatus(mm, "events")[0][ln_state_specifier]
+            log10_state_ts = nest.GetStatus(mm, "events")[0][log10_state_specifier]
+        else:
+            timevec = mm.get("events")["times"]
+            ln_state_ts = mm.get("events")[ln_state_specifier]
+            log10_state_ts = mm.get("events")[log10_state_specifier]
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
 

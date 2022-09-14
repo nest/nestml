@@ -27,7 +27,7 @@ namespace nest
 
 /*
  * For some reason this code block is needed. However, I have found no
- * difference in calling init_recordable_pointers() from the pre_run_hook function,
+ * difference in calling init_recordable_pointers() from the pre_run_hook() or calibrate() function,
  * except that an unused-variable warning is generated in the code-checks
  */
 template <>
@@ -270,7 +270,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_recordables_pointers_()
 }
 
 void
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
+{%- else %}
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
+{%- endif %}
 {
   logger_.init();
 
@@ -281,7 +285,11 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
   // initialize the recordables pointers
   init_recordables_pointers_();
 
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  c_tree_.calibrate();
+{%- else %}
   c_tree_.pre_run_hook();
+{%- endif %}
 }
 
 /**
