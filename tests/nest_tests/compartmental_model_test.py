@@ -36,8 +36,10 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-TEST_PLOTS = False
-nest_version = NESTTools.detect_nest_version()
+TEST_PLOTS = True
+
+nest_version = "xxx"
+
 
 dt = .001
 
@@ -102,15 +104,15 @@ class CMTest(unittest.TestCase):
             f"    {target_path}"
         )
 
-        """generate_nest_compartmental_target(
+        generate_nest_compartmental_target(
             input_path=input_path,
             target_path=os.path.join(target_path, "compartmental_model/"),
             module_name="cm_defaultmodule",
             suffix="_nestml",
             logging_level="DEBUG"
-        )"""
+        )
 
-    def get_model(self, reinstall_flag=False):
+    def get_model(self, reinstall_flag=True):
         print("\n!!!!!!!!\nnestml_flag =", self.nestml_flag, "\n!!!!!!!!!\n")
         if self.nestml_flag:
             try:
@@ -141,8 +143,8 @@ class CMTest(unittest.TestCase):
     def get_rec_list(self):
         if self.nestml_flag:
             return ['v_comp0', 'v_comp1',
-                    'm_Na_0', 'h_Na_0', 'n_K_0', 'm_Na_1', 'h_Na_1', 'n_K_1',
-                    'g_AN_AMPA_1', 'g_AN_NMDA_1']
+                    'm_Na0', 'h_Na0', 'n_K0', 'm_Na1', 'h_Na1', 'n_K1',
+                    'g_AN_AMPA1', 'g_AN_NMDA1']
         else:
             return [
                 'v_comp0',
@@ -282,12 +284,12 @@ class CMTest(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
-                res_act_nestml['g_AN_AMPA_1'],
+                res_act_nestml['g_AN_AMPA1'],
                 5e-3))
         self.assertTrue(
             np.allclose(
                 res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
-                res_act_nestml['g_AN_NMDA_1'],
+                res_act_nestml['g_AN_NMDA1'],
                 5e-3))
 
         if TEST_PLOTS:
@@ -425,24 +427,24 @@ class CMTest(unittest.TestCase):
             ax_soma.set_title('NESTML')
             ax_soma.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['m_Na_0'],
+                res_pas_nestml['m_Na0'],
                 c='b',
                 label='m_Na passive dend')
             ax_soma.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['h_Na_0'],
+                res_pas_nestml['h_Na0'],
                 c='r',
                 label='h_Na passive dend')
             ax_soma.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['n_K_0'],
+                res_pas_nestml['n_K0'],
                 c='g',
                 label='n_K passive dend')
-            ax_soma.plot(res_act_nestml['times'], res_act_nestml['m_Na_0'],
+            ax_soma.plot(res_act_nestml['times'], res_act_nestml['m_Na0'],
                          c='b', ls='--', lw=2., label='m_Na active dend')
-            ax_soma.plot(res_act_nestml['times'], res_act_nestml['h_Na_0'],
+            ax_soma.plot(res_act_nestml['times'], res_act_nestml['h_Na0'],
                          c='r', ls='--', lw=2., label='h_Na active dend')
-            ax_soma.plot(res_act_nestml['times'], res_act_nestml['n_K_0'],
+            ax_soma.plot(res_act_nestml['times'], res_act_nestml['n_K0'],
                          c='g', ls='--', lw=2., label='n_K active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
             ax_soma.set_ylabel(r'svar')
@@ -518,17 +520,17 @@ class CMTest(unittest.TestCase):
             ax_dend.set_title('NESTML')
             ax_dend.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['g_AN_AMPA_1'],
+                res_pas_nestml['g_AN_AMPA1'],
                 c='b',
                 label='AMPA passive dend')
             ax_dend.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['g_AN_NMDA_1'],
+                res_pas_nestml['g_AN_NMDA1'],
                 c='r',
                 label='NMDA passive dend')
-            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_AMPA_1'],
+            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_AMPA1'],
                          c='b', ls='--', lw=2., label='AMPA active dend')
-            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_NMDA_1'],
+            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_NMDA1'],
                          c='r', ls='--', lw=2., label='NMDA active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'$g_{syn1}$ (uS)')
@@ -540,4 +542,5 @@ class CMTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    # nest_version = NESTTools.detect_nest_version()
     unittest.main()

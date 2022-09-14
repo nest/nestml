@@ -380,7 +380,6 @@ def init_predefined():
 def create_report_dir():
     if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), os.pardir, "report")):
         os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), os.pardir, "report"))
-            FrontendConfiguration.get_target_path(), "..", "report"))
 
 
 def store_log_to_file():
