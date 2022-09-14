@@ -59,6 +59,9 @@ class CodeGenerator(WithOptions):
         self._target = target
         super(CodeGenerator, self).__init__(options)
 
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
+
     def setup_template_env(self):
         """
         Setup the Jinja2 template environment
