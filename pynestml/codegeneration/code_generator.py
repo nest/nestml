@@ -59,6 +59,9 @@ class CodeGenerator(WithOptions):
         self._target = target
         super(CodeGenerator, self).__init__(options)
 
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
+
     def setup_template_env(self):
         """
         Setup the Jinja2 template environment
@@ -190,17 +193,19 @@ class CodeGenerator(WithOptions):
             os.makedirs(FrontendConfiguration.get_target_path())
 
         for _model_templ in model_templates:
-            if not len(_model_templ.filename.split("/")[-1].split(".")) == 3:
-                raise Exception("Template file name should be of the form: "
-                                "\"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
             templ_file_name = os.path.basename(_model_templ.filename)
-            if not len(templ_file_name.split(".")) == 3:
-                raise Exception("Template file name \"" + templ_file_name + "\" should be of the form \"PREFIX@NEURON_NAME@SUFFIX.FILE_EXTENSION.jinja2\"")
-            templ_file_name = templ_file_name.split(".")[0]  # for example, "cm_main_@NEURON_NAME@"
-            templ_file_name = templ_file_name.replace(model_name_escape_string, model_name)
-            file_extension = _model_templ.filename.split(".")[-2]  # for example, "cpp"
+            if len(templ_file_name.split(".")) < 2:
+                raise Exception("Template file name \"" + templ_file_name + "\" should be of the form \"PREFIX@NEURON_NAME@SUFFIX.[FILE_EXTENSION.]jinja2\"")
+
+            if len(templ_file_name.split(".")) < 3:
+                file_extension = ""  # no extension, for instance if the template file name is "Makefile.jinja2"
+            else:
+                file_extension = templ_file_name.split(".")[-2]  # for example, "cpp"
+
+            templ_file_base_name = templ_file_name.split(".")[0]  # for example, "cm_main_@NEURON_NAME@" or "Makefile"
+            templ_file_base_name = templ_file_base_name.replace(model_name_escape_string, model_name)
             rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
-                                                    templ_file_name + "." + file_extension)
+                                                    templ_file_base_name + "." + file_extension)
             _file = _model_templ.render(template_namespace)
             Logger.log_message(message="Rendering template " + rendered_templ_file_name,
                                log_level=LoggingLevel.INFO)

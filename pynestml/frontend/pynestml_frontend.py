@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "autodoc", "none"]
+    targets = ["NEST", "autodoc", "SpiNNaker", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -88,6 +88,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
+
+    if target_name.upper() == "SPINNAKER":
+        from pynestml.codegeneration.spinnaker_code_generator import SpiNNakerCodeGenerator
+        return SpiNNakerCodeGenerator(options)
 
     if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
