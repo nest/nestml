@@ -52,7 +52,7 @@ class ExpressionsCodeGeneratorTest(unittest.TestCase):
 
     def test_expressions(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'ExpressionTypeTest.nestml'))))
+            os.pardir, 'resources', 'ExpressionTypeTest.nestml'))))
 
         params = list()
         params.append('--input_path')

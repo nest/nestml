@@ -94,7 +94,11 @@ public:
   ~Compartment{{cm_unique_suffix}}(){};
 
   // initialization
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  void calibrate();
+{%- else %}
   void pre_run_hook();
+{%- endif %}
   std::map< Name, double* > get_recordables();
 
   // matrix construction
@@ -174,7 +178,12 @@ public:
   void add_compartment( const long parent_index );
   void add_compartment( const long parent_index, const DictionaryDatum& compartment_params );
   void add_compartment( Compartment{{cm_unique_suffix}}* compartment, const long parent_index );
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  void calibrate();
+{%- else %}
   void pre_run_hook();
+{%- endif %}
+
   void init_pointers();
   void set_syn_buffers( std::vector< RingBuffer >& syn_buffers );
   std::map< Name, double* > get_recordables();
