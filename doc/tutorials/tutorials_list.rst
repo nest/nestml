@@ -24,3 +24,7 @@ Creating synapse models
 * :doc:`Triplet STDP synapse </tutorials/triplet_stdp_synapse/triplet_stdp_synapse>`
 
   A triplet STDP rule is sensitive to third-order correlations of pre- and postsynaptic spike times, and accounts better for experimentally seen dependence on timing and frequency.
+
+* :doc:`Dopamine-modulated STDP synapse </tutorials/stdp_dopa_synapse/stdp_dopa_synapse>`
+
+  Adding dopamine modulation to the weight update rule of an STDP synapse allows it to be used in reinforcement learning tasks. This allows a network to learn which of the many cues and actions preceding a reward should be credited for the reward.

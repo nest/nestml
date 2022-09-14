@@ -56,7 +56,11 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
         r"""Generate the neuron model code"""
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        generate_nest_target(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/stdp_nn_restr_symm.nestml"],
+        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+                 os.path.join("models", "synapses", "stdp_nn_restr_symm.nestml")]
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
+        generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-jit",
                              logging_level="INFO",
                              module_name="nestml_jit_module",
@@ -68,7 +72,8 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                                                                      "post_ports": ["post_spikes"]}]})
 
         # generate the "non-jit" model, that relies on ArchivingNode
-        generate_nest_target(input_path="models/neurons/iaf_psc_exp.nestml",
+        generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
                              target_path="/tmp/nestml-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",
