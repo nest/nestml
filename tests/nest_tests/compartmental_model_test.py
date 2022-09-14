@@ -112,7 +112,7 @@ class CMTest(unittest.TestCase):
             logging_level="DEBUG"
         )
 
-    def get_model(self, reinstall_flag=True):
+    def get_model(self, reinstall_flag=False):
         print("\n!!!!!!!!\nnestml_flag =", self.nestml_flag, "\n!!!!!!!!!\n")
         if self.nestml_flag:
             try:
@@ -237,7 +237,6 @@ class CMTest(unittest.TestCase):
                 'delay': .5,
                 'receptor_type': syn_idx_dend_act})
 
-
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
         print("\n!!!!!!!!\n", rec_list, "\n!!!!!!!!!\n")
@@ -258,8 +257,6 @@ class CMTest(unittest.TestCase):
         nest.Simulate(160.)
         res_pas = nest.GetStatus(mm_pas, 'events')[0]
         res_act = nest.GetStatus(mm_act, 'events')[0]
-
-
 
         return res_act, res_pas
 
