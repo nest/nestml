@@ -204,8 +204,11 @@ class CodeGenerator(WithOptions):
 
             templ_file_base_name = templ_file_name.split(".")[0]  # for example, "cm_main_@NEURON_NAME@" or "Makefile"
             templ_file_base_name = templ_file_base_name.replace(model_name_escape_string, model_name)
+
+            if file_extension:
+                templ_file_base_name = templ_file_base_name + "." + file_extension
             rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
-                                                    templ_file_base_name + "." + file_extension)
+                                                    templ_file_base_name)
             _file = _model_templ.render(template_namespace)
             Logger.log_message(message="Rendering template " + rendered_templ_file_name,
                                log_level=LoggingLevel.INFO)
@@ -224,10 +227,22 @@ class CodeGenerator(WithOptions):
                                  template_namespace=self._get_synapse_model_namespace(synapse),
                                  model_name_escape_string="@SYNAPSE_NAME@")
 
-    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Optional[Sequence[ASTSynapse]] = None) -> None:
         self.generate_model_code(FrontendConfiguration.get_module_name(),
                                  model_templates=self._module_templates,
                                  template_namespace=self._get_module_namespace(neurons, synapses),
                                  model_name_escape_string="@MODULE_NAME@")
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+
+    @abstractmethod
+    def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: Optional[List[ASTSynapse]] = None) -> None:
+        pass
+
+    @abstractmethod
+    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> None:
+        pass
+
+    @abstractmethod
+    def _get_neuron_model_namespace(self, synapse: ASTSynapse) -> None:
+        pass

@@ -18,10 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-from typing import Sequence, Union, Optional, Mapping, Any, Dict
-
-import os
+import datetime
+from typing import Sequence, Union, Optional, Mapping, Any, Dict, List
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -29,7 +27,6 @@ from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHel
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_reference_converter import SpinnakerReferenceConverter
 from pynestml.codegeneration.printers.spinnaker_types_printer import SpinnakerTypesPrinter
-from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -66,6 +63,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         self.generate_neurons(models)
+        self.generate_module_code(models)
 
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
@@ -81,3 +79,13 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         return namespace
 
+    def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
+        """
+        Creates a namespace for generating NEST extension module code
+        :param neurons: List of neurons
+        :return: a context dictionary for rendering templates
+        """
+        namespace = {"neurons": neurons,
+                     "moduleName": FrontendConfiguration.get_module_name(),
+                     "now": datetime.datetime.utcnow()}
+        return namespace
