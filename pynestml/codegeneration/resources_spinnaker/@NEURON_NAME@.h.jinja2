@@ -1,5 +1,5 @@
-#ifndef _MY_FULL_NEURON_IMPL_
-#define _MY_FULL_NEURON_IMPL_
+#ifndef _{{neuronName.upper()}}_IMPL_
+#define _{{neuronName.upper()}}_IMPL_
 
 // Demonstrating that a "neuron model" can be defined in a different
 // way without the use of components for additional input / input / threshold
@@ -19,11 +19,34 @@
 #include <neuron/current_sources/current_source_impl.h>
 #include <neuron/current_sources/current_source.h>
 
+enum recording_indices
+{
+    {%- set ns = namespace(count=0) %}
+    {%- for variable in neuron.get_state_symbols() %}
+    {% if variable.is_recordable -%}
+        {{names.name(variable).upper()}} = {{ns.count}},
+        {%- set ns.count = ns.count + 1 -%}
+    {%- endif -%}
+    {%- endfor %}
+    //! Number of recorded word-sized state variables
+    N_RECORDED_VARS = {{ns.count + 1}}
+};
+
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
     accum inputs[2];
-    accum v;
-    accum threshold;
+    //accum v;
+    //accum threshold;
+
+    // Parameters of the neuron
+    {%- for variable in neuron.get_parameter_symbols() %}
+        {%- include 'directives/MemberDeclaration.jinja2' %}
+    {%- endfor %}
+
+    // State variables of the neuron
+    {%- for variable in neuron.get_state_symbols() %}
+        {%- include 'directives/MemberDeclaration.jinja2' %}
+    {%- endfor %}
 } neuron_impl_t;
 
 //! Array of neuron states
@@ -117,4 +140,4 @@ const char *neuron_impl_get_synapse_type_char(uint32_t synapse_type) {
 #endif // LOG_LEVEL >= LOG_DEBUG
 
 
-#endif // _MY_FULL_NEURON_IMPL_
+#endif // _{{neuronName.upper()}}_IMPL_
