@@ -37,9 +37,16 @@ from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_targ
 # guard createst an endless instatiation of new processes
 nest_version = nest_tools._detect_nest_version(None)
 
+# set to `True` to plot simulation traces
 TEST_PLOTS = False
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
+except BaseException as e:
+    # always set TEST_PLOTS to False if matplotlib can not be imported
+    TEST_PLOTS = False
 
-DT = .001
+dt = .001
 
 soma_params = {
     # passive parameters
@@ -80,7 +87,7 @@ class CMTest(unittest.TestCase):
 
     def reset_nest(self):
         nest.ResetKernel()
-        nest.SetKernelStatus(dict(resolution=DT))
+        nest.SetKernelStatus(dict(resolution=dt))
 
     def install_nestml_model(self):
         tests_path = os.path.realpath(os.path.dirname(__file__))
@@ -226,8 +233,8 @@ class CMTest(unittest.TestCase):
 
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
-        mm_pas = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': DT})
-        mm_act = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': DT})
+        mm_pas = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': dt})
+        mm_act = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': dt})
         # connect the multimeters to the respective neurons
         nest.Connect(mm_pas, cm_pas)
         nest.Connect(mm_act, cm_act)
