@@ -150,8 +150,8 @@ class CMTest(unittest.TestCase):
         else:
             return [
                 'v_comp0', 'v_comp1',
-                'm_Na_0','h_Na_0','n_K_0','m_Na_1','h_Na_1','n_K_1',
-                'g_r_AN_AMPA_1','g_d_AN_AMPA_1','g_r_AN_NMDA_1','g_d_AN_NMDA_1'
+                'm_Na_0', 'h_Na_0', 'n_K_0', 'm_Na_1', 'h_Na_1', 'n_K_1',
+                'g_r_AN_AMPA_1', 'g_d_AN_AMPA_1', 'g_r_AN_NMDA_1', 'g_d_AN_NMDA_1'
             ]
 
     def run_model(self):
