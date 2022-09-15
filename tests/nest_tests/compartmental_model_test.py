@@ -38,8 +38,7 @@ except BaseException:
 
 TEST_PLOTS = True
 
-nest_version = "xxx"
-
+nest_version = NESTTools.detect_nest_version()
 
 dt = .001
 
@@ -539,5 +538,4 @@ class CMTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # nest_version = NESTTools.detect_nest_version()
     unittest.main()
