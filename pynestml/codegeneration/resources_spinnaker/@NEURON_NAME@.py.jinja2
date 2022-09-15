@@ -1,0 +1,33 @@
+/*
+ *  {{neuronName}}.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Generated from NESTML at time: {{now}}
+**/
+
+from spynnaker.pyNN.models.neuron import AbstractPyNNNeuronModel
+from spynnaker.pyNN.models.defaults import default_parameters
+from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronName}}Impl
+
+
+class {{neuronName}}(AbstractPyNNNeuronModel):
+
+    @default_parameters({"threshold"})
+    def __init__(self, threshold=10.0, v=0.0, exc_input=0.0, inh_input=0.0):
+        super().__init__({{neuronName}}Impl(threshold, v, exc_input, inh_input))
