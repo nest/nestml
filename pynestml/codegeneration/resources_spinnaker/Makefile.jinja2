@@ -1,5 +1,7 @@
 APP = $(notdir $(CURDIR))
 
-NEURON_IMPL_H = $(EXTRA_SRC_DIR)/my_models/implementations/{{neuronName}}_impl.h
+{%- for neuron in neurons %}
+NEURON_IMPL_H = $(EXTRA_SRC_DIR)/my_models/implementations/{{neuron.get_name()}}_impl.h
+{%- endfor %}
 
 include ../extra_neuron.mk

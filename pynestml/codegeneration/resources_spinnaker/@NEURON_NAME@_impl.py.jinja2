@@ -118,9 +118,9 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 
 
     def get_synapse_id_by_target(self, target):
-{%- for i, inputPort in enumerate(neuron.get_spike_input_ports()) %}
-        if target == {{sym.get_symbol_name()}}:
-            return {{i}}
+{%- for inputPort in neuron.get_spike_input_ports() %}
+        if target == {{inputPort.get_symbol_name()}}:
+            return {{loop.index}}
 {%- endfor %}
         raise ValueError("Unknown target {}".format(target))
 
