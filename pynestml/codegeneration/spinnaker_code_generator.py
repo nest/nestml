@@ -47,7 +47,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": "point_neuron",
+            "path": "",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.h.jinja2"],
             },
@@ -60,8 +60,8 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         super().__init__(self._target, options)
         self._types_printer = SpinnakerTypesPrinter()
         self._reference_converter = SpinnakerReferenceConverter()
-        self._printer = CppExpressionPrinter()
-        self.codegen_int.setup_template_env()
+        self._printer = CppExpressionPrinter(self._reference_converter)
+        self.setup_template_env()
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         self.generate_neurons(models)

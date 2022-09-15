@@ -8,9 +8,6 @@
 #include <spin1_api.h>
 #include <debug.h>
 
-#define V_RECORDING_INDEX 0
-#define N_RECORDED_VARS 1
-
 #define SPIKE_RECORDING_BITFIELD 0
 #define N_BITFIELD_VARS 1
 
@@ -29,7 +26,7 @@ enum recording_indices
     {%- endif -%}
     {%- endfor %}
     //! Number of recorded word-sized state variables
-    N_RECORDED_VARS = {{ns.count + 1}}
+    N_RECORDED_VARS = {{ns.count}}
 };
 
 //! neuron_impl_t struct
