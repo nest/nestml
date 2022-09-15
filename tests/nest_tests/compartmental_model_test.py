@@ -26,21 +26,20 @@ import unittest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
+import pynestml.codegeneration.nest_tools as nest_tools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
-try:
-    import matplotlib
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except BaseException:
-    TEST_PLOTS = False
+# we avoid calling the default version detection mechanism
+# `nest_tools.NESTTOOLS.detect_nest_version()`
+# here because on some systems launching a subprocess with multiprocessing
+# without the
+# `if __name__ == "__main__"`
+# guard createst an endless instatiation of new processes
+nest_version = nest_tools._detect_nest_version(None)
 
-TEST_PLOTS = True
+TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
-dt = .001
+DT = .001
 
 soma_params = {
     # passive parameters
@@ -81,7 +80,7 @@ class CMTest(unittest.TestCase):
 
     def reset_nest(self):
         nest.ResetKernel()
-        nest.SetKernelStatus(dict(resolution=dt))
+        nest.SetKernelStatus(dict(resolution=DT))
 
     def install_nestml_model(self):
         tests_path = os.path.realpath(os.path.dirname(__file__))
@@ -112,52 +111,41 @@ class CMTest(unittest.TestCase):
         )
 
     def get_model(self, reinstall_flag=True):
-        print("\n!!!!!!!!\nnestml_flag =", self.nestml_flag, "\n!!!!!!!!!\n")
         if self.nestml_flag:
-            try:
-                if reinstall_flag:
-                    raise AssertionError
-
-                nest.Install("cm_defaultmodule")
-
-            except (nest.NESTError, AssertionError) as e:
+            # Currently, we have no way of checking whether the *.so-file
+            # associated with the model is in {nest build directory}/lib/nest,
+            # so we only check the reinstall flag, which should be set to True
+            # unless the testcase is being debugged
+            if reinstall_flag:
                 self.install_nestml_model()
 
-                nest.Install("cm_defaultmodule")
+            print("Instantiating NESTML compartmental model")
+
+            nest.Install("cm_defaultmodule")
 
             cm_act = nest.Create("cm_default_nestml")
             cm_pas = nest.Create("cm_default_nestml")
-
-            print("\n!!!!!!!!\nReturning NESTML model\n!!!!!!!!!\n")
-
         else:
-            # models built into NEST Simulator
+            print("Instantiating NEST compartmental model")
+            # default model built into NEST Simulator
             cm_pas = nest.Create('cm_default')
             cm_act = nest.Create('cm_default')
-
-            print("\n!!!!!!!!\nReturning NEST model\n!!!!!!!!!\n")
 
         return cm_act, cm_pas
 
     def get_rec_list(self):
         if self.nestml_flag:
-            return ['v_comp0', 'v_comp1',
-                    'm_Na0', 'h_Na0', 'n_K0', 'm_Na1', 'h_Na1', 'n_K1',
-                    'g_AN_AMPA1', 'g_AN_NMDA1']
+            return [
+                'v_comp0', 'v_comp1',
+                'm_Na0', 'h_Na0', 'n_K0', 'm_Na1', 'h_Na1', 'n_K1',
+                'g_AN_AMPA1', 'g_AN_NMDA1'
+            ]
         else:
             return [
-                'v_comp0',
-                'v_comp1',
-                'm_Na_0',
-                'h_Na_0',
-                'n_K_0',
-                'm_Na_1',
-                'h_Na_1',
-                'n_K_1',
-                'g_r_AN_AMPA_1',
-                'g_d_AN_AMPA_1',
-                'g_r_AN_NMDA_1',
-                'g_d_AN_NMDA_1']
+                'v_comp0', 'v_comp1',
+                'm_Na_0','h_Na_0','n_K_0','m_Na_1','h_Na_1','n_K_1',
+                'g_r_AN_AMPA_1','g_d_AN_AMPA_1','g_r_AN_NMDA_1','g_d_AN_NMDA_1'
+            ]
 
     def run_model(self):
         self.reset_nest()
@@ -238,19 +226,11 @@ class CMTest(unittest.TestCase):
 
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
-        print("\n!!!!!!!!\n", rec_list, "\n!!!!!!!!!\n")
-        mm_pas = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': dt})
-        mm_act = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': dt})
+        mm_pas = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': DT})
+        mm_act = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': DT})
         # connect the multimeters to the respective neurons
         nest.Connect(mm_pas, cm_pas)
         nest.Connect(mm_act, cm_act)
-
-        print("\n!!!!!!!!!")
-        if self.nestml_flag:
-            print("rec nestml:", nest.GetDefaults("cm_default_nestml")["recordables"])
-        else:
-            print("rec nest:  ", nest.GetDefaults("cm_default")["recordables"])
-        print("!!!!!!!!!\n")
 
         # simulate the models
         nest.Simulate(160.)
@@ -262,6 +242,7 @@ class CMTest(unittest.TestCase):
     @pytest.mark.skipif(nest_version.startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_compartmental_model(self):
+        print(nest_version)
         self.nestml_flag = False
         recordables_nest = self.get_rec_list()
         res_act_nest, res_pas_nest = self.run_model()

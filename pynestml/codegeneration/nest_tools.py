@@ -69,7 +69,6 @@ class NESTTools:
 
            NEST version detection needs improvement. See https://github.com/nest/nest-simulator/issues/2116
         """
-
         p = mp.Pool(processes=1)
         nest_version = p.map(_detect_nest_version, [None])[0]
         p.close()

@@ -89,7 +89,7 @@ def replace_in_file(source_path, target_path, source_name, target_name):
 
                 for cm_default_str, jinja_templ_str in get_replacement_patterns().items():
                     # we safeguard excluded substrings for replacement by
-                    # temporarily chaning there name into a pattern that does
+                    # temporarily changing their name into a pattern that does
                     # not occur in the replacement patterns
                     for excl_str, repl_char in get_excluded_substrings().items():
                         line = line.replace(excl_str, repl_char*len(excl_str))
