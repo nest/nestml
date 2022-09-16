@@ -208,8 +208,11 @@ class CodeGenerator(WithOptions):
 
             templ_file_base_name = templ_file_name.split(".")[0]  # for example, "cm_main_@NEURON_NAME@" or "Makefile"
             templ_file_base_name = templ_file_base_name.replace(model_name_escape_string, model_name)
+
+            if file_extension:
+                templ_file_base_name = templ_file_base_name + "." + file_extension
             rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
-                                                    templ_file_base_name + "." + file_extension)
+                                                    templ_file_base_name)
             _file = _model_templ.render(template_namespace)
             Logger.log_message(message="Rendering template " + rendered_templ_file_name,
                                log_level=LoggingLevel.INFO)

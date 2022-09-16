@@ -24,20 +24,15 @@ from typing import Sequence, Union, Optional, Mapping, Any, Dict
 import os
 
 from pynestml.utils.logger import Logger
-from pynestml.utils.logger import LoggingLevel
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_reference_converter import SpinnakerReferenceConverter
 from pynestml.codegeneration.printers.spinnaker_types_printer import SpinnakerTypesPrinter
 from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.codegeneration.printers.nest_printer import NestPrinter
-from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
-from pynestml.codegeneration.printers.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
 
 
 class SpiNNakerCodeGenerator(CodeGenerator):
@@ -49,7 +44,8 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     _default_options = {
         "templates": {
-            "path": ".",
+            "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+                os.pardir, "codegeneration", "resources_spinnaker")))),
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.h.jinja2",
                            "@NEURON_NAME@.py.jinja2",
@@ -72,11 +68,11 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_int._nest_reference_converter = self._reference_converter
         self.codegen_int._gsl_printer = UnitlessExpressionPrinter(reference_converter=self.codegen_int._nest_reference_converter)
         self.codegen_int._unitless_nest_printer = NestPrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                          types_printer=self.codegen_int._types_printer,
-                                                                          expression_printer=self._expression_printer)
+                                                              types_printer=self.codegen_int._types_printer,
+                                                              expression_printer=self._expression_printer)
         self.codegen_int._unitless_nest_gsl_printer = NestPrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                              types_printer=self.codegen_int._types_printer,
-                                                                              expression_printer=self._expression_printer)
+                                                                  types_printer=self.codegen_int._types_printer,
+                                                                  expression_printer=self._expression_printer)
         self.codegen_int._default_options["templates"] = SpiNNakerCodeGenerator._default_options["templates"]
         self.codegen_int.set_options({"templates": self.codegen_int._default_options["templates"]})
         self.codegen_int.setup_template_env()
