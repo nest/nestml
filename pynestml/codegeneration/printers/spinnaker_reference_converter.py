@@ -175,13 +175,13 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
             return s
 
         if symbol.is_inline_expression:
-            return self.getter(symbol) + "()" + vector_param
+            return self.name(symbol) + vector_param
 
         assert not symbol.is_kernel(), "SpiNNaker reference converter cannot print kernel; kernel should have been " \
                                        "converted during code generation code generation "
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self.getter(symbol) + "()" + vector_param
+            return self.name(symbol) + vector_param
 
         variable_name = self.convert_to_cpp_name(variable.get_complete_name())
         if symbol.is_local():
@@ -197,5 +197,13 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
-        
+
         return ""
+
+    def buffer_value(self, variable_symbol: VariableSymbol) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        return "neuron->inputs[input_indices::" + variable_symbol.get_symbol_name() + "]"

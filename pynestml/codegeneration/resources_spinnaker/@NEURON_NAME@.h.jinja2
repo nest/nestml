@@ -26,7 +26,18 @@ enum recording_indices
     {%- endif -%}
     {%- endfor %}
     //! Number of recorded word-sized state variables
-    N_RECORDED_VARS = {{ns.count + 1}}
+    N_RECORDED_VARS = {{ns.count}}
+};
+
+enum input_indices
+{
+    {%- set ns = namespace(count=0) %}
+    {%- for variable in neuron.get_spike_input_ports() %}
+    {% if variable.is_recordable -%}
+        {{names.name(variable).upper()}} = {{ns.count}},
+        {%- set ns.count = ns.count + 1 -%}
+    {%- endif -%}
+    {%- endfor %}
 };
 
 //! neuron_impl_t struct
@@ -35,14 +46,14 @@ typedef struct neuron_impl_t {
     {%- for sym in neuron.get_state_symbols() %}
         accum {{sym.get_symbol_name()}};
     {%- endfor %}
-    
+
     // Parameters of the neuron
     {%- for sym in neuron.get_parameter_symbols() %}
         accum {{sym.get_symbol_name()}};
     {%- endfor %}
-    
+
     // input ports of the neuron
-    {%- for sym in neuron.get_parameter_symbols() %}
+    {%- for sym in neuron.get_spike_input_ports() %}
         accum {{sym.get_symbol_name()}};
     {%- endfor %}
 } neuron_impl_t;
@@ -104,8 +115,8 @@ static void neuron_impl_do_timestep_update(
         {%- for sym in neuron.get_state_symbols() %}
             accum {{sym.get_symbol_name()}};
         {%- endfor %}
-    
-    
+
+
         /*
         // Do something to update the state
         neuron->v += neuron->inputs[0] - neuron->inputs[1];

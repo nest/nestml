@@ -66,6 +66,10 @@ class CodeGenerator(WithOptions):
         """
         Setup the Jinja2 template environment
         """
+        self._model_templates["neuron"] = []
+        self._model_templates["synapse"] = []
+        self._module_templates = []
+
         # Get templates path
         templates_root_dir = self.get_option("templates")["path"]
         if not os.path.isabs(templates_root_dir):
