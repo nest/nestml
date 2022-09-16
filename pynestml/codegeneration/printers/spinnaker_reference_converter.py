@@ -20,12 +20,25 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Union
 
+from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
 from pynestml.codegeneration.printers.base_reference_converter import BaseReferenceConverter
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.symbol_table.scope import Scope
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
-
-class SpinnakerReferenceConverter(BaseReferenceConverter):
+class SpinnakerReferenceConverter(CppReferenceConverter):
     """
     Reference converter for the SpiNNaker target
     """
@@ -125,3 +138,64 @@ class SpinnakerReferenceConverter(BaseReferenceConverter):
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
+    def convert_name_reference(self, variable: ASTVariable, prefix: str = '') -> str:
+        if variable.get_name() == PredefinedVariables.E_CONSTANT:
+            return "numerics::e"
+
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol is None:
+            # test if variable name can be resolved to a type
+            if PredefinedUnits.is_unit(variable.get_complete_name()):
+                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+
+            code, message = Messages.get_could_not_resolve(variable.get_name())
+            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
+                               error_position=variable.get_source_position())
+            return ""
+
+        vector_param = ""
+        if symbol.has_vector_parameter():
+            vector_param = "[" + variable.get_vector_parameter() + "]"
+
+        # if symbol.is_local():
+        #     return variable.get_name() + vector_param
+
+        if symbol.is_buffer():
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += self.print_origin(symbol, prefix=prefix) + self.buffer_value(symbol)
+            s += vector_param
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
+
+        if symbol.is_inline_expression:
+            return self.getter(symbol) + "()" + vector_param
+
+        assert not symbol.is_kernel(), "SpiNNaker reference converter cannot print kernel; kernel should have been " \
+                                       "converted during code generation code generation "
+
+        if symbol.is_state() or symbol.is_inline_expression:
+            return self.getter(symbol) + "()" + vector_param
+
+        variable_name = self.convert_to_cpp_name(variable.get_complete_name())
+        if symbol.is_local():
+            return variable_name + vector_param
+
+        return self.print_origin(symbol, prefix=prefix) + \
+            self.name(symbol) + vector_param
+
+
+    def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
+        """
+        Returns a prefix corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding prefix
+        """
+        
+        return ""

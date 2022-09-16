@@ -1,9 +1,6 @@
 #ifndef _{{neuronName.upper()}}_IMPL_
 #define _{{neuronName.upper()}}_IMPL_
 
-// Demonstrating that a "neuron model" can be defined in a different
-// way without the use of components for additional input / input / threshold
-
 #include <neuron/implementations/neuron_impl.h>
 #include <spin1_api.h>
 #include <debug.h>
@@ -34,18 +31,19 @@ enum recording_indices
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
-    accum inputs[2];
-    //accum v;
-    //accum threshold;
-
-    // Parameters of the neuron
-    {%- for variable in neuron.get_parameter_symbols() %}
-        {%- include 'directives/MemberDeclaration.jinja2' %}
-    {%- endfor %}
-
     // State variables of the neuron
-    {%- for variable in neuron.get_state_symbols() %}
-        {%- include 'directives/MemberDeclaration.jinja2' %}
+    {%- for sym in neuron.get_state_symbols() %}
+        accum {{sym.get_symbol_name()}};
+    {%- endfor %}
+    
+    // Parameters of the neuron
+    {%- for sym in neuron.get_parameter_symbols() %}
+        accum {{sym.get_symbol_name()}};
+    {%- endfor %}
+    
+    // input ports of the neuron
+    {%- for sym in neuron.get_parameter_symbols() %}
+        accum {{sym.get_symbol_name()}};
     {%- endfor %}
 } neuron_impl_t;
 
@@ -103,18 +101,28 @@ static void neuron_impl_do_timestep_update(
         // Store the recorded membrane voltage
         neuron_recording_record_accum(V_RECORDING_INDEX, neuron_index, neuron->v);
 
+        {%- for sym in neuron.get_state_symbols() %}
+            accum {{sym.get_symbol_name()}};
+        {%- endfor %}
+    
+    
+        /*
         // Do something to update the state
         neuron->v += neuron->inputs[0] - neuron->inputs[1];
         neuron->inputs[0] = 0;
         neuron->inputs[1] = 0;
+        */
 
-        // Determine if the neuron has spiked
-        if (neuron->v > neuron->threshold) {
-            // Reset if spiked
-            neuron->v = 0k;
-            neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);
-            send_spike(timer_count, time, neuron_index);
-        }
+{%- if neuron.get_update_blocks() %}
+{%- filter indent(2) %}
+{%- set dynamics = neuron.get_update_blocks() %}
+{%- with ast = dynamics.get_block() %}
+{%-   include "directives/Block.jinja2" %}
+{%- endwith %}
+{%- endfilter %}
+{%- endif %}
+
+        // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
     }
 }
 

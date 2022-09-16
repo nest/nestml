@@ -1,0 +1,41 @@
+{#
+  Creates GSL implementation of the differentiation step for the system of ODEs.
+-#}
+extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], double f[], void* pnode)
+{
+  typedef {{neuronName}}::State_ State_;
+  // get access to node so we can almost work as in a member function
+  assert( pnode );
+  const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
+
+  // ode_state[] here is---and must be---the state vector supplied by the integrator,
+  // not the state vector in the node, node.S_.ode_state[].
+
+{%- for ode in neuron.get_equations_blocks().get_declarations() %}
+{%-   for inline_expr in utils.get_inline_expression_symbols(ode) %}
+{%-     if not inline_expr.is_equation() %}
+{%-       set declaring_expr = inline_expr.get_declaring_expression() %}
+  double {{names.name(inline_expr)}} = {{printerGSL.print_expression(declaring_expr, prefix="node.")}};
+{%-     endif %}
+{%-   endfor %}
+{%- endfor %}
+
+{%- for variable_name in numeric_state_variables %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_sym = variable_symbols[variable_name] %}
+  f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
+{%- endfor %}
+{%- if paired_synapse is defined %}
+{%- for variable_name in numeric_state_variables_moved %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+  f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
+{%- endfor %}
+{%- endif %}
+{%- for variable_name in non_equations_state_variables %}
+{%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+  f[{{names.array_index(variable_sym)}}] = 0.;
+{%- endfor %}
+
+  return GSL_SUCCESS;
+}

@@ -33,6 +33,9 @@ from pynestml.codegeneration.printers.unitless_expression_printer import Unitles
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.codegeneration.printers.nest_printer import NestPrinter
+from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.printers.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
 
 
 class SpiNNakerCodeGenerator(CodeGenerator):
@@ -43,40 +46,45 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     codegen_int: Optional[NESTCodeGenerator] = None
 
     _default_options = {
-        "neuron_synapse_pairs": [],
-        "preserve_expressions": False,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.h.jinja2"],
             },
-            "module_templates": ["Makefile.jinja2"]
+            "module_templates": ["Makefile.jinja2",
+                                 "Makefile_root.jinja2"]
         }
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        self._target = "SPINNAKER"
-        super().__init__(self._target, options)
-        self._types_printer = SpinnakerTypesPrinter()
+        super().__init__("SpiNNaker", options)
+
         self._reference_converter = SpinnakerReferenceConverter()
-        self._printer = CppExpressionPrinter()
+        self._expression_printer = CppExpressionPrinter(self._reference_converter)
+
+        self.codegen_int = NESTCodeGenerator(options)
+        self.codegen_int._types_printer = SpinnakerTypesPrinter()
+        self.codegen_int._gsl_reference_converter = self._reference_converter
+        self.codegen_int._nest_reference_converter = self._reference_converter
+        self.codegen_int._gsl_printer = UnitlessExpressionPrinter(reference_converter=self.codegen_int._nest_reference_converter)
+        self.codegen_int._unitless_nest_printer = NestPrinter(reference_converter=self.codegen_int._nest_reference_converter,
+                                                                          types_printer=self.codegen_int._types_printer,
+                                                                          expression_printer=self._expression_printer)
+        self.codegen_int._unitless_nest_gsl_printer = NestPrinter(reference_converter=self.codegen_int._nest_reference_converter,
+                                                                              types_printer=self.codegen_int._types_printer,
+                                                                              expression_printer=self._expression_printer)
+        self.codegen_int._default_options["templates"] = SpiNNakerCodeGenerator._default_options["templates"]
         self.codegen_int.setup_template_env()
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        self.generate_neurons(models)
+        neurons = [model for model in models if isinstance(model, ASTNeuron)]
+        self.codegen_int.analyse_transform_neurons(neurons)
+        self.codegen_int.generate_neurons(neurons)
+        self.codegen_int.generate_module_code(neurons, [])
+
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                raise Exception("Error(s) occurred during code generation")
 
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
-        """
-        Returns a standard namespace with often required functionality.
-        :param neuron: a single neuron instance
-        :return: a map from name to functionality.
-        """
-        from pynestml.codegeneration.nest_tools import NESTTools
-        namespace = dict()
-        namespace["neuronName"] = neuron.get_name()
-        namespace["neuron"] = neuron
-        namespace["names"] = self._reference_converter
-        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
-        return namespace
-
+        return self.codegen_int._get_neuron_model_namespace(neuron)
