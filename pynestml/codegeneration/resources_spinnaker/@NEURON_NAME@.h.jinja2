@@ -26,7 +26,7 @@ enum recording_indices
     {%- endif -%}
     {%- endfor %}
     //! Number of recorded word-sized state variables
-    N_RECORDED_VARS = {{ns.count + 1}}
+    N_RECORDED_VARS = {{ns.count}}
 };
 
 //! neuron_impl_t struct
@@ -42,7 +42,7 @@ typedef struct neuron_impl_t {
     {%- endfor %}
     
     // input ports of the neuron
-    {%- for sym in neuron.get_parameter_symbols() %}
+    {%- for sym in neuron.get_spike_input_ports() %}
         accum {{sym.get_symbol_name()}};
     {%- endfor %}
 } neuron_impl_t;

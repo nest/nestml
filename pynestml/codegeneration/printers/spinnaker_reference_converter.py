@@ -21,27 +21,25 @@
 from typing import Union
 
 from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
-from pynestml.codegeneration.printers.base_reference_converter import BaseReferenceConverter
 from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.variable_symbol import BlockType
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
+
 
 class SpinnakerReferenceConverter(CppReferenceConverter):
     """
     Reference converter for the SpiNNaker target
     """
+
     def name(self, node: Union[VariableSymbol, ASTVariable]) -> str:
         return super().name(node)
 
@@ -54,7 +52,8 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         function_call
             The function call node to convert.
         prefix
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
+            Optional string that will be prefixed to the function call. For example, to refer to a function call in
+            the class "node", use a prefix equal to "node." or "node->".
 
             Predefined functions will not be prefixed.
 
@@ -110,7 +109,8 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
             return 'numerics::expm1({!s})'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::get_vp_specific_rng( ' + prefix + 'get_thread() ) ))'
+            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::get_vp_specific_rng( ' + prefix + \
+                   'get_thread() ) ))'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + prefix + 'get_thread() )->drand())'
@@ -128,7 +128,8 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
             raise Exception("deliver_spike() function not yet implemented")
 
         # suppress prefix for misc. predefined functions
-        # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        # check if function is "predefined" purely based on the name, as we don't have access to the function symbol
+        # here
         function_is_predefined = PredefinedFunctions.get_function(function_name)
         if function_is_predefined:
             prefix = ''
@@ -180,16 +181,12 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         assert not symbol.is_kernel(), "SpiNNaker reference converter cannot print kernel; kernel should have been " \
                                        "converted during code generation code generation "
 
-        if symbol.is_state() or symbol.is_inline_expression:
-            return self.getter(symbol) + "()" + vector_param
-
         variable_name = self.convert_to_cpp_name(variable.get_complete_name())
         if symbol.is_local():
             return variable_name + vector_param
 
         return self.print_origin(symbol, prefix=prefix) + \
-            self.name(symbol) + vector_param
-
+               self.name(symbol) + vector_param
 
     def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
         """
@@ -197,5 +194,13 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
-        
+
+        if variable_symbol.block_type == BlockType.STATE\
+                or variable_symbol.block_type == BlockType.EQUATION\
+                or variable_symbol.block_type == BlockType.PARAMETERS\
+                or variable_symbol.block_type == BlockType.INTERNALS\
+                or variable_symbol.block_type == BlockType.INPUT:
+            return prefix + "neuron->"
+
         return ""
+
