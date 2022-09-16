@@ -33,7 +33,7 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
     Tests the code generation for SpiNNaker
     """
 
-    def test_python_standalone_neuron_build_and_sim_analytic(self):
+    def test_spinnaker_target(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_no_refractory.nestml"))))
         target_path = "/tmp/nestml-spinnaker"
@@ -41,13 +41,14 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
         suffix = ""
         module_name = "nestmlmodule"
         codegen_opts = {
-            "templates": {"path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-                os.pardir, os.pardir, "pynestml", "codegeneration", "resources_spinnaker")))),
-                          "model_templates": {
-                              "neuron": ["@NEURON_NAME@.h.jinja2"],
-                          },
-                          "module_templates": ["Makefile.jinja2",
-                                               "Makefile_root.jinja2"]}}
+            "templates": {
+                "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+                    os.pardir, os.pardir, "pynestml", "codegeneration", "resources_spinnaker")))),
+                "model_templates": {
+                    "neuron": ["@NEURON_NAME@.h.jinja2"],
+                },
+                "module_templates": ["Makefile.jinja2",
+                                     "Makefile_root.jinja2"]}}
 
         generate_target(input_path=input_path,
                         target_platform="SpiNNaker",
