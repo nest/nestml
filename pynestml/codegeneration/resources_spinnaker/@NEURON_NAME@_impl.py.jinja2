@@ -104,9 +104,9 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
                 + 0
 
     def get_synapse_id_by_target(self, target):
-{%- for i, inputPort in enumerate(neuron.get_spike_input_ports()) %}
+{%- for sym in neuron.get_spike_input_ports() %}
         if target == {{sym.get_symbol_name()}}:
-            return {{i}}
+            return {{loop.index}}
 {%- endfor %}
         raise ValueError("Unknown target {}".format(target))
 
@@ -139,9 +139,9 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
         raise ValueError("Unknown variable {}".format(variable))
 
     def get_recordable_variable_index(self, variable):
-{%- for i, sym in enumerate(neuron.get_state_symbols()) %}
+{%- for sym in neuron.get_state_symbols() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return {i}
+            return {{loop.index}}
 {%- endfor %}
 
         raise ValueError("Unknown variable {}".format(variable))
@@ -194,7 +194,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 
 {%- for sym in neuron.get_spike_input_ports() %}
             {{sym.get_symbol_name()}},
-{%- endfor %}        
+{%- endfor %}
         ) = self._struct.read_data(
             data, offset, vertex_slice.n_atoms)
         new_offset = offset + self._struct.get_size_in_whole_words(
@@ -211,7 +211,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 
 {%- for sym in neuron.get_spike_input_ports() %}
             variables["{{sym.get_symbol_name()}}"] = {{sym.get_symbol_name()}}
-{%- endfor %}    
+{%- endfor %}
 
         return new_offset
 

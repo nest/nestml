@@ -112,11 +112,6 @@ static void neuron_impl_do_timestep_update(
         // Store the recorded membrane voltage
         neuron_recording_record_accum(V_RECORDING_INDEX, neuron_index, neuron->v);
 
-        {%- for sym in neuron.get_state_symbols() %}
-            accum {{sym.get_symbol_name()}};
-        {%- endfor %}
-
-
         /*
         // Do something to update the state
         neuron->v += neuron->inputs[0] - neuron->inputs[1];

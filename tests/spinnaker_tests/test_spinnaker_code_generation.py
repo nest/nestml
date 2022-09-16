@@ -47,8 +47,8 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
                 "model_templates": {
                     "neuron": ["@NEURON_NAME@.h.jinja2"],
                 },
-                "module_templates": ["Makefile.jinja2",
-                                     "Makefile_root.jinja2"]}}
+                "module_templates": ["Makefile_@NEURON_NAME@.jinja2",
+                                     "Makefile.jinja2"]}}
 
         generate_target(input_path=input_path,
                         target_platform="SpiNNaker",

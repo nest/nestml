@@ -49,10 +49,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.h.jinja2",
                            "@NEURON_NAME@.py.jinja2",
-                           "@NEURON_NAME@_impl.py.jinja2"],
+                           "@NEURON_NAME@_impl.py.jinja2",
+                           "Makefile_@NEURON_NAME@.jinja2"],
             },
-            "module_templates": ["Makefile.jinja2",
-                                 "Makefile_root.jinja2"]
+            "module_templates": ["Makefile.jinja2"]
         }
     }
 

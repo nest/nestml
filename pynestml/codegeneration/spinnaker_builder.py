@@ -27,6 +27,7 @@ import os
 import platform
 import subprocess
 import sys
+import fnmatch
 
 from pynestml.codegeneration.builder import Builder
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
@@ -97,9 +98,14 @@ class SpiNNakerBuilder(Builder):
         if not os.path.isdir(install_path):
             raise InvalidPathException('Installation path (' + install_path + ') is not a directory!')
 
+        generated_file_names = os.listdir(target_path)
+        generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn]
+        generated_file_names_neuron_impl_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "impl.py" in fn]
+        generated_file_names_makefiles = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "Makefile_*") if not fn == "Makefile"]
+
         old_cwd = os.getcwd()
         try:
-            os.chdir(target_path)
+            os.chdir(install_path)
 
             make_cmd = ['make']
 
@@ -108,6 +114,49 @@ class SpiNNakerBuilder(Builder):
                 shell = True
             else:
                 shell = False
+
+            # copy files from target to install directory
+            for fn in generated_file_names_neuron_py:
+                try:
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "neuron", "builds")], stderr=subprocess.STDOUT, shell=shell,
+                                        cwd=str(os.path.join(target_path)))
+                except subprocess.CalledProcessError as e:
+                    raise GeneratedCodeBuildException(
+                        'Error occurred during install! More detailed error messages can be found in stdout.')
+
+            try:
+                os.mkdir(os.path.join(install_path, "neuron", "implementations"))
+            except:
+                pass
+
+            for fn in generated_file_names_neuron_impl_py:
+                try:
+                    subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "neuron", "implementations")], stderr=subprocess.STDOUT, shell=shell,
+                                        cwd=str(os.path.join(target_path)))
+                except subprocess.CalledProcessError as e:
+                    raise GeneratedCodeBuildException(
+                        'Error occurred during install! More detailed error messages can be found in stdout.')
+            import pdb;pdb.set_trace()
+            try:
+                subprocess.check_call(["cp", "Makefile", os.path.join(install_path, "c_models", "makefiles", "Makefile")], stderr=subprocess.STDOUT, shell=shell,
+                                    cwd=str(os.path.join(target_path)))
+            except subprocess.CalledProcessError as e:
+                raise GeneratedCodeBuildException(
+                    'Error occurred during install! More detailed error messages can be found in stdout.')
+
+            for fn in generated_file_names_makefiles:
+                neuron_subdir = fn[len("Makefile_"):]
+                try:
+                    try:
+                        os.mkdir(os.path.join(install_path, "c_models", "makefiles", neuron_subdir))
+                    except:
+                        pass
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "makefiles", neuron_subdir, "Makefile")], stderr=subprocess.STDOUT, shell=shell,
+                                        cwd=str(os.path.join(target_path)))
+                except subprocess.CalledProcessError as e:
+                    raise GeneratedCodeBuildException(
+                        'Error occurred during install! More detailed error messages can be found in stdout.')
+
 
             # call make
             try:
