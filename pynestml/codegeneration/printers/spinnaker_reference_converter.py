@@ -185,8 +185,7 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         if symbol.is_local():
             return variable_name + vector_param
 
-        return self.print_origin(symbol, prefix=prefix) + \
-               self.name(symbol) + vector_param
+        return self.print_origin(symbol, prefix=prefix) + self.name(symbol) + vector_param
 
     def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
         """
@@ -195,12 +194,11 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         :return: the corresponding prefix
         """
 
-        if variable_symbol.block_type == BlockType.STATE\
-                or variable_symbol.block_type == BlockType.EQUATION\
-                or variable_symbol.block_type == BlockType.PARAMETERS\
-                or variable_symbol.block_type == BlockType.INTERNALS\
+        if variable_symbol.block_type == BlockType.STATE \
+                or variable_symbol.block_type == BlockType.EQUATION \
+                or variable_symbol.block_type == BlockType.PARAMETERS \
+                or variable_symbol.block_type == BlockType.INTERNALS \
                 or variable_symbol.block_type == BlockType.INPUT:
             return prefix + "neuron->"
 
         return ""
-

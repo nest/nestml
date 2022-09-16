@@ -68,7 +68,7 @@ from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumbe
 
 
 class SpiNNakerBuilder(Builder):
-    r"""Compilea and build the SpiNNaker generated C code."""
+    r"""Compiles and build the SpiNNaker generated C code."""
 
     _default_options = {
     }
@@ -85,7 +85,7 @@ class SpiNNakerBuilder(Builder):
         GeneratedCodeBuildException
             If any kind of failure occurs during compile or build.
         InvalidPathException
-            If a failure occurs while trying to access the target path or the NEST installation path.
+            If a failure occurs while trying to access the target path or the SpiNNaker installation path.
         """
         target_path = FrontendConfiguration.get_target_path()
 
@@ -111,10 +111,10 @@ class SpiNNakerBuilder(Builder):
 
             # call make
             try:
-                subprocess.check_call(make, stderr=subprocess.STDOUT, shell=shell,
-                                    cwd=str(os.path.join(target_path)))
+                subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, shell=shell,
+                                      cwd=str(os.path.join(target_path)))
             except subprocess.CalledProcessError as e:
-                raise GeneratedCodeBuildException('Error occurred during \'make\'! More detailed error messages can be found in stdout.')
+                raise GeneratedCodeBuildException(
+                    'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
         finally:
             os.chdir(old_cwd)
-    

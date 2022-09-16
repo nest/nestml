@@ -66,11 +66,11 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_int._nest_reference_converter = self._reference_converter
         self.codegen_int._gsl_printer = UnitlessExpressionPrinter(reference_converter=self.codegen_int._nest_reference_converter)
         self.codegen_int._unitless_nest_printer = NestPrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                          types_printer=self.codegen_int._types_printer,
-                                                                          expression_printer=self._expression_printer)
+                                                              types_printer=self.codegen_int._types_printer,
+                                                              expression_printer=self._expression_printer)
         self.codegen_int._unitless_nest_gsl_printer = NestPrinter(reference_converter=self.codegen_int._nest_reference_converter,
-                                                                              types_printer=self.codegen_int._types_printer,
-                                                                              expression_printer=self._expression_printer)
+                                                                  types_printer=self.codegen_int._types_printer,
+                                                                  expression_printer=self._expression_printer)
         self.codegen_int._default_options["templates"] = SpiNNakerCodeGenerator._default_options["templates"]
         self.codegen_int.set_options({"templates": self.codegen_int._default_options["templates"]})
         self.codegen_int.setup_template_env()
