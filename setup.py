@@ -52,7 +52,9 @@ setup(
                                "codegeneration/resources_nest/point_neuron/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/common/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/directives/*.jinja2",
-                               "codegeneration/resources_nest/point_neuron/setup/*.jinja2"]},
+                               "codegeneration/resources_nest/point_neuron/setup/*.jinja2",
+                               "codegeneration/resources_spinnaker/*.jinja2",
+                               "codegeneration/resources_spinnaker/directives/*.jinja2"]},
     data_files=data_files,
     entry_points={
         "console_scripts": [

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_neuron_build_and_sim.py
+# test_spinnaker_code_generation.py
 #
 # This file is part of NEST.
 #
@@ -35,8 +35,8 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
 
     def test_python_standalone_neuron_build_and_sim_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_cond_exp.nestml"))))
-        target_path = "nestmlmodule"
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_alpha.nestml"))))
+        target_path = "/tmp/nestml-spinnaker"
         logging_level = "INFO"
         suffix = ""
         module_name = "nestmlmodule"
@@ -44,7 +44,7 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
 
         generate_target(input_path=input_path,
                         target_platform="SpiNNaker",
-                        target_path="/tmp/nestml-spinnaker",
+                        target_path=target_path,
                         module_name=module_name,
                         logging_level=logging_level,
                         suffix=suffix,
