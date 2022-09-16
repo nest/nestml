@@ -23,6 +23,8 @@ from typing import Sequence, Union, Optional, Mapping, Any, Dict
 
 import os
 
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
@@ -47,7 +49,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     _default_options = {
         "templates": {
-            "path": "point_neuron",
+            "path": "/home/charl/julich/nestml-fork-spinnaker/nestml/pynestml/codegeneration/resources_spinnaker",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.h.jinja2"],
             },
@@ -74,6 +76,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                                                                               types_printer=self.codegen_int._types_printer,
                                                                               expression_printer=self._expression_printer)
         self.codegen_int._default_options["templates"] = SpiNNakerCodeGenerator._default_options["templates"]
+        self.codegen_int.set_options({"templates": self.codegen_int._default_options["templates"]})
         self.codegen_int.setup_template_env()
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
@@ -82,7 +85,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_int.generate_neurons(neurons)
         self.codegen_int.generate_module_code(neurons, [])
 
-        for astnode in neurons + synapses:
+        for astnode in neurons:
             if Logger.has_errors(astnode):
                 raise Exception("Error(s) occurred during code generation")
 
