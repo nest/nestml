@@ -5,16 +5,16 @@
 #include <spin1_api.h>
 #include <debug.h>
 
-#define V_RECORDING_INDEX 0
-#define N_RECORDED_VARS 1
+//#define V_RECORDING_INDEX 0
+//#define N_RECORDED_VARS 1
 
 #define SPIKE_RECORDING_BITFIELD 0
 #define N_BITFIELD_VARS 1
 
 #include <neuron/neuron_recording.h>
 
-#include <neuron/current_sources/current_source_impl.h>
-#include <neuron/current_sources/current_source.h>
+//#include <neuron/current_sources/current_source_impl.h>
+//#include <neuron/current_sources/current_source.h>
 
 enum recording_indices
 {
@@ -99,7 +99,7 @@ static void neuron_impl_add_inputs(
     neuron_impl_t *neuron = &neuron_array[neuron_index];
 
     // Do something to store the inputs for the next state update
-    neuron->inputs[synapse_type_index] += weights_this_timestep;
+    //neuron->inputs[synapse_type_index] += weights_this_timestep;
 }
 
 __attribute__((unused)) // Marked unused as only used sometimes
@@ -110,7 +110,11 @@ static void neuron_impl_do_timestep_update(
         neuron_impl_t *neuron = &neuron_array[neuron_index];
 
         // Store the recorded membrane voltage
-        neuron_recording_record_accum(V_RECORDING_INDEX, neuron_index, neuron->v);
+        {%- for variable in neuron.get_state_symbols() %}
+        {% if variable.is_recordable -%}
+        neuron_recording_record_accum({{names.name(variable).upper()}}, neuron_index, neuron->{{names.name(variable)}});
+        {%- endif -%}
+        {%- endfor %}
 
         /*
         // Do something to update the state

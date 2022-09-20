@@ -52,7 +52,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "@NEURON_NAME@_impl.py.jinja2",
                            "Makefile_@NEURON_NAME@.jinja2"],
             },
-            "module_templates": ["Makefile.jinja2"]
+            "module_templates": ["Makefile.jinja2", "extra_neuron.mk.jinja2"]
         }
     }
 

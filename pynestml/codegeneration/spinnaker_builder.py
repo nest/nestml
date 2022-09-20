@@ -144,6 +144,12 @@ class SpiNNakerBuilder(Builder):
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
 
+            # Create model_binaries directory where all the python binaries reside
+            try:
+                os.makedirs(os.path.join(install_path, "python_models8", "model_binaries"))
+            except:
+                pass
+
             # Copy the root Makefile
             try:
                 os.makedirs(os.path.join(install_path, "c_models", "makefiles"))
@@ -151,6 +157,14 @@ class SpiNNakerBuilder(Builder):
                 pass
             try:
                 subprocess.check_call(["cp", "Makefile", os.path.join(install_path, "c_models", "makefiles", "Makefile")], stderr=subprocess.STDOUT, shell=shell,
+                                    cwd=target_path)
+            except subprocess.CalledProcessError as e:
+                raise GeneratedCodeBuildException(
+                    'Error occurred during install! More detailed error messages can be found in stdout.')
+
+            # Copy the extra_neuron.mk file
+            try:
+                subprocess.check_call(["cp", "extra_neuron.mk", os.path.join(install_path, "c_models", "makefiles", "extra_neuron.mk")], stderr=subprocess.STDOUT, shell=shell,
                                     cwd=target_path)
             except subprocess.CalledProcessError as e:
                 raise GeneratedCodeBuildException(
