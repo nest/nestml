@@ -209,4 +209,4 @@ class SpinnakerReferenceConverter(CppReferenceConverter):
         :param variable_symbol: a single variable symbol.
         :return: the corresponding representation as a string
         """
-        return "neuron->inputs[input_indices::" + variable_symbol.get_symbol_name() + "]"
+        return "inputs[" + variable_symbol.get_symbol_name().upper() + "]"
