@@ -403,19 +403,7 @@ class NestPrinter(Printer):
         :param variable: Vector variable
         :return: vector size parameter
         """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
-        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                    SymbolKind.VARIABLE)
-        vector_param = ""
-        if symbol is not None:
-            # size parameter is a variable
-            vector_param += self.reference_converter.print_origin(symbol) + vector_parameter
-        else:
-            # size parameter is an integer
-            vector_param += vector_parameter
-
-        return vector_param
+        return self.reference_converter.convert_vector_parameter(variable)
 
     def print_vector_declaration(self, variable: VariableSymbol) -> str:
         """

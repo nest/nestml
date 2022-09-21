@@ -180,10 +180,7 @@ e();
 
         vector_param = ""
         if symbol.has_vector_parameter():
-            vector_param = "[" + variable.get_vector_parameter() + "]"
-
-        # if symbol.is_local():
-        #     return variable.get_name() + vector_param
+            vector_param = "[" + self.convert_vector_parameter(symbol) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -226,6 +223,26 @@ e();
             if symbol.is_state() and symbol.has_delay_parameter():
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
+
+    def convert_vector_parameter(self, variable: ASTVariable) -> str:
+        """
+        Converts the vector parameter into NEST processable format
+        :param variable:
+        :return:
+        """
+        vector_parameter = variable.get_vector_parameter()
+        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
+        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+                                                                    SymbolKind.VARIABLE)
+        vector_param = ""
+        if symbol is not None:
+            # size parameter is a variable
+            vector_param += self.print_origin(symbol) + vector_parameter
+        else:
+            # size parameter is an integer
+            vector_param += vector_parameter
+
+        return vector_param
 
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
