@@ -42,4 +42,3 @@ def test_iaf_psc_exp_istep():
     vm = nest.Create('voltmeter', params={'interval': 0.1})
     nest.Connect(vm, n)
     nest.Simulate(100)
-    nest.voltage_trace.from_device(vm)
