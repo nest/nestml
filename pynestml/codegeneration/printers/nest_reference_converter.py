@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from typing import Union
 
 from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
 from pynestml.codegeneration.printers.unit_converter import UnitConverter
@@ -180,7 +181,7 @@ e();
 
         vector_param = ""
         if symbol.has_vector_parameter():
-            vector_param = "[" + self.convert_vector_parameter(symbol) + "]"
+            vector_param = "[" + self.convert_vector_parameter(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -224,25 +225,28 @@ e();
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
 
-    def convert_vector_parameter(self, variable: ASTVariable) -> str:
+    def convert_vector_parameter(self, variable: Union[ASTVariable, VariableSymbol]) -> str:
         """
         Converts the vector parameter into NEST processable format
         :param variable:
         :return:
         """
         vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
-        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                    SymbolKind.VARIABLE)
-        vector_param = ""
+        if isinstance(variable, ASTVariable):
+            vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_scope())
+        elif isinstance(variable, VariableSymbol):
+            vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
+        return self.__convert_vector_parameter(vector_parameter_var)
+
+    def __convert_vector_parameter(self, variable: ASTVariable) -> str:
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(),
+                                                        SymbolKind.VARIABLE)
         if symbol is not None:
             # size parameter is a variable
-            vector_param += self.print_origin(symbol) + vector_parameter
-        else:
-            # size parameter is an integer
-            vector_param += vector_parameter
+            return self.print_origin(symbol) + variable.get_name()
 
-        return vector_param
+        # size parameter is an integer
+        return variable.get_name()
 
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
