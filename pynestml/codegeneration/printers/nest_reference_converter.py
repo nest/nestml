@@ -238,6 +238,8 @@ e();
         if symbol is not None:
             if symbol.block_type == BlockType.STATE:
                 return self.getter(symbol) + "()"
+            elif symbol.block_type == BlockType.LOCAL:
+                return symbol.get_symbol_name()
             else:
                 return self.print_origin(symbol)
 
