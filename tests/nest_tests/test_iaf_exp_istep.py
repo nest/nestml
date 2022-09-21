@@ -31,7 +31,7 @@ def test_iaf_psc_exp_istep():
     """
     target_path = "target_iaf_istep"
     module_name = "nestml_module"
-    input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "iaf_cond_exp_Istep.nestml"))
+    input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_cond_exp_Istep.nestml"))
     generate_nest_target(input_path=input_path,
                          target_path=target_path,
                          logging_level="INFO",
