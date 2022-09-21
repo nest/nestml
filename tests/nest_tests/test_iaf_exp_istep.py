@@ -35,6 +35,11 @@ def test_iaf_psc_exp_istep():
     generate_nest_target(input_path=input_path,
                          target_path=target_path,
                          logging_level="INFO",
-                         module_name=module_name,
-                         suffix="_nestml")
+                         module_name=module_name)
     nest.Install(module_name)
+    n = nest.Create('iaf_cond_exp_Istep', params={'n_step': 5, 'I_step': [10., -20., 30., -40., 50.],
+                                                  't_step': [10., 30., 40., 45., 50.]})
+    vm = nest.Create('voltmeter', params={'interval': 0.1})
+    nest.Connect(vm, n)
+    nest.Simulate(100)
+    nest.voltage_trace.from_device(vm)
