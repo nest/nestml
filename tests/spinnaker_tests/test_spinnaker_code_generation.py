@@ -45,7 +45,7 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
                 "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                     os.pardir, os.pardir, "pynestml", "codegeneration", "resources_spinnaker")))),
                 "model_templates": {
-                    "neuron": ["@NEURON_NAME@.h.jinja2"],
+                    "neuron": ["@NEURON_NAME@_impl.h.jinja2"],
                 },
                 "module_templates": ["Makefile_@NEURON_NAME@.jinja2",
                                      "Makefile.jinja2"]}}
