@@ -5,43 +5,38 @@
 #include <spin1_api.h>
 #include <debug.h>
 
-#define V_RECORDING_INDEX 0
-#define N_RECORDED_VARS 1
+{%- set ns = namespace(count=0) %}
+{%- for variable in neuron.get_state_symbols() %}
+{% if variable.is_recordable -%}
+#define {{names.name(variable).upper()}}_RECORDING_INDEX {{ns.count}}
+{%- set ns.count = ns.count + 1 -%}
+{%- endif -%}
+{%- endfor %}
+//! Number of recorded state variables
+#define N_RECORDED_VARS {{ns.count}}
 
 #define SPIKE_RECORDING_BITFIELD 0
 #define N_BITFIELD_VARS 1
 
 #include <neuron/neuron_recording.h>
 
-#include <neuron/current_sources/current_source_impl.h>
-#include <neuron/current_sources/current_source.h>
-
-enum recording_indices
-{
-    {%- set ns = namespace(count=0) %}
-    {%- for variable in neuron.get_state_symbols() %}
-    {% if variable.is_recordable -%}
-        {{names.name(variable).upper()}} = {{ns.count}},
-        {%- set ns.count = ns.count + 1 -%}
-    {%- endif -%}
-    {%- endfor %}
-    //! Number of recorded word-sized state variables
-    N_RECORDED_VARS = {{ns.count}}
-};
+//#include <neuron/current_sources/current_source_impl.h>
+//#include <neuron/current_sources/current_source.h>
 
 enum input_indices
 {
     {%- set ns = namespace(count=0) %}
     {%- for variable in neuron.get_spike_input_ports() %}
-    {% if variable.is_recordable -%}
         {{names.name(variable).upper()}} = {{ns.count}},
         {%- set ns.count = ns.count + 1 -%}
-    {%- endif -%}
     {%- endfor %}
 };
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
+    {%- if neuron.get_spike_input_ports()|length > 1 %}
+        accum inputs[{{neuron.get_spike_input_ports()|length}}];
+    {%- endif %}
     // State variables of the neuron
     {%- for sym in neuron.get_state_symbols() %}
         accum {{sym.get_symbol_name()}};
@@ -52,10 +47,18 @@ typedef struct neuron_impl_t {
         accum {{sym.get_symbol_name()}};
     {%- endfor %}
 
+    {#
     // input ports of the neuron
     {%- for sym in neuron.get_spike_input_ports() %}
         accum {{sym.get_symbol_name()}};
     {%- endfor %}
+    #}
+
+    // Internal variables of the neuron
+    {%- for sym in neuron.get_internal_symbols() %}
+        accum {{sym.get_symbol_name()}};
+    {%- endfor %}
+
 } neuron_impl_t;
 
 //! Array of neuron states
@@ -110,7 +113,11 @@ static void neuron_impl_do_timestep_update(
         neuron_impl_t *neuron = &neuron_array[neuron_index];
 
         // Store the recorded membrane voltage
-        neuron_recording_record_accum(V_RECORDING_INDEX, neuron_index, neuron->v);
+        {%- for variable in neuron.get_state_symbols() %}
+        {% if variable.is_recordable -%}
+        neuron_recording_record_accum({{names.name(variable).upper()}}_RECORDING_INDEX, neuron_index, neuron->{{names.name(variable)}});
+        {%- endif -%}
+        {%- endfor %}
 
         /*
         // Do something to update the state

@@ -54,7 +54,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "extra_neuron.mk.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
             },
-            "module_templates": ["Makefile.jinja2"]
+            "module_templates": ["Makefile.jinja2", "extra_neuron.mk.jinja2"]
         }
     }
 
