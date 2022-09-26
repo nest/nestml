@@ -41,21 +41,10 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
         logging_level = "INFO"
         suffix = ""
         module_name = "nestmlmodule"
-        codegen_opts = {
-            "templates": {
-                "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-                    os.pardir, os.pardir, "pynestml", "codegeneration", "resources_spinnaker")))),
-                "model_templates": {
-                    "neuron": ["@NEURON_NAME@.h.jinja2"],
-                },
-                "module_templates": ["Makefile_@NEURON_NAME@.jinja2",
-                                     "Makefile.jinja2"]}}
-
         generate_target(input_path=input_path,
                         target_platform="SpiNNaker",
                         target_path=target_path,
                         install_path=install_path,
                         module_name=module_name,
                         logging_level=logging_level,
-                        suffix=suffix,
-                        codegen_opts=codegen_opts)
+                        suffix=suffix)
