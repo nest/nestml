@@ -207,11 +207,6 @@ class SpiNNakerBuilder(Builder):
                     'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # Copy the model Makefile
-                                    cwd=str(os.path.join(target_path)))
-            except subprocess.CalledProcessError as e:
-                raise GeneratedCodeBuildException(
-                    'Error occurred during install! More detailed error messages can be found in stdout.')
-
             for fn in generated_file_names_makefiles:
                 neuron_subdir = fn[len("Makefile_"):]
 
