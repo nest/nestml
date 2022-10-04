@@ -29,5 +29,33 @@ from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronNa
 class {{neuronName}}(AbstractPyNNNeuronModel):
 
     @default_parameters({"threshold"})
-    def __init__(self, threshold=10.0, v=0.0, exc_input=0.0, inh_input=0.0):
-        super().__init__({{neuronName}}Impl(threshold, v, exc_input, inh_input))
+    def __init__(self, 
+# XXX: need to print default values here?
+{%- for sym in neuron.get_state_symbols() %}
+                 {{sym.get_symbol_name()}}
+{%- endfor %}
+
+{%- for sym in neuron.get_parameter_symbols() %}
+                 {{sym.get_symbol_name()}}
+{%- endfor %}
+
+{%- for sym in neuron.get_spike_input_ports() %}
+                 {{sym.get_symbol_name()}}
+{%- endfor %}
+                ):
+        # .. compute propagators ...
+        super().__init__({{neuronName}}Impl(
+{%- for sym in neuron.get_state_symbols() %}
+                 {{sym.get_symbol_name()}}
+{%- endfor %}
+
+{%- for sym in neuron.get_parameter_symbols() %}
+                 {{sym.get_symbol_name()}}
+{%- endfor %}
+
+{%- for sym in neuron.get_spike_input_ports() %}
+                 {{sym.get_symbol_name()}}
+{%- endfor %}
+
+       # ... pass internal variables ...
+                                           ))
