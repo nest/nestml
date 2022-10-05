@@ -1,25 +1,24 @@
-/*
- *  {{neuronName}}.py
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  Generated from NESTML at time: {{now}}
-**/
+#
+#  {{neuronName}}.py
+#
+#  This file is part of NEST.
+#
+#  Copyright (C) 2004 The NEST Initiative
+#
+#  NEST is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  NEST is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  Generated from NESTML at time: {{now}}
 
 from spynnaker.pyNN.models.neuron import AbstractPyNNNeuronModel
 from spynnaker.pyNN.models.defaults import default_parameters
@@ -32,30 +31,43 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
     def __init__(self, 
 # XXX: need to print default values here?
 {%- for sym in neuron.get_state_symbols() %}
-                 {{sym.get_symbol_name()}}
+                 {{sym.get_symbol_name()}},
 {%- endfor %}
 
 {%- for sym in neuron.get_parameter_symbols() %}
-                 {{sym.get_symbol_name()}}
+                 {{sym.get_symbol_name()}},
 {%- endfor %}
 
 {%- for sym in neuron.get_spike_input_ports() %}
-                 {{sym.get_symbol_name()}}
+                 {{sym.get_symbol_name()}},
 {%- endfor %}
                 ):
-        # .. compute propagators ...
+
+        # compute propagators and other internal parameters
+{%- filter indent(4) %}
+{%- for variable in neuron.get_internal_symbols() %}
+{%-   include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+{%- endfilter %}
+
         super().__init__({{neuronName}}Impl(
+                 # state:
 {%- for sym in neuron.get_state_symbols() %}
-                 {{sym.get_symbol_name()}}
+                 {{sym.get_symbol_name()}},
 {%- endfor %}
 
+                 # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
-                 {{sym.get_symbol_name()}}
+                 {{sym.get_symbol_name()}},
 {%- endfor %}
 
+                 # input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
-                 {{sym.get_symbol_name()}}
+                 {{sym.get_symbol_name()}},
 {%- endfor %}
 
-       # ... pass internal variables ...
+                 # internal variables:
+{%- for internal in neuron.get_internal_symbols() %}
+                 {{names.name(internal)}},
+{%- endfor %}
                                            ))
