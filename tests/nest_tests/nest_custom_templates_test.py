@@ -28,15 +28,13 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestCustomTemplatesTest(unittest.TestCase):
     """
     Tests the code generation and installation with custom NESTML templates for NEST
     """
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -71,7 +69,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
 
         nest.Simulate(5.0)
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_custom_templates_with_synapse(self):
         models = ["neurons/iaf_psc_delta.nestml", "synapses/stdp_triplet_naive.nestml"]
