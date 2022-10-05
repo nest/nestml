@@ -27,7 +27,6 @@ from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronNa
 
 class {{neuronName}}(AbstractPyNNNeuronModel):
 
-    @default_parameters({"threshold"})
     def __init__(self, 
 # XXX: need to print default values here?
 {%- for sym in neuron.get_state_symbols() %}
@@ -44,7 +43,7 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
                 ):
 
         # compute propagators and other internal parameters
-{%- filter indent(4) %}
+{%- filter indent(8) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
