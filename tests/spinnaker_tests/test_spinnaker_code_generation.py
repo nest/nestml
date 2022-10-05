@@ -37,7 +37,7 @@ class TestSpiNNakerCodeGeneration(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_no_refractory.nestml"))))
         target_path = "/tmp/nestml-spinnaker"
-        install_path = "/tmp/spinnaker-install"
+        install_path = "/tmp/nestml-spinnaker-install"
         logging_level = "INFO"
         suffix = ""
         module_name = "nestmlmodule"
