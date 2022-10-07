@@ -21,6 +21,7 @@
 import os.path
 
 import nest
+import numpy as np
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
@@ -37,8 +38,12 @@ def test_iaf_psc_exp_istep():
                          logging_level="INFO",
                          module_name=module_name)
     nest.Install(module_name)
-    n = nest.Create('iaf_cond_exp_Istep', params={'n_step': 5, 'I_step': [10., -20., 30., -40., 50.],
-                                                  't_step': [10., 30., 40., 45., 50.]})
+    I_step = [10., -20., 30., -40., 50.]
+    t_step = [10., 30., 40., 45., 50.]
+    n = nest.Create('iaf_cond_exp_Istep', params={'n_step': 5, 'I_step': I_step,
+                                                  't_step': t_step})
     vm = nest.Create('voltmeter', params={'interval': 0.1})
     nest.Connect(vm, n)
     nest.Simulate(100)
+    index = int(t_step[0] / nest.resolution) + 2  # +2 to wait for the raise in amplitude of V_m after the current is applied at t_step = 10ms
+    np.testing.assert_allclose(vm.get("events")["V_m"][index], -69.996013)

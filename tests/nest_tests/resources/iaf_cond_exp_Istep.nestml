@@ -5,11 +5,8 @@ iaf_cond_exp_Istep - Simple conductance based leaky integrate-and-fire neuron mo
 Description
 +++++++++++
 
-iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses. Incoming spike events induce a post-synaptic change
-of conductance modelled by an exponential function. The exponential function
-is normalised such that an event of weight 1.0 results in a peak conductance of
-1 nS.
+iaf_cond_exp_Istep is a variation of iaf_cond_exp [1] that incorporates a stepwise-constant injected current,
+defined according to a vector of times (``t_step``) and a vector of current amplitudes at those times (``I_step``).
 
 References
 ++++++++++
