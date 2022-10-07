@@ -45,5 +45,5 @@ def test_iaf_psc_exp_istep():
     vm = nest.Create('voltmeter', params={'interval': 0.1})
     nest.Connect(vm, n)
     nest.Simulate(100)
-    index = int(t_step[0] / nest.resolution) + 2  # +2 to wait for the raise in amplitude of V_m after the current is applied at t_step = 10ms
+    index = int(t_step[0] / nest.GetKernelStatus("resolution")) + 2  # +2 to wait for the raise in amplitude of V_m after the current is applied at t_step = 10ms
     np.testing.assert_allclose(vm.get("events")["V_m"][index], -69.996013)
