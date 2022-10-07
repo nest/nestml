@@ -36,8 +36,6 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class TestOUConductanceNoise(unittest.TestCase):
     record_from = ["g_noise_exc", "g_noise_inh"]
@@ -185,7 +183,7 @@ class TestOUConductanceNoise(unittest.TestCase):
 
         plt.savefig("figure2AB_destexhe2001.pdf")
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_ou_conductance_noise(self):
         state, neuron = self.simulate_OU_noise_neuron(resolution=1.)

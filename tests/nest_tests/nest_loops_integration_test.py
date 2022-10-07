@@ -30,15 +30,12 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-nest_version = NESTTools.detect_nest_version()
-
-
 class NestLoopsIntegrationTest(unittest.TestCase):
     """
     Tests the code generation and working of for and while loops from NESTML to NEST
     """
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_for_and_while_loop(self):
         files = ["ForLoop.nestml", "WhileLoop.nestml"]

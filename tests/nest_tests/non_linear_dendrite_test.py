@@ -38,15 +38,13 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestNonLinearDendriteTest(unittest.TestCase):
     """
     Test for proper reset of synaptic integration after condition is triggered (here, dendritic spike).
     """
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_non_linear_dendrite(self):
         MAX_SSE = 1E-12
