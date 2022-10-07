@@ -22,10 +22,14 @@ import os.path
 
 import nest
 import numpy as np
+import pytest
+from pynestml.codegeneration.nest_tools import NESTTools
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 def test_iaf_psc_exp_istep():
     """
     A test for iaf_psc_exp model with step current defined inside the model
@@ -45,5 +49,5 @@ def test_iaf_psc_exp_istep():
     vm = nest.Create('voltmeter', params={'interval': 0.1})
     nest.Connect(vm, n)
     nest.Simulate(100)
-    index = int(t_step[0] / nest.GetKernelStatus("resolution")) + 2  # +2 to wait for the raise in amplitude of V_m after the current is applied at t_step = 10ms
+    index = int(t_step[0] / nest.resolution) + 2  # +2 to wait for the raise in amplitude of V_m after the current is applied at t_step = 10ms
     np.testing.assert_allclose(vm.get("events")["V_m"][index], -69.996013)
