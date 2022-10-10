@@ -21,7 +21,7 @@ inline double get_state_element(size_t elem)
 {%-     if size|int == 0 %}
 {%-     set size = printer.print_vector_size_parameter(variable) %}
 {%-     endif -%}
-    (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
+    (elem >= State_::{{names.name(variable).upper()}} and elem < State_::{{names.name(variable).upper()}} + {{size}})
     {
       return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
     }

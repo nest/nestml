@@ -206,7 +206,7 @@ public:
   /**
    * Destructor.
   **/
-  ~{{neuronName}}();
+  ~{{neuronName}}() override;
 
   // -------------------------------------------------------------------------
   //   Import sets of overloaded virtual functions.
@@ -738,7 +738,7 @@ inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rpor
 inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
 {%- if neuron.is_multisynapse_spikes() %}
-    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.get_spike_input_ports()[0].get_vector_parameter()}}()) )
+    if ( receptor_type <= 0 or receptor_type > static_cast< nest::port >( get_{{neuron.get_spike_input_ports()[0].get_vector_parameter()}}()) )
     {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
@@ -747,7 +747,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::po
 {%- elif neuron.get_multiple_receptors()|length > 1 %}
     assert( B_.spike_inputs_.size() == {{(neuron.get_multiple_receptors())|length}} );
 
-    if ( !( INF_SPIKE_RECEPTOR < receptor_type && receptor_type < SUP_SPIKE_RECEPTOR ) )
+    if ( !( INF_SPIKE_RECEPTOR < receptor_type and receptor_type < SUP_SPIKE_RECEPTOR ) )
     {
       throw nest::UnknownReceptorType( receptor_type, get_name() );
       return 0;
