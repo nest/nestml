@@ -18,11 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-import nest
 import numpy as np
+import os
 import pytest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -40,7 +42,11 @@ except Exception:
 def nestml_generate_target():
     r"""Generate the neuron model code"""
 
-    generate_nest_target(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"],
+    files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
+             os.path.join("models", "synapses", "stdp_triplet_naive.nestml")]
+    input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+        os.pardir, os.pardir, s))) for s in files]
+    generate_nest_target(input_path=input_path,
                          target_path="/tmp/nestml-triplet-stdp",
                          logging_level="INFO",
                          module_name="nestml_triplet_pair_module",
@@ -208,7 +214,10 @@ def run_nest_simulation(neuron_model_name,
     external_input = nest.Create('spike_generator', params={'spike_times': pre_spike_times_req})
     external_input1 = nest.Create('spike_generator', params={'spike_times': post_spike_times_req})
 
-    spikes = nest.Create('spike_recorder')
+    if NESTTools.detect_nest_version().startswith("v2"):
+        spikes = nest.Create('spike_detector')
+    else:
+        spikes = nest.Create('spike_recorder')
     weight_recorder_E = nest.Create('weight_recorder')
 
     # Set models default -------------------------------------------
@@ -230,9 +239,14 @@ def run_nest_simulation(neuron_model_name,
 
     # Connect nodes ------------------------------------------------
 
-    nest.Connect(neurons[0], neurons[1], syn_spec={'synapse_model': synapse_model_name + "_rec"})
-    nest.Connect(external_input, neurons[0], syn_spec='excitatory_noise')
-    nest.Connect(external_input1, neurons[1], syn_spec='excitatory_noise')
+    if NESTTools.detect_nest_version().startswith("v2"):
+        nest.Connect([neurons[0]], [neurons[1]], syn_spec={'model': synapse_model_name + "_rec"})
+        nest.Connect(external_input, [neurons[0]], syn_spec='excitatory_noise')
+        nest.Connect(external_input1, [neurons[1]], syn_spec='excitatory_noise')
+    else:
+        nest.Connect(neurons[0], neurons[1], syn_spec={'synapse_model': synapse_model_name + "_rec"})
+        nest.Connect(external_input, neurons[0], syn_spec='excitatory_noise')
+        nest.Connect(external_input1, neurons[1], syn_spec='excitatory_noise')
     # spike_recorder ignores connection delay; recorded times are times of spike creation rather than spike arrival
     nest.Connect(neurons, spikes)
 

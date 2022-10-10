@@ -15,7 +15,7 @@ inline double get_state_element(size_t elem)
     else if
 {%-  endif %}
 
-{%- if loop.index != len %}
+{%- if len == 1 or loop.index < len %}
 {%-   if variable.has_vector_parameter() %}
 {%-   set size =  variable.get_vector_parameter() %}
 {%-     if size|int == 0 %}

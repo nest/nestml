@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import unittest
-
+import nest
 import numpy as np
 
 try:
@@ -32,11 +30,14 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-import nest
+import os
+import pytest
 import scipy
 import scipy.signal
 import scipy.stats
+import unittest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -45,6 +46,8 @@ class NestFirFilterTest(unittest.TestCase):
     Tests the working of FIR filter model in NEST
     """
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_fir_filter(self):
         nestml_model_file = "FIR_filter.nestml"
         nestml_model_name = "fir_filter_nestml"

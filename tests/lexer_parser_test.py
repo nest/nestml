@@ -37,10 +37,10 @@ class LexerParserTest(unittest.TestCase):
 
     def test(self):
         model_files = []
-        for dir in ['models',
-                    os.path.join('tests', 'nest_tests', 'resources'),
-                    os.path.join('tests', 'valid')]:
-            model_files += glob.glob(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', dir, '*.nestml'))))
+        for dir in ["models",
+                    os.path.join("tests", "nest_tests", "resources"),
+                    os.path.join("tests", "valid")]:
+            model_files += glob.glob(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, dir, "*.nestml"))))
 
         assert len(model_files) > 0
 
@@ -61,5 +61,5 @@ class LexerParserTest(unittest.TestCase):
             assert compilation_unit is not None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

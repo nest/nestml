@@ -19,10 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -42,12 +46,16 @@ class NoisySynapseTest(unittest.TestCase):
 
     def setUp(self):
         """Generate and build the model code"""
-        generate_nest_target(input_path="models/synapses/noisy_synapse.nestml",
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                       os.path.join(os.pardir, os.pardir, 'models', 'synapses', 'noisy_synapse.nestml'))))
+        generate_nest_target(input_path=input_path,
                              target_path="/tmp/nestml-noisy-synapse",
                              logging_level="INFO",
                              module_name="nestml_noisy_synapse_module",
                              suffix="_nestml")
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_noisy_noisy_synapse_synapse(self):
 
         fname_snip = "noisy_synapse_test"

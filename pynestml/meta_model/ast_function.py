@@ -19,9 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List, Optional
+
 from copy import copy
 
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 
 
 class ASTFunction(ASTNode):
@@ -50,20 +55,16 @@ class ASTFunction(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, parameters, return_type, block, type_symbol=None, *args, **kwargs):
+    def __init__(self, name: str, parameters: List[ASTParameter], return_type: Optional[ASTDataType], block: ASTBlock, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param name: the name of the defined function.
-        :type name: str
         :param parameters: (Optional) Set of parameters.
-        :type parameters: List[ASTParameter]
         :param return_type: (Optional) Return type.
-        :type return_type: ASTDataType
         :param block: a block of declarations.
-        :type block: ASTBlock
         """
         super(ASTFunction, self).__init__(*args, **kwargs)
         self.block = block
@@ -86,8 +87,7 @@ class ASTFunction(ASTNode):
         if self.return_type:
             return_type_dup = self.return_type.clone()
         parameters_dup = None
-        if self.parameters:
-            parameters_dup = [parameter.clone() for parameter in self.parameters]
+        parameters_dup = [parameter.clone() for parameter in self.parameters]
         dup = ASTFunction(name=self.name,
                           parameters=parameters_dup,
                           return_type=return_type_dup,
@@ -112,19 +112,17 @@ class ASTFunction(ASTNode):
         """
         return self.name
 
-    def has_parameters(self):
+    def has_parameters(self) -> bool:
         """
         Returns whether parameters have been defined.
         :return: True if parameters defined, otherwise False.
-        :rtype: bool
         """
-        return (self.parameters is not None) and (len(self.parameters) > 0)
+        return len(self.parameters) > 0
 
-    def get_parameters(self):
+    def get_parameters(self) -> List[ASTParameter]:
         """
         Returns the list of parameters.
         :return: a parameters object containing the list.
-        :rtype: list(ASTParameter)
         """
         return self.parameters
 

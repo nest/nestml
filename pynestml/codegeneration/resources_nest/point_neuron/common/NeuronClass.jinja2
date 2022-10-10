@@ -1,4 +1,4 @@
-#define DEBUG 1
+// #define DEBUG 1
 {#
 NeuronClass.jinja2
 
@@ -189,8 +189,12 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   calibrate();
+{%- else %}
+  pre_run_hook();
+{%- endif %}
+
 {%- if uses_numeric_solver %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
@@ -218,6 +222,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- else %}
@@ -318,13 +323,13 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
-#if NEST2_COMPAT
+{%- if nest_version.startswith("v2") %}
 void {{neuronName}}::init_state_(const Node& proto)
 {
   const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
 }
-#endif
+{%- endif %}
 
 void {{neuronName}}::init_buffers_()
 {
@@ -332,6 +337,14 @@ void {{neuronName}}::init_buffers_()
   {{ printer.print_buffer_initialization(port) }}
 {%- endfor %}
   B_.logger_.reset(); // includes resize
+{%- if has_delay_variables %}
+  // Initialize helper variables for delay-based variables
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/DelayVariablesInitialization.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+{%- endif %}
 
 {%- if paired_neuron is defined %}
   clear_history();
@@ -374,14 +387,14 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 }
 
-void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
+void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   if (exclude_timestep) {
 {%- filter indent(4,True) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%- if variable.name != "__h" %}
-{%-   include "directives/Calibrate.jinja2" %}
+{%-   include "directives/MemberInitialization.jinja2" %}
 {%- endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -390,16 +403,20 @@ void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
     // internals V_
 {%- filter indent(4) %}
 {%- for variable in neuron.get_internal_symbols() %}
-{%-   include "directives/Calibrate.jinja2" %}
+{%-   include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
   }
 }
 
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
 void {{neuronName}}::calibrate() {
+{%- else %}
+void {{neuronName}}::pre_run_hook() {
+{%- endif %}
   B_.logger_.init();
 
-  calibrate_variables();
+  recompute_internal_variables();
 
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
@@ -435,6 +452,26 @@ void {{neuronName}}::calibrate() {
 {%- include "directives/GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
+{%- if has_delay_variables %}
+void {{neuronName}}::update_delay_variables()
+{
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+{%-       include "directives/UpdateDelayVariables.jinja2" %}
+{%-     endif %}
+{%-   endfor %}
+}
+
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     if variable.has_delay_parameter() %}
+double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
+{
+    return DV_.delayed_{{variable.get_symbol_name()}}[ DV_.delayed_{{variable.get_symbol_name()}}_idx ];
+}
+{%-     endif %}
+{%-   endfor %}
+
+{%- endif %}
 {%- if neuron.print_dynamics_comment('*')|length > 1 %}
 /*
  {{neuron.print_dynamics_comment('*')}}
@@ -443,6 +480,11 @@ void {{neuronName}}::calibrate() {
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
+{% if propagators_are_state_dependent %}
+  // the propagators are state dependent; update them!
+  recompute_internal_variables();
+{%- endif %}
 
   for ( long lag = from ; lag < to ; ++lag )
   {
@@ -456,6 +498,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     B_.{{names.buffer_value(inputPort)}} = get_{{names.name(inputPort)}}().get_value(lag);
 {%-   endif %}
 {%- endfor %}
+
+{%- if has_delay_variables %}
+    update_delay_variables();
+{%- endif %}
 
     // NESTML generated code for the update block:
 
@@ -680,7 +726,7 @@ void
         const double old___h = V_.__h;
         V_.__h = t_sp_ms - last_spike_;
         if (V_.__h > 1E-12) {
-          calibrate_variables(true);
+          recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -719,7 +765,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 
 {%- endfilter %}
         V_.__h = old___h;
-        calibrate_variables(true);
+        recompute_internal_variables(true);
       }
 
         /**
@@ -822,7 +868,7 @@ double
         const double old___h = V_.__h;
         V_.__h = t - history_[i].t_;
         assert(V_.__h > 0);
-        calibrate_variables(true);
+        recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -856,7 +902,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endfilter %}
 
         V_.__h = old___h;
-        calibrate_variables(true);
+        recompute_internal_variables(true);
       }
 
 #ifdef DEBUG
@@ -905,7 +951,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   const double old___h = V_.__h;
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
-  calibrate_variables(true);
+  recompute_internal_variables(true);
 {#
   Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
 #}
@@ -938,7 +984,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 {%- endfilter %}
   V_.__h = old___h;
-  calibrate_variables(true);
+  recompute_internal_variables(true);
 
   return {{names.getter(var_sym)}}();
 }

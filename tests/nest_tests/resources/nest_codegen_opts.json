@@ -1,3 +1,4 @@
 {
-   "nest_path": "%NEST_PATH%"
+   "nest_path": "%NEST_PATH%",
+   "nest_version": "%NEST_VERSION%"
 }

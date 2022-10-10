@@ -175,74 +175,20 @@ Sometimes it can be convenient to directly edit the generated code. To manually 
 where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home/nest/work/nest-install``).
 
 
-Running NESTML with custom templates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Custom templates
+~~~~~~~~~~~~~~~~
 
-NESTML generates model-specific code using a set of Jinja templates. For NEST, NESTML by default uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. (For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.)
-
-The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file. (Note that this parameter also exists in the ``generate_target()`` function.)
-
-.. code-block:: bash
-
-   nestml --input_path models/neurons/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
-
-An example ``codegen_options.json`` file is as follows:
-
-.. code-block:: json
-
-   {
-        "templates":
-        {
-            "path": "/home/nest/work/custom_templates",
-            "model_templates": {
-                "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
-                "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
-            },
-            "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                 "setup/@MODULE_NAME@.h.jinja2","setup/@MODULE_NAME@.cpp.jinja2"]
-        }
-   }
-
-The ``templates`` option in the JSON file contains information on the custom Jinja templates to be used for code generation.
-* The ``path`` option indicates the root directory of the custom Jinja templates.
-* The ``model_templates`` option indicates the names of the Jinja templates for neuron and synapse model(s) or relative path to a directory containing the neuron and synapse model(s) templates.
-* The ``module_templates`` option indicates the names or relative path to a directory containing the Jinja templates used to build a NEST extension module.
-
-The escape sequence ``@NEURON_NAME@`` (resp. ``@SYNAPSE_NAME@``, ``@MODULE_NAME@``) will be replaced with the name of the neuron model (resp. synapse model or name of the module) during code generation.
-
-The ``codegen_opts`` can also be passed to the PyNESTML function ``generate_target()`` as follows:
-
-.. code-block:: python
-
-   from pynestml.frontend.pynestml_frontend import generate_target
-
-   input_path = "..."
-   target_platform = "NEST"
-   codegen_opts = {"templates": {"path": "/home/nest/work/custom_templates",
-                                 "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
-                                                     "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
-                                 "module_templates": ["setup"]}}
-
-   generate_target(input_path, target_platform, codegen_opts=codegen_opts)
+See :ref:`Running NESTML with custom templates`.
 
 
-Running in NEST 2.* compatibility mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compatibility with different versions of NEST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.\*), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
+To generate code that is compatible with particular release versions of NEST Simulator, the code generator option  ``nest_version`` can be used. It takes a string as its value that corresponds to a git tag or git branch name. The following values are supported:
 
-.. code-block:: python
-
-   codegen_opts = {
-       "templates": {
-           "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pynestml", "codegeneration",
-                                "resources_nest", "point_neuron_nest2"),
-           "model_templates": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
-           "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/SLI_Init.sli.jinja2",
-                                "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
-   }}
-
-The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.
+- The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
 
 
 Python-standalone target

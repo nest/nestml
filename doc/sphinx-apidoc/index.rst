@@ -31,7 +31,7 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
    running
    models_library/index
    tutorials/index
-   pynestml_toolchain/index
+   extending
    getting_help
    citing
    license

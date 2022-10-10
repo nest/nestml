@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Sequence, Union
+from typing import Sequence, Union
 
 import datetime
 import os
@@ -35,7 +35,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.ode_transformer import OdeTransformer
+from pynestml.utils.logger import Logger
 
 
 class AutoDocCodeGenerator(CodeGenerator):
@@ -62,6 +62,10 @@ class AutoDocCodeGenerator(CodeGenerator):
         self.generate_index(neurons, synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
+
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                raise Exception("Error(s) occurred during code generation")
 
     def generate_index(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         """
@@ -107,7 +111,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['odeTransformer'] = OdeTransformer()
 
         import textwrap
         pre_comments_bak = neuron.pre_comments
@@ -133,7 +136,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['odeTransformer'] = OdeTransformer()
 
         pre_comments_bak = synapse.pre_comments
         synapse.pre_comments = []
@@ -161,6 +163,5 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['odeTransformer'] = OdeTransformer()
 
         return namespace

@@ -728,3 +728,15 @@ class ASTNeuronOrSynapse(ASTNode):
             if type(decl) is ASTKernel:
                 kernels.append(decl)
         return kernels
+
+    def has_delay_variables(self) -> bool:
+        """
+        This method indicates if the neuron has variables with a delay parameter.
+        :return: True if variables with delay parameter exist, False otherwise.
+        """
+        state_symbols = self.get_state_symbols()
+        for symbol in state_symbols:
+            if symbol.has_delay_parameter():
+                return True
+
+        return False

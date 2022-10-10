@@ -20,12 +20,14 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
-import nest
 import numpy as np
 import os
-import unittest
 import re
+import unittest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -46,39 +48,42 @@ def get_model_doc_title(model_fname: str):
 class NestIntegrationTest(unittest.TestCase):
 
     def generate_all_models(self):
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                  "synapse": "neuromodulated_stdp",
+                                                  "post_ports": ["post_spikes"],
+                                                  "vt_ports": ["mod_spikes"]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_delta",
+                                                  "synapse": "stdp_triplet",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_delta",
+                                                  "synapse": "stdp_triplet_nn",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp_nn_symm",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp_nn_restr_symm",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_exp_dend",
+                                                  "synapse": "third_factor_stdp",
+                                                  "post_ports": ["post_spikes",
+                                                                 ["I_post_dend", "I_dend"]]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp_nn_pre_centered",
+                                                  "post_ports": ["post_spikes"]}]}
+        if NESTTools.detect_nest_version().startswith("v3"):
+            codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
+            codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
+
         generate_nest_target(input_path=["models"],
                              target_path="/tmp/nestml-allmodels",
                              logging_level="INFO",
                              module_name="nestml_allmodels_module",
                              suffix="_nestml",
-                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                                           "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "neuromodulated_stdp",
-                                                                     "post_ports": ["post_spikes"],
-                                                                     "vt_ports": ["mod_spikes"]},
-                                                                    {"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp",
-                                                                     "post_ports": ["post_spikes"]},
-                                                                    {"neuron": "iaf_psc_delta",
-                                                                     "synapse": "stdp_triplet",
-                                                                     "post_ports": ["post_spikes"]},
-                                                                    {"neuron": "iaf_psc_delta",
-                                                                     "synapse": "stdp_triplet_nn",
-                                                                     "post_ports": ["post_spikes"]},
-                                                                    {"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp_nn_symm",
-                                                                     "post_ports": ["post_spikes"]},
-                                                                    {"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp_nn_restr_symm",
-                                                                     "post_ports": ["post_spikes"]},
-                                                                    {"neuron": "iaf_psc_exp_dend",
-                                                                     "synapse": "third_factor_stdp",
-                                                                     "post_ports": ["post_spikes",
-                                                                                    ["I_post_dend", "I_dend"]]},
-                                                                    {"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp_nn_pre_centered",
-                                                                     "post_ports": ["post_spikes"]}]})
+                             codegen_opts=codegen_opts)
 
     def test_nest_integration(self):
         # N.B. all models are assumed to have been already built (see .travis.yml)
@@ -108,7 +113,10 @@ class NestIntegrationTest(unittest.TestCase):
                               {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
                                "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
-        neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        if NESTTools.detect_nest_version().startswith("v2"):
+            neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1, {}, {}, {"V_m": -70., "U_m": .2 * -70.}))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        else:
+            neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
         neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
         neuron_models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
         neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1E-3, 1E-3))
@@ -138,10 +146,15 @@ class NestIntegrationTest(unittest.TestCase):
             else:
                 custom_model_opts = None
 
+            if len(model) > 6:
+                model_initial_state = model[6]
+            else:
+                model_initial_state = None
+
             print("Now testing model: " + str(testant) + " (reference model: " + str(reference) + ")")
-            self._test_model(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)
+            self._test_model(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts, model_initial_state)
             self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
-                                          nest_ref_model_opts, custom_model_opts)
+                                          nest_ref_model_opts, custom_model_opts, model_initial_state)
 
         all_neuron_models = [s[:-7] for s in list(os.walk("models/neurons"))[0][2] if s[-7:] == ".nestml"]
         s += self.generate_neuron_models_documentation(neuron_models, all_neuron_models)
@@ -336,7 +349,7 @@ class NestIntegrationTest(unittest.TestCase):
         return s
 
     def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001,
-                                 nest_ref_model_opts=None, custom_model_opts=None):
+                                 nest_ref_model_opts=None, custom_model_opts=None, model_initial_state=None):
         t_stop = 1000.  # [ms]
 
         I_stim_vec = np.linspace(10E-12, 1E-9, 100)  # [A]
@@ -347,6 +360,9 @@ class NestIntegrationTest(unittest.TestCase):
             nest.ResetKernel()
             neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
             neuron2 = nest.Create(testant, params=custom_model_opts)
+            if model_initial_state is not None:
+                nest.SetStatus(neuron1, model_initial_state)
+                nest.SetStatus(neuron2, model_initial_state)
 
             if gsl_error_tol is not None:
                 nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
@@ -366,12 +382,18 @@ class NestIntegrationTest(unittest.TestCase):
             nest.Connect(multimeter1, neuron1)
             nest.Connect(multimeter2, neuron2)
 
-            sd_reference = nest.Create('spike_recorder')
+            if NESTTools.detect_nest_version().startswith("v2"):
+                sd_reference = nest.Create('spike_detector')
+                sd_testant = nest.Create('spike_detector')
+            else:
+                sd_reference = nest.Create('spike_recorder')
+                sd_testant = nest.Create('spike_recorder')
+
             nest.Connect(neuron1, sd_reference)
-            sd_testant = nest.Create('spike_recorder')
             nest.Connect(neuron2, sd_testant)
 
             nest.Simulate(t_stop)
+
             dmm1 = nest.GetStatus(multimeter1)[0]
             Vms1 = dmm1["events"][V_m_specifier]
             ts1 = dmm1["events"]["times"]
@@ -380,8 +402,8 @@ class NestIntegrationTest(unittest.TestCase):
             Vms2 = dmm2["events"][V_m_specifier]
             ts2 = dmm2["events"]["times"]
 
-            rate_testant[i] = sd_testant.n_events / t_stop * 1000
-            rate_reference[i] = sd_reference.n_events / t_stop * 1000
+            rate_testant[i] = nest.GetStatus(sd_testant)[0]["n_events"] / t_stop * 1000
+            rate_reference[i] = nest.GetStatus(sd_reference)[0]["n_events"] / t_stop * 1000
 
             if TEST_PLOTS and False:
                 fig, ax = plt.subplots(2, 1)
@@ -434,7 +456,7 @@ class NestIntegrationTest(unittest.TestCase):
         print(testant + " PASSED")
 
     def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None,
-                    custom_model_opts=None):
+                    custom_model_opts=None, model_initial_state=None):
 
         spike_times = [100.0, 200.0]
         spike_weights = [1., -1.]
@@ -443,8 +465,12 @@ class NestIntegrationTest(unittest.TestCase):
         neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
         neuron2 = nest.Create(testant, params=custom_model_opts)
 
+        if model_initial_state is not None:
+            nest.SetStatus(neuron1, model_initial_state)
+            nest.SetStatus(neuron2, model_initial_state)
+
         if gsl_error_tol is not None:
-            neuron2.set({"gsl_error_tol": gsl_error_tol})
+            nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',
                                      params={'spike_times': spike_times, 'spike_weights': spike_weights})
@@ -456,18 +482,21 @@ class NestIntegrationTest(unittest.TestCase):
         multimeter2 = nest.Create('multimeter')
 
         V_m_specifier = 'V_m'  # 'delta_V_m'
-        multimeter1.set({"record_from": [V_m_specifier]})
-        multimeter2.set({"record_from": [V_m_specifier]})
+        nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
+        nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
 
         nest.Connect(multimeter1, neuron1)
         nest.Connect(multimeter2, neuron2)
 
         nest.Simulate(400.0)
-        Vms1 = multimeter1.get("events")[V_m_specifier]
-        ts1 = multimeter1.get("events")["times"]
 
-        Vms2 = multimeter2.get("events")[V_m_specifier]
-        ts2 = multimeter2.get("events")["times"]
+        dmm1 = nest.GetStatus(multimeter1)[0]
+        Vms1 = dmm1["events"][V_m_specifier]
+        ts1 = dmm1["events"]["times"]
+
+        dmm2 = nest.GetStatus(multimeter2)[0]
+        Vms2 = dmm2["events"][V_m_specifier]
+        ts2 = dmm2["events"]["times"]
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)

@@ -19,11 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
@@ -33,7 +36,9 @@ class NestResolutionBuiltinTest(unittest.TestCase):
     def setUp(self):
         """Generate the model code"""
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        generate_nest_target(input_path=["tests/nest_tests/resources/iaf_psc_exp_resolution_test.nestml", os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "valid", "CoCoResolutionLegallyUsed.nestml")))],
+        input_files = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_psc_exp_resolution_test.nestml"))),
+                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "valid", "CoCoResolutionLegallyUsed.nestml")))]
+        generate_nest_target(input_path=input_files,
                              target_path="target",
                              logging_level="INFO",
                              module_name="nestmlmodule",
@@ -43,6 +48,8 @@ class NestResolutionBuiltinTest(unittest.TestCase):
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test",
                                                                      "synapse": "CoCoResolutionLegallyUsed"}]})
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_resolution_function(self):
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()

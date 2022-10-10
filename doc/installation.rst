@@ -1,7 +1,7 @@
 Installing NESTML
 =================
 
-Please note that only Python 3.8 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
+Please note that only Python 3.9 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
 Installing the latest release from PyPI
 ---------------------------------------
@@ -17,10 +17,6 @@ NESTML can then be installed into your local user directory via:
 .. code-block:: bash
 
    pip install --pre nestml
-
-.. admonition:: **NESTML pre-release**
-
-   Currently, NESTML 5.0 is in pre-release or "release candidate" version status. This requires the flag ``--pre`` to be added when running pip (see `pip documentation <https://pip.pypa.io/en/stable/cli/pip_install/#install-pre>`_).
 
 
 Installing the latest development version from GitHub

@@ -19,16 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
 import pytest
 
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
@@ -42,7 +44,11 @@ def nestml_generate_target():
     r"""Generate the neuron model code"""
 
     # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-    generate_nest_target(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_synapse.nestml"],
+    files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
+             os.path.join("models", "synapses", "stdp_synapse.nestml")]
+    input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+        os.pardir, os.pardir, s))) for s in files]
+    generate_nest_target(input_path=input_path,
                          target_path="/tmp/nestml-jit",
                          logging_level="INFO",
                          module_name="nestml_jit_module",
@@ -70,9 +76,9 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     nest.set_verbosity("M_ALL")
 
     nest.ResetKernel()
-    nest.SetKernelStatus({'resolution': resolution})
+    nest.SetKernelStatus({"resolution": resolution})
 
-    wr = nest.Create('weight_recorder')
+    wr = nest.Create("weight_recorder")
     if "__with" in synapse_model_name:
         weight_variable_name = "w"
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
@@ -87,18 +93,25 @@ def run_stdp_network(pre_spike_time, post_spike_time,
                          params={"spike_times": [pre_spike_time, sim_time - 10.]})
     post_sg = nest.Create("spike_generator",
                           params={"spike_times": [post_spike_time],
-                                  'allow_offgrid_times': True})
+                                  "allow_offgrid_times": True})
 
     # create parrot neurons and connect spike_generators
     pre_neuron = nest.Create("parrot_neuron")
     post_neuron = nest.Create(neuron_model_name)
 
-    spikedet_pre = nest.Create("spike_recorder")
-    spikedet_post = nest.Create("spike_recorder")
+    if NESTTools.detect_nest_version().startswith("v2"):
+        spikedet_pre = nest.Create("spike_detector")
+        spikedet_post = nest.Create("spike_detector")
+    else:
+        spikedet_pre = nest.Create("spike_recorder")
+        spikedet_post = nest.Create("spike_recorder")
 
     nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
     nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-    nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec'})
+    if NESTTools.detect_nest_version().startswith("v2"):
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
+    else:
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
 
     nest.Connect(pre_neuron, spikedet_pre)
     nest.Connect(post_neuron, spikedet_post)
@@ -123,8 +136,8 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     return dt, dw
 
 
-@pytest.mark.parametrize('neuron_model_name', ["iaf_psc_delta_nestml__with_stdp_nestml"])
-@pytest.mark.parametrize('synapse_model_name', ["stdp_nestml__with_iaf_psc_delta_nestml"])
+@pytest.mark.parametrize("neuron_model_name", ["iaf_psc_delta_nestml__with_stdp_nestml"])
+@pytest.mark.parametrize("synapse_model_name", ["stdp_nestml__with_iaf_psc_delta_nestml"])
 def test_nest_stdp_synapse(neuron_model_name: str, synapse_model_name: str, fname_snip: str = ""):
     fname = "stdp_window_test"
     if len(fname_snip) > 0:

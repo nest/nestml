@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST2", "python_standalone", "autodoc", "none"]
+    targets = ["NEST", "python_standalone", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -54,26 +54,26 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     """Static factory method that returns a list of new instances of a child class of Transformers"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
+    # default: no transformers (empty list); options unchanged
+    transformers: List[Transformer] = []
     if options is None:
         options = {}
 
-    transformers: List[Transformer] = []
-
-    if target_name.upper() in ["NEST", "NEST2"]:
-        from pynestml.transformers.variable_name_rewriter import VariableNameRewriter
-        from pynestml.transformers.synapse_post_neuron_cogeneration import SynapsePostNeuronCogeneration
+    if target_name.upper() == "NEST":
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # rewrite all C++ keywords
         # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
-        variable_name_rewriter = VariableNameRewriter({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(variable_name_rewriter)
 
         # co-generate neuron and synapse
-        synapse_post_neuron_co_generation = SynapsePostNeuronCogeneration()
+        synapse_post_neuron_co_generation = SynapsePostNeuronTransformer()
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-        return transformers, options
+    return transformers, options
 
     if target_name.upper() in ["PYTHON_STANDALONE"]:
         from pynestml.transformers.variable_name_rewriter import VariableNameRewriter
@@ -84,21 +84,14 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         return transformers, options
 
-    # default: no transformers (empty list); options unchanged
-    return transformers, options
 
-
-def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
-
-    if target_name.upper() == "NEST2":
-        from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
-        return NEST2CodeGenerator(options)
 
     if target_name.upper() == "PYTHON_STANDALONE":
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
@@ -115,25 +108,26 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
+    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence
+    # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
-    if target_name.upper() in ["NEST", "NEST2"]:
+    if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
 
-    return None   # no builder requested or available
+    return None  # no builder requested or available
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
-                    install_path: str=None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
-                    dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                    install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                    dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for the given target platform.
 
     Parameters
@@ -206,8 +200,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                          install_path: Optional[str] = None, logging_level="ERROR",
-                         module_name=None, store_log: bool=False, suffix: str="",
-                         dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                         module_name=None, store_log: bool = False, suffix: str = "",
+                         dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters
@@ -378,11 +372,11 @@ def init_predefined():
 
 
 def create_report_dir():
-    if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), "..", "report")):
-        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), "..", "report"))
+    if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), os.pardir, "report")):
+        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), os.pardir, "report"))
 
 
 def store_log_to_file():
-    with open(str(os.path.join(FrontendConfiguration.get_target_path(), "..", "report",
+    with open(str(os.path.join(FrontendConfiguration.get_target_path(), os.pardir, "report",
                                "log")) + ".txt", "w+") as f:
         f.write(str(Logger.get_json_format()))
