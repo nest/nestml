@@ -648,7 +648,7 @@ public:
     // use accessor functions (inherited from Connection< >) to obtain delay and target
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     {{paired_neuron}}* __target = static_cast<{{paired_neuron}}*>(get_target(tid));
-    assert(__target != NULL);
+    assert(__target != nullptr);
 {%- else %}
     Node* __target = get_target( tid );
 {%- endif %}

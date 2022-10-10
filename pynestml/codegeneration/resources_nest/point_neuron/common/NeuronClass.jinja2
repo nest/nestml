@@ -164,7 +164,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
-  , __s( 0 ), __c( 0 ), __e( 0 )
+  , __s( nullptr ), __c( nullptr ), __e( nullptr )
 {%- endif %}
 {
   // Initialization of the remaining members is deferred to init_buffers_().
@@ -176,7 +176,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
-  , __s( 0 ), __c( 0 ), __e( 0 )
+  , __s( nullptr ), __c( nullptr ), __e( nullptr )
 {%- endif %}
 {
   // Initialization of the remaining members is deferred to init_buffers_().
@@ -351,7 +351,7 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 {%- if uses_numeric_solver %}
 
-  if ( B_.__s == 0 )
+  if ( B_.__s == nullptr )
   {
     B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
   }
@@ -360,7 +360,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_step_reset( B_.__s );
   }
 
-  if ( B_.__c == 0 )
+  if ( B_.__c == nullptr )
   {
     B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
   }
@@ -369,7 +369,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
   }
 
-  if ( B_.__e == 0 )
+  if ( B_.__e == nullptr )
   {
     B_.__e = gsl_odeiv_evolve_alloc( {{stateSize}} );
   }
@@ -379,7 +379,7 @@ void {{neuronName}}::init_buffers_()
   }
 
   B_.__sys.function = {{neuronName}}_dynamics;
-  B_.__sys.jacobian = NULL;
+  B_.__sys.jacobian = nullptr;
   B_.__sys.dimension = {{stateSize}};
   B_.__sys.params = reinterpret_cast< void* >( this );
   B_.__step = nest::Time::get_resolution().get_ms();
