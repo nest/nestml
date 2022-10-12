@@ -38,8 +38,6 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 def get_model_doc_title(model_fname: str):
     with open(model_fname) as f:
@@ -76,7 +74,7 @@ class NestIntegrationTest(unittest.TestCase):
                                                  {"neuron": "iaf_psc_exp",
                                                   "synapse": "stdp_nn_pre_centered",
                                                   "post_ports": ["post_spikes"]}]}
-        if nest_version.startswith("v3"):
+        if NESTTools.detect_nest_version().startswith("v3"):
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
@@ -115,7 +113,7 @@ class NestIntegrationTest(unittest.TestCase):
                               {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
                                "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
-        if nest_version.startswith("v2"):
+        if NESTTools.detect_nest_version().startswith("v2"):
             neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1, {}, {}, {"V_m": -70., "U_m": .2 * -70.}))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
         else:
             neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
@@ -384,7 +382,7 @@ class NestIntegrationTest(unittest.TestCase):
             nest.Connect(multimeter1, neuron1)
             nest.Connect(multimeter2, neuron2)
 
-            if nest_version.startswith("v2"):
+            if NESTTools.detect_nest_version().startswith("v2"):
                 sd_reference = nest.Create('spike_detector')
                 sd_testant = nest.Create('spike_detector')
             else:
