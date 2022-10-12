@@ -119,6 +119,7 @@ jobs:
           done;
           exit $rc
 
+      # Run only the nest_integration_test for the NEST versions other than master and 2.20.2
       - name: Run integration tests
         if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
         env:
