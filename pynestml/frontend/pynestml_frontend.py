@@ -264,6 +264,8 @@ def process():
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
+        else:
+            errors_occurred = True
 
     # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
