@@ -19,16 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.name_printer import NamePrinter
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
 
 
 class Printer:
     r"""
-    By using a different ReferenceConverter and TypesPrinter for the handling of variables, names, and functions and so on, Printers can be easily adapted to different targets.
+    By using a different NamePrinter and TypesPrinter for the handling of variables, names, and functions and so on, Printers can be easily adapted to different targets.
     """
 
-    def __init__(self, reference_converter: ReferenceConverter, types_printer: TypesPrinter):
-        assert isinstance(reference_converter, ReferenceConverter)
-        self.reference_converter = reference_converter
+    def __init__(self, name_printer: NamePrinter, types_printer: TypesPrinter):
+        assert isinstance(name_printer, NamePrinter)
+        self.name_printer = name_printer
         self.types_printer = types_printer

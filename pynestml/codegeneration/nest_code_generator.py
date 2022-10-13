@@ -33,11 +33,11 @@ from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelpe
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
-from pynestml.codegeneration.printers.gsl_reference_converter import GSLReferenceConverter
+from pynestml.codegeneration.printers.gsl_name_printer import GSLNamePrinter
 from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.printers.nest_printer import NestPrinter
-from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
-from pynestml.codegeneration.printers.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
+from pynestml.codegeneration.printers.nest_name_printer import NESTNamePrinter
+from pynestml.codegeneration.printers.ode_toolbox_name_printer import ODEToolboxNamePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -130,32 +130,32 @@ class NESTCodeGenerator(CodeGenerator):
         self._types_printer = CppTypesPrinter()
 
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-            from pynestml.codegeneration.printers.nest2_gsl_reference_converter import NEST2GSLReferenceConverter
-            from pynestml.codegeneration.printers.nest2_reference_converter import NEST2ReferenceConverter
-            self._gsl_reference_converter = NEST2GSLReferenceConverter()
-            self._nest_reference_converter = NEST2ReferenceConverter()
-            self._nest_reference_converter_no_origin = NEST2ReferenceConverter()
-            self._nest_reference_converter_no_origin.with_origin = False
+            from pynestml.codegeneration.printers.nest2_gsl_name_printer import NEST2GSLNamePrinter
+            from pynestml.codegeneration.printers.nest2_name_printer import NEST2NamePrinter
+            self._gsl_name_printer = NEST2GSLNamePrinter()
+            self._nest_name_printer = NEST2NamePrinter()
+            self._nest_name_printer_no_origin = NEST2NamePrinter()
+            self._nest_name_printer_no_origin.with_origin = False
         else:
-            self._gsl_reference_converter = GSLReferenceConverter()
-            self._nest_reference_converter = NESTReferenceConverter()
-            self._nest_reference_converter_no_origin = NESTReferenceConverter()
-            self._nest_reference_converter_no_origin.with_origin = False
+            self._gsl_name_printer = GSLNamePrinter()
+            self._nest_name_printer = NESTNamePrinter()
+            self._nest_name_printer_no_origin = NESTNamePrinter()
+            self._nest_name_printer_no_origin.with_origin = False
 
-        self._printer = CppExpressionPrinter(self._nest_reference_converter)
-        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_reference_converter)
-        self._unitless_expression_printer_no_origin = UnitlessExpressionPrinter(self._nest_reference_converter_no_origin)
-        self._gsl_printer = UnitlessExpressionPrinter(reference_converter=self._gsl_reference_converter)
+        self._printer = CppExpressionPrinter(self._nest_name_printer)
+        self._unitless_expression_printer = UnitlessExpressionPrinter(self._nest_name_printer)
+        self._unitless_expression_printer_no_origin = UnitlessExpressionPrinter(self._nest_name_printer_no_origin)
+        self._gsl_printer = UnitlessExpressionPrinter(name_printer=self._gsl_name_printer)
 
-        self._nest_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+        self._nest_printer = NestPrinter(name_printer=self._nest_name_printer,
                                          types_printer=self._types_printer,
                                          expression_printer=self._printer)
 
-        self._unitless_nest_gsl_printer = NestPrinter(reference_converter=self._nest_reference_converter,
+        self._unitless_nest_gsl_printer = NestPrinter(name_printer=self._nest_name_printer,
                                                       types_printer=self._types_printer,
                                                       expression_printer=self._unitless_expression_printer)
 
-        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
+        self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxNamePrinter())
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -383,7 +383,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["assignments"] = NestAssignmentsHelper()
-        namespace["names"] = self._nest_reference_converter
+        namespace["names"] = self._nest_name_printer
         namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["utils"] = ASTUtils
         namespace["idemPrinter"] = self._printer
@@ -456,7 +456,7 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
-            namespace["names"] = self._gsl_reference_converter
+            namespace["names"] = self._gsl_name_printer
             namespace["printer"] = self._unitless_nest_gsl_printer
 
         namespace["spike_updates"] = synapse.spike_updates
@@ -504,7 +504,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["nest_printer"] = self._nest_printer
         namespace["assignments"] = NestAssignmentsHelper()
-        namespace["names"] = self._nest_reference_converter
+        namespace["names"] = self._nest_name_printer
         namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["utils"] = ASTUtils
         namespace["idemPrinter"] = self._printer
@@ -635,7 +635,7 @@ class NESTCodeGenerator(CodeGenerator):
                 else:
                     namespace["purely_numeric_state_variables_moved"] = namespace["numeric_state_variables_moved"]
 
-            namespace["names"] = self._gsl_reference_converter
+            namespace["names"] = self._gsl_name_printer
             namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["spike_updates"] = neuron.spike_updates
 

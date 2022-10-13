@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# reference_converter.py
+# name_printer.py
 #
 # This file is part of NEST.
 #
@@ -22,59 +22,59 @@
 from abc import ABCMeta, abstractmethod
 
 
-class ReferenceConverter:
+class NamePrinter:
     r"""This class represents a abstract super class for all possible reference converters, e.g. for NEST, SpiNNaker, or standalone Python target."""
 
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def convert_binary_op(self, binary_operator):
+    def print_binary_op(self, binary_operator):
         pass
 
     @abstractmethod
-    def convert_function_call(self, function_call, prefix=''):
+    def print_function_call(self, function_call, prefix=''):
         pass
 
     @abstractmethod
-    def convert_name_reference(self, variable, prefix=''):
+    def print_name_reference(self, variable, prefix=''):
         pass
 
     @abstractmethod
-    def convert_delay_variable(self, variable, prefix=''):
+    def print_delay_variable(self, variable, prefix=''):
         pass
 
     @abstractmethod
-    def convert_constant(self, constant_name):
+    def print_constant(self, constant_name):
         pass
 
     @abstractmethod
-    def convert_unary_op(self, unary_operator):
+    def print_unary_op(self, unary_operator):
         pass
 
     @abstractmethod
-    def convert_encapsulated(self):
+    def print_encapsulated(self):
         pass
 
     @abstractmethod
-    def convert_logical_not(self):
+    def print_logical_not(self):
         pass
 
     @abstractmethod
-    def convert_arithmetic_operator(self, op):
+    def print_arithmetic_operator(self, op):
         pass
 
     @abstractmethod
-    def convert_bit_operator(self, op):
+    def print_bit_operator(self, op):
         pass
 
     @abstractmethod
-    def convert_comparison_operator(self, op):
+    def print_comparison_operator(self, op):
         pass
 
     @abstractmethod
-    def convert_logical_operator(self, op):
+    def print_logical_operator(self, op):
         pass
 
     @abstractmethod
-    def convert_ternary_operator(self):
+    def print_ternary_operator(self):
         pass

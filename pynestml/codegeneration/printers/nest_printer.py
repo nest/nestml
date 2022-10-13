@@ -21,7 +21,7 @@
 
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.printer import Printer
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.name_printer import NamePrinter
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -73,10 +73,10 @@ class NestPrinter(Printer):
     """
 
     def __init__(self,
-                 reference_converter: ReferenceConverter,
+                 name_printer: NamePrinter,
                  types_printer: TypesPrinter,
                  expression_printer: ExpressionPrinter):
-        super().__init__(reference_converter=reference_converter,
+        super().__init__(name_printer=name_printer,
                          types_printer=types_printer)
         self._expression_printer = expression_printer
 
@@ -174,7 +174,7 @@ class NestPrinter(Printer):
 
     def print_assignment(self, node, prefix="") -> str:
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.reference_converter.print_origin(symbol) + self.reference_converter.name(symbol) + ' '
+        ret = self.name_printer.print_origin(symbol) + self.name_printer.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -190,7 +190,7 @@ class NestPrinter(Printer):
 
     def print_variable(self, node: ASTVariable) -> str:
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.reference_converter.print_origin(symbol) + node.name
+        ret = self.name_printer.print_origin(symbol) + node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"
         return ret
@@ -367,9 +367,9 @@ class NestPrinter(Printer):
         :return: the corresponding string representation
         """
         if ast_buffer.has_vector_parameter():
-            return 'std::vector<double> ' + self.reference_converter.buffer_value(ast_buffer)
+            return 'std::vector<double> ' + self.name_printer.buffer_value(ast_buffer)
 
-        return 'double ' + self.reference_converter.buffer_value(ast_buffer)
+        return 'double ' + self.name_printer.buffer_value(ast_buffer)
 
     def print_buffer_declaration(self, ast_buffer) -> str:
         """
@@ -410,7 +410,7 @@ class NestPrinter(Printer):
         vector_param = ""
         if symbol is not None:
             # size parameter is a variable
-            vector_param += self.reference_converter.print_origin(symbol) + vector_parameter
+            vector_param += self.name_printer.print_origin(symbol) + vector_parameter
         else:
             # size parameter is an integer
             vector_param += vector_parameter
@@ -426,7 +426,7 @@ class NestPrinter(Printer):
         assert isinstance(variable, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
 
-        decl_str = self.reference_converter.print_origin(variable) + variable.get_symbol_name() + \
+        decl_str = self.name_printer.print_origin(variable) + variable.get_symbol_name() + \
             ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
             self.print_expression(variable.get_declaring_expression()) + \
             ");"
@@ -447,7 +447,7 @@ class NestPrinter(Printer):
                                                                    SymbolKind.VARIABLE)
         if symbol is not None:
             # delay parameter is a variable
-            return self.reference_converter.print_origin(symbol) + delay_parameter
+            return self.name_printer.print_origin(symbol) + delay_parameter
         return delay_parameter
 
     def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
@@ -469,4 +469,4 @@ class NestPrinter(Printer):
         return self._expression_printer.print_function_call(node)
 
     def print_origin(self, variable_symbol, prefix='') -> str:
-        return self.reference_converter.print_origin(variable_symbol)
+        return self.name_printer.print_origin(variable_symbol)

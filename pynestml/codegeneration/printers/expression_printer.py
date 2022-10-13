@@ -21,7 +21,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.name_printer import NamePrinter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 
 
@@ -32,8 +32,8 @@ class ExpressionPrinter(metaclass=ABCMeta):
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
 
-    def __init__(self, reference_converter: ReferenceConverter):
-        self.reference_converter = reference_converter
+    def __init__(self, name_printer: NamePrinter):
+        self.name_printer = name_printer
 
     @abstractmethod
     def print_expression(self, node: ASTExpressionNode, prefix: str = ""):

@@ -44,7 +44,7 @@ class LatexExpressionPrinter(ExpressionPrinter):
 
     def __do_print(self, node: ASTExpressionNode, prefix="") -> str:
         if isinstance(node, ASTVariable):
-            return self.reference_converter.convert_name_reference(node)
+            return self.name_printer.print_name_reference(node)
 
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
@@ -52,7 +52,7 @@ class LatexExpressionPrinter(ExpressionPrinter):
                 if node.get_numeric_literal() != 1:
                     s += "{0:E}".format(node.get_numeric_literal())
                     s += r"\cdot"
-                s += self.reference_converter.convert_name_reference(node.get_variable())
+                s += self.name_printer.print_name_reference(node.get_variable())
                 return s
 
             if node.is_numeric_literal():
@@ -65,13 +65,13 @@ class LatexExpressionPrinter(ExpressionPrinter):
                 return node.get_string()
 
             if node.is_boolean_true:
-                return self.reference_converter.convert_constant("true")
+                return self.name_printer.print_constant("true")
 
             if node.is_boolean_false:
-                return self.reference_converter.convert_constant("false")
+                return self.name_printer.print_constant("false")
 
             if node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable())
+                return self.name_printer.print_name_reference(node.get_variable())
 
             if node.is_function_call():
                 return self.print_function_call(node.get_function_call())
@@ -81,17 +81,17 @@ class LatexExpressionPrinter(ExpressionPrinter):
         if isinstance(node, ASTExpression):
             # a unary operator
             if node.is_unary_operator():
-                op = self.reference_converter.convert_unary_op(node.get_unary_operator())
+                op = self.name_printer.print_unary_op(node.get_unary_operator())
                 rhs = self.print_expression(node.get_expression())
                 return op % rhs
 
             # encapsulated in brackets
             if node.is_encapsulated:
-                return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression())
+                return self.name_printer.print_encapsulated() % self.print_expression(node.get_expression())
 
             # logical not
             if node.is_logical_not:
-                op = self.reference_converter.convert_logical_not()
+                op = self.name_printer.print_logical_not()
                 rhs = self.print_expression(node.get_expression())
                 return op % rhs
 
@@ -104,21 +104,21 @@ class LatexExpressionPrinter(ExpressionPrinter):
                         and len(lhs) > 3 * len(rhs):
                     # if lhs (numerator) is much wider than rhs (denominator), rewrite as a factor
                     wide = True
-                op = self.reference_converter.convert_binary_op(node.get_binary_operator(), wide=wide)
+                op = self.name_printer.print_binary_op(node.get_binary_operator(), wide=wide)
                 return op % ({"lhs": lhs, "rhs": rhs})
 
             if node.is_ternary_operator():
                 condition = self.print_expression(node.get_condition())
                 if_true = self.print_expression(node.get_if_true())
                 if_not = self.print_expression(node.if_not)
-                return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
+                return self.name_printer.print_ternary_operator() % (condition, if_true, if_not)
 
             raise Exception("Unknown node type")
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
     def print_function_call(self, function_call: ASTFunctionCall) -> str:
-        function_name = self.reference_converter.convert_function_call(function_call)
+        function_name = self.name_printer.print_function_call(function_call)
         if ASTUtils.needs_arguments(function_call):
             return function_name % self.print_function_call_argument_list(function_call)
 

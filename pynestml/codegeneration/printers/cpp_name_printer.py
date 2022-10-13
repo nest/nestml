@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_reference_converter.py
+# cpp_name_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,7 @@
 
 from typing import Union
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.name_printer import NamePrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
@@ -31,8 +31,8 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
 
 
-class CppReferenceConverter(ReferenceConverter):
-    def convert_to_cpp_name(self, variable_name: str) -> str:
+class CppNamePrinter(NamePrinter):
+    def print_cpp_name(self, variable_name: str) -> str:
         """
         Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp" += 1" will be converted into "G_ahp__d".
 
@@ -51,7 +51,7 @@ class CppReferenceConverter(ReferenceConverter):
         :param variable_symbol: a single variable symbol.
         :return: a string representation
         """
-        return 'get_' + self.convert_to_cpp_name(variable_symbol.get_symbol_name())
+        return 'get_' + self.print_cpp_name(variable_symbol.get_symbol_name())
 
     def setter(self, variable_symbol: VariableSymbol) -> str:
         """
@@ -59,7 +59,7 @@ class CppReferenceConverter(ReferenceConverter):
         :param variable_symbol: a single variable symbol.
         :return: a string representation
         """
-        return 'set_' + self.convert_to_cpp_name(variable_symbol.get_symbol_name())
+        return 'set_' + self.print_cpp_name(variable_symbol.get_symbol_name())
 
     def name(self, node: Union[VariableSymbol, ASTVariable]) -> str:
         """
@@ -68,11 +68,11 @@ class CppReferenceConverter(ReferenceConverter):
         :return: a string representation
         """
         if isinstance(node, VariableSymbol):
-            return self.convert_to_cpp_name(node.get_symbol_name())
+            return self.print_cpp_name(node.get_symbol_name())
 
-        return self.convert_to_cpp_name(node.get_complete_name())
+        return self.print_cpp_name(node.get_complete_name())
 
-    def convert_constant(self, const: Union[str, float, int]) -> str:
+    def print_constant(self, const: Union[str, float, int]) -> str:
         """
         Converts a single handed over constant.
         :param const: a constant as string, float or int.
@@ -92,7 +92,7 @@ class CppReferenceConverter(ReferenceConverter):
 
         return const
 
-    def convert_unary_op(self, unary_operator: ASTUnaryOperator) -> str:
+    def print_unary_op(self, unary_operator: ASTUnaryOperator) -> str:
         """
         Converts a unary operator.
         :param unary_operator: an operator object
@@ -109,21 +109,21 @@ class CppReferenceConverter(ReferenceConverter):
 
         raise RuntimeError('Cannot determine unary operator!')
 
-    def convert_encapsulated(self) -> str:
+    def print_encapsulated(self) -> str:
         """
         Converts the encapsulating parenthesis of an expression.
         :return: a string representation
         """
         return '(%s)'
 
-    def convert_logical_not(self) -> str:
+    def print_logical_not(self) -> str:
         """
         Converts a logical NOT operator.
         :return: a string representation
         """
         return '(' + '!' + '%s' + ')'
 
-    def convert_logical_operator(self, op: ASTLogicalOperator) -> str:
+    def print_logical_operator(self, op: ASTLogicalOperator) -> str:
         """
         Converts a logical operator.
         :param op: a logical operator object
@@ -137,7 +137,7 @@ class CppReferenceConverter(ReferenceConverter):
 
         raise RuntimeError('Cannot determine logical operator!')
 
-    def convert_comparison_operator(self, op: ASTComparisonOperator) -> str:
+    def print_comparison_operator(self, op: ASTComparisonOperator) -> str:
         """
         Converts a comparison operator.
         :param op: a comparison operator object
@@ -163,7 +163,7 @@ class CppReferenceConverter(ReferenceConverter):
 
         raise RuntimeError('Cannot determine comparison operator!')
 
-    def convert_bit_operator(self, op: ASTBitOperator) -> str:
+    def print_bit_operator(self, op: ASTBitOperator) -> str:
         """
         Converts a bit operator in NEST syntax.
         :param op: a bit operator object
@@ -186,7 +186,7 @@ class CppReferenceConverter(ReferenceConverter):
 
         raise RuntimeError('Cannot determine bit operator!')
 
-    def convert_arithmetic_operator(self, op: ASTArithmeticOperator) -> str:
+    def print_arithmetic_operator(self, op: ASTArithmeticOperator) -> str:
         """
         Converts an arithmetic operator.
         :param op: an arithmetic operator object
@@ -212,30 +212,30 @@ class CppReferenceConverter(ReferenceConverter):
 
         raise RuntimeError('Cannot determine arithmetic operator!')
 
-    def convert_ternary_operator(self) -> str:
+    def print_ternary_operator(self) -> str:
         """
         Converts a ternary operator.
         :return: a string representation
         """
         return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
 
-    def convert_binary_op(self, binary_operator: Union[ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator]) -> str:
+    def print_binary_op(self, binary_operator: Union[ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator]) -> str:
         """
         Converts a binary operator.
         :param binary_operator: a binary operator object
         :return: a string representation
         """
         if isinstance(binary_operator, ASTArithmeticOperator):
-            return self.convert_arithmetic_operator(binary_operator)
+            return self.print_arithmetic_operator(binary_operator)
 
         if isinstance(binary_operator, ASTBitOperator):
-            return self.convert_bit_operator(binary_operator)
+            return self.print_bit_operator(binary_operator)
 
         if isinstance(binary_operator, ASTComparisonOperator):
-            return self.convert_comparison_operator(binary_operator)
+            return self.print_comparison_operator(binary_operator)
 
         if isinstance(binary_operator, ASTLogicalOperator):
-            return self.convert_logical_operator(binary_operator)
+            return self.print_logical_operator(binary_operator)
 
         raise RuntimeError('Cannot determine binary operator!')
 

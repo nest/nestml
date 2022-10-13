@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# latex_reference_converter.py
+# latex_name_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,18 +21,18 @@
 
 import re
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.name_printer import NamePrinter
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class LatexReferenceConverter(ReferenceConverter):
+class LatexNamePrinter(NamePrinter):
     """
-    ReferenceConverter for the LaTeX target.
+    NamePrinter for the LaTeX target.
     """
 
-    def convert_unary_op(self, ast_unary_operator) -> str:
+    def print_unary_op(self, ast_unary_operator) -> str:
         """
         Convert unary operator.
 
@@ -42,7 +42,7 @@ class LatexReferenceConverter(ReferenceConverter):
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable) -> str:
+    def print_name_reference(self, ast_variable) -> str:
         """
         Convert name reference.
 
@@ -120,7 +120,7 @@ class LatexReferenceConverter(ReferenceConverter):
 
         return var_name
 
-    def convert_function_call(self, function_call) -> str:
+    def print_function_call(self, function_call) -> str:
         """
         Convert function call.
 
@@ -146,7 +146,7 @@ class LatexReferenceConverter(ReferenceConverter):
 
         return result
 
-    def convert_binary_op(self, ast_binary_operator, wide=False) -> str:
+    def print_binary_op(self, ast_binary_operator, wide=False) -> str:
         """
         Convert binary operator.
 
@@ -166,7 +166,7 @@ class LatexReferenceConverter(ReferenceConverter):
         else:
             return r'%(lhs)s' + str(ast_binary_operator) + r'%(rhs)s'
 
-    def convert_constant(self, constant_name) -> str:
+    def print_constant(self, constant_name) -> str:
         """
         Convert constant.
 
@@ -176,7 +176,7 @@ class LatexReferenceConverter(ReferenceConverter):
         """
         return constant_name
 
-    def convert_ternary_operator(self) -> str:
+    def print_ternary_operator(self) -> str:
         """
         Convert ternary operator.
 
@@ -184,20 +184,20 @@ class LatexReferenceConverter(ReferenceConverter):
         """
         return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
 
-    def convert_logical_operator(self, op) -> str:
+    def print_logical_operator(self, op) -> str:
         return str(op)
 
-    def convert_arithmetic_operator(self, op) -> str:
+    def print_arithmetic_operator(self, op) -> str:
         return str(op)
 
-    def convert_encapsulated(self) -> str:
+    def print_encapsulated(self) -> str:
         return '(%s)'
 
-    def convert_comparison_operator(self, op) -> str:
+    def print_comparison_operator(self, op) -> str:
         return str(op)
 
-    def convert_logical_not(self) -> str:
+    def print_logical_not(self) -> str:
         return "\neg"
 
-    def convert_bit_operator(self, op) -> str:
+    def print_bit_operator(self, op) -> str:
         return str(op)

@@ -60,28 +60,28 @@ class CppExpressionPrinter(ExpressionPrinter):
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 return str(node.get_numeric_literal()) + "*" + \
-                    self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
+                    self.name_printer.print_name_reference(node.get_variable(), prefix=prefix)
 
             if node.is_numeric_literal():
                 return str(node.get_numeric_literal())
 
             if node.is_inf_literal:
-                return self.reference_converter.convert_constant("inf")
+                return self.name_printer.print_constant("inf")
 
             if node.is_string():
                 return str(node.get_string())
 
             if node.is_boolean_true:
-                return self.reference_converter.convert_constant("true")
+                return self.name_printer.print_constant("true")
 
             if node.is_delay_variable():
-                return self.reference_converter.convert_delay_variable(node.get_variable(), prefix=prefix)
+                return self.name_printer.print_delay_variable(node.get_variable(), prefix=prefix)
 
             if node.is_boolean_false:
-                return self.reference_converter.convert_constant("false")
+                return self.name_printer.print_constant("false")
 
             if node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
+                return self.name_printer.print_name_reference(node.get_variable(), prefix=prefix)
 
             if node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
@@ -91,25 +91,25 @@ class CppExpressionPrinter(ExpressionPrinter):
         if isinstance(node, ASTExpression):
             # a unary operator
             if node.is_unary_operator():
-                op = self.reference_converter.convert_unary_op(node.get_unary_operator())
+                op = self.name_printer.print_unary_op(node.get_unary_operator())
                 rhs = self.print_expression(node.get_expression(), prefix=prefix)
                 return op % rhs
 
             # encapsulated in brackets
             if node.is_encapsulated:
-                return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression(),
+                return self.name_printer.print_encapsulated() % self.print_expression(node.get_expression(),
                                                                                                prefix=prefix)
 
             # logical not
             if node.is_logical_not:
-                op = self.reference_converter.convert_logical_not()
+                op = self.name_printer.print_logical_not()
                 rhs = self.print_expression(node.get_expression(), prefix=prefix)
                 return op % rhs
 
             # compound rhs with lhs + rhs
             if node.is_compound_expression():
                 lhs = self.print_expression(node.get_lhs(), prefix=prefix)
-                op = self.reference_converter.convert_binary_op(node.get_binary_operator())
+                op = self.name_printer.print_binary_op(node.get_binary_operator())
                 rhs = self.print_expression(node.get_rhs(), prefix=prefix)
                 return op % (lhs, rhs)
 
@@ -117,7 +117,7 @@ class CppExpressionPrinter(ExpressionPrinter):
                 condition = self.print_expression(node.get_condition(), prefix=prefix)
                 if_true = self.print_expression(node.get_if_true(), prefix=prefix)
                 if_not = self.print_expression(node.if_not, prefix=prefix)
-                return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
+                return self.name_printer.print_ternary_operator() % (condition, if_true, if_not)
 
             raise Exception("Unknown node type")
 
@@ -140,10 +140,10 @@ class CppExpressionPrinter(ExpressionPrinter):
         s
             The function call string.
         """
-        function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
+        function_name = self.name_printer.print_function_call(function_call, prefix=prefix)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
-                return function_name.format(self.reference_converter.convert_print_statement(function_call))
+                return function_name.format(self.name_printer.print_print_statement(function_call))
 
             return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
 

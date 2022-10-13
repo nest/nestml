@@ -24,8 +24,8 @@ if (tmp_{{names.name(variable)}} != {{names.getter(variable)}}())
 {%- endif %}
 
 {%- else %}
-{{declarations.print_variable_type(variable)}} tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}} = {{names.getter(variable)}}();
-updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{variable.get_symbol_name()}}, tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}});
+{{declarations.print_variable_type(variable)}} tmp_{{names.print_cpp_name(variable.get_symbol_name())}} = {{names.getter(variable)}}();
+updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{variable.get_symbol_name()}}, tmp_{{names.print_cpp_name(variable.get_symbol_name())}});
 {%- endif %}
 
 {%- if variable.has_vector_parameter() %}

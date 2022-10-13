@@ -9,7 +9,7 @@
 {%-   if not variable.is_state() %}
 {{names.setter(variable)}}(tmp_{{names.name(variable)}});
 {%-   else %}
-{{names.setter(variable)}}(tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}});
+{{names.setter(variable)}}(tmp_{{names.print_cpp_name(variable.get_symbol_name())}});
 {%-   endif %}
 {%- else %}
 // ignores '{{names.name(variable)}}' {{declarations.print_variable_type(variable)}}' since it is an function and setter isn't defined

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_reference_converter.py
+# nest_name_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,7 @@
 
 import re
 
-from pynestml.codegeneration.printers.cpp_reference_converter import CppReferenceConverter
+from pynestml.codegeneration.printers.cpp_name_printer import CppNamePrinter
 from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
@@ -39,12 +39,12 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class NESTReferenceConverter(CppReferenceConverter):
+class NESTNamePrinter(CppNamePrinter):
     r"""
     Reference converter for C++ syntax and using the NEST API.
     """
 
-    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
+    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -150,7 +150,7 @@ e();
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
-    def convert_name_reference(self, variable: ASTVariable, prefix: str = '') -> str:
+    def print_name_reference(self, variable: ASTVariable, prefix: str = '') -> str:
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
@@ -180,7 +180,7 @@ e();
 
         vector_param = ""
         if symbol.has_vector_parameter():
-            vector_param = "[" + self.convert_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self.print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -205,14 +205,14 @@ e();
         if symbol.is_state() or symbol.is_inline_expression:
             return self.getter(symbol) + "()" + vector_param
 
-        variable_name = self.convert_to_cpp_name(variable.get_complete_name())
+        variable_name = self.print_cpp_name(variable.get_complete_name())
         if symbol.is_local():
             return variable_name + vector_param
 
         return self.print_origin(symbol, prefix=prefix) + \
             self.name(symbol) + vector_param
 
-    def convert_delay_variable(self, variable: ASTVariable, prefix=''):
+    def print_delay_variable(self, variable: ASTVariable, prefix=''):
         """
         Converts a delay variable to NEST processable format
         :param variable:
@@ -224,7 +224,7 @@ e();
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
 
-    def convert_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
+    def print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
         """
         Converts the vector parameter into NEST processable format
         :param variable:
@@ -248,14 +248,14 @@ e();
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
-        variable_name = self.convert_to_cpp_name(variable.get_complete_name())
+        variable_name = self.print_cpp_name(variable.get_complete_name())
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
             return symbol.get_type_symbol().unit.unit.to_string()
 
         return ''
 
-    def convert_print_statement(self, function_call: ASTFunctionCall) -> str:
+    def print_print_statement(self, function_call: ASTFunctionCall) -> str:
         r"""
         A wrapper function to convert arguments of a print or println functions
         :param function_call: print function call
@@ -300,7 +300,7 @@ e();
             fun_right = (lambda r: ' << ' + self.__convert_print_statement_str(r, scope) if r else '')
             ast_var = ASTVariable(var_name, scope=scope)
             right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
-            return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
+            return fun_left(left) + self.print_name_reference(ast_var) + fun_right(right)
 
         return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
 

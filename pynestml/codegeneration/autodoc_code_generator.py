@@ -30,7 +30,7 @@ from jinja2 import Environment, FileSystemLoader
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.printers.latex_expression_printer import LatexExpressionPrinter
-from pynestml.codegeneration.printers.latex_reference_converter import LatexReferenceConverter
+from pynestml.codegeneration.printers.latex_name_printer import LatexNamePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -48,7 +48,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         self._template_neuron_nestml_model = env.get_template('nestml_neuron_model.jinja2')
         self._template_synapse_nestml_model = env.get_template('nestml_synapse_model.jinja2')
 
-        converter = LatexReferenceConverter()
+        converter = LatexNamePrinter()
         self._printer = LatexExpressionPrinter(converter)
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:

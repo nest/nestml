@@ -49,7 +49,7 @@ class UnitlessExpressionPrinter(CppExpressionPrinter):
         """
         if isinstance(node, ASTSimpleExpression):
             if node.is_numeric_literal():
-                return self.reference_converter.convert_constant(node.get_numeric_literal())
+                return self.name_printer.print_constant(node.get_numeric_literal())
 
             if node.is_variable() and node.get_scope() is not None:
                 node_is_variable_symbol = node.get_scope().resolve_to_symbol(

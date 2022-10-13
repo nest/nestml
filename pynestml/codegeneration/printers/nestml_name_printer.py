@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nestml_reference_converter.py
+# nestml_name_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,19 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.name_printer import NamePrinter
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class NestMLReferenceConverter(ReferenceConverter):
+class NestMLNamePrinter(NamePrinter):
     """
     This converter preserves the initial NestML syntax.
     """
 
-    def convert_unary_op(self, ast_unary_operator: ASTUnaryOperator) -> str:
+    def print_unary_op(self, ast_unary_operator: ASTUnaryOperator) -> str:
         """
         Returns the same string.
         :param ast_unary_operator: a single unary operator string.
@@ -39,7 +39,7 @@ class NestMLReferenceConverter(ReferenceConverter):
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable: ASTVariable, prefix='') -> str:
+    def print_name_reference(self, ast_variable: ASTVariable, prefix='') -> str:
         """
         Returns the same string
         :param ast_variable: a single variable
@@ -47,7 +47,7 @@ class NestMLReferenceConverter(ReferenceConverter):
         """
         return prefix + ast_variable.get_complete_name()
 
-    def convert_function_call(self, function_call: ASTFunctionCall, prefix: str= '') -> str:
+    def print_function_call(self, function_call: ASTFunctionCall, prefix: str= '') -> str:
         """Return the function call in NESTML syntax.
 
         Parameters
@@ -70,7 +70,7 @@ class NestMLReferenceConverter(ReferenceConverter):
             result += '()'
         return result
 
-    def convert_binary_op(self, ast_binary_operator) -> str:
+    def print_binary_op(self, ast_binary_operator) -> str:
         """
         Returns the same binary operator back.
         :param ast_binary_operator:  a single binary operator
@@ -78,7 +78,7 @@ class NestMLReferenceConverter(ReferenceConverter):
         """
         return '%s' + str(ast_binary_operator) + '%s'
 
-    def convert_constant(self, constant_name: str) -> str:
+    def print_constant(self, constant_name: str) -> str:
         """
         Returns the same string back.
         :param constant_name: a constant name
@@ -86,27 +86,27 @@ class NestMLReferenceConverter(ReferenceConverter):
         """
         return constant_name
 
-    def convert_ternary_operator(self) -> str:
+    def print_ternary_operator(self) -> str:
         """
         Converts the ternary operator to its initial kernel.
         :return: a string representation
         """
         return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
 
-    def convert_logical_operator(self, op) -> str:
+    def print_logical_operator(self, op) -> str:
         return str(op)
 
-    def convert_arithmetic_operator(self, op) -> str:
+    def print_arithmetic_operator(self, op) -> str:
         return str(op)
 
-    def convert_encapsulated(self) -> str:
+    def print_encapsulated(self) -> str:
         return '(%s)'
 
-    def convert_comparison_operator(self, op) -> str:
+    def print_comparison_operator(self, op) -> str:
         return str(op)
 
-    def convert_logical_not(self) -> str:
+    def print_logical_not(self) -> str:
         return 'not'
 
-    def convert_bit_operator(self, op) -> str:
+    def print_bit_operator(self, op) -> str:
         return str(op)
