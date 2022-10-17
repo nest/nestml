@@ -400,7 +400,7 @@ private:
   /**
    * Initialize auxiliary quantities, leave parameters and state untouched.
   **/
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   void calibrate();
 {%- else %}
   void pre_run_hook();
