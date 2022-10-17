@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.3", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.1", "v3.2", "v3.3", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
@@ -60,7 +60,6 @@ jobs:
         run: |
           python -m pip install cython
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          cd $GITHUB_WORKSPACE/..
           NEST_SIMULATOR=$(pwd)/nest-simulator
           NEST_INSTALL=$(pwd)/nest_install
           echo "NEST_SIMULATOR = $NEST_SIMULATOR"
@@ -77,7 +76,6 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          cd $GITHUB_WORKSPACE
           export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -85,7 +83,6 @@ jobs:
 
       - name: Generate Lexer and Parser using Antlr4
         run: |
-          cd $GITHUB_WORKSPACE
           find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
@@ -101,7 +98,6 @@ jobs:
       # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests
         run: |
-          cd $GITHUB_WORKSPACE
           # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
           export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
           echo $ALL_MODEL_FILENAMES
@@ -113,21 +109,28 @@ jobs:
 
       # Integration tests
       - name: Run integration tests
+        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
-          cd $GITHUB_WORKSPACE
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
 
+      # Run only the nest_integration_test for the NEST versions other than master and 2.20.2
+      - name: Run integration tests
+        if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
+        env:
+          LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
+        run: |
+          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
+
       # Run IPython/Jupyter notebooks
       - name: Run Jupyter notebooks
         if: ${{ matrix.nest_branch == 'master' }}
         run: |
-          cd $GITHUB_WORKSPACE
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
           for fn in $ipynb_fns; do

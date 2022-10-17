@@ -38,8 +38,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestSynapsePriorityTest(unittest.TestCase):
 
@@ -64,7 +62,7 @@ class NestSynapsePriorityTest(unittest.TestCase):
                                                                      "synapse": "synapse_event_inv_priority_test",
                                                                      "post_ports": ["post_spikes"]}]})
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_synapse_event_priority(self):
 
