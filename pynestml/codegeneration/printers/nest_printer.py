@@ -316,50 +316,6 @@ class NestPrinter(Printer):
         declaration += ') const\n'
         return declaration
 
-    def print_buffer_array_getter(self, ast_buffer) -> str:
-        """
-        Returns a string containing the nest declaration for a multi-receptor spike buffer.
-        :param ast_buffer: a single buffer Variable Symbol
-        :type ast_buffer: VariableSymbol
-        :return: a string representation of the getter
-        """
-        assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        if ast_buffer.is_spike_input_port() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
-            return 'inline ' + self.types_printer.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
-                   + ast_buffer.get_symbol_name() + '() {' + \
-                   '  return spike_inputs_[' + ast_buffer.get_symbol_name().upper() + ' - 1]; }'
-        else:
-            return self.print_buffer_getter(ast_buffer, True)
-
-    def print_buffer_getter(self, ast_buffer, is_in_struct=False) -> str:
-        """
-        Returns a string representation declaring a buffer getter as required in nest.
-        :param ast_buffer: a single variable symbol representing a buffer.
-        :type ast_buffer: VariableSymbol
-        :param is_in_struct: indicates whether this getter is used in a struct or not
-        :type is_in_struct: bool
-        :return: a string representation of the getter.
-        """
-        assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
-            '(PyNestMl.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        assert (is_in_struct is not None and isinstance(is_in_struct, bool)), \
-            '(PyNestMl.CodeGeneration.Printer) No or wrong type of is-in-struct provided (%s)!' % type(is_in_struct)
-        declaration = 'inline '
-        if ast_buffer.has_vector_parameter():
-            declaration += 'std::vector<'
-            declaration += self.types_printer.convert(ast_buffer.get_type_symbol())
-            declaration += '> &'
-        else:
-            declaration += self.types_printer.convert(ast_buffer.get_type_symbol()) + '&'
-        declaration += ' get_' + ast_buffer.get_symbol_name() + '() {'
-        if is_in_struct:
-            declaration += 'return ' + ast_buffer.get_symbol_name() + ';'
-        else:
-            declaration += 'return B_.get_' + ast_buffer.get_symbol_name() + '();'
-        declaration += '}'
-        return declaration
-
     def print_buffer_declaration_value(self, ast_buffer: VariableSymbol) -> str:
         """
         Returns a string representation for the declaration of a buffer's value.
