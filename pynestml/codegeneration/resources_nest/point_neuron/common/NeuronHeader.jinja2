@@ -22,6 +22,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives/BufferGetter.jinja2' as buffer_getter with context %}
 {%- import 'directives/BufferDeclaration.jinja2' as buffer_declaration with context %}
 {%- import 'directives/BufferDeclarationValue.jinja2' as buffer_declaration_value with context %}
+{%- import 'directives/FunctionDeclaration.jinja2' as function_declaration with context %}
 {%- import 'directives/OutputEvent.jinja2' as output_event with context %}
 /**
  *  {{neuronName}}.h
@@ -679,7 +680,7 @@ inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.
 
 {% filter indent(2) -%}
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_declaration(function)}};
+{{ function_declaration.FunctionDeclaration(function, "") }};
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}

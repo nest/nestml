@@ -243,69 +243,6 @@ class NestPrinter(Printer):
     def print_origin(self, variable_symbol, prefix='') -> str:
         return self.reference_converter.print_origin(variable_symbol)
 
-    def print_function_declaration(self, ast_function) -> str:
-        """
-        Returns a nest processable function declaration head, i.e. the part which appears in the .h file.
-        :param ast_function: a single function.
-        :type ast_function: ASTFunction
-        :return: the corresponding string representation.
-        """
-        from pynestml.meta_model.ast_function import ASTFunction
-        from pynestml.symbols.symbol import SymbolKind
-        assert (ast_function is not None and isinstance(ast_function, ASTFunction)), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)
-        function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)
-        if function_symbol is None:
-            raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
-        declaration = ast_function.print_comment('//') + '\n'
-        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
-        declaration += ' '
-        declaration += ast_function.get_name() + '('
-        for typeSym in function_symbol.get_parameter_types():
-            declaration += self.types_printer.convert(typeSym)
-            if function_symbol.get_parameter_types().index(typeSym) < len(
-                    function_symbol.get_parameter_types()) - 1:
-                declaration += ', '
-        declaration += ') const\n'
-        return declaration
-
-    def print_function_definition(self, ast_function, namespace) -> str:
-        """
-        Returns a nest processable function definition, i.e. the part which appears in the .cpp file.
-        :param ast_function: a single function.
-        :type ast_function: ASTFunction
-        :param namespace: the namespace in which this function is defined in
-        :type namespace: str
-        :return: the corresponding string representation.
-        """
-        assert isinstance(ast_function, ASTFunction), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)
-        assert isinstance(namespace, str), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(namespace)
-        function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)
-        if function_symbol is None:
-            raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
-        # first collect all parameters
-        params = list()
-        for param in ast_function.get_parameters():
-            params.append(param.get_name())
-        declaration = ast_function.print_comment('//') + '\n'
-        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
-        declaration += ' '
-        if namespace is not None:
-            declaration += namespace + '::'
-        declaration += ast_function.get_name() + '('
-        for typeSym in function_symbol.get_parameter_types():
-            # create the type name combination, e.g. double Tau
-            declaration += self.types_printer.convert(typeSym) + ' ' + \
-                params[function_symbol.get_parameter_types().index(typeSym)]
-            # if not the last component, separate by ','
-            if function_symbol.get_parameter_types().index(typeSym) < \
-                    len(function_symbol.get_parameter_types()) - 1:
-                declaration += ', '
-        declaration += ') const\n'
-        return declaration
-
     def print_vector_size_parameter(self, variable: VariableSymbol) -> str:
         """
         Prints NEST compatible vector size parameter
