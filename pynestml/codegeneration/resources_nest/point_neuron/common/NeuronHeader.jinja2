@@ -22,6 +22,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives/BufferGetter.jinja2' as buffer_getter with context %}
 {%- import 'directives/BufferDeclaration.jinja2' as buffer_declaration with context %}
 {%- import 'directives/BufferDeclarationValue.jinja2' as buffer_declaration_value with context %}
+{%- import 'directives/OutputEvent.jinja2' as output_event with context %}
 /**
  *  {{neuronName}}.h
  *
@@ -186,7 +187,7 @@ size_t access_counter )
 {% endif -%}
 {% endfor %}
 
-  Sends: {{outputEvent}}
+  Sends: {{ output_event.OutputEvent() }}
 
   Receives: {% if has_spike_input %}Spike, {% endif %}{% if has_continuous_input %}Current,{% endif %} DataLoggingRequest
 */
@@ -221,7 +222,7 @@ public:
   using nest::Node::handle;
 
   /**
-   * Used to validate that we can send {{outputEvent}} to desired target:port.
+   * Used to validate that we can send {{ output_event.OutputEvent() }} to desired target:port.
   **/
   nest::port send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool);
 
@@ -742,9 +743,9 @@ inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.
 inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
 {
   // You should usually not change the code in this function.
-  // It confirms that the target of connection @c c accepts @c {{outputEvent}} on
+  // It confirms that the target of connection @c c accepts @c {{ output_event.OutputEvent() }} on
   // the given @c receptor_type.
-  {{outputEvent}} e;
+  {{ output_event.OutputEvent() }} e;
   e.set_sender(*this);
   return target.handles_test_event(e, receptor_type);
 }

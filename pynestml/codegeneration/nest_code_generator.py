@@ -510,7 +510,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["types_printer"] = self._types_printer
         namespace["utils"] = ASTUtils
         namespace["idemPrinter"] = self._printer
-        namespace["outputEvent"] = namespace["printer"].print_output_event(neuron.get_body())
         namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
         namespace["printerGSL"] = self._gsl_printer

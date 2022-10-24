@@ -222,27 +222,26 @@ class NestPrinter(Printer):
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(for_stmt)
         return for_stmt.get_step()
 
-    def print_output_event(self, ast_body: ASTNeuronOrSynapseBody) -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
-        For the handed over neuron, print its defined output type.
-        :param ast_body: a single neuron body
-        :return: the corresponding representation of the event
+        Prints the handed over rhs to a nest readable format.
+        :param node: a single meta_model node.
+        :type node: ASTExpressionNode
+        :return: the corresponding string representation
         """
-        assert (ast_body is not None and isinstance(ast_body, ASTNeuronOrSynapseBody)), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(ast_body)
-        outputs = ast_body.get_output_blocks()
-        if len(outputs) == 0:
-            # no output port defined in the model: pretend dummy spike output port to obtain usable model
-            return 'nest::SpikeEvent'
+        return self._expression_printer.print_expression(node, prefix=prefix)
 
-        output = outputs[0]
-        if output.is_spike():
-            return 'nest::SpikeEvent'
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        """
+        Prints a single handed over function call.
+        :param node: a single function call.
+        :type node: ASTFunctionCall
+        :return: the corresponding string representation.
+        """
+        return self._expression_printer.print_function_call(node)
 
-        if output.is_continuous():
-            return 'nest::CurrentEvent'
-
-        raise RuntimeError('Unexpected output type. Must be continuous or spike, is %s.' % str(output))
+    def print_origin(self, variable_symbol, prefix='') -> str:
+        return self.reference_converter.print_origin(variable_symbol)
 
     def print_function_declaration(self, ast_function) -> str:
         """
@@ -359,24 +358,3 @@ class NestPrinter(Printer):
             # delay parameter is a variable
             return self.reference_converter.print_origin(symbol) + delay_parameter
         return delay_parameter
-
-    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
-        """
-        Prints the handed over rhs to a nest readable format.
-        :param node: a single meta_model node.
-        :type node: ASTExpressionNode
-        :return: the corresponding string representation
-        """
-        return self._expression_printer.print_expression(node, prefix=prefix)
-
-    def print_function_call(self, node: ASTFunctionCall) -> str:
-        """
-        Prints a single handed over function call.
-        :param node: a single function call.
-        :type node: ASTFunctionCall
-        :return: the corresponding string representation.
-        """
-        return self._expression_printer.print_function_call(node)
-
-    def print_origin(self, variable_symbol, prefix='') -> str:
-        return self.reference_converter.print_origin(variable_symbol)
