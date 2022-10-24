@@ -244,15 +244,6 @@ class NestPrinter(Printer):
 
         raise RuntimeError('Unexpected output type. Must be continuous or spike, is %s.' % str(output))
 
-    def print_buffer_initialization(self, variable_symbol) -> str:
-        """
-        Prints the buffer initialization.
-        :param variable_symbol: a single variable symbol.
-        :type variable_symbol: VariableSymbol
-        :return: a buffer initialization
-        """
-        return 'get_' + variable_symbol.get_symbol_name() + '().clear(); //includes resize'
-
     def print_function_declaration(self, ast_function) -> str:
         """
         Returns a nest processable function declaration head, i.e. the part which appears in the .h file.
@@ -315,43 +306,6 @@ class NestPrinter(Printer):
                 declaration += ', '
         declaration += ') const\n'
         return declaration
-
-    def print_buffer_declaration_value(self, ast_buffer: VariableSymbol) -> str:
-        """
-        Returns a string representation for the declaration of a buffer's value.
-        :param ast_buffer: a single buffer variable symbol
-        :return: the corresponding string representation
-        """
-        if ast_buffer.has_vector_parameter():
-            return 'std::vector<double> ' + self.reference_converter.buffer_value(ast_buffer)
-
-        return 'double ' + self.reference_converter.buffer_value(ast_buffer)
-
-    def print_buffer_declaration(self, ast_buffer) -> str:
-        """
-        Returns a string representation for the declaration of a buffer.
-        :param ast_buffer: a single buffer variable symbol
-        :type ast_buffer: VariableSymbol
-        :return: the corresponding string representation
-        """
-        assert isinstance(ast_buffer, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        if ast_buffer.has_vector_parameter():
-            buffer_type = 'std::vector< ' + self.types_printer.convert(ast_buffer.get_type_symbol()) + ' >'
-        else:
-            buffer_type = self.types_printer.convert(ast_buffer.get_type_symbol())
-        buffer_type.replace(".", "::")
-        return buffer_type + " " + ast_buffer.get_symbol_name()
-
-    def print_buffer_declaration_header(self, ast_buffer) -> str:
-        """
-        Prints the comment as stated over the buffer declaration.
-        :param ast_buffer: a single buffer variable symbol.
-        :return: the corresponding string representation
-        """
-        assert isinstance(ast_buffer, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        return '//!< Buffer for input (type: ' + ast_buffer.get_type_symbol().get_symbol_name() + ')'
 
     def print_vector_size_parameter(self, variable: VariableSymbol) -> str:
         """
