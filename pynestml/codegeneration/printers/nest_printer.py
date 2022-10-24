@@ -243,47 +243,6 @@ class NestPrinter(Printer):
     def print_origin(self, variable_symbol, prefix='') -> str:
         return self.reference_converter.print_origin(variable_symbol)
 
-    def print_vector_size_parameter(self, variable: ASTSimpleExpression, with_origin: bool = True) -> str:
-        """
-        Prints NEST compatible vector size parameter
-        :param variable: Vector variable
-        :return: vector size parameter
-        """
-        if isinstance(variable, ASTSimpleExpression):
-            variable = variable.get_variable()
-        vector_parameter = variable.get_vector_parameter()
-        assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
-
-        if vector_parameter.is_variable():
-            # size parameter is a variable
-            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
-                                                                    SymbolKind.VARIABLE)
-            assert symbol is not None
-            if with_origin:
-                return self.reference_converter.print_origin(symbol) + vector_parameter.get_variable().get_complete_name()
-
-            return vector_parameter.get_variable().get_complete_name()
-
-        if vector_parameter.is_numeric_literal():
-            # size parameter is an integer
-            return str(vector_parameter.get_numeric_literal())
-
-    def print_vector_declaration(self, variable: VariableSymbol) -> str:
-        """
-        Prints the vector declaration
-        :param variable: Vector variable
-        :return: the corresponding vector declaration statement
-        """
-        assert isinstance(variable, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
-
-        decl_str = self.reference_converter.print_origin(variable) + variable.get_symbol_name() + \
-            ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
-            self.print_expression(variable.get_declaring_expression()) + \
-            ");"
-
-        return decl_str
-
     def print_delay_parameter(self, variable: VariableSymbol) -> str:
         """
         Prints the delay parameter

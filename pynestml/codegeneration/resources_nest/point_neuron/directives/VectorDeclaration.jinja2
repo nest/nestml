@@ -1,0 +1,5 @@
+{%- import 'directives/VectorSizeParameter.jinja2' as vector_size_parameter with context %}
+{%- macro VectorDeclaration(node) -%}
+
+{{ printer.print_origin(node) }}{{ node.get_symbol_name() }}.resize({{ vector_size_parameter.VectorSizeParameter(variable, true) }}, {{ printer.print_expression(variable.get_declaring_expression()) }});
+{%- endmacro -%}
