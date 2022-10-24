@@ -243,25 +243,30 @@ class NestPrinter(Printer):
     def print_origin(self, variable_symbol, prefix='') -> str:
         return self.reference_converter.print_origin(variable_symbol)
 
-    def print_vector_size_parameter(self, variable: VariableSymbol) -> str:
+    def print_vector_size_parameter(self, variable: ASTSimpleExpression, with_origin: bool = True) -> str:
         """
         Prints NEST compatible vector size parameter
         :param variable: Vector variable
         :return: vector size parameter
         """
+        if isinstance(variable, ASTSimpleExpression):
+            variable = variable.get_variable()
         vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
-        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                    SymbolKind.VARIABLE)
-        vector_param = ""
-        if symbol is not None:
-            # size parameter is a variable
-            vector_param += self.reference_converter.print_origin(symbol) + vector_parameter
-        else:
-            # size parameter is an integer
-            vector_param += vector_parameter
+        assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
 
-        return vector_param
+        if vector_parameter.is_variable():
+            # size parameter is a variable
+            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
+                                                                    SymbolKind.VARIABLE)
+            assert symbol is not None
+            if with_origin:
+                return self.reference_converter.print_origin(symbol) + vector_parameter.get_variable().get_complete_name()
+
+            return vector_parameter.get_variable().get_complete_name()
+
+        if vector_parameter.is_numeric_literal():
+            # size parameter is an integer
+            return str(vector_parameter.get_numeric_literal())
 
     def print_vector_declaration(self, variable: VariableSymbol) -> str:
         """

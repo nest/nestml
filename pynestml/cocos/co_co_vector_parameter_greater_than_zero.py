@@ -47,16 +47,19 @@ class VectorDeclarationVisitor(ASTVisitor):
         for variable in variables:
             vector_parameter = variable.get_vector_parameter()
             if vector_parameter is not None:
-                vector_parameter_var = ASTVariable(vector_parameter, scope=node.get_scope())
-                symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+                assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+
+                if vector_parameter.is_variable():
+                    symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
                                                                             SymbolKind.VARIABLE)
-                if symbol is not None:
+                    assert symbol is not None
                     value = int(str(symbol.get_declaring_expression()))
-                else:
+
+                if vector_parameter.is_numeric_literal():
                     value = int(vector_parameter)
 
                 if value <= 0:
-                    code, message = Messages.get_vector_parameter_wrong_size(vector_parameter_var.get_complete_name(),
+                    code, message = Messages.get_vector_parameter_wrong_size(vector_parameter.get_variable().get_complete_name(),
                                                                              str(value))
                     Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                        code=code, message=message)

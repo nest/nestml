@@ -45,13 +45,17 @@ class VectorVariablesVisitor(ASTVisitor):
     def visit_variable(self, node: ASTVariable):
         vector_parameter = node.get_vector_parameter()
         if vector_parameter is not None:
-            vector_parameter_var = ASTVariable(vector_parameter, scope=node.get_scope())
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+            assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+
+            if vector_parameter.is_numeric_literal():
+                assert isinstance(vector_parameter.type, IntegerTypeSymbol)
+
+            if vector_parameter.is_variable():
+                symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
                                                                         SymbolKind.VARIABLE)
 
-            # vector parameter is a variable
-            if symbol is not None:
-                if not isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
-                    code, message = Messages.get_vector_parameter_wrong_type(vector_parameter_var.get_complete_name())
-                    Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
-                                       code=code, message=message)
+                if symbol is not None:
+                    if not isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
+                        code, message = Messages.get_vector_parameter_wrong_type(vector_parameter.get_complete_name())
+                        Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                                           code=code, message=message)

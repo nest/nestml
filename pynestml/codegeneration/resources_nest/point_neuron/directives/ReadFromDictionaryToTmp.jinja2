@@ -14,7 +14,7 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_n
 if (tmp_{{names.name(variable)}} != {{names.getter(variable)}}())
 {
 {%- for vector_var in vector_symbols %}
-{%- if vector_var.get_vector_parameter() == variable.get_symbol_name() %}
+{%- if vector_var.get_vector_parameter().is_variable() and vector_var.get_vector_parameter().get_variable().get_complete_name() == variable.get_symbol_name() %}
   {{declarations.print_variable_type(vector_var)}} _tmp_{{names.name(vector_var)}} = {{names.getter(vector_var)}}();
   _tmp_{{names.name(vector_var)}}.resize(tmp_{{names.name(variable)}}, 0.);
   set_{{names.name(vector_var)}}(_tmp_{{names.name(vector_var)}});
@@ -33,9 +33,12 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_n
 Typecast the vector parameter to an int. If the typecast fails with a return value of 0, the vector parameter is a
 variable
  #}
-{%- set vector_size = variable.get_vector_parameter() | int %}
-{%- if not vector_size %}
-{%- set vector_size = "tmp_" + variable.get_vector_parameter() %}
+{%- if variable.get_vector_parameter().is_numeric_literal() -%}
+{%- set vector_size = printer.print_vector_size_parameter(variable) %}
+{%- elif variable.get_vector_parameter().is_variable() -%}
+{%- set vector_size = "tmp_" + printer.print_vector_size_parameter(variable, with_origin=False) %}
+{%- else %}
+{{ raise("Vector size expression needs to be numeric literal or variable") }}
 {%- endif %}
 // Check if the new vector size matches its original size
 if ( tmp_{{names.name(variable)}}.size() != {{vector_size}} )

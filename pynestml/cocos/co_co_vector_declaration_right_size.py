@@ -51,18 +51,25 @@ class VectorDeclarationVisitor(ASTVisitor):
         for variable in variables:
             vector_parameter = variable.get_vector_parameter()
             if vector_parameter is not None:
-                vector_parameter_var = ASTVariable(vector_parameter, scope=node.get_scope())
-                symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                            SymbolKind.VARIABLE)
+                assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+
                 vector_parameter_val = None
-                if symbol is not None:
-                    if isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
-                        vector_parameter_val = int(str(symbol.get_declaring_expression()))
-                else:
-                    vector_parameter_val = int(vector_parameter)
+
+                if vector_parameter.is_numeric_literal():
+                    assert isinstance(vector_parameter.type, IntegerTypeSymbol)
+                    vector_parameter_val = int(vector_parameter.get_numeric_literal())
+
+                if vector_parameter.is_variable():
+                    symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
+                                                                            SymbolKind.VARIABLE)
+
+                    assert symbol is not None
+                    assert isinstance(symbol.get_type_symbol(), IntegerTypeSymbol)
+
+                    vector_parameter_val = int(str(symbol.get_declaring_expression()))
 
                 if vector_parameter_val is not None and vector_parameter_val <= 0:
-                    code, message = Messages.get_vector_parameter_wrong_size(vector_parameter_var.get_complete_name(),
+                    code, message = Messages.get_vector_parameter_wrong_size(vector_parameter.get_variable().get_complete_name(),
                                                                              str(vector_parameter_val))
                     Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                        code=code, message=message)
