@@ -63,13 +63,16 @@ class VectorDeclarationVisitor(ASTVisitor):
                     symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
                                                                             SymbolKind.VARIABLE)
 
-                    assert symbol is not None
-                    assert isinstance(symbol.get_type_symbol(), IntegerTypeSymbol)
+                    if symbol is None or not isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
+                        code, message = Messages.get_vector_parameter_wrong_type(variable.get_complete_name())
+                        Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                                           code=code, message=message)
+                        return
 
                     vector_parameter_val = int(str(symbol.get_declaring_expression()))
 
                 if vector_parameter_val is not None and vector_parameter_val <= 0:
-                    code, message = Messages.get_vector_parameter_wrong_size(vector_parameter.get_variable().get_complete_name(),
+                    code, message = Messages.get_vector_parameter_wrong_size(variable.get_complete_name(),
                                                                              str(vector_parameter_val))
                     Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                        code=code, message=message)

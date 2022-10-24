@@ -48,7 +48,10 @@ class VectorVariablesVisitor(ASTVisitor):
             assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
 
             if vector_parameter.is_numeric_literal():
-                assert isinstance(vector_parameter.type, IntegerTypeSymbol)
+                if not isinstance(vector_parameter.type, IntegerTypeSymbol):
+                    code, message = Messages.get_vector_parameter_wrong_type(node.get_complete_name())
+                    Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                                       code=code, message=message)
 
             if vector_parameter.is_variable():
                 symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
@@ -56,6 +59,6 @@ class VectorVariablesVisitor(ASTVisitor):
 
                 if symbol is not None:
                     if not isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
-                        code, message = Messages.get_vector_parameter_wrong_type(vector_parameter.get_complete_name())
+                        code, message = Messages.get_vector_parameter_wrong_type(node.get_complete_name())
                         Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                            code=code, message=message)

@@ -411,6 +411,6 @@ class CoCosManager:
         cls.check_function_argument_template_types_consistent(neuron)
         cls.check_vector_parameter_declaration(neuron)
         cls.check_vector_parameter_type(neuron)
+        cls.check_vector_declaration_size(neuron)
         cls.check_co_co_priorities_correctly_specified(neuron)
         cls.check_resolution_func_legally_used(neuron)
-        cls.check_vector_declaration_size(neuron)

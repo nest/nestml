@@ -384,6 +384,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_reference_converter
+        namespace["nest_reference_converter"] = self._nest_reference_converter
         namespace["types_printer"] = self._types_printer
         namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["utils"] = ASTUtils
@@ -506,6 +507,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_reference_converter
+        namespace["nest_reference_converter"] = self._nest_reference_converter
         namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["types_printer"] = self._types_printer
         namespace["utils"] = ASTUtils
