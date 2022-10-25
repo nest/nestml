@@ -21,7 +21,9 @@
 
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
@@ -95,3 +97,22 @@ class NestDeclarationsHelper:
         :rtype: str
         """
         return ast_declaration.get_size_parameter()
+
+    @classmethod
+    def print_delay_parameter(cls, variable: VariableSymbol, reference_converter) -> str:
+        """
+        Prints the delay parameter
+        :param variable: Variable with delay parameter
+        :return: the corresponding delay parameter
+        """
+        assert isinstance(variable, VariableSymbol), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+        delay_parameter = variable.get_delay_parameter()
+        delay_parameter_var = ASTVariable(delay_parameter, scope=variable.get_corresponding_scope())
+        symbol = delay_parameter_var.get_scope().resolve_to_symbol(delay_parameter_var.get_complete_name(),
+                                                                   SymbolKind.VARIABLE)
+        if symbol is not None:
+            # delay parameter is a variable
+            return reference_converter.print_origin(symbol) + delay_parameter
+
+        return delay_parameter
