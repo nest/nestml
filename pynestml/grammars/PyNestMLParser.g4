@@ -100,7 +100,6 @@ parser grammar PyNestMLParser;
 
   logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
-  indexParameter : (sizeStr=NAME | sizeInt=UNSIGNED_INTEGER);
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
@@ -108,7 +107,7 @@ parser grammar PyNestMLParser;
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
   variable : name=NAME
-  (LEFT_SQUARE_BRACKET vectorParameter=indexParameter RIGHT_SQUARE_BRACKET)?
+  (LEFT_SQUARE_BRACKET vectorParameter=expression RIGHT_SQUARE_BRACKET)?
   (DIFFERENTIAL_ORDER)*;
 
   /**
@@ -260,7 +259,7 @@ parser grammar PyNestMLParser;
          ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )*
          END_KEYWORD;
 
-  /** ASTOnReceiveBlock 
+  /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
    */
   onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON

@@ -231,19 +231,23 @@ e();
         :return:
         """
         vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_scope())
 
-        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+        assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+
+        if vector_parameter.is_variable():
+            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
                                                                     SymbolKind.VARIABLE)
-        if symbol is not None:
-            if symbol.block_type == BlockType.STATE:
-                return self.getter(symbol) + "()"
-            elif symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-            else:
+            if symbol is not None:
+                if symbol.block_type == BlockType.STATE:
+                    return self.getter(symbol) + "()"
+
+                if symbol.block_type == BlockType.LOCAL:
+                    return symbol.get_symbol_name()
+
                 return self.print_origin(symbol)
 
-        return vector_parameter
+        if vector_parameter.is_numeric_literal():
+            return str(vector_parameter.get_numeric_literal())
 
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
