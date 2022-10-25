@@ -24,7 +24,7 @@ from typing import Iterable, List, Mapping, Optional, Sequence, Union
 import re
 import sympy
 
-from pynestml.codegeneration.printers.printer import Printer
+from pynestml.codegeneration.printers.printer import ASTPrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -1306,6 +1306,20 @@ class ASTUtils:
         :return: declaration containing the variable
         """
         for decl in parameters_block.get_declarations():
+            for var in decl.get_variables():
+                if var.get_name() == var_name:
+                    return decl
+        return None
+
+    @classmethod
+    def get_state_variable_by_name(cls, state_block: ASTBlockWithVariables, var_name: str) -> ASTDeclaration:
+        """
+        Get the declaration based on the name of the parameter
+        :param parameters_block: the parameter block
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for decl in state_block.get_declarations():
             for var in decl.get_variables():
                 if var.get_name() == var_name:
                     return decl

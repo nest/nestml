@@ -388,7 +388,7 @@ private:
 
 {% filter indent(2) -%}
 {% for function in synapse.get_functions() %}
-  {{printer.print_function_declaration(function)}};
+  {{cpp_function_declaration_printer.print(function)}};
 {% endfor %}
 {%- endfilter %}
 
@@ -549,7 +549,7 @@ public:
     // special case for variable marked with @nest::weight decorator
 {%-             set nest_namespace_name = variable.get_namespace_decorator("nest") %}
 {%-             if nest_namespace_name == "weight" %}
-    {{names.setter(variable)}}(w);
+    {{cpp_variable_setter_printer(utils.get_state_variable_by_name(astnode.get_state_blocks(), variable))}}(w);
     return;
 {%-             endif %}
 {%-         endif %}
@@ -1004,8 +1004,8 @@ void
 tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", tmp_{{names.name(variable)}});
 {%- elif not variable.is_inline_expression and variable.is_state() %}
-tmp_{{names.print_to_cpp_name(variable.get_symbol_name())}} = {{names.getter(variable)}}();
-updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}});
+tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
+updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", tmp_{{names.name(variable)}});
 {%- else %}
   // ignores '{{names.name(variable)}}' {{declarations.print_variable_type(variable)}}' since it is an function and setter isn't defined
 {%- endif %}

@@ -433,7 +433,7 @@ void {{neuronName}}::pre_run_hook() {
 // ---------------------------------------------------------------------------
 
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_definition(function, neuronName)}}
+{{cpp_function_definition_printer.print(function)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}
