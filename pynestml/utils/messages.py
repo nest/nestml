@@ -1156,7 +1156,7 @@ class Messages:
 
     @classmethod
     def get_vector_parameter_wrong_type(cls, var):
-        message = "The vector parameter '" + var + "' is of the wrong type." \
+        message = "The vector parameter '" + var + "' is of the wrong type. " \
                   "The vector parameter can be only of type integer."
         return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
 

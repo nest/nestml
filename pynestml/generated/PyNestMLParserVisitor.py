@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.10
+# Generated from PyNestMLParser.g4 by ANTLR 4.10.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .PyNestMLParser import PyNestMLParser
@@ -51,11 +51,6 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNestMLParser#logicalOperator.
     def visitLogicalOperator(self, ctx:PyNestMLParser.LogicalOperatorContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#indexParameter.
-    def visitIndexParameter(self, ctx:PyNestMLParser.IndexParameterContext):
         return self.visitChildren(ctx)
 
 
