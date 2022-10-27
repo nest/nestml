@@ -602,13 +602,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for qual in node.get_input_qualifiers():
             qual.update_scope(node.get_scope())
 
+        if node.get_size_parameter() is not None and node.get_size_parameter().is_variable():
+            node.get_size_parameter().update_scope(node.get_scope())
+
     def endvisit_input_port(self, node):
         if not node.has_datatype():
             return
         type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
-                                block_type=BlockType.INPUT, vector_parameter=node.get_index_parameter(),
+                                block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
                                 is_predefined=False, is_inline_expression=False, is_recordable=False,
                                 type_symbol=type_symbol, variable_type=VariableType.BUFFER)
         symbol.set_comment(node.get_comment())

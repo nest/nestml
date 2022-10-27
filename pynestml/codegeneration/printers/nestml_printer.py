@@ -505,8 +505,8 @@ class NESTMLPrinter(Printer):
         ret += print_n_spaces(self.indent) + node.get_name()
         if node.has_datatype():
             ret += ' ' + self.print_node(node.get_datatype()) + ' '
-        if node.has_index_parameter():
-            ret += '[' + node.get_index_parameter() + ']'
+        if node.has_size_parameter():
+            ret += '[' + node.get_size_parameter() + ']'
         ret += '<-'
         if node.has_input_qualifiers():
             for qual in node.get_input_qualifiers():

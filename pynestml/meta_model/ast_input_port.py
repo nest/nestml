@@ -114,17 +114,17 @@ class ASTInputPort(ASTNode):
         """
         return self.name
 
-    def has_index_parameter(self) -> bool:
+    def has_size_parameter(self) -> bool:
         r"""
-        Returns whether a index parameter has been defined.
-        :return: True if index has been used, otherwise False.
+        Returns whether a size parameter has been defined.
+        :return: True if size has been used, otherwise False.
         """
         return self.size_parameter is not None
 
-    def get_index_parameter(self) -> str:
+    def get_size_parameter(self) -> str:
         r"""
-        Returns the index parameter.
-        :return: the index parameter.
+        Returns the size parameter.
+        :return: the size parameter.
         """
         return self.size_parameter
 
@@ -224,10 +224,10 @@ class ASTInputPort(ASTNode):
             return False
         if self.get_name() != other.get_name():
             return False
-        if self.has_index_parameter() + other.has_index_parameter() == 1:
+        if self.has_size_parameter() + other.has_size_parameter() == 1:
             return False
-        if (self.has_index_parameter() and other.has_index_parameter()
-                and self.get_input_qualifiers() != other.get_index_parameter()):
+        if (self.has_size_parameter() and other.has_size_parameter()
+                and self.get_input_qualifiers() != other.get_size_parameter()):
             return False
         if self.has_datatype() + other.has_datatype() == 1:
             return False

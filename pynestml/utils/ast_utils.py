@@ -346,7 +346,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_numeric_vector_size(cls, variable: VariableSymbol) -> int:
+    def get_numeric_vector_size(cls, variable: Union[VariableSymbol, ASTVariable]) -> int:
         """
         Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
         :param variable: vector variable

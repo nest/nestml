@@ -1,0 +1,58 @@
+"""
+InputPorts.nestml
+#################
+
+
+Description
++++++++++++
+
+This test is used to test the declaration of both vectorized and non-vectorized input ports.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron input_ports:
+
+  state:
+    bar pA = 1.5 pA
+    vec[3] real = 3.3
+  end
+  parameters:
+    TWO integer = 2
+  end
+
+#  equations:
+#    kernel k = delta(t)
+#    bar' = convolve(k, foo[1]) / s
+#  end
+
+  input:
+#    AMPA_spikes pA <- excitatory spike
+#    GABA_spikes pA <- inhibitory spike
+    NMDA_spikes pA <- spike
+    foo[TWO] pA <- spike
+  end
+
+  update:
+    bar = foo[1]
+#    integrate_odes()
+  end
+end

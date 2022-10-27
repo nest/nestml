@@ -521,6 +521,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["vector_symbols"] = neuron.get_vector_symbols()
         namespace["has_delay_variables"] = neuron.has_delay_variables()
         namespace["names_namespace"] = neuron.get_name() + "_names"
+        namespace["has_multiple_synapses"] = len(neuron.get_spike_input_ports()) > 1
 
         namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
         namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")

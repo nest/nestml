@@ -336,9 +336,9 @@ void {{neuronName}}::init_state_(const Node& proto)
 
 void {{neuronName}}::init_buffers_()
 {
-{%- for inputPort in neuron.get_input_ports() %}
+{% if (neuron.get_spike_input_ports())|length > 0 -%}
 {{ buffer_initialization.BufferInitialization(inputPort) }}
-{%- endfor %}
+{%- endif %}
   B_.logger_.reset(); // includes resize
 {%- if has_delay_variables %}
   // Initialize helper variables for delay-based variables
@@ -422,12 +422,10 @@ void {{neuronName}}::pre_run_hook() {
   recompute_internal_variables();
 
   // buffers B_
-{%- for port in neuron.get_input_ports() %}
-{%-   if port.has_vector_parameter() %}
-  B_.{{port.get_symbol_name()}}.resize(P_.{{port.get_vector_parameter()}});
-  B_.{{port.get_symbol_name()}}_grid_sum_.resize(P_.{{port.get_vector_parameter()}});
+{%- if ((neuron.get_spike_input_ports())|length > 0) %}
+  B_.spike_inputs_.resize(NUM_SPIKE_RECEPTORS);
+  B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
 {%-   endif %}
-{%- endfor %}
 }
 {%- if neuron.get_functions()|length > 0 %}
 
@@ -491,16 +489,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
   for ( long lag = from ; lag < to ; ++lag )
   {
-{%- for inputPort in neuron.get_input_ports() %}
-{%-   if inputPort.has_vector_parameter() %}
-    for (long i=0; i < P_.{{inputPort.get_vector_parameter()}}; ++i)
+    for (long i = 0; i < get_spike_inputs_().size(); ++i)
     {
-      B_.{{names.buffer_value(inputPort)}}[i] = get_{{names.name(inputPort)}}()[i].get_value(lag);
+        get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
     }
-{%-   else %}
-    B_.{{names.buffer_value(inputPort)}} = get_{{names.name(inputPort)}}().get_value(lag);
-{%-   endif %}
-{%- endfor %}
 
 {%- if has_delay_variables %}
     update_delay_variables();
@@ -532,18 +524,12 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
   assert(e.get_delay_steps() > 0);
-{%- if neuron.is_multisynapse_spikes() %}
-{%-   set port = neuron.get_spike_input_ports()[0] %}
-  B_.{{port.get_symbol_name()}}[e.get_rport() - 1].add_value(
-    e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-    e.get_weight() * e.get_multiplicity() );
-{%- elif neuron.get_multiple_receptors()|length > 1 %}
   assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
 
-  B_.spike_inputs_[ e.get_rport() ].add_value(
+  B_.spike_inputs_[ e.get_rport() - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     e.get_weight() * e.get_multiplicity() );
-{%- else %}
+{#{%- else %}
   const double weight = e.get_weight();
   const double multiplicity = e.get_multiplicity();
 {%-   for port in neuron.get_spike_input_ports() %}
@@ -570,7 +556,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   }
 {%-     endif %}
 {%-   endfor %}
-{%- endif %}
+{%- endif %} #}
 }
 {%- endif %}
 
