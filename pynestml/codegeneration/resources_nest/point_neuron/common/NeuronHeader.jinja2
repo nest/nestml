@@ -49,6 +49,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef {{neuronName.upper()}}
 #define {{neuronName.upper()}}
 
+#ifndef HAVE_LIBLTDL
+#error "NEST was compiled without support for dynamic loading. Please install libltdl and recompile NEST."
+#endif
+
 #include "config.h"
 {%- if norm_rng %}
 
