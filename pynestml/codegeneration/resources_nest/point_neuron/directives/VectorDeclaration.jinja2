@@ -1,5 +1,5 @@
 {%- import 'directives/VectorSizeParameter.jinja2' as vector_size_parameter with context %}
 {%- macro VectorDeclaration(node) -%}
-{%- set sym = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE) %}
-{{ printer.print_origin(node) }}{{ printer.print(node) }}.resize({{ vector_size_parameter.VectorSizeParameter(node, true) }}, {{ printer.print_expression(sym.get_declaring_expression()) }});
+
+{{ printer.print_origin(node) }}{{ node.get_symbol_name() }}.resize({{ vector_size_parameter.VectorSizeParameter(variable, true) }}, {{ printer.print_expression(variable.get_declaring_expression()) }});
 {%- endmacro -%}

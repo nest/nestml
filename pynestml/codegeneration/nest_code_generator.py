@@ -550,6 +550,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
 
         namespace["assignments"] = NestAssignmentsHelper()
+        namespace["nest_reference_converter"] = self._nest_reference_converter
+        namespace["types_printer"] = self._types_printer
         namespace["utils"] = ASTUtils
         namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
