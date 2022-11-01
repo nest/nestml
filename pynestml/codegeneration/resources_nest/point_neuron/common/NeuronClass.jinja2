@@ -354,7 +354,7 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 {%- if uses_numeric_solver %}
 
-  if ( B_.__s == nullptr )
+  if ( not B_.__s )
   {
     B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
   }
@@ -363,7 +363,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_step_reset( B_.__s );
   }
 
-  if ( B_.__c == nullptr )
+  if ( not B_.__c )
   {
     B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
   }
@@ -372,7 +372,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
   }
 
-  if ( B_.__e == nullptr )
+  if ( not B_.__e )
   {
     B_.__e = gsl_odeiv_evolve_alloc( {{stateSize}} );
   }
@@ -901,7 +901,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   }
 
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
-  if ( (!before_increment) && t == history_[ 0 ].t_)
+  if ( (!before_increment) and t == history_[ 0 ].t_)
   {
 {%- for var_ in purely_numeric_state_variables_moved %}
     S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
