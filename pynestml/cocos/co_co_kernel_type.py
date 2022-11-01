@@ -26,7 +26,6 @@ from pynestml.codegeneration.printers.debug_data_type_printer import DebugDataTy
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
-from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -89,8 +88,7 @@ class KernelTypeVisitor(ASTVisitor):
                     Logger.log_message(node=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=node.get_source_position())
                     continue
-                assert len(self._neuron.get_state_blocks().get_declarations()[0].get_variables(
-                )) == 1, "Only single variables are supported as targets of an assignment."
+                assert len(decl.get_variables()) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
                 if not iv.get_type_symbol().get_value().is_castable_to(PredefinedTypes.get_type("ms")**-order):
                     actual_type_str = DebugDataTypePrinter().print(iv)

@@ -7,20 +7,20 @@
 Parameters
 ++++++++++
 
-{%- for block in neuron.get_parameter_blocks() %}
+{% for block in synapse.get_parameters_blocks() %}
 {{ block.print_comment() }}
 {%- include "block_decl_table.jinja2" %}
-{% endwith %}
+{%- endfor %}
 
-{%- if synapse.get_state_blocks() is not none %}
+{%- if synapse.get_state_blocks() %}
 
 
 State variables
 +++++++++++++++
 
-{% with block = synapse.get_state_blocks() %}
+{% for block in synapse.get_state_blocks() %}
 {%- include "block_decl_table.jinja2" %}
-{%- endwith %}
+{%- endfor %}
 {%- endif %}
 Source code
 +++++++++++

@@ -480,7 +480,11 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 {%-   endfor %}
 
 {%- endif %}
-
+{%- if neuron.print_comment('*')|length > 1 %}
+/*
+ {{neuron.print_comment('*')}}
+ */
+{%- endif %}
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
@@ -510,17 +514,17 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     // NESTML generated code for the update block:
 
 {%- if neuron.get_update_blocks() %}
-{%- filter indent(2) %}
-{%- set dynamics = neuron.get_update_blocks() %}
-{%- if dynamics.print_comment('*')|length > 1 %}
+{%-     filter indent(2) %}
+{%-         for block in neuron.get_update_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*')|length > 1 %}
 /*
- {{dynamics.print_comment('*')}}
+ {{ast.print_comment('*')}}
  */
-{%- endif %}
-{%- with ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
+{%-             endif %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
 {%- endif %}
 
     // voltage logging
@@ -774,7 +778,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- endfor %}
 
 {%- for _, spike_update in post_spike_updates.items() %}
-        S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+        S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
 {%- endfor %}
 
     last_spike_ = t_sp_ms;
@@ -846,10 +850,10 @@ double
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
-      S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ i ].{{ var_ }}_;
+      S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-      S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ i ].{{ var_ }}_;
+      S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
       /**
