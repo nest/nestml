@@ -54,13 +54,14 @@ printer = NestPrinter(reference_converter=reference_converter,
 
 
 def get_first_statement_in_update_block(model):
-    if model.get_neuron_list()[0].get_update_blocks():
-        return model.get_neuron_list()[0].get_update_blocks().get_block().get_stmts()[0]
+    if model.get_neuron_list()[0].get_update_blocks()[0]:
+        return model.get_neuron_list()[0].get_update_blocks()[0].get_block().get_stmts()[0]
     return None
 
 
 def get_first_declaration_in_state_block(model):
-    return model.get_neuron_list()[0].get_state_blocks().get_declarations()[0]
+    assert len(model.get_neuron_list()[0].get_state_blocks()) == 1
+    return model.get_neuron_list()[0].get_state_blocks()[0].get_declarations()[0]
 
 
 def get_first_declared_function(model):

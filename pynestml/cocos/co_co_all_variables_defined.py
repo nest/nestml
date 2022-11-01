@@ -73,11 +73,11 @@ class CoCoAllVariablesDefined(CoCo):
                                 continue
                     else:
                         # for kernels, also allow derivatives of that kernel to appear
-                        if node.get_equations_block() is not None:
-                            inline_expr_names = [inline_expr.variable_name for inline_expr in node.get_equations_block().get_inline_expressions()]
+                        for equations_block in node.get_equations_blocks():
+                            inline_expr_names = [inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()]
                             if var.get_name() in inline_expr_names:
                                 inline_expr_idx = inline_expr_names.index(var.get_name())
-                                inline_expr = node.get_equations_block().get_inline_expressions()[inline_expr_idx]
+                                inline_expr = equations_block.get_inline_expressions()[inline_expr_idx]
                                 from pynestml.utils.ast_utils import ASTUtils
                                 if ASTUtils.inline_aliases_convolution(inline_expr):
                                     symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
