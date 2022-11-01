@@ -473,7 +473,7 @@ public:
     // Return values from functions are ignored.
     using ConnTestDummyNodeBase::handles_test_event;
     port
-    handles_test_event( SpikeEvent&, rport )
+    handles_test_event( SpikeEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -482,7 +482,7 @@ public:
 {%- endif %}
     }
     port
-    handles_test_event( RateEvent&, rport )
+    handles_test_event( RateEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -490,7 +490,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DataLoggingRequest&, rport )
+    handles_test_event( DataLoggingRequest&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -498,7 +498,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( CurrentEvent&, rport )
+    handles_test_event( CurrentEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -506,7 +506,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( ConductanceEvent&, rport )
+    handles_test_event( ConductanceEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -514,7 +514,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DoubleDataEvent&, rport )
+    handles_test_event( DoubleDataEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -522,7 +522,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DSSpikeEvent&, rport )
+    handles_test_event( DSSpikeEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -530,7 +530,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DSCurrentEvent&, rport )
+    handles_test_event( DSCurrentEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -649,7 +649,7 @@ public:
     // use accessor functions (inherited from Connection< >) to obtain delay and target
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     {{paired_neuron}}* __target = static_cast<{{paired_neuron}}*>(get_target(tid));
-    assert(__target != NULL);
+    assert(__target);
 {%- else %}
     Node* __target = get_target( tid );
 {%- endif %}
@@ -698,7 +698,7 @@ public:
         // start->t_ > t_lastspike_ - dendritic_delay, i.e. minus_dt < 0
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
 
-        if (pre_before_post_update && start->t_ == __t_spike - __dendritic_delay)
+        if (pre_before_post_update and start->t_ == __t_spike - __dendritic_delay)
         {
           pre_before_post_flag = true;
           break;  // this would in any case have been the last post spike to be processed
@@ -852,7 +852,7 @@ void
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
-    && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
+    and ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
   {
     // there is at least 1 dopa spike in (t0, t1]
     // propagate up to first dopa spike
@@ -880,7 +880,7 @@ std::cout << S_.n << "\n";
     // process remaining dopa spikes in (t0, t1]
     double cd;
     while ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
-      && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
+      and ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
     {
 #ifdef DEBUG
   std::cout << "\t\tHandling (2) spike at t = " << vt_spikes[ vt_spikes_idx_ ].spike_time_ << "\n";
