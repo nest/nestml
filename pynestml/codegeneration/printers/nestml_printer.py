@@ -610,7 +610,7 @@ class NESTMLPrinter(Printer):
             return str(node.numeric_literal)
 
         if node.is_variable():
-            return self.print_node(node.variable)
+            return self.print_variable(node.get_variable())
 
         if node.is_string():
             return node.get_string()
@@ -684,8 +684,12 @@ class NESTMLPrinter(Printer):
 
     def print_variable(self, node: ASTVariable):
         ret = node.name
+        if node.get_vector_parameter():
+            ret += "[" + self.print_node(node.get_vector_parameter()) + "]"
+
         for i in range(1, node.differential_order + 1):
             ret += "'"
+
         return ret
 
     def print_while_stmt(self, node: ASTWhileStmt) -> str:

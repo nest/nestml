@@ -152,7 +152,7 @@ class VariableSymbol(Symbol):
         :return: True if vector parameter available, otherwise False.
         :rtype: bool
         """
-        return self.vector_parameter is not None and type(self.vector_parameter) == str
+        return self.vector_parameter is not None
 
     def has_delay_parameter(self):
         """

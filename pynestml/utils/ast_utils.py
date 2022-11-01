@@ -353,12 +353,12 @@ class ASTUtils:
         :return: the size of the vector as a numerical value
         """
         vector_parameter = variable.get_vector_parameter()
-        vector_variable = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
-        symbol = vector_variable.get_scope().resolve_to_symbol(vector_variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol is not None:
-            # vector size is a variable. Get the value from RHS
+        if vector_parameter.is_variable():
+            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(), SymbolKind.VARIABLE)
             return symbol.get_declaring_expression().get_numeric_literal()
-        return int(vector_parameter)
+
+        assert vector_parameter.is_numeric_literal()
+        return int(vector_parameter.get_numeric_literal())
 
     @classmethod
     def get_function_call(cls, ast, function_name):
