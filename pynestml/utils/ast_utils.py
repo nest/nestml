@@ -431,7 +431,7 @@ class ASTUtils:
     @classmethod
     def create_state_block(cls, neuron):
         """
-        Creates a single internal block in the handed over neuron.
+        Creates a single internals block in the handed over neuron.
         :param neuron: a single neuron
         :type neuron: ast_neuron
         :return: the modified neuron
@@ -443,6 +443,23 @@ class ASTUtils:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
+        return neuron
+
+    @classmethod
+    def create_equations_block(cls, neuron):
+        """
+        Creates a single equations block in the handed over neuron.
+        :param neuron: a single neuron
+        :type neuron: ast_neuron
+        :return: the modified neuron
+        :rtype: ast_neuron
+        """
+        # local import since otherwise circular dependency
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        if not neuron.get_equations_blocks():
+            block = ASTNodeFactory.create_ast_equations_block(list(),
+                                                              ASTSourceLocation.get_added_source_position())
+            neuron.get_body().get_body_elements().append(block)
         return neuron
 
     @classmethod
@@ -729,7 +746,7 @@ class ASTUtils:
     def equations_from_block_to_block(cls, state_var, from_block, to_block, var_name_suffix, mode) -> List[ASTDeclaration]:
         assert mode in ["move", "copy"]
 
-        if not to_block or not from_block:
+        if not from_block:
             return []
 
         decls = ASTUtils.get_declarations_from_block(state_var, from_block)

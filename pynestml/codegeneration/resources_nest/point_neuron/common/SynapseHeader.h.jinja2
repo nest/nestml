@@ -1195,9 +1195,17 @@ inline void
     V_.__h = old___h;
     recompute_internal_variables();  // XXX: can be skipped?
 
+    // NESTML generated code for the update block:
+
 {%- if synapse.get_update_blocks() %}
 {%-     filter indent(2) %}
-{%-         for ast in synapse.get_update_blocks() %}
+{%-         for block in synapse.get_update_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
 {%-             include "directives/Block.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
