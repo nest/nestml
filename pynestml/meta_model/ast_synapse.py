@@ -101,14 +101,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
     def get_default_weight(self):
         return self._default_weight
 
-    def get_body(self):
-        """
-        Return the body of the synapse.
-        :return: the body containing the definitions.
-        :rtype: ASTNeuronOrSynapseBody
-        """
-        return self.body
-
     def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
         if not self.get_body():
             return []

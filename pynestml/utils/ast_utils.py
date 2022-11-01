@@ -460,18 +460,6 @@ class ASTUtils:
         return False
 
     @classmethod
-    def add_to_state_block(cls, model: ASTNeuronOrSynapse, declaration: ASTDeclaration) -> None:
-        """
-        Adds the handed over declaration to an arbitrary state block in the model.
-        :param neuron: a single neuron instance
-        :param declaration: a single declaration
-        """
-        if not model.get_state_blocks():
-            ASTUtils.create_state_block(model)
-
-        model.get_state_blocks()[0].get_declarations().append(declaration)
-
-    @classmethod
     def get_declaration_by_name(cls, blocks: Union[ASTBlock, List[ASTBlock]], var_name: str) -> Optional[ASTDeclaration]:
         """
         Get a declaration by variable name.
@@ -1725,7 +1713,7 @@ class ASTUtils:
             "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols(
         )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
+        neuron.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
     def generate_kernel_buffers_(cls, neuron: ASTNeuron, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:

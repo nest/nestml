@@ -27,6 +27,7 @@ from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_input_block import ASTInputBlock
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
@@ -90,11 +91,10 @@ class ASTNeuronOrSynapse(ASTNode):
 
         return dup
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns the name of the neuron.
         :return: the name of the neuron.
-        :rtype: str
         """
         return self.name
 
@@ -104,22 +104,19 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         self.name = name
 
-    def get_body(self):
+    def get_body(self) -> ASTNeuronOrSynapseBody:
         """
         Return the body of the neuron.
         :return: the body containing the definitions.
-        :rtype: ASTNeuronOrSynapseBody or ASTNeuronOrSynapseBody
         """
         return self.body
 
-    def get_artifact_name(self):
+    def get_artifact_name(self) -> str:
         """
         Returns the name of the artifact this neuron has been stored in.
         :return: the name of the file
-        :rtype: str
         """
         return self.artifact_name
-
 
     def get_functions(self) -> List[ASTFunction]:
         """
@@ -190,15 +187,16 @@ class ASTNeuronOrSynapse(ASTNode):
                 initial_values_declarations.append(decl)
         return initial_values_declarations
 
-    def get_equations(self):
+    def get_equations(self) -> List[ASTOdeEquation]:
         """
         Returns all ode equations as defined in this neuron.
         :return list of ode-equations
-        :rtype list(ASTOdeEquation)
         """
         ret = list()
+
         for block in self.get_equations_blocks():
             ret.extend(block.get_ode_equations())
+
         return ret
 
     def get_input_blocks(self) -> List[ASTInputBlock]:
@@ -280,11 +278,10 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_internal_symbols(self):
+    def get_internal_symbols(self) -> List[VariableSymbol]:
         """
         Returns a list of all internals symbol defined in the model.
         :return: a list of internals symbols.
-        :rtype: list(VariableSymbol)
         """
         from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
@@ -309,35 +306,33 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def is_multisynapse_spikes(self):
+    def is_multisynapse_spikes(self) -> bool:
         """
-        Returns whether this neuron uses multi-synapse spikes.
+        Returns whether this neuron uses multi-synapse inputs.
         :return: True if multi-synaptic, otherwise False.
-        :rtype: bool
         """
-        buffers = self.get_spike_buffers()
-        for iBuffer in buffers:
-            if iBuffer.has_vector_parameter():
+        ports = self.get_spike_input_ports()
+        for port in ports:
+            if port.has_vector_parameter():
                 return True
         return False
 
-    def get_multiple_receptors(self):
+    def get_multiple_receptors(self) -> List[VariableSymbol]:
         """
-        Returns a list of all spike buffers which are defined as inhibitory and excitatory.
-        :return: a list of spike buffers variable symbols
-        :rtype: list(VariableSymbol)
+        Returns a list of all spike input ports which are defined as both inhibitory *and* excitatory at the same time.
+        :return: a list of spike input port variable symbols
         """
         ret = list()
-        for iBuffer in self.get_spike_buffers():
-            if iBuffer.is_excitatory() and iBuffer.is_inhibitory():
-                if iBuffer is not None:
-                    ret.append(iBuffer)
+        for port in self.get_spike_input_ports():
+            if port.is_excitatory() and port.is_inhibitory():
+                if port is not None:
+                    ret.append(port)
                 else:
-                    code, message = Messages.get_could_not_resolve(iBuffer.get_symbol_name())
+                    code, message = Messages.get_could_not_resolve(port.get_symbol_name())
                     Logger.log_message(
                         message=message,
                         code=code,
-                        error_position=iBuffer.get_source_position(),
+                        error_position=port.get_source_position(),
                         log_level=LoggingLevel.ERROR)
         return ret
 
@@ -470,17 +465,17 @@ class ASTNeuronOrSynapse(ASTNode):
         declaration.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
 
-    def add_to_state_block(self, declaration):
+    def add_to_state_block(self, declaration: ASTDeclaration) -> None:
         """
-        Adds the handed over declaration to the state block.
+        Adds the handed over declaration to an arbitrary state block. A state block will be created if none exists.
         :param declaration: a single declaration.
-        :type declaration: ast_declaration
         """
+        assert len(self.get_state_blocks()) <= 1, "Only one internals block supported for now"
         from pynestml.utils.ast_utils import ASTUtils
-        if self.get_state_blocks() is None:
+        if not self.get_state_blocks():
             ASTUtils.create_state_block(self)
-        self.get_state_blocks().get_declarations().append(declaration)
-        declaration.update_scope(self.get_state_blocks().get_scope())
+        self.get_state_blocks()[0].get_declarations().append(declaration)
+        declaration.update_scope(self.get_state_blocks()[0].get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         symtable_vistor = ASTSymbolTableVisitor()
@@ -522,13 +517,11 @@ class ASTNeuronOrSynapse(ASTNode):
             return self.get_body().get_parent(ast)
         return None
 
-    def equals(self, other):
+    def equals(self, other: ASTNode) -> bool:
         """
         The equals method.
         :param other: a different object.
-        :type other: object
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTNeuronOrSynapse):
             return False
