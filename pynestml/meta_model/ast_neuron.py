@@ -19,19 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
-from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTNeuron(ASTNeuronOrSynapse):
@@ -107,85 +104,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
         :rtype: str
         """
         return self.artifact_name
-
-    def get_functions(self):
-        """
-        Returns a list of all function block declarations in this body.
-        :return: a list of function declarations.
-        :rtype: list(ASTFunction)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_function import ASTFunction
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTFunction):
-                ret.append(elem)
-        return ret
-
-    def get_state_blocks(self):
-        """
-        Returns a list of all state blocks defined in this body.
-        :return: a list of state-blocks.
-        :rtype: list(ASTBlockWithVariables)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_state:
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
-
-    def get_parameter_blocks(self):
-        """
-        Returns a list of all parameter blocks defined in this body.
-        :return: a list of parameters-blocks.
-        :rtype: list(ASTBlockWithVariables)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
-
-    def get_internals_blocks(self):
-        """
-        Returns a list of all internals blocks defined in this body.
-        :return: a list of internals-blocks.
-        :rtype: list(ASTBlockWithVariables)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
-
-    def get_equations_blocks(self) -> Optional[Union[ASTEquationsBlock, List[ASTEquationsBlock]]]:
-        """
-        Returns a list of all ``equations`` blocks defined in this body.
-        :return: a list of equations-blocks.
-        """
-        ret = list()
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTEquationsBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
 
     def get_equations_block(self):
         """
@@ -288,19 +206,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS] and \
-                    not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
-
-    def get_state_symbols(self) -> List[VariableSymbol]:
-        """
-        Returns a list of all state symbol defined in the model.
-        :return: a list of state symbols.
-        """
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.STATE and \
                     not symbol.is_predefined:
                 ret.append(symbol)
         return ret
@@ -593,58 +498,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
     The following print methods are used by the backend and represent the comments as stored at the corresponding
     parts of the neuron definition.
     """
-
-    def print_dynamics_comment(self, prefix=None):
-        """
-        Prints the dynamic block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_update_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_parameter_comment(self, prefix=None):
-        """
-        Prints the update block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_parameter_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_state_comment(self, prefix=None):
-        """
-        Prints the state block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_state_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_internal_comment(self, prefix=None):
-        """
-        Prints the internal block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_internals_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
 
     def print_comment(self, prefix=None):
         """

@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
@@ -99,7 +100,7 @@ class NestDeclarationsHelper:
         return ast_declaration.get_size_parameter()
 
     @classmethod
-    def print_delay_parameter(cls, variable: VariableSymbol, reference_converter) -> str:
+    def print_delay_parameter(cls, variable: VariableSymbol, variable_printer: VariablePrinter) -> str:
         """
         Prints the delay parameter
         :param variable: Variable with delay parameter
@@ -113,6 +114,6 @@ class NestDeclarationsHelper:
                                                                    SymbolKind.VARIABLE)
         if symbol is not None:
             # delay parameter is a variable
-            return reference_converter.print_origin(symbol) + delay_parameter
+            return variable_printer.print_origin(symbol) + delay_parameter
 
         return delay_parameter

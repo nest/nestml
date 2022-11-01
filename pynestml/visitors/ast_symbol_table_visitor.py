@@ -84,8 +84,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
 
         # update the equations
-        if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
-            equation_block = node.get_equations_blocks()
+        for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)
 
         Logger.set_current_node(None)

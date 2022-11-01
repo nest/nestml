@@ -1,17 +1,16 @@
 {%- if variable.is_inline_expression and not utils.contains_convolve_call(variable) %}
-inline {{declarations.print_variable_type(variable)}} {{names.getter(variable)}}() const
+inline {{ declarations.print_variable_type(variable) }} {{ variable_getter_printer.print(variable) }}() const
 {
-  return {{printer.print_expression(variable.get_declaring_expression())}};
+    return {{ printer.print_expression(variable.get_declaring_expression()) }};
 }
-{% else -%}
-inline {{declarations.print_variable_type(variable)}} {{names.getter(variable)}}() const
+{%- else %}
+inline {{ declarations.print_variable_type(variable) }} {{ variable_getter_printer.print(variable) }}() const
 {
-  return {{printer.print_origin(variable)}}{{names.name(variable)}};
-}
-
-inline void {{names.setter(variable)}}(const {{declarations.print_variable_type(variable)}} __v)
-{
-  {{printer.print_origin(variable)}}{{names.name(variable)}} = __v;
+    return {{ printer.print_origin(variable) }}{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }};
 }
 
-{% endif -%}
+inline void {{ variable_setter_printer.print(variable) }}(const {{ declarations.print_variable_type(variable) }} __v)
+{
+    {{ printer.print_origin(variable) }}{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }} = __v;
+}
+{%- endif %}

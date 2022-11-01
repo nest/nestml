@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# printer.py
+# nestml_variable_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,16 +19,22 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.name_printer import NamePrinter
-from pynestml.codegeneration.printers.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.utils.ast_utils import ASTUtils
 
 
-class Printer:
+class NestMLVariablePrinter(VariablePrinter):
     r"""
-    By using a different NamePrinter and TypesPrinter for the handling of variables, names, and functions and so on, Printers can be easily adapted to different targets.
+    Print ``ASTVariable``s in NESTML syntax.
     """
 
-    def __init__(self, name_printer: NamePrinter, types_printer: TypesPrinter):
-        assert isinstance(name_printer, NamePrinter)
-        self.name_printer = name_printer
-        self.types_printer = types_printer
+    def print_variable(self, ast_variable: ASTVariable, prefix: str = '') -> str:
+        """
+        Returns the same string
+        :param ast_variable: a single variable
+        :return: the same string
+        """
+        return prefix + ast_variable.get_complete_name()

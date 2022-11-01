@@ -24,9 +24,10 @@ from typing import Iterable, List, Mapping, Optional, Sequence, Union
 import re
 import sympy
 
-from pynestml.codegeneration.printers.printer import ASTPrinter
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
@@ -57,7 +58,6 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
-
 
 class ASTUtils:
     """
@@ -1091,11 +1091,11 @@ class ASTUtils:
         """
         Checks if the variable is present in an ODE
         """
-        equations_block = neuron.get_equations_blocks()
-        for ode_eq in equations_block.get_ode_equations():
-            var = ode_eq.get_lhs()
-            if var.get_name() == var_base_name:
-                return True
+        for equations_block in neuron.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                if var.get_name() == var_base_name:
+                    return True
         return False
 
     @classmethod
@@ -1298,31 +1298,48 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_parameter_by_name(cls, parameters_block: ASTBlockWithVariables, var_name: str) -> ASTDeclaration:
+    def get_parameter_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the parameter
         :param parameters_block: the parameter block
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
-        for decl in parameters_block.get_declarations():
-            for var in decl.get_variables():
-                if var.get_name() == var_name:
-                    return decl
+        for param_block in node.get_parameter_blocks():
+            for decl in param_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
         return None
 
     @classmethod
-    def get_state_variable_by_name(cls, state_block: ASTBlockWithVariables, var_name: str) -> ASTDeclaration:
+    def get_internal_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the parameter
         :param parameters_block: the parameter block
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
-        for decl in state_block.get_declarations():
-            for var in decl.get_variables():
-                if var.get_name() == var_name:
-                    return decl
+        for internals_block in node.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
+        return None
+
+    @classmethod
+    def get_state_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
+        """
+        Get the declaration based on the name of the parameter
+        :param parameters_block: the parameter block
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for state_block in node.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
         return None
 
     @classmethod
@@ -1508,7 +1525,7 @@ class ASTUtils:
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables,
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: Printer) -> dict:
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest2_gsl_name_printer.py
+# nest2_cpp_simple_expression_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,17 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.gsl_name_printer import GSLNamePrinter
+from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
-class NEST2GSLNamePrinter(GSLNamePrinter):
-    """
-    This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
+class NEST2CppFunctionCallPrinter(CppFunctionCallPrinter):
+    r"""
+    This class is used to convert operators and constants to the GSL (GNU Scientific Library) processable format.
     """
 
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = ''):
+    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
         r"""Convert a single function call to C++ GSL API syntax.
 
         Parameters

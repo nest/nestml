@@ -21,24 +21,24 @@ inline double get_state_element(size_t elem)
 {%-     if size|int == 0 %}
 {%-     set size = vector_size_parameter.VectorSizeParameter(variable, true) %}
 {%-     endif -%}
-    (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
+    (elem >= State_::{{ printer.print(utils.get_state_variable_by_name(astnode, variable)).upper() }} && elem < State_::{{ printer.print(utils.get_state_variable_by_name(astnode, variable)).upper() }} + {{ size }})
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
+      return S_.{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}[ elem - State_::{{ printer.print(utils.get_state_variable_by_name(astnode, variable)).upper() }} ];
     }
 {%-   else %}
-    (elem == State_::{{names.name(variable).upper()}})
+    (elem == State_::{{ printer.print(utils.get_state_variable_by_name(astnode, variable)).upper() }})
     {
-      return S_.{{names.name(variable)}};
+      return S_.{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }};
     }
 {%-   endif %}
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
+      return S_.{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}[ elem - State_::{{ printer.print(utils.get_state_variable_by_name(astnode, variable)).upper() }} ];
     }
 {%-   else %}
     {
-      return S_.{{names.name(variable)}};
+      return S_.{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }};
     }
 {%-   endif %}
 {%- endif %}

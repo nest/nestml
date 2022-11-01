@@ -15,7 +15,7 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 {%-   for inline_expr in utils.get_inline_expression_symbols(ode) %}
 {%-     if not inline_expr.is_equation() %}
 {%-       set declaring_expr = inline_expr.get_declaring_expression() %}
-  double {{names.name(inline_expr)}} = {{printerGSL.print_expression(declaring_expr, prefix="node.")}};
+  double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) }} = {{ printerGSL.print_expression(declaring_expr, prefix="node.") }};
 {%-     endif %}
 {%-   endfor %}
 {%- endfor %}

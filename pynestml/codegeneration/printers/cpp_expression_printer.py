@@ -19,24 +19,61 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Tuple
+from typing import Optional, Tuple, Union
 
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 
 
 class CppExpressionPrinter(ExpressionPrinter):
     r"""
-    Expressions printer for C++.
+    Printer for ``ASTExpression`` nodes in C++ syntax.
     """
 
+    def print(self, node: ASTNode, prefix: str = "") -> str:
+        if isinstance(node, ASTExpression):
+            return self._print(node, prefix)
+
+        if isinstance(node, ASTSimpleExpression):
+            return self._simple_expression_printer.print(node, prefix)
+
+        if isinstance(node, ASTFunctionCall):
+            return self._simple_expression_printer.print_function_call(node)
+
+        raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
+
+    def _print(self, node: ASTExpressionNode, prefix: str = "") -> str:
+        assert isinstance(node, ASTExpression)
+        if node.is_unary_operator():
+            return self.print_unary_op(node, prefix=prefix)
+
+        if node.is_encapsulated:
+            return self.print_encapsulated(node, prefix=prefix)
+
+        if node.is_logical_not:
+            return self.print_logical_not(node, prefix=prefix)
+
+        if node.is_compound_expression():
+            return self.print_binary_op(node, prefix=prefix)
+
+        if node.is_ternary_operator():
+            return self.print_ternary_operator(node, prefix=prefix)
+
+        raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
+
     def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
-        """Print an expression.
+        r"""Print an expression.
 
         Parameters
         ----------
@@ -52,107 +89,177 @@ class CppExpressionPrinter(ExpressionPrinter):
         """
         if (node.get_implicit_conversion_factor() is not None) \
                 and (not node.get_implicit_conversion_factor() == 1):
-            return str(node.get_implicit_conversion_factor()) + " * (" + self.__do_print(node, prefix=prefix) + ")"
+            return str(node.get_implicit_conversion_factor()) + " * (" + self.__print(node, prefix=prefix) + ")"
 
-        return self.__do_print(node, prefix=prefix)
+        return self._print(node, prefix=prefix)
 
-    def __do_print(self, node: ASTExpressionNode, prefix: str="") -> str:
-        if isinstance(node, ASTSimpleExpression):
-            if node.has_unit():
-                return str(node.get_numeric_literal()) + "*" + \
-                    self.name_printer.print_name_reference(node.get_variable(), prefix=prefix)
-
-            if node.is_numeric_literal():
-                return str(node.get_numeric_literal())
-
-            if node.is_inf_literal:
-                return self.name_printer.print_constant("inf")
-
-            if node.is_string():
-                return str(node.get_string())
-
-            if node.is_boolean_true:
-                return self.name_printer.print_constant("true")
-
-            if node.is_delay_variable():
-                return self.name_printer.print_delay_variable(node.get_variable(), prefix=prefix)
-
-            if node.is_boolean_false:
-                return self.name_printer.print_constant("false")
-
-            if node.is_variable():
-                return self.name_printer.print_name_reference(node.get_variable(), prefix=prefix)
-
-            if node.is_function_call():
-                return self.print_function_call(node.get_function_call(), prefix=prefix)
-
-            raise Exception("Unknown node type")
-
-        if isinstance(node, ASTExpression):
-            # a unary operator
-            if node.is_unary_operator():
-                op = self.name_printer.print_unary_op(node.get_unary_operator())
-                rhs = self.print_expression(node.get_expression(), prefix=prefix)
-                return op % rhs
-
-            # encapsulated in brackets
-            if node.is_encapsulated:
-                return self.name_printer.print_encapsulated() % self.print_expression(node.get_expression(),
-                                                                                               prefix=prefix)
-
-            # logical not
-            if node.is_logical_not:
-                op = self.name_printer.print_logical_not()
-                rhs = self.print_expression(node.get_expression(), prefix=prefix)
-                return op % rhs
-
-            # compound rhs with lhs + rhs
-            if node.is_compound_expression():
-                lhs = self.print_expression(node.get_lhs(), prefix=prefix)
-                op = self.name_printer.print_binary_op(node.get_binary_operator())
-                rhs = self.print_expression(node.get_rhs(), prefix=prefix)
-                return op % (lhs, rhs)
-
-            if node.is_ternary_operator():
-                condition = self.print_expression(node.get_condition(), prefix=prefix)
-                if_true = self.print_expression(node.get_if_true(), prefix=prefix)
-                if_not = self.print_expression(node.if_not, prefix=prefix)
-                return self.name_printer.print_ternary_operator() % (condition, if_true, if_not)
-
-            raise Exception("Unknown node type")
-
-        raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
-
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
-        """Print a function call, including bracketed arguments list.
-
-        Parameters
-        ----------
-        node
-            The function call node to print.
-        prefix
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
-
-        Returns
-        -------
-        s
-            The function call string.
+    def print_unary_op(self, unary_operator: ASTUnaryOperator, prefix: str = "") -> str:
         """
-        function_name = self.name_printer.print_function_call(function_call, prefix=prefix)
-        if ASTUtils.needs_arguments(function_call):
-            if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
-                return function_name.format(self.name_printer.print_print_statement(function_call))
+        Converts a unary operator.
+        :param unary_operator: an operator object
+        :return: a string representation
+        """
+        rhs = self.print_expression(unary_operator.get_expression(), prefix=prefix)
 
-            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+        if unary_operator.is_unary_plus:
+            return '(' + '+' + rhs + ')'
 
-        return function_name
+        if unary_operator.is_unary_minus:
+            return '(' + '-' + rhs + ')'
 
-    def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str="") -> Tuple[str, ...]:
-        ret = []
+        if unary_operator.is_unary_tilde:
+            return '(' + '~' + rhs + ')'
 
-        for arg in function_call.get_args():
-            ret.append(self.print_expression(arg, prefix=prefix))
+        raise RuntimeError('Cannot determine unary operator!')
 
-        return tuple(ret)
+    def print_encapsulated(self, node: ASTExpression, prefix: str = "") -> str:
+        """
+        Converts the encapsulating parenthesis of an expression.
+        :return: a string representation
+        """
+        expr = self.print_expression(node.get_expression(),
+                                     prefix=prefix)
+
+        return '(' + expr + ')'
+
+    def print_logical_not(self, node: ASTExpression, prefix: str = "") -> str:
+        """
+        Converts a logical NOT operator.
+        :return: a string representation
+        """
+        rhs = self.print_expression(node.get_expression(), prefix=prefix)
+
+        return '(' + '!' + '%s' + ')' % rhs
+
+    def print_logical_operator(self, op: ASTLogicalOperator, prefix: str = "") -> str:
+        """
+        Converts a logical operator.
+        :param op: a logical operator object
+        :return: a string representation
+        """
+        lhs = self.print_expression(op.get_lhs(), prefix=prefix)
+        rhs = self.print_expression(op.get_rhs(), prefix=prefix)
+
+        if op.is_logical_and:
+            return lhs + '&&' + rhs
+
+        if op.is_logical_or:
+            return lhs + '||' + rhs
+
+        raise RuntimeError('Cannot determine logical operator!')
+
+    def print_comparison_operator(self, op: ASTComparisonOperator, prefix: str = "")-> str:
+        """
+        Converts a comparison operator.
+        :param op: a comparison operator object
+        :return: a string representation
+        """
+        lhs = self.print_expression(op.get_lhs(), prefix=prefix)
+        rhs = self.print_expression(op.get_rhs(), prefix=prefix)
+
+        if op.is_lt:
+            return lhs +'<' + rhs
+
+        if op.is_le:
+            return lhs +'<=' + rhs
+
+        if op.is_eq:
+            return lhs +'==' + rhs
+
+        if op.is_ne or op.is_ne2:
+            return lhs +'!=' + rhs
+
+        if op.is_ge:
+            return lhs +'>=' + rhs
+
+        if op.is_gt:
+            return lhs +'>' + rhs
+
+        raise RuntimeError('Cannot determine comparison operator!')
+
+    def print_bit_operator(self, op: ASTBitOperator, prefix: str = "") -> str:
+        """
+        Converts a bit operator in NEST syntax.
+        :param op: a bit operator object
+        :return: a string representation
+        """
+        lhs = self.print_expression(op.get_lhs(), prefix=prefix)
+        rhs = self.print_expression(op.get_rhs(), prefix=prefix)
+
+        if op.is_bit_shift_left:
+            return lhs + '<<' + rhs
+
+        if op.is_bit_shift_right:
+            return lhs +'>>' + rhs
+
+        if op.is_bit_and:
+            return lhs +'&' + rhs
+
+        if op.is_bit_or:
+            return lhs +'|' + rhs
+
+        if op.is_bit_xor:
+            return lhs +'^' + rhs
+
+        raise RuntimeError('Cannot determine bit operator!')
+
+    def print_arithmetic_operator(self, op: ASTArithmeticOperator, prefix: str = "") -> str:
+        """
+        Converts an arithmetic operator.
+        :param op: an arithmetic operator object
+        :return: a string representation
+        """
+        lhs = self.print_expression(op.get_lhs(), prefix=prefix)
+        rhs = self.print_expression(op.get_rhs(), prefix=prefix)
+
+        if op.is_plus_op:
+            return lhs + ' + ' + rhs
+
+        if op.is_minus_op:
+            return lhs + ' - ' + rhs
+
+        if op.is_times_op:
+            return lhs + ' * ' + rhs
+
+        if op.is_div_op:
+            return lhs + ' / ' + rhs
+
+        if op.is_modulo_op:
+            return lhs + ' %% ' + rhs
+
+        if op.is_pow_op:
+            return 'pow' + '(' + lhs + ', ' + rhs + ')'
+
+        raise RuntimeError('Cannot determine arithmetic operator!')
+
+    def print_ternary_operator(self, node: ASTExpression, prefix: str = "") -> str:
+        """
+        Converts a ternary operator.
+        :return: a string representation
+        """
+        condition = self.print_expression(node.get_condition(), prefix=prefix)
+        if_true = self.print_expression(node.get_if_true(), prefix=prefix)
+        if_not = self.print_expression(node.if_not, prefix=prefix)
+
+        return '(' + condition + ') ? (' + if_true + ') : (' + if_not + ')'
+
+    def print_binary_op(self, binary_operator: Union[ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator], prefix: str = "") -> str:
+        """
+        Converts a binary operator.
+        :param binary_operator: a binary operator object
+        :return: a string representation
+        """
+
+        if isinstance(binary_operator, ASTArithmeticOperator):
+            return self.print_arithmetic_operator(binary_operator, prefix)
+
+        if isinstance(binary_operator, ASTBitOperator):
+            return self.print_bit_operator(binary_operator, prefix)
+
+        if isinstance(binary_operator, ASTComparisonOperator):
+            return self.print_comparison_operator(binary_operator, prefix)
+
+        if isinstance(binary_operator, ASTLogicalOperator):
+            return self.print_logical_operator(binary_operator, prefix)
+
+        raise RuntimeError('Cannot determine binary operator!')

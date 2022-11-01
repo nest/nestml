@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ode_toolbox_name_printer.py
+# expression_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,30 +21,10 @@
 
 from typing import Union
 
-from pynestml.codegeneration.printers.nestml_name_printer import NestMLNamePrinter
 
-
-class ODEToolboxNamePrinter(NestMLNamePrinter):
+class ConstantPrinter():
+    r"""
     """
-    Convert into a format accepted by ODE-toolbox as input.
-    """
-
-    def print_name_reference(self, ast_variable, prefix: str = '') -> str:
-        """
-        Returns the same string
-        :param ast_variable: a single variable
-        :type ast_variable: ASTVariable
-        :return: the same string
-        """
-        return prefix + ast_variable.get_complete_name().replace("$", "__DOLLAR")
-
-    def print_ternary_operator(self) -> str:
-        """
-        ODE-toolbox does not support ternary operator! Ignore condition, and hard-wire to first parameter.
-        :return: a string representation
-        """
-        s = '0 * (' + '%s' + ') + (' + '%s' + ') + 0 * (' + '%s' + ')'
-        return '(' + s + ')'
 
     def print_constant(self, const: Union[str, float, int]) -> str:
         """

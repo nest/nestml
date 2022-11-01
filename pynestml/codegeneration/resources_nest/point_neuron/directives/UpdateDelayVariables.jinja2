@@ -2,5 +2,5 @@
   Generates C++ statements that update the delay variables
   @param variable VariableSymbol
 #}
-    DV_.delayed_{{variable.get_symbol_name()}} [DV_.delayed_{{variable.get_symbol_name()}}_idx] = {{printer.print_origin(variable)}}{{names.name(variable)}};
-    DV_.delayed_{{variable.get_symbol_name()}}_idx = (DV_.delayed_{{variable.get_symbol_name()}}_idx + 1) % DV_.delay_{{variable.get_symbol_name()}}_steps;
+    DV_.delayed_{{ variable.get_symbol_name() }} [DV_.delayed_{{variable.get_symbol_name()}}_idx] = {{ printer.print_origin(variable) }}{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }};
+    DV_.delayed_{{ variable.get_symbol_name() }}_idx = (DV_.delayed_{{ variable.get_symbol_name() }}_idx + 1) % DV_.delay_{{ variable.get_symbol_name() }}_steps;

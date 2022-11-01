@@ -219,4 +219,4 @@ class ASTNode(metaclass=ABCMeta):
 
     def __str__(self):
         from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
-        return NESTMLPrinter().print_node(self)
+        return NESTMLPrinter().print(self)

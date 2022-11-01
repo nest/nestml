@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# debug_types_printer.py
+# debug_data_type_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
@@ -27,28 +28,30 @@ from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.string_type_symbol import StringTypeSymbol
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.utils.either import Either
 
 
-class DebugTypesPrinter(TypesPrinter):
+class DebugDataTypePrinter(ASTPrinter):
     """
     Returns a string format that is suitable for info/warning/error messages.
     """
 
-    def convert(self, type_symbol: TypeSymbol) -> str:
+    def print(self, node: ASTNode, prefix: str = "") -> str:
         """
         Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol
         :return: the corresponding string representation.
         """
+
+        type_symbol = node.get_type_symbol()
+
         if isinstance(type_symbol, Either):
             if type_symbol.is_value():
                 return self.convert(type_symbol.get_value())
-            else:
-                assert type_symbol.is_error()
-                return type_symbol.get_error()
+
+            assert type_symbol.is_error()
+            return type_symbol.get_error()
 
         if 'is_buffer' in dir(type_symbol) and type_symbol.is_buffer:
             return 'buffer'
@@ -70,9 +73,6 @@ class DebugTypesPrinter(TypesPrinter):
 
         if isinstance(type_symbol, UnitTypeSymbol):
             return type_symbol.unit.unit.to_string()
-
-        if isinstance(type_symbol, NESTTimeTypeSymbol):
-            return 'nest::Time'
 
         if isinstance(type_symbol, ErrorTypeSymbol):
             return '<Error type>'

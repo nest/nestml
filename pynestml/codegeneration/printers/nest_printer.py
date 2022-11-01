@@ -20,8 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
-from pynestml.codegeneration.printers.printer import Printer
-from pynestml.codegeneration.printers.name_printer import NamePrinter
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -67,16 +67,16 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
 
 
-class NestPrinter(Printer):
+class NestPrinter(ASTPrinter):
     r"""
     Printer for NEST C++ syntax.
     """
 
     def __init__(self,
-                 name_printer: NamePrinter,
+                 variable_printer: VariablePrinter,
                  types_printer: TypesPrinter,
                  expression_printer: ExpressionPrinter):
-        super().__init__(name_printer=name_printer,
+        super().__init__(variable_printer=variable_printer,
                          types_printer=types_printer)
         self._expression_printer = expression_printer
 
@@ -154,7 +154,7 @@ class NestPrinter(Printer):
         if isinstance(node, ASTUpdateBlock):
             return self.print_update_block(node)
         if isinstance(node, ASTVariable):
-            return self.print_variable(node)
+            return self._variable_printer.print_variable(node)
         if isinstance(node, ASTWhileStmt):
             return self.print_while_stmt(node)
         if isinstance(node, ASTStmt):
@@ -173,8 +173,7 @@ class NestPrinter(Printer):
             return self.print_small_stmt(node.small_stmt, prefix=prefix)
 
     def print_assignment(self, node, prefix="") -> str:
-        symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.name_printer.print_origin(symbol) + self.name_printer.name(symbol) + ' '
+        ret = self._variable_printer.print_origin(node.lhs) + self._variable_printer.print(node.lhs) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -186,13 +185,6 @@ class NestPrinter(Printer):
         else:
             ret += '='
         ret += ' ' + self.print_node(node.rhs)
-        return ret
-
-    def print_variable(self, node: ASTVariable) -> str:
-        symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.name_printer.print_origin(symbol) + node.name
-        for i in range(1, node.differential_order + 1):
-            ret += "__d"
         return ret
 
     def print_comparison_operator(self, for_stmt) -> str:
@@ -241,4 +233,4 @@ class NestPrinter(Printer):
         return self._expression_printer.print_function_call(node)
 
     def print_origin(self, variable_symbol, prefix='') -> str:
-        return self.name_printer.print_origin(variable_symbol)
+        return self._variable_printer.print_origin(variable_symbol)

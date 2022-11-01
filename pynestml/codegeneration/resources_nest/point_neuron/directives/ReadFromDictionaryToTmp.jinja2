@@ -7,26 +7,26 @@
 
 {%- if not variable.is_inline_expression %}
 {%- if not variable.is_state() %}
-{{declarations.print_variable_type(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
-updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{names.name(variable)}}, tmp_{{names.name(variable)}});
+{{ declarations.print_variable_type(variable) }} tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }} = {{ variable_getter_printer.print(variable) }}();
+updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}, tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }});
 
 {%- if vector_symbols|length > 0 %}
 // Resize vectors
-if (tmp_{{names.name(variable)}} != {{names.getter(variable)}}())
+if (tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }} != {{ variable_getter_printer.print(variable) }}())
 {
 {%- for vector_var in vector_symbols %}
 {%- if vector_var.get_vector_parameter().is_variable() and vector_var.get_vector_parameter().get_variable().get_complete_name() == variable.get_symbol_name() %}
-  {{declarations.print_variable_type(vector_var)}} _tmp_{{names.name(vector_var)}} = {{names.getter(vector_var)}}();
-  _tmp_{{names.name(vector_var)}}.resize(tmp_{{names.name(variable)}}, 0.);
-  set_{{names.name(vector_var)}}(_tmp_{{names.name(vector_var)}});
+  {{declarations.print_variable_type(vector_var)}} _tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, vector_var)) }} = {{variable_getter_printer.print(vector_var)}}();
+  _tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, vector_var)) }}.resize(tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}, 0.);
+  set_{{ printer.print(utils.get_state_variable_by_name(astnode, vector_var)) }}(_tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, vector_var)) }});
 {%- endif %}
 {%- endfor %}
 }
 {%- endif %}
 
 {%- else %}
-{{declarations.print_variable_type(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
-updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{variable.get_symbol_name()}}, tmp_{{names.name(variable)}});
+{{declarations.print_variable_type(variable)}} tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }} = {{variable_getter_printer.print(variable)}}();
+updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{variable.get_symbol_name()}}, tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }});
 {%- endif %}
 
 {%- if variable.has_vector_parameter() %}
@@ -42,13 +42,13 @@ variable
 {{ raise("Vector size expression needs to be numeric literal or variable") }}
 {%- endif %}
 // Check if the new vector size matches its original size
-if ( tmp_{{names.name(variable)}}.size() != {{vector_size}} )
+if ( tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}.size() != {{vector_size}} )
 {
   std::stringstream msg;
-  msg << "The vector \"{{names.name(variable)}}\" does not match its size: " << {{vector_size}};
+  msg << "The vector \"{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}\" does not match its size: " << {{vector_size}};
   throw nest::BadProperty(msg.str());
 }
 {%- endif %}
 {%- else %}
-  // ignores '{{names.name(variable)}}' {{declarations.print_variable_type(variable)}}' since it is an function and setter isn't defined
+  // ignores '{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }}' {{ declarations.print_variable_type(variable) }}' since it is a function and setter isn't defined
 {%- endif %}

@@ -6,6 +6,6 @@
 {%- if uses_analytic_solver %}
 {%- for variable_name in analytic_state_variables_: %}
 {%-   set variable_sym = variable_symbols[variable_name] %}
-{{printer.print_origin(variable_sym)}}{{names.name(variable_sym)}} = {{variable_name}}__tmp;
+{{ printer.print_origin(variable_sym) }}{{ utils.get_state_variable_by_name(astnode, variable_sym.get_symbol_name()) }} = {{ variable_name }}__tmp;
 {%- endfor %}
 {%- endif %}

@@ -23,6 +23,7 @@ from typing import Optional, Union
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -276,8 +277,7 @@ class ASTNodeFactory:
         return instance
 
     @classmethod
-    def create_ast_neuron(cls, name, body, source_position, artifact_name):
-        # type: (str,ASTBody,ASTSourceLocation,str) -> ASTNeuron
+    def create_ast_neuron(cls, name: str, body: ASTNeuronOrSynapseBody, source_position: ASTSourceLocation, artifact_name):
         return ASTNeuron(name, body, artifact_name, source_position=source_position)
 
     @classmethod

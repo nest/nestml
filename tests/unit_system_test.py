@@ -21,17 +21,21 @@
 
 import os
 import unittest
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.printers.nest_printer import NestPrinter
-from pynestml.codegeneration.printers.nestml_name_printer import NestMLNamePrinter
+from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.nest_function_call_printer import NESTFunctionCallPrinter
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
@@ -46,9 +50,12 @@ PredefinedFunctions.register_functions()
 Logger.init_logger(LoggingLevel.INFO)
 
 types_printer = CppTypesPrinter()
-name_printer = NestMLNamePrinter()
-expression_printer = CppExpressionPrinter(name_printer)
-printer = NestPrinter(name_printer=name_printer,
+variable_printer = NestMLVariablePrinter()
+expression_printer = CppExpressionPrinter(CppSimpleExpressionPrinter(CppVariablePrinter(),
+                                                                     ConstantPrinter(),
+                                                                     NESTFunctionCallPrinter()))
+
+printer = NestPrinter(variable_printer=variable_printer,
                       types_printer=types_printer,
                       expression_printer=expression_printer)
 

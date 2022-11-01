@@ -44,6 +44,7 @@ from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -73,7 +74,7 @@ class NESTMLPrinter(ASTPrinter):
     def __init__(self):
         self.indent = 0
 
-    def print_node(self, node):
+    def print(self, node: ASTNode, prefix: str = ""):
         ret = ''
         if isinstance(node, ASTArithmeticOperator):
             ret = self.print_arithmetic_operator(node)
