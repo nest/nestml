@@ -1,0 +1,14 @@
+{%- macro RportToPortMapEntry(port, rport, index=0) -%}
+{%- if index > 0 %}
+{%- set name = port.get_symbol_name().upper() ~ "_" ~ index|string %}
+{%- else %}
+{%- set name = port.get_symbol_name().upper() %}
+{%- endif %}
+{%- if port.is_excitatory() and port.is_inhibitory() %}
+  { std::make_tuple({{ rport }}, "spike"), {{name}} },
+{%- elif port.is_excitatory() %}
+  { std::make_tuple({{ rport }}, "excitatory"), {{name}} },
+{%- else %}
+  { std::make_tuple({{ rport }}, "inhibitory"), {{name}} },
+{%- endif %}
+{%- endmacro %}

@@ -24,6 +24,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives/BufferDeclarationValue.jinja2' as buffer_declaration_value with context %}
 {%- import 'directives/FunctionDeclaration.jinja2' as function_declaration with context %}
 {%- import 'directives/OutputEvent.jinja2' as output_event with context %}
+{%- import 'directives/RportToPortMapEntry.jinja2' as rport_to_port_map_entry with context %}
 /**
  *  {{neuronName}}.h
  *
@@ -405,6 +406,28 @@ private:
 
   static const size_t NUM_SPIKE_RECEPTORS = SUP_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
 
+{% if has_multiple_synapses -%}
+  std::map<std::tuple< int, std::string >, int> rport_to_nestml_port =
+  {
+    {%- for key, values in utils.get_spike_input_ports_in_pairs(neuron).items() %}
+    {%-   for port in values %}
+    {%-   set ns = namespace(rport=key) %}
+    {%-   if port.has_vector_parameter() %}
+    {%-   set size = utils.get_numeric_vector_size(port) %}
+      {%- for i in range(size) %}
+        {{ rport_to_port_map_entry.RportToPortMapEntry(port, ns.rport, index=i+1) }}
+        {%- set ns.rport = ns.rport + 1 %}
+      {%- endfor %}
+    {%-   else %}
+        {{ rport_to_port_map_entry.RportToPortMapEntry(port, ns.rport) }}
+    {%-   endif %}
+    {%-   endfor %}
+    {%- endfor %}
+  };
+{%- endif %}
+
+
+
 {%- if nest_version.startswith("v2") %}
   /**
    * Reset state of neuron.
@@ -616,6 +639,29 @@ private:
     // Buffer containing the sum of all the incoming spikes
     {{ buffer_getter.BufferGetter(true, true) }}
 
+{#
+{%- for inputPort in neuron.get_spike_input_ports() %}
+{%- if inputPort.is_spike_input_port() and inputPort.is_inhibitory() and inputPort.is_excitatory() %}
+inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.get_symbol_name() }}() {
+    return spike_inputs_[{{ inputPort.get_symbol_name().upper() }} - 1];
+}
+{%- else %}
+{%-     filter indent(4, True) -%}
+{{ buffer_getter.BufferGetter(inputPort, true) }}
+{%-     endfilter %}
+{%- endif %}
+{{ buffer_declaration_value.BufferDeclarationValue(inputPort) }}
+{%- endfor %}
+{%- else %}
+{%- for inputPort in neuron.get_spike_input_ports() %}
+{%-     filter indent(4, True) -%}
+{{ buffer_getter.BufferGetter(inputPort, true) }}
+{{ buffer_declaration.BufferDeclaration(inputPort) }}
+{%-     endfilter %}
+{{ buffer_declaration_value.BufferDeclarationValue(inputPort) }}
+{%- endfor %}
+#}
+
 {%- for inputPort in neuron.get_continuous_input_ports() %}
 {{ buffer_declaration.BufferDeclaration(inputPort) }}
 {%-     filter indent(4, True) -%}
@@ -658,12 +704,33 @@ private:
   // -------------------------------------------------------------------------
   //   Getters/setters for input buffers
   // -------------------------------------------------------------------------
+{#
+{% filter indent(2, True) -%}
+{%- for inputPort in neuron.get_input_ports() %}
+{%-     filter indent(4, True) -%}
+{{ buffer_getter.BufferGetter(inputPort, false) }}
+{%-     endfilter %}
+{%- endfor %}
+{%- endfilter %}
+#}
 
   // Buffer containing the incoming spikes
   {{ buffer_getter.BufferGetter(false, false) }}
 
-  // Buffer containing the incoming spike values
   {{ buffer_getter.BufferGetter(true, false) }}
+
+{#
+{%- if ((neuron.get_spike_input_ports())|length > 0) %}
+   inline std::vector<nest::RingBuffer>& get_spike_inputs_()
+   {
+      return B_.spike_inputs_;
+   }
+
+   inline std::vector<double> get_spike_inputs_grid_sum_()
+   {
+      return B_.spike_inputs_grid_sum_;
+   }
+{%- endif %} #}
 
 {%- if neuron.get_functions()|length > 0 %}
   // -------------------------------------------------------------------------
@@ -746,6 +813,13 @@ inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rpor
 
 inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
+{#{%- if neuron.is_multisynapse_spikes() %}
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.get_spike_input_ports()[1].get_vector_parameter()}}()) )
+    {
+        // TODO refactor me. The code assumes that there is only one. Check by coco.
+        throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
+    }
+    return receptor_type; #}
 {%- if neuron.get_spike_input_ports()|length > 1 %}
     assert( B_.spike_inputs_.size() == {{(neuron.get_multiple_receptors())|length}} );
 

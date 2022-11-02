@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterable, List, Mapping, Optional, Sequence, Union
+from typing import Iterable, List, Mapping, Optional, Sequence, Union, Dict
 
 import re
 import sympy
@@ -1917,3 +1917,41 @@ class ASTUtils:
         vis = ASTHigherOrderVisitor(visit_funcs=fun)
         ast_node.accept(vis)
         return res
+
+    @classmethod
+    def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:
+        for key, value in rport_to_port_map.items():
+            if len(value) == 1:
+                if (port.is_excitatory() and value[0].is_inhibitory() and not value[0].is_excitatory()) \
+                        or (port.is_inhibitory() and value[0].is_excitatory() and not value[0].is_inhibitory()):
+                    if port.has_vector_parameter():
+                        if cls.get_numeric_vector_size(port) == cls.get_numeric_vector_size(value[0]):
+                            return key
+                    else:
+                        return key
+        return None
+
+    @classmethod
+    def get_spike_input_ports_in_pairs(cls, neuron: ASTNeuron) -> Dict[int, List[VariableSymbol]]:
+        """
+        Returns a list of spike input ports in pairs in case of input port qualifiers
+        """
+        rport_to_port_map = {}
+        rport = 1
+        for port in neuron.get_spike_input_ports():
+            if port.is_excitatory() and port.is_inhibitory():
+                rport_to_port_map[rport] = [port]
+                rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
+            else:
+                key = cls._find_port_in_dict(rport_to_port_map, port)
+                if key is not None:
+                    # The corresponding spiking input pair is found.
+                    # Add the port to the list and update rport
+                    rport_to_port_map[key].append(port)
+                    rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
+                else:
+                    # New input port. Retain the same rport number until the corresponding input port pair is found.
+                    rport_to_port_map[rport] = [port]
+
+        return rport_to_port_map
+
