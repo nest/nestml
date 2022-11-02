@@ -8,7 +8,11 @@
 {%- if not variable.is_inline_expression %}
 {%- if not variable.is_state() %}
 {{declarations.print_variable_type(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
+{%- if synapse is defined or variable in vector_symbols %}
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{names.name(variable)}}, tmp_{{names.name(variable)}});
+{%- else %}
+nest::updateValueParam<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{names.name(variable)}}, tmp_{{names.name(variable)}}, this);
+{%- endif %}
 
 {%- if vector_symbols|length > 0 %}
 // Resize vectors
@@ -26,7 +30,11 @@ if (tmp_{{names.name(variable)}} != {{names.getter(variable)}}())
 
 {%- else %}
 {{declarations.print_variable_type(variable)}} tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}} = {{names.getter(variable)}}();
+{%- if synapse is defined or variable in vector_symbols %}
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{variable.get_symbol_name()}}, tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}});
+{%- else %}
+nest::updateValueParam<{{declarations.print_variable_type(variable)}}>(__d, nest::{{names_namespace}}::_{{variable.get_symbol_name()}}, tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}}, this);
+{%- endif %}
 {%- endif %}
 
 {%- if variable.has_vector_parameter() %}

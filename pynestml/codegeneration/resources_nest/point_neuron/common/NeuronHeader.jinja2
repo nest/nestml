@@ -865,7 +865,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 {%- for parameter in neuron.get_parameter_symbols() -%}
 {%- with variable = parameter %}
 {%- filter indent(2) %}
-{%- include "directives/ReadFromNodeDictionaryToTmp.jinja2" %}
+{%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
 {%- endfilter %}
 {%- endwith %}
 {%- endfor %}
@@ -875,7 +875,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 {%- with variable = state %}
 {%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
 {%- filter indent(2) %}
-{%- include "directives/ReadFromNodeDictionaryToTmp.jinja2" %}
+{%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
 {%- endfilter %}
 {%- endif %}
 {%- endwith %}
