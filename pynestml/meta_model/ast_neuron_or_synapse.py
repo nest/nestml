@@ -22,6 +22,7 @@
 from typing import List, Optional
 
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_function import ASTFunction
@@ -206,8 +207,8 @@ class ASTNeuronOrSynapse(ASTNode):
         ret = list()
 
         for block in self.get_equations_blocks():
-        for block in blocks:
             ret.extend(block.get_ode_equations())
+
         return ret
 
     def get_input_blocks(self) -> List[ASTInputBlock]:
@@ -219,7 +220,10 @@ class ASTNeuronOrSynapse(ASTNode):
 
     def get_output_blocks(self) -> List[ASTOutputBlock]:
         """
-
+        Returns a list of all output-blocks defined.
+        :return: a list of defined output-blocks.
+        """
+        return self.get_body().get_output_blocks()
 
     def get_input_buffers(self):
         """
@@ -352,7 +356,7 @@ class ASTNeuronOrSynapse(ASTNode):
             return None
 
         # check if defined as a direct function of time
-        for equations_block in self.get_equations_block():
+        for equations_block in self.get_equations_blocks():
             for decl in equations_block.get_declarations():
                 if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
                     return decl
@@ -448,14 +452,13 @@ class ASTNeuronOrSynapse(ASTNode):
         :return:
         """
         ret = []
-        blocks = set(self.get_parameter_blocks())
+        blocks = set(self.get_parameters_blocks())
         if not isinstance(blocks, list):
             blocks = [blocks]
         for block in blocks:
             for decl in block.get_declarations():
                 ret.extend(decl.get_varibles())
         return ret
-
 
     def get_state_variables(self) -> List[ASTVariable]:
         """
@@ -468,7 +471,6 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.extend(decl.get_varibles())
 
         return ret
-
 
     def create_empty_update_block(self):
         """
@@ -513,7 +515,6 @@ class ASTNeuronOrSynapse(ASTNode):
             ASTUtils.create_state_block(self)
         self.get_state_blocks()[0].get_declarations().append(declaration)
         declaration.update_scope(self.get_state_blocks()[0].get_scope())
-        declaration.update_scope(state_block.get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         symtable_vistor = ASTSymbolTableVisitor()

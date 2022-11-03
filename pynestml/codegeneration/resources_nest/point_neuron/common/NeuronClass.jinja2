@@ -88,25 +88,26 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {%- if recordable_state_variables|length > 0 %}
 {%- if has_state_vectors %}
-{%-   for sym in recordable_state_variables %}
+{%-   for variable in recordable_state_variables %}
+{%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-     if not sym.has_vector_parameter() %}
-    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{ printer.print(utils.get_parameter_by_name(astnode, sym.get_symbol_name())).upper() }} ));
+    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{ printer.print(utils.get_state_variable_by_name(astnode, sym.get_symbol_name())).upper() }} ));
 {%-     endif %}
 {%-   endfor %}
 {%- else %}
     // add state variables to recordables map
-{%-   for sym in recordable_state_variables %}
-{%-   set node = utils.get_state_variable_by_name(astnode, sym.get_symbol_name()) %}
-   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::{{ variable_getter_printer.print(node) }});
+{%-   for variable in recordable_state_variables %}
+{%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::{{ variable_getter_printer.print(variable) }});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}
 
 {%- if recordable_inline_expressions|length > 0 %}
     // add recordable inline expressions to recordables map
-{%- for sym in recordable_inline_expressions %}
-{%-   set node = utils.get_state_variable_by_name(astnode, sym.get_symbol_name()) %}
-	insert_({{ names_namespace }}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::{{ variable_getter_printer.print(sym) }});
+{%- for variable in recordable_inline_expressions %}
+{%-   set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+	insert_({{ names_namespace }}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::{{ variable_getter_printer.print(variable) }});
 {%- endfor %}
 {%- endif %}
 
@@ -133,8 +134,8 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-   set node = utils.get_state_variable_by_name(astnode, variable.get_symbol_name()) %}
       for (size_t i = 0; i < {{vector_size_parameter.VectorSizeParameter(variable, true)}}; i++)
       {
-        size_t elem = {{neuronName}}::State_::{{ variable_printer.print(node).upper() }} + i;
-        recordablesMap_.insert(get_var_name(i, "{{ variable_printer.print(node).upper() }}_"), this->get_data_access_functor(elem));
+        size_t elem = {{neuronName}}::State_::{{ printer.print(node).upper() }} + i;
+        recordablesMap_.insert(get_var_name(i, "{{ printer.print(node).upper() }}_"), this->get_data_access_functor(elem));
       }
 {%- endfor %}
   }
@@ -210,10 +211,9 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if parameter_syms_with_iv|length > 0 %}
   // initial values for parameters
 {%- filter indent(2) %}
-{%- for parameter in parameter_syms_with_iv %}
-{%-   with variable = parameter %}
+{%- for variable in parameter_syms_with_iv %}
+{%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-     include "directives/MemberInitialization.jinja2" %}
-{%-   endwith %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -221,10 +221,9 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if neuron.get_state_symbols()|length > 0 %}
   // initial values for state variables
 {%- filter indent(2) %}
-{%- for init in neuron.get_state_symbols() %}
-{%-   with variable = init %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberInitialization.jinja2" %}
-{%-   endwith %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -243,13 +242,13 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   last_spike_ = -1.;
 
   // cache initial values
-{%- for var in transferred_variables %}
-{%- with var_sym = transferred_variables_syms[var] %}
-{%- if not var == var_sym.get_symbol_name() %}
+{%- for var_name in transferred_variables %}
+{%-     set var = utils.get_variable_by_name(astnode, var_name) %}
+{%-     set var_sym = transferred_variables_syms[var_name] %}
+{%-     if not var_name == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
-  {{var}}__iv = {{variable_getter_printer.print(var_sym)}}();
-{%- endwith %}
+{%-     endif %}
+  {{var_name}}__iv = {{variable_getter_printer.print(var)}}();
 {%- endfor %}
 {%- endif %}
 }
@@ -263,22 +262,22 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
-{%-   set node = utils.get_parameter_by_name(astnode, parameter.get_symbol_name()) %}
-  P_.{{ printer.print(utils.get_parameter_by_name(astnode, parameter.get_symbol_name())) }} = __n.P_.{{ printer.print(utils.get_parameter_by_name(astnode, parameter.get_symbol_name())) }};
+{%-   set node = utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()) %}
+  P_.{{ printer.print(node) }} = __n.P_.{{ printer.print(node) }};
 {%- endfor %}
 
   // copy state struct S_
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
-{%-   set node = utils.get_state_variable_by_name(astnode, neuron.get_state_blocks(), init.get_symbol_name()) %}
-  S_.{{ variable_printer.print(node) }} = __n.S_.{{ variable_printer.print(node) }};
+{%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
+  S_.{{ printer.print(node) }} = __n.S_.{{ printer.print(node) }};
 {%-   endif %}
 {%- endfor %}
 
   // copy internals V_
 {%- for internal in neuron.get_internal_symbols() %}
-{%-   set node = utils.get_internal_by_name(astnode, neuron.get_internals_blocks(), internal.get_symbol_name()) %}
-  V_.{{ variable_printer.print(node) }} = __n.V_.{{ variable_printer.print(node) }};
+{%-   set node = utils.get_internal_variable_by_name(astnode, internal.get_symbol_name()) %}
+  V_.{{ printer.print(node) }} = __n.V_.{{ printer.print(node) }};
 {%- endfor %}
 
 {%- if has_state_vectors %}
@@ -290,13 +289,13 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   last_spike_ = __n.last_spike_;
 
   // cache initial values
-{%- for var in transferred_variables %}
-{%- with var_sym = transferred_variables_syms[var] %}
-{%- if not var == var_sym.get_symbol_name() %}
+{%- for var_name in transferred_variables %}
+{%-     set var = utils.get_variable_by_name(astnode, var_name) %}
+{%-     set var_sym = transferred_variables_syms[var_name] %}
+{%-     if not var_name == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
-  {{var}}__iv = {{variable_getter_printer.print(var_sym)}}();
-{%- endwith %}
+{%-     endif %}
+  {{var_name}}__iv = {{variable_getter_printer.print(var)}}();
 {%- endfor %}
 {%- endif %}
 }
@@ -400,18 +399,27 @@ void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
 
   if (exclude_timestep) {
 {%- filter indent(4,True) %}
-{%- for variable in neuron.get_internal_symbols() %}
-{%- if variable.name != "__h" %}
-{%-   include "directives/MemberInitialization.jinja2" %}
-{%- endif %}
+{%- for internals_block in neuron.get_internals_blocks() %}
+{%-     for decl in internals_block.get_declarations() %}
+{%-         for variable in decl.get_variables() %}
+{%-             if variable.get_complete_name() != "__h" %}
+{%-                 set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-                 include "directives/MemberInitialization.jinja2" %}
+{%-             endif %}
+{%-         endfor %}
+{%-     endfor %}
 {%- endfor %}
 {%- endfilter %}
   }
   else {
-    // internals V_
-{%- filter indent(4) %}
-{%- for variable in neuron.get_internal_symbols() %}
-{%-   include "directives/MemberInitialization.jinja2" %}
+{%- filter indent(4,True) %}
+{%- for internals_block in neuron.get_internals_blocks() %}
+{%-     for decl in internals_block.get_declarations() %}
+{%-         for variable in decl.get_variables() %}
+{%-             set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-             include "directives/MemberInitialization.jinja2" %}
+{%-         endfor %}
+{%-     endfor %}
 {%- endfor %}
 {%- endfilter %}
   }
@@ -496,15 +504,16 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
   for ( long lag = from ; lag < to ; ++lag )
   {
-{%- for inputPort in neuron.get_input_ports() %}
-{%-   if inputPort.has_vector_parameter() %}
-    for (long i=0; i < P_.{{inputPort.get_vector_parameter()}}; ++i)
+{%- for inputPortSymbol in neuron.get_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(neuron.get_input_blocks(), inputPortSymbol.name) %}
+{%-     if inputPortSymbol.has_vector_parameter() %}
+    for (long i=0; i < P_.{{inputPortSymbol.get_vector_parameter()}}; ++i)
     {
-      B_.{{ printer.print(inputPort) }}_grid_sum_[i] = get_{{ printer.print(inputPort) }}()[i].get_value(lag);
+      B_.{{ inputPort.name }}_grid_sum_[i] = get_{{ inputPort.name }}()[i].get_value(lag);
     }
-{%-   else %}
-    B_.{{ printer.print(inputPort) }}_grid_sum_ = get_{{ printer.print(inputPort) }}().get_value(lag);
-{%-   endif %}
+{%-     else %}
+    B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
+{%-     endif %}
 {%- endfor %}
 
 {%- if has_delay_variables %}
@@ -700,18 +709,18 @@ void
             assert(history_.back().t_ == last_spike_);
 
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
 {%- endfor %}
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
+            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
+            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
 {%- endfor %}
         }
 
@@ -771,14 +780,14 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 
 {%- for stmt in spike_update_stmts %}
 {%- if uses_numeric_solver %}
-        {{printer.print_node(stmt)}};
+        {{printer.print(stmt)}};
 {%- else %}
-        {{nest_printer.print_node(stmt)}};
+        {{nest_printer.print(stmt)}};
 {%- endif %}
 {%- endfor %}
 
 {%- for _, spike_update in post_spike_updates.items() %}
-        S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
+        S_.{{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
 {%- endfor %}
 
     last_spike_ = t_sp_ms;
@@ -850,10 +859,10 @@ double
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
-      S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+      S_.{{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-      S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+      S_.{{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
       /**
@@ -903,9 +912,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
       }
 
 #ifdef DEBUG
-      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{variable_getter_printer.print(var_sym)}}() << std::endl;
+      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var)) }}() << std::endl;
 #endif
-      return {{variable_getter_printer.print(var_sym)}}();       // type: {{declarations.print_variable_type(var_sym)}}
+      return {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var)) }}();       // type: {{declarations.print_variable_type(var_sym)}}
     }
     --i;
   }
@@ -914,16 +923,16 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   if ( (!before_increment) and t == history_[ 0 ].t_)
   {
 {%- for var_ in purely_numeric_state_variables_moved %}
-    S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
+    S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-    S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
+    S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{variable_getter_printer.print(var_sym)}}() << std::endl;
+    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}() << std::endl;
 #endif
-    return {{variable_getter_printer.print(var_sym)}}();
+    return {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}();
   }
 
   // this case occurs when the trace was requested at a time before the first spike in the history
@@ -938,10 +947,10 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 
   // set to initial value
 {%- for var_ in purely_numeric_state_variables_moved %}
-  S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
+  S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-  S_.{{ variable_printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
+  S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
   // propagate in time
@@ -983,7 +992,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
   V_.__h = old___h;
   recompute_internal_variables(true);
 
-  return {{variable_getter_printer.print(var_sym)}}();
+  return {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var)) }}();
 }
 {%- endwith -%}
 {%- endfor %}

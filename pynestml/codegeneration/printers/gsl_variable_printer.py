@@ -42,14 +42,17 @@ class GSLVariablePrinter(CppVariablePrinter):
     def print_variable(self, node: ASTVariable, prefix: str = '') -> str:
         """
         Converts a single name reference to a gsl processable format.
-        :param ast_variable: a single variable
+        :param node: a single variable
         :return: a gsl processable format of the variable
         """
+        assert isinstance(node, ASTVariable)
 
-        if node.is_state() and not node.is_inline_expression:
-            return "ode_state[State_::" + self._print_cpp_name(node.get_complete_name()) + "]"
+        symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
-        return super().print_variable(node, prefix)
+        if symbol.is_state() and not symbol.is_inline_expression:
+            return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
+
+        return super().print(node, prefix)
 
     def print_delay_variable(self, variable: ASTVariable, prefix: str =""):
         """
@@ -64,11 +67,11 @@ class GSLVariablePrinter(CppVariablePrinter):
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
 
-    def array_index(self, symbol: VariableSymbol) -> str:
+    def array_index(self, variable: ASTVariable) -> str:
         """
         Transforms the haded over symbol to a GSL processable format.
         :param symbol: a single variable symbol
         :return: the corresponding string format
         """
-        return "State_::" + self.print_cpp_name(symbol.get_symbol_name())
+        return "State_::" + CppVariablePrinter._print_cpp_name(variable.get_name())
 

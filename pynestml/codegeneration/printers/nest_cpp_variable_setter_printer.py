@@ -37,4 +37,4 @@ class NESTCppVariableSetterPrinter(CppVariablePrinter):
         """
         assert isinstance(node, ASTVariable), "This printer can only print ``ASTVariable`` nodes"
         variable_symbol = node.get_type_symbol()
-        return 'set_' + self._print_cpp_name(variable_symbol.get_symbol_name())
+        return 'set_' + CppVariablePrinter._print_cpp_name(variable_symbol.get_symbol_name())

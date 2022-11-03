@@ -54,14 +54,14 @@ class CppFunctionDefinitionPrinter(FunctionPrinter):
         for param in node.get_parameters():
             params.append(param.get_name())
         declaration = node.print_comment('//') + '\n'
-        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += self.types_printer.print(function_symbol.get_return_type()).replace('.', '::')
         declaration += ' '
         if self._namespace is not None:
             declaration += self._namespace + '::'
         declaration += node.get_name() + '('
         for typeSym in function_symbol.get_parameter_types():
             # create the type name combination, e.g. double Tau
-            declaration += self.types_printer.convert(typeSym) + ' ' + \
+            declaration += self.types_printer.print(typeSym) + ' ' + \
                 params[function_symbol.get_parameter_types().index(typeSym)]
             # if not the last component, separate by ','
             if function_symbol.get_parameter_types().index(typeSym) < \

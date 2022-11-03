@@ -34,7 +34,8 @@ class ExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
 
-    def __init__(self, simple_expression_printer: SimpleExpressionPrinter):
+    def __init__(self,
+                 simple_expression_printer: SimpleExpressionPrinter):
         self._simple_expression_printer = simple_expression_printer
 
     @abstractmethod
@@ -53,4 +54,4 @@ class ExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
         s : str
             The expression string.
         """
-        pass
+        assert False

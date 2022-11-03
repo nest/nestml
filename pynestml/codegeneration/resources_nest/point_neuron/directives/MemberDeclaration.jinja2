@@ -7,4 +7,4 @@
 {%- if variable.has_comment() %}
 {{ variable.print_comment("//! ") }}
 {%- endif %}
-{{ declarations.print_variable_type(variable) }} {{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }};
+{{ declarations.print_variable_type(variable_symbol) }} {{ printer.print(variable) }};

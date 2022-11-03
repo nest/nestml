@@ -24,10 +24,13 @@ from typing import Union
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.predefined_variables import PredefinedVariables
 
 
 class CppVariablePrinter(VariablePrinter):
-    def _print_cpp_name(self, variable_name: str) -> str:
+
+    @classmethod
+    def _print_cpp_name(cls, variable_name: str) -> str:
         """
         Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp" += 1" will be converted into "G_ahp__d".
 
@@ -40,13 +43,15 @@ class CppVariablePrinter(VariablePrinter):
 
         return variable_name.replace("$", "__DOLLAR")
 
-    def print(self, node: Union[VariableSymbol, ASTVariable]) -> str:
+    def print(self, node: ASTVariable, prefix: str = "") -> str:
         """
         Returns for the handed over element the corresponding nest processable string.
         :param node: a single variable symbol or variable
         :return: a string representation
         """
-        if isinstance(node, VariableSymbol):
-            return self._print_cpp_name(node.get_symbol_name())
+        assert isinstance(node, ASTVariable)
 
-        return self._print_cpp_name(node.get_complete_name())
+        if node.get_name() == PredefinedVariables.E_CONSTANT:
+            return "numerics::e"
+
+        return CppVariablePrinter._print_cpp_name(node.get_complete_name())

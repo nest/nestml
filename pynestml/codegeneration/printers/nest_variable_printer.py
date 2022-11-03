@@ -42,13 +42,13 @@ class NESTVariablePrinter(CppVariablePrinter):
     Reference converter for C++ syntax and using the NEST API.
     """
 
-    def print_variable(self, node: ASTVariable) -> str:
-        import pdb;pdb.set_trace()
-        symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        ret = self.print_origin(symbol) + node.name
-        for i in range(1, node.differential_order + 1):
-            ret += "__d"
-        return ret
+    # def print_variable(self, node: ASTVariable) -> str:
+    #     import pdb;pdb.set_trace()
+    #     symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
+    #     ret = self.print_origin(symbol) + node.name
+    #     for i in range(1, node.differential_order + 1):
+    #         ret += "__d"
+    #     return ret
 
     def print_variable(self, variable: ASTVariable, prefix: str = '') -> str:
         """
@@ -56,7 +56,8 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable.
         :return: a nest processable format.
         """
-        import pdb;pdb.set_trace()
+        assert isinstance(variable, ASTVariable)
+
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
@@ -106,12 +107,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_state() or symbol.is_inline_expression:
             return NESTCppVariableGetterPrinter().print(variable) + "()" + vector_param
 
-        variable_name = self.print_cpp_name(variable.get_complete_name())
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
         if symbol.is_local():
             return variable_name + vector_param
 
-        return self.print_origin(symbol, prefix=prefix) + \
-            self.name(symbol) + vector_param
+        return ASTUtils.print_symbol_origin(symbol, prefix=prefix) + variable_name + vector_param
 
     def print_delay_variable(self, variable: ASTVariable, prefix=''):
         """
@@ -143,42 +143,16 @@ class NESTVariablePrinter(CppVariablePrinter):
             if symbol.block_type == BlockType.LOCAL:
                 return symbol.get_symbol_name()
 
-            return self.print_origin(symbol)
+            return ASTUtils.print_symbol_origin(symbol)
 
         return vector_parameter
 
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
-        variable_name = self.print_cpp_name(variable.get_complete_name())
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
             return symbol.get_type_symbol().unit.unit.to_string()
-
-        return ''
-
-    def print_origin(self, variable_symbol: VariableSymbol, prefix: str = '') -> str:
-        """
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
-        """
-        if variable_symbol.block_type == BlockType.STATE:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.EQUATION:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.PARAMETERS:
-            return prefix + 'P_.'
-
-        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return prefix + 'cp.'
-
-        if variable_symbol.block_type == BlockType.INTERNALS:
-            return prefix + 'V_.'
-
-        if variable_symbol.block_type == BlockType.INPUT:
-            return prefix + 'B_.'
 
         return ''

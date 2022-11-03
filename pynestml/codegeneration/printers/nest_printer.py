@@ -49,6 +49,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -79,7 +80,7 @@ class NestPrinter(ASTPrinter):
                          types_printer=types_printer)
         self._expression_printer = expression_printer
 
-    def print_node(self, node) -> str:
+    def print(self, node: ASTNode, prefix: str = "") -> str:
         if isinstance(node, ASTArithmeticOperator):
             return self.print_arithmetic_operator(node)
         if isinstance(node, ASTAssignment):
@@ -98,8 +99,6 @@ class NestPrinter(ASTPrinter):
             return self.print_compound_stmt(node)
         if isinstance(node, ASTDataType):
             return self.print_data_type(node)
-        if isinstance(node, ASTDeclaration):
-            return self.print_declaration(node)
         if isinstance(node, ASTElifClause):
             return self.print_elif_clause(node)
         if isinstance(node, ASTElseClause):
@@ -160,6 +159,9 @@ class NestPrinter(ASTPrinter):
             return self.print_stmt(node)
         return ''
 
+    def print_input_port(self, node: ASTInputPort) -> str:
+        return node.name
+
     def print_simple_expression(self, node, prefix=""):
         return self.print_expression(node, prefix=prefix)
 
@@ -172,7 +174,7 @@ class NestPrinter(ASTPrinter):
             return self.print_small_stmt(node.small_stmt, prefix=prefix)
 
     def print_assignment(self, node, prefix="") -> str:
-        ret = self._variable_printer.print_origin(node.lhs) + self._variable_printer.print(node.lhs) + ' '
+        ret = self._variable_utils.print_symbol_origin(node.lhs) + self._variable_printer.print(node.lhs) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -183,7 +185,7 @@ class NestPrinter(ASTPrinter):
             ret += '+='
         else:
             ret += '='
-        ret += ' ' + self.print_node(node.rhs)
+        ret += ' ' + self.print(node.rhs)
         return ret
 
     def print_comparison_operator(self, for_stmt) -> str:
@@ -229,7 +231,4 @@ class NestPrinter(ASTPrinter):
         :type node: ASTFunctionCall
         :return: the corresponding string representation.
         """
-        return self._expression_printer.print_function_call(node)
-
-    def print_origin(self, variable_symbol, prefix='') -> str:
-        return self._variable_printer.print_origin(variable_symbol)
+        return self._expression_printer.print(node)

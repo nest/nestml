@@ -1325,11 +1325,26 @@ class ASTUtils:
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
-        for param_block in node.get_parameter_blocks():
+        for param_block in node.get_parameters_blocks():
             for decl in param_block.get_declarations():
                 for var in decl.get_variables():
                     if var.get_name() == var_name:
                         return decl
+        return None
+
+    @classmethod
+    def get_parameter_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTVariable:
+        """
+        Get the declaration based on the name of the parameter
+        :param parameters_block: the parameter block
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for param_block in node.get_parameters_blocks():
+            for decl in param_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
         return None
 
     @classmethod
@@ -1348,7 +1363,56 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_state_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
+    def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
+        """
+        Get the declaration based on the name of the parameter
+        :param parameters_block: the parameter block
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for internals_block in node.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
+        """
+        Get the declaration based on the name of the parameter
+        :param parameters_block: the parameter block
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        var = ASTUtils.get_state_variable_by_name(node, var_name)
+        if not var:
+            var = ASTUtils.get_parameter_variable_by_name(node, var_name)
+
+        if not var:
+            expr = ASTUtils.get_inline_expression_by_name(node, var_name)
+            if expr:
+                var = ASTNodeFactory.create_ast_variable(var_name, differential_order=0)
+
+        return var
+
+    @classmethod
+    def get_state_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
+        """
+        Get the declaration based on the name of the parameter
+        :param parameters_block: the parameter block
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for state_block in node.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_state_variable_declaration_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTDeclaration]:
         """
         Get the declaration based on the name of the parameter
         :param parameters_block: the parameter block
@@ -1575,7 +1639,7 @@ class ASTUtils:
             for equation in equations_block.get_ode_equations():
                 # n.b. includes single quotation marks to indicate differential order
                 lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
-                rhs = printer.print_expression(equation.get_rhs())
+                rhs = printer.print(equation.get_rhs())
                 entry = {"expression": lhs + " = " + rhs}
                 symbol_name = equation.get_lhs().get_name()
                 symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
@@ -1586,7 +1650,7 @@ class ASTUtils:
                     iv_symbol_name = symbol_name + "'" * order
                     initial_value_expr = neuron.get_initial_value(iv_symbol_name)
                     if initial_value_expr:
-                        expr = printer.print_expression(initial_value_expr)
+                        expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
                 odetoolbox_indict["dynamics"].append(entry)
 
@@ -1617,7 +1681,7 @@ class ASTUtils:
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_
                     initial_value_expr = symbol.get_declaring_expression()
                     assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print_expression(initial_value_expr)
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print(initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
 
@@ -1626,7 +1690,7 @@ class ASTUtils:
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
                     odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = printer.print_expression(decl.get_expression())
+                    )] = printer.print(decl.get_expression())
 
         return odetoolbox_indict
 
@@ -1987,3 +2051,30 @@ class ASTUtils:
             if sym:
                 return sym
         return None
+
+    @classmethod
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, prefix: str = '') -> str:
+        """
+        Returns a prefix corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding prefix
+        """
+        if variable_symbol.block_type == BlockType.STATE:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.EQUATION:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.PARAMETERS:
+            return prefix + 'P_.'
+
+        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
+            return prefix + 'cp.'
+
+        if variable_symbol.block_type == BlockType.INTERNALS:
+            return prefix + 'V_.'
+
+        if variable_symbol.block_type == BlockType.INPUT:
+            return prefix + 'B_.'
+
+        return ''

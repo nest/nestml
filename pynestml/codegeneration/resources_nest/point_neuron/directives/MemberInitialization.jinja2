@@ -9,12 +9,12 @@
   {%- if sym.has_vector_parameter() %}
 {{vector_declaration.VectorDeclaration(variable)}}
   {%- else %}
-  {{printer.print_origin(variable)}}{{printer.print_variable(variable)}} = {{printer.print_expression(sym.get_declaring_expression())}}; // as {{sym.get_type_symbol().print_symbol()}}
+  {{utils.print_symbol_origin(variable_symbol)}}{{printer.print(variable)}} = {{printer.print(sym.get_declaring_expression())}}; // as {{sym.get_type_symbol().print_symbol()}}
   {%- endif %}
 {%- else %}
   {%- if sym.has_vector_parameter() %}
-  {{printer.print_origin(variable)}}{{printer.print_variable(variable)}}.resize(0); // as {{sym.get_type_symbol().print_symbol()}}
+  {{utils.print_symbol_origin(variable_symbol)}}{{printer.print(variable)}}.resize(0); // as {{sym.get_type_symbol().print_symbol()}}
   {%- else %}
-  {{printer.print_origin(variable)}}{{printer.print_variable(variable)}} = 0; // as {{sym.get_type_symbol().print_symbol()}}
+  {{utils.print_symbol_origin(variable_symbol)}}{{printer.print(variable)}} = 0; // as {{sym.get_type_symbol().print_symbol()}}
   {%- endif -%}
 {%- endif -%}

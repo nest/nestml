@@ -35,6 +35,7 @@ from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelpe
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.cpp_function_declaration_printer import CppFunctionDeclarationPrinter
 from pynestml.codegeneration.printers.cpp_function_definition_printer import CppFunctionDefinitionPrinter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.nest_function_call_printer import NESTFunctionCallPrinter
@@ -50,8 +51,10 @@ from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToo
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -67,7 +70,7 @@ from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquations
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
-
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 
 def find_spiking_post_port(synapse, namespace):
     if "paired_neuron" in dir(synapse):
@@ -165,11 +168,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._types_printer = CppTypesPrinter()
 
-        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-            self._nest_function_call_printer = NEST2CppFunctionCallPrinter()
-            self._nest_variable_printer_no_origin.with_origin = False
-        else:
-            self._nest_function_call_printer = NESTFunctionCallPrinter()
 
         self._gsl_variable_printer = GSLVariablePrinter()
         self._nest_variable_printer = NESTVariablePrinter()
@@ -177,26 +175,87 @@ class NESTCodeGenerator(CodeGenerator):
         self._nest_variable_printer_no_origin.with_origin = False
 
         self._constant_printer = ConstantPrinter()
-        self._printer = CppExpressionPrinter(self._nest_variable_printer)
-        self._unitless_expression_printer = CppExpressionPrinter(simple_expression_printer=self._nest_variable_printer)
-        self._unitless_expression_printer_no_origin = UnitlessCppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
-                                                                                         constant_printer=self._constant_printer,
-                                                                                         function_call_printer=self._nest_function_call_printer)
-        self._gsl_printer = UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                                         constant_printer=self._constant_printer,
-                                                                                         function_call_printer=self._nest_function_call_printer)
 
-        self._nest_printer = CppPrinter(variable_printer=self._nest_variable_printer,
-                                        types_printer=self._types_printer,
-                                        expression_printer=self._printer)
+        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+            self._nest_function_call_printer = NEST2CppFunctionCallPrinter()
+        else:
+            self._nest_function_call_printer = NESTFunctionCallPrinter(None)
 
-        self._unitless_nest_gsl_printer = CppPrinter(variable_printer=self._nest_variable_printer,
-                                                     types_printer=self._types_printer,
-                                                     expression_printer=self._unitless_expression_printer)
-
-        self._ode_toolbox_printer = UnitlessCppSimpleExpressionPrinter(variable_printer=ODEToolboxVariablePrinter(),
+        self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                          constant_printer=self._constant_printer,
-                                                                                         function_call_printer=self._nest_function_call_printer)
+                                                                                         function_call_printer=self._nest_function_call_printer))
+        self._nest_function_call_printer._expression_printer = self._printer
+
+
+
+        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+            self._nest_unitless_function_call_printer = NEST2CppFunctionCallPrinter()
+        else:
+            self._nest_unitless_function_call_printer = NESTFunctionCallPrinter(None)
+
+        self._unitless_expression_printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+                                                                                         constant_printer=self._constant_printer,
+                                                                                         function_call_printer=self._nest_unitless_function_call_printer))
+
+        self._nest_unitless_function_call_printer._expression_printer = self._unitless_expression_printer
+
+
+
+
+
+
+        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+            self._unitless_function_call_printer_no_origin = NEST2CppFunctionCallPrinter()
+        else:
+            self._unitless_function_call_printer_no_origin = NESTFunctionCallPrinter(None)
+
+        self._unitless_expression_printer_no_origin = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                                         constant_printer=self._constant_printer,
+                                                                                         function_call_printer=self._unitless_function_call_printer_no_origin))
+        self._unitless_function_call_printer_no_origin = self._unitless_expression_printer_no_origin
+
+
+
+
+
+        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+            self._gsl_function_call_printer = NEST2CppFunctionCallPrinter()
+        else:
+            self._gsl_function_call_printer = NESTFunctionCallPrinter(None)
+
+        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                                                         constant_printer=self._constant_printer,
+                                                                                         function_call_printer=self._gsl_function_call_printer))
+        self._gsl_function_call_printer._expression_printer = self._gsl_printer
+
+
+
+
+
+
+
+
+        self._nest_printer = CppPrinter(expression_printer=self._printer)
+
+
+
+
+
+
+
+
+        self._unitless_nest_gsl_printer = CppPrinter(expression_printer=self._gsl_printer)
+
+
+
+
+
+
+
+
+        self._ode_toolbox_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=ODEToolboxVariablePrinter(),
+                                                                        constant_printer=self._constant_printer,
+                                                                        function_call_printer=self._nest_function_call_printer))
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -399,9 +458,8 @@ class NESTCodeGenerator(CodeGenerator):
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
         :return: a map from name to functionality.
-        :rtype: dict
         """
-        namespace = dict()
+        namespace = self._get_model_namespace(synapse)
 
         namespace["nest_version"] = self.get_option("nest_version")
 
@@ -427,15 +485,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["synapse"] = synapse
         namespace["astnode"] = synapse
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
-        namespace["printer"] = self._unitless_nest_gsl_printer
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["names"] = self._nest_variable_printer
-        namespace["nest_variable_printer"] = self._nest_variable_printer
-        namespace["types_printer"] = self._types_printer
-        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
-        namespace["utils"] = ASTUtils
-        namespace["nestml_printer"] = self._printer
-        namespace["printerGSL"] = self._gsl_printer
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
         namespace["has_state_vectors"] = False
@@ -509,10 +560,43 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["spike_updates"] = synapse.spike_updates
 
+        return namespace
+
+    def _get_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
+
+        namespace = {}
+
+        namespace["ast_node_factory"] = ASTNodeFactory
+        namespace["assignments"] = NestAssignmentsHelper()
+        namespace["utils"] = ASTUtils
+
+        # using random number generators?
         rng_visitor = ASTRandomNumberGeneratorVisitor()
-        synapse.accept(rng_visitor)
+        astnode.accept(rng_visitor)
         namespace["norm_rng"] = rng_visitor._norm_rng_is_used
 
+        # printers
+        namespace["printer"] = self._unitless_nest_gsl_printer
+        namespace["nest_printer"] = self._nest_printer
+
+        namespace["printerGSL"] = self._gsl_printer
+        namespace["names"] = self._gsl_variable_printer
+
+        namespace["nestml_printer"] = self._printer
+
+        namespace["variable_getter_printer"] = NESTCppVariableGetterPrinter()
+        namespace["variable_setter_printer"] = NESTCppVariableSetterPrinter()
+
+        namespace["cpp_function_declaration_printer"] = CppFunctionDeclarationPrinter()
+        namespace["cpp_function_definition_printer"] = CppFunctionDefinitionPrinter(namespace=astnode.get_name())
+
+        namespace["types_printer"] = self._types_printer
+        namespace["names"] = self._nest_variable_printer
+
+        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
+        namespace["nest_variable_printer"] = self._nest_variable_printer
+
+        # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
         for kw in dir(PyNestMLLexer):
@@ -525,11 +609,9 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
         :return: a map from name to functionality.
-        :rtype: dict
         """
-        namespace = dict()
+        namespace = self._get_model_namespace(neuron)
 
         namespace["nest_version"] = self.get_option("nest_version")
 
@@ -550,11 +632,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["neuron"] = neuron
         namespace["astnode"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
-
-        namespace["assignments"] = NestAssignmentsHelper()
-        namespace["nest_reference_converter"] = self._nest_reference_converter
-        namespace["types_printer"] = self._types_printer
-        namespace["utils"] = ASTUtils
         namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
         namespace["now"] = datetime.datetime.utcnow()
@@ -689,74 +766,47 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["spike_updates"] = neuron.spike_updates
 
-        # namespace["recordable_state_variables"] = []
-        # for decl in neuron.get_state_blocks().get_declarations():
-        #     for var in decl.get_variables():
-        #         sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
+        namespace["recordable_state_variables"] = []
+        for state_block in neuron.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
-        #         if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol)) \
-        #            and sym.is_recordable \
-        #            and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name)):
-        #             namespace["recordable_state_variables"].append(var)
-
-
-        # namespace["recordable_inline_expression_variables"] = []
-        # for decl in neuron.get_equations_block().get_declarations() + neuron.get_state_block().get_declarations():
-        #     for var in decl.get_variables():
-        #         sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-
-        #         if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol)) \
-        #            and sym.is_recordable:
-        #             namespace["recordable_inline_expression_variables"].append(var)
+                    if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol)) \
+                    and sym.is_recordable \
+                    and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name)):
+                        namespace["recordable_state_variables"].append(var)
 
 
-        # namespace["parameter_syms_with_iv"] = []
-        # for decl in neuron.get_parameter_blocks().get_declarations():
-        #     for var in decl.get_variables():
-        #         sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
+        namespace["recordable_inline_expression_variables"] = []
+        for equations_block in neuron.get_equations_blocks():
+            for decl in [decl for decl in equations_block.get_declarations() if isinstance(decl, ASTInlineExpression)]:
+                sym = decl.get_scope().resolve_to_symbol(decl.get_variable_name(), SymbolKind.VARIABLE)
 
-        #         if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name)):
-        #             namespace["parameter_syms_with_iv"].append(var)
+                if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol)) and sym.is_recordable:
+                    namespace["recordable_inline_expression_variables"].append(var)
 
-        namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()
-                                                   if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
-                                                   and sym.is_recordable
-                                                   and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
+        namespace["parameter_syms_with_iv"] = []
+        for parameters_block in neuron.get_parameters_blocks():
+            for decl in parameters_block.get_declarations():
+                for var in decl.get_variables():
+                    sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
-        namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
-                                                      if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
-                                                      and sym.is_recordable]
+                    if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name)):
+                        namespace["parameter_syms_with_iv"].append(var)
 
-        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols()
-                                               if sym.has_declaring_expression()
-                                               and (not neuron.get_kernel_by_name(sym.name))]
+        # namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()
+        #                                            if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
+        #                                            and sym.is_recordable
+        #                                            and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
 
-        # using random number generators?
-        rng_visitor = ASTRandomNumberGeneratorVisitor()
-        neuron.accept(rng_visitor)
-        namespace["norm_rng"] = rng_visitor._norm_rng_is_used
+        # namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
+        #                                               if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
+        #                                               and sym.is_recordable]
 
-        # printers
-        namespace["printer"] = self._unitless_nest_gsl_printer
-        namespace["nest_printer"] = self._nest_printer
-
-        if namespace["uses_numeric_solver"]:
-            namespace["printerGSL"] = self._gsl_printer
-            namespace["names"] = self._gsl_variable_printer
-
-        namespace["nestml_printer"] = self._printer
-
-        namespace["variable_getter_printer"] = NESTCppVariableGetterPrinter()
-        namespace["variable_setter_printer"] = NESTCppVariableSetterPrinter()
-
-        namespace["cpp_function_declaration_printer"] = CppFunctionDeclarationPrinter()
-        namespace["cpp_function_definition_printer"] = CppFunctionDefinitionPrinter(namespace=neuron.get_name())
-
-        namespace["types_printer"] = self._types_printer
-        namespace["names"] = self._nest_variable_printer
-
-        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
-        namespace["nest_variable_printer"] = self._nest_variable_printer
+        # namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols()
+        #                                        if sym.has_declaring_expression()
+        #                                        and (not neuron.get_kernel_by_name(sym.name))]
 
         return namespace
 

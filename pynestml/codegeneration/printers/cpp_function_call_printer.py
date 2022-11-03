@@ -22,6 +22,7 @@
 from typing import Optional, Tuple
 
 import re
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -40,6 +41,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in C++ syntax.
     """
 
+    def __init__(self, expression_printer: ExpressionPrinter):
+        self._expression_printer = expression_printer
+
     def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
         """Print a function call, including bracketed arguments list.
 
@@ -57,6 +61,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string.
         """
+        assert isinstance(function_call, ASTFunctionCall)
+
         function_name = self._print_function_call(function_call, prefix=prefix)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
@@ -145,7 +151,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         ret = []
 
         for arg in function_call.get_args():
-            ret.append(self.print_expression(arg, prefix=prefix))
+            ret.append(self._expression_printer.print(arg, prefix=prefix))
 
         return tuple(ret)
 
@@ -194,6 +200,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             fun_right = (lambda r: ' << ' + self.__convert_print_statement_str(r, scope) if r else '')
             ast_var = ASTVariable(var_name, scope=scope)
             right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
-            return fun_left(left) + self.print_variable(ast_var) + fun_right(right)
+            return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
         return '"' + stmt + '"'  # format bare string in C++ (add double quotes)

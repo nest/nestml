@@ -57,3 +57,5 @@ class UnitlessCppSimpleExpressionPrinter(CppSimpleExpressionPrinter):
             if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
                 # case for a literal unit, e.g. "ms"
                 return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
+
+        return super().print_simple_expression(node, prefix=prefix)

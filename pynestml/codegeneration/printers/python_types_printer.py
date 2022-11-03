@@ -35,7 +35,7 @@ class PythonTypesPrinter(TypesPrinter):
     Returns a Python syntax version of the handed over type.
     """
 
-    def convert(self, type_symbol: TypeSymbol) -> str:
+    def print(self, type_symbol: TypeSymbol) -> str:
         r"""
         Converts the name of the type symbol to a corresponding Python syntax representation.
         :param type_symbol: a single type symbol

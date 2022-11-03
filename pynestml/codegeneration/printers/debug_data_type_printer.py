@@ -48,7 +48,7 @@ class DebugDataTypePrinter(ASTPrinter):
 
         if isinstance(type_symbol, Either):
             if type_symbol.is_value():
-                return self.convert(type_symbol.get_value())
+                return self.print(type_symbol.get_value())
 
             assert type_symbol.is_error()
             return type_symbol.get_error()

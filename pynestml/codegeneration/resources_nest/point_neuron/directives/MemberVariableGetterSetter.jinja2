@@ -1,16 +1,16 @@
-{%- if variable.is_inline_expression and not utils.contains_convolve_call(variable) %}
-inline {{ declarations.print_variable_type(variable) }} {{ variable_getter_printer.print(variable) }}() const
+{%- if variable_symbol.is_inline_expression and not utils.contains_convolve_call(variable_symbol) %}
+inline {{ declarations.print_variable_type(variable_symbol) }} {{ variable_getter_printer.print(variable) }}() const
 {
-    return {{ printer.print_expression(variable.get_declaring_expression()) }};
+    return {{ printer.print_expression(variable_symbol.get_declaring_expression()) }};
 }
 {%- else %}
-inline {{ declarations.print_variable_type(variable) }} {{ variable_getter_printer.print(variable) }}() const
+inline {{ declarations.print_variable_type(variable_symbol) }} {{ variable_getter_printer.print(variable) }}() const
 {
-    return {{ printer.print_origin(variable) }}{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }};
+    return {{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }};
 }
 
-inline void {{ variable_setter_printer.print(variable) }}(const {{ declarations.print_variable_type(variable) }} __v)
+inline void {{ variable_setter_printer.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
 {
-    {{ printer.print_origin(variable) }}{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }} = __v;
+    {{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }} = __v;
 }
 {%- endif %}

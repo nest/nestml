@@ -21,8 +21,6 @@
 
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
-from pynestml.codegeneration.printers.types_printer import TypesPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -43,7 +41,6 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
@@ -74,11 +71,7 @@ class CppPrinter(ASTPrinter):
     """
 
     def __init__(self,
-                 variable_printer: VariablePrinter,
-                 types_printer: TypesPrinter,
                  expression_printer: ExpressionPrinter):
-        self._variable_printer = variable_printer
-        self._types_printer = types_printer
         self._expression_printer = expression_printer
 
     def print(self, node: ASTNode, prefix: str = "") -> str:
@@ -100,8 +93,6 @@ class CppPrinter(ASTPrinter):
             return self.print_compound_stmt(node)
         if isinstance(node, ASTDataType):
             return self.print_data_type(node)
-        if isinstance(node, ASTDeclaration):
-            return self.print_declaration(node)
         if isinstance(node, ASTElifClause):
             return self.print_elif_clause(node)
         if isinstance(node, ASTElseClause):
@@ -118,10 +109,6 @@ class CppPrinter(ASTPrinter):
             return self.print_if_stmt(node)
         if isinstance(node, ASTInputBlock):
             return self.print_input_block(node)
-        if isinstance(node, ASTInputPort):
-            return self.print_input_port(node)
-        if isinstance(node, ASTInputQualifier):
-            return self.print_input_qualifier(node)
         if isinstance(node, ASTLogicalOperator):
             return self.print_logical_operator(node)
         if isinstance(node, ASTNeuron):
@@ -147,22 +134,26 @@ class CppPrinter(ASTPrinter):
         if isinstance(node, ASTUpdateBlock):
             return self.print_update_block(node)
         if isinstance(node, ASTVariable):
-            return self._variable_printer.print(node)
+            return self._expression_printer.print(node)
         if isinstance(node, ASTWhileStmt):
             return self.print_while_stmt(node)
         if isinstance(node, ASTStmt):
             return self.print_stmt(node)
-
+        if isinstance(node, ASTDeclaration):
+            return self.print_declaration(node)
         if isinstance(node, ASTFunctionCall):
-            return self._expression_printer.print_function_call(node)
+            return self._expression_printer.print(node, prefix=prefix)
 
         if isinstance(node, ASTExpression):
             return self._expression_printer.print_expression(node, prefix=prefix)
 
         if isinstance(node, ASTSimpleExpression):
-            return self._simple_expression_printer.print_simple_expression(node)
+            return self._expression_printer._simple_expression_printer.print(node)
 
         return super().print(node, prefix)
+
+    def print_declaration(self, node: ASTDeclaration, prefix: str = "") -> str:
+        assert False, "Not implemented! Template should not call this!"
 
     def print_small_stmt(self, node, prefix="") -> str:
         if node.is_assignment():
@@ -173,7 +164,7 @@ class CppPrinter(ASTPrinter):
             return self.print_small_stmt(node.small_stmt, prefix=prefix)
 
     def print_assignment(self, node, prefix: str = "") -> str:
-        ret = self._variable_printer.print_origin(node.lhs) + self._variable_printer.print(node.lhs)
+        ret = ASTUtils.print_symbol_origin(node.lhs) + self._expression_printer.print(node.lhs)
         ret += ' '
         if node.is_compound_quotient:
             ret += '/='
@@ -185,7 +176,7 @@ class CppPrinter(ASTPrinter):
             ret += '+='
         else:
             ret += '='
-        ret += ' ' + self.print_node(node.rhs)
+        ret += ' ' + self.print(node.rhs)
         return ret
 
     def print_comparison_operator(self, for_stmt) -> str:
@@ -218,7 +209,7 @@ class CppPrinter(ASTPrinter):
                                                                    SymbolKind.VARIABLE)
         if symbol is not None:
             # delay parameter is a variable
-            return self._variable_printer.print_origin(symbol) + delay_parameter
+            return self._expression_printer.print_origin(symbol) + delay_parameter
 
         return delay_parameter
 
@@ -229,7 +220,5 @@ class CppPrinter(ASTPrinter):
         :type node: ASTExpressionNode
         :return: the corresponding string representation
         """
-        return self._expression_printer.print_expression(node, prefix=prefix)
-
-    def print_origin(self, variable_symbol, prefix: str = "") -> str:
-        return self._variable_printer.print_origin(variable_symbol)
+        assert isinstance(node, ASTExpressionNode)
+        return self._expression_printer.print(node, prefix=prefix)

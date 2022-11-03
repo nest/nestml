@@ -28,7 +28,7 @@ class NESTCppTypesPrinter(CppTypesPrinter):
     Returns a C++ syntax version of the handed over type.
     """
 
-    def convert(self, type_symbol: TypeSymbol) -> str:
+    def print(self, type_symbol: TypeSymbol) -> str:
         """
         Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol
@@ -39,4 +39,4 @@ class NESTCppTypesPrinter(CppTypesPrinter):
         if type_symbol.is_buffer:
             return "nest::RingBuffer"
 
-        return super().convert(type_symbol)
+        return super().print(type_symbol)

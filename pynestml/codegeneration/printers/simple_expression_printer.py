@@ -26,6 +26,7 @@ from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
 class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
@@ -43,7 +44,7 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
         self._function_call_printer = function_call_printer
 
     @abstractmethod
-    def print_simple_expression(self, node: ASTExpressionNode, prefix: str = ""):
+    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = ""):
         """Print an expression.
 
         Parameters

@@ -54,4 +54,4 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
         s
             The expression string.
         """
-        pass
+        raise

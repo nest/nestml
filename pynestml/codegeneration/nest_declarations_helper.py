@@ -48,7 +48,7 @@ class NestDeclarationsHelper:
         :return: the corresponding domain
         :rtype: str
         """
-        return self.types_printer.convert(type_symbol)
+        return self.types_printer.print(type_symbol)
 
     def print_variable_type(self, variable_symbol):
         """
@@ -59,10 +59,10 @@ class NestDeclarationsHelper:
         :rtype: str
         """
         if variable_symbol.has_vector_parameter():
-            return 'std::vector< ' + self.types_printer.convert(variable_symbol.get_type_symbol()) + \
+            return 'std::vector< ' + self.types_printer.print(variable_symbol.get_type_symbol()) + \
                    ' > '
 
-        return self.types_printer.convert(variable_symbol.get_type_symbol())
+        return self.types_printer.print(variable_symbol.get_type_symbol())
 
     @classmethod
     def get_variables(cls, ast_declaration):
@@ -114,6 +114,6 @@ class NestDeclarationsHelper:
                                                                    SymbolKind.VARIABLE)
         if symbol is not None:
             # delay parameter is a variable
-            return variable_printer.print_origin(symbol) + delay_parameter
+            return variable_utils.print_symbol_origin(symbol) + delay_parameter
 
         return delay_parameter

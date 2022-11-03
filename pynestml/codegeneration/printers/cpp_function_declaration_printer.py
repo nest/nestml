@@ -42,11 +42,11 @@ class CppFunctionDeclarationPrinter(FunctionPrinter):
         if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + node.get_name())
         declaration = node.print_comment('//') + '\n'
-        declaration += self.types_printer.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += self.types_printer.print(function_symbol.get_return_type()).replace('.', '::')
         declaration += ' '
         declaration += node.get_name() + '('
         for typeSym in function_symbol.get_parameter_types():
-            declaration += self.types_printer.convert(typeSym)
+            declaration += self.types_printer.print(typeSym)
             if function_symbol.get_parameter_types().index(typeSym) < len(
                     function_symbol.get_parameter_types()) - 1:
                 declaration += ', '
