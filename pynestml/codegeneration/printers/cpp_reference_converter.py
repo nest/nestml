@@ -241,15 +241,18 @@ class CppReferenceConverter(ReferenceConverter):
 
         raise RuntimeError('Cannot determine binary operator!')
 
-    def buffer_value(self, variable: ASTVariable) -> str:
+    def buffer_value(self, variable: VariableSymbol) -> str:
         """
         Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
         :param variable: a single variable symbol.
         :return: the corresponding representation as a string
         """
-        var_name = variable.get_name().upper()
-        if variable.get_vector_parameter() is not None:
-            vector_parameter = ASTUtils.get_numeric_vector_size(variable)
-            var_name = var_name + "_" + str(vector_parameter)
+        if variable.is_spike_input_port():
+            var_name = variable.get_symbol_name().upper()
+            if variable.get_vector_parameter() is not None:
+                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
+                var_name = var_name + "_" + str(vector_parameter)
 
-        return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+        else:
+            return variable.get_symbol_name() + '_grid_sum_'

@@ -346,7 +346,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_numeric_vector_size(cls, variable: Union[VariableSymbol, ASTVariable]) -> int:
+    def get_numeric_vector_size(cls, variable: VariableSymbol) -> int:
         """
         Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
         :param variable: vector variable
@@ -1937,7 +1937,7 @@ class ASTUtils:
         Returns a list of spike input ports in pairs in case of input port qualifiers
         """
         rport_to_port_map = {}
-        rport = 1
+        rport = 0
         for port in neuron.get_spike_input_ports():
             if port.is_excitatory() and port.is_inhibitory():
                 rport_to_port_map[rport] = [port]

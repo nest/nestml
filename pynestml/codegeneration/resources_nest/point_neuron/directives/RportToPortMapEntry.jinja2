@@ -5,10 +5,10 @@
 {%- set name = port.get_symbol_name().upper() %}
 {%- endif %}
 {%- if port.is_excitatory() and port.is_inhibitory() %}
-  { std::make_tuple({{ rport }}, "spike"), {{name}} },
+  { std::make_tuple({{ rport }}, "spike"), {{neuronName}}::{{name}} },
 {%- elif port.is_excitatory() %}
-  { std::make_tuple({{ rport }}, "excitatory"), {{name}} },
+  { std::make_tuple({{ rport }}, "excitatory"), {{neuronName}}::{{name}} },
 {%- else %}
-  { std::make_tuple({{ rport }}, "inhibitory"), {{name}} },
+  { std::make_tuple({{ rport }}, "inhibitory"), {{neuronName}}::{{name}} },
 {%- endif %}
 {%- endmacro %}
