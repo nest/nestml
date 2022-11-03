@@ -256,3 +256,28 @@ class CppReferenceConverter(ReferenceConverter):
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
         else:
             return variable.get_symbol_name() + '_grid_sum_'
+
+    def convert_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
+        """
+        Converts the vector parameter into NEST processable format
+        :param variable:
+        :return:
+        """
+        vector_parameter = variable.get_vector_parameter()
+
+        assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+
+        if vector_parameter.is_variable():
+            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
+                                                                    SymbolKind.VARIABLE)
+            if symbol is not None:
+                if symbol.block_type == BlockType.STATE:
+                    return self.getter(symbol) + "()"
+
+                if symbol.block_type == BlockType.LOCAL:
+                    return symbol.get_symbol_name()
+
+                return self.print_origin(symbol)
+
+        if vector_parameter.is_numeric_literal():
+            return str(vector_parameter.get_numeric_literal())

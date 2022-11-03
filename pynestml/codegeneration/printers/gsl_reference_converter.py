@@ -69,6 +69,10 @@ class GSLReferenceConverter(CppReferenceConverter):
                                error_position=variable.get_source_position())
             return ""
 
+        vector_param = ""
+        if symbol.has_vector_parameter():
+            vector_param = "[" + self.convert_vector_parameter_name_reference(variable) + "]"
+
         if symbol.is_state():
             return self.name(symbol)
 
@@ -81,8 +85,6 @@ class GSLReferenceConverter(CppReferenceConverter):
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
             s += prefix + 'B_.' + self.buffer_value(symbol)
-            if symbol.has_vector_parameter():
-                s += "[i]"
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -90,12 +92,12 @@ class GSLReferenceConverter(CppReferenceConverter):
         variable_name = self.convert_to_cpp_name(variable.get_name())
 
         if symbol.is_local() or symbol.is_inline_expression:
-            return variable_name
+            return variable_name + vector_param
 
         if symbol.has_vector_parameter():
-            return prefix + "get_" + variable_name + "()[i]"
+            return prefix + "get_" + variable_name + "()" + vector_param
 
-        return prefix + "get_" + variable_name + "()"
+        return prefix + "get_" + variable_name + "()" + vector_param
 
     def convert_delay_variable(self, variable: ASTVariable, prefix: str =""):
         """

@@ -38,12 +38,7 @@ neuron input_ports:
   parameters:
     TWO integer = 2
   end
-
-#  equations:
-#    kernel k = delta(t)
-#    bar' = convolve(k, foo[1]) / s
-#  end
-
+  
   input:
     AMPA_spikes pA <- excitatory spike
     GABA_spikes pA <- inhibitory spike
@@ -55,6 +50,5 @@ neuron input_ports:
 
   update:
     bar = foo[1]
-#    integrate_odes()
   end
 end

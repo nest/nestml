@@ -1954,4 +1954,3 @@ class ASTUtils:
                     rport_to_port_map[rport] = [port]
 
         return rport_to_port_map
-
