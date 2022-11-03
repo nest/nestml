@@ -28,6 +28,7 @@ from jinja2 import TemplateRuntimeError
 import odetoolbox
 
 import pynestml
+from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
@@ -172,9 +173,16 @@ class NESTCodeGenerator(CodeGenerator):
 
         return ret
 
+    def run_nest_target_specific_cocos(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
+        for synapse in synapses:
+            CoCoNESTDelayDecoratorSpecified.check_co_co(synapse)
+            if Logger.has_errors(synapse):
+                synapses.remove(synapse)
+
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         neurons = [model for model in models if isinstance(model, ASTNeuron)]
         synapses = [model for model in models if isinstance(model, ASTSynapse)]
+        self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
