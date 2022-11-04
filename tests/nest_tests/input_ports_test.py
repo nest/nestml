@@ -37,39 +37,10 @@ from pynestml.utils.model_parser import ModelParser
 
 class TestInputPorts:
 
-    @pytest.fixture(autouse=True, scope="session")
-    def setup(self):
-        PredefinedUnits.register_units()
-        PredefinedTypes.register_types()
-        PredefinedFunctions.register_functions()
-        PredefinedVariables.register_variables()
-        SymbolTable.initialize_symbol_table(
-            ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-        Logger.init_logger(LoggingLevel.INFO)
-
-        self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'target'))))
-
     def test_input_ports(self):
-        # input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join("resources", "InputPorts.nestml"))))
-        # target_path = "target"
-        # params = list()
-        # params.append('--input_path')
-        # params.append(input_path)
-        # params.append('--logging_level')
-        # params.append('INFO')
-        # params.append('--target_path')
-        # params.append(target_path)
-        # params.append('--dev')
-        # FrontendConfiguration.parse_config(params)
-        #
-        # compilation_unit = ModelParser.parse_model(input_path)
-        #
-        # nestCodeGenerator = NESTCodeGenerator()
-        # nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "InputPorts.nestml")))
-        target_path = "target"
+        target_path = "../target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
         suffix = "_nestml"

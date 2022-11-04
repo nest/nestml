@@ -38,7 +38,7 @@ neuron input_ports:
   parameters:
     TWO integer = 2
   end
-  
+
   input:
     AMPA_spikes pA <- excitatory spike
     GABA_spikes pA <- inhibitory spike

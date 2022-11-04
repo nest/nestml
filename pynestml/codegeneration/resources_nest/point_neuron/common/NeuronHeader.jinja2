@@ -758,7 +758,7 @@ inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rpor
 inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
 {%- if neuron.get_spike_input_ports()|length > 1 %}
-    assert( B_.spike_inputs_.size() == {{(neuron.get_multiple_receptors())|length}} );
+    assert( B_.spike_inputs_.size() == {{(neuron.get_spike_input_ports())|length}} );
     if ( receptor_type < MIN_SPIKE_RECEPTOR or receptor_type >= SUP_SPIKE_RECEPTOR )
     {
       throw nest::UnknownReceptorType( receptor_type, get_name() );

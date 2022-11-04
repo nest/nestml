@@ -411,6 +411,13 @@ class ASTNeuron(ASTNeuronOrSynapse):
                         log_level=LoggingLevel.ERROR)
         return ret
 
+    def get_single_receptors(self) -> List[VariableSymbol]:
+        """
+        Returns a list of spike input ports that are defined as either excitatory or inhibitory.
+        :return: a list of spike input port variable symbols
+        """
+        return list(set(self.get_spike_input_ports()) - set(self.get_multiple_receptors()))
+
     def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
         assert type(kernel_name) is str
         kernel_name = kernel_name.split("__X__")[0]
