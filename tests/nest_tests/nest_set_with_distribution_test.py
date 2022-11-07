@@ -69,7 +69,7 @@ class TestNestSetWithDistribution:
 
         neur = nest.Create("iaf_psc_exp_nestml__with_stdp_nestml", 100)
         neur.V_abs = nest.random.uniform(0., 1.)    # test setting a state variable
-        neur.V_reset = nest.random.uniform(0., 1.)    # test setting a parameter
+        neur.V_reset = nest.random.normal(0., 1.)    # test setting a parameter
 
         assert len(np.unique(neur.V_abs)) > 1
         assert len(np.unique(neur.V_reset)) > 1
