@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import unittest
-
+import nest
 import numpy as np
 
 try:
@@ -32,34 +30,39 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-import nest
+import os
+import pytest
 import scipy
 import scipy.signal
 import scipy.stats
+import unittest
 
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestFirFilterTest(unittest.TestCase):
-    """
+    r"""
     Tests the working of FIR filter model in NEST
     """
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_fir_filter(self):
-        nestml_model_file = 'FIR_filter.nestml'
-        nestml_model_name = 'fir_filter_nestml'
-        target_path = '/tmp/fir-filter'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
+        nestml_model_file = "FIR_filter.nestml"
+        nestml_model_name = "fir_filter_nestml"
+        target_path = "/tmp/fir-filter"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
 
         # Generate the NEST code
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', nestml_model_file)))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", nestml_model_file)))
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
 
         t_sim = 101.
         resolution = 0.1
@@ -88,8 +91,8 @@ class NestFirFilterTest(unittest.TestCase):
         print("h: ", h)
 
         # Multimeter
-        multimeter = nest.Create('multimeter')
-        nest.SetStatus(multimeter, {'interval': resolution})
+        multimeter = nest.Create("multimeter")
+        nest.SetStatus(multimeter, {"interval": resolution})
         multimeter.set({"record_from": ["y"]})  # output of the filter
         nest.Connect(multimeter, neuron)
 
@@ -105,7 +108,7 @@ class NestFirFilterTest(unittest.TestCase):
         events = multimeter.get("events")
         y = events["y"]
         times = events["times"]
-        spike_times = nest.GetStatus(sr, keys='events')[0]['times']
+        spike_times = nest.GetStatus(sr, keys="events")[0]["times"]
 
         # Scipy filtering
         spikes, bin_edges = np.histogram(spike_times, np.arange(0, t_sim, resolution))
@@ -113,10 +116,10 @@ class NestFirFilterTest(unittest.TestCase):
 
         # Plots
         if TEST_PLOTS:
-            self.plot_output(spike_times, times, y, title='FIR FILTER (NESTML)',
-                             filename='fir_filter_output_nestml.png')
-            self.plot_output(spike_times, bin_edges[1:], output, title='FIR FILTER (scipy)',
-                             filename='fir_filter_output_scipy.png')
+            self.plot_output(spike_times, times, y, title="FIR FILTER (NESTML)",
+                             filename="fir_filter_output_nestml.png")
+            self.plot_output(spike_times, bin_edges[1:], output, title="FIR FILTER (scipy)",
+                             filename="fir_filter_output_scipy.png")
 
         np.testing.assert_allclose(y, output)
 
@@ -134,7 +137,7 @@ class NestFirFilterTest(unittest.TestCase):
 
         return scipy.signal.firwin(order, cutoff, pass_zero=True)
 
-    def plot_output(self, spike_times, times, y, title='FIR FILTER', filename='fir_filter_output.png'):
+    def plot_output(self, spike_times, times, y, title="FIR FILTER", filename="fir_filter_output.png"):
         """
         Generate the filtered output plot computed via NESTML
         :param spike_times: times when spikes occur
@@ -144,8 +147,8 @@ class NestFirFilterTest(unittest.TestCase):
         :param title: title of the plot
         """
         plt.figure()
-        plt.scatter(spike_times, np.zeros_like(spike_times), label='input', marker="d", color="orange")
-        plt.plot(times, y, label='filter')
+        plt.scatter(spike_times, np.zeros_like(spike_times), label="input", marker="d", color="orange")
+        plt.plot(times, y, label="filter")
         plt.xlabel("Time (ms)")
         plt.ylabel("Filter output")
         plt.legend()

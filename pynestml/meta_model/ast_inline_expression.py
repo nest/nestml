@@ -94,6 +94,13 @@ class ASTInlineExpression(ASTNode):
         """
         return self.variable_name
 
+    def set_variable_name(self, variable_name: str):
+        """
+        Set the variable name.
+        :param variable_name: the name of the variable.
+        """
+        self.variable_name = variable_name
+
     def get_data_type(self):
         """
         Returns the data type as an object of ASTDatatype.

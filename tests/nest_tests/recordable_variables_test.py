@@ -18,12 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import numpy as np
 import unittest
 import os
-import nest
-import numpy as np
 
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+import nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -42,15 +44,15 @@ class RecordableVariablesTest(unittest.TestCase):
     def test_recordable_variables(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "RecordableVariables.nestml")))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
-        store_log = False
         suffix = "_nestml"
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()

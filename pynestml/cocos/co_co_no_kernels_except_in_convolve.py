@@ -22,6 +22,7 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -83,6 +84,9 @@ class KernelUsageVisitor(ASTVisitor):
             symbol = node.get_scope().resolve_to_symbol(kernelName, SymbolKind.VARIABLE)
             # if it is not a kernel just continue
             if symbol is None:
+                if not isinstance(node, ASTExternalVariable):
+                    code, message = Messages.get_no_variable_found(kernelName)
+                    Logger.log_message(node=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
                 continue
             if not symbol.is_kernel():
                 continue

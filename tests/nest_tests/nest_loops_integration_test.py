@@ -18,13 +18,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import os
-import unittest
+
 import numpy as np
+import os
+import pytest
+import unittest
 
 import nest
 
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestLoopsIntegrationTest(unittest.TestCase):
@@ -32,26 +35,29 @@ class NestLoopsIntegrationTest(unittest.TestCase):
     Tests the code generation and working of for and while loops from NESTML to NEST
     """
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_for_and_while_loop(self):
         files = ["ForLoop.nestml", "WhileLoop.nestml"]
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", s))) for s in
                       files]
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("for_loop_nestml")
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
         mm.set({"record_from": ["V_m"]})
 
         nest.Connect(mm, nrn)
@@ -64,7 +70,7 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         nest.ResetKernel()
         nrn = nest.Create("while_loop_nestml")
 
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
         mm.set({"record_from": ["y"]})
 
         nest.Connect(mm, nrn)

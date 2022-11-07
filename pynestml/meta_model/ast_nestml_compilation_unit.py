@@ -19,7 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -33,7 +35,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         artifact_name = None
     """
 
-    def __init__(self, neuron_list=None, artifact_name=None, *args, **kwargs):
+    def __init__(self, neuron_list=None, synapse_list=None, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -51,6 +53,10 @@ class ASTNestMLCompilationUnit(ASTNode):
         if neuron_list is not None:
             assert type(neuron_list) is list
             self.neuron_list.extend(neuron_list)
+        self.synapse_list = []
+        if not synapse_list is None:
+            assert type(synapse_list) is list
+            self.synapse_list.extend(synapse_list)
         self.artifact_name = artifact_name
 
     def clone(self):
@@ -104,6 +110,54 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         return self.neuron_list
 
+    def add_synapse(self, synapse):
+        """
+        Expects an instance of synapse element which is added to the collection.
+        :param synapse: an instance of a synapse
+        :type synapse: ASTsynapse
+        :return: no returned value
+        :rtype: void
+        """
+        assert (synapse is not None and isinstance(synapse, ASTSynapse)), \
+            '(PyNestML.AST.CompilationUnit) No or wrong type of synapse provided (%s)!' % type(synapse)
+        self.synapse_list.append(synapse)
+        return
+
+    def delete_synapse(self, synapse):
+        """
+        Expects an instance of synapse element which is deleted from the collection.
+        :param synapse: an instance of a ASTsynapse
+        :type synapse:ASTsynapse
+        :return: True if element deleted from list, False else.
+        :rtype: bool
+        """
+        if self.synapse_list.__contains__(synapse):
+            self.synapse_list.remove(synapse)
+            return True
+        else:
+            return False
+
+    def get_synapse_list(self):
+        """
+        :return: a list of synapse elements as stored in the unit
+        :rtype: list(ASTsynapse)
+        """
+        return self.synapse_list
+
+    def get_neuron_by_name(self, name: str) -> Optional[ASTNeuron]:
+        for neuron in self.get_neuron_list():
+            if neuron.get_name() == name:
+                return neuron
+
+        return None
+
+    def get_synapse_by_name(self, name: str) -> Optional[ASTSynapse]:
+        for synapse in self.get_synapse_list():
+            if synapse.get_name() == name:
+                return synapse
+
+        return None
+
     def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
@@ -117,6 +171,11 @@ class ASTNestMLCompilationUnit(ASTNode):
                 return self
             if neuron.get_parent(ast) is not None:
                 return neuron.get_parent(ast)
+        for synapse in self.get_synapse_list():
+            if synapse is ast:
+                return self
+            elif synapse.get_parent(ast) is not None:
+                return synapse.get_parent(ast)
         return None
 
     def equals(self, other):
@@ -131,9 +190,16 @@ class ASTNestMLCompilationUnit(ASTNode):
             return False
         if len(self.get_neuron_list()) != len(other.get_neuron_list()):
             return False
+        if len(self.get_synapse_list()) != len(other.get_synapse_list()):
+            return False
         my_neurons = self.get_neuron_list()
         your_neurons = other.get_neuron_list()
         for i in range(0, len(my_neurons)):
             if not my_neurons[i].equals(your_neurons[i]):
+                return False
+        my_synapses = self.get_synapse_list()
+        your_synapses = other.get_synapse_list()
+        for i in range(0, len(my_synapses)):
+            if not my_synapses[i].equals(your_synapses[i]):
                 return False
         return True

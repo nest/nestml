@@ -54,12 +54,13 @@ class BlockType(Enum):
     """
     STATE = 1
     PARAMETERS = 2
-    INTERNALS = 3
-    EQUATION = 4
-    LOCAL = 5
-    INPUT = 6
-    OUTPUT = 7
-    PREDEFINED = 8
+    COMMON_PARAMETERS = 3
+    INTERNALS = 4
+    EQUATION = 5
+    LOCAL = 6
+    INPUT = 7
+    OUTPUT = 8
+    PREDEFINED = 9
 
 
 class VariableSymbol(Symbol):
@@ -69,6 +70,7 @@ class VariableSymbol(Symbol):
     Attributes:
         block_type            The type of block in which this symbol has been declared. Type: BlockType
         vector_parameter      The parameter indicating the position in an array. Type: str
+        delay_parameter       The parameter indicating the delay value for this variable. Type: str
         declaring_expression  The rhs defining the value of this symbol. Type: ASTExpression
         is_predefined         Indicates whether this symbol is predefined, e.g., t or e. Type: bool
         is_inline_expression  Indicates whether this symbol belongs to an inline expression. Type: bool
@@ -81,9 +83,10 @@ class VariableSymbol(Symbol):
     """
 
     def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
-                 vector_parameter: str=None, declaring_expression: ASTExpression=None, is_predefined: bool=False,
-                 is_inline_expression: bool=False, is_recordable: bool=False, type_symbol: TypeSymbol=None,
-                 initial_value: ASTExpression=None, variable_type: VariableType=None):
+                 vector_parameter: str=None, delay_parameter: str=None, declaring_expression: ASTExpression=None,
+                 is_predefined: bool=False, is_inline_expression: bool=False, is_recordable: bool=False,
+                 type_symbol: TypeSymbol=None, initial_value: ASTExpression=None, variable_type: VariableType=None,
+                 decorators=None, namespace_decorators=None):
         """
         Standard constructor.
         :param element_reference: a reference to the first element where this type has been used/defined
@@ -98,11 +101,16 @@ class VariableSymbol(Symbol):
         :param type_symbol: a type symbol representing the concrete type of this variable
         :param initial_value: the initial value if such an exists
         :param variable_type: the type of the variable
+        :param decorators: a list of decorator keywords
+        :type decorators list
+        :param namespace_decorators a list of namespace decorators
+        :type namespace_decorators list
         """
         super(VariableSymbol, self).__init__(element_reference=element_reference, scope=scope,
                                              name=name, symbol_kind=SymbolKind.VARIABLE)
         self.block_type = block_type
         self.vector_parameter = vector_parameter
+        self.delay_parameter = delay_parameter
         self.declaring_expression = declaring_expression
         self.is_predefined = is_predefined
         self.is_inline_expression = is_inline_expression
@@ -111,6 +119,32 @@ class VariableSymbol(Symbol):
         self.initial_value = initial_value
         self.variable_type = variable_type
         self.ode_or_kernel = None
+        if decorators is None:
+            decorators = []
+        if namespace_decorators is None:
+            namespace_decorators = {}
+        self.decorators = decorators
+        self.namespace_decorators = namespace_decorators
+
+    def is_homogeneous(self):
+        return PyNestMLLexer.DECORATOR_HOMOGENEOUS in self.decorators
+
+    def has_decorators(self):
+        return len(self.decorators) > 0
+
+    def get_decorators(self):
+        """
+        Returns PyNESTMLLexer static variable codes
+        """
+        return self.decorators
+
+    def get_namespace_decorators(self):
+        return self.namespace_decorators
+
+    def get_namespace_decorator(self, namespace):
+        if namespace in self.namespace_decorators.keys():
+            return self.namespace_decorators[namespace]
+        return ''
 
     def has_vector_parameter(self):
         """
@@ -118,7 +152,14 @@ class VariableSymbol(Symbol):
         :return: True if vector parameter available, otherwise False.
         :rtype: bool
         """
-        return self.vector_parameter is not None and type(self.vector_parameter) == str
+        return self.vector_parameter is not None
+
+    def has_delay_parameter(self):
+        """
+        Returns whether this variable has a delay value associated with it.
+        :return: bool
+        """
+        return self.delay_parameter is not None and type(self.delay_parameter) == str
 
     def get_block_type(self):
         """
@@ -135,6 +176,19 @@ class VariableSymbol(Symbol):
         :rtype: str
         """
         return self.vector_parameter
+
+    def get_delay_parameter(self):
+        """
+        Returns the delay value associated with this variable
+        :return: the delay parameter
+        """
+        return self.delay_parameter
+
+    def set_delay_parameter(self, delay):
+        """
+        Sets the delay value for this variable
+        """
+        self.delay_parameter = delay
 
     def get_declaring_expression(self):
         """
@@ -193,7 +247,7 @@ class VariableSymbol(Symbol):
         :return: True if declared in a parameters block, otherwise False.
         :rtype: bool
         """
-        return self.block_type == BlockType.PARAMETERS
+        return self.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
 
     def is_internals(self) -> bool:
         """

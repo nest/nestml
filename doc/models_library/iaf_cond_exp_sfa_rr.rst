@@ -1,8 +1,8 @@
 iaf_cond_exp_sfa_rr
 ###################
 
-iaf_cond_exp_sfa_rr - Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
 
+iaf_cond_exp_sfa_rr - Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
 
 Description
 +++++++++++
@@ -36,6 +36,7 @@ See also
 aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
 
 
+
 Parameters
 ++++++++++
 
@@ -46,20 +47,20 @@ Parameters
     :widths: auto
 
     
-    "V_th", "mV", "-57.0mV", "Threshold Potential"    
-    "V_reset", "mV", "-70.0mV", "Reset Potential"    
+    "V_th", "mV", "-57.0mV", "Threshold potential"    
+    "V_reset", "mV", "-70.0mV", "Reset potential"    
     "t_ref", "ms", "0.5ms", "Refractory period"    
-    "g_L", "nS", "28.95nS", "Leak Conductance"    
-    "C_m", "pF", "289.5pF", "Membrane Capacitance"    
-    "E_ex", "mV", "0mV", "Excitatory reversal Potential"    
-    "E_in", "mV", "-75.0mV", "Inhibitory reversal Potential"    
-    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential)"    
-    "tau_syn_ex", "ms", "1.5ms", "Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "g_L", "nS", "28.95nS", "Leak conductance"    
+    "C_m", "pF", "289.5pF", "Membrane capacitance"    
+    "E_exc", "mV", "0mV", "Excitatory reversal potential"    
+    "E_inh", "mV", "-75.0mV", "Inhibitory reversal potential"    
+    "E_L", "mV", "-70.0mV", "Leak reversal potential (aka resting potential)"    
+    "tau_syn_exc", "ms", "1.5ms", "Synaptic time constant of excitatory synapse"    
+    "tau_syn_inh", "ms", "10.0ms", "Synaptic time constant of inhibitory synapse"    
     "q_sfa", "nS", "14.48nS", "Outgoing spike activated quantal spike-frequency adaptation conductance increase"    
-    "q_rr", "nS", "3214.0nS", "Outgoing spike activated quantal relative refractory conductance increase."    
-    "tau_sfa", "ms", "110.0ms", "Time constant of spike-frequency adaptation."    
-    "tau_rr", "ms", "1.97ms", "Time constant of the relative refractory mechanism."    
+    "q_rr", "nS", "3214.0nS", "Outgoing spike activated quantal relative refractory conductance increase"    
+    "tau_sfa", "ms", "110.0ms", "Time constant of spike-frequency adaptation"    
+    "tau_rr", "ms", "1.97ms", "Time constant of the relative refractory mechanism"    
     "E_sfa", "mV", "-70.0mV", "spike-frequency adaptation conductance reversal potential"    
     "E_rr", "mV", "-70.0mV", "relative refractory mechanism conductance reversal potential"    
     "I_e", "pA", "0pA", "constant external input current"
@@ -75,6 +76,7 @@ State variables
     :widths: auto
 
     
+    "r", "integer", "0", "counts number of tick during the refractory period"    
     "V_m", "mV", "E_L", "membrane potential"    
     "g_sfa", "nS", "0nS", "inputs from the sfa conductance"    
     "g_rr", "nS", "0nS", "inputs from the rr conductance"
@@ -106,82 +108,76 @@ Equations
 Source code
 +++++++++++
 
-.. code:: nestml
+.. code-block:: nestml
 
    neuron iaf_cond_exp_sfa_rr:
-      state:
-        r integer = 0   # counts number of tick during the refractory period
+     state:
+       r integer = 0 # counts number of tick during the refractory period
+       V_m mV = E_L # membrane potential
+       g_sfa nS = 0nS # inputs from the sfa conductance
+       g_rr nS = 0nS # inputs from the rr conductance
+     end
+     equations:
+       kernel g_inh = exp(-t / tau_syn_inh) # inputs from the inh conductance
+       kernel g_exc = exp(-t / tau_syn_exc) # inputs from the exc conductance
+       g_sfa'=-g_sfa / tau_sfa
+       g_rr'=-g_rr / tau_rr
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
+       inline I_L pA = g_L * (V_m - E_L)
+       inline I_sfa pA = g_sfa * (V_m - E_sfa)
+       inline I_rr pA = g_rr * (V_m - E_rr)
+       V_m'=(-I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr) / C_m
+     end
 
-        V_m mV = E_L # membrane potential
-        g_sfa nS = 0 nS     # inputs from the sfa conductance
-        g_rr nS = 0 nS      # inputs from the rr conductance
-      end
+     parameters:
+       V_th mV = -57.0mV # Threshold potential
+       V_reset mV = -70.0mV # Reset potential
+       t_ref ms = 0.5ms # Refractory period
+       g_L nS = 28.95nS # Leak conductance
+       C_m pF = 289.5pF # Membrane capacitance
+       E_exc mV = 0mV # Excitatory reversal potential
+       E_inh mV = -75.0mV # Inhibitory reversal potential
+       E_L mV = -70.0mV # Leak reversal potential (aka resting potential)
+       tau_syn_exc ms = 1.5ms # Synaptic time constant of excitatory synapse
+       tau_syn_inh ms = 10.0ms # Synaptic time constant of inhibitory synapse
+       q_sfa nS = 14.48nS # Outgoing spike activated quantal spike-frequency adaptation conductance increase
+       q_rr nS = 3214.0nS # Outgoing spike activated quantal relative refractory conductance increase
+       tau_sfa ms = 110.0ms # Time constant of spike-frequency adaptation
+       tau_rr ms = 1.97ms # Time constant of the relative refractory mechanism
+       E_sfa mV = -70.0mV # spike-frequency adaptation conductance reversal potential
+       E_rr mV = -70.0mV # relative refractory mechanism conductance reversal potential
+       # constant external input current
 
-      equations:
-        kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
-        kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
+       # constant external input current
+       I_e pA = 0pA
+     end
+     internals:
+       RefractoryCounts integer = steps(t_ref) # refractory time in steps
+     end
+     input:
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
+       I_stim pA <-current
+     end
 
-        g_sfa' = -g_sfa / tau_sfa
-        g_rr' = -g_rr / tau_rr
+     output: spike
 
-        inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
-        inline I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-        inline I_L pA = g_L * ( V_m - E_L )
-        inline I_sfa pA = g_sfa * ( V_m - E_sfa )
-        inline I_rr pA = g_rr * ( V_m - E_rr )
+     update:
+       integrate_odes()
+       if r != 0: # neuron is absolute refractory
+         r = r - 1
+         V_m = V_reset # clamp potential
+       elif V_m >= V_th:
+         r = RefractoryCounts
+         V_m = V_reset # clamp potential
+         g_sfa += q_sfa
+         g_rr += q_rr
+         emit_spike()
+       end
+     end
 
-        V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
-      end
-
-      parameters:
-        V_th mV = -57.0 mV      # Threshold Potential
-        V_reset mV = -70.0 mV   # Reset Potential
-        t_ref ms = 0.5 ms       # Refractory period
-        g_L nS = 28.95 nS       # Leak Conductance
-        C_m pF = 289.5 pF       # Membrane Capacitance
-        E_ex mV = 0 mV          # Excitatory reversal Potential
-        E_in mV = -75.0 mV      # Inhibitory reversal Potential
-        E_L mV = -70.0 mV       # Leak reversal Potential (aka resting potential)
-        tau_syn_ex ms = 1.5 ms  # Synaptic Time Constant Excitatory Synapse
-        tau_syn_in ms = 10.0 ms # Synaptic Time Constant for Inhibitory Synapse
-        q_sfa nS = 14.48 nS     # Outgoing spike activated quantal spike-frequency adaptation conductance increase
-        q_rr nS = 3214.0 nS     # Outgoing spike activated quantal relative refractory conductance increase.
-        tau_sfa ms = 110.0 ms   # Time constant of spike-frequency adaptation.
-        tau_rr ms = 1.97 ms     # Time constant of the relative refractory mechanism.
-        E_sfa mV = -70.0 mV     # spike-frequency adaptation conductance reversal potential
-        E_rr mV = -70.0 mV      # relative refractory mechanism conductance reversal potential
-
-        # constant external input current
-        I_e pA = 0 pA
-      end
-
-      internals:
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
-      end
-
-      input:
-        spikesInh nS <- inhibitory spike
-        spikesExc nS <- excitatory spike
-        I_stim pA <- continuous
-      end
-
-      output: spike
-
-      update:
-        integrate_odes()
-        if r != 0:  # neuron is absolute refractory
-          r =  r - 1
-          V_m = V_reset # clamp potential
-        elif V_m >= V_th: # neuron is not absolute refractory
-          r = RefractoryCounts
-          V_m = V_reset # clamp potential
-          g_sfa += q_sfa
-          g_rr += q_rr
-          emit_spike()
-        end
-      end
-    end
-
+   end
 
 
 
@@ -193,4 +189,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 18:26:44.821174
+   Generated at 2022-03-28 19:04:29.555731

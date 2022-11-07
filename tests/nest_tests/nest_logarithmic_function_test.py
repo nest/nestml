@@ -23,7 +23,9 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.codegeneration.nest_tools import NESTTools
 
 
 class NestLogarithmicFunctionTest(unittest.TestCase):
@@ -32,35 +34,43 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
     def test_logarithmic_function(self):
         MAX_SSE = 1E-12
 
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
-        nest.set_verbosity("M_ALL")
+        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest.nestml"))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest_invalid.nestml")))]
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
 
+        nest_version = NESTTools.detect_nest_version()
+
+        nest.set_verbosity("M_ALL")
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("logarithm_function_test_nestml")
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
 
-        ln_state_specifier = 'ln_state'
-        log10_state_specifier = 'log10_state'
-        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        ln_state_specifier = "ln_state"
+        log10_state_specifier = "log10_state"
+        nest.SetStatus(mm, {"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
-        timevec = mm.get("events")["x"]
-        ln_state_ts = mm.get("events")[ln_state_specifier]
-        log10_state_ts = mm.get("events")[log10_state_specifier]
+        if nest_version.startswith("v2"):
+            timevec = nest.GetStatus(mm, "events")[0]["x"]
+            ln_state_ts = nest.GetStatus(mm, "events")[0][ln_state_specifier]
+            log10_state_ts = nest.GetStatus(mm, "events")[0][log10_state_specifier]
+        else:
+            timevec = mm.get("events")["x"]
+            ln_state_ts = mm.get("events")[ln_state_specifier]
+            log10_state_ts = mm.get("events")[log10_state_specifier]
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
 
@@ -72,19 +82,24 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
         nest.ResetKernel()
         nrn = nest.Create("logarithm_function_test_invalid_nestml")
 
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
 
-        ln_state_specifier = 'ln_state'
-        log10_state_specifier = 'log10_state'
-        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        ln_state_specifier = "ln_state"
+        log10_state_specifier = "log10_state"
+        nest.SetStatus(mm, {"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
-        timevec = mm.get("events")["x"]
-        ln_state_ts = mm.get("events")[ln_state_specifier]
-        log10_state_ts = mm.get("events")[log10_state_specifier]
+        if nest_version.startswith("v2"):
+            timevec = nest.GetStatus(mm, "events")[0]["times"]
+            ln_state_ts = nest.GetStatus(mm, "events")[0][ln_state_specifier]
+            log10_state_ts = nest.GetStatus(mm, "events")[0][log10_state_specifier]
+        else:
+            timevec = mm.get("events")["times"]
+            ln_state_ts = mm.get("events")[ln_state_specifier]
+            log10_state_ts = mm.get("events")[log10_state_specifier]
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
 

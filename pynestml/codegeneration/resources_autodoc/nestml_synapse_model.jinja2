@@ -1,0 +1,42 @@
+{{ synapseName }}
+{% for i in range(synapseName | length) %}#{%- endfor %}
+
+{{ synapse.print_comment() | trim | replace('"""', '') | replace('#', '') }}
+
+
+Parameters
+++++++++++
+
+{{ synapse.print_parameter_comment() }}
+
+{% with block = synapse.get_parameter_blocks() %}
+{%- include "block_decl_table.jinja2" %}
+{% endwith %}
+
+{%- if synapse.get_state_blocks() is not none %}
+
+
+State variables
++++++++++++++++
+
+{% with block = synapse.get_state_blocks() %}
+{%- include "block_decl_table.jinja2" %}
+{%- endwith %}
+{%- endif %}
+Source code
++++++++++++
+
+.. code-block:: nestml
+
+{{ model_source_code }}
+
+
+Characterisation
+++++++++++++++++
+
+.. include:: {{synapseName}}_characterisation.rst
+
+
+.. footer::
+
+   Generated at {{ now }}

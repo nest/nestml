@@ -1,8 +1,8 @@
 aeif_cond_exp
 #############
 
-aeif_cond_exp - Conductance based exponential integrate-and-fire neuron model
 
+aeif_cond_exp - Conductance based exponential integrate-and-fire neuron model
 
 Description
 +++++++++++
@@ -43,6 +43,7 @@ See also
 iaf_cond_exp, aeif_cond_alpha
 
 
+
 Parameters
 ++++++++++
 
@@ -58,16 +59,16 @@ Parameters
     "V_reset", "mV", "-60.0mV", "Reset Potential"    
     "g_L", "nS", "30.0nS", "Leak Conductance"    
     "E_L", "mV", "-70.6mV", "Leak reversal Potential (aka resting potential)"    
-    "a", "nS", "4nS", "spike adaptation parametersSubthreshold adaptation."    
-    "b", "pA", "80.5pA", "Spike-trigg_exred adaptation."    
+    "a", "nS", "4nS", "spike adaptation parametersSubthreshold adaptation"    
+    "b", "pA", "80.5pA", "Spike-triggered adaptation"    
     "Delta_T", "mV", "2.0mV", "Slope factor"    
     "tau_w", "ms", "144.0ms", "Adaptation time constant"    
     "V_th", "mV", "-50.4mV", "Threshold Potential"    
-    "V_peak", "mV", "0mV", "Spike detection threshold."    
-    "E_ex", "mV", "0mV", "synaptic parametersExcitatory reversal Potential"    
-    "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
-    "E_in", "mV", "-85.0mV", "Inhibitory reversal Potential"    
-    "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "V_peak", "mV", "0mV", "Spike detection threshold"    
+    "E_exc", "mV", "0mV", "synaptic parametersExcitatory reversal Potential"    
+    "tau_syn_exc", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
+    "E_inh", "mV", "-85.0mV", "Inhibitory reversal Potential"    
+    "tau_syn_inh", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -107,84 +108,81 @@ Equations
 Source code
 +++++++++++
 
-.. code:: nestml
+.. code-block:: nestml
 
    neuron aeif_cond_exp:
-
      state:
-       V_m mV = E_L   # Membrane potential
-       w pA = 0 pA    # Spike-adaptation current
+       V_m mV = E_L # Membrane potential
+       w pA = 0pA # Spike-adaptation current
      end
-
      equations:
-       inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
-       kernel g_in = exp(-t / tau_syn_in)
-       kernel g_ex = exp(-t / tau_syn_ex)
-
+       inline V_bounded mV = min(V_m,V_peak) # prevent exponential divergence
+       kernel g_inh = exp(-t / tau_syn_inh)
+       kernel g_exc = exp(-t / tau_syn_exc)
        # Add inlines to simplify the equation definition of V_m
        inline exp_arg real = (V_bounded - V_th) / Delta_T
        inline I_spike pA = g_L * Delta_T * exp(exp_arg)
-       inline I_syn_exc pA = convolve(g_ex, spikesExc) * (V_bounded - E_ex)
-       inline I_syn_inh pA = convolve(g_in, spikesInh) * (V_bounded - E_in)
-
-       V_m' = (-g_L * (V_bounded - E_L) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
-       w' = (a * (V_bounded - E_L) - w) / tau_w
+       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_bounded - E_exc)
+       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_bounded - E_inh)
+       V_m'=(-g_L * (V_bounded - E_L) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
+       w'=(a * (V_bounded - E_L) - w) / tau_w
      end
 
      parameters:
        # membrane parameters
-       C_m pF = 281.0 pF       # Membrane Capacitance
-       t_ref ms = 0.0 ms       # Refractory period
-       V_reset mV = -60.0 mV   # Reset Potential
-       g_L nS = 30.0 nS        # Leak Conductance
-       E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
+       C_m pF = 281.0pF # Membrane Capacitance
+       t_ref ms = 0.0ms # Refractory period
+       V_reset mV = -60.0mV # Reset Potential
+       g_L nS = 30.0nS # Leak Conductance
+       E_L mV = -70.6mV # Leak reversal Potential (aka resting potential)
+       # spike adaptation parameters
 
        # spike adaptation parameters
-       a nS = 4 nS             # Subthreshold adaptation
-       b pA = 80.5 pA          # Spike-triggered adaptation
-       Delta_T mV = 2.0 mV     # Slope factor
-       tau_w ms = 144.0 ms     # Adaptation time constant
-       V_th mV = -50.4 mV      # Threshold Potential
-       V_peak mV = 0 mV        # Spike detection threshold
+       a nS = 4nS # Subthreshold adaptation
+       b pA = 80.5pA # Spike-triggered adaptation
+       Delta_T mV = 2.0mV # Slope factor
+       tau_w ms = 144.0ms # Adaptation time constant
+       V_th mV = -50.4mV # Threshold Potential
+       V_peak mV = 0mV # Spike detection threshold
+       # synaptic parameters
 
        # synaptic parameters
-       E_ex mV = 0 mV            # Excitatory reversal Potential
-       tau_syn_ex ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
-       E_in mV = -85.0 mV        # Inhibitory reversal Potential
-       tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+       E_exc mV = 0mV # Excitatory reversal Potential
+       tau_syn_exc ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
+       E_inh mV = -85.0mV # Inhibitory reversal Potential
+       tau_syn_inh ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
+       # constant external input current
 
        # constant external input current
-       I_e pA = 0 pA
+       I_e pA = 0pA
      end
-
      internals:
        # refractory time in steps
        RefractoryCounts integer = steps(t_ref)
        # counts number of tick during the refractory period
-       r integer
-     end
 
+       # counts number of tick during the refractory period
+       r integer 
+     end
      input:
-       spikesInh nS <- inhibitory spike
-       spikesExc nS <- excitatory spike
-       I_stim pA <- continuous
+       inh_spikes nS <-inhibitory spike
+       exc_spikes nS <-excitatory spike
+       I_stim pA <-current
      end
 
      output: spike
 
      update:
        integrate_odes()
-
        if r > 0: # refractory
          r -= 1 # decrement refractory ticks count
          V_m = V_reset # clamp potential
-       elif V_m >= V_peak: # threshold crossing detection
+       elif V_m >= V_peak:
          r = RefractoryCounts + 1
          V_m = V_reset # clamp potential
          w += b
          emit_spike()
        end
-
      end
 
    end
@@ -199,4 +197,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 18:26:45.193728
+   Generated at 2022-03-28 19:04:29.501988

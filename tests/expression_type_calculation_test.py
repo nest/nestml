@@ -21,8 +21,7 @@
 import os
 import unittest
 
-from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -30,6 +29,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser
@@ -80,7 +80,6 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     A simple test that prints all top-level expression types in a file.
     """
 
-    # TODO: this test needs to be refactored.
     def test(self):
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
@@ -88,10 +87,9 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         Logger.set_current_node(model.get_neuron_list()[0])
         model.accept(ExpressionTestVisitor())
-        # ExpressionTestVisitor().handle(model)
         Logger.set_current_node(None)
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
-                                                                          LoggingLevel.ERROR)), 2)
+                                                                          LoggingLevel.ERROR)), 0)
 
 
 if __name__ == '__main__':

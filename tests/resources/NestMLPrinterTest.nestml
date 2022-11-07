@@ -77,7 +77,7 @@ neuron aeif_cond_alpha_implicit:
   # input pre
   input:
     # input decl pre
-    spikesInh nS <-inhibitory spike # input decl in
+    inh_spikes nS <- inhibitory spike # input decl in
     # input decl post
   end
   # input post

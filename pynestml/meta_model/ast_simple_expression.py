@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -52,25 +52,21 @@ class ASTSimpleExpression(ASTExpressionNode):
 
     """
 
-    def __init__(self, function_call=None, boolean_literal=None, numeric_literal=None, is_inf=False,
-                 variable=None, string=None, *args, **kwargs):
+    def __init__(self, function_call: ASTFunctionCall = None, boolean_literal: bool = None,
+                 numeric_literal: Union[int, float] = None, is_inf: bool = False,
+                 variable: ASTVariable = None, string: str = None, has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param function_call: a function call.
-        :type function_call: ASTFunctionCall
         :param boolean_literal: a boolean value.
-        :type boolean_literal: bool
         :param numeric_literal: a numeric value.
-        :type numeric_literal: float/int
         :param is_inf: is inf symbol.
-        :type is_inf: bool
         :param variable: a variable object.
-        :type variable: ASTVariable
         :param string: a single string literal
-        :type string: str
+        :param has_delay: whether this simple expression node has a delay variable
         """
         super(ASTSimpleExpression, self).__init__(*args, **kwargs)
         assert (function_call is None or isinstance(function_call, ASTFunctionCall)), \
@@ -97,6 +93,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
+        self.has_delay = has_delay
 
     def clone(self):
         """
@@ -125,6 +122,7 @@ class ASTSimpleExpression(ASTExpressionNode):
                                   is_inf=self.is_inf_literal,
                                   variable=variable_dup,
                                   string=self.string,
+                                  has_delay=self.has_delay,
                                   # ASTNode common attributes:
                                   source_position=self.source_position,
                                   scope=self.scope,
@@ -206,6 +204,23 @@ class ASTSimpleExpression(ASTExpressionNode):
         :rtype: bool
         """
         return self.variable is not None and self.numeric_literal is None
+
+    def is_delay_variable(self):
+        """
+        Returns whether it is a delay variable or not
+        :return: True if the variable has a delay parameter, False otherwise
+        """
+        if self.is_variable() and self.has_delay \
+                and self.get_variable().get_delay_parameter() is not None:
+            return True
+        return False
+
+    def get_has_delay(self):
+        """
+        Returns the has_delay parameter
+        :return: returns the value of has_delay parameter
+        """
+        return self.has_delay
 
     def get_variables(self):
         """

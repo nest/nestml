@@ -1,0 +1,18 @@
+{%- macro OutputEvent(node) -%}
+{%- with outputs = neuron.get_body().get_output_blocks() -%}
+{%-     if outputs|length == 0 -%}
+{#-         no output port defined in the model: pretend dummy spike output port to obtain usable model -#}
+nest::SpikeEvent
+{%-     elif outputs|length == 1 -%}
+{%-         with output = outputs[0] -%}
+{%-             if output.is_spike() -%}
+nest::SpikeEvent
+{%-             elif output.is_continuous() -%}
+nest::CurrentEvent
+{%-             else -%}
+{{ raise('Unexpected output type. Must be continuous or spike, is %s.' % output) }}
+{%-             endif -%}
+{%-         endwith -%}
+{%-     endif -%}
+{%- endwith -%}
+{%- endmacro -%}

@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbol_table.scope import ScopeType
 from pynestml.symbols.symbol import SymbolKind
@@ -52,7 +54,7 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
+        assert (node is not None and (isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse))), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(ParametersAssignmentVisitor())
         return
@@ -63,17 +65,15 @@ class ParametersAssignmentVisitor(ASTVisitor):
     This visitor checks that no parameters have been assigned outside the parameters block.
     """
 
-    def visit_assignment(self, node):
+    def visit_assignment(self, node: ASTAssignment) -> None:
         """
         Checks the coco on the current node.
         :param node: a single node.
-        :type node: ast_assignment
         """
         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-        if (symbol is not None and symbol.block_type == BlockType.PARAMETERS
+        if (symbol is not None and symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
                 and node.get_scope().get_scope_type() != ScopeType.GLOBAL):
             code, message = Messages.get_assignment_not_allowed(node.get_variable().get_complete_name())
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message,
                                log_level=LoggingLevel.ERROR)
-        return

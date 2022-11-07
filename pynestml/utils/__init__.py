@@ -19,6 +19,4 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ast_utils', 'cloning_helpers', 'logger', 'stack', 'either', 'error_listener', 'error_strings',
-           'logging_helper', 'messages', 'model_parser', 'ode_transformer', 'type_caster', 'type_dictionary',
-           'unit_type', 'ast_nestml_printer', 'source_location', 'port_signal_type']
+__all__ = ["ast_nestml_printer", "ast_utils", "cloning_helpers", "either", "error_listener", "error_strings", "logger", "logging_helper", "messages", "model_parser", "port_signal_type", "source_location", "stack", "type_caster", "type_dictionary", "unit_type", "with_options"]

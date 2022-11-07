@@ -19,16 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 try:
     import matplotlib
-    matplotlib.use('agg')
+    matplotlib.use("agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except Exception:
@@ -40,22 +44,25 @@ class NestNonLinearDendriteTest(unittest.TestCase):
     Test for proper reset of synaptic integration after condition is triggered (here, dendritic spike).
     """
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_non_linear_dendrite(self):
         MAX_SSE = 1E-12
 
-        I_dend_alias_name = 'I_dend'  # synaptic current
-        I_dend_internal_name = 'I_kernel2__X__I_2'  # alias for the synaptic current
+        I_dend_alias_name = "I_dend"  # synaptic current
+        I_dend_internal_name = "I_kernel2__X__I_2"  # alias for the synaptic current
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
@@ -66,8 +73,8 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         sg = nest.Create("spike_generator", params={"spike_times": [10., 20., 30.]})
         nest.Connect(sg, nrn, syn_spec={"receptor_type": 2, "weight": 30., "delay": 1.})
 
-        mm = nest.Create('multimeter')
-        mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name, 'V_m', 'dend_curr_enabled', 'I_dend_ap']})
+        mm = nest.Create("multimeter")
+        mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name, "V_m", "dend_curr_enabled", "I_dend_ap"]})
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)

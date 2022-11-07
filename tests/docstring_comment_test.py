@@ -83,7 +83,7 @@ class DocstringCommentTest(unittest.TestCase):
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        neuron_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
+        neuron_or_synapse_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
 
         # now run the docstring checker visitor
         visitor = CommentCollectorVisitor(stream.tokens, strip_delim=False)
