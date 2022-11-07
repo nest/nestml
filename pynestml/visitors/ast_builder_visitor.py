@@ -257,10 +257,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitVariable(self, ctx):
         vector_parameter = None
         if ctx.vectorParameter is not None:
-            if ctx.vectorParameter.sizeStr is not None:
-                vector_parameter = ctx.vectorParameter.sizeStr.text
-            elif ctx.vectorParameter.sizeInt is not None:
-                vector_parameter = ctx.vectorParameter.sizeInt.text
+            vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
