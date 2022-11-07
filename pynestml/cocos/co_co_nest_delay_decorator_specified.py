@@ -38,7 +38,7 @@ class CoCoNESTDelayDecoratorSpecified(CoCo):
         """
         decorator_found = False
         for variable in node.get_parameter_symbols() + node.get_internal_symbols():
-            if variable.get_namespace_decorator("nest") == "weight":
+            if variable.get_namespace_decorator("nest") == "delay":
                 decorator_found = True
                 break
 

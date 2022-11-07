@@ -110,7 +110,7 @@ class ASTDeclaration(ASTNode):
             invariant_dup = self.invariant.clone()
         decorators_dup = None
         if self.decorators:
-            decorators_dup = [dec.clone() for dec in self.decorators]
+            decorators_dup = [dec.clone() if isinstance(dec, ASTNamespaceDecorator) else str(dec)for dec in self.decorators]
         dup = ASTDeclaration(is_recordable=self.is_recordable,
                              is_inline_expression=self.is_inline_expression,
                              _variables=variables_dup,

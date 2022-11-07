@@ -177,7 +177,7 @@ class NESTCodeGenerator(CodeGenerator):
         for synapse in synapses:
             CoCoNESTDelayDecoratorSpecified.check_co_co(synapse)
             if Logger.has_errors(synapse):
-                synapses.remove(synapse)
+                raise Exception("Error(s) occurred during code generation")
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         neurons = [model for model in models if isinstance(model, ASTNeuron)]
