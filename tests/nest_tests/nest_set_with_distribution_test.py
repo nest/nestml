@@ -58,7 +58,6 @@ class TestNestSetWithDistribution:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-
     @pytest.mark.skipif(nest_version.startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_nest_set_with_distribution(self):
@@ -75,7 +74,7 @@ class TestNestSetWithDistribution:
         assert len(np.unique(neur.V_reset)) > 1
 
         nest.Connect(neur, neur, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml",
-                                           "weight": nest.random.uniform(0., 1.),    # test setting a state variable
+                                           "weight": nest.random.normal(0., 1.),    # test setting a state variable
                                            "alpha": nest.random.uniform(0., 1.)})    # test setting a parameter
         syn = nest.GetConnections(source=neur)
 
