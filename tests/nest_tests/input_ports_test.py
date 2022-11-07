@@ -36,7 +36,9 @@ from pynestml.utils.model_parser import ModelParser
 
 
 class TestInputPorts:
-
+    """
+    Tests the different kind of input ports supported in NESTML.
+    """
     def test_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "InputPorts.nestml")))

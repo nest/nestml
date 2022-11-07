@@ -1920,6 +1920,12 @@ class ASTUtils:
 
     @classmethod
     def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:
+        """
+        Finds the corresponding "inhibitory" port for a given "excitatory" port and vice versa in the handed over map.
+        :param rport_to_port_map: map containing NESTML port names for the rport
+        :param port: port to be searched
+        :return: key value in the map if the port is found, else None
+        """
         for key, value in rport_to_port_map.items():
             if len(value) == 1:
                 if (port.is_excitatory() and value[0].is_inhibitory() and not value[0].is_excitatory()) \
@@ -1934,7 +1940,12 @@ class ASTUtils:
     @classmethod
     def get_spike_input_ports_in_pairs(cls, neuron: ASTNeuron) -> Dict[int, List[VariableSymbol]]:
         """
-        Returns a list of spike input ports in pairs in case of input port qualifiers
+        Returns a list of spike input ports in pairs in case of input port qualifiers.
+        The result of this function is used to construct a map of NEST rport and NESTML port. A single map entry looks like below:
+        .. code-block::
+            (1, "excitatory"): AMPA_SPIKES,
+
+        where the key is a tuple of NEST rport number and port qualifier ("excitatory" or "inhibitory" if the qualifier is present, "spikes" otherwise). The value is the NESTML port number.
         """
         rport_to_port_map = {}
         rport = 0
