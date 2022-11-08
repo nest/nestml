@@ -290,7 +290,9 @@ private:
   /**
    * Free parameters of the synapse.
    *
-   {{synapse.print_parameter_comment("*")}}
+{% for block in synapse.get_parameters_blocks() %}
+{{ block.print_comment() }}
+{%- endfor %}
    *
    * These are the parameters that can be set by the user through @c SetStatus.
    * Parameters do not change during calls to ``send()`` and are not reset by
@@ -329,7 +331,9 @@ private:
   /**
    * Internal variables of the synapse.
    *
-   {{synapse.print_internal_comment('*')}}
+{%- for internals_block in synapse.get_internals_blocks() %}
+   {{ internals_block.print_comment('*') }}
+{%- endfor %}
    *
    * These variables must be initialized by recompute_internal_variables().
   **/
@@ -473,7 +477,7 @@ public:
     // Return values from functions are ignored.
     using ConnTestDummyNodeBase::handles_test_event;
     port
-    handles_test_event( SpikeEvent&, rport )
+    handles_test_event( SpikeEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -482,7 +486,7 @@ public:
 {%- endif %}
     }
     port
-    handles_test_event( RateEvent&, rport )
+    handles_test_event( RateEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -490,7 +494,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DataLoggingRequest&, rport )
+    handles_test_event( DataLoggingRequest&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -498,7 +502,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( CurrentEvent&, rport )
+    handles_test_event( CurrentEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -506,7 +510,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( ConductanceEvent&, rport )
+    handles_test_event( ConductanceEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -514,7 +518,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DoubleDataEvent&, rport )
+    handles_test_event( DoubleDataEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -522,7 +526,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DSSpikeEvent&, rport )
+    handles_test_event( DSSpikeEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -530,7 +534,7 @@ public:
       return invalid_port;
 {%- endif %}    }
     port
-    handles_test_event( DSCurrentEvent&, rport )
+    handles_test_event( DSCurrentEvent&, rport ) override
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
@@ -649,7 +653,7 @@ public:
     // use accessor functions (inherited from Connection< >) to obtain delay and target
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     {{paired_neuron}}* __target = static_cast<{{paired_neuron}}*>(get_target(tid));
-    assert(__target != NULL);
+    assert(__target);
 {%- else %}
     Node* __target = get_target( tid );
 {%- endif %}
@@ -698,7 +702,7 @@ public:
         // start->t_ > t_lastspike_ - dendritic_delay, i.e. minus_dt < 0
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
 
-        if (pre_before_post_update && start->t_ == __t_spike - __dendritic_delay)
+        if (pre_before_post_update and start->t_ == __t_spike - __dendritic_delay)
         {
           pre_before_post_flag = true;
           break;  // this would in any case have been the last post spike to be processed
@@ -785,7 +789,7 @@ public:
 {%- for spike_updates_for_port in spike_updates.values() %}
 {%-     for spike_update in spike_updates_for_port -%}
     // XXX: TODO: increment with initial value instead of 1
-    S_.{{names.name(synapse.get_state_blocks().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
+    S_.{{names.name(utils.resolve_to_variable_symbol_in_blocks(spike_update.get_variable().get_complete_name(), synapse.get_state_blocks()))}} += 1.;
 {%-     endfor %}
 {%- endfor %}
 
@@ -852,7 +856,7 @@ void
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
-    && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
+    and ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
   {
     // there is at least 1 dopa spike in (t0, t1]
     // propagate up to first dopa spike
@@ -880,7 +884,7 @@ std::cout << S_.n << "\n";
     // process remaining dopa spikes in (t0, t1]
     double cd;
     while ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
-      && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
+      and ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
     {
 #ifdef DEBUG
   std::cout << "\t\tHandling (2) spike at t = " << vt_spikes[ vt_spikes_idx_ ].spike_time_ << "\n";
@@ -1191,13 +1195,20 @@ inline void
     V_.__h = old___h;
     recompute_internal_variables();  // XXX: can be skipped?
 
+    // NESTML generated code for the update block:
+
 {%- if synapse.get_update_blocks() %}
-{%- filter indent(2) %}
-{%- set dynamics = synapse.get_update_blocks() %}
-{%- with ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
+{%-     filter indent(2) %}
+{%-         for block in synapse.get_update_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
 {%- endif %}
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}

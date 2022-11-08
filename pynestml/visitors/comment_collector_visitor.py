@@ -306,7 +306,6 @@ def get_post_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
                 next_line_start_index = tokens.index(possibleToken)
                 break
             prev_token_was_comment = True
-    first_line = False
     for possibleCommentToken in tokens[next_line_start_index:]:
         if possibleCommentToken.channel == 2:
             # if it is a comment on the comment channel -> get it

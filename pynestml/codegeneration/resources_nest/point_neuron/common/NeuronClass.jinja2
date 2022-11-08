@@ -167,7 +167,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
-  , __s( 0 ), __c( 0 ), __e( 0 )
+  , __s( nullptr ), __c( nullptr ), __e( nullptr )
 {%- endif %}
 {
   // Initialization of the remaining members is deferred to init_buffers_().
@@ -179,7 +179,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
-  , __s( 0 ), __c( 0 ), __e( 0 )
+  , __s( nullptr ), __c( nullptr ), __e( nullptr )
 {%- endif %}
 {
   // Initialization of the remaining members is deferred to init_buffers_().
@@ -354,7 +354,7 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 {%- if uses_numeric_solver %}
 
-  if ( B_.__s == 0 )
+  if ( not B_.__s )
   {
     B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
   }
@@ -363,7 +363,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_step_reset( B_.__s );
   }
 
-  if ( B_.__c == 0 )
+  if ( not B_.__c )
   {
     B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
   }
@@ -372,7 +372,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
   }
 
-  if ( B_.__e == 0 )
+  if ( not B_.__e )
   {
     B_.__e = gsl_odeiv_evolve_alloc( {{stateSize}} );
   }
@@ -382,7 +382,7 @@ void {{neuronName}}::init_buffers_()
   }
 
   B_.__sys.function = {{neuronName}}_dynamics;
-  B_.__sys.jacobian = NULL;
+  B_.__sys.jacobian = nullptr;
   B_.__sys.dimension = {{stateSize}};
   B_.__sys.params = reinterpret_cast< void* >( this );
   B_.__step = nest::Time::get_resolution().get_ms();
@@ -475,9 +475,9 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 {%-   endfor %}
 
 {%- endif %}
-{%- if neuron.print_dynamics_comment('*')|length > 1 %}
+{%- if neuron.print_comment('*')|length > 1 %}
 /*
- {{neuron.print_dynamics_comment('*')}}
+ {{neuron.print_comment('*')}}
  */
 {%- endif %}
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
@@ -509,12 +509,17 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     // NESTML generated code for the update block:
 
 {%- if neuron.get_update_blocks() %}
-{%- filter indent(2) %}
-{%- set dynamics = neuron.get_update_blocks() %}
-{%- with ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
+{%-     filter indent(2) %}
+{%-         for block in neuron.get_update_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
 {%- endif %}
 
     // voltage logging
@@ -690,18 +695,18 @@ void
             assert(history_.back().t_ == last_spike_);
 
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+            S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+            S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
 {%- endfor %}
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
+            S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
+            S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convolution is always 0
 {%- endfor %}
         }
 
@@ -768,7 +773,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- endfor %}
 
 {%- for _, spike_update in post_spike_updates.items() %}
-        S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
+        S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
 {%- endfor %}
 
     last_spike_ = t_sp_ms;
@@ -840,10 +845,10 @@ double
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
-      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+      S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+      S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
       /**
@@ -901,13 +906,13 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   }
 
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
-  if ( (!before_increment) && t == history_[ 0 ].t_)
+  if ( (!before_increment) and t == history_[ 0 ].t_)
   {
 {%- for var_ in purely_numeric_state_variables_moved %}
-    S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
+    S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-    S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
+    S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 
 #ifdef DEBUG
@@ -928,10 +933,10 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 
   // set to initial value
 {%- for var_ in purely_numeric_state_variables_moved %}
-  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
+  S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
+  S_.{{names.name(neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
   // propagate in time

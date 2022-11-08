@@ -180,13 +180,11 @@ class ASTNode(metaclass=ABCMeta):
         """
         return self.comment is not None and len(self.comment) > 0
 
-    def print_comment(self, prefix):
+    def print_comment(self, prefix: str = "") -> str:
         """
         Prints the comment of this meta_model element.
         :param prefix: a prefix string
-        :type prefix: str
         :return: a comment
-        :rtype: str
         """
         ret = ''
         if not self.has_comment():

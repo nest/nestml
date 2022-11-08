@@ -22,10 +22,8 @@
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.scope import Scope, ScopeType
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -84,8 +82,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
 
         # update the equations
-        if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
-            equation_block = node.get_equations_blocks()
+        for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)
 
         Logger.set_current_node(None)

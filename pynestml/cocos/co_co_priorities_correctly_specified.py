@@ -22,8 +22,6 @@
 from typing import Dict
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
