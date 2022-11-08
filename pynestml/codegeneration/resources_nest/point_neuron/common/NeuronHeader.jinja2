@@ -50,6 +50,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef {{neuronName.upper()}}
 #define {{neuronName.upper()}}
 
+#ifndef HAVE_LIBLTDL
+#error "NEST was compiled without support for dynamic loading. Please install libltdl and recompile NEST."
+#endif
+
 #include "config.h"
 {%- if norm_rng %}
 
@@ -451,7 +455,9 @@ private:
   /**
    * Free parameters of the neuron.
    *
-   {{neuron.print_parameter_comment("*")}}
+{% for block in neuron.get_parameters_blocks() %}
+{{ block.print_comment() }}
+{%- endfor %}
    *
    * These are the parameters that can be set by the user through @c `node.set()`.
    * They are initialized from the model prototype when the node is created.
@@ -489,7 +495,9 @@ private:
   /**
    * Dynamic state of the neuron.
    *
-   {{neuron.print_state_comment('*')}}
+{%- for state_block in neuron.get_state_blocks() %}
+   {{ state_block.print_comment('*') }}
+{%- endfor %}
    *
    * These are the state variables that are advanced in time by calls to
    * @c update(). In many models, some or all of them can be set by the user
@@ -573,7 +581,9 @@ private:
   /**
    * Internal variables of the neuron.
    *
-   {{neuron.print_internal_comment('*')}}
+{%- for internals_block in neuron.get_internals_blocks() %}
+   {{ internals_block.print_comment('*') }}
+{%- endfor %}
    *
    * These variables must be initialized by @c pre_run_hook (or calibrate in NEST 3.3 and older), which is called before
    * the first call to @c update() upon each call to @c Simulate.
