@@ -127,6 +127,7 @@ class VariableSymbol(Symbol):
         self.namespace_decorators = namespace_decorators
 
     def is_homogeneous(self):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
         return PyNestMLLexer.DECORATOR_HOMOGENEOUS in self.decorators
 
     def has_decorators(self):
@@ -436,11 +437,10 @@ class VariableSymbol(Symbol):
                 and self.is_conductance_based == other.is_conductance_based
                 and self.is_recordable == other.is_recordable)
 
-    def print_comment(self, prefix=None):
+    def print_comment(self, prefix: str = "") -> str:
         """
         Prints the stored comment.
         :return: the corresponding comment.
-        :rtype: str
         """
         ret = ''
         if not self.has_comment():
@@ -448,6 +448,5 @@ class VariableSymbol(Symbol):
         # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
         # between the comment and the element
         for comment in self.get_comment():
-            ret += (prefix if prefix is not None else '') + comment + \
-                   ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
+            ret += prefix + comment + ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
         return ret

@@ -23,9 +23,9 @@ from typing import Optional, List
 
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTDeclaration(ASTNode):

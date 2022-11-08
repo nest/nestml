@@ -339,7 +339,6 @@ class Messages:
         """
         assert (input_port_name is not None and isinstance(input_port_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(input_port_name)
-        from pynestml.symbols.predefined_types import PredefinedTypes
         message = 'No type declared for spiking input port \'%s\'!' % input_port_name
         return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
