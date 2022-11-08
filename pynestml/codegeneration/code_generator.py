@@ -206,7 +206,7 @@ class CodeGenerator(WithOptions):
                 templ_file_base_name = templ_file_base_name + "." + file_extension
             rendered_templ_file_name = os.path.join(FrontendConfiguration.get_target_path(),
                                                     templ_file_base_name)
-            _file = _model_templ.render(template_namespace(templ_file_base_name, file_extension))
+            _file = _model_templ.render(template_namespace)
             Logger.log_message(message="Rendering template " + rendered_templ_file_name,
                                log_level=LoggingLevel.INFO)
             with open(rendered_templ_file_name, "w+") as f:
