@@ -19,10 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This class contains several method used to parse handed over models and returns them as one or more AST trees.
-"""
-from antlr4.error.ErrorListener import ConsoleErrorListener, ErrorListener
+
+from antlr4.error.ErrorListener import ErrorListener
 
 
 class NestMLErrorListener(ErrorListener):

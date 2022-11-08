@@ -38,8 +38,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NoisySynapseTest(unittest.TestCase):
 
@@ -56,7 +54,7 @@ class NoisySynapseTest(unittest.TestCase):
                              module_name="nestml_noisy_synapse_module",
                              suffix="_nestml")
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_noisy_noisy_synapse_synapse(self):
 
