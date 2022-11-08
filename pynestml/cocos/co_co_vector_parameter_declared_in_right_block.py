@@ -18,10 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
