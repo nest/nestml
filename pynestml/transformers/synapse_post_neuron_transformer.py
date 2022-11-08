@@ -328,6 +328,9 @@ class SynapsePostNeuronTransformer(Transformer):
         if not new_synapse.get_equations_blocks():
             ASTUtils.create_equations_block(new_synapse)
 
+        if not new_neuron.get_equations_blocks():
+            ASTUtils.create_equations_block(new_neuron)
+
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
                                None, LoggingLevel.INFO)
