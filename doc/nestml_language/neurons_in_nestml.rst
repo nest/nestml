@@ -70,6 +70,34 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
    * - ``inhibitory``
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
+Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. As discussed above, NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number. Thus during code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. For example,
+
+.. code-block:: nestml
+
+   input:
+    AMPA_spikes pA <- excitatory spike
+    GABA_spikes pA <- inhibitory spike
+    NMDA_spikes pA <- spike
+  end
+
+The mapping of NEST ``rport`` and NESTML input port numbers for the above example would be as shown below:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Input port name
+     - NEST ``rport``
+     - NESTML port number
+   * - AMPA_spikes
+     - 1
+     - 1
+   * - GABA_spikes
+     - 1
+     - 2
+   * - NMDA_spikes
+     - 2
+     - 3
+
 
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
