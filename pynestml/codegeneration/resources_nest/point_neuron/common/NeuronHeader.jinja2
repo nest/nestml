@@ -49,6 +49,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef {{neuronName.upper()}}
 #define {{neuronName.upper()}}
 
+#ifndef HAVE_LIBLTDL
+#error "NEST was compiled without support for dynamic loading. Please install libltdl and recompile NEST."
+#endif
+
 #include "config.h"
 {%- if norm_rng %}
 
@@ -75,6 +79,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from nestkernel:
 #include "{{neuron_parent_class_include}}"
 #include "connection.h"
+{%- if not nest_version.startswith("v2") %}
+#include "dict_util.h"
+{%- endif %}
 #include "event.h"
 #include "nest_types.h"
 #include "ring_buffer.h"

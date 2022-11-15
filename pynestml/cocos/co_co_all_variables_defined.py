@@ -76,7 +76,7 @@ class CoCoAllVariablesDefined(CoCo):
                         inline_exprs = []
                         for equations_block in node.get_equations_blocks():
                             inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
-                            inline_exprs.extend([inline_expr for inline_expr in equations_block.get_inline_expressions()])
+                            inline_exprs.extend(equations_block.get_inline_expressions())
 
                         if var.get_name() in inline_expr_names:
                             inline_expr_idx = inline_expr_names.index(var.get_name())

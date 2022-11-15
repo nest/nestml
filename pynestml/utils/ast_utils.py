@@ -446,13 +446,11 @@ class ASTUtils:
         return neuron
 
     @classmethod
-    def create_equations_block(cls, neuron):
+    def create_equations_block(cls, neuron: ASTNeuron) -> ASTNeuron:
         """
         Creates a single equations block in the handed over neuron.
         :param neuron: a single neuron
-        :type neuron: ast_neuron
         :return: the modified neuron
-        :rtype: ast_neuron
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -493,7 +491,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def all_variables_defined_in_block(cls, blocks: Optional[ASTBlock]) -> List[ASTVariable]:
+    def all_variables_defined_in_block(cls, blocks: Union[ASTBlock, List[ASTBlock]]) -> List[ASTVariable]:
         """return a list of all variable declarations in a block or blocks"""
         if isinstance(blocks, ASTNode):
             blocks = [blocks]
@@ -2000,8 +1998,7 @@ class ASTUtils:
     def get_convolve_function_calls(cls, nodes: Union[ASTNode, List[ASTNode]]):
         """
         Returns all sum function calls in the handed over meta_model node or one of its children.
-        :param ast: a single meta_model node.
-        :type ast: ASTNode
+        :param nodes: a single or list of AST nodes.
         """
         if isinstance(nodes, ASTNode):
             nodes = [nodes]
@@ -2013,26 +2010,21 @@ class ASTUtils:
         return function_calls
 
     @classmethod
-    def contains_convolve_function_call(cls, ast):
+    def contains_convolve_function_call(cls, ast: ASTNode) -> bool:
         """
         Indicates whether _ast or one of its child nodes contains a sum call.
         :param ast: a single meta_model
-        :type ast: ASTNode
         :return: True if sum is contained, otherwise False.
-        :rtype: bool
         """
         return len(cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)) > 0
 
     @classmethod
-    def get_function_calls(cls, ast_node, function_list):
+    def get_function_calls(cls, ast_node: ASTNode, function_list: List[str]) -> List[ASTFunctionCall]:
         """
         For a handed over list of function names, this method retrieves all function calls in the meta_model.
         :param ast_node: a single meta_model node
-        :type ast_node: ASTNode
         :param function_list: a list of function names
-        :type function_list: list(str)
         :return: a list of all functions in the meta_model
-        :rtype: list(ASTFunctionCall)
         """
         res = list()
         if ast_node is None:
@@ -2046,6 +2038,9 @@ class ASTUtils:
 
     @classmethod
     def resolve_to_variable_symbol_in_blocks(cls, variable_name: str, blocks: List[ASTBlock]):
+        r"""
+        Resolve a variable (by name) to its corresponding ``Symbol`` within the AST blocks in ``blocks``.
+        """
         for block in blocks:
             sym = block.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
             if sym:

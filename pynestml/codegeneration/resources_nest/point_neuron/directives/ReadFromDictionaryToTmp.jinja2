@@ -8,7 +8,12 @@
 {%- if not variable_symbol.is_inline_expression %}
 {%- if not variable_symbol.is_state() %}
 {{ declarations.print_variable_type(variable_symbol) }} tmp_{{ printer.print(variable) }} = {{ variable_getter_printer.print(variable) }}();
-updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{ printer.print(variable) }}, tmp_{{ printer.print(variable) }});
+{%- if synapse is defined or variable in vector_symbols or nest_version.startswith("v2") %}
+{#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
+updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{printer.print(variable)}}, tmp_{{names.name(variable)}});
+{%- else %}
+nest::updateValueParam<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{printer.print(variable)}}, tmp_{{printer.print(variable)}}, this);
+{%- endif %}
 
 {%- if vector_symbols|length > 0 %}
 // Resize vectors
@@ -26,7 +31,12 @@ if (tmp_{{ printer.print(variable) }} != {{ variable_getter_printer.print(variab
 
 {%- else %}
 {{declarations.print_variable_type(variable_symbol)}} tmp_{{ printer.print(variable) }} = {{variable_getter_printer.print(variable)}}();
-updateValue< {{declarations.print_variable_type(variable_symbol)}} >(__d, nest::{{names_namespace}}::_{{variable_symbol.get_symbol_name()}}, tmp_{{ printer.print(variable) }});
+{%- if synapse is defined or variable_symbol in vector_symbols or nest_version.startswith("v2") %}
+{#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
+updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{variable_symbol.get_symbol_name()}}, tmp_{{printer.print(variable)}});
+{%- else %}
+nest::updateValueParam<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{variable_symbol.get_symbol_name()}}, tmp_{{printer.print(variable)}}, this);
+{%- endif %}
 {%- endif %}
 
 {%- if variable.has_vector_parameter() %}
