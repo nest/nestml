@@ -41,6 +41,12 @@ class LatexSimpleExpressionPrinter(SimpleExpressionPrinter):
     """
 
     def print(self, node: ASTNode, prefix: str = "") -> str:
+        if isinstance(node, ASTSimpleExpression):
+            return self.print_simple_expression(node, prefix=prefix)
+
+        return super().print(node, prefix=prefix)
+
+    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = "") -> str:
         assert isinstance(node, ASTSimpleExpression)
 
         if node.has_unit():

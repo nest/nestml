@@ -31,6 +31,7 @@ from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.printers.latex_expression_printer import LatexExpressionPrinter
 from pynestml.codegeneration.printers.latex_function_call_printer import LatexFunctionCallPrinter
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.latex_simple_expression_printer import LatexSimpleExpressionPrinter
 from pynestml.codegeneration.printers.latex_variable_printer import LatexVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -50,7 +51,11 @@ class AutoDocCodeGenerator(CodeGenerator):
         self._template_neuron_nestml_model = env.get_template('nestml_neuron_model.jinja2')
         self._template_synapse_nestml_model = env.get_template('nestml_synapse_model.jinja2')
 
-        self._printer = LatexExpressionPrinter(LatexSimpleExpressionPrinter(LatexVariablePrinter, LatexFunctionCallPrinter))
+        function_call_printer = LatexFunctionCallPrinter(None)
+        self._printer = LatexExpressionPrinter(LatexSimpleExpressionPrinter(variable_printer=LatexVariablePrinter(),
+                                                                            constant_printer=ConstantPrinter(),
+                                                                            function_call_printer=function_call_printer))
+        function_call_printer._expression_printer = self._printer
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         """

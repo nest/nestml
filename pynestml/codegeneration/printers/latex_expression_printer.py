@@ -39,16 +39,16 @@ class LatexExpressionPrinter(ExpressionPrinter):
     Expressions printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.
     """
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
+    def print(self, node: ASTExpressionNode, prefix: str = ""):
         if node.get_implicit_conversion_factor() is not None \
            and str(node.get_implicit_conversion_factor()) not in ["1.", "1.0", "1"]:
-            return str(node.get_implicit_conversion_factor()) + " * (" + self.__do_print(node, prefix=prefix) + ")"
+            return str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node, prefix=prefix) + ")"
 
-        return self.__do_print(node, prefix=prefix)
+        return self.print_expression(node, prefix=prefix)
 
-    def __do_print(self, node: ASTExpressionNode, prefix="") -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix="") -> str:
         if isinstance(node, ASTVariable):
-            return self._variable_printer.print_variable(node)
+            return self._simple_expression_printer._variable_printer.print_variable(node)
 
         if isinstance(node, ASTSimpleExpression):
             return self._simple_expression_printer.print(node, prefix=prefix)

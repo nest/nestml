@@ -22,7 +22,7 @@
 from typing import Union
 
 
-class ConstantPrinter():
+class ConstantPrinter:
     r"""
     """
 

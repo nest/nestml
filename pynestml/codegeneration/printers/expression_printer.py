@@ -23,7 +23,6 @@ from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 
 

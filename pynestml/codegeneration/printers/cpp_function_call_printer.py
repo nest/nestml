@@ -38,9 +38,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter):
-        self._expression_printer = expression_printer
-
     def print(self, node: ASTNode, prefix: str = "") -> str:
         assert isinstance(node, ASTFunctionCall)
         return self.print_function_call(node, prefix=prefix)

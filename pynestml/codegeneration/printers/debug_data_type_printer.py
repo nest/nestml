@@ -37,22 +37,7 @@ class DebugDataTypePrinter(ASTPrinter):
     Returns a string format that is suitable for info/warning/error messages.
     """
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
-        """
-        Converts the name of the type symbol to a corresponding nest representation.
-        :param type_symbol: a single type symbol
-        :return: the corresponding string representation.
-        """
-
-        type_symbol = node.get_type_symbol()
-
-        if isinstance(type_symbol, Either):
-            if type_symbol.is_value():
-                return self.print(type_symbol.get_value())
-
-            assert type_symbol.is_error()
-            return type_symbol.get_error()
-
+    def _print_type_symbol(self, type_symbol: TypeSymbol, prefix: str = "") -> str:
         if 'is_buffer' in dir(type_symbol) and type_symbol.is_buffer:
             return 'buffer'
 
@@ -78,3 +63,21 @@ class DebugDataTypePrinter(ASTPrinter):
             return '<Error type>'
 
         return str(type_symbol)
+
+    def print(self, node: ASTNode, prefix: str = "") -> str:
+        r"""
+        Converts the name of the type symbol to a corresponding nest representation.
+        :param type_symbol: a single type symbol
+        :return: the corresponding string representation.
+        """
+
+        type_symbol = node.get_type_symbol()
+
+        if isinstance(type_symbol, Either):
+            if type_symbol.is_value():
+                return self._print_type_symbol(type_symbol.get_value())
+
+            assert type_symbol.is_error()
+            return type_symbol.get_error()
+
+        return self._print_type_symbol(type_symbol)

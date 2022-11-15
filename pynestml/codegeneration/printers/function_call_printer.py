@@ -19,11 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_node import ASTNode
 
 
 class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
@@ -33,8 +35,11 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
 
+    def __init__(self, expression_printer: ExpressionPrinter):
+        self._expression_printer = expression_printer
+
     @abstractmethod
-    def print_function_call(self, node: ASTFunctionCall, prefix: str = ""):
+    def print_function_call(self, node: ASTFunctionCall, prefix: str = "") -> str:
         """Print an expression.
 
         Parameters
@@ -49,4 +54,8 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
         s : str
             The expression string.
         """
-        pass
+        return ""
+
+    def print(self, node: ASTNode, prefix: str = "") -> str:
+        assert isinstance(node, ASTFunctionCall)
+        return self.print_function_call(node)
