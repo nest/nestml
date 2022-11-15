@@ -351,7 +351,7 @@ private:
   Parameters_ P_;  //!< Free parameters.
   State_      S_;  //!< Dynamic state.
   Variables_  V_;  //!< Internal Variables
-
+{%- if synapse.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for state block
   // -------------------------------------------------------------------------
@@ -360,8 +360,12 @@ private:
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endfor %}
+
+{% endfor %}
 {%- endfilter %}
+{%- endif %}
+
+{%- if synapse.get_parameter_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters
   // -------------------------------------------------------------------------
@@ -375,6 +379,7 @@ private:
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
@@ -535,7 +540,7 @@ public:
     // special case for variable marked with @nest::weight decorator
 {%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {%-         if nest_namespace_name == "weight" %}
-    {{ variable_setter_printer.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
+    set_{{ printer.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
     return;
 {%-         endif %}
 {%-     endif %}
@@ -946,7 +951,7 @@ void
 // special treatment for variable marked with @nest::name decorator
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {%-             if not variable_symbol.is_internals() %}
-def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, {{variable_getter_printer.print(variable)}}());
+def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer.print(variable)}}());
 {%-             endif %}
 {%-         endif %}
 {%-     endif %}
@@ -982,10 +987,10 @@ void
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {#- -------- XXX: TODO: this is almost the content of directives/ReadFromDictionaryToTmp.jinja2 verbatim, refactor this ----------  #}
 {%-             if not variable_symbol.is_inline_expression and not variable_symbol.is_state() %}
-tmp_{{ printer.print(variable) }} = {{ variable_getter_printer.print(variable) }}();
+tmp_{{ printer.print(variable) }} = get_{{ printer.print(variable) }}();
 updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer.print(variable) }});
 {%-             elif not variable_symbol.is_inline_expression and variable_symbol.is_state() %}
-tmp_{{ printer.print(variable) }} = {{ variable_getter_printer.print(variable) }}();
+tmp_{{ printer.print(variable) }} = get_{{ printer.print(variable) }}();
 updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer.print(variable) }});
 {%-             else %}
   // ignores '{{ printer.print(variable) }}' {{ declarations.print_variable_type(variable_symbol) }}' since it is an function and setter isn't defined
@@ -1046,7 +1051,7 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
 {%-     set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if namespaceName == "delay" %}
-{{ variable_getter_printer.print(variable) }}()
+get_{{ printer.print(variable) }}()
 {%-     endif %}
 {%- endfor %});
 

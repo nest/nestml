@@ -71,7 +71,6 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
 
         raise Exception("Unknown node type: " + str(node))
 
-
     def print(self, node: ASTNode, prefix: str = "") -> str:
         if isinstance(node, ASTVariable):
             return self._variable_printer.print(node, prefix=prefix)

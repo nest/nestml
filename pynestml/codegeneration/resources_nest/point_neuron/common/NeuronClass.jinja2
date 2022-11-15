@@ -98,16 +98,16 @@ template <> void RecordablesMap<{{neuronName}}>::create()
     // add state variables to recordables map
 {%-   for variable in recordable_state_variables %}
 {%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::{{ variable_getter_printer.print(variable) }});
+   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::get_{{ printer.print(variable) }});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}
 
 {%- if recordable_inline_expressions|length > 0 %}
     // add recordable inline expressions to recordables map
-{%- for variable in recordable_inline_expressions %}
-{%-   set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-	insert_({{ names_namespace }}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::{{ variable_getter_printer.print(variable) }});
+{%- for variable_symbol in recordable_inline_expressions %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+	insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::get_{{ printer.print(variable) }});
 {%- endfor %}
 {%- endif %}
 
@@ -248,7 +248,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-     if not var_name == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
-  {{var_name}}__iv = {{variable_getter_printer.print(var)}}();
+  {{var_name}}__iv = get_{{printer.print(var)}}();
 {%- endfor %}
 {%- endif %}
 }
@@ -295,7 +295,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-     if not var_name == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
-  {{var_name}}__iv = {{variable_getter_printer.print(var)}}();
+  {{var_name}}__iv = get_{{printer.print(var)}}();
 {%- endfor %}
 {%- endif %}
 }
@@ -782,7 +782,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- if uses_numeric_solver %}
         {{printer.print(stmt)}};
 {%- else %}
-        {{nest_printer.print(stmt)}};
+        {{printer.print(stmt)}};
 {%- endif %}
 {%- endfor %}
 
@@ -912,9 +912,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
       }
 
 #ifdef DEBUG
-      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var)) }}() << std::endl;
+      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}() << std::endl;
 #endif
-      return {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var)) }}();       // type: {{declarations.print_variable_type(var_sym)}}
+      return get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}();       // type: {{declarations.print_variable_type(var_sym)}}
     }
     --i;
   }
@@ -930,9 +930,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}() << std::endl;
+    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << get_{{printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}() << std::endl;
 #endif
-    return {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}();
+    return get_{{ printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}();
   }
 
   // this case occurs when the trace was requested at a time before the first spike in the history
@@ -992,7 +992,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
   V_.__h = old___h;
   recompute_internal_variables(true);
 
-  return {{ variable_getter_printer.print(utils.get_variable_by_name(astnode, var)) }}();
+  return get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}();
 }
 {%- endwith -%}
 {%- endfor %}

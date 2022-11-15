@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# expression_printer.py
+# function_printer.py
 #
 # This file is part of NEST.
 #

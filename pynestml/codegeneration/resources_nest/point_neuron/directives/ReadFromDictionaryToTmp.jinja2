@@ -7,21 +7,21 @@
 
 {%- if not variable_symbol.is_inline_expression %}
 {%- if not variable_symbol.is_state() %}
-{{ declarations.print_variable_type(variable_symbol) }} tmp_{{ printer.print(variable) }} = {{ variable_getter_printer.print(variable) }}();
+{{ declarations.print_variable_type(variable_symbol) }} tmp_{{ printer.print(variable) }} = get_{{ printer.print(variable) }}();
 {%- if synapse is defined or variable in vector_symbols or nest_version.startswith("v2") %}
 {#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
-updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{printer.print(variable)}}, tmp_{{names.name(variable)}});
+updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{printer.print(variable)}}, tmp_{{printer.print(variable)}});
 {%- else %}
 nest::updateValueParam<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{printer.print(variable)}}, tmp_{{printer.print(variable)}}, this);
 {%- endif %}
 
 {%- if vector_symbols|length > 0 %}
 // Resize vectors
-if (tmp_{{ printer.print(variable) }} != {{ variable_getter_printer.print(variable) }}())
+if (tmp_{{ printer.print(variable) }} != get_{{ printer.print(variable) }}())
 {
 {%- for vector_var in vector_symbols %}
 {%- if vector_var.get_vector_parameter().is_variable() and vector_var.get_vector_parameter().get_variable().get_complete_name() == variable.get_symbol_name() %}
-  {{declarations.print_variable_type(vector_var)}} _tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, vector_var)) }} = {{variable_getter_printer.print(vector_var)}}();
+  {{declarations.print_variable_type(vector_var)}} _tmp_{{ printer.print(utils.get_state_variable_by_name(astnode, vector_var)) }} = get_{{printer.print(vector_var)}}();
   _tmp_{{ vector_var.get_symbol_name() }}.resize(tmp_{{ printer.print(variable) }}, 0.);
   set_{{ vector_var.get_symbol_name() }}(_tmp_{{ vector_var.get_symbol_name() }});
 {%- endif %}
@@ -30,7 +30,7 @@ if (tmp_{{ printer.print(variable) }} != {{ variable_getter_printer.print(variab
 {%- endif %}
 
 {%- else %}
-{{declarations.print_variable_type(variable_symbol)}} tmp_{{ printer.print(variable) }} = {{variable_getter_printer.print(variable)}}();
+{{declarations.print_variable_type(variable_symbol)}} tmp_{{ printer.print(variable) }} = get_{{printer.print(variable)}}();
 {%- if synapse is defined or variable_symbol in vector_symbols or nest_version.startswith("v2") %}
 {#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
 updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{variable_symbol.get_symbol_name()}}, tmp_{{printer.print(variable)}});

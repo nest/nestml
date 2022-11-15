@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Tuple
-
-import re
+from typing import Tuple
 
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -41,7 +39,7 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
     """
 
     def _print_function_call(self, node: ASTFunctionCall, prefix: str = '') -> str:
-        """
+        r"""
         Converts a single handed over function call to C++ NEST API syntax.
 
         Parameters
@@ -62,24 +60,24 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             # context dependent; we assume the template contains the necessary definitions
-            return '\Delta{}t'
+            return r'\Delta{}t'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return '\text{steps}'
+            return r'\text{steps}'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '\mathcal{N}({!s}, {!s}'
+            return r'\mathcal{N}({!s}, {!s}'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '\mathcal{U}({!s}, {!s}'
+            return r'\mathcal{U}({!s}, {!s}'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return '\text{spike}'
+            return r'\text{spike}'
 
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return '\text{deliver\_spike}'
+            return r'\text{deliver\_spike}'
 
-        return "\text{" + function_name + "}"
+        return r"\text{" + function_name + r"}"
 
     def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
         function_name = self._print_function_name(function_call, prefix)

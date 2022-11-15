@@ -60,6 +60,7 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
+
 class ASTUtils:
     """
     A collection of helpful methods for AST manipulation.

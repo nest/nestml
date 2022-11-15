@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# expression_printer.py
+# variable_printer.py
 #
 # This file is part of NEST.
 #

@@ -66,12 +66,3 @@ class GSLVariablePrinter(CppVariablePrinter):
                 return prefix + "get_delayed_" + variable.get_name() + "()"
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
-
-    def array_index(self, variable: ASTVariable) -> str:
-        """
-        Transforms the haded over symbol to a GSL processable format.
-        :param symbol: a single variable symbol
-        :return: the corresponding string format
-        """
-        return "State_::" + CppVariablePrinter._print_cpp_name(variable.get_name())
-

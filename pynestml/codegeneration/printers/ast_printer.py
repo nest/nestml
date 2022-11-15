@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# printer.py
+# ast_printer.py
 #
 # This file is part of NEST.
 #
@@ -24,7 +24,7 @@ from abc import ABCMeta, abstractmethod
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTPrinter(metaclass = ABCMeta):
+class ASTPrinter(metaclass=ABCMeta):
     r"""
     Compositionality over inheritance because "lower" grammar elements need to be printed in different ways (for instance, references to variables which could live in different data structures depending on the context) while the "higher" grammar element printers stay the same (for instance, printing a composite expression).
 

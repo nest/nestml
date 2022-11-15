@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
-from pynestml.codegeneration.printers.nest_cpp_variable_getter_printer import NESTCppVariableGetterPrinter
 from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
@@ -39,16 +38,8 @@ from pynestml.utils.messages import Messages
 
 class NESTVariablePrinter(CppVariablePrinter):
     r"""
-    Reference converter for C++ syntax and using the NEST API.
+    Variable printer for C++ syntax and the NEST API.
     """
-
-    # def print_variable(self, node: ASTVariable) -> str:
-    #     import pdb;pdb.set_trace()
-    #     symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-    #     ret = self.print_origin(symbol) + node.name
-    #     for i in range(1, node.differential_order + 1):
-    #         ret += "__d"
-    #     return ret
 
     def print_variable(self, variable: ASTVariable, prefix: str = '') -> str:
         """
@@ -92,26 +83,22 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self.print_origin(symbol, prefix=prefix) + self.print_variable(symbol) + "_grid_sum_"
+            s += self._print(variable, symbol, prefix=prefix) + "_grid_sum_" + vector_param
             s += vector_param
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
         if symbol.is_inline_expression:
-            return NESTCppVariableGetterPrinter().print(variable) + "()" + vector_param
+            return "get_" + self._print(variable, symbol, with_origin=False, prefix=prefix) + "()" + vector_param
 
         assert not symbol.is_kernel(), "NEST reference converter cannot print kernel; kernel should have been " \
                                        "converted during code generation code generation "
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return NESTCppVariableGetterPrinter().print(variable) + "()" + vector_param
+            return self._print(variable, symbol, prefix=prefix) + vector_param
 
-        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
-        if symbol.is_local():
-            return variable_name + vector_param
-
-        return ASTUtils.print_symbol_origin(symbol, prefix=prefix) + variable_name + vector_param
+        return self._print(variable, symbol, prefix=prefix) + vector_param
 
     def print_delay_variable(self, variable: ASTVariable, prefix=''):
         """
@@ -138,7 +125,7 @@ class NESTVariablePrinter(CppVariablePrinter):
                                                                     SymbolKind.VARIABLE)
         if symbol is not None:
             if symbol.block_type == BlockType.STATE:
-                return NESTCppVariableGetterPrinter().print(variable) + "()"
+                return self.print(variable) + "()"
 
             if symbol.block_type == BlockType.LOCAL:
                 return symbol.get_symbol_name()
@@ -156,3 +143,13 @@ class NESTVariablePrinter(CppVariablePrinter):
             return symbol.get_type_symbol().unit.unit.to_string()
 
         return ''
+
+    def _print(self, variable, symbol, with_origin: bool = True, prefix: str = "") -> str:
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        if symbol.is_local():
+            return variable_name
+
+        if with_origin:
+            return ASTUtils.print_symbol_origin(symbol, prefix=prefix) + variable_name
+
+        return variable_name

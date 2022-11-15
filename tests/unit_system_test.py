@@ -35,7 +35,8 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
-from pynestml.codegeneration.printers.nest_function_call_printer import NESTFunctionCallPrinter
+from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
@@ -51,13 +52,11 @@ Logger.init_logger(LoggingLevel.INFO)
 
 types_printer = CppTypesPrinter()
 variable_printer = NestMLVariablePrinter()
-expression_printer = CppExpressionPrinter(CppSimpleExpressionPrinter(CppVariablePrinter(),
-                                                                     ConstantPrinter(),
-                                                                     NESTFunctionCallPrinter()))
-
-printer = NestPrinter(variable_printer=variable_printer,
-                      types_printer=types_printer,
-                      expression_printer=expression_printer)
+function_call_printer = NESTCppFunctionCallPrinter(None)
+printer = CppExpressionPrinter(CppSimpleExpressionPrinter(CppVariablePrinter(),
+                                                          ConstantPrinter(),
+                                                          function_call_printer))
+function_call_printer._expression_printer = printer
 
 
 def get_first_statement_in_update_block(model):

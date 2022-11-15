@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_expression_printer.py
+# cpp_function_declaration_printer.py
 #
 # This file is part of NEST.
 #

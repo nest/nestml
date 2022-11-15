@@ -43,7 +43,7 @@ class CppVariablePrinter(VariablePrinter):
 
         return variable_name.replace("$", "__DOLLAR")
 
-    def print(self, node: ASTVariable, prefix: str = "") -> str:
+    def print_variable(self, node: ASTVariable, prefix: str = "") -> str:
         """
         Returns for the handed over element the corresponding nest processable string.
         :param node: a single variable symbol or variable

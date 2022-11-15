@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# types_printer.py
+# symbol_printer.py
 #
 # This file is part of NEST.
 #

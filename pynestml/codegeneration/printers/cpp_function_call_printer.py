@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_simple_expression_printer.py
+# cpp_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,16 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Tuple
+from typing import Tuple
 
 import re
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
-from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
@@ -43,6 +40,10 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
     def __init__(self, expression_printer: ExpressionPrinter):
         self._expression_printer = expression_printer
+
+    def print(self, node: ASTNode, prefix: str = "") -> str:
+        assert isinstance(node, ASTFunctionCall)
+        return self.print_function_call(node, prefix=prefix)
 
     def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
         """Print a function call, including bracketed arguments list.
@@ -63,16 +64,16 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         assert isinstance(function_call, ASTFunctionCall)
 
-        function_name = self._print_function_call(function_call, prefix=prefix)
+        function_name = self._print_function_call_format_string(function_call, prefix=prefix)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
 
-            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+            return function_name.format(*self._print_function_call_argument_list(function_call, prefix=prefix))
 
         return function_name
 
-    def _print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
         r"""
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -147,7 +148,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
         return prefix + function_name + '()'
 
-    def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str="") -> Tuple[str, ...]:
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str="") -> Tuple[str, ...]:
         ret = []
 
         for arg in function_call.get_args():

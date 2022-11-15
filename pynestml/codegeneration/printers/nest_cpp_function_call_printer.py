@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_simple_expression_printer.py
+# nest_cpp_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,10 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Tuple
-
-import re
-
 from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -35,16 +31,12 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class NESTFunctionCallPrinter(CppFunctionCallPrinter):
+class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
-        assert isinstance(node, ASTFunctionCall)
-        return self.print_function_call(node, prefix=prefix)
-
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
         """
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -95,4 +87,4 @@ class NESTFunctionCallPrinter(CppFunctionCallPrinter):
 e();
 '''
 
-        return super().print_function_call(function_call, prefix=prefix)
+        return super()._print_function_call_format_string(function_call, prefix=prefix)
