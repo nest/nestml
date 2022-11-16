@@ -297,7 +297,6 @@ def process():
                 Logger.log_message(node=model, code=code, message=message,
                                    error_position=model.get_source_position(),
                                    log_level=LoggingLevel.WARNING)
-                models.remove(model)
                 return True
 
         # run transformers
