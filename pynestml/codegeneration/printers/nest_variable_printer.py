@@ -41,6 +41,9 @@ class NESTVariablePrinter(CppVariablePrinter):
     Variable printer for C++ syntax and the NEST API.
     """
 
+    def __init__(self, with_origin: bool = True) -> None:
+        self.with_origin = with_origin
+
     def print_variable(self, variable: ASTVariable, prefix: str = '') -> str:
         """
         Converts a single variable to nest processable format.
@@ -83,22 +86,23 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print(variable, symbol, prefix=prefix) + "_grid_sum_" + vector_param
+            s += self._print(variable, symbol, with_origin=self.with_origin, prefix=prefix) + "_grid_sum_" + vector_param
             s += vector_param
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
         if symbol.is_inline_expression:
-            return "get_" + self._print(variable, symbol, with_origin=False, prefix=prefix) + "()" + vector_param
+            # there might not be a corresponding defined state variable; insist on calling the getter function
+            return "get_" + self._print(variable, symbol, with_origin=False, prefix=prefix) + vector_param + "()"
 
         assert not symbol.is_kernel(), "NEST reference converter cannot print kernel; kernel should have been " \
                                        "converted during code generation code generation "
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, prefix=prefix) + vector_param
+            return self._print(variable, symbol, with_origin=self.with_origin, prefix=prefix) + vector_param
 
-        return self._print(variable, symbol, prefix=prefix) + vector_param
+        return self._print(variable, symbol, with_origin=self.with_origin, prefix=prefix) + vector_param
 
     def print_delay_variable(self, variable: ASTVariable, prefix=''):
         """
@@ -119,13 +123,14 @@ class NESTVariablePrinter(CppVariablePrinter):
         :return:
         """
         vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_scope())
+        vector_parameter_var = vector_parameter.get_variable()
+        vector_parameter_var.scope = variable.get_scope()
 
         symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
                                                                     SymbolKind.VARIABLE)
         if symbol is not None:
             if symbol.block_type == BlockType.STATE:
-                return self.print(variable) + "()"
+                return self._expression_printer.print(vector_parameter) + "()"
 
             if symbol.block_type == BlockType.LOCAL:
                 return symbol.get_symbol_name()

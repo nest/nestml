@@ -91,14 +91,14 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-   for variable in recordable_state_variables %}
 {%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-     if not sym.has_vector_parameter() %}
-    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{ printer.print(utils.get_state_variable_by_name(astnode, sym.get_symbol_name())).upper() }} ));
+    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, sym.get_symbol_name())).upper() }} ));
 {%-     endif %}
 {%-   endfor %}
 {%- else %}
     // add state variables to recordables map
 {%-   for variable in recordable_state_variables %}
 {%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::get_{{ printer.print(variable) }});
+   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}
@@ -107,7 +107,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
     // add recordable inline expressions to recordables map
 {%- for variable_symbol in recordable_inline_expressions %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-	insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::get_{{ printer.print(variable) }});
+	insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
 {%- endfor %}
 {%- endif %}
 
@@ -248,7 +248,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-     if not var_name == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
-  {{var_name}}__iv = get_{{printer.print(var)}}();
+  {{var_name}}__iv = {{printer.print(var)}};
 {%- endfor %}
 {%- endif %}
 }
@@ -263,21 +263,21 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
 {%-   set node = utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()) %}
-  P_.{{ printer.print(node) }} = __n.P_.{{ printer.print(node) }};
+  P_.{{ printer_no_origin.print(node) }} = __n.P_.{{ printer_no_origin.print(node) }};
 {%- endfor %}
 
   // copy state struct S_
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
-  S_.{{ printer.print(node) }} = __n.S_.{{ printer.print(node) }};
+  {{ printer.print(node) }} = __n.S_.{{ printer_no_origin.print(node) }};
 {%-   endif %}
 {%- endfor %}
 
   // copy internals V_
 {%- for internal in neuron.get_internal_symbols() %}
 {%-   set node = utils.get_internal_variable_by_name(astnode, internal.get_symbol_name()) %}
-  V_.{{ printer.print(node) }} = __n.V_.{{ printer.print(node) }};
+  V_.{{ printer_no_origin.print(node) }} = __n.V_.{{ printer_no_origin.print(node) }};
 {%- endfor %}
 
 {%- if has_state_vectors %}
@@ -295,7 +295,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-     if not var_name == var_sym.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
-  {{var_name}}__iv = get_{{printer.print(var)}}();
+  {{var_name}}__iv = {{printer.print(var)}};
 {%- endfor %}
 {%- endif %}
 }
@@ -709,18 +709,18 @@ void
             assert(history_.back().t_ == last_spike_);
 
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
 {%- endfor %}
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
+            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
+            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
 {%- endfor %}
         }
 
@@ -787,7 +787,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- endfor %}
 
 {%- for _, spike_update in post_spike_updates.items() %}
-        S_.{{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+        {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
 {%- endfor %}
 
     last_spike_ = t_sp_ms;
@@ -859,10 +859,10 @@ double
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
-      S_.{{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
+      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-      S_.{{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
+      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
       /**
@@ -914,7 +914,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 #ifdef DEBUG
       std::cout << "{{neuronName}}::get_{{var}}: \treturning " << get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}() << std::endl;
 #endif
-      return get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}();       // type: {{declarations.print_variable_type(var_sym)}}
+      return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(var_sym)}}
     }
     --i;
   }
@@ -923,16 +923,16 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   if ( (!before_increment) and t == history_[ 0 ].t_)
   {
 {%- for var_ in purely_numeric_state_variables_moved %}
-    S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
+    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-    S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
+    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 
 #ifdef DEBUG
     std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << get_{{printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}() << std::endl;
 #endif
-    return get_{{ printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}();
+    return {{ printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }};
   }
 
   // this case occurs when the trace was requested at a time before the first spike in the history
@@ -947,10 +947,10 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 
   // set to initial value
 {%- for var_ in purely_numeric_state_variables_moved %}
-  S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
+  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-  S_.{{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
+  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
   // propagate in time
@@ -992,7 +992,7 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
   V_.__h = old___h;
   recompute_internal_variables(true);
 
-  return get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}();
+  return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }
 {%- endwith -%}
 {%- endfor %}

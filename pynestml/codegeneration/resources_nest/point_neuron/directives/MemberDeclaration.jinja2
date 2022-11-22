@@ -7,4 +7,4 @@
 {%- if variable_symbol.has_comment() %}
 {{ variable_symbol.print_comment("//! ") }}
 {%- endif %}
-{{ declarations.print_variable_type(variable_symbol) }} {{ printer.print(variable) }};
+{{ declarations.print_variable_type(variable_symbol) }} {{ printer_no_origin.print(variable) }};

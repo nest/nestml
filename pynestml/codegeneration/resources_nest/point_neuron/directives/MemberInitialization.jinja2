@@ -7,14 +7,14 @@
 {%- set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {% if sym.has_declaring_expression() and not sym.is_kernel() %}
   {%- if sym.has_vector_parameter() %}
-{{vector_declaration.VectorDeclaration(variable)}}
+{{ vector_declaration.VectorDeclaration(variable) }}
   {%- else %}
-  {{utils.print_symbol_origin(variable_symbol)}}{{printer.print(variable)}} = {{printer.print(sym.get_declaring_expression())}}; // as {{sym.get_type_symbol().print_symbol()}}
+  {{printer.print(variable)}} = {{printer.print(sym.get_declaring_expression())}}; // as {{sym.get_type_symbol().print_symbol()}}
   {%- endif %}
 {%- else %}
   {%- if sym.has_vector_parameter() %}
-  {{utils.print_symbol_origin(variable_symbol)}}{{printer.print(variable)}}.resize(0); // as {{sym.get_type_symbol().print_symbol()}}
+  {{printer.print(variable)}}.resize(0); // as {{sym.get_type_symbol().print_symbol()}}
   {%- else %}
-  {{utils.print_symbol_origin(variable_symbol)}}{{printer.print(variable)}} = 0; // as {{sym.get_type_symbol().print_symbol()}}
+  {{printer.print(variable)}} = 0; // as {{sym.get_type_symbol().print_symbol()}}
   {%- endif -%}
 {%- endif -%}

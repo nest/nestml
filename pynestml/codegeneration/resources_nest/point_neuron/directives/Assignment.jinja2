@@ -14,17 +14,17 @@
 {%-     if lhs_variable_sym.has_vector_parameter() %}
 {%-         set lhs_vector_variable = lhs_variable.get_vector_parameter() %}
 {%-         if lhs_vector_variable.is_numeric_literal() %}
-{{ utils.print_symbol_origin(lhs_variable_sym) }}{{ printer.print(lhs_variable) }}[{{ ast.get_variable().get_vector_parameter() }}]
+{{ printer.print(lhs_variable) }}[{{ ast.get_variable().get_vector_parameter() }}]
 {%-         elif lhs_vector_variable.is_variable() %}
 {%-             set vec_symbol = lhs_vector_variable.get_scope().resolve_to_symbol(lhs_vector_variable.get_variable().get_complete_name(), SymbolKind.VARIABLE) %}
-{{ utils.print_symbol_origin(lhs_variable_sym) }}{{ printer.print(lhs_variable) }}[{{ utils.print_symbol_origin(vec_symbol) }}{{ printer.print(utils.get_state_variable_by_name(astnode, lhs_vector_variable)) }}]
+{{ printer.print(lhs_variable) }}[{{ utils.print_symbol_origin(vec_symbol) }}{{ printer.print(utils.get_state_variable_by_name(astnode, lhs_vector_variable.get_variable().get_complete_name())) }}]
 {%-         else -%}
 {{ raise("Cannot handle vector index expression") }}
 {%-         endif %}
 {%-     else %}
-{{utils.print_symbol_origin(lhs_variable_sym)}}{{ printer.print(lhs_variable) }}
+{{ printer.print(lhs_variable) }}
 {%-     endif %}
-{{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}};
+{{assignments.print_assignments_operation(ast)}} {{ printer.print_expression(ast.get_expression()) }};
 {%- else %}
-{{utils.print_symbol_origin(lhs_variable_sym)}}{{ printer.print(lhs_variable) }} {{ assignments.print_assignments_operation(ast) }} {{ printer.print_expression(ast.get_expression()) }};
+{{ printer.print(lhs_variable) }} {{ assignments.print_assignments_operation(ast) }} {{ printer.print_expression(ast.get_expression()) }};
 {%- endif %}

@@ -26,7 +26,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class ODEToolboxVariablePrinter(NestMLVariablePrinter):
-    """
+    r"""
     Convert into a format accepted by ODE-toolbox as input.
     """
 

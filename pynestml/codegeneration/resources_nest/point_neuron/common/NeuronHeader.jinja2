@@ -526,25 +526,30 @@ private:
 {%-     for variable_name in numeric_state_variables %}
       {{variable_name}},
 {%-     endfor %}
-      // moved state variables from synapse
+      // moved state variables from synapse (numeric)
 {%-     for variable_name in purely_numeric_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
+      // moved state variables from synapse (analytic)
 {%-     for variable_name in analytic_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
+      // non-equation related state variables
 {%-     for variable_name in non_equations_state_variables: %}
       {{variable_name}},
 {%-     endfor %}
 {%-   else %}
 {#-     analytic solver only #}
+      // analytic state variables
 {%-     for variable_name in analytic_state_variables: %}
       {{variable_name}},
 {%-     endfor %}
+      // non-equation related state variables
 {%-     for variable_name in non_equations_state_variables: %}
       {{variable_name}},
 {%-     endfor %}
 {%-   endif %}
+      // final entry to easily get the vector size
       STATE_VEC_SIZE
     };
 
@@ -626,7 +631,7 @@ private:
 
 {%-     for inputPort in neuron.get_spike_input_ports() %}
 {%-         if inputPort.is_spike_input_port() and inputPort.is_inhibitory() and inputPort.is_excitatory() %}
-inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.get_symbol_name() }}() {
+inline {{ types_printer.print(inputPort.get_type_symbol()) }}& get_{{ inputPort.get_symbol_name() }}() {
     return spike_inputs_[{{ inputPort.get_symbol_name().upper() }} - 1];
 }
 {%-         else %}
@@ -680,7 +685,7 @@ inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.
 {% filter indent(2, True) -%}
 {%- for equations_block in neuron.get_equations_blocks() %}
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
-{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0) %}
+{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
 {%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(inline_expr.get_variable_name(), SymbolKind.VARIABLE) %}
 {%-         include "directives/MemberVariableGetterSetter.jinja2" %}
 

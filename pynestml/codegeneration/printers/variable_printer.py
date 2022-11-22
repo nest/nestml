@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
@@ -32,6 +34,9 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
 
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
+
+    def __init__(self, expression_printer: ExpressionPrinter):
+        self._expression_printer = expression_printer
 
     def print(self, node: ASTNode, prefix: str = "") -> str:
         assert isinstance(node, ASTVariable)

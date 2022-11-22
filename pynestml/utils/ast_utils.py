@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterable, List, Mapping, Optional, Sequence, Union
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
 import re
 import sympy
@@ -1392,6 +1392,8 @@ class ASTUtils:
             expr = ASTUtils.get_inline_expression_by_name(node, var_name)
             if expr:
                 var = ASTNodeFactory.create_ast_variable(var_name, differential_order=0)
+                assert len(node.get_equations_blocks()) == 1, "Only one equations block supported for now"
+                var.scope = node.get_equations_blocks()[0].scope
 
         return var
 
@@ -1613,7 +1615,7 @@ class ASTUtils:
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_blocks: Sequence[ASTBlockWithVariables],
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> dict:
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> Dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 

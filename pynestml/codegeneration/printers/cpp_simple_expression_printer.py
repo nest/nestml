@@ -40,8 +40,11 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
     Printer for ASTSimpleExpressions in C++ syntax.
     """
 
-    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = "") -> str:
+    def _print(self, node: ASTSimpleExpression, prefix: str = "") -> str:
         if node.has_unit():
+            if self._variable_printer.print_variable(node.get_variable(), prefix="") in ["1", "1.", "1.0"]:
+                return str(node.get_numeric_literal())
+
             return str(node.get_numeric_literal()) + " * " + \
                 self._variable_printer.print_variable(node.get_variable(), prefix=prefix)
 
@@ -70,6 +73,13 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
             return self._function_call_printer.print_function_call(node.get_function_call(), prefix=prefix)
 
         raise Exception("Unknown node type: " + str(node))
+
+    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = "") -> str:
+
+        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
+            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node, prefix=prefix) + "))"
+
+        return self._print(node, prefix=prefix)
 
     def print(self, node: ASTNode, prefix: str = "") -> str:
         if isinstance(node, ASTVariable):

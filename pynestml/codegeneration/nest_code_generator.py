@@ -70,6 +70,7 @@ from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisito
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 
 
 def find_spiking_post_port(synapse, namespace):
@@ -168,22 +169,31 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._types_printer = NESTCppTypesPrinter()
 
-        self._gsl_variable_printer = GSLVariablePrinter()
-        self._nest_variable_printer = NESTVariablePrinter()
-        self._nest_variable_printer_no_origin = NESTVariablePrinter()
+        self._gsl_variable_printer = GSLVariablePrinter(None)
+        self._nest_variable_printer = NESTVariablePrinter(None)
+        self._nest_variable_printer_no_origin = NESTVariablePrinter(None)
         self._nest_variable_printer_no_origin.with_origin = False
 
         self._constant_printer = ConstantPrinter()
 
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
             self._nest_function_call_printer = NEST2CppFunctionCallPrinter()
+            self._nest_function_call_printer_no_origin = NEST2CppFunctionCallPrinter()
         else:
             self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
+            self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
 
         self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                                   constant_printer=self._constant_printer,
                                                                                                   function_call_printer=self._nest_function_call_printer))
+        self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
+
+        self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                                                            constant_printer=self._constant_printer,
+                                                                                                            function_call_printer=self._nest_function_call_printer_no_origin))
+        self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
+        self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
             self._nest_unitless_function_call_printer = NEST2CppFunctionCallPrinter()
@@ -217,9 +227,13 @@ class NESTCodeGenerator(CodeGenerator):
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
         self._unitless_nest_gsl_printer = CppPrinter(expression_printer=self._gsl_printer)
-        self._ode_toolbox_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=ODEToolboxVariablePrinter(),
+        self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
+        self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
+        self._ode_toolbox_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
                                                                                                                       constant_printer=self._constant_printer,
-                                                                                                                      function_call_printer=self._nest_function_call_printer))
+                                                                                                                      function_call_printer=self._ode_toolbox_function_call_printer))
+        self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
+        self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -431,9 +445,11 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
 
+        # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["utils"] = ASTUtils
+        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
 
         # using random number generators?
         rng_visitor = ASTRandomNumberGeneratorVisitor()
@@ -442,19 +458,12 @@ class NESTCodeGenerator(CodeGenerator):
 
         # printers
         namespace["printer"] = self._nest_printer
-
-        namespace["printerGSL"] = self._gsl_printer
-        namespace["names"] = self._gsl_variable_printer
-
+        namespace["printer_no_origin"] = self._printer_no_origin
+        namespace["gsl_printer"] = self._gsl_printer
         namespace["nestml_printer"] = self._printer
-
         namespace["cpp_function_declaration_printer"] = CppFunctionDeclarationPrinter()
         namespace["cpp_function_definition_printer"] = CppFunctionDefinitionPrinter(namespace=astnode.get_name())
-
         namespace["types_printer"] = self._types_printer
-        namespace["names"] = self._nest_variable_printer
-
-        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
         namespace["nest_variable_printer"] = self._nest_variable_printer
 
         # NESTML syntax keywords

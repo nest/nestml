@@ -51,7 +51,7 @@ class CppExpressionPrinter(ExpressionPrinter):
         assert isinstance(node, ASTExpression)
 
         if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node, prefix=prefix) + ")"
+            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node, prefix=prefix) + "))"
 
         return self.print_expression(node, prefix=prefix)
 
@@ -83,15 +83,15 @@ class CppExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_expression(), prefix=prefix)
         unary_operator = node.get_unary_operator()
         if unary_operator.is_unary_plus:
-            return '(' + '+' + rhs + ')'
+            return "(" + "+" + rhs + ")"
 
         if unary_operator.is_unary_minus:
-            return '(' + '-' + rhs + ')'
+            return "(" + "-" + rhs + ")"
 
         if unary_operator.is_unary_tilde:
-            return '(' + '~' + rhs + ')'
+            return "(" + "~" + rhs + ")"
 
-        raise RuntimeError('Cannot determine unary operator!')
+        raise RuntimeError("Cannot determine unary operator!")
 
     def print_encapsulated(self, node: ASTExpression, prefix: str = "") -> str:
         """
@@ -101,7 +101,7 @@ class CppExpressionPrinter(ExpressionPrinter):
         expr = self.print(node.get_expression(),
                           prefix=prefix)
 
-        return '(' + expr + ')'
+        return "(" + expr + ")"
 
     def print_logical_not(self, node: ASTExpression, prefix: str = "") -> str:
         """
@@ -110,7 +110,7 @@ class CppExpressionPrinter(ExpressionPrinter):
         """
         rhs = self.print(node.get_expression(), prefix=prefix)
 
-        return '(' + '!' + '%s' + ')' % rhs
+        return "(" + "!" + "%s" + ")" % rhs
 
     def print_logical_operator(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
@@ -123,12 +123,12 @@ class CppExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_rhs(), prefix=prefix)
 
         if op.is_logical_and:
-            return lhs + '&&' + rhs
+            return lhs + "&&" + rhs
 
         if op.is_logical_or:
-            return lhs + '||' + rhs
+            return lhs + "||" + rhs
 
-        raise RuntimeError('Cannot determine logical operator!')
+        raise RuntimeError("Cannot determine logical operator!")
 
     def print_comparison_operator(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
@@ -141,24 +141,24 @@ class CppExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_rhs(), prefix=prefix)
 
         if op.is_lt:
-            return lhs + '<' + rhs
+            return lhs + " < " + rhs
 
         if op.is_le:
-            return lhs + '<=' + rhs
+            return lhs + " <= " + rhs
 
         if op.is_eq:
-            return lhs + '==' + rhs
+            return lhs + " == " + rhs
 
         if op.is_ne or op.is_ne2:
-            return lhs + '!=' + rhs
+            return lhs + " != " + rhs
 
         if op.is_ge:
-            return lhs + '>=' + rhs
+            return lhs + " >= " + rhs
 
         if op.is_gt:
-            return lhs + '>' + rhs
+            return lhs + " > " + rhs
 
-        raise RuntimeError('Cannot determine comparison operator!')
+        raise RuntimeError("Cannot determine comparison operator!")
 
     def print_bit_operator(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
@@ -171,21 +171,21 @@ class CppExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_rhs(), prefix=prefix)
 
         if op.is_bit_shift_left:
-            return lhs + '<<' + rhs
+            return lhs + " << " + rhs
 
         if op.is_bit_shift_right:
-            return lhs + '>>' + rhs
+            return lhs + " >> " + rhs
 
         if op.is_bit_and:
-            return lhs + '&' + rhs
+            return lhs + " & " + rhs
 
         if op.is_bit_or:
-            return lhs + '|' + rhs
+            return lhs + " | " + rhs
 
         if op.is_bit_xor:
-            return lhs + '^' + rhs
+            return lhs + " ^ " + rhs
 
-        raise RuntimeError('Cannot determine bit operator!')
+        raise RuntimeError("Cannot determine bit operator!")
 
     def print_arithmetic_operator(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
@@ -198,24 +198,24 @@ class CppExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_rhs(), prefix=prefix)
 
         if op.is_plus_op:
-            return lhs + ' + ' + rhs
+            return lhs + " + " + rhs
 
         if op.is_minus_op:
-            return lhs + ' - ' + rhs
+            return lhs + " - " + rhs
 
         if op.is_times_op:
-            return lhs + ' * ' + rhs
+            return lhs + " * " + rhs
 
         if op.is_div_op:
-            return lhs + ' / ' + rhs
+            return lhs + " / " + rhs
 
         if op.is_modulo_op:
-            return lhs + ' %% ' + rhs
+            return lhs + " %% " + rhs
 
         if op.is_pow_op:
-            return 'pow' + '(' + lhs + ', ' + rhs + ')'
+            return "pow" + "(" + lhs + ", " + rhs + ")"
 
-        raise RuntimeError('Cannot determine arithmetic operator!')
+        raise RuntimeError("Cannot determine arithmetic operator!")
 
     def print_ternary_operator(self, node: ASTExpression, prefix: str = "") -> str:
         """
@@ -226,7 +226,7 @@ class CppExpressionPrinter(ExpressionPrinter):
         if_true = self.print(node.get_if_true(), prefix=prefix)
         if_not = self.print(node.if_not, prefix=prefix)
 
-        return '(' + condition + ') ? (' + if_true + ') : (' + if_not + ')'
+        return "(" + condition + ") ? (" + if_true + ") : (" + if_not + ")"
 
     def print_binary_op(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
@@ -241,7 +241,7 @@ class CppExpressionPrinter(ExpressionPrinter):
             return self.print_arithmetic_operator(node, prefix)
 
         if isinstance(binary_operator, ASTBitOperator):
-            return self.print_bit_operator(binary_openoderator, prefix)
+            return self.print_bit_operator(node, prefix)
 
         if isinstance(binary_operator, ASTComparisonOperator):
             return self.print_comparison_operator(node, prefix)
@@ -249,4 +249,4 @@ class CppExpressionPrinter(ExpressionPrinter):
         if isinstance(binary_operator, ASTLogicalOperator):
             return self.print_logical_operator(node, prefix)
 
-        raise RuntimeError('Cannot determine binary operator!')
+        raise RuntimeError("Cannot determine binary operator!")

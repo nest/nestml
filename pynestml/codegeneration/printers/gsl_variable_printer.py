@@ -52,7 +52,7 @@ class GSLVariablePrinter(CppVariablePrinter):
         if symbol.is_state() and not symbol.is_inline_expression:
             return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
 
-        return super().print(node, prefix)
+        return super().print_variable(node, prefix)
 
     def print_delay_variable(self, variable: ASTVariable, prefix: str =""):
         """

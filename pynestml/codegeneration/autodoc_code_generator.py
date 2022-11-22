@@ -51,10 +51,12 @@ class AutoDocCodeGenerator(CodeGenerator):
         self._template_neuron_nestml_model = env.get_template('nestml_neuron_model.jinja2')
         self._template_synapse_nestml_model = env.get_template('nestml_synapse_model.jinja2')
 
+        variable_printer = LatexVariablePrinter(None)
         function_call_printer = LatexFunctionCallPrinter(None)
-        self._printer = LatexExpressionPrinter(LatexSimpleExpressionPrinter(variable_printer=LatexVariablePrinter(),
+        self._printer = LatexExpressionPrinter(LatexSimpleExpressionPrinter(variable_printer=variable_printer,
                                                                             constant_printer=ConstantPrinter(),
                                                                             function_call_printer=function_call_printer))
+        variable_printer._expression_printer = self._printer
         function_call_printer._expression_printer = self._printer
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:

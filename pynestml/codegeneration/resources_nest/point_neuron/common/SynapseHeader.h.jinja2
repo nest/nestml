@@ -388,7 +388,7 @@ private:
 {% filter indent(2, True) -%}
 {%- for equations_block in synapse.get_equations_blocks() %}
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
-{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0) %}
+{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
 {%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-         include "directives/MemberVariableGetterSetter.jinja2" %}
 {%-     endfor %}
@@ -540,7 +540,7 @@ public:
     // special case for variable marked with @nest::weight decorator
 {%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {%-         if nest_namespace_name == "weight" %}
-    set_{{ printer.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
+    set_{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
     return;
 {%-         endif %}
 {%-     endif %}
@@ -563,7 +563,7 @@ public:
       "Setting of individual weights is not possible! The common weights can "
       "be changed via CopyModel()." );
 {%-         else %}
-    {{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} = w; // type: {{ declarations.print_variable_type(variable_symbol) }}
+    {{ printer.print(utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} = w; // type: {{ declarations.print_variable_type(variable_symbol) }}
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
@@ -774,7 +774,7 @@ public:
 {%- for spike_updates_for_port in spike_updates.values() %}
 {%-     for spike_update in spike_updates_for_port -%}
     // XXX: TODO: increment with initial value instead of 1
-    S_.{{ printer.print(spike_update.get_variable()) }} += 1.;
+    {{ printer.print(spike_update.get_variable()) }} += 1.;
 {%-     endfor %}
 {%- endfor %}
 
@@ -936,7 +936,7 @@ void
 {%-                 include "directives/WriteInDictionary.jinja2" %}
 {%-             endfilter %}
 {%-         else %}
-  def< {{ declarations.print_variable_type(variable_symbol) }} >( __d, names::{{ namespaceName }}, {{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }} );
+  def< {{ declarations.print_variable_type(variable_symbol) }} >( __d, names::{{ namespaceName }}, {{ printer.print(variable) }} );
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
@@ -951,7 +951,7 @@ void
 // special treatment for variable marked with @nest::name decorator
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {%-             if not variable_symbol.is_internals() %}
-def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer.print(variable)}}());
+def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer_no_origin.print(variable)}}());
 {%-             endif %}
 {%-         endif %}
 {%-     endif %}
@@ -987,13 +987,13 @@ void
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {#- -------- XXX: TODO: this is almost the content of directives/ReadFromDictionaryToTmp.jinja2 verbatim, refactor this ----------  #}
 {%-             if not variable_symbol.is_inline_expression and not variable_symbol.is_state() %}
-tmp_{{ printer.print(variable) }} = get_{{ printer.print(variable) }}();
-updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer.print(variable) }});
+tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
+updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer_no_origin.print(variable) }});
 {%-             elif not variable_symbol.is_inline_expression and variable_symbol.is_state() %}
-tmp_{{ printer.print(variable) }} = get_{{ printer.print(variable) }}();
-updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer.print(variable) }});
+tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
+updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer_no_origin.print(variable) }});
 {%-             else %}
-  // ignores '{{ printer.print(variable) }}' {{ declarations.print_variable_type(variable_symbol) }}' since it is an function and setter isn't defined
+  // ignores '{{ printer_no_origin.print(variable) }}' {{ declarations.print_variable_type(variable_symbol) }}' since it is an function and setter isn't defined
 {%-             endif %}
 {#- -------------------------------------------------------------------------------------------------------------------------------- #}
 {%-         endif %}
@@ -1051,7 +1051,7 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
 {%-     set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if namespaceName == "delay" %}
-get_{{ printer.print(variable) }}()
+get_{{ printer_no_origin.print(variable) }}()
 {%-     endif %}
 {%- endfor %});
 
@@ -1118,15 +1118,15 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if (not isHomogeneous) %}
-    {{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }} = rhs.{{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }};
+{%-     if not isHomogeneous %}
+    {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
 {%-     endif %}
 {%- endfor %}
 
   // state variables in ODE or kernel
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-    {{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }} = rhs.{{ utils.print_symbol_origin(variable_symbol) }}{{ printer.print(variable) }};
+    {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
 {%- endfor %}
 
     //weight_ = get_named_parameter<double>(names::weight);

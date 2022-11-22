@@ -64,6 +64,7 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
+from pynestml.symbol_table.scope import Scope
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -364,8 +365,12 @@ class ASTNodeFactory:
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
-    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, source_position: Optional[ASTSourceLocation] = None) -> ASTVariable:
-        return ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
+    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
+        var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
+        if scope:
+            var.scope = scope
+
+        return var
 
     @classmethod
     def create_ast_while_stmt(cls,
