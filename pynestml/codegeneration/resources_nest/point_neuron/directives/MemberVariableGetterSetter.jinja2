@@ -6,11 +6,11 @@ inline {{ declarations.print_variable_type(variable_symbol) }} {{ printer_no_ori
 {%- else -%}
 inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no_origin.print(variable) }}() const
 {
-  return {{ printer.print(variable) }};
+  return {{ utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }};
 }
 
 inline void set_{{ printer_no_origin.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
 {
-  {{ printer.print(variable) }} = __v;
+  {{ utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }} = __v;
 }
 {%- endif %}

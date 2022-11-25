@@ -17,7 +17,7 @@
 {{ printer.print(lhs_variable) }}[{{ ast.get_variable().get_vector_parameter() }}]
 {%-         elif lhs_vector_variable.is_variable() %}
 {%-             set vec_symbol = lhs_vector_variable.get_scope().resolve_to_symbol(lhs_vector_variable.get_variable().get_complete_name(), SymbolKind.VARIABLE) %}
-{{ printer.print(lhs_variable) }}[{{ utils.print_symbol_origin(vec_symbol) }}{{ printer.print(utils.get_state_variable_by_name(astnode, lhs_vector_variable.get_variable().get_complete_name())) }}]
+{{ printer.print(lhs_variable) }}
 {%-         else -%}
 {{ raise("Cannot handle vector index expression") }}
 {%-         endif %}

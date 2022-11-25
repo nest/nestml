@@ -210,7 +210,7 @@ class CppExpressionPrinter(ExpressionPrinter):
             return lhs + " / " + rhs
 
         if op.is_modulo_op:
-            return lhs + " %% " + rhs
+            return lhs + " % " + rhs
 
         if op.is_pow_op:
             return "pow" + "(" + lhs + ", " + rhs + ")"

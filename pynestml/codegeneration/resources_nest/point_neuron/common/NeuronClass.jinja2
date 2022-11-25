@@ -134,8 +134,8 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%-   set node = utils.get_state_variable_by_name(astnode, variable.get_symbol_name()) %}
       for (size_t i = 0; i < {{vector_size_parameter.VectorSizeParameter(variable, true)}}; i++)
       {
-        size_t elem = {{neuronName}}::State_::{{ printer.print(node).upper() }} + i;
-        recordablesMap_.insert(get_var_name(i, "{{ printer.print(node).upper() }}_"), this->get_data_access_functor(elem));
+        size_t elem = {{neuronName}}::State_::{{ printer_no_origin.print(node).upper() }} + i;
+        recordablesMap_.insert(get_var_name(i, "{{ printer_no_origin.print(node).upper() }}_"), this->get_data_access_functor(elem));
       }
 {%- endfor %}
   }
@@ -270,7 +270,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
-  {{ printer.print(node) }} = __n.S_.{{ printer_no_origin.print(node) }};
+  {{ utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }} = __n.{{ utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }};
 {%-   endif %}
 {%- endfor %}
 
@@ -471,8 +471,9 @@ void {{neuronName}}::pre_run_hook() {
 {%- if has_delay_variables %}
 void {{neuronName}}::update_delay_variables()
 {
-{%-   for variable in neuron.get_state_symbols() %}
-{%-     if variable.has_delay_parameter() %}
+{%-   for variable_symbol in neuron.get_state_symbols() %}
+{%-     if variable_symbol.has_delay_parameter() %}
+{%-       set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-       include "directives/UpdateDelayVariables.jinja2" %}
 {%-     endif %}
 {%-   endfor %}
@@ -747,7 +748,7 @@ void
 double ode_state_bak[State_::STATE_VEC_SIZE];
 
 {%-   for variable_name in numeric_state_variables %}
-ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
+  ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
 {%-     endfor %}
 
 {%- if uses_numeric_solver %}

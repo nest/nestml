@@ -8,7 +8,7 @@
 {%- if not variable_symbol.is_inline_expression %}
 {%- if not variable_symbol.is_state() %}
 {{ declarations.print_variable_type(variable_symbol) }} tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
-{%- if synapse is defined or variable in vector_symbols or nest_version.startswith("v2") %}
+{%- if synapse is defined or variable_symbol in vector_symbols or nest_version.startswith("v2") %}
 {#- setting with probability distributions is not supported for synapses after they have been created; for vectors; or when using NEST 2 #}
 updateValue<{{declarations.print_variable_type(variable_symbol)}}>(__d, nest::{{names_namespace}}::_{{printer_no_origin.print(variable)}}, tmp_{{printer_no_origin.print(variable)}});
 {%- else %}

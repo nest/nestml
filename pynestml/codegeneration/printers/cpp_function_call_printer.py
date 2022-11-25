@@ -90,12 +90,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
-        if function_name == 'and':
-            return '&&'
-
-        if function_name == 'or':
-            return '||'
-
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
             return 'std::min({2!s}, std::max({1!s}, {0!s}))'
@@ -135,7 +129,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
         # suppress prefix for misc. predefined functions
         # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
-        function_is_predefined = PredefinedFunctions.get_function(function_name)
+        function_is_predefined = bool(PredefinedFunctions.get_function(function_name))
         if function_is_predefined:
             prefix = ''
 

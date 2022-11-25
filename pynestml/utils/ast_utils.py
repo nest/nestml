@@ -1954,7 +1954,7 @@ class ASTUtils:
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
-        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
+        r"""Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
         if node is None:
             return
 
@@ -2051,28 +2051,28 @@ class ASTUtils:
         return None
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, prefix: str = '') -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None, prefix: str = '') -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
-        if variable_symbol.block_type == BlockType.STATE:
-            return prefix + 'S_.'
+        if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
+            if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
+                return prefix + 'S_.ode_state[State_::%s]'
 
-        if variable_symbol.block_type == BlockType.EQUATION:
-            return prefix + 'S_.'
+            return prefix + 'S_.%s'
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
-            return prefix + 'P_.'
+            return prefix + 'P_.%s'
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return prefix + 'cp.'
+            return prefix + 'cp.%s'
 
         if variable_symbol.block_type == BlockType.INTERNALS:
-            return prefix + 'V_.'
+            return prefix + 'V_.%s'
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return prefix + 'B_.'
+            return prefix + 'B_.%s'
 
         return ''

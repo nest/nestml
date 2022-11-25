@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.unit_converter import UnitConverter
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -41,8 +43,11 @@ class NESTVariablePrinter(CppVariablePrinter):
     Variable printer for C++ syntax and the NEST API.
     """
 
-    def __init__(self, with_origin: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
+        super().__init__(expression_printer)
         self.with_origin = with_origin
+        self.with_vector_parameter = with_vector_parameter
+        self._state_symbols = []
 
     def print_variable(self, variable: ASTVariable, prefix: str = '') -> str:
         """
@@ -75,7 +80,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             return ""
 
         vector_param = ""
-        if symbol.has_vector_parameter():
+        if self.with_vector_parameter and symbol.has_vector_parameter():
             vector_param = "[" + self.print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
@@ -130,12 +135,12 @@ class NESTVariablePrinter(CppVariablePrinter):
                                                                     SymbolKind.VARIABLE)
         if symbol is not None:
             if symbol.block_type == BlockType.STATE:
-                return self._expression_printer.print(vector_parameter) + "()"
+                return self._expression_printer.print(vector_parameter)
 
             if symbol.block_type == BlockType.LOCAL:
                 return symbol.get_symbol_name()
 
-            return ASTUtils.print_symbol_origin(symbol)
+            return vector_parameter
 
         return vector_parameter
 
@@ -154,7 +159,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_local():
             return variable_name
 
+        for s in self._state_symbols:
+            assert type(s) == str
+
         if with_origin:
-            return ASTUtils.print_symbol_origin(symbol, prefix=prefix) + variable_name
+            return ASTUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols, prefix=prefix) % variable_name
 
         return variable_name

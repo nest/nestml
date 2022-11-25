@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest2_cpp_function_call_printer.py
+# nest_gsl_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -24,7 +24,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
-class NEST2CppFunctionCallPrinter(NESTCppFunctionCallPrinter):
+class NESTGSLFunctionCallPrinter(NESTCppFunctionCallPrinter):
     r"""
     This class is used to convert operators and constants to the GSL (GNU Scientific Library) processable format.
     """
@@ -46,12 +46,11 @@ class NEST2CppFunctionCallPrinter(NESTCppFunctionCallPrinter):
         s : str
             The function call string in C++ syntax.
         """
+
         function_name = function_call.get_name()
 
-        if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+        function_is_predefined = bool(PredefinedFunctions.get_function(function_name))
+        if function_is_predefined:
+            return super()._print_function_call_format_string(function_call)
 
-        if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() )->drand())'
-
-        return super()._print_function_call_format_string(function_call, prefix=prefix)
+        return "node." + super()._print_function_call_format_string(function_call)

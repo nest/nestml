@@ -174,7 +174,8 @@ class NestPrinter(ASTPrinter):
             return self.print_small_stmt(node.small_stmt, prefix=prefix)
 
     def print_assignment(self, node, prefix="") -> str:
-        ret = self._variable_utils.print_symbol_origin(node.lhs) + self._variable_printer.print(node.lhs) + ' '
+        ret = self._variable_utils.print_symbol_origin(node.lhs) % self._variable_printer.print(node.lhs)
+        ret += ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:

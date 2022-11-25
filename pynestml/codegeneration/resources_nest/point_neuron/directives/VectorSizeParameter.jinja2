@@ -3,7 +3,7 @@
 {%- if vector_parameter.is_variable() -%}
 {%-     set symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(), SymbolKind.VARIABLE) -%}
 {%-     if with_origin %}
-{{ utils.print_symbol_origin(symbol)}}{{ vector_parameter.get_variable().get_complete_name() }}
+{{ utils.print_symbol_origin(symbol) % vector_parameter.get_variable().get_complete_name() }}
 {%-     else -%}
 {{ vector_parameter.get_variable().get_complete_name() }}
 {%-     endif -%}

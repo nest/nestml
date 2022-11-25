@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest2_cpp_function_call_printer.py
+# nest2_gsl_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,12 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
-class NEST2CppFunctionCallPrinter(NESTCppFunctionCallPrinter):
+class NEST2GSLFunctionCallPrinter(NEST2CppFunctionCallPrinter):
     r"""
     This class is used to convert operators and constants to the GSL (GNU Scientific Library) processable format.
     """
@@ -46,12 +46,11 @@ class NEST2CppFunctionCallPrinter(NESTCppFunctionCallPrinter):
         s : str
             The function call string in C++ syntax.
         """
+
         function_name = function_call.get_name()
 
-        if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+        function_is_predefined = bool(PredefinedFunctions.get_function(function_name))
+        if function_is_predefined:
+            return super()._print_function_call_format_string(function_call)
 
-        if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() )->drand())'
-
-        return super()._print_function_call_format_string(function_call, prefix=prefix)
+        return "node." + super()._print_function_call_format_string(function_call)

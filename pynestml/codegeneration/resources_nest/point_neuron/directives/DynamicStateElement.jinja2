@@ -23,7 +23,7 @@ inline double get_state_element(size_t elem)
 {%-     endif -%}
     (elem >= State_::{{ printer.print(variable).upper() }} and elem < State_::{{ printer.print(variable).upper() }} + {{ size }})
     {
-      return S_.{{ printer.print(variable) }}[ elem - State_::{{ printer.print(variable).upper() }} ];
+      return S_.{{ printer_no_origin.print(variable) }}[ elem - State_::{{ printer.print(variable).upper() }} ];
     }
 {%-   else %}
     (elem == State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }})
@@ -33,8 +33,10 @@ inline double get_state_element(size_t elem)
 {%-   endif %}
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
+{%-      set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+
     {
-      return {{ printer.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
+      return {{ utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
     }
 {%-   else %}
     {

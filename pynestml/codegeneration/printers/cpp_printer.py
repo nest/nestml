@@ -63,6 +63,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class CppPrinter(ASTPrinter):
@@ -164,7 +165,7 @@ class CppPrinter(ASTPrinter):
             return self.print_small_stmt(node.small_stmt, prefix=prefix)
 
     def print_assignment(self, node, prefix: str = "") -> str:
-        ret = ASTUtils.print_symbol_origin(node.lhs) + self._expression_printer.print(node.lhs)
+        ret = ASTUtils.print_symbol_origin(node.lhs) % self._expression_printer.print(node.lhs)
         ret += ' '
         if node.is_compound_quotient:
             ret += '/='

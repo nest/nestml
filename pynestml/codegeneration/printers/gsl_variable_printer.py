@@ -36,7 +36,7 @@ from pynestml.utils.messages import Messages
 
 class GSLVariablePrinter(CppVariablePrinter):
     r"""
-    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API.
+    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
 
     def print_variable(self, node: ASTVariable, prefix: str = '') -> str:
@@ -46,13 +46,22 @@ class GSLVariablePrinter(CppVariablePrinter):
         :return: a gsl processable format of the variable
         """
         assert isinstance(node, ASTVariable)
-
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_state() and not symbol.is_inline_expression:
+            # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
             return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
 
-        return super().print_variable(node, prefix)
+        if symbol.is_parameters():
+            return "node.P_." + super().print_variable(node, prefix)
+
+        if symbol.is_internals():
+            return "node.V_." + super().print_variable(node, prefix)
+
+        if symbol.is_input():
+            return "node.B_." + super().print_variable(node, prefix) + "_grid_sum_"
+
+        raise Exception("Unknown node type")
 
     def print_delay_variable(self, variable: ASTVariable, prefix: str =""):
         """
