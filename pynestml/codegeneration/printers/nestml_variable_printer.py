@@ -31,10 +31,10 @@ class NestMLVariablePrinter(VariablePrinter):
     Print ``ASTVariable``s in NESTML syntax.
     """
 
-    def print_variable(self, ast_variable: ASTVariable, prefix: str = '') -> str:
+    def print_variable(self, ast_variable: ASTVariable) -> str:
         """
         Returns the same string
         :param ast_variable: a single variable
         :return: the same string
         """
-        return prefix + ast_variable.get_complete_name()
+        return ast_variable.get_complete_name()

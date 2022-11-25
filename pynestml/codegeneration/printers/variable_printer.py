@@ -38,21 +38,19 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
     def __init__(self, expression_printer: ExpressionPrinter):
         self._expression_printer = expression_printer
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTVariable)
 
-        return self.print_variable(node, prefix=prefix)
+        return self.print_variable(node)
 
     @abstractmethod
-    def print_variable(self, node: ASTVariable, prefix: str = "") -> str:
+    def print_variable(self, node: ASTVariable) -> str:
         """Print a variable.
 
         Parameters
         ----------
         node
             The expression node to print.
-        prefix
-            *See documentation for the function print_function_call().*
 
         Returns
         -------

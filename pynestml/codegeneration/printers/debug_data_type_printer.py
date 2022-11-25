@@ -37,7 +37,7 @@ class DebugDataTypePrinter(ASTPrinter):
     Returns a string format that is suitable for info/warning/error messages.
     """
 
-    def _print_type_symbol(self, type_symbol: TypeSymbol, prefix: str = "") -> str:
+    def _print_type_symbol(self, type_symbol: TypeSymbol) -> str:
         if 'is_buffer' in dir(type_symbol) and type_symbol.is_buffer:
             return 'buffer'
 
@@ -64,7 +64,7 @@ class DebugDataTypePrinter(ASTPrinter):
 
         return str(type_symbol)
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         r"""
         Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol

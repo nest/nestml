@@ -67,35 +67,36 @@ class NestAssignmentsHelper:
         return None
 
     @classmethod
-    def print_assignments_operation(cls, assignment):
+    def print_assignments_operation(cls, assignment) -> str:
         """
         Returns a nest processable format of the assignment operation.
         :param assignment: a single assignment
         :type assignment: ASTAssignment
         :return: the corresponding string representation
-        :rtype: str
         """
         assert isinstance(assignment, ASTAssignment), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
         if assignment.is_compound_sum:
             return '+='
-        elif assignment.is_compound_minus:
+
+        if assignment.is_compound_minus:
             return '-='
-        elif assignment.is_compound_product:
+
+        if assignment.is_compound_product:
             return '*='
-        elif assignment.is_compound_quotient:
+
+        if assignment.is_compound_quotient:
             return '/='
-        else:
-            return '='
+
+        return '='
 
     @classmethod
-    def is_vectorized_assignment(cls, assignment):
+    def is_vectorized_assignment(cls, assignment) -> bool:
         """
         Indicates whether the handed over assignment is vectorized, i.e., an assignment of vectors.
         :param assignment: a single assignment.
         :type assignment: ASTAssignment
         :return: True if vectorized, otherwise False.
-        :rtype: bool
         """
         from pynestml.symbols.symbol import SymbolKind
         assert isinstance(assignment, ASTAssignment), \
@@ -117,13 +118,12 @@ class NestAssignmentsHelper:
             return False
 
     @classmethod
-    def print_size_parameter(cls, assignment):
+    def print_size_parameter(cls, assignment) -> str:
         """
         Prints in a nest processable format the size parameter of the assignment.
         :param assignment: a single assignment
         :type assignment: ASTAssignment
         :return: the corresponding size parameter
-        :rtype: str
         """
         from pynestml.symbols.symbol import SymbolKind
         assert (assignment is not None and isinstance(assignment, ASTAssignment)), \

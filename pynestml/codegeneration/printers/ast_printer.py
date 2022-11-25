@@ -37,5 +37,5 @@ class ASTPrinter(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def print(self, node: ASTNode, prefix: str = ""):
-        assert False
+    def print(self, node: ASTNode) -> str:
+        raise Exception("Cannot call abstract method")

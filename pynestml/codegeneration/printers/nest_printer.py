@@ -80,7 +80,7 @@ class NestPrinter(ASTPrinter):
                          types_printer=types_printer)
         self._expression_printer = expression_printer
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTArithmeticOperator):
             return self.print_arithmetic_operator(node)
         if isinstance(node, ASTAssignment):
@@ -162,18 +162,18 @@ class NestPrinter(ASTPrinter):
     def print_input_port(self, node: ASTInputPort) -> str:
         return node.name
 
-    def print_simple_expression(self, node, prefix=""):
-        return self.print_expression(node, prefix=prefix)
+    def print_simple_expression(self, node):
+        return self.print_expression(node)
 
-    def print_small_stmt(self, node, prefix="") -> str:
+    def print_small_stmt(self, node) -> str:
         if node.is_assignment():
-            return self.print_assignment(node.assignment, prefix=prefix)
+            return self.print_assignment(node.assignment)
 
-    def print_stmt(self, node, prefix="") -> str:
+    def print_stmt(self, node) -> str:
         if node.is_small_stmt:
-            return self.print_small_stmt(node.small_stmt, prefix=prefix)
+            return self.print_small_stmt(node.small_stmt)
 
-    def print_assignment(self, node, prefix="") -> str:
+    def print_assignment(self, node) -> str:
         ret = self._variable_utils.print_symbol_origin(node.lhs) % self._variable_printer.print(node.lhs)
         ret += ' '
         if node.is_compound_quotient:
@@ -216,14 +216,14 @@ class NestPrinter(ASTPrinter):
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(for_stmt)
         return for_stmt.get_step()
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
+    def print_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
         :type node: ASTExpressionNode
         :return: the corresponding string representation
         """
-        return self._expression_printer.print_expression(node, prefix=prefix)
+        return self._expression_printer.print_expression(node)
 
     def print_function_call(self, node: ASTFunctionCall) -> str:
         """

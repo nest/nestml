@@ -28,8 +28,8 @@ class NESTSimpleExpressionPrinter(CppSimpleExpressionPrinter):
     Printer for ASTSimpleExpressions in C++ syntax.
     """
 
-    def _print(self, node: ASTSimpleExpression, prefix: str = "") -> str:
+    def _print(self, node: ASTSimpleExpression) -> str:
         if node.is_delay_variable():
-            return self._variable_printer.print_delay_variable(node.get_variable(), prefix=prefix)
+            return self._variable_printer.print_delay_variable(node.get_variable())
 
-        return super()._print(node, prefix=prefix)
+        return super()._print(node)

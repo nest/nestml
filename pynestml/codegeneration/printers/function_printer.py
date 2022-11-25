@@ -33,22 +33,20 @@ class FunctionPrinter(ASTPrinter, metaclass=ABCMeta):
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTFunction):
-            self.print_function(node, prefix)
+            self.print_function(node)
 
-        return super().print(node, prefix)
+        return super().print(node)
 
     @abstractmethod
-    def print_function(self, node: ASTFunction, prefix: str = ""):
+    def print_function(self, node: ASTFunction) -> str:
         """Print a function.
 
         Parameters
         ----------
         node
             The function node to print.
-        prefix
-            *See documentation for the function print_function_call().*
 
         Returns
         -------

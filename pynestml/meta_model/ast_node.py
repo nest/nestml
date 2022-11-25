@@ -174,7 +174,7 @@ class ASTNode(metaclass=ABCMeta):
 
     def has_comment(self):
         """
-        Indicates whether this element stores a prefix.
+        Indicates whether this element stores a comment.
         :return: True if has comment, otherwise False.
         :rtype: bool
         """

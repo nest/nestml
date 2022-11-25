@@ -39,7 +39,7 @@ class CppFunctionDefinitionPrinter(FunctionPrinter):
         self._namespace = namespace
         super().__init__()
 
-    def print_function(self, node: ASTFunction, prefix: str = "") -> str:
+    def print_function(self, node: ASTFunction) -> str:
         """
         Returns a nest processable function definition, i.e. the part which appears in the .cpp file.
         :param node: a single function.

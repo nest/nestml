@@ -44,15 +44,13 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
         self._function_call_printer = function_call_printer
 
     @abstractmethod
-    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = ""):
+    def print_simple_expression(self, node: ASTSimpleExpression):
         """Print an expression.
 
         Parameters
         ----------
         node : ASTExpressionNode
             The expression node to print.
-        prefix : str
-            *See documentation for the function print_function_call().*
 
         Returns
         -------

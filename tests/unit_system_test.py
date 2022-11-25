@@ -51,11 +51,14 @@ PredefinedFunctions.register_functions()
 Logger.init_logger(LoggingLevel.INFO)
 
 types_printer = CppTypesPrinter()
-variable_printer = NestMLVariablePrinter()
+variable_printer = NestMLVariablePrinter(None)
 function_call_printer = NESTCppFunctionCallPrinter(None)
-printer = CppExpressionPrinter(CppSimpleExpressionPrinter(CppVariablePrinter(),
+cpp_variable_printer = CppVariablePrinter(None)
+printer = CppExpressionPrinter(CppSimpleExpressionPrinter(cpp_variable_printer,
                                                           ConstantPrinter(),
                                                           function_call_printer))
+cpp_variable_printer._expression_printer = printer
+variable_printer._expression_printer = printer
 function_call_printer._expression_printer = printer
 
 

@@ -32,5 +32,5 @@ class TypesPrinter(SymbolPrinter, metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def print(cls, element: Symbol):
-        pass
+    def print(cls, element: Symbol) -> str:
+        raise Exception("Cannot call abstract method")

@@ -32,15 +32,13 @@ class UnitlessCppSimpleExpressionPrinter(CppSimpleExpressionPrinter):
     An adjusted version of the printer which does not print units with literals.
     """
 
-    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = "") -> str:
+    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         r"""Print an expression.
 
         Parameters
         ----------
         node
             The expression node to print.
-        prefix
-            *See documentation for the function CppExpressionsPrinter::print_function_call().*
 
         Returns
         -------
@@ -58,4 +56,4 @@ class UnitlessCppSimpleExpressionPrinter(CppSimpleExpressionPrinter):
                 # case for a literal unit, e.g. "ms"
                 return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
-        return super().print_simple_expression(node, prefix=prefix)
+        return super().print_simple_expression(node)

@@ -38,7 +38,7 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in LaTeX syntax.
     """
 
-    def _print_function_call(self, node: ASTFunctionCall, prefix: str = '') -> str:
+    def _print_function_call(self, node: ASTFunctionCall) -> str:
         r"""
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -46,10 +46,6 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
         ----------
         function_call
             The function call node to convert.
-        prefix
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------
@@ -79,8 +75,8 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
 
         return r"\text{" + function_name + r"}"
 
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
-        function_name = self._print_function_name(function_call, prefix)
+    def print_function_call(self, function_call: ASTFunctionCall) -> str:
+        function_name = self._print_function_name(function_call)
         if ASTUtils.needs_arguments(function_call):
             return function_name % self._print_function_call_argument_list(function_call)
 

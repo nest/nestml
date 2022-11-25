@@ -28,7 +28,7 @@ class CppFunctionDeclarationPrinter(FunctionPrinter):
     Printer for ASTFunction declaration in C++ syntax.
     """
 
-    def print_function(self, node: ASTNode, prefix: str = "") -> str:
+    def print_function(self, node: ASTNode) -> str:
         """
         Returns a nest processable function declaration head, i.e. the part which appears in the .h file.
         :param node: a single function.

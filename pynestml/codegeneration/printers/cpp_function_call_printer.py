@@ -38,21 +38,17 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
     Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
-        return self.print_function_call(node, prefix=prefix)
+        return self.print_function_call(node)
 
-    def print_function_call(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
+    def print_function_call(self, function_call: ASTFunctionCall) -> str:
         """Print a function call, including bracketed arguments list.
 
         Parameters
         ----------
         node
             The function call node to print.
-        prefix
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------
@@ -61,16 +57,16 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         assert isinstance(function_call, ASTFunctionCall)
 
-        function_name = self._print_function_call_format_string(function_call, prefix=prefix)
+        function_name = self._print_function_call_format_string(function_call)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self._print_print_statement(function_call))
 
-            return function_name.format(*self._print_function_call_argument_list(function_call, prefix=prefix))
+            return function_name.format(*self._print_function_call_argument_list(function_call))
 
         return function_name
 
-    def _print_function_call_format_string(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -78,10 +74,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         ----------
         function_call
             The function call node to convert.
-        prefix
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------
@@ -127,23 +119,17 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.PRINTLN:
             return 'std::cout << {!s} << std::endl'
 
-        # suppress prefix for misc. predefined functions
-        # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
-        function_is_predefined = bool(PredefinedFunctions.get_function(function_name))
-        if function_is_predefined:
-            prefix = ''
-
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
 
-        return prefix + function_name + '()'
+        return function_name + '()'
 
-    def _print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str="") -> Tuple[str, ...]:
+    def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []
 
         for arg in function_call.get_args():
-            ret.append(self._expression_printer.print(arg, prefix=prefix))
+            ret.append(self._expression_printer.print(arg))
 
         return tuple(ret)
 

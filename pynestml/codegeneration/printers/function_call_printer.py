@@ -39,7 +39,7 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
         self._expression_printer = expression_printer
 
     @abstractmethod
-    def print_function_call(self, node: ASTFunctionCall, prefix: str = "") -> str:
+    def print_function_call(self, node: ASTFunctionCall) -> str:
         """Print an expression.
 
         Parameters
@@ -56,6 +56,6 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
         """
         return ""
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
         return self.print_function_call(node)

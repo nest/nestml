@@ -36,7 +36,7 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
     Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def _print_function_call_format_string(self, function_call: ASTFunctionCall, prefix: str = '') -> str:
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         """
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -44,10 +44,6 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         ----------
         function_call
             The function call node to convert.
-        prefix
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------
@@ -64,10 +60,10 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
             return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::get_vp_specific_rng( ' + prefix + 'get_thread() ) ))'
+            return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + prefix + 'get_thread() )->drand())'
+            return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
@@ -87,4 +83,4 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
 e();
 '''
 
-        return super()._print_function_call_format_string(function_call, prefix=prefix)
+        return super()._print_function_call_format_string(function_call)

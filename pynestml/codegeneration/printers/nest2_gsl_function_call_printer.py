@@ -29,17 +29,13 @@ class NEST2GSLFunctionCallPrinter(NEST2CppFunctionCallPrinter):
     This class is used to convert operators and constants to the GSL (GNU Scientific Library) processable format.
     """
 
-    def _print_function_call_format_string(self, function_call: ASTFunctionCall, prefix: str = "") -> str:
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""Convert a single function call to C++ GSL API syntax.
 
         Parameters
         ----------
         function_call : ASTFunctionCall
             The function call node to convert.
-        prefix : str
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------

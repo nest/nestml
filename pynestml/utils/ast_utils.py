@@ -2051,7 +2051,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None, prefix: str = '') -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
@@ -2059,20 +2059,20 @@ class ASTUtils:
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-                return prefix + 'S_.ode_state[State_::%s]'
+                return 'S_.ode_state[State_::%s]'
 
-            return prefix + 'S_.%s'
+            return 'S_.%s'
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
-            return prefix + 'P_.%s'
+            return 'P_.%s'
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return prefix + 'cp.%s'
+            return 'cp.%s'
 
         if variable_symbol.block_type == BlockType.INTERNALS:
-            return prefix + 'V_.%s'
+            return 'V_.%s'
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return prefix + 'B_.%s'
+            return 'B_.%s'
 
         return ''

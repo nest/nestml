@@ -75,7 +75,7 @@ class NESTMLPrinter(ASTPrinter):
     def __init__(self):
         self.indent = 0
 
-    def print(self, node: ASTNode, prefix: str = ""):
+    def print(self, node: ASTNode) -> str:
         ret = ""
         if isinstance(node, ASTArithmeticOperator):
             ret = self.print_arithmetic_operator(node)

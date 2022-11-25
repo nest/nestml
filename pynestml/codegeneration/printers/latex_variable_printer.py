@@ -31,7 +31,7 @@ from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class LatexVariablePrinter(VariablePrinter):
-    def print_variable(self, node: ASTVariable, prefix: str = "") -> str:
+    def print_variable(self, node: ASTVariable) -> str:
         """
         Convert name reference.
 

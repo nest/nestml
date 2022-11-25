@@ -30,11 +30,11 @@ class ODEToolboxVariablePrinter(NestMLVariablePrinter):
     Convert into a format accepted by ODE-toolbox as input.
     """
 
-    def print_variable(self, ast_variable: ASTVariable, prefix: str = '') -> str:
+    def print_variable(self, ast_variable: ASTVariable) -> str:
         """
         Returns the same string
         :param ast_variable: a single variable
         :type ast_variable: ASTVariable
         :return: the same string
         """
-        return prefix + ast_variable.get_complete_name().replace("$", "__DOLLAR")
+        return ast_variable.get_complete_name().replace("$", "__DOLLAR")

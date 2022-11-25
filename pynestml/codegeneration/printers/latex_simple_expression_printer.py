@@ -40,13 +40,13 @@ class LatexSimpleExpressionPrinter(SimpleExpressionPrinter):
     Printer for ASTSimpleExpressions in LaTeX syntax.
     """
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTSimpleExpression):
-            return self.print_simple_expression(node, prefix=prefix)
+            return self.print_simple_expression(node)
 
-        return super().print(node, prefix=prefix)
+        return super().print(node)
 
-    def print_simple_expression(self, node: ASTSimpleExpression, prefix: str = "") -> str:
+    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         assert isinstance(node, ASTSimpleExpression)
 
         if node.has_unit():

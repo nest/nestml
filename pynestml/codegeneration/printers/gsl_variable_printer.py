@@ -39,7 +39,7 @@ class GSLVariablePrinter(CppVariablePrinter):
     Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
 
-    def print_variable(self, node: ASTVariable, prefix: str = '') -> str:
+    def print_variable(self, node: ASTVariable) -> str:
         """
         Converts a single name reference to a gsl processable format.
         :param node: a single variable
@@ -53,17 +53,17 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
 
         if symbol.is_parameters():
-            return "node.P_." + super().print_variable(node, prefix)
+            return "node.P_." + super().print_variable(node)
 
         if symbol.is_internals():
-            return "node.V_." + super().print_variable(node, prefix)
+            return "node.V_." + super().print_variable(node)
 
         if symbol.is_input():
-            return "node.B_." + super().print_variable(node, prefix) + "_grid_sum_"
+            return "node.B_." + super().print_variable(node) + "_grid_sum_"
 
         raise Exception("Unknown node type")
 
-    def print_delay_variable(self, variable: ASTVariable, prefix: str =""):
+    def print_delay_variable(self, variable: ASTVariable):
         """
         Converts a delay variable to GSL processable format
         :param variable: variable to be converted
@@ -72,6 +72,6 @@ class GSLVariablePrinter(CppVariablePrinter):
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol:
             if symbol.is_state() and symbol.has_delay_parameter():
-                return prefix + "get_delayed_" + variable.get_name() + "()"
+                return "get_delayed_" + variable.get_name() + "()"
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")

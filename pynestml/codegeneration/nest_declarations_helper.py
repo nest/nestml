@@ -51,7 +51,7 @@ class NestDeclarationsHelper:
         """
         return self.types_printer.print(type_symbol)
 
-    def print_variable_type(self, variable_symbol):
+    def print_variable_type(self, variable_symbol) -> str:
         """
         Prints the type of the variable symbol to a corresponding nest representation.
         :param variable_symbol: a single variable symbol
@@ -90,7 +90,7 @@ class NestDeclarationsHelper:
             return ret
 
     @classmethod
-    def print_size_parameter(cls, ast_declaration):
+    def print_size_parameter(cls, ast_declaration) -> str:
         """
         Prints the size parameter of a single meta_model declaration.
         :param ast_declaration: a single meta_model declaration.

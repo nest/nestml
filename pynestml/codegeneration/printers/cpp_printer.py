@@ -75,7 +75,7 @@ class CppPrinter(ASTPrinter):
                  expression_printer: ExpressionPrinter):
         self._expression_printer = expression_printer
 
-    def print(self, node: ASTNode, prefix: str = "") -> str:
+    def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTArithmeticOperator):
             return self.print_arithmetic_operator(node)
         if isinstance(node, ASTAssignment):
@@ -143,28 +143,28 @@ class CppPrinter(ASTPrinter):
         if isinstance(node, ASTDeclaration):
             return self.print_declaration(node)
         if isinstance(node, ASTFunctionCall):
-            return self._expression_printer.print(node, prefix=prefix)
+            return self._expression_printer.print(node)
 
         if isinstance(node, ASTExpression):
-            return self._expression_printer.print_expression(node, prefix=prefix)
+            return self._expression_printer.print_expression(node)
 
         if isinstance(node, ASTSimpleExpression):
             return self._expression_printer._simple_expression_printer.print(node)
 
-        return super().print(node, prefix)
+        return super().print(node)
 
-    def print_declaration(self, node: ASTDeclaration, prefix: str = "") -> str:
+    def print_declaration(self, node: ASTDeclaration) -> str:
         assert False, "Not implemented! Template should not call this!"
 
-    def print_small_stmt(self, node, prefix="") -> str:
+    def print_small_stmt(self, node) -> str:
         if node.is_assignment():
-            return self.print_assignment(node.assignment, prefix=prefix)
+            return self.print_assignment(node.assignment)
 
-    def print_stmt(self, node, prefix="") -> str:
+    def print_stmt(self, node) -> str:
         if node.is_small_stmt:
-            return self.print_small_stmt(node.small_stmt, prefix=prefix)
+            return self.print_small_stmt(node.small_stmt)
 
-    def print_assignment(self, node, prefix: str = "") -> str:
+    def print_assignment(self, node) -> str:
         ret = ASTUtils.print_symbol_origin(node.lhs) % self._expression_printer.print(node.lhs)
         ret += ' '
         if node.is_compound_quotient:
@@ -214,7 +214,7 @@ class CppPrinter(ASTPrinter):
 
         return delay_parameter
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
+    def print_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -222,4 +222,4 @@ class CppPrinter(ASTPrinter):
         :return: the corresponding string representation
         """
         assert isinstance(node, ASTExpressionNode)
-        return self._expression_printer.print(node, prefix=prefix)
+        return self._expression_printer.print(node)
