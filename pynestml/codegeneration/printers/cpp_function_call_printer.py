@@ -174,8 +174,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if match:
             var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda l: self.__convert_print_statement_str(l, scope) + ' << ' if l else '')
-            fun_right = (lambda r: ' << ' + self.__convert_print_statement_str(r, scope) if r else '')
+            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
+            fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
             ast_var = ASTVariable(var_name, scope=scope)
             right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
