@@ -36,10 +36,6 @@ class NESTGSLFunctionCallPrinter(NESTCppFunctionCallPrinter):
         ----------
         function_call : ASTFunctionCall
             The function call node to convert.
-        prefix : str
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------

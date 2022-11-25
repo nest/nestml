@@ -46,8 +46,6 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
         ----------
         node : ASTExpressionNode
             The expression node to print.
-        prefix : str
-            *See documentation for the function print_function_call().*
 
         Returns
         -------
