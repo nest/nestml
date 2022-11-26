@@ -19,12 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
-from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTNeuron(ASTNeuronOrSynapse):

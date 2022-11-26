@@ -25,7 +25,6 @@ from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 

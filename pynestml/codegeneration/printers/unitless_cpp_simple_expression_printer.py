@@ -21,7 +21,6 @@
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.unit_converter import UnitConverter
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits

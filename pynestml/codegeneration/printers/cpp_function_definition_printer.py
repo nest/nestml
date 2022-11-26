@@ -19,15 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Tuple
-
 from pynestml.codegeneration.printers.function_printer import FunctionPrinter
-from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_function import ASTFunction
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
 
 
 class CppFunctionDefinitionPrinter(FunctionPrinter):

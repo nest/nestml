@@ -22,7 +22,6 @@
 from typing import Optional, Union
 
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_block import ASTBlock

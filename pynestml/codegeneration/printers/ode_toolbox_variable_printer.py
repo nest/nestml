@@ -19,8 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
-
 from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 

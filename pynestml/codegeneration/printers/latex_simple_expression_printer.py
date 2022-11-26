@@ -19,20 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Tuple
-
-import re
-
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
-from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbol_table.scope import Scope
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class LatexSimpleExpressionPrinter(SimpleExpressionPrinter):

@@ -20,15 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
-from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):

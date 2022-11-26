@@ -24,6 +24,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 

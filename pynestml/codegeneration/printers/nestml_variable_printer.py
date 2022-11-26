@@ -20,10 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
-from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.utils.ast_utils import ASTUtils
 
 
 class NestMLVariablePrinter(VariablePrinter):

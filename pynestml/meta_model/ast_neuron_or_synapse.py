@@ -175,17 +175,6 @@ class ASTNeuronOrSynapse(ASTNode):
             if isinstance(elem, ASTEquationsBlock):
                 self.get_body().get_body_elements().remove(elem)
 
-    def get_initial_value(self, variable_name):
-        assert type(variable_name) is str
-
-        for state_block in self.get_state_blocks():
-            for decl in state_block.get_declarations():
-                for var in decl.variables:
-                    if var.get_complete_name() == variable_name:
-                        return decl.get_expression()
-
-        return None
-
     def get_state_declarations(self):
         """
         Returns a list of initial values declarations made in this neuron.

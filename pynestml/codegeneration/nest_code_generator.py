@@ -36,7 +36,6 @@ from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelpe
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.cpp_function_declaration_printer import CppFunctionDeclarationPrinter
 from pynestml.codegeneration.printers.cpp_function_definition_printer import CppFunctionDefinitionPrinter
-from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_simple_expression_printer import NESTSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_types_printer import NESTCppTypesPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
@@ -47,7 +46,6 @@ from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NEST
 from pynestml.codegeneration.printers.nest2_gsl_function_call_printer import NEST2GSLFunctionCallPrinter
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
-from pynestml.codegeneration.printers.nest_printer import NestPrinter
 from pynestml.codegeneration.printers.nest_variable_printer import NESTVariablePrinter
 from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
@@ -176,8 +174,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-            self._nest_function_call_printer = NEST2CppFunctionCallPrinter()
-            self._nest_function_call_printer_no_origin = NEST2CppFunctionCallPrinter()
+            self._nest_function_call_printer = NEST2CppFunctionCallPrinter(None)
+            self._nest_function_call_printer_no_origin = NEST2CppFunctionCallPrinter(None)
         else:
             self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
             self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
@@ -196,7 +194,7 @@ class NESTCodeGenerator(CodeGenerator):
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-            self._nest_unitless_function_call_printer = NEST2CppFunctionCallPrinter()
+            self._nest_unitless_function_call_printer = NEST2CppFunctionCallPrinter(None)
         else:
             self._nest_unitless_function_call_printer = NESTCppFunctionCallPrinter(None)
 
@@ -206,14 +204,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._nest_unitless_function_call_printer._expression_printer = self._unitless_expression_printer
 
-        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-            self._unitless_function_call_printer_no_origin = NEST2CppFunctionCallPrinter()
-        else:
-            self._unitless_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
-
         self._gsl_variable_printer = GSLVariablePrinter(None)
         if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-            self._gsl_function_call_printer = NEST2GSLFunctionCallPrinter()
+            self._gsl_function_call_printer = NEST2GSLFunctionCallPrinter(None)
         else:
             self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
 

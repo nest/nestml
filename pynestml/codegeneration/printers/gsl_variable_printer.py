@@ -20,18 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
-from pynestml.codegeneration.printers.unit_converter import UnitConverter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
 
 
 class GSLVariablePrinter(CppVariablePrinter):

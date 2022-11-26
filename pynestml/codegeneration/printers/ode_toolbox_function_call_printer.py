@@ -22,7 +22,6 @@
 from typing import Tuple
 
 import re
-from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall

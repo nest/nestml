@@ -31,7 +31,6 @@ from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_data_type import ASTDataType
-from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -64,7 +63,6 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
-from pynestml.symbols.symbol import SymbolKind
 
 
 class NestPrinter(ASTPrinter):
