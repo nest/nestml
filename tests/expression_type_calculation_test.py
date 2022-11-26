@@ -18,10 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
-from pynestml.codegeneration.printers.unit_converter import UnitConverter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -62,7 +63,7 @@ class ExpressionTestVisitor(ASTVisitor):
 
         if isinstance(_expr.type, UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-                       str(UnitConverter().get_factor(_expr.type.astropy_unit))
+                       str(NESTUnitConverter.get_factor(_expr.type.astropy_unit))
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)

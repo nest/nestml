@@ -21,6 +21,7 @@
 
 from pynestml.codegeneration.printers.function_printer import FunctionPrinter
 from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.symbols.symbol import SymbolKind
 
 
 class CppFunctionDefinitionPrinter(FunctionPrinter):

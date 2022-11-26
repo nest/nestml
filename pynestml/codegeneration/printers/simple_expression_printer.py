@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 

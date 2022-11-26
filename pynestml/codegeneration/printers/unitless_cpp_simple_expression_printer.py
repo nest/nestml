@@ -19,8 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.cpp_expression_printer import CppSimpleExpressionPrinter
-from pynestml.codegeneration.printers.unit_converter import UnitConverter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -53,6 +53,6 @@ class UnitlessCppSimpleExpressionPrinter(CppSimpleExpressionPrinter):
                 node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
             if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
                 # case for a literal unit, e.g. "ms"
-                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
+                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
         return super().print_simple_expression(node)
