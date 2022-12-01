@@ -19,9 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Sequence
+
 import numpy as np
 import os
-import unittest
+import pytest
 
 import nest
 
@@ -41,7 +43,7 @@ sim_mdl = True
 sim_ref = True
 
 
-class NestSTDPSynapseTest(unittest.TestCase):
+class TestNestSTDPSynapse:
 
     neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
     ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
@@ -49,7 +51,9 @@ class NestSTDPSynapseTest(unittest.TestCase):
     synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
     ref_synapse_model_name = "stdp_synapse"
 
-    def setUp(self):
+    @pytest.fixture(autouse=True,
+                    scope="module")
+    def generate_model_code(self):
         """Generate the model code"""
 
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
@@ -87,36 +91,39 @@ class NestSTDPSynapseTest(unittest.TestCase):
                              suffix="_nestml_non_jit",
                              codegen_opts=non_jit_codegen_opts)
 
-    def test_nest_stdp_synapse(self):
-        fname_snip = ""
+        # load the generated modules into NEST
+        nest.Install("nestml_jit_module")
+        nest.Install("nestml_non_jit_module")
 
-        pre_spike_times = [1., 11., 21.]    # [ms]
-        post_spike_times = [6., 16., 26.]  # [ms]
 
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-
-        pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-                                    35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-                                    65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-                                    99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
-                                    152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-        post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-                                     25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-                                     48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-                                     80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
-                                     116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
-                                     188., 194., 202., 245., 249., 289., 454.])
-
+    @pytest.mark.parametrize("delay", [1., 1.5])
+    @pytest.mark.parametrize("resolution", [.1, .5, 1.])
+    @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
+        ([1., 11., 21.],
+         [6., 16., 26.]),
+        (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
+         np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
+        (np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
+                   35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
+                   65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
+                   99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
+                   152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.]),
+         np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
+                   25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
+                   48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
+                   80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
+                   116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
+                   188., 194., 202., 245., 249., 289., 454.])),
+        (np.array([1, 5, 6, 7, 9, 11, 12, 13, 14.5, 16.1]),
+         np.array([2, 3, 4, 8, 9, 10, 12, 13.2, 15.1, 16.4]))
+    ])
+    def test_nest_stdp_synapse(self, pre_spike_times: Sequence[float], post_spike_times: Sequence[float], resolution: float, delay: float, fname_snip: str = ""):
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
                               ref_synapse_model_name=self.ref_synapse_model_name,
-                              resolution=.5,  # [ms]
-                              delay=1.5,  # [ms]
+                              resolution=resolution,  # [ms]
+                              delay=delay,  # [ms]
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
                               fname_snip=fname_snip)
@@ -143,8 +150,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
-        nest.Install("nestml_jit_module")
-        nest.Install("nestml_non_jit_module")
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -166,7 +171,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
-                             params={"spike_times": pre_spike_times})
+                             params={"spike_times": pre_spike_times,
+                                     "allow_offgrid_times": True})
         post_sg = nest.Create("spike_generator",
                               params={"spike_times": post_spike_times,
                                       "allow_offgrid_times": True})
