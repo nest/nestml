@@ -29,7 +29,7 @@ class NESTSimpleExpressionPrinter(CppSimpleExpressionPrinter):
     """
 
     def _print(self, node: ASTSimpleExpression) -> str:
-        if node.is_delay_variable():
+        if "is_delay_variable" in dir(node) and node.is_delay_variable():
             return self._variable_printer.print_delay_variable(node.get_variable())
 
         return super()._print(node)

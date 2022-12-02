@@ -780,11 +780,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
         **/
 
 {%- for stmt in spike_update_stmts %}
-{%- if uses_numeric_solver %}
         {{printer.print(stmt)}};
-{%- else %}
-        {{printer.print(stmt)}};
-{%- endif %}
 {%- endfor %}
 
 {%- for _, spike_update in post_spike_updates.items() %}

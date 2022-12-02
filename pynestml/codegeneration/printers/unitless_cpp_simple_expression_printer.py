@@ -28,7 +28,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 
 class UnitlessCppSimpleExpressionPrinter(CppSimpleExpressionPrinter):
     r"""
-    An adjusted version of the printer which does not print units with literals.
+    An adjusted version of the printer which prints in the units of the target platform (XXX: just nest?)
     """
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:

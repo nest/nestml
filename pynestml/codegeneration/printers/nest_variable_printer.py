@@ -99,8 +99,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             # there might not be a corresponding defined state variable; insist on calling the getter function
             return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
 
-        assert not symbol.is_kernel(), "NEST reference converter cannot print kernel; kernel should have been " \
-                                       "converted during code generation code generation "
+        assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
             return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
@@ -127,30 +126,15 @@ class NESTVariablePrinter(CppVariablePrinter):
         """
         vector_parameter = variable.get_vector_parameter()
         vector_parameter_var = vector_parameter.get_variable()
-        vector_parameter_var.scope = variable.get_scope()
+        if vector_parameter_var:
+            vector_parameter_var.scope = variable.get_scope()
 
-        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                    SymbolKind.VARIABLE)
-        if symbol is not None:
-            if symbol.block_type == BlockType.STATE:
-                return self._expression_printer.print(vector_parameter)
-
-            if symbol.block_type == BlockType.LOCAL:
+            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+                                                                        SymbolKind.VARIABLE)
+            if symbol and symbol.block_type == BlockType.LOCAL:
                 return symbol.get_symbol_name()
 
-            return vector_parameter
-
-        return vector_parameter
-
-    def __get_unit_name(self, variable: ASTVariable):
-        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
-
-        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
-        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
-        if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-            return symbol.get_type_symbol().unit.unit.to_string()
-
-        return ''
+        return self._expression_printer.print(vector_parameter)
 
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())

@@ -76,75 +76,108 @@ class CppPrinter(ASTPrinter):
     def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTArithmeticOperator):
             return self.print_arithmetic_operator(node)
+
         if isinstance(node, ASTAssignment):
             return self.print_assignment(node)
+
         if isinstance(node, ASTBitOperator):
             return self.print_bit_operator(node)
+
         if isinstance(node, ASTBlock):
             return self.print_block(node)
+
         if isinstance(node, ASTBlockWithVariables):
             return self.print_block_with_variables(node)
+
         if isinstance(node, ASTNeuronOrSynapseBody):
             return self.print_neuron_or_synapse_body(node)
+
         if isinstance(node, ASTComparisonOperator):
             return self.print_comparison_operator(node)
+
         if isinstance(node, ASTCompoundStmt):
             return self.print_compound_stmt(node)
+
         if isinstance(node, ASTDataType):
             return self.print_data_type(node)
+
         if isinstance(node, ASTElifClause):
             return self.print_elif_clause(node)
+
         if isinstance(node, ASTElseClause):
             return self.print_else_clause(node)
+
         if isinstance(node, ASTEquationsBlock):
             return self.print_equations_block(node)
+
         if isinstance(node, ASTForStmt):
             return self.print_for_stmt(node)
+
         if isinstance(node, ASTFunction):
             return self.print_function(node)
+
         if isinstance(node, ASTIfClause):
             return self.print_if_clause(node)
+
         if isinstance(node, ASTIfStmt):
             return self.print_if_stmt(node)
+
         if isinstance(node, ASTInputBlock):
             return self.print_input_block(node)
+
         if isinstance(node, ASTLogicalOperator):
             return self.print_logical_operator(node)
+
         if isinstance(node, ASTNeuron):
             return self.print_neuron(node)
+
         if isinstance(node, ASTOdeEquation):
             return self.print_ode_equation(node)
+
         if isinstance(node, ASTInlineExpression):
             return self.print_inline_expression(node)
+
         if isinstance(node, ASTKernel):
             return self.print_kernel(node)
+
         if isinstance(node, ASTOutputBlock):
             return self.print_output_block(node)
+
         if isinstance(node, ASTParameter):
             return self.print_parameter(node)
+
         if isinstance(node, ASTReturnStmt):
             return self.print_return_stmt(node)
+
         if isinstance(node, ASTSmallStmt):
             return self.print_small_stmt(node)
+
         if isinstance(node, ASTUnaryOperator):
             return self.print_unary_operator(node)
+
         if isinstance(node, ASTUnitType):
             return self.print_unit_type(node)
+
         if isinstance(node, ASTUpdateBlock):
             return self.print_update_block(node)
+
         if isinstance(node, ASTVariable):
             return self._expression_printer.print(node)
+
         if isinstance(node, ASTWhileStmt):
             return self.print_while_stmt(node)
+
         if isinstance(node, ASTStmt):
             return self.print_stmt(node)
+
         if isinstance(node, ASTDeclaration):
             return self.print_declaration(node)
+
         if isinstance(node, ASTFunctionCall):
             return self._expression_printer.print(node)
 
         if isinstance(node, ASTExpression):
-            return self._expression_printer.print_expression(node)
+            return self._expression_printer.print(node)
 
         if isinstance(node, ASTSimpleExpression):
             return self._expression_printer._simple_expression_printer.print(node)
@@ -163,7 +196,7 @@ class CppPrinter(ASTPrinter):
             return self.print_small_stmt(node.small_stmt)
 
     def print_assignment(self, node) -> str:
-        ret = ASTUtils.print_symbol_origin(node.lhs) % self._expression_printer.print(node.lhs)
+        ret = self._expression_printer.print(node.lhs)
         ret += ' '
         if node.is_compound_quotient:
             ret += '/='
@@ -216,8 +249,8 @@ class CppPrinter(ASTPrinter):
         """
         Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
-        :type node: ASTExpressionNode
         :return: the corresponding string representation
         """
         assert isinstance(node, ASTExpressionNode)
+
         return self._expression_printer.print(node)

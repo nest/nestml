@@ -31,16 +31,16 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
     Printer for ASTSimpleExpressions in C++ syntax.
     """
 
-    def _print(self, node: ASTSimpleExpression) -> str:
+    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.has_unit():
-            if self._variable_printer.print_variable(node.get_variable()) in ["1", "1.", "1.0"]:
+            if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
                 return str(node.get_numeric_literal())
 
             return str(node.get_numeric_literal()) + " * " + \
-                self._variable_printer.print_variable(node.get_variable())
+                self._variable_printer.print(node.get_variable())
 
         if isinstance(node, ASTVariable):
-            return self._variable_printer.print_variable(node.get_variable())
+            return self._variable_printer.print(node.get_variable())
 
         if node.is_numeric_literal():
             return str(node.get_numeric_literal())
@@ -58,27 +58,24 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
             return 'false'
 
         if node.is_variable() or node.is_delay_variable():
-            return self._variable_printer.print_variable(node.get_variable())
+            return self._variable_printer.print(node.get_variable())
 
         if node.is_function_call():
             return self._function_call_printer.print_function_call(node.get_function_call())
 
         raise Exception("Unknown node type: " + str(node))
 
-    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
-
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
-
-        return self._print(node)
-
-    def print(self, node: ASTNode) -> str:
+    def _print(self, node: ASTNode) -> str:
         if isinstance(node, ASTVariable):
             return self._variable_printer.print(node)
 
         if isinstance(node, ASTFunctionCall):
             return self._function_call_printer.print(node)
 
-        assert isinstance(node, ASTSimpleExpression)
-
         return self.print_simple_expression(node)
+
+    def print(self, node: ASTNode) -> str:
+        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
+            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
+
+        return self._print(node)

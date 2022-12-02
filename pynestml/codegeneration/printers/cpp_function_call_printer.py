@@ -31,6 +31,9 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
     r"""
@@ -39,6 +42,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
+
         return self.print_function_call(node)
 
     def print_function_call(self, function_call: ASTFunctionCall) -> str:
@@ -176,7 +180,7 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
             fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
             ast_var = ASTVariable(var_name, scope=scope)
-            right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+            right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
         return '"' + stmt + '"'  # format bare string in C++ (add double quotes)

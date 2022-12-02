@@ -26,6 +26,7 @@ from abc import ABCMeta, abstractmethod
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
+# from pynestml.codegeneration.printers.variable_printer import VariablePrinter    # XXX: this is necessary for generating the class diagram, but causes a circular import; avoided by using ``from __future__ import annotations``
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
@@ -36,7 +37,8 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
 
-    def __init__(self, variable_printer: VariablePrinter,
+    def __init__(self,
+                 variable_printer: VariablePrinter,
                  constant_printer: ConstantPrinter,
                  function_call_printer: FunctionCallPrinter):
         self._variable_printer = variable_printer

@@ -36,17 +36,12 @@ class CppExpressionPrinter(ExpressionPrinter):
 
     def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTExpression):
-            return self._print(node)
+            if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
+                return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + "))"
+
+            return self.print_expression(node)
 
         return self._simple_expression_printer.print(node)
-
-    def _print(self, node: ASTNode) -> str:
-        assert isinstance(node, ASTExpression)
-
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + "))"
-
-        return self.print_expression(node)
 
     def print_expression(self, node: ASTExpressionNode) -> str:
         assert isinstance(node, ASTExpression)
@@ -102,7 +97,7 @@ class CppExpressionPrinter(ExpressionPrinter):
         """
         rhs = self.print(node.get_expression())
 
-        return "(" + "!" + "%s" + ")" % rhs
+        return "(" + "!" + rhs + ")"
 
     def print_logical_operator(self, node: ASTExpressionNode) -> str:
         """
@@ -115,10 +110,10 @@ class CppExpressionPrinter(ExpressionPrinter):
         rhs = self.print(node.get_rhs())
 
         if op.is_logical_and:
-            return lhs + "&&" + rhs
+            return lhs + " && " + rhs
 
         if op.is_logical_or:
-            return lhs + "||" + rhs
+            return lhs + " || " + rhs
 
         raise RuntimeError("Cannot determine logical operator!")
 

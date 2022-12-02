@@ -24,6 +24,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+# from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter    # XXX: this is necessary for generating the class diagram, but causes a circular import; avoided by using ``from __future__ import annotations``
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 

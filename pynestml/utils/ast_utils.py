@@ -25,6 +25,7 @@ import re
 import sympy
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -51,6 +52,7 @@ from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -61,7 +63,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTUtils:
-    """
+    r"""
     A collection of helpful methods for AST manipulation.
     """
 
@@ -2073,5 +2075,16 @@ class ASTUtils:
 
         if variable_symbol.block_type == BlockType.INPUT:
             return 'B_.%s'
+
+        return ''
+
+    @classmethod
+    def get_unit_name(cls, variable: ASTVariable) -> str:
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
+
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+            return symbol.get_type_symbol().unit.unit.to_string()
 
         return ''
