@@ -21,6 +21,7 @@
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 
 
 class ODEToolboxExpressionPrinter(CppExpressionPrinter):
@@ -36,3 +37,33 @@ class ODEToolboxExpressionPrinter(CppExpressionPrinter):
         if_true = self.print(node.get_if_true())
 
         return if_true
+
+    def print_arithmetic_operator(self, node: ASTExpressionNode) -> str:
+        """
+        Prints an arithmetic operator.
+        :param op: an arithmetic operator object
+        :return: a string representation
+        """
+        op = node.get_binary_operator()
+        lhs = self.print(node.get_lhs())
+        rhs = self.print(node.get_rhs())
+
+        if op.is_plus_op:
+            return lhs + " + " + rhs
+
+        if op.is_minus_op:
+            return lhs + " - " + rhs
+
+        if op.is_times_op:
+            return lhs + " * " + rhs
+
+        if op.is_div_op:
+            return lhs + " / " + rhs
+
+        if op.is_modulo_op:
+            return "sympy.Mod(" + lhs + ", " + rhs + ")"
+
+        if op.is_pow_op:
+            return lhs + "**" + rhs
+
+        raise RuntimeError("Cannot determine arithmetic operator!")

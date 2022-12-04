@@ -39,6 +39,8 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
+        print("ODEToolboxFunctionCallPrinter: Printing function " + str(node))
+
         return self.print_function_call(node)
 
     def print_function_call(self, function_call: ASTFunctionCall) -> str:
@@ -81,12 +83,6 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
-        if function_name == 'and':
-            return '&&'
-
-        if function_name == 'or':
-            return '||'
-
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
             return 'min({2!s}, max({1!s}, {0!s}))'
@@ -116,7 +112,7 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
             return 'tanh({!s})'
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1({!s})'
+            return 'expm1({!s})'
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
