@@ -30,7 +30,7 @@ class ASTPrinter(metaclass=ABCMeta):
 
     Printers are instantiated rather than having only static methods. This is the "compositionality over inheritance" pattern, chosen because "lower" grammar elements need to be printed in different ways (for instance, references to variables which could live in different data structures depending on the context) while the "higher" grammar element printers stay the same (for instance, printing a composite expression).
 
-    Some printers have internal parameters/settings, like the ``namespace`` attribute of the ``CppFunctionDefinitionPrinter``.
+    Some printers have internal parameters/settings, like the ``with_vector_parameter`` attribute of the ``NESTVariablePrinter``.
     """
 
     def __init__(self):

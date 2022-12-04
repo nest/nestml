@@ -34,8 +34,6 @@ from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDec
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
-from pynestml.codegeneration.printers.cpp_function_declaration_printer import CppFunctionDeclarationPrinter
-from pynestml.codegeneration.printers.cpp_function_definition_printer import CppFunctionDefinitionPrinter
 from pynestml.codegeneration.printers.nest_simple_expression_printer import NESTSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_types_printer import NESTCppTypesPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
@@ -421,10 +419,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["printer_no_origin"] = self._printer_no_origin
         namespace["gsl_printer"] = self._gsl_printer
         namespace["nestml_printer"] = self._printer
-        namespace["cpp_function_declaration_printer"] = CppFunctionDeclarationPrinter()
-        namespace["cpp_function_definition_printer"] = CppFunctionDefinitionPrinter(namespace=astnode.get_name())
         namespace["types_printer"] = self._types_printer
-        namespace["nest_variable_printer"] = self._nest_variable_printer
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
