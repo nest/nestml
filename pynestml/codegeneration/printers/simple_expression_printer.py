@@ -21,13 +21,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
-# from pynestml.codegeneration.printers.variable_printer import VariablePrinter    # XXX: this is necessary for generating the class diagram, but causes a circular import; avoided by using ``from __future__ import annotations``
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+
+
+if TYPE_CHECKING:
+    from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 
 
 class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):

@@ -31,9 +31,6 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
-
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
     r"""

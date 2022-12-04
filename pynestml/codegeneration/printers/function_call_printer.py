@@ -21,12 +21,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from abc import ABCMeta, abstractmethod
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
-# from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter    # XXX: this is necessary for generating the class diagram, but causes a circular import; avoided by using ``from __future__ import annotations``
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
+
+
+if TYPE_CHECKING:
+    from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter    # avoided circular import by using ``from __future__ import annotations``
 
 
 class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
