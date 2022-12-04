@@ -138,37 +138,9 @@ class NESTCodeGenerator(CodeGenerator):
         self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
 
         self.setup_template_env()
+        self.setup_printers()
 
-        # self._types_printer = CppTypesPrinter()
-
-        # if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
-        #     from pynestml.codegeneration.printers.nest2_gsl_variable_printer import NEST2GSLVariablePrinter
-        #     from pynestml.codegeneration.printers.nest2_variable_printer import NEST2VariablePrinter
-        #     self._gsl_variable_printer = NEST2GSLVariablePrinter()
-        #     self._nest_variable_printer = NEST2VariablePrinter()
-        #     self._nest_variable_printer_no_origin = NEST2VariablePrinter()
-        #     self._nest_variable_printer_no_origin.with_origin = False
-        # else:
-        #     self._gsl_variable_printer = GSLVariablePrinter()
-        #     self._nest_variable_printer = NESTVariablePrinter()
-        #     self._nest_variable_printer_no_origin = NESTVariablePrinter()
-        #     self._nest_variable_printer_no_origin.with_origin = False
-
-        # self._printer = CppExpressionPrinter(self._nest_variable_printer)
-        # self._unitless_expression_printer = UnitlessCppExpressionPrinter(self._nest_variable_printer)
-        # self._unitless_expression_printer_no_origin = UnitlessCppExpressionPrinter(self._nest_variable_printer_no_origin)
-        # self._gsl_printer = UnitlessCppExpressionPrinter(variable_printer=self._gsl_variable_printer)
-
-        # self._nest_printer = NestPrinter(variable_printer=self._nest_variable_printer,
-        #                                  types_printer=self._types_printer,
-        #                                  expression_printer=self._printer)
-
-        # self._unitless_nest_gsl_printer = NestPrinter(variable_printer=self._nest_variable_printer,
-        #                                               types_printer=self._types_printer,
-        #                                               expression_printer=self._unitless_expression_printer)
-
-        # self._ode_toolbox_printer = UnitlessCppExpressionPrinter(ODEToolboxVariablePrinter())
-
+    def setup_printers(self):
         self._constant_printer = ConstantPrinter()
         self._types_printer = NESTCppTypesPrinter()
 
@@ -185,6 +157,7 @@ class NESTCodeGenerator(CodeGenerator):
                                                                                                    function_call_printer=self._nest_function_call_printer))
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
+        self._nest_printer = CppPrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False, with_vector_parameter=False)
         self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=NESTSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
@@ -201,7 +174,6 @@ class NESTCodeGenerator(CodeGenerator):
         self._unitless_expression_printer = CppExpressionPrinter(simple_expression_printer=NESTSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                                                        constant_printer=self._constant_printer,
                                                                                                                        function_call_printer=self._nest_unitless_function_call_printer))
-
         self._nest_unitless_function_call_printer._expression_printer = self._unitless_expression_printer
 
         self._gsl_variable_printer = GSLVariablePrinter(None)
@@ -214,8 +186,7 @@ class NESTCodeGenerator(CodeGenerator):
                                                                                                               constant_printer=self._constant_printer,
                                                                                                               function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
-        self._nest_printer = CppPrinter(expression_printer=self._printer)
-        self._unitless_nest_gsl_printer = CppPrinter(expression_printer=self._gsl_printer)
+
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
