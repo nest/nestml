@@ -25,7 +25,6 @@ from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.type_symbol import TypeSymbol
-from pynestml.utils.either import Either
 
 
 class ASTVariable(ASTNode):
@@ -150,6 +149,13 @@ class ASTVariable(ASTNode):
         :param type_symbol: a single type symbol object.
         """
         self.type_symbol = type_symbol
+
+    def has_vector_parameter(self) -> bool:
+        r"""
+        Returns the vector parameter of the variable
+        :return: the vector parameter
+        """
+        return self.vector_parameter is not None
 
     def get_vector_parameter(self) -> str:
         r"""

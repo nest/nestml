@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_time_type_symbol.py
+# nest_cpp_types_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,29 +19,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class NESTTimeTypeSymbol(TypeSymbol):
-    def is_numeric(self):
-        return False
+class NESTCppTypesPrinter(CppTypesPrinter):
+    """
+    Returns a C++ syntax version of the handed over type.
+    """
 
-    def is_primitive(self):
-        return False
+    def print(self, type_symbol: TypeSymbol) -> str:
+        """
+        Converts the name of the type symbol to a corresponding nest representation.
+        :param type_symbol: a single type symbol
+        :return: the corresponding string representation.
+        """
+        assert isinstance(type_symbol, TypeSymbol)
 
-    def __init__(self):
-        super(NESTTimeTypeSymbol, self).__init__(name='time')
+        if type_symbol.is_buffer:
+            return "nest::RingBuffer"
 
-    def print_nestml_type(self):
-        return 'time'
-
-    def __add__(self, other):
-        from pynestml.symbols.string_type_symbol import StringTypeSymbol
-        if other.is_instance_of(StringTypeSymbol):
-            return other
-        return self.binary_operation_not_defined_error('+', other)
-
-    def is_castable_to(self, _other_type):
-        if super(NESTTimeTypeSymbol, self).is_castable_to(_other_type):
-            return True
-        return False
+        return super().print(type_symbol)

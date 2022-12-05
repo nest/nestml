@@ -21,34 +21,34 @@
 
 from abc import ABCMeta, abstractmethod
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 
 
-class ExpressionPrinter(metaclass=ABCMeta):
+class ExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
     r"""
     Converts expressions to the executable platform dependent code.
 
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
 
-    def __init__(self, reference_converter: ReferenceConverter):
-        self.reference_converter = reference_converter
+    def __init__(self,
+                 simple_expression_printer: SimpleExpressionPrinter):
+        self._simple_expression_printer = simple_expression_printer
 
     @abstractmethod
-    def print_expression(self, node: ASTExpressionNode, prefix: str = ""):
+    def print_expression(self, node: ASTExpressionNode) -> str:
         """Print an expression.
 
         Parameters
         ----------
         node : ASTExpressionNode
             The expression node to print.
-        prefix : str
-            *See documentation for the function print_function_call().*
 
         Returns
         -------
         s : str
             The expression string.
         """
-        pass
+        assert False

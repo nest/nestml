@@ -27,7 +27,6 @@ from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.string_type_symbol import StringTypeSymbol
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
@@ -36,16 +35,13 @@ class CppTypesPrinter(TypesPrinter):
     Returns a C++ syntax version of the handed over type.
     """
 
-    def convert(self, type_symbol: TypeSymbol) -> str:
+    def print(self, type_symbol: TypeSymbol) -> str:
         """
         Converts the name of the type symbol to a corresponding nest representation.
         :param type_symbol: a single type symbol
         :return: the corresponding string representation.
         """
         assert isinstance(type_symbol, TypeSymbol)
-
-        if type_symbol.is_buffer:
-            return "nest::RingBuffer"
 
         if isinstance(type_symbol, RealTypeSymbol):
             return "double"
@@ -65,10 +61,7 @@ class CppTypesPrinter(TypesPrinter):
         if isinstance(type_symbol, UnitTypeSymbol):
             return "double"
 
-        if isinstance(type_symbol, NESTTimeTypeSymbol):
-            return "nest::Time"
-
         if isinstance(type_symbol, ErrorTypeSymbol):
             return "ERROR"
 
-        raise Exception("Unknown NEST type")
+        raise Exception("Unknown C++ type")

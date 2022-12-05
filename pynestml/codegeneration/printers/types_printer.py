@@ -21,15 +21,16 @@
 
 import abc
 
-from pynestml.symbols.type_symbol import TypeSymbol
+from pynestml.symbols.symbol import Symbol
+from pynestml.codegeneration.printers.symbol_printer import SymbolPrinter
 
 
-class TypesPrinter(metaclass=abc.ABCMeta):
+class TypesPrinter(SymbolPrinter, metaclass=abc.ABCMeta):
     r"""
     Returns a string format of ``TypeSymbol``s.
     """
 
     @classmethod
     @abc.abstractmethod
-    def convert(cls, element: TypeSymbol):
-        pass
+    def print(cls, element: Symbol) -> str:
+        raise Exception("Cannot call abstract method")

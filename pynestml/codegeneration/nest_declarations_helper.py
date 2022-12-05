@@ -20,9 +20,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.messages import Messages
 
 
@@ -45,9 +49,9 @@ class NestDeclarationsHelper:
         :return: the corresponding domain
         :rtype: str
         """
-        return self.types_printer.convert(type_symbol)
+        return self.types_printer.print(type_symbol)
 
-    def print_variable_type(self, variable_symbol):
+    def print_variable_type(self, variable_symbol) -> str:
         """
         Prints the type of the variable symbol to a corresponding nest representation.
         :param variable_symbol: a single variable symbol
@@ -56,10 +60,10 @@ class NestDeclarationsHelper:
         :rtype: str
         """
         if variable_symbol.has_vector_parameter():
-            return 'std::vector< ' + self.types_printer.convert(variable_symbol.get_type_symbol()) + \
+            return 'std::vector< ' + self.types_printer.print(variable_symbol.get_type_symbol()) + \
                    ' > '
 
-        return self.types_printer.convert(variable_symbol.get_type_symbol())
+        return self.types_printer.print(variable_symbol.get_type_symbol())
 
     @classmethod
     def get_variables(cls, ast_declaration):
@@ -86,7 +90,7 @@ class NestDeclarationsHelper:
             return ret
 
     @classmethod
-    def print_size_parameter(cls, ast_declaration):
+    def print_size_parameter(cls, ast_declaration) -> str:
         """
         Prints the size parameter of a single meta_model declaration.
         :param ast_declaration: a single meta_model declaration.
@@ -95,3 +99,22 @@ class NestDeclarationsHelper:
         :rtype: str
         """
         return ast_declaration.get_size_parameter()
+
+    @classmethod
+    def print_delay_parameter(cls, variable: VariableSymbol, variable_printer: VariablePrinter) -> str:
+        """
+        Prints the delay parameter
+        :param variable: Variable with delay parameter
+        :return: the corresponding delay parameter
+        """
+        assert isinstance(variable, VariableSymbol), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+        delay_parameter = variable.get_delay_parameter()
+        delay_parameter_var = ASTVariable(delay_parameter, scope=variable.get_corresponding_scope())
+        symbol = delay_parameter_var.get_scope().resolve_to_symbol(delay_parameter_var.get_complete_name(),
+                                                                   SymbolKind.VARIABLE)
+        if symbol is not None:
+            # delay parameter is a variable
+            return ASTUtils.print_symbol_origin(symbol) % delay_parameter
+
+        return delay_parameter
