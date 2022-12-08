@@ -42,6 +42,7 @@ from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
@@ -391,6 +392,11 @@ class NESTMLPrinter(Printer):
             ret += '= ' + self.print_node(node.get_expression())
         if node.has_invariant():
             ret += ' [[' + self.print_node(node.get_invariant()) + ']]'
+        for decorator in node.get_decorators():
+            if isinstance(decorator, ASTNamespaceDecorator):
+                ret += ' @' + str(decorator.namespace) + "::" + str(decorator.name)
+            else:
+                ret += ' @' + str(decorator)
         ret += print_sl_comment(node.in_comment) + '\n'
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
@@ -610,7 +616,7 @@ class NESTMLPrinter(Printer):
             return str(node.numeric_literal)
 
         if node.is_variable():
-            return self.print_node(node.variable)
+            return self.print_variable(node.get_variable())
 
         if node.is_string():
             return node.get_string()
@@ -684,8 +690,12 @@ class NESTMLPrinter(Printer):
 
     def print_variable(self, node: ASTVariable):
         ret = node.name
+        if node.get_vector_parameter():
+            ret += "[" + self.print_node(node.get_vector_parameter()) + "]"
+
         for i in range(1, node.differential_order + 1):
             ret += "'"
+
         return ret
 
     def print_while_stmt(self, node: ASTWhileStmt) -> str:

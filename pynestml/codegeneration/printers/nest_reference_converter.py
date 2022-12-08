@@ -180,10 +180,7 @@ e();
 
         vector_param = ""
         if symbol.has_vector_parameter():
-            vector_param = "[" + variable.get_vector_parameter() + "]"
-
-        # if symbol.is_local():
-        #     return variable.get_name() + vector_param
+            vector_param = "[" + self.convert_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -226,6 +223,31 @@ e();
             if symbol.is_state() and symbol.has_delay_parameter():
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
+
+    def convert_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
+        """
+        Converts the vector parameter into NEST processable format
+        :param variable:
+        :return:
+        """
+        vector_parameter = variable.get_vector_parameter()
+
+        assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+
+        if vector_parameter.is_variable():
+            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(),
+                                                                    SymbolKind.VARIABLE)
+            if symbol is not None:
+                if symbol.block_type == BlockType.STATE:
+                    return self.getter(symbol) + "()"
+
+                if symbol.block_type == BlockType.LOCAL:
+                    return symbol.get_symbol_name()
+
+                return self.print_origin(symbol)
+
+        if vector_parameter.is_numeric_literal():
+            return str(vector_parameter.get_numeric_literal())
 
     def __get_unit_name(self, variable: ASTVariable):
         assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
@@ -278,8 +300,8 @@ e();
         if match:
             var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda l: self.__convert_print_statement_str(l, scope) + ' << ' if l else '')
-            fun_right = (lambda r: ' << ' + self.__convert_print_statement_str(r, scope) if r else '')
+            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
+            fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
             ast_var = ASTVariable(var_name, scope=scope)
             right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)

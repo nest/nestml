@@ -25,7 +25,6 @@ from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.type_symbol import TypeSymbol
-from pynestml.utils.either import Either
 
 
 class ASTVariable(ASTNode):

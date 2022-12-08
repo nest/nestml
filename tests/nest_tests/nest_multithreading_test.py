@@ -29,9 +29,6 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-nest_version = NESTTools.detect_nest_version()
-
-
 @pytest.mark.parametrize("number_of_threads", [1, 2, 4])
 class TestNestMultithreading:
     neuron_synapse_module = "nestml_stdp_module"
@@ -78,7 +75,7 @@ class TestNestMultithreading:
         nest.Install(self.neuron_module)
         nest.Install(self.neuron_synapse_module)
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_neuron_multithreading(self, number_of_threads: int) -> None:
         nest.ResetKernel()
@@ -106,7 +103,7 @@ class TestNestMultithreading:
         v_m_sender = v_m[senders == gid_post]
         np.testing.assert_almost_equal(v_m_sender[-1], -69.97074345103816)
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_neuron_synapse_multithreading(self, number_of_threads: int) -> None:
         pre_spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,

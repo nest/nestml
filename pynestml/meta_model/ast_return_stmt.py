@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
 class ASTReturnStmt(ASTNode):
