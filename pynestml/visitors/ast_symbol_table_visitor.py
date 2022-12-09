@@ -185,13 +185,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
             # update the scope of the arg
             arg.update_scope(scope)
             # create the corresponding variable symbol representing the parameter
-            var_symbol = VariableSymbol(element_reference=arg, scope=scope, name=arg.get_name(),
+            variable_symbolbol = VariableSymbol(element_reference=arg, scope=scope, name=arg.get_name(),
                                         block_type=BlockType.LOCAL, is_predefined=False, is_inline_expression=False,
                                         is_recordable=False,
                                         type_symbol=PredefinedTypes.get_type(type_name),
                                         variable_type=VariableType.VARIABLE)
             assert isinstance(scope, Scope)
-            scope.add_symbol(var_symbol)
+            scope.add_symbol(variable_symbolbol)
         if node.has_return_type():
             data_type_visitor = ASTDataTypeVisitor()
             node.get_return_type().accept(data_type_visitor)

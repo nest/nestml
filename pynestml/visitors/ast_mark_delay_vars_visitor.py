@@ -39,8 +39,8 @@ class ASTMarkDelayVarsVisitor(ASTVisitor):
         node.has_delay = True
 
     def visit_variable(self, node: ASTVariable):
-        delay_var_symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
-        if delay_var_symbol is not None:
-            delay_parameter = delay_var_symbol.get_delay_parameter()
+        delay_variable_symbolbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+        if delay_variable_symbolbol is not None:
+            delay_parameter = delay_variable_symbolbol.get_delay_parameter()
             if delay_parameter is not None:
                 node.set_delay_parameter(delay_parameter)

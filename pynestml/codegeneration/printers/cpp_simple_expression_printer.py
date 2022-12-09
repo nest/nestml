@@ -75,7 +75,6 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
         return self.print_simple_expression(node)
 
     def print(self, node: ASTNode) -> str:
-        print("In cppsimpleepxressionprinter: " + str(node))
         if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
             return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
 

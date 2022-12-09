@@ -145,6 +145,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             assert type(s) == str
 
         if with_origin:
-            return ASTUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
 
         return variable_name

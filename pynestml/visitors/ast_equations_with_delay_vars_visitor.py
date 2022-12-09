@@ -50,17 +50,17 @@ class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
             node.set_variable(ast_variable)
 
             # Set the delay parameter in its corresponding variable symbol
-            delay_var_symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())
-            if delay_var_symbol is None:
+            delay_variable_symbolbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())
+            if delay_variable_symbolbol is None:
                 code, message = Messages.get_no_variable_found(node.get_function_call().get_name())
                 Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                    log_level=LoggingLevel.ERROR)
                 return
 
-            delay_var_symbol.set_delay_parameter(delay_parameter)
+            delay_variable_symbolbol.set_delay_parameter(delay_parameter)
 
             # Update scope
-            node.get_scope().update_variable_symbol(delay_var_symbol)
+            node.get_scope().update_variable_symbol(delay_variable_symbolbol)
 
             # Nullify the function call
             node.set_function_call(None)
