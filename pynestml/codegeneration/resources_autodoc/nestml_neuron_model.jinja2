@@ -7,40 +7,39 @@
 Parameters
 ++++++++++
 
-{{ neuron.print_parameter_comment() }}
-
-{% with block = neuron.get_parameter_blocks() %}
+{% for block in neuron.get_parameters_blocks() %}
+{{ block.print_comment() }}
 {%- include "block_decl_table.jinja2" %}
-{% endwith %}
+{%- endfor %}
 
 
 
 State variables
 +++++++++++++++
 
-{% with block = neuron.get_state_blocks() %}
+{% for block in neuron.get_state_blocks() %}
 {%- include "block_decl_table.jinja2" %}
-{% endwith %}
+{% endfor %}
 
 
 
 Equations
 +++++++++
 
-{% with block = neuron.get_equations_block() %}
-{% for eq in block.get_ode_equations() %}
+{%  for block in neuron.get_equations_blocks() %}
+{%-     for eq in block.get_ode_equations() %}
 
 .. math::
-{%- if eq.get_lhs().differential_order == 1 %}
+{%-         if eq.get_lhs().differential_order == 1 %}
    \frac{ d{{ printer.print_expression(eq.get_lhs()) | replace("'", "") }} } { dt }
-{%- elif eq.get_lhs().differential_order > 1 %}
+{%-         elif eq.get_lhs().differential_order > 1 %}
    \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print_expression(eq.get_lhs()) | replace("'", "") }} } { dt^{{ eq.get_lhs().differential_order }} }
-{%- else %} {# differential_order == 0 #}
+{%-         else %} {# differential_order == 0 #}
    {{ eq.get_lhs().get_name() }}
-{%- endif -%}
+{%-         endif -%}
    = {{ printer.print_expression(eq.get_rhs()) }}
-{% endfor %}
-{% endwith %}
+{%-     endfor %}
+{%- endfor %}
 
 
 
