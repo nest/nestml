@@ -37,7 +37,7 @@ class TestPythonStandaloneSynapseBuildAndSim(unittest.TestCase):
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "synapses", "stdp_synapse.nestml")))),
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))]
+                os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))]
         target_path = "nestmlmodule"
         logging_level = "INFO"
         suffix = ""

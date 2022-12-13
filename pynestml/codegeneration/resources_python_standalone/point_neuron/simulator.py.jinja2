@@ -82,9 +82,21 @@ class Simulator:
 
             if hasattr(neuron, "S_"):
                 for var_name, value in neuron.S_.__dict__.items():
+                    if var_name in ["ode_state", "ode_state_variable_name_to_index"]:
+                        continue
+
                     if not var_name in self.log[neuron.gid].keys():
                         self.log[neuron.gid][var_name] = []
+
                     self.log[neuron.gid][var_name].append(value)
+
+                if hasattr(neuron.S_, "ode_state"):
+                    for var_name, idx in neuron.S_.ode_state_variable_name_to_index.items():
+                        if not var_name in self.log[neuron.gid].keys():
+                            self.log[neuron.gid][var_name] = []
+
+                        value = neuron.S_.ode_state[idx]
+                        self.log[neuron.gid][var_name].append(value)
 
 
     def step(self, timestep: float):

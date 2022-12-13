@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cpp_printer.py
+# model_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from abc import abstractmethod
-
-from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -36,7 +33,6 @@ from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -63,8 +59,6 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -72,7 +66,6 @@ from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
-
 
 
 class ModelPrinter(ASTPrinter):

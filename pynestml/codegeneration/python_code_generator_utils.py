@@ -33,6 +33,9 @@ class PythonCodeGeneratorUtils:
         :return: the corresponding prefix
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
+            if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
+                return 'self.S_.ode_state[self.S_.ode_state_variable_name_to_index["%s"]]'
+
             return 'self.S_.%s'
 
         if variable_symbol.block_type == BlockType.PARAMETERS:

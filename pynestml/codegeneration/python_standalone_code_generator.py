@@ -80,32 +80,32 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._nest_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
 
         self._printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
-                                                                                                   constant_printer=self._constant_printer,
-                                                                                                   function_call_printer=self._nest_function_call_printer))
+                                                                                                        constant_printer=self._constant_printer,
+                                                                                                        function_call_printer=self._nest_function_call_printer))
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = PythonStandalonePrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = PythonVariablePrinter(None, with_origin=False, with_vector_parameter=False)
         self._printer_no_origin = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
-                                                                                                             constant_printer=self._constant_printer,
-                                                                                                             function_call_printer=self._nest_function_call_printer_no_origin))
+                                                                                                                  constant_printer=self._constant_printer,
+                                                                                                                  function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
         self._nest_unitless_function_call_printer = PythonFunctionCallPrinter(None)
 
         self._unitless_expression_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
-                                                                                                                       constant_printer=self._constant_printer,
-                                                                                                                       function_call_printer=self._nest_unitless_function_call_printer))
+                                                                                                                            constant_printer=self._constant_printer,
+                                                                                                                            function_call_printer=self._nest_unitless_function_call_printer))
         self._nest_unitless_function_call_printer._expression_printer = self._unitless_expression_printer
 
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
 
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                                                              constant_printer=self._constant_printer,
-                                                                                                              function_call_printer=self._gsl_function_call_printer))
+                                                                                                            constant_printer=self._constant_printer,
+                                                                                                            function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
     def _get_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:

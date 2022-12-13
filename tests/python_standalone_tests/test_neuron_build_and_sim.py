@@ -23,8 +23,6 @@ import os
 import pytest
 import unittest
 
-import nest
-
 from pynestml.frontend.pynestml_frontend import generate_python_standalone_target
 
 
