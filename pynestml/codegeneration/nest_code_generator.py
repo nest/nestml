@@ -736,7 +736,7 @@ class NESTCodeGenerator(CodeGenerator):
             self._nest_variable_printer._state_symbols.extend(namespace["purely_numeric_state_variables_moved"])
             if "analytic_state_variables_moved" in namespace.keys():
                 self._nest_variable_printer._state_symbols.extend(namespace["analytic_state_variables_moved"])
-            #self._nest_variable_printer._state_symbols.extend(namespace["non_equations_state_variables"])
+
         namespace["numerical_state_symbols"] = self._nest_variable_printer._state_symbols
         self._gsl_variable_printer._state_symbols = self._nest_variable_printer._state_symbols
 

@@ -44,7 +44,6 @@ class GSLVariablePrinter(CppVariablePrinter):
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_state() and not symbol.is_inline_expression:
-            print("Node: " +str(node) + ", state_symbols_ = "+ str(self._state_symbols))
             if node.get_complete_name() in self._state_symbols:
                 # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
                 return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"

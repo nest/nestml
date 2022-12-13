@@ -45,7 +45,6 @@ Generated from NESTML at time: {{now}}
 from typing import Any, List, Mapping, Tuple
 
 from .synapse import Synapse
-from .vectorizable import Vectorizable
 
 
 class Synapse_{{synapseName}}(Synapse):
@@ -104,7 +103,7 @@ class Synapse_{{synapseName}}(Synapse):
 {%- endif %}
 {%- if synapse.get_state_symbols() | length > 0 %}
 
-  class State_(Vectorizable):
+  class State_:
 {%-   filter indent(4,True) %}
 {%-   for variable in synapse.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
