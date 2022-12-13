@@ -66,8 +66,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "{{neuronName}}.h"
 
-{%- set stateSize = neuron.get_non_inline_state_symbols()|length %}
-
 // ---------------------------------------------------------------------------
 //   Recordables map
 // ---------------------------------------------------------------------------
@@ -360,7 +358,7 @@ void {{neuronName}}::init_buffers_()
 
   if ( not B_.__s )
   {
-    B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
+    B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, State_::STATE_VEC_SIZE );
   }
   else
   {
@@ -378,7 +376,7 @@ void {{neuronName}}::init_buffers_()
 
   if ( not B_.__e )
   {
-    B_.__e = gsl_odeiv_evolve_alloc( {{stateSize}} );
+    B_.__e = gsl_odeiv_evolve_alloc( State_::STATE_VEC_SIZE );
   }
   else
   {
@@ -387,7 +385,7 @@ void {{neuronName}}::init_buffers_()
 
   B_.__sys.function = {{neuronName}}_dynamics;
   B_.__sys.jacobian = nullptr;
-  B_.__sys.dimension = {{stateSize}};
+  B_.__sys.dimension = State_::STATE_VEC_SIZE;
   B_.__sys.params = reinterpret_cast< void* >( this );
   B_.__step = nest::Time::get_resolution().get_ms();
   B_.__integration_step = nest::Time::get_resolution().get_ms();
@@ -489,11 +487,7 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 {%-   endfor %}
 
 {%- endif %}
-{%- if neuron.print_comment('*')|length > 1 %}
-/*
- {{neuron.print_comment('*')}}
- */
-{%- endif %}
+
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
@@ -521,7 +515,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     update_delay_variables();
 {%- endif %}
 
-    // NESTML generated code for the update block:
+    // NESTML generated code for the update block
 
 {%- if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
