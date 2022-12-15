@@ -45,7 +45,7 @@ neuron input_ports:
     NMDA_spikes pA <- spike
     foo[TWO] pA <- spike
     my_spikes[3] pA <- excitatory spike
-	my_spikes2[3] pA <- inhibitory spike
+    my_spikes2[3] pA <- inhibitory spike
   end
 
   update:
