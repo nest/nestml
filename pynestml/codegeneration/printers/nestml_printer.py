@@ -386,7 +386,7 @@ class NESTMLPrinter(Printer):
                 ret += ','
         ret += ' ' + self.print_node(node.get_data_type()) + ' '
         if node.has_size_parameter():
-            ret += '[' + node.get_size_parameter() + '] '
+            ret += '[' + self.print_node(node.get_size_parameter()) + '] '
         if node.has_expression():
             ret += '= ' + self.print_node(node.get_expression())
         if node.has_invariant():
@@ -506,7 +506,7 @@ class NESTMLPrinter(Printer):
         if node.has_datatype():
             ret += ' ' + self.print_node(node.get_datatype()) + ' '
         if node.has_size_parameter():
-            ret += '[' + node.get_size_parameter() + ']'
+            ret += '[' + self.print_node(node.get_size_parameter()) + ']'
         ret += '<-'
         if node.has_input_qualifiers():
             for qual in node.get_input_qualifiers():

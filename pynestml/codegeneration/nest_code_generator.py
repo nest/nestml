@@ -55,7 +55,10 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
+from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
+from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import \
+    ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
@@ -254,6 +257,11 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(equations_with_delay_vars_visitor)
         equations_with_delay_vars = equations_with_delay_vars_visitor.equations
 
+        # # Collect all the equations with vector variables
+        # eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
+        # neuron.accept(eqns_with_vector_vars_visitor)
+        # equations_with_vector_variables = eqns_with_vector_vars_visitor.equations
+
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
@@ -280,7 +288,7 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.remove_initial_values_for_kernels(neuron)
         kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
-        ASTUtils.remove_ode_definitions_from_equations_block(neuron)
+        # ASTUtils.remove_ode_definitions_from_equations_block(neuron)
         ASTUtils.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
@@ -559,6 +567,12 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
 
+            # Collect all the equations with vector variables
+            eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
+            neuron.accept(eqns_with_vector_vars_visitor)
+            equations_with_vector_variables = eqns_with_vector_vars_visitor.equations
+
+            ASTUtils.remove_ode_definitions_from_equations_block(neuron)
             namespace["update_expressions"] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
@@ -575,6 +589,11 @@ class NESTCodeGenerator(CodeGenerator):
                 if ASTUtils.has_equation_with_delay_variable(neuron.equations_with_delay_vars, sym):
                     marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
                     expr_ast.accept(marks_delay_vars_visitor)
+
+                for eqn in equations_with_vector_variables:
+                    for var in eqn.rhs.get_variables():
+                        sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
+                        expr_ast.accept(sets_vector_param_in_update_expr_visitor)
 
             namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 

@@ -157,7 +157,7 @@ class ASTVariable(ASTNode):
         """
         return self.vector_parameter
 
-    def set_size_parameter(self, vector_parameter):
+    def set_vector_parameter(self, vector_parameter):
         r"""
         Updates the vector parameter of the variable
         """

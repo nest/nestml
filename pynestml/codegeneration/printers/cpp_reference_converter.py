@@ -21,6 +21,8 @@
 
 from typing import Union
 
+from pynestml.symbols.symbol import SymbolKind
+
 from pynestml.utils.ast_utils import ASTUtils
 
 from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
@@ -30,7 +32,7 @@ from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 
 
 class CppReferenceConverter(ReferenceConverter):

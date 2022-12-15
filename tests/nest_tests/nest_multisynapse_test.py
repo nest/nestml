@@ -56,6 +56,7 @@ class NestMultiSynapseTest(unittest.TestCase):
         # network construction
 
         neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+        print(neuron.get("receptor_types"))
 
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
         nest.Connect(sg, neuron, syn_spec={"receptor_type": 1, "weight": 1000., "delay": 0.1})
