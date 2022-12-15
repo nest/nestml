@@ -111,6 +111,7 @@ class MessageCode(Enum):
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
     DELAY_VARIABLE = 84
+    NEST_DELAY_DECORATOR_NOT_FOUND = 85
 
 
 class Messages:
@@ -1179,3 +1180,8 @@ class Messages:
     def get_function_is_delay_variable(cls, func):
         message = "Function '" + func + "' is not a function but a delay variable."
         return MessageCode.DELAY_VARIABLE, message
+
+    @classmethod
+    def get_nest_delay_decorator_not_found(cls):
+        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
+        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
