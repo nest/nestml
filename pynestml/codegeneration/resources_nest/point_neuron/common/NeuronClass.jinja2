@@ -361,13 +361,13 @@ void {{neuronName}}::init_state_(const Node& proto)
 void {{neuronName}}::init_buffers_()
 {
 {% if (neuron.get_spike_input_ports())|length > 0 -%}
-  get_spike_inputs_().clear(); // includes resize
-  get_spike_inputs_grid_sum_().clear(); // includes resize
+  get_spike_inputs_().clear();
+  get_spike_inputs_grid_sum_().clear();
 {%- endif %}
 {% for inputPort in neuron.get_continuous_input_ports() %}
   {{ buffer_initialization.BufferInitialization(inputPort) }}
 {%- endfor %}
-  B_.logger_.reset(); // includes resize
+  B_.logger_.reset();
 {%- if has_delay_variables %}
   // Initialize helper variables for delay-based variables
 {%-   for variable in neuron.get_state_symbols() %}
