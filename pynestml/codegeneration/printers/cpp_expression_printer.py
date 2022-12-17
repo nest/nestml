@@ -45,27 +45,28 @@ class CppExpressionPrinter(ExpressionPrinter):
 
     def print_expression(self, node: ASTExpressionNode) -> str:
         assert isinstance(node, ASTExpression)
+
         if node.is_unary_operator():
-            return self.print_unary_op(node)
+            return self._print_unary_op_expression(node)
 
         if node.is_encapsulated:
-            return self.print_encapsulated(node)
+            return self._print_encapsulated_expression(node)
 
         if node.is_logical_not:
-            return self.print_logical_not(node)
+            return self._print_logical_not_expression(node)
 
         if node.is_compound_expression():
-            return self.print_binary_op(node)
+            return self._print_binary_op_expression(node)
 
         if node.is_ternary_operator():
-            return self.print_ternary_operator(node)
+            return self._print_ternary_operator_expression(node)
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
-    def print_unary_op(self, node: ASTExpressionNode) -> str:
+    def _print_unary_op_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a unary operator.
-        :param unary_operator: an operator object
+        :param node: an expression with unary operator
         :return: a string representation
         """
         rhs = self.print(node.get_expression())
@@ -81,7 +82,7 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine unary operator!")
 
-    def print_encapsulated(self, node: ASTExpression) -> str:
+    def _print_encapsulated_expression(self, node: ASTExpression) -> str:
         """
         Prints the encapsulating parenthesis of an expression.
         :return: a string representation
@@ -90,7 +91,7 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         return "(" + expr + ")"
 
-    def print_logical_not(self, node: ASTExpression) -> str:
+    def _print_logical_not_expression(self, node: ASTExpression) -> str:
         """
         Prints a logical NOT operator.
         :return: a string representation
@@ -99,10 +100,10 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         return "(" + "!" + rhs + ")"
 
-    def print_logical_operator(self, node: ASTExpressionNode) -> str:
+    def _print_logical_operator_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a logical operator.
-        :param op: a logical operator object
+        :param node: an expression with logical operator
         :return: a string representation
         """
         op = node.get_binary_operator()
@@ -117,10 +118,10 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine logical operator!")
 
-    def print_comparison_operator(self, node: ASTExpressionNode) -> str:
+    def _print_comparison_operator_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a comparison operator.
-        :param op: a comparison operator object
+        :param node: an expression with comparison operator
         :return: a string representation
         """
         op = node.get_binary_operator()
@@ -147,10 +148,10 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine comparison operator!")
 
-    def print_bit_operator(self, node: ASTExpressionNode) -> str:
+    def _print_bit_operator_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a bit operator in NEST syntax.
-        :param op: a bit operator object
+        :param node: an expression with a bit operator
         :return: a string representation
         """
         op = node.get_binary_operator()
@@ -174,10 +175,10 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine bit operator!")
 
-    def print_arithmetic_operator(self, node: ASTExpressionNode) -> str:
+    def _print_arithmetic_operator_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints an arithmetic operator.
-        :param op: an arithmetic operator object
+        :param node: an expression with arithmetic operator
         :return: a string representation
         """
         op = node.get_binary_operator()
@@ -204,7 +205,7 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine arithmetic operator!")
 
-    def print_ternary_operator(self, node: ASTExpression) -> str:
+    def _print_ternary_operator_expression(self, node: ASTExpression) -> str:
         """
         Prints a ternary operator.
         :return: a string representation
@@ -215,25 +216,25 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         return "(" + condition + ") ? (" + if_true + ") : (" + if_not + ")"
 
-    def print_binary_op(self, node: ASTExpressionNode) -> str:
+    def _print_binary_op_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a binary operator.
-        :param binary_operator: a binary operator object
+        :param node: an expression with binary operator
         :return: a string representation
         """
 
         binary_operator = node.get_binary_operator()
 
         if isinstance(binary_operator, ASTArithmeticOperator):
-            return self.print_arithmetic_operator(node)
+            return self._print_arithmetic_operator_expression(node)
 
         if isinstance(binary_operator, ASTBitOperator):
-            return self.print_bit_operator(node)
+            return self._print_bit_operator_expression(node)
 
         if isinstance(binary_operator, ASTComparisonOperator):
-            return self.print_comparison_operator(node)
+            return self._print_comparison_operator_expression(node)
 
         if isinstance(binary_operator, ASTLogicalOperator):
-            return self.print_logical_operator(node)
+            return self._print_logical_operator_expression(node)
 
         raise RuntimeError("Cannot determine binary operator!")

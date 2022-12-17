@@ -28,10 +28,10 @@ class NestMLVariablePrinter(VariablePrinter):
     Print ``ASTVariable``s in NESTML syntax.
     """
 
-    def print_variable(self, ast_variable: ASTVariable) -> str:
+    def print_variable(self, node: ASTVariable) -> str:
         """
-        Returns the same string
-        :param ast_variable: a single variable
-        :return: the same string
+        Print a variable node
+        :param node: the node to print
+        :return: string representation
         """
-        return ast_variable.get_complete_name()
+        return node.get_complete_name()

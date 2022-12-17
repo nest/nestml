@@ -277,7 +277,7 @@ class NESTMLPrinter(ASTPrinter):
         if node.is_bit_shift_right:
             return " >> "
 
-        raise RuntimeError("(PyNestML.BitOperator.Print) Type of bit operator not specified!")
+        raise RuntimeError("Unknown bit operator")
 
     def print_block(self, node: ASTBlock) -> str:
         ret = ""  # print_ml_comments(node.pre_comments, self.indent, False)

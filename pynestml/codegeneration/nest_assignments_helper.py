@@ -106,16 +106,17 @@ class NestAssignmentsHelper:
         if symbol is not None:
             if symbol.has_vector_parameter():
                 return True
-            else:
-                # otherwise we have to check if one of the variables used in the rhs is a vector
-                for var in assignment.get_expression().get_variables():
-                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-                    if symbol is not None and symbol.has_vector_parameter():
-                        return True
-                return False
-        else:
-            Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+
+            # otherwise we have to check if one of the variables used in the rhs is a vector
+            for var in assignment.get_expression().get_variables():
+                symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                if symbol is not None and symbol.has_vector_parameter():
+                    return True
+
             return False
+
+        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+        return False
 
     @classmethod
     def print_size_parameter(cls, assignment) -> str:

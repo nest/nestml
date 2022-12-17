@@ -60,9 +60,6 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
 
         function_name = self._print_function_call_format_string(function_call)
         if ASTUtils.needs_arguments(function_call):
-            if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
-                return function_name.format(self._print_print_statement(function_call))
-
             return function_name.format(*self._print_function_call_argument_list(function_call))
 
         return function_name
@@ -127,52 +124,3 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
             ret.append(self._expression_printer.print(arg))
 
         return tuple(ret)
-
-    def _print_print_statement(self, function_call: ASTFunctionCall) -> str:
-        r"""
-        A wrapper function to convert arguments of a print or println functions
-        :param function_call: print function call
-        :return: the converted print string with corresponding variables, if any
-        """
-        stmt = function_call.get_args()[0].get_string()
-        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
-        scope = function_call.get_scope()
-        return self.__convert_print_statement_str(stmt, scope)
-
-    def __convert_print_statement_str(self, stmt: str, scope: Scope) -> str:
-        r"""
-        Converts the string argument of the print or println function to NEST processable format
-        Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
-
-        .. code-block:: nestml
-
-            print("Hello World")
-
-        .. code-block:: C++
-
-            cout << "Hello World";
-
-        .. code-block:: nestml
-
-            print("Membrane potential = {V_m}")
-
-        .. code-block:: C++
-
-            cout << "Membrane potential = " << V_m << " mV";
-
-        :param stmt: argument to the print or println function
-        :param scope: scope of the variables in the argument, if any
-        :return: the converted string to NEST
-        """
-        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
-        match = pattern.search(stmt)
-        if match:
-            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
-            left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
-            fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
-            ast_var = ASTVariable(var_name, scope=scope)
-            right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
-            return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
-
-        return '"' + stmt + '"'  # format bare string in C++ (add double quotes)

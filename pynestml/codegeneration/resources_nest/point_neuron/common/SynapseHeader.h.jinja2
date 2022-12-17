@@ -549,42 +549,7 @@ public:
     // no variable was decorated by @nest::weight, so no "weight" defined from the NEST perspective
     assert(0);
   }
-{#
-/*
 
-  {{ utils.print_symbol_origin(weight_parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, weight_parameter.get_symbol_name())) }} = w; // type: {{declarations.print_variable_type(weight_parameter)}}
-
-{%- for variable_symbol in synapse.get_parameter_symbols() %}
-{%-     set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
-{%-     if (namespaceName == 'weight') %}
-{%-         set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
-{%-         if isHomogeneous %}
-    throw BadProperty(
-      "Setting of individual weights is not possible! The common weights can "
-      "be changed via CopyModel()." );
-{%-         else %}
-    {{ printer.print(utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} = w; // type: {{ declarations.print_variable_type(variable_symbol) }}
-{%-         endif %}
-{%-     endif %}
-{%- endfor %}
-  }
-*/
-#}
-
-/*  inline double get_weight() {
-{%- for parameter in synapse.get_parameter_symbols() %}
-{%-     set namespaceName = parameter.get_namespace_decorator('nest') %}
-{%-     if (namespaceName == 'weight') %}
-{%-         set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
-{%-         if isHomogeneous %}
-    return cp.{{utils.print_symbol_origin(parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name())) }}; // type: {{declarations.print_variable_type(parameter)}}   // XXX: replace with get_status or throw()
-{%-         else %}
-    return {{utils.print_symbol_origin(parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name())) }}; // type: {{declarations.print_variable_type(parameter)}}
-{%-         endif %}
-{%-     endif %}
-{%- endfor %}
-  }
-*/
   void
   check_connection( Node& s,
     Node& t,

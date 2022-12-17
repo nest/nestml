@@ -626,7 +626,7 @@ private:
 
 {%-     for inputPort in neuron.get_spike_input_ports() %}
 {%-         if inputPort.is_spike_input_port() and inputPort.is_inhibitory() and inputPort.is_excitatory() %}
-inline {{ types_printer.print(inputPort.get_type_symbol()) }}& get_{{ inputPort.get_symbol_name() }}() {
+inline {{ type_symbol_printer.print(inputPort.get_type_symbol()) }}& get_{{ inputPort.get_symbol_name() }}() {
     return spike_inputs_[{{ inputPort.get_symbol_name().upper() }} - 1];
 }
 {%-         else %}

@@ -42,7 +42,7 @@ class CppVariablePrinter(VariablePrinter):
 
     def print_variable(self, node: ASTVariable) -> str:
         """
-        Returns for the handed over element the corresponding nest processable string.
+        Print a variable.
         :param node: a single variable symbol or variable
         :return: a string representation
         """

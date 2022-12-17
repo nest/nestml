@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.type_symbol_printer import TypeSymbolPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -35,11 +35,11 @@ class NestDeclarationsHelper:
     This class contains several methods as used during generation of code.
     """
 
-    def __init__(self, types_printer: TypesPrinter):
+    def __init__(self, type_symbol_printer: TypeSymbolPrinter):
         """
         Initialized the declaration helper.
         """
-        self.types_printer = types_printer
+        self.type_symbol_printer = type_symbol_printer
 
     def get_domain_from_type(self, type_symbol):
         """
@@ -49,7 +49,7 @@ class NestDeclarationsHelper:
         :return: the corresponding domain
         :rtype: str
         """
-        return self.types_printer.print(type_symbol)
+        return self.type_symbol_printer.print(type_symbol)
 
     def print_variable_type(self, variable_symbol) -> str:
         """
@@ -60,10 +60,10 @@ class NestDeclarationsHelper:
         :rtype: str
         """
         if variable_symbol.has_vector_parameter():
-            return 'std::vector< ' + self.types_printer.print(variable_symbol.get_type_symbol()) + \
+            return 'std::vector< ' + self.type_symbol_printer.print(variable_symbol.get_type_symbol()) + \
                    ' > '
 
-        return self.types_printer.print(variable_symbol.get_type_symbol())
+        return self.type_symbol_printer.print(variable_symbol.get_type_symbol())
 
     @classmethod
     def get_variables(cls, ast_declaration):
@@ -101,7 +101,7 @@ class NestDeclarationsHelper:
         return ast_declaration.get_size_parameter()
 
     @classmethod
-    def print_delay_parameter(cls, variable: VariableSymbol, variable_printer: VariablePrinter) -> str:
+    def print_delay_parameter(cls, variable: VariableSymbol) -> str:
         """
         Prints the delay parameter
         :param variable: Variable with delay parameter

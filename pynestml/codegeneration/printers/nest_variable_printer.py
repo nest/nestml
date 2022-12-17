@@ -106,16 +106,16 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
-    def print_delay_variable(self, variable: ASTVariable):
+    def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
         Converts a delay variable to NEST processable format
         :param variable:
         :return:
         """
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol:
-            if symbol.is_state() and symbol.has_delay_parameter():
-                return "get_delayed_" + variable.get_name() + "()"
+        if symbol and symbol.is_state() and symbol.has_delay_parameter():
+            return "get_delayed_" + variable.get_name() + "()"
+
         return ""
 
     def print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
@@ -136,13 +136,16 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return self._expression_printer.print(vector_parameter)
 
-    def _print(self, variable, symbol, with_origin: bool = True) -> str:
+    def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
+        assert all([type(s) == str for s in self._state_symbols])
+
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+
         if symbol.is_local():
             return variable_name
 
-        for s in self._state_symbols:
-            assert type(s) == str
+        if variable.is_delay_variable():
+            return self._print_delay_variable(variable)
 
         if with_origin:
             return ASTUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name

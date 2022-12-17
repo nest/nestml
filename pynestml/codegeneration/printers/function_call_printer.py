@@ -46,17 +46,17 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
 
     @abstractmethod
     def print_function_call(self, node: ASTFunctionCall) -> str:
-        """Print an expression.
+        """Print a function call.
 
         Parameters
         ----------
-        node : ASTExpressionNode
-            The expression node to print.
+        node
+            The node to print.
 
         Returns
         -------
-        s : str
-            The expression string.
+        s
+            The string representation.
         """
         return ""
 

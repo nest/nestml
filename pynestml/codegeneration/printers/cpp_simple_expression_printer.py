@@ -39,9 +39,6 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
             return str(node.get_numeric_literal()) + " * " + \
                 self._variable_printer.print(node.get_variable())
 
-        if isinstance(node, ASTVariable):
-            return self._variable_printer.print(node.get_variable())
-
         if node.is_numeric_literal():
             return str(node.get_numeric_literal())
 
@@ -75,7 +72,6 @@ class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
         return self.print_simple_expression(node)
 
     def print(self, node: ASTNode) -> str:
-        print("In cppsimpleepxressionprinter: " + str(node))
         if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
             return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
 

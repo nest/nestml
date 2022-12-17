@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_cpp_types_printer.py
+# nest_cpp_type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,11 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class NESTCppTypesPrinter(CppTypesPrinter):
+class NESTCppTypeSymbolPrinter(CppTypeSymbolPrinter):
     """
     Returns a C++ syntax version of the handed over type.
     """

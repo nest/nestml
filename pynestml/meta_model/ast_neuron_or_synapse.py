@@ -451,7 +451,7 @@ class ASTNeuronOrSynapse(ASTNode):
 
     def get_state_variables(self) -> List[ASTVariable]:
         """
-        Returns a list of all parameters.
+        Returns a list of all state variables.
         :return:
         """
         ret = []

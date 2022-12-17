@@ -87,16 +87,14 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if recordable_state_variables|length > 0 %}
 {%- if has_state_vectors %}
 {%-   for variable in recordable_state_variables %}
-{%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%-     if not sym.has_vector_parameter() %}
-    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, sym.get_symbol_name())).upper() }} ));
+{%-     if not variable.has_vector_parameter() %}
+    insert("{{variable.get_complete_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }} ));
 {%-     endif %}
 {%-   endfor %}
 {%- else %}
     // add state variables to recordables map
 {%-   for variable in recordable_state_variables %}
-{%-     set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-   insert_({{names_namespace}}::_{{ sym.get_symbol_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
+   insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}

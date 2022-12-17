@@ -51,7 +51,7 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
         self._function_call_printer = function_call_printer
 
     @abstractmethod
-    def print_simple_expression(self, node: ASTSimpleExpression):
+    def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         """Print an expression.
 
         Parameters
@@ -64,4 +64,4 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
         s : str
             The expression string.
         """
-        pass
+        raise Exception("Cannot call abstract method")

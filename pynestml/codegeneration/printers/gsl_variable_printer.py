@@ -38,6 +38,9 @@ class GSLVariablePrinter(CppVariablePrinter):
         assert isinstance(node, ASTVariable)
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
+        if node.is_delay_variable():
+            return self._print_delay_variable(node)
+
         if symbol.is_state() and not symbol.is_inline_expression:
             # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
             return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
@@ -53,15 +56,14 @@ class GSLVariablePrinter(CppVariablePrinter):
 
         raise Exception("Unknown node type")
 
-    def print_delay_variable(self, variable: ASTVariable):
+    def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
         Converts a delay variable to GSL processable format
         :param variable: variable to be converted
         :return: GSL processable format of the delay variable
         """
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol:
-            if symbol.is_state() and symbol.has_delay_parameter():
-                return "get_delayed_" + variable.get_name() + "()"
+        if symbol and symbol.is_state() and symbol.has_delay_parameter():
+            return "node.get_delayed_" + variable.get_name() + "()"
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
