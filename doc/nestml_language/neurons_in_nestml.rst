@@ -70,7 +70,23 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
    * - ``inhibitory``
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
-Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. As discussed above, NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number. Thus during code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. For example,
+The input ports can also be defined as a vector. For example,
+
+.. code-block:: nestml
+
+   parameters:
+    TWO integer = 2
+   end
+
+   input:
+     foo[TWO] pA <- spike
+     exc_spikes[3] pA <- excitatory spike
+     inh_spikes[3] pA <- inhibitory spike
+   end
+
+In this example, all the spiking input ports are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size can either be directly specified as an integer or defined as a parameter of type integer in the ``parameters`` block. The name of the receptors of these ports are denoted by suffixing the ``vector index + 1`` to the port name. In the above example, the receptor name for ``foo[0]`` would be ``FOO_1``.
+
+Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. As discussed above, NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number. Thus during code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of receptor names and their corresponding ``rport`` numbers defined in a model can be queried using the NEST API ``nest.GetStatus("receptor_types")``.
 
 .. code-block:: nestml
 
@@ -78,25 +94,40 @@ Each connection in NEST is denoted by a receiver port or ``rport`` number which 
     AMPA_spikes pA <- excitatory spike
     GABA_spikes pA <- inhibitory spike
     NMDA_spikes pA <- spike
+    foo[TWO] pA <- spike
+    exc_spikes[3] pA <- excitatory spike
+    inh_spikes[3] pA <- inhibitory spike
   end
 
-The mapping of NEST ``rport`` and NESTML input port numbers for the above example would be as shown below:
+The internal mapping of NEST ``rport`` numbers for the above example would be as shown below:
 
 .. list-table::
    :header-rows: 1
 
    * - Input port name
      - NEST ``rport``
-     - NESTML port number
    * - AMPA_spikes
-     - 1
-     - 1
+     - 0
    * - GABA_spikes
-     - 1
-     - 2
+     - 0
    * - NMDA_spikes
+     - 1
+   * - FOO_1
      - 2
+   * - FOO_2
      - 3
+   * - EXC_SPIKES_1
+     - 4
+   * - EXC_SPIKES_2
+     - 5
+   * - EXC_SPIKES_3
+     - 6
+   * - INH_SPIKES_1
+     - 4
+   * - INH_SPIKES_2
+     - 5
+   * - INH_SPIKES_3
+     - 6
 
 
 Integrating current input
