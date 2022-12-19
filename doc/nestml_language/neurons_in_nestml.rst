@@ -86,9 +86,13 @@ The input ports can also be defined as a vector. For example,
 
 In this example, all the spiking input ports are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size can either be directly specified as an integer or defined as a parameter of type integer in the ``parameters`` block. The name of the receptors of these ports are denoted by suffixing the ``vector index + 1`` to the port name. In the above example, the receptor name for ``foo[0]`` would be ``FOO_1``.
 
-Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. As discussed above, NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number. Thus during code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of receptor names and their corresponding ``rport`` numbers defined in a model can be queried using the NEST API ``nest.GetStatus("receptor_types")``.
+Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. As discussed above, NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number. Thus during code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of receptor names and their corresponding ``rport`` numbers defined in a model can be queried using the NEST API ``nest.GetStatus("neuron, receptor_types")``.
 
 .. code-block:: nestml
+
+   parameters:
+    TWO integer = 2
+   end
 
    input:
     AMPA_spikes pA <- excitatory spike
