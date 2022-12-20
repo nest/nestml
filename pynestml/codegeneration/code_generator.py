@@ -44,8 +44,6 @@ from pynestml.utils.with_options import WithOptions
 
 class CodeGenerator(WithOptions):
     _default_options: Mapping[str, Any] = {}
-    _model_templates = dict()
-    _module_templates = list()
 
     def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
         from pynestml.frontend.pynestml_frontend import get_known_targets
@@ -58,6 +56,11 @@ class CodeGenerator(WithOptions):
 
         self._target = target
         super(CodeGenerator, self).__init__(options)
+
+        self._model_templates: Mapping[str, List[Template]] = {}
+        self._model_templates["neuron"]: List[Template] = []
+        self._model_templates["synapse"]: List[Template] = []
+        self._module_templates: List[Template] = []
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -82,7 +85,6 @@ class CodeGenerator(WithOptions):
             neuron_model_templates = self.get_option("templates")["model_templates"]["neuron"]
             if not neuron_model_templates:
                 raise Exception("A list of neuron model template files/directories is missing.")
-            self._model_templates["neuron"] = list()
             self._model_templates["neuron"].extend(
                 self.__setup_template_env(neuron_model_templates, templates_root_dir))
 
@@ -90,7 +92,6 @@ class CodeGenerator(WithOptions):
         if "synapse" in self.get_option("templates")["model_templates"]:
             synapse_model_templates = self.get_option("templates")["model_templates"]["synapse"]
             if synapse_model_templates:
-                self._model_templates["synapse"] = list()
                 self._model_templates["synapse"].extend(
                     self.__setup_template_env(synapse_model_templates, templates_root_dir))
 
