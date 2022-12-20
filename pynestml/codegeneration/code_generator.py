@@ -44,8 +44,6 @@ from pynestml.utils.with_options import WithOptions
 
 class CodeGenerator(WithOptions):
     _default_options: Mapping[str, Any] = {}
-    _model_templates = dict()
-    _module_templates = list()
 
     def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
         from pynestml.frontend.pynestml_frontend import get_known_targets
@@ -59,6 +57,8 @@ class CodeGenerator(WithOptions):
         self._target = target
         super(CodeGenerator, self).__init__(options)
 
+        self._init_templates_list()
+
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
 
@@ -66,6 +66,8 @@ class CodeGenerator(WithOptions):
         """
         Setup the Jinja2 template environment
         """
+        self._init_templates_list()
+
         # Get templates path
         templates_root_dir = self.get_option("templates")["path"]
         if not os.path.isabs(templates_root_dir):
@@ -82,26 +84,30 @@ class CodeGenerator(WithOptions):
             neuron_model_templates = self.get_option("templates")["model_templates"]["neuron"]
             if not neuron_model_templates:
                 raise Exception("A list of neuron model template files/directories is missing.")
-            self._model_templates["neuron"] = list()
             self._model_templates["neuron"].extend(
-                self.__setup_template_env(neuron_model_templates, templates_root_dir))
+                self._setup_template_env(neuron_model_templates, templates_root_dir))
 
         # Setup synapse template environment
         if "synapse" in self.get_option("templates")["model_templates"]:
             synapse_model_templates = self.get_option("templates")["model_templates"]["synapse"]
             if synapse_model_templates:
-                self._model_templates["synapse"] = list()
                 self._model_templates["synapse"].extend(
-                    self.__setup_template_env(synapse_model_templates, templates_root_dir))
+                    self._setup_template_env(synapse_model_templates, templates_root_dir))
 
         # Setup modules template environment
         if "module_templates" in self.get_option("templates"):
             module_templates = self.get_option("templates")["module_templates"]
             if not module_templates:
                 raise Exception("A list of module template files/directories is missing.")
-            self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
+            self._module_templates.extend(self._setup_template_env(module_templates, templates_root_dir))
 
-    def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
+    def _init_templates_list(self):
+        self._model_templates: Mapping[str, List[Template]] = {}
+        self._model_templates["neuron"]: List[Template] = []
+        self._model_templates["synapse"]: List[Template] = []
+        self._module_templates: List[Template] = []
+
+    def _setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
         """
         A helper function to set up the jinja2 template environment
         :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``)
