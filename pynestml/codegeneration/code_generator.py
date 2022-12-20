@@ -21,14 +21,14 @@
 
 from __future__ import annotations
 
-import glob
-from abc import abstractmethod
-
 from typing import Any, Dict, Mapping, List, Optional, Sequence, Union
 
+import glob
 import os
 
-from jinja2 import Template, Environment, FileSystemLoader
+from abc import abstractmethod
+
+from jinja2 import Environment, FileSystemLoader, Template, TemplateRuntimeError
 
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
@@ -58,6 +58,9 @@ class CodeGenerator(WithOptions):
 
         self._target = target
         super(CodeGenerator, self).__init__(options)
+
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
 
     def setup_template_env(self):
         """
