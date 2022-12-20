@@ -23,11 +23,9 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
 
-from jinja2 import TemplateRuntimeError
-
 import odetoolbox
-
 import pynestml
+
 from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -154,9 +152,6 @@ class NESTCodeGenerator(CodeGenerator):
                                                       expression_printer=self._unitless_expression_printer)
 
         self._ode_toolbox_printer = UnitlessExpressionPrinter(ODEToolboxReferenceConverter())
-
-    def raise_helper(self, msg):
-        raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         # insist on using the old Archiving_Node class for NEST 2
