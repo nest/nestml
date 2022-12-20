@@ -64,7 +64,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                 os.pardir, os.pardir, "models", "neurons", "hh_cond_exp_destexhe.nestml")))
         target_path = "target"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
         generate_nest_target(input_path,

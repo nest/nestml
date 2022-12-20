@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
@@ -31,7 +32,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -145,6 +145,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             assert type(s) == str
 
         if with_origin:
-            return ASTUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
 
         return variable_name

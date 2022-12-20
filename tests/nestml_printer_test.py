@@ -120,16 +120,7 @@ class NestMLPrinterTest(unittest.TestCase):
         neuron = '# pre\n' \
                  'neuron test: # in\n' \
                  'end\n' \
-                 '# post\n\n'
-        model = ModelParser.parse_nestml_compilation_unit(neuron)
-        model_printer = NESTMLPrinter()
-        self.assertEqual(neuron, model_printer.print(model))
-
-    def test_neuron_with_comments(self):
-        neuron = '# pre\n' \
-                 'neuron test: # in\n' \
-                 'end\n' \
-                 '# post\n\n'
+                 '# post\n\n\n'
         model = ModelParser.parse_nestml_compilation_unit(neuron)
         model_printer = NESTMLPrinter()
         self.assertEqual(neuron, model_printer.print(model))

@@ -552,7 +552,7 @@ public:
 {#
 /*
 
-  {{ utils.print_symbol_origin(weight_parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, weight_parameter.get_symbol_name())) }} = w; // type: {{declarations.print_variable_type(weight_parameter)}}
+  {{ nest_codegen_utils.print_symbol_origin(weight_parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, weight_parameter.get_symbol_name())) }} = w; // type: {{declarations.print_variable_type(weight_parameter)}}
 
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
@@ -577,9 +577,9 @@ public:
 {%-     if (namespaceName == 'weight') %}
 {%-         set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
 {%-         if isHomogeneous %}
-    return cp.{{utils.print_symbol_origin(parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name())) }}; // type: {{declarations.print_variable_type(parameter)}}   // XXX: replace with get_status or throw()
+    return cp.{{nest_codegen_utils.print_symbol_origin(parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name())) }}; // type: {{declarations.print_variable_type(parameter)}}   // XXX: replace with get_status or throw()
 {%-         else %}
-    return {{utils.print_symbol_origin(parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name())) }}; // type: {{declarations.print_variable_type(parameter)}}
+    return {{nest_codegen_utils.print_symbol_origin(parameter) % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name())) }}; // type: {{declarations.print_variable_type(parameter)}}
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
