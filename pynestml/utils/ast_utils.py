@@ -1691,8 +1691,7 @@ class ASTUtils:
         for parameters_block in parameters_blocks:
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
-                    odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = printer.print(decl.get_expression())
+                    odetoolbox_indict["parameters"][var.get_complete_name()] = printer.print(decl.get_expression())
 
         return odetoolbox_indict
 

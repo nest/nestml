@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
 class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
     r"""
-    Converts fnuction calls to the executable platform dependent code.
+    Converts function calls to the executable platform dependent code.
 
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """

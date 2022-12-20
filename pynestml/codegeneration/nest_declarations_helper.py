@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.type_symbol_printer import TypeSymbolPrinter
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind

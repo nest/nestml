@@ -21,15 +21,11 @@
 
 from typing import Tuple
 
-import re
-
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
@@ -39,7 +35,6 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
 
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
-        print("ODEToolboxFunctionCallPrinter: Printing function " + str(node))
 
         return self.print_function_call(node)
 
@@ -110,6 +105,9 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.EXPM1:
             return 'expm1({!s})'
+
+        if function_name == PredefinedFunctions.POW:
+            return '{!s}**{!s}'
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
