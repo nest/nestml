@@ -3,7 +3,52 @@ name: NESTML compatibility check with older NEST versions
 on: [push, pull_request]
 
 jobs:
+
+  link_checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.2.0
+        with:
+          args: --verbose --no-progress **/*.md **/*.html **/*.rst
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  static_checks:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v2
+
+      # Setup Python version
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-all-dev
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pycodestyle
+          python -m pip install -r requirements.txt
+
+      # Static code analysis
+      - name: Static code style analysis
+        run: |
+          python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
+
   build_and_test:
+    needs: [static_checks]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,11 +77,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
-
-      # Static code analysis
-      - name: Static code style analysis
-        run: |
-          python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
 
       # Install Java
       - name: Install Java 11

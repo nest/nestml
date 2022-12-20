@@ -23,8 +23,6 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
 
-from jinja2 import TemplateRuntimeError
-
 import odetoolbox
 import pynestml
 
