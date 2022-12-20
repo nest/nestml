@@ -51,17 +51,17 @@ class LatexExpressionPrinter(ExpressionPrinter):
         if isinstance(node, ASTExpression):
             # a unary operator
             if node.is_unary_operator():
-                op = self.print_unary_op(node.get_unary_operator())
+                op = self._print_unary_operator(node.get_unary_operator())
                 rhs = self.print_expression(node.get_expression())
                 return op % rhs
 
             # encapsulated in brackets
             if node.is_encapsulated:
-                return self.print_encapsulated() % self.print_expression(node.get_expression())
+                return self._print_encapsulated() % self.print_expression(node.get_expression())
 
             # logical not
             if node.is_logical_not:
-                op = self.print_logical_not()
+                op = self._print_logical_not()
                 rhs = self.print_expression(node.get_expression())
                 return op % rhs
 
@@ -74,32 +74,32 @@ class LatexExpressionPrinter(ExpressionPrinter):
                         and len(lhs) > 3 * len(rhs):
                     # if lhs (numerator) is much wider than rhs (denominator), rewrite as a factor
                     wide = True
-                op = self.print_binary_op(node.get_binary_operator(), wide=wide)
+                op = self._print_binary_op(node.get_binary_operator(), wide=wide)
                 return op % ({"lhs": lhs, "rhs": rhs})
 
             if node.is_ternary_operator():
                 condition = self.print_expression(node.get_condition())
                 if_true = self.print_expression(node.get_if_true())
                 if_not = self.print_expression(node.if_not)
-                return '(' + condition + ') ? (' + if_true + ') : (' + if_not + ')'
+                return "(" + condition + ") ? (" + if_true + ") : (" + if_not + ")"
 
             raise Exception("Unknown node type")
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
-    def print_unary_op(self, ast_unary_operator) -> str:
+    def _print_unary_operator(self, ast_unary_operator) -> str:
         """
-        Convert unary operator.
+        Print unary operator.
 
         :param ast_unary_operator: a unary operator
         :type ast_unary_operator: ASTUnaryOperator
         :return: the corresponding string representation
         """
-        return str(ast_unary_operator) + '%s'
+        return str(ast_unary_operator) + "%s"
 
     def print_function_call(self, function_call) -> str:
         r"""
-        Convert function call.
+        Print function call.
 
         :param function_call: a function call
         :type function_call: ASTFunctionCall
@@ -117,15 +117,15 @@ class LatexExpressionPrinter(ExpressionPrinter):
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            result += "(" + ", ".join(["%s" for _ in range(n_args)]) + ")"
         else:
-            result += '()'
+            result += "()"
 
         return result
 
-    def print_binary_op(self, ast_binary_operator, wide=False) -> str:
+    def _print_binary_op(self, ast_binary_operator, wide=False) -> str:
         """
-        Convert binary operator.
+        Print binary operator.
 
         :param ast_binary_operator: a single binary operator
         :type ast_binary_operator: ASTBinaryOperator
@@ -138,27 +138,15 @@ class LatexExpressionPrinter(ExpressionPrinter):
             return r"\frac{ %(lhs)s } { %(rhs)s }"
 
         if ast_binary_operator.is_times_op:
-            return r'%(lhs)s \cdot %(rhs)s'
+            return r"%(lhs)s \cdot %(rhs)s"
 
         if ast_binary_operator.is_pow_op:
-            return r'{ %(lhs)s }^{ %(rhs)s }'
+            return r"{ %(lhs)s }^{ %(rhs)s }"
 
-        return r'%(lhs)s' + str(ast_binary_operator) + r'%(rhs)s'
+        return r"%(lhs)s" + str(ast_binary_operator) + r"%(rhs)s"
 
-    def print_logical_operator(self, op) -> str:
-        return str(op)
+    def _print_encapsulated(self) -> str:
+        return r"(%s)"
 
-    def print_arithmetic_operator(self, op) -> str:
-        return str(op)
-
-    def print_encapsulated(self) -> str:
-        return '(%s)'
-
-    def print_comparison_operator(self, op) -> str:
-        return str(op)
-
-    def print_logical_not(self) -> str:
-        return "\neg"
-
-    def print_bit_operator(self, op) -> str:
-        return str(op)
+    def _print_logical_not(self) -> str:
+        return r"\neg%s"

@@ -22,7 +22,7 @@
 from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
@@ -96,7 +96,7 @@ class KernelTypeVisitor(ASTVisitor):
                     type_symbol = type_symbol.get_value()
 
                 if not type_symbol.is_castable_to(PredefinedTypes.get_type("ms")**-order):
-                    actual_type_str = CppTypesPrinter().print(type_symbol)
+                    actual_type_str = CppTypeSymbolPrinter().print(type_symbol)
                     expected_type_str = "s^-" + str(order)
                     code, message = Messages.get_kernel_iv_wrong_type(iv_name, actual_type_str, expected_type_str)
                     Logger.log_message(error_position=node.get_source_position(),

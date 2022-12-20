@@ -26,7 +26,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 class NESTGSLFunctionCallPrinter(NESTCppFunctionCallPrinter):
     r"""
-    This class is used to convert operators and constants to the GSL (GNU Scientific Library) processable format.
+    This class is used to convert function calls to the GSL (GNU Scientific Library) syntax.
     """
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:

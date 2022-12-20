@@ -213,3 +213,10 @@ class ASTVariable(ASTNode):
         if not isinstance(other, ASTVariable):
             return False
         return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
+
+    def is_delay_variable(self) -> bool:
+        """
+        Returns whether it is a delay variable or not
+        :return: True if the variable has a delay parameter, False otherwise
+        """
+        return self.get_delay_parameter() is not None

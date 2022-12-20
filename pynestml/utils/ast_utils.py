@@ -1321,7 +1321,7 @@ class ASTUtils:
     def get_parameter_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
@@ -1335,10 +1335,10 @@ class ASTUtils:
     @classmethod
     def get_parameter_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTVariable:
         """
-        Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        Get a parameter node based on the name of the parameter
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
-        :return: declaration containing the variable
+        :return: the parameter node
         """
         for param_block in node.get_parameters_blocks():
             for decl in param_block.get_declarations():
@@ -1350,8 +1350,8 @@ class ASTUtils:
     @classmethod
     def get_internal_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
         """
-        Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        Get the declaration based on the name of the internal parameter
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
@@ -1365,8 +1365,8 @@ class ASTUtils:
     @classmethod
     def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
         """
-        Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        Get the internal parameter node based on the name of the internal parameter
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
@@ -1380,10 +1380,10 @@ class ASTUtils:
     @classmethod
     def get_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
         """
-        Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        Get a variable or parameter node based on the name
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
-        :return: declaration containing the variable
+        :return: the node if found, otherwise None
         """
         var = ASTUtils.get_state_variable_by_name(node, var_name)
 
@@ -1405,10 +1405,10 @@ class ASTUtils:
     @classmethod
     def get_state_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
         """
-        Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        Get a state variable node based on the name
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
-        :return: declaration containing the variable
+        :return: the node if found, otherwise None
         """
         for state_block in node.get_state_blocks():
             for decl in state_block.get_declarations():
@@ -1421,9 +1421,9 @@ class ASTUtils:
     def get_state_variable_declaration_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTDeclaration]:
         """
         Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
-        :return: declaration containing the variable
+        :return: declaration containing the variable if found, otherwise None
         """
         for state_block in node.get_state_blocks():
             for decl in state_block.get_declarations():

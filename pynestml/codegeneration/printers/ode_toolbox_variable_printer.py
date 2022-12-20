@@ -19,20 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class ODEToolboxVariablePrinter(NestMLVariablePrinter):
+class ODEToolboxVariablePrinter(VariablePrinter):
     r"""
     Convert into a format accepted by ODE-toolbox as input.
     """
 
-    def print_variable(self, ast_variable: ASTVariable) -> str:
+    def print_variable(self, node: ASTVariable) -> str:
         """
-        Returns the same string
-        :param ast_variable: a single variable
-        :type ast_variable: ASTVariable
-        :return: the same string
+        Print variable.
+        :param node: the node to print
+        :return: string representation
         """
-        return ast_variable.get_complete_name().replace("$", "__DOLLAR")
+        return node.get_complete_name().replace("$", "__DOLLAR")

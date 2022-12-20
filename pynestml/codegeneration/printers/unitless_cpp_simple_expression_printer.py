@@ -45,6 +45,7 @@ class UnitlessCppSimpleExpressionPrinter(CppSimpleExpressionPrinter):
             The expression string.
         """
         assert isinstance(node, ASTSimpleExpression)
+
         if node.is_numeric_literal():
             return self._constant_printer.print_constant(node.get_numeric_literal())
 

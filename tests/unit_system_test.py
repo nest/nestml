@@ -25,7 +25,7 @@ from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
-from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
+from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -49,7 +49,7 @@ PredefinedFunctions.register_functions()
 
 Logger.init_logger(LoggingLevel.INFO)
 
-types_printer = CppTypesPrinter()
+type_symbol_printer = CppTypeSymbolPrinter()
 variable_printer = NestMLVariablePrinter(None)
 function_call_printer = NESTCppFunctionCallPrinter(None)
 cpp_variable_printer = CppVariablePrinter(None)

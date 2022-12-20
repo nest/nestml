@@ -31,7 +31,7 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
     r"""
-    Converts expressions to the executable platform dependent code.
+    Converts variables to the executable platform dependent code.
 
     This class is used to transform only parts of the grammar and not NESTML as a whole.
     """
@@ -51,11 +51,11 @@ class VariablePrinter(ASTPrinter, metaclass=ABCMeta):
         Parameters
         ----------
         node
-            The expression node to print.
+            The node to print.
 
         Returns
         -------
         s
-            The expression string.
+            The string representation.
         """
         raise

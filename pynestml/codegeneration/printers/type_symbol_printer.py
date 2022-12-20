@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_simple_expression_printer.py
+# type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,17 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+import abc
+
+from pynestml.symbols.symbol import Symbol
+from pynestml.codegeneration.printers.symbol_printer import SymbolPrinter
 
 
-class NESTSimpleExpressionPrinter(CppSimpleExpressionPrinter):
+class TypeSymbolPrinter(SymbolPrinter, metaclass=abc.ABCMeta):
     r"""
-    Printer for ASTSimpleExpressions in C++ syntax.
+    Returns a string format of ``TypeSymbol``s.
     """
 
-    def _print(self, node: ASTSimpleExpression) -> str:
-        if "is_delay_variable" in dir(node) and node.is_delay_variable():
-            return self._variable_printer.print_delay_variable(node.get_variable())
-
-        return super()._print(node)
+    @classmethod
+    @abc.abstractmethod
+    def print(cls, element: Symbol) -> str:
+        raise Exception("Cannot call abstract method")
