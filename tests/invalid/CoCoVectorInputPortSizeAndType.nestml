@@ -1,12 +1,15 @@
 """
-InputPorts.nestml
-#################
+CoCoVectorInputPortSizeAndType.nestml
+#####################################
 
 
 Description
 +++++++++++
 
-This test is used to test the declaration of both vectorized and non-vectorized input ports.
+This model is used to test if broken CoCos are identified correctly.
+Here, if the size parameter in the input port is of the type integer and is greater than 0.
+
+Negative case.
 
 
 Copyright statement
@@ -29,23 +32,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron input_ports:
-
-  state:
-    bar pA = 1.5 pA
-    vec[3] real = 3.3
+neuron CoCoVectorInputPortSizeAndType:
+  parameters:
+    TWO integer = 2
   end
 
   input:
-    AMPA_spikes pA <- excitatory spike
-    GABA_spikes pA <- inhibitory spike
-    NMDA_spikes pA <- spike
-    foo[2] pA <- spike
-    my_spikes[3] pA <- excitatory spike
-    my_spikes2[3] pA <- inhibitory spike
-  end
-
-  update:
-    bar = foo[1]
+    foo[TWO] pA <- spike
+    bar[-3] pA <- spike
   end
 end
