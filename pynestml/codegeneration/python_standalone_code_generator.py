@@ -22,8 +22,8 @@
 from typing import Any, Dict, Mapping, Optional, Sequence, Union
 
 import os
-from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
@@ -32,7 +32,7 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-from pynestml.codegeneration.printers.python_types_printer import PythonTypesPrinter
+from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
 from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
 from pynestml.codegeneration.printers.python_function_call_printer import PythonFunctionCallPrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
@@ -70,7 +70,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
     def setup_printers(self):
         super().setup_printers()
 
-        self._types_printer = PythonTypesPrinter()
+        self._types_printer = PythonTypeSymbolPrinter()
         self._constant_printer = ConstantPrinter()
 
         # printers
