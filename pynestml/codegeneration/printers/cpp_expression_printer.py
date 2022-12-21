@@ -24,9 +24,12 @@ from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class CppExpressionPrinter(ExpressionPrinter):
@@ -182,6 +185,12 @@ class CppExpressionPrinter(ExpressionPrinter):
         :return: a string representation
         """
         op = node.get_binary_operator()
+
+        if op.is_pow_op:
+            # make a dummy ASTFunctionCall so we can delegate this to the FunctionCallPrinter
+            dummy_ast_function_call: ASTFunctionCall = ASTNodeFactory.create_ast_function_call(callee_name="pow", args=(node.get_lhs(), node.get_rhs()), source_position=ASTSourceLocation.get_added_source_position())
+            return self._simple_expression_printer._function_call_printer.print(dummy_ast_function_call)
+
         lhs = self.print(node.get_lhs())
         rhs = self.print(node.get_rhs())
 
@@ -199,9 +208,6 @@ class CppExpressionPrinter(ExpressionPrinter):
 
         if op.is_modulo_op:
             return lhs + " % " + rhs
-
-        if op.is_pow_op:
-            return "pow" + "(" + lhs + ", " + rhs + ")"
 
         raise RuntimeError("Cannot determine arithmetic operator!")
 

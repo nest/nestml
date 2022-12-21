@@ -21,7 +21,6 @@
 
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.type_symbol_printer import TypeSymbolPrinter
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind

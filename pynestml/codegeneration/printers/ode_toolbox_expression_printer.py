@@ -29,16 +29,18 @@ class ODEToolboxExpressionPrinter(CppExpressionPrinter):
     Printer for ``ASTExpression`` nodes in ODE-toolbox syntax.
     """
 
-    def print_ternary_operator(self, node: ASTExpression) -> str:
+    def _print_ternary_operator_expression(self, node: ASTExpression) -> str:
         """
-        Prints a ternary operator. ODE-toolbox cannot handle this, so default to just printing the if-true case.
+        Prints a ternary operator using the sympy.Piecewise class.
         :return: a string representation
         """
+        condition = self.print(node.get_condition())
         if_true = self.print(node.get_if_true())
+        if_not = self.print(node.if_not)
 
-        return if_true
+        return "Piecewise((" + if_true + ", " + condition + "), (" + if_not + ", True))"
 
-    def print_arithmetic_operator(self, node: ASTExpressionNode) -> str:
+    def _print_arithmetic_operator(self, node: ASTExpressionNode) -> str:
         """
         Prints an arithmetic operator.
         :param op: an arithmetic operator object

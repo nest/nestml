@@ -56,7 +56,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             The function call string.
         """
         assert isinstance(function_call, ASTFunctionCall)
-
         function_name = self._print_function_call_format_string(function_call)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
