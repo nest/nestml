@@ -47,7 +47,7 @@ class NestSplitSimulationTest(unittest.TestCase):
     def run_simulation(self, T_sim: float, split: bool):
         neuron_model_name = "iaf_psc_exp"
 
-        spike_times = np.arange(10, 100, 9).astype(np.float)
+        spike_times = np.arange(10, 100, 9).astype(float)
         np.random.seed(0)
         spike_weights = np.sign(np.random.rand(spike_times.size) - .5)
 
