@@ -43,12 +43,12 @@ class ExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
 
         Parameters
         ----------
-        node : ASTExpressionNode
+        node
             The expression node to print.
 
         Returns
         -------
-        s : str
+        s
             The expression string.
         """
-        assert False
+        raise Exception("Cannot call abstract method")

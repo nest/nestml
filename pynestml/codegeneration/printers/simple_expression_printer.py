@@ -52,16 +52,16 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
 
     @abstractmethod
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
-        """Print an expression.
+        """Print a simple expression.
 
         Parameters
         ----------
-        node : ASTExpressionNode
+        node
             The expression node to print.
 
         Returns
         -------
-        s : str
+        s
             The expression string.
         """
         raise Exception("Cannot call abstract method")

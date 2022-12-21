@@ -22,9 +22,12 @@
 import re
 
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
@@ -51,7 +54,7 @@ class LatexExpressionPrinter(ExpressionPrinter):
         if isinstance(node, ASTExpression):
             # a unary operator
             if node.is_unary_operator():
-                op = self._print_unary_operator(node.get_unary_operator())
+                op = self.print_unary_operator(node.get_unary_operator())
                 rhs = self.print_expression(node.get_expression())
                 return op % rhs
 
@@ -74,7 +77,7 @@ class LatexExpressionPrinter(ExpressionPrinter):
                         and len(lhs) > 3 * len(rhs):
                     # if lhs (numerator) is much wider than rhs (denominator), rewrite as a factor
                     wide = True
-                op = self._print_binary_op(node.get_binary_operator(), wide=wide)
+                op = self._print_arithmetic_operator(node.get_binary_operator(), wide=wide)
                 return op % ({"lhs": lhs, "rhs": rhs})
 
             if node.is_ternary_operator():
@@ -87,25 +90,23 @@ class LatexExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
-    def _print_unary_operator(self, ast_unary_operator) -> str:
+    def print_unary_operator(self, node: ASTUnaryOperator) -> str:
         """
         Print unary operator.
 
         :param ast_unary_operator: a unary operator
-        :type ast_unary_operator: ASTUnaryOperator
         :return: the corresponding string representation
         """
-        return str(ast_unary_operator) + "%s"
+        return str(node) + "%s"
 
-    def print_function_call(self, function_call) -> str:
+    def print_function_call(self, node: ASTFunctionCall) -> str:
         r"""
         Print function call.
 
-        :param function_call: a function call
-        :type function_call: ASTFunctionCall
+        :param node: a function call
         :return: the corresponding string representation
         """
-        result = function_call.get_name()
+        result = node.get_name()
 
         symbols = {
             "convolve": r"\\text{convolve}"
@@ -115,35 +116,34 @@ class LatexExpressionPrinter(ExpressionPrinter):
             result = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])",
                             symbol_replace, result)  # "whole word" match
 
-        if ASTUtils.needs_arguments(function_call):
-            n_args = len(function_call.get_args())
+        if ASTUtils.needs_arguments(node):
+            n_args = len(node.get_args())
             result += "(" + ", ".join(["%s" for _ in range(n_args)]) + ")"
         else:
             result += "()"
 
         return result
 
-    def _print_binary_op(self, ast_binary_operator, wide=False) -> str:
+    def _print_arithmetic_operator(self, node: ASTArithmeticOperator, wide: bool = False) -> str:
         """
         Print binary operator.
 
-        :param ast_binary_operator: a single binary operator
-        :type ast_binary_operator: ASTBinaryOperator
+        :param node: a single arithmetic operator
         :return: the corresponding string representation
         """
-        if ast_binary_operator.is_div_op:
+        if node.is_div_op:
             if wide:
                 return r"\frac 1 { %(rhs)s } \left( { %(lhs)s } \right) "
 
             return r"\frac{ %(lhs)s } { %(rhs)s }"
 
-        if ast_binary_operator.is_times_op:
+        if node.is_times_op:
             return r"%(lhs)s \cdot %(rhs)s"
 
-        if ast_binary_operator.is_pow_op:
+        if node.is_pow_op:
             return r"{ %(lhs)s }^{ %(rhs)s }"
 
-        return r"%(lhs)s" + str(ast_binary_operator) + r"%(rhs)s"
+        return r"%(lhs)s" + str(node) + r"%(rhs)s"
 
     def _print_encapsulated(self) -> str:
         return r"(%s)"

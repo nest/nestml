@@ -40,7 +40,7 @@ class ODEToolboxExpressionPrinter(CppExpressionPrinter):
 
         return "Piecewise((" + if_true + ", " + condition + "), (" + if_not + ", True))"
 
-    def _print_arithmetic_operator(self, node: ASTExpressionNode) -> str:
+    def _print_arithmetic_operator_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints an arithmetic operator.
         :param op: an arithmetic operator object
