@@ -599,7 +599,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for qual in node.get_input_qualifiers():
             qual.update_scope(node.get_scope())
 
-
     def endvisit_input_port(self, node):
         if not node.has_datatype():
             return
