@@ -70,11 +70,10 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
     def setup_printers(self):
         super().setup_printers()
 
-        self._types_printer = PythonTypeSymbolPrinter()
+        self._type_symbol_printer = PythonTypeSymbolPrinter()
         self._constant_printer = ConstantPrinter()
 
-        # printers
-
+        # Python/mini simulation environment API printers
         self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
         self._nest_function_call_printer = PythonFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
@@ -95,18 +94,15 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
         self._nest_unitless_function_call_printer = PythonFunctionCallPrinter(None)
 
-        self._unitless_expression_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
-                                                                                                                            constant_printer=self._constant_printer,
-                                                                                                                            function_call_printer=self._nest_unitless_function_call_printer))
-        self._nest_unitless_function_call_printer._expression_printer = self._unitless_expression_printer
-
+        # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
+        print("In Python code generator: created self._gsl_variable_printer = " + str(self._gsl_variable_printer))
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
-
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                             constant_printer=self._constant_printer,
                                                                                                             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
+        self._gsl_variable_printer._expression_printer = self._gsl_printer
 
     def _get_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
         namespace = super()._get_model_namespace(astnode)

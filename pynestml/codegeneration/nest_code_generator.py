@@ -698,14 +698,14 @@ class NESTCodeGenerator(CodeGenerator):
                        and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name)):
                         namespace["recordable_state_variables"].append(var)
 
-        namespace["parameter_syms_with_iv"] = []
+        namespace["parameter_vars_with_iv"] = []
         for parameters_block in neuron.get_parameters_blocks():
             for decl in parameters_block.get_declarations():
                 for var in decl.get_variables():
                     sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
                     if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name)):
-                        namespace["parameter_syms_with_iv"].append(var)
+                        namespace["parameter_vars_with_iv"].append(var)
 
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
                                                       if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
@@ -717,8 +717,8 @@ class NESTCodeGenerator(CodeGenerator):
             self._nest_variable_printer._state_symbols.extend(namespace["purely_numeric_state_variables_moved"])
             if "analytic_state_variables_moved" in namespace.keys():
                 self._nest_variable_printer._state_symbols.extend(namespace["analytic_state_variables_moved"])
-            self._nest_variable_printer._state_symbols.extend(namespace["non_equations_state_variables"])
-        self._gsl_printer._state_symbols = self._nest_variable_printer._state_symbols
+        self._gsl_variable_printer._state_symbols = self._nest_variable_printer._state_symbols
+        self._nest_variable_printer_no_origin._state_symbols = self._nest_variable_printer._state_symbols
         namespace["numerical_state_symbols"] = self._nest_variable_printer._state_symbols
 
         return namespace

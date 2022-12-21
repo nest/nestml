@@ -115,7 +115,7 @@ class PythonVariablePrinter(CppVariablePrinter):
 
         return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
-    def print_delay_variable(self, variable: ASTVariable):
+    def _print_delay_variable(self, variable: ASTVariable):
         """
         Converts a delay variable to NEST processable format
         :param variable:
@@ -146,12 +146,15 @@ class PythonVariablePrinter(CppVariablePrinter):
         return self._expression_printer.print(vector_parameter)
 
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
+        assert all([type(s) == str for s in self._state_symbols])
+
         variable_name = PythonVariablePrinter._print_python_name(variable.get_complete_name())
+
         if symbol.is_local():
             return variable_name
 
-        for s in self._state_symbols:
-            assert type(s) == str
+        if variable.is_delay_variable():
+            return self._print_delay_variable(variable)
 
         if with_origin:
             return PythonCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
