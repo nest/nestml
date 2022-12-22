@@ -29,6 +29,7 @@ import pynestml
 from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
+from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_type_symbol_printer import NESTCppTypeSymbolPrinter
@@ -395,6 +396,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["ast_node_factory"] = ASTNodeFactory
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["utils"] = ASTUtils
+        namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
 
         # using random number generators?
