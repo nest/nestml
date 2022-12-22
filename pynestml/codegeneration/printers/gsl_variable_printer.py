@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.utils.ast_utils import ASTUtils
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -52,7 +53,7 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "node.V_." + super().print_variable(node)
 
         if symbol.is_input():
-            return "node.B_." + super().print_variable(node) + "_grid_sum_"
+            return "node.B_." + self.print_buffer_value(node)
 
         raise Exception("Unknown node type")
 
@@ -67,3 +68,20 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "node.get_delayed_" + variable.get_name() + "()"
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
+
+    def print_buffer_value(self, variable: ASTVariable) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if variable_symbol.is_spike_input_port():
+            var_name = variable_symbol.get_symbol_name().upper()
+            if variable_symbol.get_vector_parameter() is not None:
+                vector_parameter = ASTUtils.get_numeric_vector_size(variable_symbol)
+                var_name = var_name + "_" + str(vector_parameter)
+
+            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+        else:
+            return variable_symbol.get_symbol_name() + '_grid_sum_'
