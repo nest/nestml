@@ -19,41 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import multiprocessing as mp
+import subprocess
 import sys
+import tempfile
 
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
-
-
-def _detect_nest_version(user_args):
-    try:
-        import nest
-
-        vt = nest.Create("volume_transmitter")
-
-        try:
-            neuron = nest.Create('hh_psc_alpha_clopath')
-        except Exception:
-            pass
-
-        if "DataConnect" in dir(nest):
-            nest_version = "v2.20.2"
-        elif "kernel_status" not in dir(nest):  # added in v3.1
-            nest_version = "v3.0"
-        elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
-            nest_version = "master"
-        elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
-            nest_version = "v3.3"
-        elif "tau_Ca" in vt.get().keys():   # removed in v3.2
-            nest_version = "v3.1"
-        else:
-            nest_version = "v3.2"
-
-    except ModuleNotFoundError:
-        nest_version = ""
-
-    return nest_version
 
 
 class NESTTools:
@@ -69,9 +40,47 @@ class NESTTools:
 
            NEST version detection needs improvement. See https://github.com/nest/nest-simulator/issues/2116
         """
-        p = mp.Pool(processes=1)
-        nest_version = p.map(_detect_nest_version, [None])[0]
-        p.close()
+
+        script = """\"\"\"Auto-detect NEST Simulator installed version and print the version string to stderr.\"\"\"
+
+import sys
+
+try:
+    import nest
+
+    vt = nest.Create("volume_transmitter")
+
+    try:
+        neuron = nest.Create('hh_psc_alpha_clopath')
+    except Exception:
+        pass
+
+    if "DataConnect" in dir(nest):
+        nest_version = "v2.20.2"
+    elif "kernel_status" not in dir(nest):  # added in v3.1
+        nest_version = "v3.0"
+    elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+        nest_version = "master"
+    elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
+        nest_version = "v3.3"
+    elif "tau_Ca" in vt.get().keys():   # removed in v3.2
+        nest_version = "v3.1"
+    else:
+        nest_version = "v3.2"
+
+except ModuleNotFoundError:
+    nest_version = ""
+
+print(nest_version, file=sys.stderr)
+"""
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(bytes(script, encoding="UTF-8"))
+            f.seek(0)
+            cmd = [sys.executable, f.name]
+
+            process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            nest_version = stderr.decode("UTF-8").strip()
 
         if nest_version == "":
             Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_version`` manually in the code generator options.", None, LoggingLevel.ERROR)

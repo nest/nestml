@@ -1,0 +1,20 @@
+{%- macro FunctionDeclaration(ast_function, namespace_prefix) -%}
+{%- with function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION) -%}
+{%-     if function_symbol is none -%}
+{{ raise('Cannot resolve the method ' + ast_function.get_name()) }}
+{%-     endif %}
+{{ ast_function.print_comment('//') }}
+{{ type_symbol_printer.print(function_symbol.get_return_type()) | replace('.', '::') }} {{ namespace_prefix }}{{ ast_function.get_name() }} (
+{%-     for param in ast_function.get_parameters() %}
+{%-         with typeSym = param.get_data_type().get_type_symbol() -%}
+{%-             filter indent(1, True) -%}
+{{ type_symbol_printer.print(typeSym) }} {{ param.get_name() }}
+{%-                 if not loop.last -%}
+,
+{%-                 endif -%}
+{%-             endfilter -%}
+{%-         endwith -%}
+{%-     endfor -%}
+) const
+{%- endwith -%}
+{%- endmacro -%}

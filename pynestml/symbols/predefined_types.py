@@ -21,8 +21,6 @@
 
 from typing import Mapping
 
-from copy import copy
-
 from astropy.units.core import CompositeUnit
 from astropy.units.quantity import Quantity
 
@@ -30,8 +28,6 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.messages import Messages
 from pynestml.utils.type_dictionary import TypeDictionary
 from pynestml.utils.unit_type import UnitType
 

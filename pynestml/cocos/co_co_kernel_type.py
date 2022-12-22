@@ -22,13 +22,13 @@
 from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.codegeneration.printers.debug_types_printer import DebugTypesPrinter
+from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
-from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.either import Either
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -89,11 +89,14 @@ class KernelTypeVisitor(ASTVisitor):
                     Logger.log_message(node=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=node.get_source_position())
                     continue
-                assert len(self._neuron.get_state_blocks().get_declarations()[0].get_variables(
-                )) == 1, "Only single variables are supported as targets of an assignment."
+                assert len(decl.get_variables()) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
-                if not iv.get_type_symbol().get_value().is_castable_to(PredefinedTypes.get_type("ms")**-order):
-                    actual_type_str = DebugTypesPrinter().convert(iv.get_type_symbol())
+                type_symbol = iv.get_type_symbol()
+                if isinstance(type_symbol, Either) and type_symbol.is_value():
+                    type_symbol = type_symbol.get_value()
+
+                if not type_symbol.is_castable_to(PredefinedTypes.get_type("ms")**-order):
+                    actual_type_str = CppTypeSymbolPrinter().print(type_symbol)
                     expected_type_str = "s^-" + str(order)
                     code, message = Messages.get_kernel_iv_wrong_type(iv_name, actual_type_str, expected_type_str)
                     Logger.log_message(error_position=node.get_source_position(),

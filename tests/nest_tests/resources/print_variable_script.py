@@ -43,6 +43,3 @@ nest.Install(module_name)
 
 neuron = nest.Create("print_variable_nestml")
 nest.Simulate(0.1)
-
-if os.path.exists(target_path):
-    shutil.rmtree(target_path)

@@ -22,9 +22,8 @@
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope, ScopeType
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -85,8 +84,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node, after_ast_rewrite=self.after_ast_rewrite_)
 
         # update the equations
-        if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
-            equation_block = node.get_equations_blocks()
+        for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)
 
         Logger.set_current_node(None)
@@ -287,7 +285,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an node object.
         :type node: ast_assignment
         :return: no return value, since neither scope nor symbol is created
-        :rtype: void
         """
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
@@ -299,7 +296,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a function call object.
         :type node: ast_function_call
         :return: no return value, since neither scope nor symbol is created
-        :rtype: void
         """
         for arg in node.get_args():
             arg.update_scope(node.get_scope())
@@ -337,6 +333,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
             block_type = self.block_type_stack.top()
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
+
+            self.visit_variable(var)
+
             type_symbol = PredefinedTypes.get_type(type_name)
             vector_parameter = var.get_vector_parameter()
             symbol = VariableSymbol(element_reference=node,
@@ -492,7 +491,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.is_function_call():
             node.get_function_call().update_scope(node.get_scope())
         elif node.is_variable() or node.has_unit():
+            assert node.get_scope() is not None
             node.get_variable().update_scope(node.get_scope())
+            if node.get_variable().get_vector_parameter() is not None:
+                node.get_variable().get_vector_parameter().update_scope(node.get_scope())
+
+    def visit_variable(self, node: ASTVariable):
+        if node.get_vector_parameter() is not None:
+            node.get_vector_parameter().update_scope(node.get_scope())
 
     def visit_inline_expression(self, node):
         """
