@@ -2049,7 +2049,7 @@ class ASTUtils:
             if sym:
                 return sym
         return None
-        
+
     @classmethod
     def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
         """
