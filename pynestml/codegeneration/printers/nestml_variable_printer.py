@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# types_printer.py
+# nestml_variable_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,17 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import abc
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
+from pynestml.meta_model.ast_variable import ASTVariable
 
-from pynestml.symbols.type_symbol import TypeSymbol
 
-
-class TypesPrinter(metaclass=abc.ABCMeta):
+class NestMLVariablePrinter(VariablePrinter):
     r"""
-    Returns a string format of ``TypeSymbol``s.
+    Print ``ASTVariable``s in NESTML syntax.
     """
 
-    @classmethod
-    @abc.abstractmethod
-    def convert(cls, element: TypeSymbol):
-        pass
+    def print_variable(self, node: ASTVariable) -> str:
+        """
+        Print a variable node
+        :param node: the node to print
+        :return: string representation
+        """
+        return node.get_complete_name()
