@@ -165,15 +165,10 @@ size_t access_counter )
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
 
-
-
 {%- endif %}
 
-
-
-
 /* BeginDocumentation
-  Name: {{neuronName}}.
+  Name: {{neuronName}}
 
   Description:
 {% filter indent(2) %}
@@ -263,7 +258,7 @@ public:
   void get_status(DictionaryDatum &) const override;
   void set_status(const DictionaryDatum &) override;
 
-{%- if paired_synapse is defined %}
+{% if paired_synapse is defined %}
   // support for spike archiving
 
   /**
@@ -287,43 +282,49 @@ public:
    */
   void register_stdp_connection( double t_first_read, double delay );
 {%- endif %}
-
+{%- if neuron.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for state block
   // -------------------------------------------------------------------------
 
 {% filter indent(2, True) -%}
-{%- for state in neuron.get_state_symbols() %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- with variable = state %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endif %}
-{%- endfor %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives/MemberVariableGetterSetter.jinja2" %}
+{%     endif %}
+{% endfor %}
 {%- endfilter %}
+{%- endif %}
+
+{%- if neuron.get_parameter_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters
   // -------------------------------------------------------------------------
 
 {% filter indent(2, True) -%}
-{%- for parameter in neuron.get_parameter_symbols() %}
-{%- with variable = parameter %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberVariableGetterSetter.jinja2" %}
+
+{% endfor %}
 {%- endfilter %}
+{%- endif %}
+
+{%- if neuron.get_internal_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for internals
   // -------------------------------------------------------------------------
 
 {% filter indent(2, True) -%}
-{%- for internal in neuron.get_internal_symbols() %}
-{%- with variable = internal %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-     with variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives/MemberVariableGetterSetter.jinja2" %}
 
+{%-     endwith %}
+{% endfor %}
+{%- endfilter %}
+{%- endif %}
 {%- if paired_synapse is defined %}
 
   /* getters/setters for variables transferred from synapse */
@@ -458,8 +459,9 @@ private:
   struct Parameters_
   {
 {%- filter indent(4,True) %}
-{%- for variable in neuron.get_parameter_symbols() %}
-{%- include 'directives/MemberDeclaration.jinja2' %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include 'directives/MemberDeclaration.jinja2' %}
 {%- endfor %}
 {%- endfilter %}
 {%- if uses_numeric_solver %}
@@ -502,7 +504,8 @@ private:
 {%      include "directives/StateVariablesEnum.jinja2" %}
 {%-   endif %}
 {%-   filter indent(4,True) %}
-{%-   for variable in neuron.get_state_symbols() %}
+{%-   for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}
@@ -518,25 +521,30 @@ private:
 {%-     for variable_name in numeric_state_variables %}
       {{variable_name}},
 {%-     endfor %}
-      // moved state variables from synapse
+      // moved state variables from synapse (numeric)
 {%-     for variable_name in purely_numeric_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
+      // moved state variables from synapse (analytic)
 {%-     for variable_name in analytic_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
-{%-     for variable_name in non_equations_state_variables: %}
+      // non-equation related state variables
+{%-     for variable_name in non_equations_state_variables %}
       {{variable_name}},
 {%-     endfor %}
 {%-   else %}
 {#-     analytic solver only #}
-{%-     for variable_name in analytic_state_variables: %}
+      // analytic state variables
+{%-     for variable_name in analytic_state_variables %}
       {{variable_name}},
 {%-     endfor %}
-{%-     for variable_name in non_equations_state_variables: %}
+      // non-equation related state variables
+{%-     for variable_name in non_equations_state_variables %}
       {{variable_name}},
 {%-     endfor %}
 {%-   endif %}
+      // final entry to easily get the vector size
       STATE_VEC_SIZE
     };
 
@@ -574,10 +582,11 @@ private:
   **/
   struct Variables_
   {
-{%- for variable in neuron.get_internal_symbols() %}
-{%-   filter indent(4) %}
-{%-     include "directives/MemberDeclaration.jinja2" %}
-{%-   endfilter %}
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     filter indent(4) %}
+{%-         include "directives/MemberDeclaration.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
   };
 
@@ -599,42 +608,42 @@ private:
     /**
      * Logger for all analog data
     **/
-{%- if (has_state_vectors) %}
+{%- if has_state_vectors %}
     nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
 {%- else %}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
 {%- endif %}
 
-{%- if ((neuron.get_multiple_receptors())|length > 1) or neuron.has_vector_port() %}
-    std::vector<long> receptor_types_;
+{%- if (neuron.get_multiple_receptors()|length > 1) or neuron.has_vector_port() %}
+    std::vector< long > receptor_types_;
 {%- endif %}
 
-{%- if ((neuron.get_multiple_receptors())|length > 1) %}
     // -----------------------------------------------------------------------
     //   Buffers and sums of incoming spikes/currents per timestep
     // -----------------------------------------------------------------------
+{%- if neuron.get_multiple_receptors()|length > 1 %}
     std::vector< nest::RingBuffer > spike_inputs_;
 
-{%- for inputPort in neuron.get_spike_input_ports() %}
-{%- if inputPort.is_spike_input_port() and inputPort.is_inhibitory() and inputPort.is_excitatory() %}
-inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.get_symbol_name() }}() {
+{%-     for inputPort in neuron.get_spike_input_ports() %}
+{%-         if inputPort.is_spike_input_port() and inputPort.is_inhibitory() and inputPort.is_excitatory() %}
+inline {{ type_symbol_printer.print(inputPort.get_type_symbol()) }}& get_{{ inputPort.get_symbol_name() }}() {
     return spike_inputs_[{{ inputPort.get_symbol_name().upper() }} - 1];
 }
-{%- else %}
-{%-     filter indent(4, True) -%}
+{%-         else %}
+{%-             filter indent(4, True) -%}
 {{ buffer_getter.BufferGetter(inputPort, true) }}
-{%-     endfilter %}
-{%- endif %}
+{%-             endfilter %}
+{%-         endif %}
 {{ buffer_declaration_value.BufferDeclarationValue(inputPort) }}
-{%- endfor %}
+{%-     endfor %}
 {%- else %}
-{%- for inputPort in neuron.get_spike_input_ports() %}
-{%-     filter indent(4, True) -%}
+{%-     for inputPort in neuron.get_spike_input_ports() %}
+{%-         filter indent(4, True) -%}
 {{ buffer_getter.BufferGetter(inputPort, true) }}
 {{ buffer_declaration.BufferDeclaration(inputPort) }}
-{%-     endfilter %}
+{%-         endfilter %}
 {{ buffer_declaration_value.BufferDeclarationValue(inputPort) }}
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 
 {%- for inputPort in neuron.get_continuous_input_ports() %}
@@ -669,10 +678,13 @@ inline {{types_printer.convert(inputPort.get_type_symbol())}}& get_{{ inputPort.
   //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
-{%- for sym in neuron.get_inline_expression_symbols() %}
-{%- with variable = sym %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
+{%- for equations_block in neuron.get_equations_blocks() %}
+{%-     for inline_expr in equations_block.get_inline_expressions() %}
+{%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
+{%-         set variable_symbol = equations_block.get_scope().resolve_to_symbol(inline_expr.get_variable_name(), SymbolKind.VARIABLE) %}
+{%-         include "directives/MemberVariableGetterSetter.jinja2" %}
+
+{%     endfor %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -833,23 +845,21 @@ inline nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& d
 inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {
   // parameters
-{%- for parameter in neuron.get_parameter_symbols() %}
-{%- with variable = parameter %}
-{%- filter indent(2) %}
-{%- include "directives/WriteInDictionary.jinja2" %}
-{%- endfilter %}
-{%- endwith %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     filter indent(2) %}
+{%-         include "directives/WriteInDictionary.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
 
   // initial values for state variables in ODE or kernel
-{%- for state in neuron.get_state_symbols() %}
-{%- with variable = state %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- filter indent(2) %}
-{%- include "directives/WriteInDictionary.jinja2" %}
-{%- endfilter %}
-{%- endif -%}
-{%- endwith %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
+{%-         filter indent(2) %}
+{%-             include "directives/WriteInDictionary.jinja2" %}
+{%-         endfilter %}
+{%-     endif -%}
 {%- endfor %}
 
   {{neuron_parent_class}}::get_status( __d );
@@ -874,23 +884,21 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 {
   // parameters
-{%- for parameter in neuron.get_parameter_symbols() -%}
-{%- with variable = parameter %}
-{%- filter indent(2) %}
-{%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
-{%- endfilter %}
-{%- endwith %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     filter indent(2) %}
+{%-         include "directives/ReadFromDictionaryToTmp.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
 
   // initial values for state variables in ODE or kernel
-{%- for state in neuron.get_state_symbols() %}
-{%- with variable = state %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- filter indent(2) %}
-{%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
-{%- endfilter %}
-{%- endif %}
-{%- endwith %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
+{%-         filter indent(2) %}
+{%-             include "directives/ReadFromDictionaryToTmp.jinja2" %}
+{%-         endfilter %}
+{%-     endif %}
 {%- endfor %}
 
   // We now know that (ptmp, stmp) are consistent. We do not
@@ -900,28 +908,26 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
   {{neuron_parent_class}}::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
-{%- for parameter in neuron.get_parameter_symbols() -%}
-{%- with variable = parameter -%}
-{%- filter indent(2) %}
-{%- include "directives/AssignTmpDictionaryValue.jinja2" -%}
-{%- endfilter %}
-{%- endwith -%}
+{%- for variable_symbol in neuron.get_parameter_symbols() -%}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     filter indent(2) %}
+{%-         include "directives/AssignTmpDictionaryValue.jinja2" -%}
+{%-     endfilter %}
 {%- endfor -%}
 
-{%- for state in neuron.get_state_symbols() -%}
-{%- with variable = state %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- filter indent(2) %}
-{%- include "directives/AssignTmpDictionaryValue.jinja2" %}
-{%- endfilter %}
-{%- endif %}
-{%- endwith %}
+{%- for variable_symbol in neuron.get_state_symbols() -%}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
+{%-         filter indent(2) %}
+{%-             include "directives/AssignTmpDictionaryValue.jinja2" %}
+{%-         endfilter %}
+{%-     endif %}
 {%- endfor %}
 
-{%- for invariant in neuron.get_parameter_invariants() %}
+{% for invariant in neuron.get_parameter_invariants() %}
   if ( !({{printer.print_expression(invariant)}}) )
   {
-    throw nest::BadProperty("The constraint '{{idemPrinter.print_expression(invariant)}}' is violated!");
+    throw nest::BadProperty("The constraint '{{nestml_printer.print_expression(invariant)}}' is violated!");
   }
 {%- endfor %}
 
