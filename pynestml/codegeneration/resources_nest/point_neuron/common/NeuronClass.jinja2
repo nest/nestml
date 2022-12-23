@@ -529,7 +529,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     }
 
   {%- for inputPort in neuron.get_continuous_input_ports() %}
-    B_.{{names.buffer_value(inputPort)}} = get_{{names.name(inputPort)}}().get_value(lag);
+    B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
   {%- endfor %}
 
 {%- if has_delay_variables %}
