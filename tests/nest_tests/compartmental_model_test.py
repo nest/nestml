@@ -26,16 +26,8 @@ import unittest
 
 import nest
 
-import pynestml.codegeneration.nest_tools as nest_tools
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
-
-# we avoid calling the default version detection mechanism
-# `nest_tools.NESTTOOLS.detect_nest_version()`
-# here because on some systems launching a subprocess with multiprocessing
-# without the
-# `if __name__ == "__main__"`
-# guard createst an endless instatiation of new processes
-nest_version = nest_tools._detect_nest_version(None)
 
 # set to `True` to plot simulation traces
 TEST_PLOTS = False
@@ -246,10 +238,9 @@ class CMTest(unittest.TestCase):
 
         return res_act, res_pas
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_compartmental_model(self):
-        print(nest_version)
         self.nestml_flag = False
         recordables_nest = self.get_rec_list()
         res_act_nest, res_pas_nest = self.run_model()

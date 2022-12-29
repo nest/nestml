@@ -19,27 +19,30 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
-import glob
-import os
-
 from typing import Any, Dict, List, Mapping, Optional
 
+import datetime
+import os
+
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
-from odetoolbox import analysis
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
-from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
-from pynestml.codegeneration.printers.gsl_reference_converter import GSLReferenceConverter
-from pynestml.codegeneration.printers.nest_local_variables_reference_converter import NESTLocalVariablesReferenceConverter
-from pynestml.codegeneration.printers.unitless_expression_printer import UnitlessExpressionPrinter
-from pynestml.codegeneration.printers.nest_printer import NestPrinter
-from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
-from pynestml.codegeneration.printers.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
-from pynestml.exceptions.invalid_path_exception import InvalidPathException
+from pynestml.codegeneration.printers.cpp_printer import CppPrinter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
+from pynestml.codegeneration.printers.gsl_variable_printer import GSLVariablePrinter
+from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+from pynestml.codegeneration.printers.nest_cpp_type_symbol_printer import NESTCppTypeSymbolPrinter
+from pynestml.codegeneration.printers.nest_gsl_function_call_printer import NESTGSLFunctionCallPrinter
+from pynestml.codegeneration.printers.nest_variable_printer import NESTVariablePrinter
+from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
+from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
+from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -47,6 +50,7 @@ from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -62,6 +66,7 @@ from pynestml.utils.syns_info_enricher import SynsInfoEnricher
 from pynestml.utils.syns_processing import SynsProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from odetoolbox import analysis
 
 
 class NESTCompartmentalCodeGenerator(CodeGenerator):
@@ -117,41 +122,52 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.non_equations_state_variables = {}
 
         self.setup_template_env()
-
-        self._types_printer = CppTypesPrinter()
-        self._gsl_reference_converter = GSLReferenceConverter()
-        self._nest_reference_converter = NESTReferenceConverter()
-
-        self._printer = CppExpressionPrinter(self._nest_reference_converter)
-        self._unitless_expression_printer = UnitlessExpressionPrinter(
-            self._nest_reference_converter)
-        self._gsl_printer = UnitlessExpressionPrinter(
-            reference_converter=self._gsl_reference_converter)
-
-        self._nest_printer = NestPrinter(
-            reference_converter=self._nest_reference_converter,
-            types_printer=self._types_printer,
-            expression_printer=self._printer)
-
-        self._unitless_nest_gsl_printer = NestPrinter(
-            reference_converter=self._nest_reference_converter,
-            types_printer=self._types_printer,
-            expression_printer=self._unitless_expression_printer)
-
-        self._local_variables_reference_converter = NESTLocalVariablesReferenceConverter()
-        self._unitless_local_variables_expression_printer = UnitlessExpressionPrinter(
-            self._local_variables_reference_converter)
-        self._unitless_local_variables_nest_gsl_printer = NestPrinter(
-            reference_converter=self._local_variables_reference_converter,
-            types_printer=self._types_printer,
-            expression_printer=self._unitless_local_variables_expression_printer)
-
-        self._ode_toolbox_printer = UnitlessExpressionPrinter(
-            ODEToolboxReferenceConverter())
+        self.setup_printers()
 
         # maps kernel names to their analytic solutions separately
         # this is needed needed for the cm_syns case
         self.kernel_name_to_analytic_solver = {}
+
+    def setup_printers(self):
+        self._constant_printer = ConstantPrinter()
+
+        # C++/NEST API printers
+        self._type_symbol_printer = NESTCppTypeSymbolPrinter()
+        self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
+        self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
+        self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
+
+        self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+                                                                                                  constant_printer=self._constant_printer,
+                                                                                                  function_call_printer=self._nest_function_call_printer))
+        self._nest_variable_printer._expression_printer = self._printer
+        self._nest_function_call_printer._expression_printer = self._printer
+        self._nest_printer = CppPrinter(expression_printer=self._printer)
+
+        self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False, with_vector_parameter=False)
+        self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                                                            constant_printer=self._constant_printer,
+                                                                                                            function_call_printer=self._nest_function_call_printer_no_origin))
+        self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
+        self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
+
+        # GSL printers
+        self._gsl_variable_printer = GSLVariablePrinter(None)
+        self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
+
+        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                                                                              constant_printer=self._constant_printer,
+                                                                                                              function_call_printer=self._gsl_function_call_printer))
+        self._gsl_function_call_printer._expression_printer = self._gsl_printer
+
+        # ODE-toolbox printers
+        self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
+        self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
+        self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
+                                                                                                                             constant_printer=self._constant_printer,
+                                                                                                                             function_call_printer=self._ode_toolbox_function_call_printer))
+        self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
+        self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -293,17 +309,17 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
-        assert isinstance(neuron.get_equations_blocks(
-        ), ASTEquationsBlock), "only one equation block should be present"
+        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
+        assert len(neuron.get_parameters_blocks()) == 1, "Only one parameters block supported for now"
 
-        equations_block = neuron.get_equations_block()
+        equations_block = neuron.get_equations_blocks()[0]
 
         if len(equations_block.get_kernels()) == 0 and len(
                 equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
 
-        parameters_block = neuron.get_parameter_blocks()
+        parameters_block = neuron.get_parameters_blocks()[0]
 
         kernel_name_to_analytic_solver = dict()
         for kernel_buffer in kernel_buffers:
@@ -319,17 +335,17 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
-        assert isinstance(neuron.get_equations_blocks(
-        ), ASTEquationsBlock), "only one equation block should be present"
+        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
+        assert len(neuron.get_parameters_blocks()) == 1, "Only one parameters block supported for now"
 
-        equations_block = neuron.get_equations_block()
+        equations_block = neuron.get_equations_blocks()[0]
 
         if len(equations_block.get_kernels()) == 0 and len(
                 equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
 
-        parameters_block = neuron.get_parameter_blocks()
+        parameters_block = neuron.get_parameters_blocks()[0]
 
         solver_result, analytic_solver = self.ode_solve_analytically(
             neuron, parameters_block, kernel_buffers)
@@ -360,8 +376,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         return analytic_solver, numeric_solver
 
     def find_non_equations_state_variables(self, neuron: ASTNeuron):
+        assert len(neuron.get_state_blocks()) == 1, "Only one state block supported for now"
+        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
+
         non_equations_state_variables = []
-        for decl in neuron.get_state_blocks().get_declarations():
+        for decl in neuron.get_state_blocks()[0].get_declarations():
             for var in decl.get_variables():
                 # check if this variable is not in equations
 
@@ -372,13 +391,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
                     # check if equation name is also a state variable
                 used_in_eq = False
-                for ode_eq in neuron.get_equations_blocks().get_ode_equations():
+                for ode_eq in neuron.get_equations_blocks()[0].get_ode_equations():
                     if ode_eq.get_lhs().get_name() == var.get_name():
                         used_in_eq = True
                         break
 
                 # check for any state variables being used by a kernel
-                for kern in neuron.get_equations_blocks().get_kernels():
+                for kern in neuron.get_equations_blocks()[0].get_kernels():
                     for kern_var in kern.get_variables():
                         if kern_var.get_name() == var.get_name():
                             used_in_eq = True
@@ -400,14 +419,17 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         Logger.log_message(neuron, code, message,
                            neuron.get_source_position(), LoggingLevel.INFO)
 
-        equations_block = neuron.get_equations_block()
+        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
+        assert len(neuron.get_state_blocks()) == 1, "Only one state block supported for now"
+
+        equations_block = neuron.get_equations_blocks()[0]
 
         if equations_block is None:
             # add all declared state variables as none of them are used in
             # equations block
             self.non_equations_state_variables[neuron.get_name()] = []
             self.non_equations_state_variables[neuron.get_name()].extend(
-                ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
+                ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()[0]))
 
             return []
 
@@ -500,8 +522,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # add variable __h to internals block
         ASTUtils.add_timestep_symbol(neuron)
 
-        # add propagator variables calculated by odetoolbox into internal
-        # blocks
+        # add propagator variables calculated by odetoolbox into internal blocks
         if self.analytic_solver[neuron.get_name()] is not None:
             neuron = ASTUtils.add_declarations_to_internals(
                 neuron, self.analytic_solver[neuron.get_name()]["propagators"])
@@ -543,7 +564,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 FrontendConfiguration.get_target_path(),
                 compute_prefix(file_name_no_extension))) + "." + file_extension
 
-    def getUniqueSuffix(self, neuron: ASTNeuron):
+    def getUniqueSuffix(self, neuron: ASTNeuron) -> str:
         ret = neuron.get_name().capitalize()
         underscore_pos = ret.find("_")
         while underscore_pos != -1:
@@ -558,30 +579,47 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :return: a context dictionary for rendering templates
         :rtype: dict
         """
-        namespace = dict()
+
+        namespace = {}
+
+        namespace["now"] = datetime.datetime.utcnow()
+        namespace["tracing"] = FrontendConfiguration.is_dev
+
+        # helper functions
+        namespace["ast_node_factory"] = ASTNodeFactory
+        namespace["assignments"] = NestAssignmentsHelper()
+        namespace["utils"] = ASTUtils
+        namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
+
+        # using random number generators?
+        rng_visitor = ASTRandomNumberGeneratorVisitor()
+        neuron.accept(rng_visitor)
+        namespace["norm_rng"] = rng_visitor._norm_rng_is_used
+
+        # printers
+        namespace["printer"] = self._nest_printer
+        namespace["printer_no_origin"] = self._printer_no_origin
+        namespace["gsl_printer"] = self._gsl_printer
+        namespace["nest_printer"] = self._nest_printer
+        namespace["nestml_printer"] = NESTMLPrinter()
+        namespace["type_symbol_printer"] = self._type_symbol_printer
+
+        # NESTML syntax keywords
+        namespace["PyNestMLLexer"] = {}
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+        for kw in dir(PyNestMLLexer):
+            if kw.isupper():
+                namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
         namespace["nest_version"] = self.get_option("nest_version")
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
-        namespace["printer"] = self._unitless_nest_gsl_printer
-        namespace["local_variables_printer"] = self._unitless_local_variables_nest_gsl_printer
-        namespace["nest_printer"] = self._nest_printer
-        namespace["assignments"] = NestAssignmentsHelper()
-        namespace["names"] = self._nest_reference_converter
-        namespace["declarations"] = NestDeclarationsHelper(self._types_printer)
-        namespace["utils"] = ASTUtils
-        namespace["idemPrinter"] = self._printer
-        namespace["outputEvent"] = namespace["printer"].print_output_event(
-            neuron.get_body())
         namespace["has_spike_input"] = ASTUtils.has_spike_input(
             neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(
             neuron.get_body())
-        namespace["printerGSL"] = self._gsl_printer
-        namespace["now"] = datetime.datetime.utcnow()
-        namespace["tracing"] = FrontendConfiguration.is_dev
 
         namespace["neuron_parent_class"] = self.get_option(
             "neuron_parent_class")
@@ -599,7 +637,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name(
             )]["state_variables"]
             namespace["analytic_variable_symbols"] = {
-                sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                     sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]}
             namespace["update_expressions"] = {}
             for sym, expr in self.analytic_solver[neuron.get_name(
@@ -613,7 +651,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 # which should always be present, as differential equations
                 # must have been defined to get here
                 expr_ast.update_scope(
-                    neuron.get_equations_blocks().get_scope())
+                    neuron.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
 
@@ -632,7 +670,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             namespace["numeric_state_variables"] = self.numeric_solver[neuron.get_name(
             )]["state_variables"]
             namespace["numeric_variable_symbols"] = {
-                sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                     sym, SymbolKind.VARIABLE) for sym in namespace["numeric_state_variables"]}
             assert not any(
                 [sym is None for sym in namespace["numeric_variable_symbols"].values()])
@@ -648,12 +686,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 # which should always be present, as differential equations
                 # must have been defined to get here
                 expr_ast.update_scope(
-                    neuron.get_equations_blocks().get_scope())
+                    neuron.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
-            namespace["useGSL"] = namespace["uses_numeric_solver"]
-            namespace["names"] = self._gsl_reference_converter
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [
@@ -668,21 +704,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # parameter symbols with initial values
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols(
         ) if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
-
-        rng_visitor = ASTRandomNumberGeneratorVisitor()
-        neuron.accept(rng_visitor)
-        namespace["norm_rng"] = rng_visitor._norm_rng_is_used
-
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
-        namespace["chan_info"] = ASTChannelInformationCollector.get_chan_info(
-            neuron)
-        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(
-            neuron, namespace["chan_info"])
+        namespace["chan_info"] = ASTChannelInformationCollector.get_chan_info(neuron)
+        namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
 
         namespace["syns_info"] = SynsProcessing.get_syns_info(neuron)
         syns_info_enricher = SynsInfoEnricher(neuron)
-        namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(
-            neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
+        namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
 
         # maybe log this on DEBUG?
         # print("syns_info: ")
@@ -701,7 +729,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["sharedFileNamesCmSyns"] = {
         }
 
-        namespace["types_printer"] = self._types_printer
+        namespace["types_printer"] = self._type_symbol_printer
 
         return namespace
 
@@ -719,7 +747,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         Grab the ASTVariable corresponding to the initial value by this name
         """
-        for decl in neuron.get_state_blocks().get_declarations():
+        for decl in neuron.get_state_blocks()[0].get_declarations():
             for var in decl.variables:
                 if var.get_name() == var_name:
                     return var
@@ -819,8 +847,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             inport = k[1]
             assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
             if factor not in ["1.", "1.0", "1"]:
-                assignment_str += "(" + self._printer.print_expression(
-                    ModelParser.parse_expression(factor)) + ") * "
+                assignment_str += "(" + self._printer.print(ModelParser.parse_expression(factor)) + ") * "
             assignment_str += str(inport)
             ast_assignment = ModelParser.parse_assignment(assignment_str)
             ast_assignment.update_scope(neuron.get_scope())
@@ -849,18 +876,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :return: Dict
         """
         odetoolbox_indict = {}
-
-        gsl_converter = ODEToolboxReferenceConverter()
-        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
-
         odetoolbox_indict["dynamics"] = []
-        equations_block = neuron.get_equations_block()
+        equations_block = neuron.get_equations_blocks()[0]
         for equation in equations_block.get_ode_equations():
             # n.b. includes single quotation marks to indicate differential
             # order
             lhs = ASTUtils.to_ode_toolbox_name(
                 equation.get_lhs().get_complete_name())
-            rhs = gsl_printer.print_expression(equation.get_rhs())
+            rhs = self._ode_toolbox_printer.print(equation.get_rhs())
             entry = {"expression": lhs + " = " + rhs}
             symbol_name = equation.get_lhs().get_name()
             symbol = equations_block.get_scope().resolve_to_symbol(
@@ -872,7 +895,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 iv_symbol_name = symbol_name + "'" * order
                 initial_value_expr = neuron.get_initial_value(iv_symbol_name)
                 if initial_value_expr:
-                    expr = gsl_printer.print_expression(initial_value_expr)
+                    expr = self._ode_toolbox_printer.print(initial_value_expr)
                     entry["initial_values"][ASTUtils.to_ode_toolbox_name(
                         iv_symbol_name)] = expr
             odetoolbox_indict["dynamics"].append(entry)
@@ -910,7 +933,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_
                     initial_value_expr = symbol.get_declaring_expression()
                     assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = gsl_printer.print_expression(
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = self._ode_toolbox_printer.print(
                         initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
@@ -920,6 +943,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
                     odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = gsl_printer.print_expression(decl.get_expression())
+                    )] = self._ode_toolbox_printer.print(decl.get_expression())
 
         return odetoolbox_indict

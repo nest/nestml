@@ -1,5 +1,5 @@
 {#/*
-*  ModuleClass.cpp.jinja2
+*  @MODULE_NAME@.cpp.jinja2
 *
 *  This file is part of NEST.
 *
@@ -67,7 +67,7 @@
 {% for neuron in neurons %}
 #include "{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h"
 {% endfor %}
-    
+
 // -- Interface to dynamic module loader ---------------------------------------
 
 /*
@@ -111,7 +111,7 @@
 }
 
 const std::string
-{{moduleName}}::name(void) const
+{{moduleName}}::name() const
 {
   return std::string("{{moduleName}}"); // Return name of the module
 }
@@ -121,6 +121,6 @@ void
 {{moduleName}}::init( SLIInterpreter* i )
 {
   {% for neuron in neurons %}
-nest::kernel().model_manager.register_node_model<nest::{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}>("{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}");
+nest::kernel().model_manager.register_node_model< nest::{{ perNeuronFileNamesCm[neuron.get_name()]["main"] }} >("{{ perNeuronFileNamesCm[neuron.get_name()]["main"] }}");
   {% endfor %}
 } // {{moduleName}}::init()

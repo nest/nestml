@@ -366,17 +366,14 @@ class SynsInfoEnricher(ASTVisitor):
                 analytic_solution_transformed = defaultdict(
                     lambda: defaultdict())
 
-                for variable_name, expression_str in analytic_solution["initial_values"].items(
-                ):
-                    variable = neuron.get_equations_block().get_scope(
-                    ).resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+                for variable_name, expression_str in analytic_solution["initial_values"].items():
+                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
 
                     expression = ModelParser.parse_expression(expression_str)
                     # pretend that update expressions are in "equations" block,
                     # which should always be present, as synapses have been
                     # defined to get here
-                    expression.update_scope(
-                        neuron.get_equations_blocks().get_scope())
+                    expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
                     expression.accept(ASTSymbolTableVisitor())
 
                     update_expr_str = analytic_solution["update_expressions"][variable_name]
@@ -386,7 +383,7 @@ class SynsInfoEnricher(ASTVisitor):
                     # which should always be present, as differential equations
                     # must have been defined to get here
                     update_expr_ast.update_scope(
-                        neuron.get_equations_blocks().get_scope())
+                        neuron.get_equations_blocks()[0].get_scope())
                     update_expr_ast.accept(ASTSymbolTableVisitor())
 
                     analytic_solution_transformed['kernel_states'][variable_name] = {
@@ -404,7 +401,7 @@ class SynsInfoEnricher(ASTVisitor):
                     # which should always be present, as synapses have been
                     # defined to get here
                     expression.update_scope(
-                        neuron.get_equations_blocks().get_scope())
+                        neuron.get_equations_blocks()[0].get_scope())
                     expression.accept(ASTSymbolTableVisitor())
                     analytic_solution_transformed['propagators'][variable_name] = {
                         "ASTVariable": variable, "init_expression": expression, }

@@ -1,5 +1,5 @@
 {#
- *  ModuleHeader.h.jinja2
+ *  @MODULE_NAME@.h.jinja2
  *
  *  This file is part of NEST.
  *
@@ -49,6 +49,9 @@
 #include "slimodule.h"
 #include "slifunction.h"
 
+#include "nest.h"
+#include "nest_impl.h"
+
 
 /**
 * Class defining your model.
@@ -79,7 +82,7 @@ public:
   /**
    * Return the name of your model.
    */
-  const std::string name( void ) const;
+  const std::string name() const;
 
 public:
   // Classes implementing your functions -----------------------------
