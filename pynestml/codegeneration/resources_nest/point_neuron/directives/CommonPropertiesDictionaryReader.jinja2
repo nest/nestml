@@ -6,4 +6,4 @@
 {%- if variable.has_vector_parameter() %}
 {{ raise('Vector parameters not supported in common properties dictionary.') }}
 {%- endif %}
-updateValue< {{declarations.print_variable_type(variable)}} >(d, names::{{namespaceName}}, this->{{names.name(variable)}} );
+updateValue< {{declarations.print_variable_type(variable)}} >(d, names::{{namespaceName}}, this->{{ printer.print(utils.get_state_variable_by_name(astnode, variable)) }} );
