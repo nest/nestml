@@ -21,7 +21,6 @@
 
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
 
 

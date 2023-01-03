@@ -37,8 +37,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 @pytest.fixture(autouse=True,
                 scope="module")
@@ -101,7 +99,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     pre_neuron = nest.Create("parrot_neuron")
     post_neuron = nest.Create(neuron_model_name)
 
-    if nest_version.startswith("v2"):
+    if NESTTools.detect_nest_version().startswith("v2"):
         spikedet_pre = nest.Create("spike_detector")
         spikedet_post = nest.Create("spike_detector")
     else:
@@ -110,7 +108,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
 
     nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
     nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-    if nest_version.startswith("v2"):
+    if NESTTools.detect_nest_version().startswith("v2"):
         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
     else:
         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})

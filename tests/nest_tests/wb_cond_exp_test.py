@@ -37,8 +37,6 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestWBCondExpTest(unittest.TestCase):
 
@@ -52,6 +50,7 @@ class NestWBCondExpTest(unittest.TestCase):
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"
+        nest_version = NESTTools.detect_nest_version()
 
         generate_nest_target(input_path,
                              target_path=target_path,
