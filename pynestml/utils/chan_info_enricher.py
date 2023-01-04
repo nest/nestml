@@ -185,7 +185,7 @@ class ChanInfoEnricher():
         chan_info_copy = copy.copy(chan_info)
         for ion_channel_name, ion_channel_info in chan_info_copy.items():
             chan_info[ion_channel_name]["inline_derivative"] = cls.computeExpressionDerivative(
-                chan_info[ion_channel_name]["ASTInlineExpression"])
+                chan_info[ion_channel_name]["RootInlineExpression"])
         return chan_info
 
     @classmethod

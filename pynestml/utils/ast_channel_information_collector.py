@@ -29,6 +29,19 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+
+#--------------ode additional imports
+
+from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
+from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
+from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
+from pynestml.utils.ast_utils import ASTUtils
+from odetoolbox import analysis
+import json
 
 
 class ASTChannelInformationCollector(object):
@@ -96,6 +109,19 @@ class ASTChannelInformationCollector(object):
 
     first_time_run = defaultdict(lambda: True)
     chan_info = defaultdict()
+
+    # ODE-toolbox printers
+    _constant_printer = ConstantPrinter()
+    _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
+    _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
+    _ode_toolbox_printer = ODEToolboxExpressionPrinter(
+        simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+            variable_printer=_ode_toolbox_variable_printer,
+            constant_printer=_constant_printer,
+            function_call_printer=_ode_toolbox_function_call_printer))
+
+    _ode_toolbox_variable_printer._expression_printer = _ode_toolbox_printer
+    _ode_toolbox_function_call_printer._expression_printer = _ode_toolbox_printer
 
     def __init__(self, params):
         '''
@@ -416,12 +442,9 @@ class ASTChannelInformationCollector(object):
         for ion_channel_name, channel_info in chan_info.items():
             channel_parameters[ion_channel_name] = defaultdict()
             channel_parameters[ion_channel_name][cls.gbar_string] = defaultdict()
-            channel_parameters[ion_channel_name][cls.gbar_string]["expected_name"] = cls.get_expected_gbar_name(
-                ion_channel_name)
-            channel_parameters[ion_channel_name][cls.equilibrium_string] = defaultdict(
-            )
-            channel_parameters[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.get_expected_equilibrium_var_name(
-                ion_channel_name)
+            channel_parameters[ion_channel_name][cls.gbar_string]["expected_name"] = cls.get_expected_gbar_name(ion_channel_name)
+            channel_parameters[ion_channel_name][cls.equilibrium_string] = defaultdict()
+            channel_parameters[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.get_expected_equilibrium_var_name(ion_channel_name)
 
             if len(channel_info["gating_variables"]) < 1:
                 cm_inline_expr = channel_info["ASTInlineExpression"]
@@ -581,6 +604,388 @@ class ASTChannelInformationCollector(object):
 
         return ret
 
+
+#----------------------- New collection functions for generalized ODE Descriptions
+
+    """
+        detect_cm_inline_expressions_ode
+
+        analyzes any inline without kernels and returns
+
+        {
+            "Na":
+            {
+                "ASTInlineExpression": ASTInlineExpression,
+                "ode_variables": [ASTVariable, ASTVariable, ASTVariable, ...], # potential ode variables
+
+            },
+            "K":
+            {
+                ...
+            }
+        }
+        """
+
+    @classmethod
+    def detect_cm_inline_expressions_ode(cls, neuron):
+        if not FrontendConfiguration.target_is_compartmental():
+            return defaultdict()
+
+        inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsCollectorVisitor()
+        neuron.accept(
+            inline_expressions_inside_equations_block_collector_visitor)
+        inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
+
+        # filter for any inline that has no kernel
+        relevant_inline_expressions_to_variables = defaultdict(lambda: list())
+        for expression, variables in inline_expressions_dict.items():
+            inline_expression_name = expression.variable_name
+            if not inline_expressions_inside_equations_block_collector_visitor.is_synapse_inline(
+                    inline_expression_name):
+                relevant_inline_expressions_to_variables[expression] = variables
+
+        # create info structure
+        chan_info = defaultdict()
+        for inline_expression, inner_variables in relevant_inline_expressions_to_variables.items():
+            info = defaultdict()
+            channel_name = cls.cm_expression_to_channel_name(inline_expression)
+            info["RootInlineExpression"] = inline_expression
+            #info["ode_variables"] = inner_variables
+            chan_info[channel_name] = info
+
+        return chan_info
+
+    @classmethod
+    def sort_for_actual_ode_vars_and_add_equations(cls, neuron, chan_info):
+        #collect all ODEs
+        ode_collector = ASTODEEquationCollectorVisitor()
+        neuron.accept(ode_collector)
+        odes = ode_collector.all_ode_equations
+
+        for ion_channel_name, channel_info in chan_info.items():
+            variables = channel_info["ode_variables"]
+            chan_var_info = defaultdict()
+            non_ode_vars = list()
+
+            for variable_used in variables:
+                variable_odes = list()
+
+                for ode in odes:
+                    if variable_used.get_name() == ode.get_lhs().get_name():
+                        variable_odes.append(ode)
+
+                if len(variable_odes) > 0:
+                    info = defaultdict()
+                    info["ASTVariable"] = variable_used
+                    info["ASTOdeEquation"] = variable_odes[0]
+                    chan_var_info[variable_used.get_name()] = info
+                else:
+                    non_ode_vars.append(variable_used)
+
+            chan_info[ion_channel_name]["ode_variables"] = chan_var_info
+            chan_info[ion_channel_name]["non_defined_variables"] = non_ode_vars
+        return chan_info
+
+    @classmethod
+    def prepare_equations_for_ode_toolbox(cls, neuron, chan_info):
+        for ion_channel_name, channel_info in chan_info.items():
+            channel_odes = defaultdict()
+            for ode in channel_info["ODEs"]:
+                nestml_printer = NESTMLPrinter()
+                ode_nestml_expression = nestml_printer.print_ode_equation(ode)
+                channel_odes[ode.lhs.name] = defaultdict()
+                channel_odes[ode.lhs.name]["ASTOdeEquation"] = ode
+                channel_odes[ode.lhs.name]["ODENestmlExpression"] = ode_nestml_expression
+            chan_info[ion_channel_name]["ODEs"] = channel_odes
+
+        for ion_channel_name, channel_info in chan_info.items():
+            for ode_variable_name, ode_info in channel_info["ODEs"].items():
+                #Expression:
+                odetoolbox_indict = {}
+                odetoolbox_indict["dynamics"] = []
+                lhs = ASTUtils.to_ode_toolbox_name(ode_info["ASTOdeEquation"].get_lhs().get_complete_name())
+                rhs = cls._ode_toolbox_printer.print(ode_info["ASTOdeEquation"].get_rhs())
+                entry = {"expression": lhs + " = " + rhs}
+
+                #Initial values:
+                entry["initial_values"] = {}
+                symbol_order = ode_info["ASTOdeEquation"].get_lhs().get_differential_order()
+                for order in range(symbol_order):
+                    iv_symbol_name = ode_info["ASTOdeEquation"].get_lhs().get_name() + "'" * order
+                    initial_value_expr = neuron.get_initial_value(iv_symbol_name)
+                    entry["initial_values"][ASTUtils.to_ode_toolbox_name(iv_symbol_name)] = cls._ode_toolbox_printer.print(initial_value_expr)
+
+
+                odetoolbox_indict["dynamics"].append(entry)
+                chan_info[ion_channel_name]["ODEs"][ode_variable_name]["ode_toolbox_input"] = odetoolbox_indict
+
+        return chan_info
+
+    @classmethod
+    def collect_raw_odetoolbox_output(cls, chan_info):
+        for ion_channel_name, channel_info in chan_info.items():
+            for ode_variable_name, ode_info in channel_info["ODEs"].items():
+                solver_result = analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True)
+                chan_info[ion_channel_name]["ODEs"][ode_variable_name]["ode_toolbox_output"] = solver_result
+
+        return chan_info
+
+    """
+    @classmethod
+    def collect_channel_functions(cls, neuron, chan_info):
+        for ion_channel_name, channel_info in chan_info.items():
+            functionCollector = ASTFunctionCollectorVisitor()
+            neuron.accept(functionCollector)
+            functions_in_inline = functionCollector.all_functions
+            chan_functions = dict()
+
+            for function in functions_in_inline:
+                gsl_converter = ODEToolboxReferenceConverter()
+                gsl_printer = UnitlessExpressionPrinter(gsl_converter)
+                printed = gsl_printer.print_expression(function)
+                chan_functions[printed] = function
+
+            chan_info[ion_channel_name]["channel_functions"] = chan_functions
+
+        return chan_info
+    """
+
+    @classmethod
+    def extend_variable_list_name_based_restricted(cls, extended_list, appending_list, restrictor_list):
+        for app_item in appending_list:
+            appendable = True
+            for rest_item in restrictor_list:
+                if rest_item.name == app_item.name:
+                    appendable = False
+                    break
+            if appendable:
+                extended_list.append(app_item)
+
+        return extended_list
+
+    @classmethod
+    def extend_function_call_list_name_based_restricted(cls, extended_list, appending_list, restrictor_list):
+        for app_item in appending_list:
+            appendable = True
+            for rest_item in restrictor_list:
+                if rest_item.callee_name == app_item.callee_name:
+                    appendable = False
+                    break
+            if appendable:
+                extended_list.append(app_item)
+
+        return extended_list
+
+
+
+    @classmethod
+    def collect_channel_related_definitions(cls, neuron, chan_info):
+        for ion_channel_name, channel_info in chan_info.items():
+            variable_collector = ASTVariableCollectorVisitor()
+            neuron.accept(variable_collector)
+            global_states = variable_collector.all_states
+            global_parameters = variable_collector.all_parameters
+
+            function_collector = ASTFunctionCollectorVisitor()
+            neuron.accept(function_collector)
+            global_functions = function_collector.all_functions
+
+            inline_collector = ASTInlineEquationCollectorVisitor()
+            neuron.accept(inline_collector)
+            global_inlines = inline_collector.all_inlines
+
+            ode_collector = ASTODEEquationCollectorVisitor()
+            neuron.accept(ode_collector)
+            global_odes = ode_collector.all_ode_equations
+
+            #print("states: "+str(len(global_states))+" param: "+str(len(global_parameters))+" funcs: "+str(len(global_functions))+" inlines: "+str(len(global_inlines))+" odes: "+str(len(global_odes)))
+
+            channel_states = list()
+            channel_parameters = list()
+            channel_functions = list()
+            channel_inlines = list()
+            channel_odes = list()
+
+            channel_inlines.append(chan_info[ion_channel_name]["RootInlineExpression"])
+
+            search_variables = list()
+            search_functions = list()
+
+            found_variables = list()
+            found_functions = list()
+
+            local_variable_collector = ASTVariableCollectorVisitor()
+            channel_inlines[0].accept(local_variable_collector)
+            search_variables = local_variable_collector.all_variables
+
+            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+            channel_inlines[0].accept(local_function_call_collector)
+            search_functions = local_function_call_collector.all_function_calls
+
+            while (len(search_functions) > 0 or len(search_variables) > 0):
+                #print(str(len(search_functions))+", "+str(len(search_variables)))
+                if(len(search_functions) > 0):
+                    function_call = search_functions[0]
+                    for function in global_functions:
+                        if function.name == function_call.callee_name:
+                            print("function found")
+                            channel_functions.append(function)
+                            found_functions.append(function_call)
+
+                            local_variable_collector = ASTVariableCollectorVisitor()
+                            function.accept(local_variable_collector)
+                            #search_variables = search_variables + [item for item in list(dict.fromkeys(local_variable_collector.all_variables)) if item not in found_variables+search_variables]
+                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+
+                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                            function.accept(local_function_call_collector)
+                            #search_functions = search_functions + [item for item in list(dict.fromkeys(local_function_call_collector.all_function_calls)) if item not in found_functions+search_functions]
+                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                              local_function_call_collector.all_function_calls,
+                                                                                              search_functions + found_functions)
+                            #IMPLEMENT CATCH NONDEFINED!!!
+                    search_functions.remove(function_call)
+
+                elif (len(search_variables) > 0):
+                    variable = search_variables[0]
+                    for inline in global_inlines:
+                        if variable.name == inline.variable_name:
+                            print("inline found")
+                            channel_inlines.append(inline)
+
+                            local_variable_collector = ASTVariableCollectorVisitor()
+                            inline.accept(local_variable_collector)
+                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+
+                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                            inline.accept(local_function_call_collector)
+                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                   local_function_call_collector.all_function_calls,
+                                                                                                   search_functions + found_functions)
+
+                    for ode in global_odes:
+                        if variable.name == ode.lhs.name:
+                            print("ode found")
+                            channel_odes.append(ode)
+
+                            local_variable_collector = ASTVariableCollectorVisitor()
+                            ode.accept(local_variable_collector)
+                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+
+                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                            ode.accept(local_function_call_collector)
+                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                   local_function_call_collector.all_function_calls,
+                                                                                                   search_functions + found_functions)
+
+                    for state in global_states:
+                        if variable.name == state.name:
+                            print("state found")
+                            channel_states.append(state)
+
+                    for parameter in global_parameters:
+                        if variable.name == parameter.name:
+                            print("parameter found")
+                            channel_parameters.append(parameter)
+
+                    search_variables.remove(variable)
+                    found_variables.append(variable)
+                    # IMPLEMENT CATCH NONDEFINED!!!
+
+            chan_info[ion_channel_name]["States"] = channel_states
+            chan_info[ion_channel_name]["Parameters"] = channel_parameters
+            chan_info[ion_channel_name]["Functions"] = channel_functions
+            chan_info[ion_channel_name]["SecondaryInlineExpressions"] = channel_inlines
+            chan_info[ion_channel_name]["ODEs"] = channel_odes
+
+        return chan_info
+
+
+
+
+    """
+        analyzes cm inlines for expected odes
+        input:
+        {
+            "Na":
+            {
+                "ASTInlineExpression": ASTInlineExpression,
+                "ode_variables": [ASTVariable, ASTVariable, ASTVariable, ...]
+
+            },
+            "K":
+            {
+                ...
+            }
+        }
+
+        output:
+        {
+            "Na":
+            {
+                "ASTInlineExpression": ASTInlineExpression,
+                "ode_variables":
+                {
+                    "m":
+                    {
+                        "ASTVariable": ASTVariable
+                        "describing_ode": ASTOdeEquation
+                    },
+                    "h":
+                    {
+                        "ASTVariable": ASTVariable
+                        "describing_ode": ASTOdeEquation
+                    },
+                    ...
+                },
+            }
+            "K":
+            {
+                ...
+            }
+        }
+
+        """
+
+
+#----------------------- Test function for building a chan_info prototype
+    @classmethod
+    def create_chan_info_ode_prototype_hh(cls, chan_info):
+        ret = copy.copy(chan_info)
+
+    @classmethod
+    def print_element(cls, name, element, rec_step):
+        for indent in range(rec_step):
+            print("----", end="")
+        print(name + ": ", end="")
+        if isinstance(element, defaultdict):
+            print("\n")
+            cls.print_dictionary(element, rec_step + 1)
+        else:
+            if hasattr(element, 'name'):
+                print(element.name, end="")
+            elif isinstance(element, str):
+                print(element, end="")
+            elif isinstance(element, dict):
+                print(json.dumps(element, indent=4), end="")
+            elif isinstance(element, list):
+                for index in range(len(element)):
+                    print("\n")
+                    cls.print_element(str(index), element[index], rec_step+1)
+
+            print("(" + type(element).__name__ + ")", end="")
+
+    @classmethod
+    def print_dictionary(cls, dictionary, rec_step):
+        for name, element in dictionary.items():
+            cls.print_element(name, element, rec_step)
+            print("\n")
+
+
+
+
+#----------------------- Collector root functions
+
     @classmethod
     def get_chan_info(cls, neuron: ASTNeuron):
         """
@@ -593,6 +998,7 @@ class ASTChannelInformationCollector(object):
 
         # trigger generation via check_co_co
         # if it has not been called before
+        print("GET CHAN INFO")
         if cls.first_time_run[neuron]:
             cls.check_co_co(neuron)
 
@@ -609,7 +1015,11 @@ class ASTChannelInformationCollector(object):
         # where kernels have been removed
         # and inlines therefore can't be recognized by kernel calls any more
         if cls.first_time_run[neuron]:
-            chan_info = cls.detect_cm_inline_expressions(neuron)
+            #chan_info = cls.detect_cm_inline_expressions(neuron)
+            chan_info = cls.detect_cm_inline_expressions_ode(neuron)
+
+
+            cls.collect_channel_related_definitions(neuron, chan_info)
 
             # further computation not necessary if there were no cm neurons
             if not chan_info:
@@ -618,16 +1028,24 @@ class ASTChannelInformationCollector(object):
                 cls.first_time_run[neuron] = False
                 return True
 
-            chan_info = cls.calc_expected_function_names_for_channels(
-                chan_info)
-            chan_info = cls.check_and_find_functions(neuron, chan_info)
-            chan_info = cls.add_channel_parameters_section_and_enforce_proper_variable_names(
-                neuron, chan_info)
+            cls.print_dictionary(chan_info, 0)
+            chan_info = cls.prepare_equations_for_ode_toolbox(neuron, chan_info)
+            cls.print_dictionary(chan_info, 0)
+            chan_info = cls.collect_raw_odetoolbox_output(chan_info)
+            cls.print_dictionary(chan_info, 0)
+
+
+
+            #chan_info = cls.calc_expected_function_names_for_channels(chan_info)
+            #chan_info = cls.check_and_find_functions(neuron, chan_info)
+            #chan_info = cls.add_channel_parameters_section_and_enforce_proper_variable_names(neuron, chan_info)
+
+            cls.print_dictionary(chan_info, 0)
 
             # now check for existence of expected state variables
             # and add their ASTVariable objects to chan_info
-            missing_states_visitor = VariableMissingVisitor(chan_info)
-            neuron.accept(missing_states_visitor)
+            #missing_states_visitor = VariableMissingVisitor(chan_info)
+            #neuron.accept(missing_states_visitor)
 
             cls.chan_info[neuron] = chan_info
             cls.first_time_run[neuron] = False
@@ -955,3 +1373,90 @@ class ASTInlineExpressionInsideEquationsCollectorVisitor(ASTVisitor):
 
     def endvisit_simple_expression(self, node):
         self.inside_simple_expression = False
+
+#----------------- New ode helpers
+class ASTODEEquationCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTODEEquationCollectorVisitor, self).__init__()
+        self.inside_ode_expression = False
+        self.all_ode_equations = list()
+
+    def visit_ode_equation(self, node):
+        self.inside_ode_expression = True
+        self.all_ode_equations.append(node.clone())
+
+    def endvisit_ode_equation(self, node):
+        self.inside_ode_expression = False
+
+class ASTVariableCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTVariableCollectorVisitor, self).__init__()
+        self.inside_variable = False
+        self.inside_block_with_variables = False
+        self.all_states = list()
+        self.all_parameters = list()
+        self.inside_states_block = False
+        self.inside_parameters_block = False
+        self.all_variables = list()
+
+    def visit_block_with_variables(self, node):
+        self.inside_block_with_variables = True
+        if node.is_state:
+            self.inside_states_block = True
+        if node.is_parameters:
+            self.inside_parameters_block = True
+
+    def endvisit_block_with_variables(self, node):
+        self.inside_states_block = False
+        self.inside_parameters_block = False
+        self.inside_block_with_variables = False
+
+    def visit_variable(self, node):
+        self.inside_variable = True
+        self.all_variables.append(node.clone())
+        if self.inside_states_block:
+            self.all_states.append(node.clone())
+        if self.inside_parameters_block:
+            self.all_parameters.append(node.clone())
+
+    def endvisit_variable(self, node):
+        self.inside_variable = False
+
+class ASTFunctionCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTFunctionCollectorVisitor, self).__init__()
+        self.inside_function = False
+        self.all_functions = list()
+
+    def visit_function(self, node):
+        self.inside_function = True
+        self.all_functions.append(node.clone())
+
+    def endvisit_function(self, node):
+        self.inside_function = False
+
+class ASTInlineEquationCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTInlineEquationCollectorVisitor, self).__init__()
+        self.inside_inline_expression = False
+        self.all_inlines = list()
+
+    def visit_inline_expression(self, node):
+        self.inside_inline_expression = True
+        self.all_inlines.append(node.clone())
+
+    def endvisit_inline_expression(self, node):
+        self.inside_inline_expression = False
+
+class ASTFunctionCallCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTFunctionCallCollectorVisitor, self).__init__()
+        self.inside_function_call = False
+        self.all_function_calls = list()
+
+    def visit_function_call(self, node):
+        self.inside_function_call = True
+        self.all_function_calls.append(node.clone())
+
+    def endvisit_function_call(self, node):
+        self.inside_function_call = False

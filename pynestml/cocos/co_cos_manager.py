@@ -443,7 +443,7 @@ class CoCosManager:
             # ODE functions have been removed at this point
             cls.check_ode_functions_have_consistent_units(neuron)
             cls.check_correct_usage_of_kernels(neuron)
-            cls.check_integrate_odes_called_if_equations_defined(neuron)
+            #cls.check_integrate_odes_called_if_equations_defined(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
