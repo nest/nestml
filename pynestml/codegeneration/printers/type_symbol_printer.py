@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# printer.py
+# type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,16 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.reference_converter import ReferenceConverter
-from pynestml.codegeneration.printers.types_printer import TypesPrinter
+import abc
+
+from pynestml.symbols.symbol import Symbol
+from pynestml.codegeneration.printers.symbol_printer import SymbolPrinter
 
 
-class Printer:
+class TypeSymbolPrinter(SymbolPrinter, metaclass=abc.ABCMeta):
     r"""
-    By using a different ReferenceConverter and TypesPrinter for the handling of variables, names, and functions and so on, Printers can be easily adapted to different targets.
+    Returns a string format of ``TypeSymbol``s.
     """
 
-    def __init__(self, reference_converter: ReferenceConverter, types_printer: TypesPrinter):
-        assert isinstance(reference_converter, ReferenceConverter)
-        self.reference_converter = reference_converter
-        self.types_printer = types_printer
+    @classmethod
+    @abc.abstractmethod
+    def print(cls, element: Symbol) -> str:
+        raise Exception("Cannot call abstract method")

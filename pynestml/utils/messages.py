@@ -111,6 +111,9 @@ class MessageCode(Enum):
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
     DELAY_VARIABLE = 84
+    NEST_DELAY_DECORATOR_NOT_FOUND = 85
+    INPUT_PORT_SIZE_NOT_INTEGER = 86
+    INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO = 87
 
 
 class Messages:
@@ -1179,3 +1182,18 @@ class Messages:
     def get_function_is_delay_variable(cls, func):
         message = "Function '" + func + "' is not a function but a delay variable."
         return MessageCode.DELAY_VARIABLE, message
+
+    @classmethod
+    def get_nest_delay_decorator_not_found(cls):
+        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
+        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
+
+    @classmethod
+    def get_input_port_size_not_integer(cls, port_name: str):
+        message = "The size of the input port " + port_name + " is not of integer type."
+        return MessageCode.INPUT_PORT_SIZE_NOT_INTEGER, message
+
+    @classmethod
+    def get_input_port_size_not_greater_than_zero(cls, port_name: str):
+        message = "The size of the input port " + port_name + " must be greater than zero."
+        return MessageCode.INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO, message

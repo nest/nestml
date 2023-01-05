@@ -32,7 +32,7 @@ class BooleanTypeSymbol(TypeSymbol):
     def __init__(self):
         super(BooleanTypeSymbol, self).__init__(name='boolean')
 
-    def print_nestml_type(self):
+    def print_nestml_type(self) -> str:
         return 'boolean'
 
     def negate(self):

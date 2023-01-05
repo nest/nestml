@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# python_types_printer.py
+# python_type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.types_printer import TypesPrinter
+from pynestml.codegeneration.printers.type_symbol_printer import TypeSymbolPrinter
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
@@ -30,12 +30,12 @@ from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-class PythonTypesPrinter(TypesPrinter):
+class PythonTypeSymbolPrinter(TypeSymbolPrinter):
     r"""
     Returns a Python syntax version of the handed over type.
     """
 
-    def convert(self, type_symbol: TypeSymbol) -> str:
+    def print(self, type_symbol: TypeSymbol) -> str:
         r"""
         Converts the name of the type symbol to a corresponding Python syntax representation.
         :param type_symbol: a single type symbol

@@ -40,17 +40,14 @@ neuron input_ports:
     bar' = (foo[1] + vec[0]) / ms
   end
 
-  parameters:
-    TWO integer = 2
-  end
 
   input:
     AMPA_spikes pA <- excitatory spike
     GABA_spikes pA <- inhibitory spike
     NMDA_spikes pA <- spike
-    foo[TWO] pA <- spike
+    foo[2] pA <- spike
     my_spikes[3] pA <- excitatory spike
-	my_spikes2[3] pA <- inhibitory spike
+    my_spikes2[3] pA <- inhibitory spike
   end
 
   update:

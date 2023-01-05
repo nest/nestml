@@ -599,9 +599,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for qual in node.get_input_qualifiers():
             qual.update_scope(node.get_scope())
 
-        if node.get_size_parameter() is not None and node.get_size_parameter().is_variable():
-            node.get_size_parameter().update_scope(node.get_scope())
-
     def endvisit_input_port(self, node):
         if not node.has_datatype():
             return

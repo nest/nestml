@@ -21,24 +21,26 @@ inline double get_state_element(size_t elem)
 {%-     if size|int == 0 %}
 {%-     set size = vector_size_parameter.VectorSizeParameter(variable, true) %}
 {%-     endif -%}
-    (elem >= State_::{{names.name(variable).upper()}} and elem < State_::{{names.name(variable).upper()}} + {{size}})
+    (elem >= State_::{{ printer_no_origin.print(variable).upper() }} and elem < State_::{{ printer_no_origin.print(variable).upper() }} + {{ size }})
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
+      return S_.{{ printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
     }
 {%-   else %}
-    (elem == State_::{{names.name(variable).upper()}})
+    (elem == State_::{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())).upper() }})
     {
-      return S_.{{names.name(variable)}};
+      return {{ printer.print(utils.get_state_variable_by_name(astnode, variable.get_complete_name())) }};
     }
 {%-   endif %}
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
+{%-      set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+
     {
-      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}} ];
+      return {{ utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
     }
 {%-   else %}
     {
-      return S_.{{names.name(variable)}};
+      return {{ printer.print(variable) }};
     }
 {%-   endif %}
 {%- endif %}

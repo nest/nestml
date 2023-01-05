@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ode_toolbox_reference_converter.py
+# constant_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,32 +21,12 @@
 
 from typing import Union
 
-from pynestml.codegeneration.printers.nestml_reference_converter import NestMLReferenceConverter
 
-
-class ODEToolboxReferenceConverter(NestMLReferenceConverter):
-    """
-    Convert into a format accepted by ODE-toolbox as input.
+class ConstantPrinter:
+    r"""
     """
 
-    def convert_name_reference(self, ast_variable, prefix: str = '') -> str:
-        """
-        Returns the same string
-        :param ast_variable: a single variable
-        :type ast_variable: ASTVariable
-        :return: the same string
-        """
-        return prefix + ast_variable.get_complete_name().replace("$", "__DOLLAR")
-
-    def convert_ternary_operator(self) -> str:
-        """
-        ODE-toolbox does not support ternary operator! Ignore condition, and hard-wire to first parameter.
-        :return: a string representation
-        """
-        s = '0 * (' + '%s' + ') + (' + '%s' + ') + 0 * (' + '%s' + ')'
-        return '(' + s + ')'
-
-    def convert_constant(self, const: Union[str, float, int]) -> str:
+    def print_constant(self, const: Union[str, float, int]) -> str:
         """
         Converts a single handed over constant.
         :param constant_name: a constant as string.
