@@ -159,8 +159,7 @@ The name ``h_dend`` now acts as an alias for this particular convolution. We can
      h_dend' = 10 pA/ms
    end
 
-For more information, see the :doc:`Active dendrite tutorial <tutorial/active_dendrite_tutorial>`
-
+For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
 
 
 Multiple input synapses
