@@ -36,9 +36,9 @@ neuron input_ports:
     vec[3] real = 3.3
   end
 
-  equations:
-    bar' = (foo[1] + vec[0]) / ms
-  end
+#  equations:
+#    bar' = (foo[1] + vec[0]) / ms
+#  end
 
 
   input:
@@ -51,7 +51,7 @@ neuron input_ports:
   end
 
   update:
-    integrate_odes()
-#    bar = foo[1]
+#    integrate_odes()
+    bar = foo[1]
   end
 end

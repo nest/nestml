@@ -118,7 +118,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   }
 }
 
-{%- if neuron.get_spike_input_ports()|length >1 %}
+{%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
 std::map<std::tuple< int, std::string >, int> {{neuronName}}::rport_to_nestml_port =
 {
     {%- for key, values in utils.get_spike_input_ports_in_pairs(neuron).items() %}
@@ -571,7 +571,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 
   double weight = e.get_weight();
   int nestml_port = 0;
-{%- if neuron.get_spike_input_ports()|length > 1 %}
+{%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
   if ( weight >= 0.0 )
   {
     if( rport_to_nestml_port.find(std::make_pair(e.get_rport(), "spike")) != rport_to_nestml_port.end() )

@@ -291,7 +291,7 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(equations_with_delay_vars_visitor)
         equations_with_delay_vars = equations_with_delay_vars_visitor.equations
 
-        # # Collect all the equations with vector variables
+        # Collect all the equations with vector variables
         # eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
         # neuron.accept(eqns_with_vector_vars_visitor)
         # equations_with_vector_variables = eqns_with_vector_vars_visitor.equations
@@ -565,7 +565,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["vector_symbols"] = neuron.get_vector_symbols()
         namespace["has_delay_variables"] = neuron.has_delay_variables()
         namespace["names_namespace"] = neuron.get_name() + "_names"
-        namespace["has_multiple_synapses"] = len(neuron.get_multiple_receptors()) > 1 or len(neuron.get_single_receptors()) > 2
+        namespace["has_multiple_synapses"] = len(neuron.get_multiple_receptors()) > 1 or len(neuron.get_single_receptors()) > 2 or neuron.is_multisynapse_spikes()
 
         namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
         namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")
@@ -816,16 +816,20 @@ class NESTCodeGenerator(CodeGenerator):
             if ASTUtils.is_delta_kernel(kernel):
                 continue
 
-            if not str(spike_input_port) in spike_updates.keys():
+            spike_input_port_name = spike_input_port.get_variable().get_name()
+            # if spike_input_port.get_variable().has_vector_parameter():
+            #     spike_input_port_name += "_" + str(ASTUtils.get_numeric_vector_size(spike_input_port.get_variable()))
+
+            if not spike_input_port_name in spike_updates.keys():
                 spike_updates[str(spike_input_port)] = []
 
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
                and spike_input_port.get_variable()._is_post_port:
                 # it's a port in the neuron ??? that receives post spikes ???
-                orig_port_name = str(spike_input_port)[:str(spike_input_port).index("__for_")]
+                orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
                 buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
-                buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
+                buffer_type = neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE).get_type_symbol()
 
             assert not buffer_type is None
 
@@ -856,7 +860,7 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_assignment.update_scope(neuron.get_scope())
                     ast_assignment.accept(ASTSymbolTableVisitor())
 
-                    if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+                    if neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE) is None:
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
@@ -880,9 +884,12 @@ class NESTCodeGenerator(CodeGenerator):
             ast_assignment.update_scope(neuron.get_scope())
             ast_assignment.accept(ASTSymbolTableVisitor())
 
-            if not str(inport) in spike_updates.keys():
-                spike_updates[str(inport)] = []
+            inport_name = inport.get_name()
+            if inport.has_vector_parameter():
+                inport_name += "_" + str(ASTUtils.get_numeric_vector_size(inport))
+            if not inport_name in spike_updates.keys():
+                spike_updates[inport_name] = []
 
-            spike_updates[str(inport)].append(ast_assignment)
+            spike_updates[inport_name].append(ast_assignment)
 
         return spike_updates, post_spike_updates

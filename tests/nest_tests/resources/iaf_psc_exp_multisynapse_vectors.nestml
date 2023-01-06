@@ -11,7 +11,7 @@ For more information about the model, see iaf_psc_exp in the ``models`` director
 
 For more information about "multisynapse" models, please refer to the NESTML documentation.
 """
-neuron iaf_psc_exp_multisynapse_neuron:
+neuron iaf_psc_exp_multisynapse_vectors_neuron:
   state:
     r integer = 0                # counts number of tick during the refractory period
     V_abs mV = 0 mV  # membrane potential
@@ -22,7 +22,7 @@ neuron iaf_psc_exp_multisynapse_neuron:
     kernel I_kernel2 = exp(-1/tau_syn2*t)
     kernel I_kernel3 = -exp(-1/tau_syn3*t)
 
-    inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+    inline I_syn pA = convolve(I_kernel1, spikes[1]) - convolve(I_kernel2, spikes[2]) + convolve(I_kernel3, spikes[3])
     recordable inline V_m mV = V_abs + E_L # Relative membrane potential.
 
     V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
@@ -51,9 +51,10 @@ neuron iaf_psc_exp_multisynapse_neuron:
   end
 
   input:
-    spikes1 pA <- spike
-    spikes2 pA <- spike
-    spikes3 pA <- spike
+#    spikes1 pA <- spike
+#    spikes2 pA <- spike
+#    spikes3 pA <- spike
+    spikes[3] pA <- spike
     I_stim pA <- continuous
   end
 

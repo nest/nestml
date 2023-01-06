@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
-import re
 import sympy
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
@@ -41,9 +41,9 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -53,8 +53,8 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -1219,7 +1219,15 @@ class ASTUtils:
         assert type(kernel_var_name) is str
         assert type(order) is int
         assert type(diff_order_symbol) is str
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+
+        if isinstance(spike_input_port, ASTSimpleExpression):
+            spike_input_port = spike_input_port.get_variable()
+
+        spike_input_port_name = spike_input_port.get_name()
+        if spike_input_port.has_vector_parameter():
+            spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
+
+        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
