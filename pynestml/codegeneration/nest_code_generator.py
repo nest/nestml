@@ -239,10 +239,11 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_neuron(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates, equations_with_delay_vars = self.analyse_neuron(neuron)
+            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
             neuron.equations_with_delay_vars = equations_with_delay_vars
+            neuron.equations_with_vector_vars = equations_with_vector_vars
 
     def analyse_transform_synapses(self, synapses: List[ASTSynapse]) -> None:
         """
@@ -292,9 +293,9 @@ class NESTCodeGenerator(CodeGenerator):
         equations_with_delay_vars = equations_with_delay_vars_visitor.equations
 
         # Collect all the equations with vector variables
-        # eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
-        # neuron.accept(eqns_with_vector_vars_visitor)
-        # equations_with_vector_variables = eqns_with_vector_vars_visitor.equations
+        eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
+        neuron.accept(eqns_with_vector_vars_visitor)
+        equations_with_vector_vars = eqns_with_vector_vars_visitor.equations
 
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
@@ -322,7 +323,7 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.remove_initial_values_for_kernels(neuron)
         kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
-        # ASTUtils.remove_ode_definitions_from_equations_block(neuron)
+        ASTUtils.remove_ode_definitions_from_equations_block(neuron)
         ASTUtils.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
@@ -341,7 +342,7 @@ class NESTCodeGenerator(CodeGenerator):
         spike_updates, post_spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars
+        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
     def analyse_synapse(self, synapse: ASTSynapse) -> Dict[str, ASTAssignment]:
         """
@@ -601,12 +602,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
 
-            # Collect all the equations with vector variables
-            eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
-            neuron.accept(eqns_with_vector_vars_visitor)
-            equations_with_vector_variables = eqns_with_vector_vars_visitor.equations
-
-            ASTUtils.remove_ode_definitions_from_equations_block(neuron)
             namespace["update_expressions"] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
@@ -626,7 +621,8 @@ class NESTCodeGenerator(CodeGenerator):
                     marks_delay_vars_visitor = ASTMarkDelayVarsVisitor()
                     expr_ast.accept(marks_delay_vars_visitor)
 
-                for eqn in equations_with_vector_variables:
+                # Check if the update expressions have vector variables and update the vector parameters
+                for eqn in neuron.equations_with_vector_vars:
                     for var in eqn.rhs.get_variables():
                         sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
                         expr_ast.accept(sets_vector_param_in_update_expr_visitor)
