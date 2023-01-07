@@ -813,8 +813,6 @@ class NESTCodeGenerator(CodeGenerator):
                 continue
 
             spike_input_port_name = spike_input_port.get_variable().get_name()
-            # if spike_input_port.get_variable().has_vector_parameter():
-            #     spike_input_port_name += "_" + str(ASTUtils.get_numeric_vector_size(spike_input_port.get_variable()))
 
             if not spike_input_port_name in spike_updates.keys():
                 spike_updates[str(spike_input_port)] = []

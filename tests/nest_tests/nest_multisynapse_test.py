@@ -135,7 +135,7 @@ class NestMultiSynapseTest(unittest.TestCase):
         neuron = nest.Create("iaf_psc_exp_multisynapse_vectors_neuron_nestml")
 
         # List of receptor types for the spiking input ports
-        receptor_types = neuron.get("receptor_types")
+        receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
 
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
         nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_1"], "weight": 1000., "delay": 0.1})
