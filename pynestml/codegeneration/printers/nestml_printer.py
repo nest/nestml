@@ -513,7 +513,7 @@ class NESTMLPrinter(ASTPrinter):
         if node.has_datatype():
             ret += " " + self.print(node.get_datatype()) + " "
         if node.has_size_parameter():
-            ret += '[' + node.get_size_parameter() + ']'
+            ret += "[" + node.get_size_parameter() + "]"
         ret += "<-"
         if node.has_input_qualifiers():
             for qual in node.get_input_qualifiers():

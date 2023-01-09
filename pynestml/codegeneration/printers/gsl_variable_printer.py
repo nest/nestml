@@ -53,7 +53,7 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "node.V_." + super().print_variable(node)
 
         if symbol.is_input():
-            return "node.B_." + self.print_buffer_value(node)
+            return "node.B_." + self._print_buffer_value(node)
 
         raise Exception("Unknown node type")
 
@@ -69,7 +69,7 @@ class GSLVariablePrinter(CppVariablePrinter):
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
 
-    def print_buffer_value(self, variable: ASTVariable) -> str:
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
         Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
         :param variable: a single variable symbol.
@@ -83,5 +83,5 @@ class GSLVariablePrinter(CppVariablePrinter):
                 var_name = var_name + "_" + str(vector_parameter)
 
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
-        else:
-            return variable_symbol.get_symbol_name() + '_grid_sum_'
+
+        return variable_symbol.get_symbol_name() + '_grid_sum_'

@@ -33,7 +33,6 @@ neuron input_ports:
 
   state:
     bar pA = 1.5 pA
-    vec[3] real = 3.3
   end
 
   input:

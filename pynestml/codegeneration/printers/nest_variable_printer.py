@@ -89,7 +89,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += "B_." + self.print_buffer_value(variable)
+            s += "B_." + self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -135,7 +135,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return self._expression_printer.print(vector_parameter)
 
-    def print_buffer_value(self, variable: ASTVariable) -> str:
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
         Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
         :param variable: a single variable symbol.

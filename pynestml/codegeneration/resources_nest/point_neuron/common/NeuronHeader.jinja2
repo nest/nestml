@@ -386,7 +386,7 @@ private:
   {% if has_multiple_synapses -%}
   /**
    * Synapse types to connect to
-   * @note Excluded lower and upper bounds are defined as MIN_, SUP_.
+   * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
   static const nest::port MIN_SPIKE_RECEPTOR = 1;
@@ -409,10 +409,10 @@ private:
     {%- set ns.count = ns.count + 1 -%}
   {%- endif -%}
 {%- endfor %}
-    SUP_SPIKE_RECEPTOR = {{ns.count}}
+    MAX_SPIKE_RECEPTOR = {{ns.count}}
   };
 
-  static const size_t NUM_SPIKE_RECEPTORS = SUP_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
+  static const size_t NUM_SPIKE_RECEPTORS = MAX_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
 
 {% if neuron.get_spike_input_ports()|length > 1 -%}
   static std::map< std::tuple< int, std::string >, int > rport_to_nestml_port;
@@ -784,7 +784,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::po
 {
 {%- if neuron.get_spike_input_ports()|length > 1 %}
     assert( B_.spike_inputs_.size() == {{(neuron.get_spike_input_ports())|length}} );
-    if ( receptor_type < MIN_SPIKE_RECEPTOR or receptor_type >= SUP_SPIKE_RECEPTOR )
+    if ( receptor_type < MIN_SPIKE_RECEPTOR or receptor_type >= MAX_SPIKE_RECEPTOR )
     {
       throw nest::UnknownReceptorType( receptor_type, get_name() );
     }

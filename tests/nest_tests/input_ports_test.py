@@ -42,7 +42,7 @@ class TestInputPorts:
     def test_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "InputPorts.nestml")))
-        target_path = "../target"
+        target_path = "target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
         suffix = "_nestml"
