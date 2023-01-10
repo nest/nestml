@@ -383,36 +383,36 @@ private:
 {%- endif %}
 
 private:
-  {% if has_multiple_synapses -%}
+{% if has_multiple_synapses -%}
   /**
    * Synapse types to connect to
-   * @note Excluded lower and upper bounds are defined as MIN_, SUP_.
+   * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
   static const nest::port MIN_SPIKE_RECEPTOR = 1;
-  {%- set ns = namespace(count=1) %}
-  {%- else %}
+{%-   set ns = namespace(count=1) %}
+{%- else %}
   static const nest::port MIN_SPIKE_RECEPTOR = 0;
-  {%- set ns = namespace(count=0) %}
-  {%- endif %}
+{%-   set ns = namespace(count=0) %}
+{%- endif %}
   enum SynapseTypes
   {
 {%- for port in neuron.get_spike_input_ports() %}
-  {%- if port.has_vector_parameter() -%}
-  {%    set size = utils.get_numeric_vector_size(port) | int %}
-  {%-   for i in range(size) %}
+{%-   if port.has_vector_parameter() -%}
+{%      set size = utils.get_numeric_vector_size(port) | int %}
+{%-     for i in range(size) %}
     {{port.get_symbol_name().upper()}}_{{i + 1}} = {{ns.count}},
-    {%- set ns.count = ns.count + 1 -%}
-  {%-   endfor %}
-  {%- else %}
+{%-       set ns.count = ns.count + 1 -%}
+{%-     endfor %}
+{%-   else %}
     {{port.get_symbol_name().upper()}} = {{ns.count}},
-    {%- set ns.count = ns.count + 1 -%}
-  {%- endif -%}
+{%-     set ns.count = ns.count + 1 -%}
+{%-   endif -%}
 {%- endfor %}
-    SUP_SPIKE_RECEPTOR = {{ns.count}}
+    MAX_SPIKE_RECEPTOR = {{ns.count}}
   };
 
-  static const size_t NUM_SPIKE_RECEPTORS = SUP_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
+  static const size_t NUM_SPIKE_RECEPTORS = MAX_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
 
 {% if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() -%}
   static std::map< std::tuple< int, std::string >, int > rport_to_nestml_port;
@@ -697,9 +697,9 @@ private:
 
   {{ buffer_getter.SpikeBufferGetter(true, false) }}
 
-  {%- for inputPort in neuron.get_continuous_input_ports() %}
+{%- for inputPort in neuron.get_continuous_input_ports() %}
   {{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, false) }}
-  {%- endfor %}
+{%- endfor %}
 
 {%- if neuron.get_functions()|length > 0 %}
   // -------------------------------------------------------------------------
@@ -784,7 +784,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::po
 {
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
     assert( B_.spike_inputs_.size() == NUM_SPIKE_RECEPTORS );
-    if ( receptor_type < MIN_SPIKE_RECEPTOR or receptor_type >= SUP_SPIKE_RECEPTOR )
+    if ( receptor_type < MIN_SPIKE_RECEPTOR or receptor_type >= MAX_SPIKE_RECEPTOR )
     {
       throw nest::UnknownReceptorType( receptor_type, get_name() );
     }
@@ -858,16 +858,16 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
   DictionaryDatum __receptor_type = new Dictionary();
 {%- for port in neuron.get_spike_input_ports() %}
-    {%- if not port.has_vector_parameter() %}
+{%-   if not port.has_vector_parameter() %}
     ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
-    {%- else %}
-    {%    set size = utils.get_numeric_vector_size(port) | int %}
-    {%-   for i in range(size) %}
+{%-   else %}
+{%      set size = utils.get_numeric_vector_size(port) | int %}
+{%-     for i in range(size) %}
     ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i + 1}}" ] = {{port.get_symbol_name().upper()}}_{{i + 1}},
-    {%-   endfor %}
-    {%- endif %}
+{%-     endfor %}
+{%-   endif %}
 {%- endfor %}
-  ( *__d )[ "receptor_types" ] = __receptor_type;
+    ( *__d )[ "receptor_types" ] = __receptor_type;
 {%- endif %}
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();

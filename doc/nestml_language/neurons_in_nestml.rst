@@ -163,8 +163,8 @@ For more information, see the :doc:`Active dendrite tutorial <tutorial/active_de
 
 
 
-Multiple input synapses
-^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports
+^^^^^^^^^^^^^^^^^^^^
 
 If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
 
@@ -189,8 +189,8 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
    end
 
 
-Multiple input synapses with vectors
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports with vectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The input ports can also be defined as vectors. For example,
 
@@ -207,7 +207,7 @@ The input ports can also be defined as vectors. For example,
        end
    end
 
-In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be an integer.
+In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
 
 
 Output

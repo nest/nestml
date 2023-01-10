@@ -119,23 +119,23 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 }
 
 {%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
-std::map<std::tuple< int, std::string >, int> {{neuronName}}::rport_to_nestml_port =
+std::map< std::tuple< int, std::string >, int > {{neuronName}}::rport_to_nestml_port =
 {
-    {%- for key, values in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-    {%-   for port in values %}
-    {%-   set ns = namespace(rport=key) %}
-    {%-   if port.has_vector_parameter() %}
-    {%-   set size = utils.get_numeric_vector_size(port) %}
-      {%- for i in range(size) %}
-        {{ rport_to_port_map_entry.RportToPortMapEntry(port, ns.rport, index=i+1) }}
-        {%- set ns.rport = ns.rport + 1 %}
-      {%- endfor %}
-    {%-   else %}
-        {{ rport_to_port_map_entry.RportToPortMapEntry(port, ns.rport) }}
-    {%-   endif %}
-    {%-   endfor %}
-    {%- endfor %}
-  };
+{%- for key, values in utils.get_spike_input_ports_in_pairs(neuron).items() %}
+{%-   for port in values %}
+{%-   set ns = namespace(rport=key) %}
+{%-     if port.has_vector_parameter() %}
+{%-     set size = utils.get_numeric_vector_size(port) %}
+{%-         for i in range(size) %}
+    {{ rport_to_port_map_entry.RportToPortMapEntry(port, ns.rport, index=i+1) }}
+{%-         set ns.rport = ns.rport + 1 %}
+{%-         endfor %}
+{%-     else %}
+    {{ rport_to_port_map_entry.RportToPortMapEntry(port, ns.rport) }}
+{%-     endif %}
+{%-   endfor %}
+{%- endfor %}
+};
 {%- endif %}
 
 {%- if has_state_vectors %}
