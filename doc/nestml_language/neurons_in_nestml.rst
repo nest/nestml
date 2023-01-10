@@ -205,9 +205,18 @@ The input ports can also be defined as vectors. For example,
          exc_spikes[3] pA <- excitatory spike
          inh_spikes[3] pA <- inhibitory spike
        end
+
+       equations:
+         kernel I_kernel1 = exp(-1/tau_syn1*t)
+         kernel I_kernel2 = exp(-1/tau_syn2*t)
+         inline I_syn_1 pA = convolve(I_kernel1, foo[1])
+         inline I_syn_2 pA = convolve(I_kernel2, foo[2])
+       end
    end
 
 In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
+
+They could also be used in differential equations defined in the ``equations`` block as shown for ``foo[1]`` and ``foo[2]`` in the example above.
 
 
 Output
