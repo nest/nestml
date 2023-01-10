@@ -155,10 +155,10 @@ Custom templates
 See :ref:`Running NESTML with custom templates`.
 
 
-Multiple synapses
-~~~~~~~~~~~~~~~~~
+Multiple input ports
+~~~~~~~~~~~~~~~~~~~~
 
-See :ref:`Multiple input synapses` to specify multiple input ports in a neuron.
+See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
 
 After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
 
@@ -195,16 +195,16 @@ The output shows the currents for each synapse (three bottom rows) and the net e
 For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 
-Multiple synapses with vectors
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports with vectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See :ref:`Multiple input synapses with vectors` for an example with input ports defined as vectors.
+See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 
 Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. All default connections in NEST have the ``rport`` 0. NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number.
 
 During the code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of port names defined in a model and their corresponding ``rport`` numbers can be queried from the status dictionary using the NEST API. For neurons with multiple input ports, the ``rport`` values start from 1 as the default ``rport`` 0 is excluded to avoid any accidental connections.
 
-For the example mentioned :ref:`here <Multiple input synapses with vectors>`, the ``receptor_types`` can be queried as shown below:
+For the example mentioned :ref:`here <Multiple input ports with vectors>`, the ``receptor_types`` can be queried as shown below:
 
 .. code-block:: python
 
