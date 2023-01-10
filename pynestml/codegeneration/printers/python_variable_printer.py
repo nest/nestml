@@ -22,8 +22,8 @@
 from __future__ import annotations
 
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
-from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -36,7 +36,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class PythonVariablePrinter(CppVariablePrinter):
+class PythonVariablePrinter(VariablePrinter):
     r"""
     Variable printer for Python syntax.
     """
@@ -50,7 +50,7 @@ class PythonVariablePrinter(CppVariablePrinter):
     @classmethod
     def _print_python_name(cls, variable_name: str) -> str:
         """
-        Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp" += 1" will be converted into "G_ahp__d".
+        Converts a handed over name to the corresponding Python naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp' += 1" will be converted into "G_ahp__d".
 
         :param variable_name: a single name.
         :return: a string representation
@@ -65,7 +65,7 @@ class PythonVariablePrinter(CppVariablePrinter):
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
-        :return: a nest processable format.
+        :return: a string representation
         """
         assert isinstance(variable, ASTVariable)
 
@@ -88,7 +88,7 @@ class PythonVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self.print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -127,9 +127,9 @@ class PythonVariablePrinter(CppVariablePrinter):
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
 
-    def print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
+    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
         """
-        Converts the vector parameter into NEST processable format
+        Converts the vector parameter into Python format
         :param variable:
         :return:
         """

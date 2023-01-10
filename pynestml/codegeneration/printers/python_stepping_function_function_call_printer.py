@@ -136,7 +136,13 @@ class PythonSteppingFunctionFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in C++ syntax.
         """
-        result = "node." + function_call.get_name()
+
+        s = ""
+        if not function_call.get_name() in PredefinedFunctions.name2function.keys():
+            # not a predefined function, so it can be found in the neuron class
+            s += "node."
+
+        s += function_call.get_name()
 
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return 'steps({!s}, node._timestep)'
@@ -147,10 +153,11 @@ class PythonSteppingFunctionFunctionCallPrinter(FunctionCallPrinter):
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
             return 'node.emit_spike(origin)'
 
+        s += "("
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
-        else:
-            result += '()'
+            s += ", ".join(["{!s}" for _ in range(n_args)])
 
-        return result
+        s += ")"
+
+        return s

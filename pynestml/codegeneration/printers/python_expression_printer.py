@@ -46,23 +46,23 @@ class PythonExpressionPrinter(ExpressionPrinter):
     def print_expression(self, node: ASTExpressionNode) -> str:
         assert isinstance(node, ASTExpression)
         if node.is_unary_operator():
-            return self.print_unary_op(node)
+            return self._print_unary_op_expression(node)
 
         if node.is_encapsulated:
-            return self.print_encapsulated(node)
+            return self._print_encapsulated_expression(node)
 
         if node.is_logical_not:
             return self.print_logical_not(node)
 
         if node.is_compound_expression():
-            return self.print_binary_op(node)
+            return self._print_binary_op_expression(node)
 
         if node.is_ternary_operator():
-            return self.print_ternary_operator(node)
+            return self._print_ternary_operator_expression(node)
 
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
-    def print_unary_op(self, node: ASTExpressionNode) -> str:
+    def _print_unary_op_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a unary operator.
         :param unary_operator: an operator object
@@ -81,7 +81,7 @@ class PythonExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine unary operator!")
 
-    def print_encapsulated(self, node: ASTExpression) -> str:
+    def _print_encapsulated_expression(self, node: ASTExpression) -> str:
         """
         Prints the encapsulating parenthesis of an expression.
         :return: a string representation
@@ -204,7 +204,7 @@ class PythonExpressionPrinter(ExpressionPrinter):
 
         raise RuntimeError("Cannot determine arithmetic operator!")
 
-    def print_ternary_operator(self, node: ASTExpression) -> str:
+    def _print_ternary_operator_expression(self, node: ASTExpression) -> str:
         """
         Prints a ternary operator.
         :return: a string representation
@@ -213,9 +213,9 @@ class PythonExpressionPrinter(ExpressionPrinter):
         if_true = self.print(node.get_if_true())
         if_not = self.print(node.if_not)
 
-        return "(" + condition + ") ? (" + if_true + ") : (" + if_not + ")"
+        return "(" + if_true + ") if (" + condition + ") else (" + if_not + ")"
 
-    def print_binary_op(self, node: ASTExpressionNode) -> str:
+    def _print_binary_op_expression(self, node: ASTExpressionNode) -> str:
         """
         Prints a binary operator.
         :param binary_operator: a binary operator object

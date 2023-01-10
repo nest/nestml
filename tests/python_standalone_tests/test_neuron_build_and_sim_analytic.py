@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_neuron_build_and_sim.py
+# test_neuron_build_and_sim_analytic.py
 #
 # This file is part of NEST.
 #
@@ -26,32 +26,14 @@ import unittest
 from pynestml.frontend.pynestml_frontend import generate_python_standalone_target
 
 
-class TestPythonStandaloneNeuronBuildAndSim(unittest.TestCase):
+class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
     """
-    Tests the code generation and running a little simulation with NEST
+    Tests the code generation and running a little simulation
     """
 
     def test_python_standalone_neuron_build_and_sim_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_cond_exp.nestml"))))
-        target_path = "nestmlmodule"
-        logging_level = "INFO"
-        suffix = ""
-        module_name = "nestmlmodule"
-        codegen_opts = {}
-
-        generate_python_standalone_target(input_path, target_path,
-                                          module_name=module_name,
-                                          logging_level=logging_level,
-                                          suffix=suffix,
-                                          codegen_opts=codegen_opts)
-
-        from nestmlmodule.test_python_standalone_module import TestSimulator
-        TestSimulator().test_simulator()
-
-    def test_python_standalone_neuron_build_and_sim_numeric(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "aeif_cond_exp.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "INFO"
         suffix = ""

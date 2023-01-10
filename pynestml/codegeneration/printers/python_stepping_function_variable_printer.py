@@ -20,22 +20,28 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 
 
-class PythonSteppingFunctionVariablePrinter(CppVariablePrinter):
+class PythonSteppingFunctionVariablePrinter(VariablePrinter):
     r"""
-    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
+    Printer for variables in Python syntax and in the context of an ODE solver stepping function.
     """
 
     def print_variable(self, node: ASTVariable) -> str:
         """
-        Converts a single name reference to a gsl processable format.
-        :param node: a single variable
-        :return: a gsl processable format of the variable
+        Print a variable.
+        :param node: the variable to be printed
+        :return: the string representation
         """
         assert isinstance(node, ASTVariable)
+
+        if node.get_name() == PredefinedVariables.E_CONSTANT:
+            return "np.e"
+
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_state() and not symbol.is_inline_expression:
@@ -47,21 +53,21 @@ class PythonSteppingFunctionVariablePrinter(CppVariablePrinter):
             return "node.S_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
 
         if symbol.is_parameters():
-            return "node.P_." + super().print_variable(node)
+            return "node.P_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
 
         if symbol.is_internals():
-            return "node.V_." + super().print_variable(node)
+            return "node.V_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
 
         if symbol.is_input():
-            return "node.B_." + super().print_variable(node)
+            return "node.B_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
 
         raise Exception("Unknown node type")
 
-    def print_delay_variable(self, variable: ASTVariable):
+    def print_delay_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a delay variable to GSL processable format
-        :param variable: variable to be converted
-        :return: GSL processable format of the delay variable
+        Print a delay variable.
+        :param variable: the variable to be printed
+        :return: the string representation
         """
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol:

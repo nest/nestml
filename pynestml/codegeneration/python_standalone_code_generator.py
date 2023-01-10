@@ -41,8 +41,6 @@ from pynestml.codegeneration.printers.python_simple_expression_printer import Py
 
 class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
-    codegen_int: Optional[NESTCodeGenerator] = None
-
     _default_options = {
         "neuron_synapse_pairs": [],
         "preserve_expressions": False,

@@ -79,7 +79,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self.print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -118,7 +118,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return ""
 
-    def print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
+    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
         """
         Converts the vector parameter into NEST processable format
         :param variable:

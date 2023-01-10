@@ -86,8 +86,8 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
 
     def __convert_print_statement_str(self, stmt: str, scope: Scope) -> str:
         r"""
-        Converts the string argument of the print or println function to NEST processable format
-        Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
+        Converts the string argument of the print or println function to Python format
+        Variables are resolved to Python format and printed with physical units as mentioned in model, separated by a space
 
         .. code-block:: nestml
 
@@ -120,11 +120,11 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
-        return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
+        return '"' + stmt + '"'  # format bare string in Python (add double quotes)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         """
-        Converts a single handed over function call to C++ NEST API syntax.
+        Converts a single handed over function call to Python NEST API syntax.
 
         Parameters
         ----------
@@ -134,7 +134,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         Returns
         -------
         s
-            The function call string in C++ syntax.
+            The function call string in Python syntax.
         """
         result = function_call.get_name()
 
