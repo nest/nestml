@@ -19,8 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 import os
-import pytest
 import unittest
 
 from pynestml.frontend.pynestml_frontend import generate_python_standalone_target
@@ -28,12 +28,14 @@ from pynestml.frontend.pynestml_frontend import generate_python_standalone_targe
 
 class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
     """
-    Tests the code generation and running a little simulation
+    Tests the code generation and running a little simulation for the iaf_psc_exp neuron, which uses only the analytic (and not a numeric) solver.
+
+    The test asserts that the numerical membrane voltage at the end of the simulation is close to a hard-coded numeric value.
     """
 
     def test_python_standalone_neuron_build_and_sim_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_cond_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "INFO"
         suffix = ""
@@ -47,4 +49,5 @@ class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
                                           codegen_opts=codegen_opts)
 
         from nestmlmodule.test_python_standalone_module import TestSimulator
-        TestSimulator().test_simulator()
+        neuron_log = TestSimulator().test_simulator()
+        np.testing.assert_allclose(neuron_log["V_abs"][-1], 11.192718053106296)
