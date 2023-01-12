@@ -1,0 +1,24 @@
+{%- macro RportToBufferIndexEntry(ports, rport, index=0) -%}
+{%- if index > 0 -%}
+{%- set name = "{}_" ~ index|string %}
+{%- else -%}
+{%- set name = "{}" %}
+{%- endif -%}
+
+{#
+{%- if port.is_excitatory() and port.is_inhibitory() %}
+  { std::make_tuple({{ rport }}, "spike"), {{neuronName}}::{{name}} },
+{%- elif port.is_excitatory() %}
+  { std::make_tuple({{ rport }}, "excitatory"), {{neuronName}}::{{name}} },
+{%- else %}
+  { std::make_tuple({{ rport }}, "inhibitory"), {{neuronName}}::{{name}} },
+{%- endif %}
+{%- endmacro %}
+#}
+
+{%- if ports|length > 1 -%}
+  { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, {{neuronName}}::{{ name.format(ports[1].get_symbol_name().upper()) }} },
+{%- else -%}
+  { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, -1 },
+{%- endif -%}
+{%- endmacro -%}
