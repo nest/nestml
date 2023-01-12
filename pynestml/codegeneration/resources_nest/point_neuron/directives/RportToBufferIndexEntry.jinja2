@@ -17,7 +17,14 @@
 #}
 
 {%- if ports|length > 1 -%}
-  { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, {{neuronName}}::{{ name.format(ports[1].get_symbol_name().upper()) }} },
+{%-   if ports[0].is_excitatory() %}
+{%-     set exc_port = ports[0] %}
+{%-     set inh_port = ports[1] %}
+{%-   else %}
+{%-     set exc_port = ports[1] %}
+{%-     set inh_port = ports[0] %}
+{%-   endif %}
+  { {{neuronName}}::{{ name.format(exc_port.get_symbol_name().upper()) }}, {{neuronName}}::{{ name.format(inh_port.get_symbol_name().upper()) }} },
 {%- else -%}
   { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, -1 },
 {%- endif -%}
