@@ -415,10 +415,8 @@ private:
   static const size_t NUM_SPIKE_RECEPTORS = MAX_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
 
 {% if neuron.get_spike_input_ports()|length > 1 -%}
-  static std::map< std::tuple< int, std::string >, int > rport_to_nestml_port;
+  static std::vector< std::tuple< int, int > > rport_to_nestml_buffer_idx;
 {%- endif %}
-
-
 
 {%- if nest_version.startswith("v2") %}
   /**

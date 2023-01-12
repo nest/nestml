@@ -2111,11 +2111,12 @@ class ASTUtils:
     def get_spike_input_ports_in_pairs(cls, neuron: ASTNeuron) -> Dict[int, List[VariableSymbol]]:
         """
         Returns a list of spike input ports in pairs in case of input port qualifiers.
-        The result of this function is used to construct a map of NEST rport and NESTML port. A single map entry looks like below:
+        The result of this function is used to construct a vector that provides a mapping to the NESTML spike buffer index. The vector looks like below:
         .. code-block::
-            (1, "excitatory"): AMPA_SPIKES,
+            [ {AMPA_SPIKES, GABA_SPIKES}, {NMDA_SPIKES, -1} ]
 
-        where the key is a tuple of NEST rport number and port qualifier ("excitatory" or "inhibitory" if the qualifier is present, "spikes" otherwise). The value is the NESTML port number.
+        where the vector index is the NEST rport number. The value is a tuple containing the NESTML index(es) to the spike buffer.
+        In case if the rport is shared between two NESTML buffers, the vector element contains the tuple of the form (excitatory_port_index, inhibitory_port_index). Otherwise, the tuple is of the form (spike_port_index, -1).
         """
         rport_to_port_map = {}
         rport = 0

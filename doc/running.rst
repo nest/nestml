@@ -202,7 +202,7 @@ See :ref:`Multiple input ports with vectors` for an example with input ports def
 
 Each connection in NEST is denoted by a receiver port or ``rport`` number which is an integer that starts with 0. All default connections in NEST have the ``rport`` 0. NESTML routes the spikes with ``excitatory`` and ``inhibitory`` qualifiers into separate input buffers, whereas NEST identifies them with the same ``rport`` number.
 
-During the code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of port names defined in a model and their corresponding ``rport`` numbers can be queried from the status dictionary using the NEST API. For neurons with multiple input ports, the ``rport`` values start from 1 as the default ``rport`` 0 is excluded to avoid any accidental connections.
+During the code generation for NEST, NESTML maintains an internal mapping between NEST ``rports`` and NESTML input ports. A list of port names defined in a model and their corresponding ``rport`` numbers can be queried from the status dictionary using the NEST API. For neurons with multiple input ports, the ``receptor_type`` values in the ``nest.Connect()`` call start from 1 as the default ``receptor_type`` 0 is excluded to avoid any accidental connections.
 
 For the example mentioned :ref:`here <Multiple input ports with vectors>`, the ``receptor_types`` can be queried as shown below:
 
@@ -221,27 +221,27 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
    * - Input port name
      - NEST ``rport``
    * - AMPA_spikes
-     - 1
+     - 0
    * - GABA_spikes
-     - 1
+     - 0
    * - NMDA_spikes
-     - 2
+     - 1
    * - FOO_1
-     - 3
+     - 2
    * - FOO_2
-     - 4
+     - 3
    * - EXC_SPIKES_1
-     - 5
+     - 4
    * - EXC_SPIKES_2
-     - 6
-   * - EXC_SPIKES_3
-     - 7
-   * - INH_SPIKES_1
      - 5
-   * - INH_SPIKES_2
+   * - EXC_SPIKES_3
      - 6
+   * - INH_SPIKES_1
+     - 4
+   * - INH_SPIKES_2
+     - 5
    * - INH_SPIKES_3
-     - 7
+     - 6
 
 
 Compatibility with different versions of NEST
