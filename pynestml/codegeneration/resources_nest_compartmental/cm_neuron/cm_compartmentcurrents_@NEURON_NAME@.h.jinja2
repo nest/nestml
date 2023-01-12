@@ -42,6 +42,13 @@ namespace nest
 
 class {{ion_channel_name}}{{cm_unique_suffix}}{
 private:
+    // parameters
+    {%- for pure_variable_name, variable_info in channel_info["Parameters"] %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set variable = variable_info["rhs_expression"] %}
+    const {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+    {#
 // user-defined parameters {{ion_channel_name}} channel (maximal conductance, reversal potential)
     {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
     // state variable {{pure_variable_name -}}
@@ -56,7 +63,7 @@ private:
         {%- set rhs_expression = variable_info["rhs_expression"] %}
     {{render_variable_type(variable)}} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) -}};
     {%- endfor %}
-
+    #}
 public:
     // constructor, destructor
     {{ion_channel_name}}{{cm_unique_suffix}}();
@@ -69,11 +76,12 @@ public:
 {%- else %}
     void pre_run_hook() {
 {%- endif %}
-    {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() -%}
-        {%- set variable = variable_info["state_variable"] -%}
-        {%- set rhs_expression = variable_info["rhs_expression"] -%}
-        {{ variable.name}} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor -%}
+    // states
+    {%- for pure_variable_name, variable_info in channel_info["States"] %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set variable = variable_info["rhs_expression"] %}
+    const {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
     };
     void append_recordables(std::map< Name, double* >* recordables,
                             const long compartment_idx);
@@ -82,10 +90,15 @@ public:
     std::pair< double, double > f_numstep( const double v_comp );
 
     // function declarations
+    {#
 {%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
 {% for function_type, function_info in state_variable_info["expected_functions"].items() %}
     {{ function_declaration.FunctionDeclaration(function_info["ASTFunction"], "") -}};
 {% endfor %}
+{%- endfor %}
+    #}
+{%- for function in channel_info["Functions"] %}
+    {{ function_declaration.FunctionDeclaration(function) }}
 {%- endfor %}
 
 };

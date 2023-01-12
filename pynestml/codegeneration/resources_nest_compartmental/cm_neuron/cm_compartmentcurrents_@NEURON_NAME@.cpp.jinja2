@@ -98,17 +98,17 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
 nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_suffix}}()
 
-{%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
+{%- for pure_variable_name, variable_info in channel_info["States"].items() %}
 // state variable {{pure_variable_name -}}
-{%- set variable = variable_info["state_variable"] %}
+{%- set variable = variable_info["ASTVariable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
 {% if loop.first %}: {% else %}, {% endif %}
 {{- variable.name}}({{ printer_no_origin.print(rhs_expression) -}})
 {%- endfor -%}
 
-{% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
+{% for variable_type, variable_info in channel_info["Parameters"].items() %}
 // channel parameter {{variable_type -}}
-{%- set variable = variable_info["parameter_block_variable"] %}
+{%- set variable = variable_info["ASTVariable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
 ,{{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
 {%- endfor -%}
@@ -116,26 +116,26 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_
 
 nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
 
-{%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
+{%- for pure_variable_name, variable_info in channel_info["States"].items() %}
 // state variable {{pure_variable_name -}}
-{%- set variable = variable_info["state_variable"] %}
+{%- set variable = variable_info["ASTVariable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
 {% if loop.first %}: {% else %}, {% endif %}
-{{- variable.name}}({{printer_no_origin.print(rhs_expression) -}})
+{{- variable.name}}({{ printer_no_origin.print(rhs_expression) -}})
 {%- endfor -%}
 
-{% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
+{% for variable_type, variable_info in channel_info["Parameters"].items() %}
 // channel parameter {{variable_type -}}
-{%- set variable = variable_info["parameter_block_variable"] %}
+{%- set variable = variable_info["ASTVariable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
-,{{- variable.name}}({{printer_no_origin.print(rhs_expression) -}})
-{%- endfor %}
+,{{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
+{%- endfor -%}
 // update {{ion_channel_name}} channel parameters
 {
     {%- with %}
-    {%- for variable_type, variable_info in channel_info["channel_parameters"].items() %}
-        {%- set variable = variable_info["parameter_block_variable"] %}
-        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
+    {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %} //have to remove???????????
     // {{ion_channel_name}} channel parameter {{dynamic_variable }}
     if( channel_params->known( "{{variable.name}}" ) )
         {{variable.name}} = getValue< double >( channel_params, "{{variable.name}}" );
@@ -149,8 +149,8 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
 {
   // add state variables to recordables map
   {%- with %}
-  {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
-  {%- set variable = variable_info["state_variable"] %}
+  {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
+  {%- set variable = variable_info["ASTVariable"] %}
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
   {% endwith %}
@@ -158,6 +158,28 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
 
 std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp)
 {
+    {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
+        {%- for state, update_expression_rhs in ode_info["ode_toolbox_output"][0]["update_expressions"].items() %}
+    {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
+    {{state}} = {{ printer_no_origin.print(update_expression_rhs[state]) }};
+        {%- endfor %}
+    {%- endfor %}
+
+    const double dt = Time::get_resolution().get_ms();
+
+    double g_val = 0., i_val = 0.;
+    {%- set inline_expression = channel_info["ASTInlineExpression"] %}
+    {%- set inline_expression_d = channel_info["inline_derivative"] %}
+    // compute the conductance of the {{ion_channel_name}} channel
+    double i_tot = {{ local_variables_printer.print_expression(inline_expression.get_expression(), with_origins = False) }};
+    // derivative
+    double d_i_tot_dv = {{ local_variables_printer.print_expression(inline_expression_d, with_origins = False) }};
+
+    //Numerical integration (???)
+    g_val = - d_i_tot_dv / 2.;
+    i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+
+    {#
     const double dt = Time::get_resolution().get_ms();
 
     double g_val = 0., i_val = 0.;
@@ -209,14 +231,20 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
     }
 
     return std::make_pair(g_val, i_val);
-
+    #}
 }
 
+{%- for function_type, function_info in channel_info["Functions"].items() %}
+{{render_channel_function(function_info["ASTFunction"], ion_channel_name)}}
+{%- endfor %}
+
+{#
 {%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
 {%- for function_type, function_info in state_variable_info["expected_functions"].items() %}
 {{render_channel_function(function_info["ASTFunction"], ion_channel_name)}}
 {%- endfor %}
 {%- endfor %}
+#}
 
 {% endfor -%}
 {% endwith %}

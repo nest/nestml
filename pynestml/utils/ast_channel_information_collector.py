@@ -639,9 +639,11 @@ class ASTChannelInformationCollector(object):
         # filter for any inline that has no kernel
         relevant_inline_expressions_to_variables = defaultdict(lambda: list())
         for expression, variables in inline_expressions_dict.items():
+            print("ja")
             inline_expression_name = expression.variable_name
             if not inline_expressions_inside_equations_block_collector_visitor.is_synapse_inline(
                     inline_expression_name):
+                print("ja wirklich")
                 relevant_inline_expressions_to_variables[expression] = variables
 
         # create info structure
@@ -776,7 +778,15 @@ class ASTChannelInformationCollector(object):
 
         return extended_list
 
+    @classmethod
+    def extend_variables_with_initialisations(cls, neuron, chan_info):
+        for ion_channel_name, channel_info in chan_info.items():
+            var_init_visitor = VariableInitializationVisitor(channel_info)
+            neuron.accept(var_init_visitor)
+            chan_info[ion_channel_name]["States"] = var_init_visitor.states
+            chan_info[ion_channel_name]["Parameters"] = var_init_visitor.parameters
 
+        return chan_info
 
     @classmethod
     def collect_channel_related_definitions(cls, neuron, chan_info):
@@ -1017,9 +1027,11 @@ class ASTChannelInformationCollector(object):
         if cls.first_time_run[neuron]:
             #chan_info = cls.detect_cm_inline_expressions(neuron)
             chan_info = cls.detect_cm_inline_expressions_ode(neuron)
-
-
-            cls.collect_channel_related_definitions(neuron, chan_info)
+            cls.print_dictionary(chan_info, 0)
+            print("IN")
+            chan_info = cls.collect_channel_related_definitions(neuron, chan_info)
+            print("OUT")
+            cls.print_dictionary(chan_info, 0)
 
             # further computation not necessary if there were no cm neurons
             if not chan_info:
@@ -1028,24 +1040,30 @@ class ASTChannelInformationCollector(object):
                 cls.first_time_run[neuron] = False
                 return True
 
-            cls.print_dictionary(chan_info, 0)
+            print("IN")
+            chan_info = cls.extend_variables_with_initialisations(neuron, chan_info)
+            #cls.print_dictionary(chan_info, 0)
+            print("IN")
             chan_info = cls.prepare_equations_for_ode_toolbox(neuron, chan_info)
-            cls.print_dictionary(chan_info, 0)
+            #cls.print_dictionary(chan_info, 0)
+            print("IN")
             chan_info = cls.collect_raw_odetoolbox_output(chan_info)
-            cls.print_dictionary(chan_info, 0)
-
+            #cls.print_dictionary(chan_info, 0)
+            print("OUTOUT")
 
 
             #chan_info = cls.calc_expected_function_names_for_channels(chan_info)
             #chan_info = cls.check_and_find_functions(neuron, chan_info)
             #chan_info = cls.add_channel_parameters_section_and_enforce_proper_variable_names(neuron, chan_info)
 
-            cls.print_dictionary(chan_info, 0)
+            #cls.print_dictionary(chan_info, 0)
 
             # now check for existence of expected state variables
             # and add their ASTVariable objects to chan_info
             #missing_states_visitor = VariableMissingVisitor(chan_info)
             #neuron.accept(missing_states_visitor)
+
+            #cls.print_dictionary(chan_info, 0)
 
             cls.chan_info[neuron] = chan_info
             cls.first_time_run[neuron] = False
@@ -1375,6 +1393,51 @@ class ASTInlineExpressionInsideEquationsCollectorVisitor(ASTVisitor):
         self.inside_simple_expression = False
 
 #----------------- New ode helpers
+
+class VariableInitializationVisitor(ASTVisitor):
+    def __init__(self, channel_info):
+        super(VariableInitializationVisitor, self).__init__()
+        self.inside_variable = False
+        self.inside_declaration = False
+        self.inside_parameter_block = False
+        self.inside_state_block = False
+        self.current_declaration = None
+        self.states = defaultdict()
+        self.parameters = defaultdict()
+        self.channel_info = channel_info
+
+    def visit_declaration(self, node):
+        self.inside_declaration = True
+        self.current_declaration = node
+
+    def endvisit_declaration(self, node):
+        self.inside_declaration = False
+        self.current_declaration = None
+
+    def visit_block_with_variables(self, node):
+        if node.is_state:
+            self.inside_state_block = True
+        if node.is_parameters:
+            self.inside_parameter_block = True
+
+    def visit_variable(self, node):
+        self.inside_variable = True
+        if self.inside_state_block and self.inside_declaration:
+            if any(node.name == variable.name for variable in self.channel_info["States"]):
+                self.states[node.name] = defaultdict()
+                self.states[node.name]["ASTVariable"] = node.clone()
+                self.states[node.name]["rhs_expression"] = self.current_declaration.get_expression()
+
+        if self.inside_parameter_block and self.inside_declaration:
+            if any(node.name == variable.name for variable in self.channel_info["Parameters"]):
+                self.parameters[node.name] = defaultdict()
+                self.parameters[node.name]["ASTVariable"] = node.clone()
+                self.parameters[node.name]["rhs_expression"] = self.current_declaration.get_expression()
+
+    def endvisit_variable(self, node):
+        self.inside_variable = False
+
+
 class ASTODEEquationCollectorVisitor(ASTVisitor):
     def __init__(self):
         super(ASTODEEquationCollectorVisitor, self).__init__()

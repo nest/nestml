@@ -707,10 +707,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
         namespace["chan_info"] = ASTChannelInformationCollector.get_chan_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
+        print("CHAN INFO:")
+        ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
 
         namespace["syns_info"] = SynsProcessing.get_syns_info(neuron)
         syns_info_enricher = SynsInfoEnricher(neuron)
         namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
+        print("SYNS INFO:")
+        ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
 
         # maybe log this on DEBUG?
         # print("syns_info: ")
