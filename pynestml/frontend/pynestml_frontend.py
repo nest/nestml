@@ -31,7 +31,7 @@ from pynestml.exceptions.code_generator_options_exception import CodeGeneratorOp
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
-    qualifier_dev_arg, qualifier_codegen_opts_arg, qualifier_install_path_arg
+    qualifier_dev_arg, qualifier_install_path_arg
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbols.predefined_functions import PredefinedFunctions

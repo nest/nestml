@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterable, List, Mapping, Optional, Sequence, Union
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
 import re
 import sympy
 
-from pynestml.codegeneration.printers.printer import Printer
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -39,6 +40,7 @@ from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
@@ -50,6 +52,7 @@ from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -60,7 +63,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTUtils:
-    """
+    r"""
     A collection of helpful methods for AST manipulation.
     """
 
@@ -353,12 +356,12 @@ class ASTUtils:
         :return: the size of the vector as a numerical value
         """
         vector_parameter = variable.get_vector_parameter()
-        vector_variable = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
-        symbol = vector_variable.get_scope().resolve_to_symbol(vector_variable.get_complete_name(), SymbolKind.VARIABLE)
-        if symbol is not None:
-            # vector size is a variable. Get the value from RHS
+        if vector_parameter.is_variable():
+            symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(), SymbolKind.VARIABLE)
             return symbol.get_declaring_expression().get_numeric_literal()
-        return int(vector_parameter)
+
+        assert vector_parameter.is_numeric_literal()
+        return int(vector_parameter.get_numeric_literal())
 
     @classmethod
     def get_function_call(cls, ast, function_name):
@@ -420,7 +423,7 @@ class ASTUtils:
         :rtype: ast_neuron
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if neuron.get_internals_blocks() is None:
+        if not neuron.get_internals_blocks():
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
                                                                       ASTSourceLocation.get_added_source_position())
             internal.update_scope(neuron.get_scope())
@@ -430,7 +433,7 @@ class ASTUtils:
     @classmethod
     def create_state_block(cls, neuron):
         """
-        Creates a single internal block in the handed over neuron.
+        Creates a single internals block in the handed over neuron.
         :param neuron: a single neuron
         :type neuron: ast_neuron
         :return: the modified neuron
@@ -438,10 +441,25 @@ class ASTUtils:
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if neuron.get_internals_blocks() is None:
+        if not neuron.get_internals_blocks():
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
+        return neuron
+
+    @classmethod
+    def create_equations_block(cls, neuron: ASTNeuron) -> ASTNeuron:
+        """
+        Creates a single equations block in the handed over neuron.
+        :param neuron: a single neuron
+        :return: the modified neuron
+        """
+        # local import since otherwise circular dependency
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        if not neuron.get_equations_blocks():
+            block = ASTNodeFactory.create_ast_equations_block(list(),
+                                                              ASTSourceLocation.get_added_source_position())
+            neuron.get_body().get_body_elements().append(block)
         return neuron
 
     @classmethod
@@ -459,42 +477,31 @@ class ASTUtils:
         return False
 
     @classmethod
-    def add_to_state_block(cls, neuron, declaration):
-        """
-        Adds the handed over declaration the state block
-        :param neuron: a single neuron instance
-        :type neuron: ast_neuron
-        :param declaration: a single declaration
-        :type declaration: ast_declaration
-        """
-        if neuron.get_state_blocks() is None:
-            ASTUtils.create_state_block(neuron)
-        neuron.get_state_blocks().get_declarations().append(declaration)
-        return
-
-    @classmethod
-    def get_declaration_by_name(cls, block: ASTBlock, var_name: str) -> Optional[ASTDeclaration]:
+    def get_declaration_by_name(cls, blocks: Union[ASTBlock, List[ASTBlock]], var_name: str) -> Optional[ASTDeclaration]:
         """
         Get a declaration by variable name.
-        :param block: the block to look for the variable in
+        :param blocks: the block or blocks to look for the variable in
         :param var_name: name of the variable to look for (including single quotes indicating differential order)
         """
-        decls = block.get_declarations()
-        for decl in decls:
-            for var in decl.get_variables():
-                if var.get_complete_name() == var_name:
-                    return decl
+        if isinstance(blocks, ASTNode):
+            blocks = [blocks]
+        for block in blocks:
+            for decl in block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_complete_name() == var_name:
+                        return decl
         return None
 
     @classmethod
-    def all_variables_defined_in_block(cls, block: Optional[ASTBlock]) -> List[ASTVariable]:
-        """return a list of all variable declarations in a block"""
-        if block is None:
-            return []
+    def all_variables_defined_in_block(cls, blocks: Union[ASTBlock, List[ASTBlock]]) -> List[ASTVariable]:
+        """return a list of all variable declarations in a block or blocks"""
+        if isinstance(blocks, ASTNode):
+            blocks = [blocks]
         vars = []
-        for decl in block.get_declarations():
-            for var in decl.get_variables():
-                vars.append(var)
+        for block in blocks:
+            for decl in block.get_declarations():
+                for var in decl.get_variables():
+                    vars.append(var)
         return vars
 
     @classmethod
@@ -552,11 +559,11 @@ class ASTUtils:
 
     @classmethod
     def get_inline_expression_by_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
-        if not node.get_equations_block():
-            return None
-        for inline_expr in node.get_equations_block().get_inline_expressions():
-            if name == inline_expr.variable_name:
-                return inline_expr
+        for equations_block in node.get_equations_blocks():
+            for inline_expr in equations_block.get_inline_expressions():
+                if name == inline_expr.variable_name:
+                    return inline_expr
+
         return None
 
     @classmethod
@@ -658,10 +665,13 @@ class ASTUtils:
         return all_variables
 
     @classmethod
-    def get_all_variables_used_in_convolutions(cls, node: ASTNode, parent_node: ASTNode) -> List[str]:
-        """Make a list of all variable symbol names that are in ``node`` and used in a convolution"""
-        if node is None:
+    def get_all_variables_used_in_convolutions(cls, nodes: Union[ASTEquationsBlock, List[ASTEquationsBlock]], parent_node: ASTNode) -> List[str]:
+        """Make a list of all variable symbol names that are in one of the equation blocks in ``nodes`` and used in a convolution"""
+        if not nodes:
             return []
+
+        if isinstance(nodes, ASTNode):
+            nodes = [nodes]
 
         class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
             _variables = []
@@ -690,9 +700,13 @@ class ASTUtils:
                         var_name = node_.get_variable_name()
                         self._variables.append(var_name)
 
-        visitor = ASTAllVariablesUsedInConvolutionVisitor(node, parent_node)
-        node.accept(visitor)
-        return visitor._variables
+        variables = []
+        for node in nodes:
+            visitor = ASTAllVariablesUsedInConvolutionVisitor(node, parent_node)
+            node.accept(visitor)
+            variables.extend(visitor._variables)
+
+        return variables
 
     @classmethod
     def move_decls(cls, var_name, from_block, to_block, var_name_suffix, block_type: BlockType, mode="move", scope=None) -> List[ASTDeclaration]:
@@ -732,7 +746,7 @@ class ASTUtils:
     def equations_from_block_to_block(cls, state_var, from_block, to_block, var_name_suffix, mode) -> List[ASTDeclaration]:
         assert mode in ["move", "copy"]
 
-        if not to_block or not from_block:
+        if not from_block:
             return []
 
         decls = ASTUtils.get_declarations_from_block(state_var, from_block)
@@ -931,6 +945,8 @@ class ASTUtils:
         :param init_expression: initialization expression
         :return: the neuron extended by the variable
         """
+        assert len(neuron.get_internals_blocks()) <= 1, "Only one internals block supported for now"
+
         from pynestml.utils.model_parser import ModelParser
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -943,8 +959,8 @@ class ASTUtils:
         ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        neuron.add_to_internal_block(ast_declaration)
-        ast_declaration.update_scope(neuron.get_internals_blocks().get_scope())
+        neuron.add_to_internals_block(ast_declaration)
+        ast_declaration.update_scope(neuron.get_internals_blocks()[0].get_scope())
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.INTERNALS)
         ast_declaration.accept(symtable_visitor)
@@ -967,7 +983,7 @@ class ASTUtils:
     @classmethod
     def add_declaration_to_state_block(cls, neuron: ASTNeuron, variable: str, initial_value: str) -> ASTNeuron:
         """
-        Adds a single declaration to the state block of the neuron. The declared variable is of type real.
+        Adds a single declaration to an arbitrary state block of the neuron. The declared variable is of type real.
         :param neuron: a neuron
         :param variable: state variable to add
         :param initial_value: corresponding initial value
@@ -985,7 +1001,6 @@ class ASTUtils:
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
         neuron.add_to_state_block(ast_declaration)
-        ast_declaration.update_scope(neuron.get_state_blocks().get_scope())
 
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.STATE)
@@ -1004,33 +1019,36 @@ class ASTUtils:
         """
         assert type(variable_name) is str
 
-        if neuron.get_state_blocks() is None:
+        if not neuron.get_state_blocks():
             return False
 
-        for decl in neuron.get_state_blocks().get_declarations():
-            for var in decl.get_variables():
-                if var.get_complete_name() == variable_name:
-                    return True
+        for state_block in neuron.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_complete_name() == variable_name:
+                        return True
 
         return False
 
     @classmethod
     def add_assignment_to_update_block(cls, assignment: ASTAssignment, neuron: ASTNeuron) -> ASTNeuron:
         """
-        Adds a single assignment to the end of the update block of the handed over neuron.
+        Adds a single assignment to the end of the update block of the handed over neuron. At most one update block should be present.
+
         :param assignment: a single assignment
         :param neuron: a single neuron instance
         :return: the modified neuron
         """
+        assert len(neuron.get_update_blocks()) <= 1, "At most one update block should be present"
         small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=assignment,
                                                           source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                               source_position=ASTSourceLocation.get_added_source_position())
         if not neuron.get_update_blocks():
             neuron.create_empty_update_block()
-        neuron.get_update_blocks().get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
+        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
         return neuron
 
     @classmethod
@@ -1041,15 +1059,16 @@ class ASTUtils:
         :param neuron: a single neuron instance
         :return: a modified neuron
         """
+        assert len(neuron.get_update_blocks()) <= 1, "At most one update block should be present"
         small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=declaration,
                                                           source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                               source_position=ASTSourceLocation.get_added_source_position())
         if not neuron.get_update_blocks():
             neuron.create_empty_update_block()
-        neuron.get_update_blocks().get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
+        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
         return neuron
 
     @classmethod
@@ -1091,11 +1110,11 @@ class ASTUtils:
         """
         Checks if the variable is present in an ODE
         """
-        equations_block = neuron.get_equations_blocks()
-        for ode_eq in equations_block.get_ode_equations():
-            var = ode_eq.get_lhs()
-            if var.get_name() == var_base_name:
-                return True
+        for equations_block in neuron.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                if var.get_name() == var_base_name:
+                    return True
         return False
 
     @classmethod
@@ -1285,30 +1304,128 @@ class ASTUtils:
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
-    def get_input_port_by_name(cls, input_block: ASTInputBlock, port_name: str) -> ASTInputPort:
+    def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> ASTInputPort:
         """
         Get the input port given the port name
         :param input_block: block to be searched
         :param port_name: name of the input port
         :return: input port object
         """
-        for input_port in input_block.get_input_ports():
-            if input_port.name == port_name:
-                return input_port
+        for input_block in input_blocks:
+            for input_port in input_block.get_input_ports():
+                if input_port.name == port_name:
+                    return input_port
         return None
 
     @classmethod
-    def get_parameter_by_name(cls, parameters_block: ASTBlockWithVariables, var_name: str) -> ASTDeclaration:
+    def get_parameter_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
-        for decl in parameters_block.get_declarations():
-            for var in decl.get_variables():
-                if var.get_name() == var_name:
-                    return decl
+        for param_block in node.get_parameters_blocks():
+            for decl in param_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
+        return None
+
+    @classmethod
+    def get_parameter_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTVariable:
+        """
+        Get a parameter node based on the name of the parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: the parameter node
+        """
+        for param_block in node.get_parameters_blocks():
+            for decl in param_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_internal_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
+        """
+        Get the declaration based on the name of the internal parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for internals_block in node.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
+        return None
+
+    @classmethod
+    def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
+        """
+        Get the internal parameter node based on the name of the internal parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for internals_block in node.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
+        """
+        Get a variable or parameter node based on the name
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: the node if found, otherwise None
+        """
+        var = ASTUtils.get_state_variable_by_name(node, var_name)
+        if not var:
+            var = ASTUtils.get_parameter_variable_by_name(node, var_name)
+
+        if not var:
+            expr = ASTUtils.get_inline_expression_by_name(node, var_name)
+            if expr:
+                var = ASTNodeFactory.create_ast_variable(var_name, differential_order=0)
+                assert len(node.get_equations_blocks()) == 1, "Only one equations block supported for now"
+                var.scope = node.get_equations_blocks()[0].scope
+
+        return var
+
+    @classmethod
+    def get_state_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
+        """
+        Get a state variable node based on the name
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: the node if found, otherwise None
+        """
+        for state_block in node.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_state_variable_declaration_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTDeclaration]:
+        """
+        Get the declaration based on the name of the parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable if found, otherwise None
+        """
+        for state_block in node.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
         return None
 
     @classmethod
@@ -1387,23 +1504,26 @@ class ASTUtils:
             if not var:
                 # all variables checked
                 break
-            decls = cls.get_declarations_from_block(var, node.get_equations_blocks())
 
-            if decls:
-                assert len(decls) == 1
-                decl = decls[0]
-                if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
-                        or type(decl) is ASTInlineExpression:
-                    vars_used.extend(cls.collect_variable_names_in_expression(decl.get_expression()))
-                elif type(decl) is ASTOdeEquation:
-                    vars_used.extend(cls.collect_variable_names_in_expression(decl.get_rhs()))
-                elif type(decl) is ASTKernel:
-                    for expr in decl.get_expressions():
-                        vars_used.extend(cls.collect_variable_names_in_expression(expr))
-                else:
-                    raise Exception("Unknown type " + str(type(decl)))
-                vars_used = [str(var) for var in vars_used]
-                vars_to_check = vars_to_check.union(set(vars_used))
+            for equations_block in node.get_equations_blocks():
+                decls = cls.get_declarations_from_block(var, equations_block)
+
+                if decls:
+                    assert len(decls) == 1
+                    decl = decls[0]
+                    if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
+                            or type(decl) is ASTInlineExpression:
+                        vars_used.extend(cls.collect_variable_names_in_expression(decl.get_expression()))
+                    elif type(decl) is ASTOdeEquation:
+                        vars_used.extend(cls.collect_variable_names_in_expression(decl.get_rhs()))
+                    elif type(decl) is ASTKernel:
+                        for expr in decl.get_expressions():
+                            vars_used.extend(cls.collect_variable_names_in_expression(expr))
+                    else:
+                        raise Exception("Unknown type " + str(type(decl)))
+                    vars_used = [str(var) for var in vars_used]
+                    vars_to_check = vars_to_check.union(set(vars_used))
+
             vars_checked.add(var)
 
         return list(set(vars_checked))
@@ -1413,30 +1533,31 @@ class ASTUtils:
         """
         Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ODE-toolbox.
         """
-        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
-
-        equations_block = neuron.get_equations_block()
         symbols_to_remove = set()
-        for kernel in equations_block.get_kernels():
-            for kernel_var in kernel.get_variables():
-                kernel_var_order = kernel_var.get_differential_order()
-                for order in range(kernel_var_order):
-                    symbol_name = kernel_var.get_name() + "'" * order
-                    symbols_to_remove.add(symbol_name)
+        for equations_block in neuron.get_equations_blocks():
+            for kernel in equations_block.get_kernels():
+                for kernel_var in kernel.get_variables():
+                    kernel_var_order = kernel_var.get_differential_order()
+                    for order in range(kernel_var_order):
+                        symbol_name = kernel_var.get_name() + "'" * order
+                        symbols_to_remove.add(symbol_name)
 
         decl_to_remove = set()
         for symbol_name in symbols_to_remove:
-            for decl in neuron.get_state_blocks().get_declarations():
-                if len(decl.get_variables()) == 1:
-                    if decl.get_variables()[0].get_name() == symbol_name:
-                        decl_to_remove.add(decl)
-                else:
-                    for var in decl.get_variables():
-                        if var.get_name() == symbol_name:
-                            decl.variables.remove(var)
+            for state_block in neuron.get_state_blocks():
+                for decl in state_block.get_declarations():
+                    if len(decl.get_variables()) == 1:
+                        if decl.get_variables()[0].get_name() == symbol_name:
+                            decl_to_remove.add(decl)
+                    else:
+                        for var in decl.get_variables():
+                            if var.get_name() == symbol_name:
+                                decl.variables.remove(var)
 
         for decl in decl_to_remove:
-            neuron.get_state_blocks().get_declarations().remove(decl)
+            for state_block in neuron.get_state_blocks():
+                if decl in state_block.get_declarations():
+                    state_block.get_declarations().remove(decl)
 
     @classmethod
     def update_initial_values_for_odes(cls, neuron: ASTNeuron, solver_dicts: List[dict]) -> None:
@@ -1445,28 +1566,29 @@ class ASTUtils:
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         from pynestml.utils.model_parser import ModelParser
-        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
+        assert len(neuron.get_equations_blocks()) == 1, "Only one equation block should be present"
 
-        if neuron.get_state_blocks() is None:
+        if not neuron.get_state_blocks():
             return
 
-        for iv_decl in neuron.get_state_blocks().get_declarations():
-            for var in iv_decl.get_variables():
-                var_name = var.get_complete_name()
-                if cls.is_ode_variable(var.get_name(), neuron):
-                    assert cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
+        for state_block in neuron.get_state_blocks():
+            for iv_decl in state_block.get_declarations():
+                for var in iv_decl.get_variables():
+                    var_name = var.get_complete_name()
+                    if cls.is_ode_variable(var.get_name(), neuron):
+                        assert cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
 
-                    # replace the left-hand side variable name by the ode-toolbox format
-                    var.set_name(cls.to_ode_toolbox_processed_name(var.get_complete_name()))
-                    var.set_differential_order(0)
+                        # replace the left-hand side variable name by the ode-toolbox format
+                        var.set_name(cls.to_ode_toolbox_processed_name(var.get_complete_name()))
+                        var.set_differential_order(0)
 
-                    # replace the defining expression by the ode-toolbox result
-                    iv_expr = cls.get_initial_value_from_ode_toolbox_result(
-                        cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
-                    assert iv_expr is not None
-                    iv_expr = ModelParser.parse_expression(iv_expr)
-                    iv_expr.update_scope(neuron.get_state_blocks().get_scope())
-                    iv_decl.set_expression(iv_expr)
+                        # replace the defining expression by the ode-toolbox result
+                        iv_expr = cls.get_initial_value_from_ode_toolbox_result(
+                            cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
+                        assert iv_expr is not None
+                        iv_expr = ModelParser.parse_expression(iv_expr)
+                        iv_expr.update_scope(state_block.get_scope())
+                        iv_decl.set_expression(iv_expr)
 
     @classmethod
     def create_initial_values_for_kernels(cls, neuron: ASTNeuron, solver_dicts: List[dict], kernels: List[ASTKernel]) -> None:
@@ -1493,8 +1615,8 @@ class ASTUtils:
                         cls.add_declaration_to_state_block(neuron, var_name, expr)
 
     @classmethod
-    def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables,
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: Printer) -> dict:
+    def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_blocks: Sequence[ASTBlockWithVariables],
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> Dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 
@@ -1515,24 +1637,24 @@ class ASTUtils:
         odetoolbox_indict = {}
 
         odetoolbox_indict["dynamics"] = []
-        equations_block = neuron.get_equations_block()
-        for equation in equations_block.get_ode_equations():
-            # n.b. includes single quotation marks to indicate differential order
-            lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
-            rhs = printer.print_expression(equation.get_rhs())
-            entry = {"expression": lhs + " = " + rhs}
-            symbol_name = equation.get_lhs().get_name()
-            symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+        for equations_block in neuron.get_equations_blocks():
+            for equation in equations_block.get_ode_equations():
+                # n.b. includes single quotation marks to indicate differential order
+                lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
+                rhs = printer.print(equation.get_rhs())
+                entry = {"expression": lhs + " = " + rhs}
+                symbol_name = equation.get_lhs().get_name()
+                symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
 
-            entry["initial_values"] = {}
-            symbol_order = equation.get_lhs().get_differential_order()
-            for order in range(symbol_order):
-                iv_symbol_name = symbol_name + "'" * order
-                initial_value_expr = neuron.get_initial_value(iv_symbol_name)
-                if initial_value_expr:
-                    expr = printer.print_expression(initial_value_expr)
-                    entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
-            odetoolbox_indict["dynamics"].append(entry)
+                entry["initial_values"] = {}
+                symbol_order = equation.get_lhs().get_differential_order()
+                for order in range(symbol_order):
+                    iv_symbol_name = symbol_name + "'" * order
+                    initial_value_expr = neuron.get_initial_value(iv_symbol_name)
+                    if initial_value_expr:
+                        expr = printer.print(initial_value_expr)
+                        entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
+                odetoolbox_indict["dynamics"].append(entry)
 
         # write a copy for each (kernel, spike buffer) combination
         for kernel, spike_input_port in kernel_buffers:
@@ -1561,32 +1683,30 @@ class ASTUtils:
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_
                     initial_value_expr = symbol.get_declaring_expression()
                     assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print_expression(initial_value_expr)
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print(initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
 
         odetoolbox_indict["parameters"] = {}
-        if parameters_block is not None:
+        for parameters_block in parameters_blocks:
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
-                    odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = printer.print_expression(decl.get_expression())
+                    odetoolbox_indict["parameters"][var.get_complete_name()] = printer.print(decl.get_expression())
 
         return odetoolbox_indict
 
     @classmethod
-    def remove_ode_definitions_from_equations_block(cls, neuron: ASTNeuron) -> None:
+    def remove_ode_definitions_from_equations_block(cls, model: ASTNeuronOrSynapse) -> None:
         """
-        Removes all ODEs in this block.
+        Removes all ODE definitions from all equations blocks in the model.
         """
-        equations_block = neuron.get_equations_block()
+        for equations_block in model.get_equations_blocks():
+            decl_to_remove = set()
+            for decl in equations_block.get_ode_equations():
+                decl_to_remove.add(decl)
 
-        decl_to_remove = set()
-        for decl in equations_block.get_ode_equations():
-            decl_to_remove.add(decl)
-
-        for decl in decl_to_remove:
-            equations_block.get_declarations().remove(decl)
+            for decl in decl_to_remove:
+                equations_block.get_declarations().remove(decl)
 
     @classmethod
     def make_inline_expressions_self_contained(cls, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
@@ -1682,18 +1802,17 @@ class ASTUtils:
 
     @classmethod
     def remove_kernel_definitions_from_equations_block(cls, neuron: ASTNeuron) -> ASTDeclaration:
+        r"""
+        Removes all kernels in equations blocks.
         """
-        Removes all kernels in this block.
-        """
-        equations_block = neuron.get_equations_block()
+        for equations_block in neuron.get_equations_blocks():
+            decl_to_remove = set()
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel:
+                    decl_to_remove.add(decl)
 
-        decl_to_remove = set()
-        for decl in equations_block.get_declarations():
-            if type(decl) is ASTKernel:
-                decl_to_remove.add(decl)
-
-        for decl in decl_to_remove:
-            equations_block.get_declarations().remove(decl)
+            for decl in decl_to_remove:
+                equations_block.get_declarations().remove(decl)
 
         return decl_to_remove
 
@@ -1707,10 +1826,10 @@ class ASTUtils:
             "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols(
         )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
+        neuron.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
-    def generate_kernel_buffers_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> Mapping[ASTKernel, ASTInputPort]:
+    def generate_kernel_buffers_(cls, neuron: ASTNeuron, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:
         """
         For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel, spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.
         """
@@ -1760,13 +1879,14 @@ class ASTUtils:
                     var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
                     var.set_differential_order(0)
 
-        for decl in neuron.get_equations_block().get_declarations():
-            if isinstance(decl, ASTInlineExpression) \
-               and isinstance(decl.get_expression(), ASTSimpleExpression) \
-               and '__X__' in str(decl.get_expression()):
-                replace_with_var_name = decl.get_expression().get_variable().get_name()
-                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
-                    x, decl.get_variable_name(), replace_with_var_name)))
+        for equation_block in neuron.get_equations_blocks():
+            for decl in equation_block.get_declarations():
+                if isinstance(decl, ASTInlineExpression) \
+                   and isinstance(decl.get_expression(), ASTSimpleExpression) \
+                   and '__X__' in str(decl.get_expression()):
+                    replace_with_var_name = decl.get_expression().get_variable().get_name()
+                    neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
+                        x, decl.get_variable_name(), replace_with_var_name)))
 
     @classmethod
     def replace_variable_names_in_expressions(cls, neuron: ASTNeuron, solver_dicts: List[dict]) -> None:
@@ -1834,7 +1954,7 @@ class ASTUtils:
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
-        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
+        r"""Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
         if node is None:
             return
 
@@ -1878,35 +1998,36 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_convolve_function_calls(cls, ast):
+    def get_convolve_function_calls(cls, nodes: Union[ASTNode, List[ASTNode]]):
         """
         Returns all sum function calls in the handed over meta_model node or one of its children.
-        :param ast: a single meta_model node.
-        :type ast: ASTNode
+        :param nodes: a single or list of AST nodes.
         """
-        return cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)
+        if isinstance(nodes, ASTNode):
+            nodes = [nodes]
+
+        function_calls = []
+        for node in nodes:
+            function_calls.extend(cls.get_function_calls(node, PredefinedFunctions.CONVOLVE))
+
+        return function_calls
 
     @classmethod
-    def contains_convolve_function_call(cls, ast):
+    def contains_convolve_function_call(cls, ast: ASTNode) -> bool:
         """
         Indicates whether _ast or one of its child nodes contains a sum call.
         :param ast: a single meta_model
-        :type ast: ASTNode
         :return: True if sum is contained, otherwise False.
-        :rtype: bool
         """
         return len(cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)) > 0
 
     @classmethod
-    def get_function_calls(cls, ast_node, function_list):
+    def get_function_calls(cls, ast_node: ASTNode, function_list: List[str]) -> List[ASTFunctionCall]:
         """
-        For a handed over list of function names, this method retrieves all functions in the meta_model.
+        For a handed over list of function names, this method retrieves all function calls in the meta_model.
         :param ast_node: a single meta_model node
-        :type ast_node: ASTNode
         :param function_list: a list of function names
-        :type function_list: list(str)
         :return: a list of all functions in the meta_model
-        :rtype: list(ASTFunctionCall)
         """
         res = list()
         if ast_node is None:
@@ -1917,3 +2038,52 @@ class ASTUtils:
         vis = ASTHigherOrderVisitor(visit_funcs=fun)
         ast_node.accept(vis)
         return res
+
+    @classmethod
+    def resolve_to_variable_symbol_in_blocks(cls, variable_name: str, blocks: List[ASTBlock]):
+        r"""
+        Resolve a variable (by name) to its corresponding ``Symbol`` within the AST blocks in ``blocks``.
+        """
+        for block in blocks:
+            sym = block.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+            if sym:
+                return sym
+        return None
+
+    @classmethod
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
+        """
+        Returns a prefix corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol.
+        :return: the corresponding prefix
+        """
+        if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
+            if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
+                return 'S_.ode_state[State_::%s]'
+
+            return 'S_.%s'
+
+        if variable_symbol.block_type == BlockType.PARAMETERS:
+            return 'P_.%s'
+
+        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
+            return 'cp.%s'
+
+        if variable_symbol.block_type == BlockType.INTERNALS:
+            return 'V_.%s'
+
+        if variable_symbol.block_type == BlockType.INPUT:
+            return 'B_.%s'
+
+        return ''
+
+    @classmethod
+    def get_unit_name(cls, variable: ASTVariable) -> str:
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
+
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+            return symbol.get_type_symbol().unit.unit.to_string()
+
+        return ''

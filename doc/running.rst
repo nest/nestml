@@ -155,7 +155,7 @@ This will generate, compile, build, and install the code for a set of specified 
 NEST Simulator target
 ---------------------
 
-After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest.github.io/nest-simulator/extension_modules>`_), or loaded dynamically using the ``Install`` API call in Python.
+After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
 Manually building the extension module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

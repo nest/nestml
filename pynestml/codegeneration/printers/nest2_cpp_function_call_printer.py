@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest2_reference_converter.py
+# nest2_cpp_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,27 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
-class NEST2ReferenceConverter(NESTReferenceConverter):
-    """
-    This concrete reference converter is used to transfer internal names to NEST 2 syntax.
+class NEST2CppFunctionCallPrinter(NESTCppFunctionCallPrinter):
+    r"""
+    This class is used to convert function calls to the GSL (GNU Scientific Library) syntax.
     """
 
-    def convert_function_call(self, function_call, prefix='') -> str:
-        r"""
-        Converts a single handed over function call to C++ NEST API syntax.
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
+        r"""Convert a single function call to C++ NEST API syntax.
 
         Parameters
         ----------
         function_call : ASTFunctionCall
             The function call node to convert.
-        prefix : str
-            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
-
-            Predefined functions will not be prefixed.
 
         Returns
         -------
@@ -49,9 +45,9 @@ class NEST2ReferenceConverter(NESTReferenceConverter):
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+            return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + 'get_thread() ) ))'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() )->drand())'
+            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + 'get_thread() )->drand())'
 
-        return super().convert_function_call(function_call, prefix=prefix)
+        return super()._print_function_call_format_string(function_call)

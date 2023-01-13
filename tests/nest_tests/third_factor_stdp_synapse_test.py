@@ -36,9 +36,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
-
 sim_mdl = True
 sim_ref = False
 
@@ -61,7 +58,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                                                   "post_ports": ["post_spikes",
                                                                  ["I_post_dend", "I_dend"]]}]}
 
-        if not nest_version.startswith("v2"):
+        if not NESTTools.detect_nest_version().startswith("v2"):
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
@@ -119,6 +116,8 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
+
+        nest_version = NESTTools.detect_nest_version()
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()

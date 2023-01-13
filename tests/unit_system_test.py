@@ -21,17 +21,21 @@
 
 import os
 import unittest
+from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
-from pynestml.codegeneration.printers.cpp_types_printer import CppTypesPrinter
-from pynestml.codegeneration.printers.nest_printer import NestPrinter
-from pynestml.codegeneration.printers.nestml_reference_converter import NestMLReferenceConverter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
+from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
+from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
@@ -45,22 +49,27 @@ PredefinedFunctions.register_functions()
 
 Logger.init_logger(LoggingLevel.INFO)
 
-types_printer = CppTypesPrinter()
-reference_converter = NestMLReferenceConverter()
-expression_printer = CppExpressionPrinter(reference_converter)
-printer = NestPrinter(reference_converter=reference_converter,
-                      types_printer=types_printer,
-                      expression_printer=expression_printer)
+type_symbol_printer = CppTypeSymbolPrinter()
+variable_printer = NestMLVariablePrinter(None)
+function_call_printer = NESTCppFunctionCallPrinter(None)
+cpp_variable_printer = CppVariablePrinter(None)
+printer = CppExpressionPrinter(CppSimpleExpressionPrinter(cpp_variable_printer,
+                                                          ConstantPrinter(),
+                                                          function_call_printer))
+cpp_variable_printer._expression_printer = printer
+variable_printer._expression_printer = printer
+function_call_printer._expression_printer = printer
 
 
 def get_first_statement_in_update_block(model):
-    if model.get_neuron_list()[0].get_update_blocks():
-        return model.get_neuron_list()[0].get_update_blocks().get_block().get_stmts()[0]
+    if model.get_neuron_list()[0].get_update_blocks()[0]:
+        return model.get_neuron_list()[0].get_update_blocks()[0].get_block().get_stmts()[0]
     return None
 
 
 def get_first_declaration_in_state_block(model):
-    return model.get_neuron_list()[0].get_state_blocks().get_declarations()[0]
+    assert len(model.get_neuron_list()[0].get_state_blocks()) == 1
+    return model.get_neuron_list()[0].get_state_blocks()[0].get_declarations()[0]
 
 
 def get_first_declared_function(model):
@@ -70,24 +79,24 @@ def get_first_declared_function(model):
 def print_rhs_of_first_assignment_in_update_block(model):
     assignment = get_first_statement_in_update_block(model).small_stmt.get_assignment()
     expression = assignment.get_expression()
-    return printer.print_expression(expression)
+    return printer.print(expression)
 
 
 def print_first_function_call_in_update_block(model):
     function_call = get_first_statement_in_update_block(model).small_stmt.get_function_call()
-    return printer.print_function_call(function_call)
+    return printer.print(function_call)
 
 
 def print_rhs_of_first_declaration_in_state_block(model):
     declaration = get_first_declaration_in_state_block(model)
     expression = declaration.get_expression()
-    return printer.print_expression(expression)
+    return printer.print(expression)
 
 
 def print_first_return_statement_in_first_declared_function(model):
     func = get_first_declared_function(model)
     return_expression = func.get_block().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
-    return printer.print_expression(return_expression)
+    return printer.print(return_expression)
 
 
 class UnitSystemTest(unittest.TestCase):
@@ -105,7 +114,7 @@ class UnitSystemTest(unittest.TestCase):
                          'DirectAssignmentWithDifferentButCompatibleUnits.nestml'))
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
 
-        self.assertEqual(printed_rhs_expression, '1000.0 * (10*V)')
+        self.assertEqual(printed_rhs_expression, '(1000.0 * (10 * V))')
 
     def test_expression_after_nested_magnitude_conversion_in_direct_assignment(self):
         model = ModelParser.parse_model(
@@ -113,21 +122,21 @@ class UnitSystemTest(unittest.TestCase):
                          'DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml'))
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
 
-        self.assertEqual(printed_rhs_expression, '1000.0 * (10*V + 0.001 * (5*mV) + 20*V + 1000.0 * (1*kV))')
+        self.assertEqual(printed_rhs_expression, '(1000.0 * (10 * V + (0.001 * (5 * mV)) + 20 * V + (1000.0 * (1 * kV))))')
 
     def test_expression_after_magnitude_conversion_in_compound_assignment(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CompoundAssignmentWithDifferentButCompatibleUnits.nestml'))
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
-        self.assertEqual(printed_rhs_expression, '0.001 * (1200*mV)')
+        self.assertEqual(printed_rhs_expression, '(0.001 * (1200 * mV))')
 
     def test_expression_after_magnitude_conversion_in_declaration(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DeclarationWithDifferentButCompatibleUnitMagnitude.nestml'))
         printed_rhs_expression = print_rhs_of_first_declaration_in_state_block(model)
-        self.assertEqual(printed_rhs_expression, '1000.0 * (10*V)')
+        self.assertEqual(printed_rhs_expression, '(1000.0 * (10 * V))')
 
     def test_expression_after_type_conversion_in_declaration(self):
         model = ModelParser.parse_model(
@@ -151,18 +160,18 @@ class UnitSystemTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'FunctionCallWithDifferentButCompatibleUnits.nestml'))
         printed_function_call = print_first_function_call_in_update_block(model)
-        self.assertEqual(printed_function_call, 'foo(1000.0 * (10*V))')
+        self.assertEqual(printed_function_call, 'foo((1000.0 * (10 * V)))')
 
     def test_expression_after_magnitude_conversion_in_rhs_function_call(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'RhsFunctionCallWithDifferentButCompatibleUnits.nestml'))
         printed_function_call = print_rhs_of_first_assignment_in_update_block(model)
-        self.assertEqual(printed_function_call, 'foo(1000.0 * (10*V))')
+        self.assertEqual(printed_function_call, 'foo((1000.0 * (10 * V)))')
 
     def test_return_stmt_after_magnitude_conversion_in_function_body(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml'))
         printed_return_stmt = print_first_return_statement_in_first_declared_function(model)
-        self.assertEqual(printed_return_stmt, '0.001 * (bar)')
+        self.assertEqual(printed_return_stmt, '(0.001 * (bar))')
