@@ -159,8 +159,7 @@ The name ``h_dend`` now acts as an alias for this particular convolution. We can
      h_dend' = 10 pA/ms
    end
 
-For more information, see the :doc:`Active dendrite tutorial <tutorials/active_dendrite/nestml_active_dendrite_tutorial>`
-
+For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
 
 
 Multiple input synapses
@@ -184,7 +183,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
      kernel I_kernel1 = exp(-t / tau_syn1)
      kernel I_kernel2 = exp(-t / tau_syn2)
      kernel I_kernel3 = -exp(-t / tau_syn3)
-     function I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3) + ...
+     inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
      V_abs' = -V_abs/tau_m + I_syn / C_m
    end
 
