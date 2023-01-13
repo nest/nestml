@@ -73,16 +73,15 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-    return transformers, options
-
     if target_name.upper() in ["PYTHON_STANDALONE"]:
-        from pynestml.transformers.variable_name_rewriter import VariableNameRewriter
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+
         # rewrite all Python keywords
         # from: ``import keyword; print(keyword.kwlist)``
-        variable_name_rewriter = VariableNameRewriter({"forbidden_names": ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']})
         transformers.append(variable_name_rewriter)
 
-        return transformers, options
+    return transformers, options
 
 
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
