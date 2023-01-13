@@ -23,6 +23,7 @@ import subprocess
 import os
 import sys
 import tempfile
+import multiprocessing as mp
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.utils.logger import Logger
@@ -74,30 +75,6 @@ except ModuleNotFoundError:
     nest_version = ""
 
 print(nest_version, file=sys.stderr)
-def _get_model_parameters(model_name: str, queue: mp.Queue):
-    try:
-        import nest
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", model_name + ".nestml"))))
-        target_path = "target"
-        suffix = "_nestml"
-        module_name = "nest_desktop_module"
-        generate_nest_target(input_path=input_path,
-                             target_path=target_path,
-                             suffix=suffix,
-                             module_name=module_name,
-                             logging_level="INFO")
-        # Install the nest module and query all the parameters
-        nest.Install(module_name)
-        n = nest.Create(model_name + suffix)
-        parameters = n.get()
-
-    except ModuleNotFoundError:
-        parameters = {}
-
-    queue.put(parameters)
-
-
 """
 
         with tempfile.NamedTemporaryFile() as f:
@@ -118,6 +95,30 @@ def _get_model_parameters(model_name: str, queue: mp.Queue):
         return nest_version
 
     @classmethod
+    def _get_model_parameters(cls, model_name: str, queue: mp.Queue):
+        try:
+            import nest
+            input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+                os.pardir, os.pardir, "models", "neurons", model_name + ".nestml"))))
+            target_path = "target"
+            suffix = "_nestml"
+            module_name = "nest_desktop_module"
+            generate_nest_target(input_path=input_path,
+                                 target_path=target_path,
+                                 suffix=suffix,
+                                 module_name=module_name,
+                                 logging_level="INFO")
+            # Install the nest module and query all the parameters
+            nest.Install(module_name)
+            n = nest.Create(model_name + suffix)
+            parameters = n.get()
+
+        except ModuleNotFoundError:
+            parameters = {}
+
+        queue.put(parameters)
+
+    @classmethod
     def get_neuron_parameters(cls, neuron_model_name: str) -> dict:
         r"""
         Get the parameters for the given neuron model. The code is generated for the model and installed into NEST.
@@ -130,7 +131,7 @@ def _get_model_parameters(model_name: str, queue: mp.Queue):
         # allowed to have children". Since creating a Pool inside a Pool is not allowed, we create a Process
         # object here instead.
         _queue = mp.Queue()
-        p = mp.Process(target=_get_model_parameters, args=(neuron_model_name, _queue))
+        p = mp.Process(target=cls._get_model_parameters, args=(neuron_model_name, _queue))
         p.start()
         p.join()
         parameters = _queue.get()

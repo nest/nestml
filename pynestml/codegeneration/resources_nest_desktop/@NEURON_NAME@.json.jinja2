@@ -1,7 +1,7 @@
 {
     "id": "{{neuronName}}",
     "elementType": "neuron",
-    "label": "{{neuronName}}}}",
+    "label": "{{neuronName}}",
     "recordables": [
     {%- for variable in neuron.get_state_symbols() %}
     "{{variable.get_symbol_name()}}"

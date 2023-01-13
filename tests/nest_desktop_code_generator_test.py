@@ -25,15 +25,13 @@ import pytest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class TestNestDesktopCodeGenerator:
     """
     Test for NEST-Desktop code generator
     """
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_nest_desktop_code_generator(self):
         """
