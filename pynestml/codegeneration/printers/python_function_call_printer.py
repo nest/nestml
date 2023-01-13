@@ -80,7 +80,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         :return: the converted print string with corresponding variables, if any
         """
         stmt = function_call.get_args()[0].get_string()
-        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
+        stmt = stmt[stmt.index("\"") + 1: stmt.rindex("\"")]  # Remove the double quotes from the string
         scope = function_call.get_scope()
         return self.__convert_print_statement_str(stmt, scope)
 
@@ -109,22 +109,22 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         :param scope: scope of the variables in the argument, if any
         :return: the converted string
         """
-        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
+        pattern = re.compile(r"\{[a-zA-Z_][a-zA-Z0-9_]*\}")  # Match the variables enclosed within "{ }"
         match = pattern.search(stmt)
         if match:
-            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
+            var_name = match.group(0)[match.group(0).find("{") + 1:match.group(0).find("}")]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' + ' if lhs else '')
-            fun_right = (lambda rhs: ' + ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
+            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + " + " if lhs else "")
+            fun_right = (lambda rhs: " + " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
             ast_var = ASTVariable(var_name, scope=scope)
-            right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+            right = " " + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
-        return '"' + stmt + '"'  # format bare string in Python (add double quotes)
+        return "\"" + stmt + "\""  # format bare string in Python (add double quotes)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         """
-        Converts a single handed over function call to Python NEST API syntax.
+        Converts a single handed over function call to Python syntax.
 
         Parameters
         ----------
@@ -136,21 +136,22 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
         s
             The function call string in Python syntax.
         """
-        result = function_call.get_name()
-
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
-            return 'steps({!s}, self._timestep)'
+            return "steps({!s}, self._timestep)"
 
         if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
-            return 'self._timestep'
+            return "self._timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
-            return 'self.emit_spike(origin)'
+            return "self.emit_spike(origin)"
 
+        s = function_call.get_name()
+
+        s += "("
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
-        else:
-            result += '()'
+            s += ", ".join(["{!s}" for _ in range(n_args)])
 
-        return result
+        s += ")"
+
+        return s
