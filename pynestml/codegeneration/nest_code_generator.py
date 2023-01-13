@@ -183,6 +183,7 @@ class NESTCodeGenerator(CodeGenerator):
                                                                                                                              function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
+
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         # insist on using the old Archiving_Node class for NEST 2
         if self.get_option("nest_version").startswith("v2"):
