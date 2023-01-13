@@ -5,17 +5,6 @@
 {%- set name = "{}" %}
 {%- endif -%}
 
-{#
-{%- if port.is_excitatory() and port.is_inhibitory() %}
-  { std::make_tuple({{ rport }}, "spike"), {{neuronName}}::{{name}} },
-{%- elif port.is_excitatory() %}
-  { std::make_tuple({{ rport }}, "excitatory"), {{neuronName}}::{{name}} },
-{%- else %}
-  { std::make_tuple({{ rport }}, "inhibitory"), {{neuronName}}::{{name}} },
-{%- endif %}
-{%- endmacro %}
-#}
-
 {%- if ports|length > 1 -%}
 {%-   if ports[0].is_excitatory() %}
 {%-     set exc_port = ports[0] %}
