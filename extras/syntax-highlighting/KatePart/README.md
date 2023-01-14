@@ -24,7 +24,7 @@ You can then embed NESTML code with the usual Markdown syntax, e.g.:
 ```nestml
 neuron foo:
   state:
-    V_abs mV = 0 mV
+    V_m mV = 0 mV
   end
   
   # ...

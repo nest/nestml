@@ -184,7 +184,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
      kernel I_kernel2 = exp(-t / tau_syn2)
      kernel I_kernel3 = -exp(-t / tau_syn3)
      inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
-     V_abs' = -V_abs/tau_m + I_syn / C_m
+     V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
    end
 
 After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
