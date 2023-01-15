@@ -3,4 +3,14 @@ nbsphinx
 docutils
 sphinx>=4
 sphinx_rtd_theme>=1.0.0
-nestml   # trick to install all NESTML requirements
+
+# the following list is a direct copy from requirements.txt in the root directory (requirements for NESTML itself rather than for doc building)
+numpy >= 1.8.2
+scipy
+sympy >= 1.1.1,!= 1.11, != 1.11.1
+antlr4-python3-runtime == 4.10
+setuptools
+Jinja2 >= 2.10
+typing;python_version<"3.5"
+astropy
+odetoolbox >= 2.4
