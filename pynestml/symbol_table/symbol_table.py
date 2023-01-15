@@ -112,7 +112,7 @@ class SymbolTable:
         cls.name2synapse_scope = {}
 
     @classmethod
-    def print_symbol_table(cls):
+    def print_symbol_table(cls) -> str:
         """
         Prints the content of this symbol table.
         """
