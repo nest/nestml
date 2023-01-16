@@ -46,7 +46,14 @@ private:
     {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    const {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+
+    // states
+    {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
     {#
 // user-defined parameters {{ion_channel_name}} channel (maximal conductance, reversal potential)
@@ -80,7 +87,7 @@ public:
     {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    const {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+        {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
     };
     void append_recordables(std::map< Name, double* >* recordables,
@@ -98,7 +105,7 @@ public:
 {%- endfor %}
     #}
 {%- for function in channel_info["Functions"] %}
-    {{ function_declaration.FunctionDeclaration(function) }}
+    {{ function_declaration.FunctionDeclaration(function) }};
 {%- endfor %}
 
 };

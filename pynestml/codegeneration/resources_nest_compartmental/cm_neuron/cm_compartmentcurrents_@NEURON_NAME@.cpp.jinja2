@@ -162,7 +162,7 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
 
     {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
         {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-    double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }}
+    double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
         {%- endfor %}
         {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
     {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
