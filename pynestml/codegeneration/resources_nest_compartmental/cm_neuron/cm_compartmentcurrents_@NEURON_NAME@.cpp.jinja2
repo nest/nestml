@@ -158,22 +158,27 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
 
 std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp)
 {
+    double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
+
     {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
-        {%- for state, update_expression_rhs in ode_info["ode_toolbox_output"][0]["update_expressions"].items() %}
+        {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+    double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }}
+        {%- endfor %}
+        {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
     {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
-    {{state}} = {{ printer_no_origin.print(update_expression_rhs) }};
+    {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
         {%- endfor %}
     {%- endfor %}
 
     const double dt = Time::get_resolution().get_ms();
 
     double g_val = 0., i_val = 0.;
-    {%- set inline_expression = channel_info["ASTInlineExpression"] %}
+    {%- set inline_expression = channel_info["RootInlineExpression"] %}
     {%- set inline_expression_d = channel_info["inline_derivative"] %}
     // compute the conductance of the {{ion_channel_name}} channel
-    double i_tot = {{ local_variables_printer.print_expression(inline_expression.get_expression(), with_origins = False) }};
+    double i_tot = {{ printer_no_origin.print(inline_expression.get_expression()) }};
     // derivative
-    double d_i_tot_dv = {{ local_variables_printer.print_expression(inline_expression_d, with_origins = False) }};
+    double d_i_tot_dv = {{ printer_no_origin.print(inline_expression_d) }};
 
     //Numerical integration (???)
     g_val = - d_i_tot_dv / 2.;
@@ -234,8 +239,8 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
     #}
 }
 
-{%- for function_type, function_info in channel_info["Functions"].items() %}
-{{render_channel_function(function_info["ASTFunction"], ion_channel_name)}}
+{%- for function in channel_info["Functions"] %}
+{{render_channel_function(function, ion_channel_name)}}
 {%- endfor %}
 
 {#

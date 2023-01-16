@@ -260,13 +260,19 @@ class ChanInfoEnricher():
                         "ASTVariable": variable, "init_expression": expression, }
                     expression_variable_collector = ASTEnricherInfoCollectorVisitor()
                     expression.accept(expression_variable_collector)
-                    print("TRV: " + PredefinedFunctions.TIME_RESOLUTION)
+
+                    neuron_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
+                    neuron.accept(neuron_internal_declaration_collector)
+
+                    #print("TRV: " + PredefinedFunctions.TIME_RESOLUTION)
                     for variable in expression_variable_collector.all_variables:
-                        for internal_declaration in expression_variable_collector.internal_declarations:
-                            if variable.get_name() == internal_declaration.get_lhs.get_name() \
+                        for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
+                            #print(internal_declaration.get_variables()[0].get_name())
+                            #print(internal_declaration.get_expression().callee_name)
+                            if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
                                     and internal_declaration.get_expression().is_function_call() \
-                                    and internal_declaration.get_expression().callee_name == PredefinedFunctions.TIME_RESOLUTION:
-                                channel_info["time_resolution_var"] = variable()        #not so sensible (predefined) :D
+                                    and internal_declaration.get_expression().get_function_call().callee_name == PredefinedFunctions.TIME_RESOLUTION:
+                                channel_info["time_resolution_var"] = variable        #not so sensible (predefined) :D
 
                 channel_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
 

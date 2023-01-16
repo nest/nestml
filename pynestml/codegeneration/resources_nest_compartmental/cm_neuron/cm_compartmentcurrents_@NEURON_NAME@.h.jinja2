@@ -43,9 +43,9 @@ namespace nest
 class {{ion_channel_name}}{{cm_unique_suffix}}{
 private:
     // parameters
-    {%- for pure_variable_name, variable_info in channel_info["Parameters"] %}
+    {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-        {%- set variable = variable_info["rhs_expression"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
     const {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
     {#
@@ -77,9 +77,9 @@ public:
     void pre_run_hook() {
 {%- endif %}
     // states
-    {%- for pure_variable_name, variable_info in channel_info["States"] %}
+    {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-        {%- set variable = variable_info["rhs_expression"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
     const {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
     };
