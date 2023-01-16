@@ -161,7 +161,7 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
     {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
         {%- for state, update_expression_rhs in ode_info["ode_toolbox_output"][0]["update_expressions"].items() %}
     {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
-    {{state}} = {{ printer_no_origin.print(update_expression_rhs[state]) }};
+    {{state}} = {{ printer_no_origin.print(update_expression_rhs) }};
         {%- endfor %}
     {%- endfor %}
 

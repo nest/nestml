@@ -910,6 +910,11 @@ class ASTChannelInformationCollector(object):
 
         return chan_info
 
+    @classmethod
+    def convert_raw_update_expression_to_printable(cls, chan_info):
+        for ion_channel_name, channel_info in chan_info.items():
+            for ode_variable_name, ode in channel_info["ODEs"].items():
+                print("replace")
 
 
 
@@ -977,7 +982,11 @@ class ASTChannelInformationCollector(object):
             elif isinstance(element, str):
                 print(element, end="")
             elif isinstance(element, dict):
-                print(json.dumps(element, indent=4), end="")
+                #try:
+                #    print(json.dumps(element, indent=4), end="")
+                #except:
+                print("\n")
+                cls.print_dictionary(element, rec_step + 1)
             elif isinstance(element, list):
                 for index in range(len(element)):
                     print("\n")
@@ -1026,12 +1035,9 @@ class ASTChannelInformationCollector(object):
         # and inlines therefore can't be recognized by kernel calls any more
         if cls.first_time_run[neuron]:
             #chan_info = cls.detect_cm_inline_expressions(neuron)
+
             chan_info = cls.detect_cm_inline_expressions_ode(neuron)
-            cls.print_dictionary(chan_info, 0)
-            print("IN")
             chan_info = cls.collect_channel_related_definitions(neuron, chan_info)
-            print("OUT")
-            cls.print_dictionary(chan_info, 0)
 
             # further computation not necessary if there were no cm neurons
             if not chan_info:
@@ -1040,16 +1046,12 @@ class ASTChannelInformationCollector(object):
                 cls.first_time_run[neuron] = False
                 return True
 
-            print("IN")
             chan_info = cls.extend_variables_with_initialisations(neuron, chan_info)
             #cls.print_dictionary(chan_info, 0)
-            print("IN")
             chan_info = cls.prepare_equations_for_ode_toolbox(neuron, chan_info)
             #cls.print_dictionary(chan_info, 0)
-            print("IN")
             chan_info = cls.collect_raw_odetoolbox_output(chan_info)
             #cls.print_dictionary(chan_info, 0)
-            print("OUTOUT")
 
 
             #chan_info = cls.calc_expected_function_names_for_channels(chan_info)
