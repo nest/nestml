@@ -81,9 +81,10 @@ def find_spiking_post_port(synapse, namespace):
 
 class NESTCodeGenerator(CodeGenerator):
     r"""
-    Code generator for a NEST Simulator (versions 3.x.x or higher) C++ extension module.
+    Code generator for a NEST Simulator C++ extension module.
 
     Options:
+
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.

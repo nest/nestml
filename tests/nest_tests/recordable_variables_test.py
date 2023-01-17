@@ -62,7 +62,7 @@ class RecordableVariablesTest(unittest.TestCase):
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
         nest.Connect(sg, neuron)
 
-        mm = nest.Create('multimeter', params={'record_from': ['V_ex', 'V_m', 'V_abs', 'I_kernel__X__spikes'],
+        mm = nest.Create('multimeter', params={'record_from': ['V_ex', 'V_rel', 'V_m', 'I_kernel__X__spikes'],
                                                'interval': 0.1})
         nest.Connect(mm, neuron)
 
@@ -74,10 +74,10 @@ class RecordableVariablesTest(unittest.TestCase):
         V_m = events["V_m"]
         self.assertIsNotNone(V_m)
 
-        V_abs = events["V_abs"]
-        self.assertIsNotNone(V_abs)
+        V_rel = events["V_rel"]
+        self.assertIsNotNone(V_rel)
 
-        np.testing.assert_allclose(V_m, V_abs + V_reset)
+        np.testing.assert_allclose(V_m, V_rel + V_reset)
 
         V_ex = events["V_ex"]
         np.testing.assert_almost_equal(V_ex[-1], -10)
