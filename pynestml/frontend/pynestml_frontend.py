@@ -265,8 +265,6 @@ def process():
             return True
 
         compilation_units.append(parsed_unit)
-        else:
-            errors_occurred = True
 
     # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
