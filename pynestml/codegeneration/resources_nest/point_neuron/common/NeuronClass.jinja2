@@ -568,19 +568,19 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
 
   double weight = e.get_weight();
-  int nestml_port = 0;
+  int nestml_buffer_idx = 0;
 {%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
   if ( weight >= 0.0 )
   {
-    nestml_port = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
+    nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
   }
   else
   {
-    nestml_port = std::get<1>(rport_to_nestml_buffer_idx[e.get_rport()]);
+    nestml_buffer_idx = std::get<1>(rport_to_nestml_buffer_idx[e.get_rport()]);
     weight = -weight;
   }
 {%- endif %}
-  B_.spike_inputs_[ nestml_port - MIN_SPIKE_RECEPTOR ].add_value(
+  B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     weight * e.get_multiplicity() );
 }
