@@ -138,7 +138,7 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Several code generator options are available; for an overview see :class:`NESTCodeGenerator`.
+Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
 Manually building the extension module
