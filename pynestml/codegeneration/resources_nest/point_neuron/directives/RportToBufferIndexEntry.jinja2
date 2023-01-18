@@ -15,6 +15,6 @@
 {%-   endif %}
   { {{neuronName}}::{{ name.format(exc_port.get_symbol_name().upper()) }}, {{neuronName}}::{{ name.format(inh_port.get_symbol_name().upper()) }} },
 {%- else -%}
-  { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, -1 },
+  { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, {{neuronName}}::PORT_NOT_AVAILABLE },
 {%- endif -%}
 {%- endmacro -%}
