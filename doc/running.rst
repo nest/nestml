@@ -227,3 +227,9 @@ After the code has been generated, a simple test can can be run by calling:
 .. code-block:: bash
 
    python3 test_python_standalone_module.py
+
+
+Code generation options
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Several code generator options are available; for an overview see :class:`pynestml.codegeneration.python_standalone_code_generator.PythonStandaloneCodeGenerator`.

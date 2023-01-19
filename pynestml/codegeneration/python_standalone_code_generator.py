@@ -40,16 +40,28 @@ from pynestml.codegeneration.printers.python_simple_expression_printer import Py
 
 
 class PythonStandaloneCodeGenerator(NESTCodeGenerator):
+    r"""
+    Code generator for a standalone Python target.
+
+    Options:
+
+    - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
+    - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
+    - **templates**: Path containing jinja templates used to generate code.
+        - **path**: Path containing jinja templates used to generate code.
+        - **model_templates**: A list of the jinja templates or a relative path to a directory containing the neuron model templates.
+            - **neuron**: A list of neuron model jinja templates.
+        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the module/package.
+    - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    """
 
     _default_options = {
-        "neuron_synapse_pairs": [],
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "point_neuron",
             "model_templates": {
-                "neuron": ["@NEURON_NAME@.py.jinja2"],
-                "synapse": ["@SYNAPSE_NAME@.py.jinja2"]
+                "neuron": ["@NEURON_NAME@.py.jinja2"]
             },
             "module_templates": ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2"]
         }
