@@ -82,9 +82,10 @@ def find_spiking_post_port(synapse, namespace):
 
 class NESTCodeGenerator(CodeGenerator):
     r"""
-    Code generator for a NEST Simulator (versions 3.x.x or higher) C++ extension module.
+    Code generator for a NEST Simulator C++ extension module.
 
     Options:
+
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
@@ -97,6 +98,7 @@ class NESTCodeGenerator(CodeGenerator):
             - **synapse**: A list of synapse model jinja templates.
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+    - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     """
 
     _default_options = {
@@ -113,7 +115,8 @@ class NESTCodeGenerator(CodeGenerator):
             },
             "module_templates": ["setup"]
         },
-        "nest_version": ""
+        "nest_version": "",
+        "solver": "analytic"
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -741,8 +744,10 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
+                                            disable_analytic_solver=disable_analytic_solver,
                                             preserve_expressions=self.get_option("preserve_expressions"),
                                             simplify_expression=self.get_option("simplify_expression"),
                                             log_level=FrontendConfiguration.logging_level)
@@ -756,12 +761,14 @@ class NESTCodeGenerator(CodeGenerator):
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
-            solver_result = odetoolbox.analysis(odetoolbox_indict,
-                                                disable_stiffness_check=True,
-                                                disable_analytic_solver=True,
-                                                preserve_expressions=self.get_option("preserve_expressions"),
-                                                simplify_expression=self.get_option("simplify_expression"),
-                                                log_level=FrontendConfiguration.logging_level)
+            if analytic_solver:
+                # previous solver_result contains both analytic and numeric solver; re-run ODE-toolbox generating only numeric solver
+                solver_result = odetoolbox.analysis(odetoolbox_indict,
+                                                    disable_stiffness_check=True,
+                                                    disable_analytic_solver=True,
+                                                    preserve_expressions=self.get_option("preserve_expressions"),
+                                                    simplify_expression=self.get_option("simplify_expression"),
+                                                    log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:

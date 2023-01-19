@@ -286,8 +286,6 @@ def process():
         Flag indicating whether errors occurred during processing
     """
 
-    errors_occurred = False
-
     # init log dir
     create_report_dir()
 
@@ -303,8 +301,11 @@ def process():
 
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_model(nestml_file)
-        if parsed_unit is not None:
-            compilation_units.append(parsed_unit)
+        if parsed_unit is None:
+            # Parsing error in the NESTML model, return True
+            return True
+
+        compilation_units.append(parsed_unit)
 
     # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
@@ -331,15 +332,13 @@ def process():
         CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev:
-            for model in models:
-                if Logger.has_errors(model):
-                    code, message = Messages.get_model_contains_errors(model.get_name())
-                    Logger.log_message(node=model, code=code, message=message,
-                                       error_position=model.get_source_position(),
-                                       log_level=LoggingLevel.WARNING)
-                    models.remove(model)
-                    errors_occurred = True
+        for model in models:
+            if Logger.has_errors(model):
+                code, message = Messages.get_model_contains_errors(model.get_name())
+                Logger.log_message(node=model, code=code, message=message,
+                                   error_position=model.get_source_position(),
+                                   log_level=LoggingLevel.WARNING)
+                return True
 
         # run transformers
         for transformer in transformers:
@@ -347,19 +346,16 @@ def process():
 
         # perform code generation
         _codeGenerator.generate_code(models)
-        for model in models:
-            if Logger.has_errors(model):
-                errors_occurred = True
-                break
 
     # perform build
-    if not errors_occurred and _builder is not None:
+    if _builder is not None:
         _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    return errors_occurred
+    # Everything is fine, return false, i.e., no errors have occurred.
+    return False
 
 
 def init_predefined():
