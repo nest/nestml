@@ -9,17 +9,17 @@ Running NESTML causes several processing steps to occur:
 
 Currently, the following code generators are supported:
 
-* - `NEST Simulator <NEST Simulator target_>`_
+* `NEST Simulator <NEST Simulator target_>`_
 
     .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/nest-simulator-logo.png
-       :width: 475px
-       :height: 200px
+       :scale: 20 %
+       :align: center
 
-* - `Python-standalone <Python-standalone target_>`_
+* `Python-standalone <Python-standalone target_>`_
 
     .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/python-logo.png
-       :width: 200px
-       :height: 200px
+       :scale: 20 %
+       :align: center
 
 
 Running NESTML from Python
