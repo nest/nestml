@@ -9,17 +9,21 @@ Running NESTML causes several processing steps to occur:
 
 Currently, the following code generators are supported:
 
-* `NEST Simulator <NEST Simulator target_>`_
+`NEST Simulator <NEST Simulator target_>`_ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/nest-simulator-logo.png
-       :scale: 20 %
-       :align: center
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/nest-simulator-logo.png
+   :width: 296px
+   :height: 350px
+   :align: center
 
-* `Python-standalone <Python-standalone target_>`_
+`Python-standalone <Python-standalone target_>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/python-logo.png
-       :scale: 20 %
-       :align: center
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/python-logo.png
+   :width: 100px
+   :height: 100px
+   :align: center
 
 
 Running NESTML from Python
@@ -227,3 +231,9 @@ After the code has been generated, a simple test can can be run by calling:
 .. code-block:: bash
 
    python3 test_python_standalone_module.py
+
+
+Code generation options
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Several code generator options are available; for an overview see :class:`pynestml.codegeneration.python_standalone_code_generator.PythonStandaloneCodeGenerator`.
