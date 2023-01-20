@@ -29,6 +29,7 @@ import pynestml
 from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
+from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nest_cpp_type_symbol_printer import NESTCppTypeSymbolPrinter
@@ -145,7 +146,7 @@ class NESTCodeGenerator(CodeGenerator):
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
         self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
-        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+        if self.option_exists("nest_version") and (self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2")):
             self._nest_function_call_printer = NEST2CppFunctionCallPrinter(None)
             self._nest_function_call_printer_no_origin = NEST2CppFunctionCallPrinter(None)
         else:
@@ -168,7 +169,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = GSLVariablePrinter(None)
-        if self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2"):
+        if self.option_exists("nest_version") and (self.get_option("nest_version").startswith("2") or self.get_option("nest_version").startswith("v2")):
             self._gsl_function_call_printer = NEST2GSLFunctionCallPrinter(None)
         else:
             self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
@@ -189,7 +190,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         # insist on using the old Archiving_Node class for NEST 2
-        if self.get_option("nest_version").startswith("v2"):
+        if self.option_exists("nest_version") and self.get_option("nest_version").startswith("v2"):
             Logger.log_message(None, -1, "Overriding parent class for NEST 2 compatibility", None, LoggingLevel.WARNING)
             options["neuron_parent_class"] = "Archiving_Node"
             options["neuron_parent_class_include"] = "archiving_node.h"
@@ -398,6 +399,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["ast_node_factory"] = ASTNodeFactory
         namespace["assignments"] = NestAssignmentsHelper()
         namespace["utils"] = ASTUtils
+        namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
 
         # using random number generators?
@@ -535,7 +537,8 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(neuron)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        if self.option_exists("nest_version"):
+            namespace["nest_version"] = self.get_option("nest_version")
 
         if "paired_synapse" in dir(neuron):
             namespace["paired_synapse"] = neuron.paired_synapse.get_name()
@@ -561,8 +564,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["has_delay_variables"] = neuron.has_delay_variables()
         namespace["names_namespace"] = neuron.get_name() + "_names"
 
-        namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
-        namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")
+        if self.option_exists("neuron_parent_class"):
+            namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
+            namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")
 
         namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace["UnitTypeSymbol"] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
@@ -699,14 +703,14 @@ class NESTCodeGenerator(CodeGenerator):
                        and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name)):
                         namespace["recordable_state_variables"].append(var)
 
-        namespace["parameter_syms_with_iv"] = []
+        namespace["parameter_vars_with_iv"] = []
         for parameters_block in neuron.get_parameters_blocks():
             for decl in parameters_block.get_declarations():
                 for var in decl.get_variables():
                     sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
                     if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name)):
-                        namespace["parameter_syms_with_iv"].append(var)
+                        namespace["parameter_vars_with_iv"].append(var)
 
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
                                                       if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
@@ -718,7 +722,8 @@ class NESTCodeGenerator(CodeGenerator):
             self._nest_variable_printer._state_symbols.extend(namespace["purely_numeric_state_variables_moved"])
             if "analytic_state_variables_moved" in namespace.keys():
                 self._nest_variable_printer._state_symbols.extend(namespace["analytic_state_variables_moved"])
-            self._nest_variable_printer._state_symbols.extend(namespace["non_equations_state_variables"])
+        self._gsl_variable_printer._state_symbols = self._nest_variable_printer._state_symbols
+        self._nest_variable_printer_no_origin._state_symbols = self._nest_variable_printer._state_symbols
         namespace["numerical_state_symbols"] = self._nest_variable_printer._state_symbols
 
         return namespace
