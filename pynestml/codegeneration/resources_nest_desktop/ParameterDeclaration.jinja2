@@ -1,0 +1,10 @@
+    {%- set name = variable.get_symbol_name() %}
+    {%- set type_symbol = variable.get_type_symbol().print_symbol() %}
+    {%- set default_value = parameters[variable.get_symbol_name()] %}
+      {
+        "id": "{{name}}",
+        "label": "{{name}}",
+        "unit": "{{type_symbol}}",
+        "value": "{{default_value}}",
+        "input": "arrayInput"
+      }{%- if not last %},{%- endif %}
