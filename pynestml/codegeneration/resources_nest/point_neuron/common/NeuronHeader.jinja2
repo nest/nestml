@@ -395,6 +395,8 @@ private:
   static const nest::port MIN_SPIKE_RECEPTOR = 0;
 {%-   set ns = namespace(count=0) %}
 {%- endif %}
+  static const nest::port PORT_NOT_AVAILABLE = -1;
+
   enum SynapseTypes
   {
 {%- for port in neuron.get_spike_input_ports() %}

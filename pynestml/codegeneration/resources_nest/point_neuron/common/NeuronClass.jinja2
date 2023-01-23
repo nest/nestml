@@ -568,7 +568,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
 
   double weight = e.get_weight();
-  int nestml_buffer_idx = 0;
+  size_t nestml_buffer_idx = 0;
 {%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
   if ( weight >= 0.0 )
   {
