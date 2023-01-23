@@ -221,27 +221,27 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
    * - Input port name
      - NEST ``rport``
    * - AMPA_spikes
-     - 0
-   * - GABA_spikes
-     - 0
-   * - NMDA_spikes
      - 1
-   * - FOO_1
+   * - GABA_spikes
+     - 1
+   * - NMDA_spikes
      - 2
-   * - FOO_2
+   * - FOO_1
      - 3
+   * - FOO_2
+     - 4
    * - EXC_SPIKES_1
-     - 4
+     - 5
    * - EXC_SPIKES_2
-     - 5
+     - 6
    * - EXC_SPIKES_3
-     - 6
+     - 7
    * - INH_SPIKES_1
-     - 4
-   * - INH_SPIKES_2
      - 5
-   * - INH_SPIKES_3
+   * - INH_SPIKES_2
      - 6
+   * - INH_SPIKES_3
+     - 7
 
 
 Compatibility with different versions of NEST
