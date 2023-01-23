@@ -37,7 +37,7 @@ neuron CoCoOdeVarNotInInitialValues:
     end
 
     state:
-        V_abs mV = 10mV
+        V_abs mV = 10 mV
     end
 
     equations:

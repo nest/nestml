@@ -1,0 +1,10 @@
+{% if variable_symbol.is_inline_expression and not utils.contains_convolve_call(variable_symbol) -%}
+def get_{{ printer_no_origin.print(variable) }}(self) -> {{ declarations.print_variable_type(variable_symbol) }}:
+  return get_{{ printer_no_origin.print(variable_symbol.get_declaring_expression()) }}
+{%- else %}
+def get_{{ printer_no_origin.print(variable) }}(self) -> {{ declarations.print_variable_type(variable_symbol) }}:
+  return {{ printer.print(variable) }}
+
+def set_{{ printer_no_origin.print(variable) }}(self, __v: {{ declarations.print_variable_type(variable_symbol) }}):
+  {{ printer.print(variable) }} = __v
+{%- endif %}
