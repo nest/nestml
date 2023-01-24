@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+from pynestml.utils.ast_utils import ASTUtils
+
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
@@ -149,8 +151,8 @@ class NESTVariablePrinter(CppVariablePrinter):
                 var_name = var_name + "_" + str(vector_parameter)
 
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
-        else:
-            return variable_symbol.get_symbol_name() + '_grid_sum_'
+
+        return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         assert all([type(s) == str for s in self._state_symbols])
