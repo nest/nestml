@@ -31,21 +31,21 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron recordable_variables:
     state:
       V_ex mV = -5 mV
-      V_abs mV = 0 mV  # membrane potential
+      V_rel mV = 0 mV  # Membrane potential relative to the reset potential
     end
 
     equations:
         kernel I_kernel = exp(-1/tau_syn*t)
         inline I_syn pA = convolve(I_kernel, spikes)
-        recordable inline V_m mV = V_abs + V_reset
-        V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
+        recordable inline V_m mV = V_rel + V_reset
+        V_rel' = -V_rel / tau_m + (I_syn + I_e + I_stim) / C_m
     end
 
     parameters:
         tau_m ms = 10 ms
         tau_syn ms = 2 ms
         I_e pA = 0 pA
-        C_m pF = 250pF
+        C_m pF = 250 pF
         V_reset mV = -70 mV
         V_thr mV = -55 mV
     end
@@ -59,8 +59,8 @@ neuron recordable_variables:
       integrate_odes()
       V_ex = -10 mV
 
-      if V_abs >= V_thr:
-          V_abs = V_reset
+      if V_m >= V_thr:    # Threshold is crossed
+          V_rel = 0 mV    # Reset the membrane potential
           emit_spike()
       end
     end

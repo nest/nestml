@@ -15,5 +15,5 @@
 {%-     endwith %}
 {%-     include "directives/ApplySpikesFromBuffers.jinja2" %}
 {%- else %}
-{{printer.print_function_call(ast)}};
+{{printer.print(ast)}};
 {%- endif %}

@@ -1,0 +1,67 @@
+{#-
+test_python_standalone_module.py.jinja2
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#}
+
+import numpy as np
+
+from .simulator import Simulator
+from .spike_generator import SpikeGenerator
+
+{% for neuron in neurons %}
+from .{{neuron.get_name()}} import Neuron_{{neuron.get_name()}}
+{% endfor %}
+
+{% for synapse in synapses %}
+from .{{synapse.get_name()}} import Synapse_{{synapse.get_name()}}
+{% endfor %}
+
+
+class TestSimulator:
+    def test_simulator(self):
+        t_stop = 100.
+
+        simulator = Simulator()
+
+        sg_exc = simulator.add_neuron(SpikeGenerator(interval=10.))
+        sg_inh = simulator.add_neuron(SpikeGenerator(interval=50.))
+{% for neuron in neurons %}
+        neuron = simulator.add_neuron(Neuron_{{neuron.get_name()}}(timestep=simulator.timestep))
+        simulator.connect(sg_exc, neuron, "exc_spikes",w=1000.)
+        simulator.connect(sg_inh, neuron, "inh_spikes",w=4000.)
+{% endfor %}
+
+        simulator.run(t_stop)
+
+        import matplotlib.pyplot as plt
+        for neuron_id, neuron_log in simulator.log.items():
+            if neuron_id == "t":
+                continue
+            if len(neuron_log) == 0:
+                continue
+            fig, ax = plt.subplots(nrows=len(neuron_log))
+            for i, (var_name, values) in enumerate(neuron_log.items()):
+                ax[i].plot(simulator.log["t"], values, label="Neuron " + str(neuron_id) + ": " + str(var_name))
+                ax[i].legend()
+                ax[i].set_xlim(0, t_stop)
+                ax[i].grid(True)
+            #plt.show()
+            fig.savefig("/tmp/test_python_standalone_simulation_[neuron=" + simulator.neurons[neuron_id].get_model() + "].png")
+
+        return neuron_log

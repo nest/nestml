@@ -39,7 +39,7 @@ class ErrorTypeSymbol(TypeSymbol):
     def is_numeric(self):
         return False
 
-    def print_nestml_type(self):
+    def print_nestml_type(self) -> str:
         return 'error'
 
     def is_primitive(self):

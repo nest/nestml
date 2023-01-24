@@ -11,31 +11,29 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
 
-{%- for ode in neuron.get_equations_blocks().get_declarations() %}
-{%-   for inline_expr in utils.get_inline_expression_symbols(ode) %}
-{%-     if not inline_expr.is_equation() %}
-{%-       set declaring_expr = inline_expr.get_declaring_expression() %}
-  double {{names.name(inline_expr)}} = {{printerGSL.print_expression(declaring_expr, prefix="node.")}};
-{%-     endif %}
-{%-   endfor %}
+{%- for eq_block in neuron.get_equations_blocks() %}
+{%-     for ode in eq_block.get_declarations() %}
+{%-         for inline_expr in utils.get_inline_expression_symbols(ode) %}
+{%-             if not inline_expr.is_equation() %}
+{%-                 set declaring_expr = inline_expr.get_declaring_expression() %}
+  double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) }} = {{ gsl_printer.print(declaring_expr) }};
+{%-             endif %}
+{%-         endfor %}
+{%-     endfor %}
 {%- endfor %}
 
 {%- for variable_name in numeric_state_variables %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_sym = variable_symbols[variable_name] %}
-  f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
+{%-   set variable_symbol = variable_symbols[variable_name] %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
 {%- endfor %}
 {%- if paired_synapse is defined %}
 {%- for variable_name in numeric_state_variables_moved %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
-  f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
+{%-   set variable_symbol = utils.resolve_to_variable_symbol_in_blocks(variable_name, neuron.get_state_blocks()) %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
 {%- endfor %}
 {%- endif %}
-{%- for variable_name in non_equations_state_variables %}
-{%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
-  f[{{names.array_index(variable_sym)}}] = 0.;
-{%- endfor %}
 
   return GSL_SUCCESS;
 }
