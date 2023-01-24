@@ -21,6 +21,7 @@
 from pynestml.utils.ast_utils import ASTUtils
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 
@@ -29,6 +30,10 @@ class GSLVariablePrinter(CppVariablePrinter):
     r"""
     Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
+
+    def __init__(self, expression_printer: ExpressionPrinter) -> None:
+        super().__init__(expression_printer)
+        self._state_symbols = []
 
     def print_variable(self, node: ASTVariable) -> str:
         """
@@ -43,8 +48,12 @@ class GSLVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(node)
 
         if symbol.is_state() and not symbol.is_inline_expression:
-            # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
-            return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
+            if node.get_complete_name() in self._state_symbols:
+                # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
+                return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
+
+            # non-ODE state symbol
+            return "node.S_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
 
         if symbol.is_parameters():
             return "node.P_." + super().print_variable(node)

@@ -27,12 +27,12 @@ neuron print_variable:
     state:
       V_m V = -50 mV
       V_thr MA*Ohm = -70 mV
-      V_abs mV = 0 mV
+      V_rel mV = 0 mV
     end
 
     update:
-      V_abs = V_m
+      V_rel = V_m
       println("print: This is a simple print statement")
-      print("print: Membrane voltage: {V_m}, threshold: {V_thr}, and V_abs: {V_abs}")
+      print("print: Membrane voltage: {V_m}, threshold: {V_thr}, and V_rel: {V_rel}")
     end
 end

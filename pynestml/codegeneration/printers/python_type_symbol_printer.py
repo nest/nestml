@@ -64,4 +64,4 @@ class PythonTypeSymbolPrinter(TypeSymbolPrinter):
         if isinstance(type_symbol, ErrorTypeSymbol):
             return "ERROR"
 
-        raise Exception("Unknown NEST type")
+        raise Exception("Unknown NESTML type")

@@ -532,6 +532,14 @@ private:
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
+
+    // non-ODE state variables
+{%-   for variable_name in non_equations_state_variables %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfor %}
+
 {%-   if has_state_vectors %}
 {%-     include "directives/VectorVariablesEnum.jinja2" %}
 {%-   endif %}
@@ -551,18 +559,10 @@ private:
 {%-     for variable_name in analytic_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
-      // non-equation related state variables
-{%-     for variable_name in non_equations_state_variables %}
-      {{variable_name}},
-{%-     endfor %}
 {%-   else %}
 {#-     analytic solver only #}
       // analytic state variables
 {%-     for variable_name in analytic_state_variables %}
-      {{variable_name}},
-{%-     endfor %}
-      // non-equation related state variables
-{%-     for variable_name in non_equations_state_variables %}
       {{variable_name}},
 {%-     endfor %}
 {%-   endif %}

@@ -1386,8 +1386,12 @@ class ASTUtils:
         :return: the node if found, otherwise None
         """
         var = ASTUtils.get_state_variable_by_name(node, var_name)
+
         if not var:
             var = ASTUtils.get_parameter_variable_by_name(node, var_name)
+
+        if not var:
+            var = ASTUtils.get_internal_variable_by_name(node, var_name)
 
         if not var:
             expr = ASTUtils.get_inline_expression_by_name(node, var_name)
@@ -2049,33 +2053,6 @@ class ASTUtils:
             if sym:
                 return sym
         return None
-
-    @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
-        """
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
-        """
-        if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
-                return 'S_.ode_state[State_::%s]'
-
-            return 'S_.%s'
-
-        if variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'P_.%s'
-
-        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return 'cp.%s'
-
-        if variable_symbol.block_type == BlockType.INTERNALS:
-            return 'V_.%s'
-
-        if variable_symbol.block_type == BlockType.INPUT:
-            return 'B_.%s'
-
-        return ''
 
     @classmethod
     def get_unit_name(cls, variable: ASTVariable) -> str:
