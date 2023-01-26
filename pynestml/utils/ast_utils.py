@@ -2064,3 +2064,52 @@ class ASTUtils:
             return symbol.get_type_symbol().unit.unit.to_string()
 
         return ''
+
+    @classmethod
+    def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:
+        """
+        Finds the corresponding "inhibitory" port for a given "excitatory" port and vice versa in the handed over map.
+        :param rport_to_port_map: map containing NESTML port names for the rport
+        :param port: port to be searched
+        :return: key value in the map if the port is found, else None
+        """
+        for key, value in rport_to_port_map.items():
+            if len(value) == 1:
+                if (port.is_excitatory() and value[0].is_inhibitory() and not value[0].is_excitatory()) \
+                        or (port.is_inhibitory() and value[0].is_excitatory() and not value[0].is_inhibitory()):
+                    if port.has_vector_parameter():
+                        if cls.get_numeric_vector_size(port) == cls.get_numeric_vector_size(value[0]):
+                            return key
+                    else:
+                        return key
+        return None
+
+    @classmethod
+    def get_spike_input_ports_in_pairs(cls, neuron: ASTNeuron) -> Dict[int, List[VariableSymbol]]:
+        """
+        Returns a list of spike input ports in pairs in case of input port qualifiers.
+        The result of this function is used to construct a vector that provides a mapping to the NESTML spike buffer index. The vector looks like below:
+        .. code-block::
+            [ {AMPA_SPIKES, GABA_SPIKES}, {NMDA_SPIKES, -1} ]
+
+        where the vector index is the NEST rport number. The value is a tuple containing the NESTML index(es) to the spike buffer.
+        In case if the rport is shared between two NESTML buffers, the vector element contains the tuple of the form (excitatory_port_index, inhibitory_port_index). Otherwise, the tuple is of the form (spike_port_index, -1).
+        """
+        rport_to_port_map = {}
+        rport = 0
+        for port in neuron.get_spike_input_ports():
+            if port.is_excitatory() and port.is_inhibitory():
+                rport_to_port_map[rport] = [port]
+                rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
+            else:
+                key = cls._find_port_in_dict(rport_to_port_map, port)
+                if key is not None:
+                    # The corresponding spiking input pair is found.
+                    # Add the port to the list and update rport
+                    rport_to_port_map[key].append(port)
+                    rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
+                else:
+                    # New input port. Retain the same rport number until the corresponding input port pair is found.
+                    rport_to_port_map[rport] = [port]
+
+        return rport_to_port_map

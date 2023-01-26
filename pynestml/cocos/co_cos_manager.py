@@ -55,6 +55,7 @@ from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualif
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
+from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
@@ -361,6 +362,13 @@ class CoCosManager:
         CoCoResolutionFuncLegallyUsed.check_co_co(neuron)
 
     @classmethod
+    def check_input_port_size_type(cls, neuron: ASTNeuron):
+        """
+        :param neuron: a single neuron object
+        """
+        CoCoVectorInputPortsCorrectSizeType.check_co_co(neuron)
+
+    @classmethod
     def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -403,3 +411,4 @@ class CoCosManager:
         cls.check_vector_declaration_size(neuron)
         cls.check_co_co_priorities_correctly_specified(neuron)
         cls.check_resolution_func_legally_used(neuron)
+        cls.check_input_port_size_type(neuron)

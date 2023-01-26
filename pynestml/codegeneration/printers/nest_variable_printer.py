@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+from pynestml.utils.ast_utils import ASTUtils
+
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
@@ -89,8 +91,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print(variable, symbol, with_origin=self.with_origin) + "_grid_sum_" + vector_param
-            s += vector_param
+            s += "B_." + self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -135,6 +136,23 @@ class NESTVariablePrinter(CppVariablePrinter):
                 return symbol.get_symbol_name()
 
         return self._expression_printer.print(vector_parameter)
+
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if variable_symbol.is_spike_input_port():
+            var_name = variable_symbol.get_symbol_name().upper()
+            if variable_symbol.get_vector_parameter() is not None:
+                vector_parameter = ASTUtils.get_numeric_vector_size(variable_symbol)
+                var_name = var_name + "_" + str(vector_parameter)
+
+            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+        return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         assert all([type(s) == str for s in self._state_symbols])
