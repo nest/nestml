@@ -35,11 +35,6 @@ neuron input_ports:
     bar pA = 1.5 pA
   end
 
-#  equations:
-#    bar' = (foo[1] + vec[0]) / ms
-#  end
-
-
   input:
     AMPA_spikes pA <- excitatory spike
     GABA_spikes pA <- inhibitory spike
@@ -50,7 +45,6 @@ neuron input_ports:
   end
 
   update:
-#    integrate_odes()
     bar = foo[1]
   end
 end
