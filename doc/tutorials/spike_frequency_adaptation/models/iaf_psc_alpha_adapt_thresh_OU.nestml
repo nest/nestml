@@ -82,7 +82,7 @@ neuron iaf_psc_alpha_adapt_thresh_OU:
     E_L     mV = -70 mV       # Resting potential
     V_reset mV = -70 mV       # Reset potential of the membrane
 
-    Theta_init mV = -55 mV - E_L   # Spike threshold
+    Theta_init mV = -55 mV    # Spike threshold
     tau_Theta ms = 100 ms
     Delta_Theta mV = 2 mV
 
