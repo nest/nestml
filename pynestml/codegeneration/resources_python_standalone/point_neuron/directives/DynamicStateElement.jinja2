@@ -1,0 +1,46 @@
+{#
+  Generates get_state_element function to get elements state variables based on how they are inserted into the DynamicRecordablesMap
+  @param neuron ASTNeuron: the neuron model
+-#}
+
+inline double get_state_element(size_t elem)
+  {
+{%- set len = recordable_state_variables | length %}
+{%- for variable in recordable_state_variables %}
+{%-  if loop.index == 1 %}
+    if
+{%-  elif loop.index == len %}
+    else
+{%-  else %}
+    else if
+{%-  endif %}
+
+{%- if loop.index != len %}
+{%-   if variable.has_vector_parameter() %}
+{%-   set size =  variable.get_vector_parameter() %}
+{%-     if size|int == 0 %}
+{%-     set size = printer.print_vector_size_parameter(variable) %}
+{%-     endif -%}
+    (elem >= State_::STATE_VEC_VAR_{{ printer.print(utils.get_variable_by_name(astnode, variable).upper()}} && elem < State_::STATE_VEC_VAR_{{ printer.print(utils.get_variable_by_name(astnode, variable).upper()}} + {{size}})
+    {
+      return S_.{{ printer.print(utils.get_variable_by_name(astnode, variable)}}[ elem - State_::STATE_VEC_VAR_{{ printer.print(utils.get_variable_by_name(astnode, variable).upper()}}];
+    }
+{%-   else %}
+    (elem == State_::STATE_VEC_VAR_{{ printer.print(utils.get_variable_by_name(astnode, variable).upper()}})
+    {
+      return S_.{{ printer.print(utils.get_variable_by_name(astnode, variable)}};
+    }
+{%-   endif %}
+{%- else %}
+{%-   if variable.has_vector_parameter() %}
+    {
+      return S_.{{ printer.print(utils.get_variable_by_name(astnode, variable)}}[ elem - State_::STATE_VEC_VAR_{{ printer.print(utils.get_variable_by_name(astnode, variable).upper()}}];
+    }
+{%-   else %}
+    {
+      return S_.{{ printer.print(utils.get_variable_by_name(astnode, variable)}};
+    }
+{%-   endif %}
+{%- endif %}
+{%- endfor %}
+  }

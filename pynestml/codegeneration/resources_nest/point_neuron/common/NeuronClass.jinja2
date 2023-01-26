@@ -226,10 +226,10 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   P_.__gsl_error_tol = 1e-3;
 {%- endif %}
 
-{%- if parameter_syms_with_iv|length > 0 %}
+{%- if parameter_vars_with_iv|length > 0 %}
   // initial values for parameters
 {%- filter indent(2) %}
-{%- for variable in parameter_syms_with_iv %}
+{%- for variable in parameter_vars_with_iv %}
 {%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
@@ -262,8 +262,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   // cache initial values
 {%- for var_name in transferred_variables %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set var_sym = transferred_variables_syms[var_name] %}
-{%-     if not var_name == var_sym.get_symbol_name() %}
+{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
   {{var_name}}__iv = {{printer.print(var)}};
@@ -288,7 +288,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
-  {{ utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }} = __n.{{ utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }};
+  {{ nest_codegen_utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }};
 {%-   endif %}
 {%- endfor %}
 
@@ -309,8 +309,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   // cache initial values
 {%- for var_name in transferred_variables %}
 {%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set var_sym = transferred_variables_syms[var_name] %}
-{%-     if not var_name == var_sym.get_symbol_name() %}
+{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     if not var_name == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%-     endif %}
   {{var_name}}__iv = {{printer.print(var)}};
@@ -810,9 +810,9 @@ void
 #}
 
 {%- for var in transferred_variables %}
-{%- with var_sym = transferred_variables_syms[var] %}
+{%- with variable_symbol = transferred_variables_syms[var] %}
 
-{%- if not var == var_sym.get_symbol_name() %}
+{%- if not var == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%- endif %}
 
@@ -903,7 +903,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 #ifdef DEBUG
       std::cout << "{{neuronName}}::get_{{var}}: \treturning " << get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}() << std::endl;
 #endif
-      return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(var_sym)}}
+      return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
     }
     --i;
   }
@@ -919,9 +919,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << get_{{printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }}() << std::endl;
+    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << get_{{printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }}() << std::endl;
 #endif
-    return {{ printer.print(utils.get_variable_by_name(astnode, var_sym.get_symbol_name())) }};
+    return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
   }
 
   // this case occurs when the trace was requested at a time before the first spike in the history
