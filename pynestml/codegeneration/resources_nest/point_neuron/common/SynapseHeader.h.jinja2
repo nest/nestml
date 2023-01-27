@@ -419,8 +419,7 @@ public:
 
   typedef Connection< targetidentifierT > ConnectionBase;
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3")) %}
-{#- NEST 3.4 and higher only #}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   static constexpr ConnectionModelProperties properties = ConnectionModelProperties::HAS_DELAY
     | ConnectionModelProperties::IS_PRIMARY | ConnectionModelProperties::SUPPORTS_HPC
     | ConnectionModelProperties::SUPPORTS_LBL;
@@ -797,8 +796,7 @@ std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_
 {%- endif %}
 };
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3")) %}
-{#- NEST 3.4 and higher only #}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 template < typename targetidentifierT >
 constexpr ConnectionModelProperties {{synapseName}}< targetidentifierT >::properties;
 

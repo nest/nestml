@@ -51,7 +51,12 @@ try:
     vt = nest.Create("volume_transmitter")
 
     try:
-        neuron = nest.Create('hh_psc_alpha_clopath')
+        neuron = nest.Create("hh_psc_alpha_clopath")
+        neurons = nest.Create("iaf_psc_exp", 2)
+        nest.Connect(neurons[0], neurons[1], syn_spec={"synapse_model": "stdp_synapse",
+                                            "weight": 1., "delay": 1.})
+        
+        syn = nest.GetConnections(target=neurons[1], synapse_model="stdp_synapse")
     except Exception:
         pass
 
@@ -59,8 +64,10 @@ try:
         nest_version = "v2.20.2"
     elif "kernel_status" not in dir(nest):  # added in v3.1
         nest_version = "v3.0"
-    elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+    elif "Kplus" in syn.get().keys():  # "Kplus" trace variable is made accessible via get_status() in master
         nest_version = "master"
+    elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+        nest_version = "v3.4"
     elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
         nest_version = "v3.3"
     elif "tau_Ca" in vt.get().keys():   # removed in v3.2
