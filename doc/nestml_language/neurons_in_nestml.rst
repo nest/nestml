@@ -162,8 +162,8 @@ The name ``h_dend`` now acts as an alias for this particular convolution. We can
 For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
 
 
-Multiple input synapses
-^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports
+^^^^^^^^^^^^^^^^^^^^
 
 If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
 
@@ -187,39 +187,27 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
      V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
    end
 
-After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
 
-.. code-block:: python
+Multiple input ports with vectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+The input ports can also be defined as vectors. For example,
 
-   sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+.. code-block:: nestml
 
-   sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+   neuron multi_synapse_vectors:
+       input:
+         AMPA_spikes pA <- excitatory spike
+         GABA_spikes pA <- inhibitory spike
+         NMDA_spikes pA <- spike
+         foo[2] pA <- spike
+         exc_spikes[3] pA <- excitatory spike
+         inh_spikes[3] pA <- inhibitory spike
+       end
+   end
 
-   sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
 
-Note that in multisynapse neurons, receptor ports are numbered starting from 1.
-
-We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
-
-.. code-block:: python
-
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
-                                                          'I_kernel2__X__spikes2',
-                                                          'I_kernel3__X__spikes3'],
-                                          'interval': .1})
-   nest.Connect(mm, neuron)
-
-The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
-
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
-   :alt: NESTML multisynapse example waveform traces
-
-For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 Output
 ~~~~~~

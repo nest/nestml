@@ -329,7 +329,7 @@ parser grammar PyNestMLParser;
   */
   inputPort:
     name=NAME
-    (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
+    (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
     (dataType)?
     LEFT_ANGLE_MINUS inputQualifier*
     (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
