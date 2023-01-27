@@ -605,7 +605,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
-                                block_type=BlockType.INPUT, vector_parameter=node.get_index_parameter(),
+                                block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
                                 is_predefined=False, is_inline_expression=False, is_recordable=False,
                                 type_symbol=type_symbol, variable_type=VariableType.BUFFER)
         symbol.set_comment(node.get_comment())

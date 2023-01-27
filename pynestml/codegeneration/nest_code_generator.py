@@ -563,6 +563,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["vector_symbols"] = neuron.get_vector_symbols()
         namespace["has_delay_variables"] = neuron.has_delay_variables()
         namespace["names_namespace"] = neuron.get_name() + "_names"
+        namespace["has_multiple_synapses"] = len(neuron.get_multiple_receptors()) > 1 or len(neuron.get_single_receptors()) > 2
 
         if self.option_exists("neuron_parent_class"):
             namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
