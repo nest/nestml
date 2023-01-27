@@ -80,7 +80,10 @@ neuron iaf_psc_alpha_adapt_curr:
     t_ref   ms = 2 ms         # Duration of refractory period
     E_L     mV = -70 mV       # Resting potential
     V_reset mV = -70 mV       # Reset potential of the membrane
-    V_th    mV = -55 mV       # Spike threshold potential
+    Theta    mV = -55 mV       # Spike threshold potential
+
+    tau_sra ms = 100 ms
+    Delta_I_sra pA = 100 pA
 
     # constant external input current
     I_e pA = 0 pA
@@ -105,7 +108,7 @@ neuron iaf_psc_alpha_adapt_curr:
       r = r - 1
     end
 
-    if V_m >= V_th: # threshold crossing
+    if V_m >= Theta: # threshold crossing
       r = RefractoryCounts
       V_m = V_reset
       I_sra += Delta_I_sra

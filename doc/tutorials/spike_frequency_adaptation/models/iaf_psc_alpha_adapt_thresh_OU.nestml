@@ -116,7 +116,7 @@ neuron iaf_psc_alpha_adapt_thresh_OU:
       r = r - 1
     end
 
-    if V_m >= V_th: # threshold crossing
+    if V_m >= Theta: # threshold crossing
       r = RefractoryCounts
       V_m = V_reset
       Theta += Delta_Theta
