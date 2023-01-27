@@ -55,7 +55,6 @@ try:
         neurons = nest.Create("iaf_psc_exp", 2)
         nest.Connect(neurons[0], neurons[1], syn_spec={"synapse_model": "stdp_synapse",
                                             "weight": 1., "delay": 1.})
-        
         syn = nest.GetConnections(target=neurons[1], synapse_model="stdp_synapse")
     except Exception:
         pass
