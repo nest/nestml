@@ -105,6 +105,11 @@ class NESTBuilder(Builder):
         InvalidPathException
             If a failure occurs while trying to access the target path or the NEST installation path.
         """
+
+        stdout = self._options["stdout"]
+        stderr = self._options["stderr"]
+        error_location = self._options["error_location"]
+
         cmake_cmd = ["cmake"]
         target_path = FrontendConfiguration.get_target_path()
         install_path = FrontendConfiguration.get_install_path()
@@ -148,21 +153,22 @@ class NESTBuilder(Builder):
 
         # first call cmake with all the arguments
         try:
-            subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, shell=shell,
+            subprocess.check_call(cmake_cmd, stderr=stderr, stdout=stdout, shell=shell,
                                   cwd=str(os.path.join(target_path)))
         except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException('Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')
+            raise GeneratedCodeBuildException(f"Error occurred during cmake! More detailed error messages can be found in {error_location}.")
 
         # now execute make all
         try:
-            subprocess.check_call(make_all_cmd, stderr=subprocess.STDOUT, shell=shell,
+            subprocess.check_call(make_all_cmd, stderr=stderr, stdout=stdout, shell=shell,
                                   cwd=str(os.path.join(target_path)))
         except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException('Error occurred during \'make all\'! More detailed error messages can be found in stdout.')
+            raise GeneratedCodeBuildException(f"Error occurred during 'make all'! More detailed error messages can be found in {error_location}.")
 
         # finally execute make install
         try:
-            subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, shell=shell,
+            subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
                                   cwd=str(os.path.join(target_path)))
         except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException('Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
+            raise GeneratedCodeBuildException(
+                f"Error occurred during 'make install'! More detailed error messages can be found in {error_location}.")
