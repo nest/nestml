@@ -68,16 +68,18 @@ class Builder(WithOptions, metaclass=ABCMeta):
         redirect = None
         error_location = ""
 
-        print(options)
         if options and len(options) > 0 and require_redirect_key in options and options.get(require_redirect_key, False):
             if redirection_path_key in options:
-                stdout = os.path.join(options[redirection_path_key], "build_output.txt")
-                stderr = os.path.join(options[redirection_path_key], "build_error.txt")
-                redirect = True
-                error_location = stderr
+                if os.path.isdir(options[redirection_path_key]):
+                    stdout = os.path.join(options[redirection_path_key], "build_output.txt")
+                    stderr = os.path.join(options[redirection_path_key], "build_error.txt")
+                    redirect = True
+                    error_location = stderr
 
-                stdout = open(stdout, "w")
-                stderr = open(stderr, "w")
+                    stdout = open(stdout, "w")
+                    stderr = open(stderr, "w")
+                else:
+                    raise Exception(f"The provided directory {options[redirection_path_key]} does not exist in your system!")
 
             else:
                 target_path = FrontendConfiguration.get_target_path()
