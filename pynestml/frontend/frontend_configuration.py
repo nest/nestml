@@ -104,7 +104,8 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
-        cls.argument_parser.add_argument(qualifier_codegen_opts_arg, metavar='PATH', type=str, help=help_codegen_opts, default='', dest='codegen_opts_fn')
+        cls.argument_parser.add_argument(qualifier_codegen_opts_arg, metavar='PATH', type=str,
+                                         help=help_codegen_opts, default='', dest='codegen_opts_fn')
         parsed_args = cls.argument_parser.parse_args(args)
 
         # initialize the logger

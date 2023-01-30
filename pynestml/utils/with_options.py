@@ -44,7 +44,7 @@ class WithOptions:
         return k in self._options.keys()
 
     def add_options(self, options: Mapping[str, Any]) -> None:
-        print(options)
+        r"""Extend the current options dictionary with extra options."""
         self._options.update(options)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
