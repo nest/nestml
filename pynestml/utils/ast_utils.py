@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
+import re
 import sympy
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter

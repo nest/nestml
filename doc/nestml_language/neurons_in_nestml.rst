@@ -203,16 +203,16 @@ The input ports can also be defined as vectors. For example,
        end
 
        equations:
-         kernel I_kernel1 = exp(-1/tau_syn1*t)
-         kernel I_kernel2 = exp(-1/tau_syn2*t)
-         inline I_syn_1 pA = convolve(I_kernel1, foo[1])
-         inline I_syn_2 pA = convolve(I_kernel2, foo[2])
+         kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
+         kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
+         inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1])
+         inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1])
        end
    end
 
 In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
 
-They could also be used in differential equations defined in the ``equations`` block as shown for ``foo[1]`` and ``foo[2]`` in the example above.
+They could also be used in differential equations defined in the ``equations`` block as shown for ``exc_spikes[1]`` and ``inh_spikes[1]`` in the example above.
 
 
 Output

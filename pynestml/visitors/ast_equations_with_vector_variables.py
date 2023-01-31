@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -35,6 +34,5 @@ class ASTEquationsWithVectorVariablesVisitor(ASTVisitor):
     def visit_ode_equation(self, node: ASTOdeEquation):
         rhs = node.get_rhs()
         for var in rhs.get_variables():
-            if var.get_vector_parameter():
-                if node not in self.equations:
-                    self.equations.append(node)
+            if var.get_vector_parameter() and node not in self.equations:
+                self.equations.append(node)

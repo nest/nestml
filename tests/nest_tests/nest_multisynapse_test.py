@@ -154,7 +154,6 @@ class NestMultiSynapseTest(unittest.TestCase):
         nest.Connect(vm_1, neuron)
 
         # simulate
-
         nest.Simulate(125.)
 
         # analysis
