@@ -94,6 +94,9 @@ class NESTBuilder(Builder):
             self.set_options({"nest_path": nest_path})
             Logger.log_message(None, -1, "The NEST Simulator installation path was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
 
+    def get_builder_name(self) -> str:
+        return "NESTBuilder"
+
     def build(self) -> None:
         r"""
         This method can be used to build the generated code and install the resulting extension module into NEST.

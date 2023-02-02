@@ -63,42 +63,40 @@ class Builder(WithOptions, metaclass=ABCMeta):
         require_redirect_key = dict_keys[0]
         redirection_path_key = dict_keys[1]
 
+        # default values. The output will be printed to the console.
         stdout = None
-        stderr = None
-        redirect = None
-        error_location = ""
+        stderr = subprocess.STDOUT
+        redirect = False
+        error_location = "stderr"
 
         if options and len(options) > 0 and require_redirect_key in options and options.get(require_redirect_key, False):
+            output_file_name = f"{self.get_builder_name()}_output.txt"
+            error_file_name = f"{self.get_builder_name()}_error.txt"
+
             if redirection_path_key in options:
                 if os.path.isdir(options[redirection_path_key]):
-                    stdout = os.path.join(options[redirection_path_key], "build_output.txt")
-                    stderr = os.path.join(options[redirection_path_key], "build_error.txt")
-                    redirect = True
-                    error_location = stderr
-
-                    stdout = open(stdout, "w")
-                    stderr = open(stderr, "w")
+                    stdout = os.path.join(options[redirection_path_key], output_file_name)
+                    stderr = os.path.join(options[redirection_path_key], error_file_name)
                 else:
                     raise Exception(f"The provided directory {options[redirection_path_key]} does not exist in your system!")
-
             else:
                 target_path = FrontendConfiguration.get_target_path()
-                stdout = os.path.join(target_path, "build_output.txt")
-                stderr = os.path.join(target_path, "build_error.txt")
-                redirect = True
-                error_location = stderr
+                stdout = os.path.join(target_path, output_file_name)
+                stderr = os.path.join(target_path, error_file_name)
 
-                stdout = open(stdout, "w")
-                stderr = open(stderr, "w")
-        else:
-            stderr = subprocess.STDOUT
-            redirect = False
-            error_location = "stderr"
+            error_location = stderr
+            stdout = open(stdout, "w")
+            stderr = open(stderr, "w")
+            redirect = True
 
         self.add_options({"stdout": stdout, "stderr": stderr, "redirect": redirect, "error_location": error_location})
 
     @abstractmethod
     def build(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_builder_name(self) -> str:
         pass
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
