@@ -7,10 +7,10 @@ jobs:
   link_checker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.2.0
+        uses: lycheeverse/lychee-action@v1.5.4
         with:
           args: --verbose --no-progress **/*.md **/*.html **/*.rst
           fail: true
@@ -22,11 +22,11 @@ jobs:
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Setup Python version
       - name: Setup Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
@@ -57,11 +57,11 @@ jobs:
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Setup Python version
       - name: Setup Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
