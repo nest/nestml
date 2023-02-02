@@ -67,6 +67,7 @@ from pynestml.utils.syns_processing import SynsProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from odetoolbox import analysis
+import json
 
 
 class NESTCompartmentalCodeGenerator(CodeGenerator):
@@ -288,6 +289,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                                        ASTInputPort]):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
+        print(json.dumps(odetoolbox_indict, indent=4), end="")
         full_solver_result = analysis(
             odetoolbox_indict,
             disable_stiffness_check=True,
@@ -323,8 +325,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         kernel_name_to_analytic_solver = dict()
         for kernel_buffer in kernel_buffers:
+            print("BUFFER")
+            print(type(kernel_buffer))
             _, analytic_result = self.ode_solve_analytically(
                 neuron, parameters_block, set([tuple(kernel_buffer)]))
+            print(json.dumps(analytic_result, indent=4), end="")
             kernel_name = kernel_buffer[0].get_variables()[0].get_name()
             kernel_name_to_analytic_solver[kernel_name] = analytic_result
 
@@ -468,10 +473,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(
             neuron, kernel_buffers)
 
+        """
         # separate analytic solutions by kernel
         # this is is needed for the synaptic case
         self.kernel_name_to_analytic_solver[neuron.get_name(
         )] = self.ode_toolbox_anaysis_cm_syns(neuron, kernel_buffers)
+        """
+
+
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
 
@@ -885,6 +894,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         odetoolbox_indict = {}
         odetoolbox_indict["dynamics"] = []
         equations_block = neuron.get_equations_blocks()[0]
+
         for equation in equations_block.get_ode_equations():
             # n.b. includes single quotation marks to indicate differential
             # order

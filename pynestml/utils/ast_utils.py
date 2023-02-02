@@ -1837,6 +1837,7 @@ class ASTUtils:
         kernel_buffers = set()
         convolve_calls = ASTUtils.get_convolve_function_calls(equations_block)
         for convolve in convolve_calls:
+            print(convolve.callee_name)
             el = (convolve.get_args()[0], convolve.get_args()[1])
             sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
                 convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)

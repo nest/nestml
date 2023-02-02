@@ -30,6 +30,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
 import sympy
 
 
@@ -56,8 +57,11 @@ class SynsInfoEnricher(ASTVisitor):
             neuron: ASTNeuron,
             cm_syns_info: dict,
             kernel_name_to_analytic_solver: dict):
+        """
         cm_syns_info = cls.add_kernel_analysis(
             neuron, cm_syns_info, kernel_name_to_analytic_solver)
+        """
+        ASTChannelInformationCollector.print_dictionary(cm_syns_info, 0)
         cm_syns_info = cls.transform_analytic_solution(neuron, cm_syns_info)
         cm_syns_info = cls.restoreOrderInternals(neuron, cm_syns_info)
         return cm_syns_info
@@ -196,9 +200,12 @@ class SynsInfoEnricher(ASTVisitor):
             for convolution_name, convolution_info in synapse_info["convolutions"].items(
             ):
                 kernel_name = convolution_info["kernel"]["name"]
+                print(kernel_name)
                 analytic_solution = kernel_name_to_analytic_solver[neuron.get_name(
                 )][kernel_name]
                 enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = analytic_solution
+                for var, val in analytic_solution["initial_values"].items():
+                    print(var)
         return enriched_syns_info
 
     """
