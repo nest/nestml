@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "python_standalone", "autodoc", "none"]
+    targets = ["NEST", "python_standalone", "nest_gpu", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -95,6 +95,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     if target_name.upper() == "PYTHON_STANDALONE":
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
         return PythonStandaloneCodeGenerator(options)
+
+    if target_name.upper() == "NEST_GPU":
+        from pynestml.codegeneration.nest_gpu_code_generator import NESTGPUCodeGenerator
+        return NESTGPUCodeGenerator(options)
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
@@ -254,6 +258,35 @@ def generate_python_standalone_target(input_path: Union[str, Sequence[str]], tar
         A dictionary containing additional options for the target code generator.
     """
     generate_target(input_path, target_platform="python_standalone", target_path=target_path,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    codegen_opts=codegen_opts)
+
+
+def generate_nest_gpu_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                             logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
+                             suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    r"""Generate and build code for the NEST-GPU target.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        The name of the generated Python module.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="nest_gpu", target_path=target_path,
                     logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
