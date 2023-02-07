@@ -656,7 +656,6 @@ class NESTCodeGenerator(CodeGenerator):
             else:
                 namespace["numeric_state_variables"] = self.numeric_solver[neuron.get_name()]["state_variables"]
 
-            namespace["variable_symbols"] = {}
             for var_name in namespace["numeric_state_variables"]:
                 for equations_block in neuron.get_equations_blocks():
                     sym = equations_block.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
