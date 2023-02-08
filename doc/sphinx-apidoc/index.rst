@@ -1,7 +1,7 @@
 The NESTML modeling language
 ============================
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/doc_blurb/doc/fig/nestml_clip_art.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml_clip_art.png
    :width: 296px
    :height: 350px
    :align: right
