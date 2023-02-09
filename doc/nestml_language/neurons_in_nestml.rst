@@ -2,9 +2,10 @@ Modeling neurons in NESTML
 ==========================
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/neuron_illustration.svg
-   :width: 366px
-   :height: 347px
+   :width: 324px
+   :height: 307px
    :align: right
+   :target: #
 
 Writing the NESTML model
 ########################

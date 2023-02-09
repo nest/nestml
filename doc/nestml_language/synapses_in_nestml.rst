@@ -4,9 +4,10 @@ Modeling synapses in NESTML
 .. toctree::
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/synapse_illustration.svg
-   :width: 374px
-   :height: 233px
+   :width: 326px
+   :height: 203px
    :align: right
+   :target: #
 
 Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants.
 
