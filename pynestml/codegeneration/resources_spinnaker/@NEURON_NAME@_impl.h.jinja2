@@ -1,0 +1,169 @@
+#ifndef _{{neuronName.upper()}}_IMPL_
+#define _{{neuronName.upper()}}_IMPL_
+
+#include <neuron/implementations/neuron_impl.h>
+#include <spin1_api.h>
+#include <debug.h>
+
+{%- set ns = namespace(count=0) %}
+{%- for variable in neuron.get_state_variables() %}
+{% if variable.is_recordable -%}
+#define {{ printer.print(variable).upper() }}_RECORDING_INDEX {{ ns.count }}
+{%- set ns.count = ns.count + 1 -%}
+{%- endif -%}
+{%- endfor %}
+//! Number of recorded state variables
+#define N_RECORDED_VARS {{ns.count}}
+
+#define SPIKE_RECORDING_BITFIELD 0
+#define N_BITFIELD_VARS 1
+
+#include <neuron/neuron_recording.h>
+
+//#include <neuron/current_sources/current_source_impl.h>
+//#include <neuron/current_sources/current_source.h>
+
+enum input_indices
+{
+    {%- set ns = namespace(count=0) %}
+    {%- for variable in neuron.get_spike_input_ports() %}
+        {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
+        {%- set ns.count = ns.count + 1 -%}
+    {%- endfor %}
+};
+
+//! neuron_impl_t struct
+typedef struct neuron_impl_t {
+    {%- if neuron.get_spike_input_ports()|length > 1 %}
+        accum inputs[{{ neuron.get_spike_input_ports()|length }}];
+    {%- endif %}
+    // State variables of the neuron
+    {%- for sym in neuron.get_state_symbols() %}
+        accum {{ sym.get_symbol_name() }};
+    {%- endfor %}
+
+    // Parameters of the neuron
+    {%- for sym in neuron.get_parameter_symbols() %}
+        accum {{ sym.get_symbol_name() }};
+    {%- endfor %}
+
+    {#
+    // input ports of the neuron
+    {%- for sym in neuron.get_spike_input_ports() %}
+        accum {{sym.get_symbol_name()}};
+    {%- endfor %}
+    #}
+
+    // Internal variables of the neuron
+    {%- for sym in neuron.get_internal_symbols() %}
+        accum {{sym.get_symbol_name()}};
+    {%- endfor %}
+
+} neuron_impl_t;
+
+//! Array of neuron states
+static neuron_impl_t *neuron_array;
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static bool neuron_impl_initialise(uint32_t n_neurons) {
+    // Allocate DTCM for neuron array
+    if (sizeof(neuron_impl_t) != 0) {
+        neuron_array = spin1_malloc(n_neurons * sizeof(neuron_impl_t));
+        if (neuron_array == NULL) {
+            log_error("Unable to allocate neuron array - Out of DTCM");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_load_neuron_parameters(
+        address_t address, uint32_t next, uint32_t n_neurons) {
+    // Copy parameters to DTCM from SDRAM
+    spin1_memcpy(neuron_array, &address[next],
+            n_neurons * sizeof(neuron_impl_t));
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_store_neuron_parameters(
+        address_t address, uint32_t next, uint32_t n_neurons) {
+    // Copy parameters to SDRAM from DTCM
+    spin1_memcpy(&address[next], neuron_array,
+            n_neurons * sizeof(neuron_impl_t));
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_add_inputs(
+        index_t synapse_type_index, index_t neuron_index,
+        input_t weights_this_timestep) {
+    // Get the neuron itself
+    neuron_impl_t *neuron = &neuron_array[neuron_index];
+
+    // Do something to store the inputs for the next state update
+    neuron->inputs[synapse_type_index] += weights_this_timestep;
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_do_timestep_update(
+        uint32_t timer_count, uint32_t time, uint32_t n_neurons) {
+    for (uint32_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
+        // Get the neuron itself
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+
+        // Store the recorded membrane voltage
+        {%- for variable in neuron.get_state_symbols() %}
+        {% if variable.is_recordable -%}
+        neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, neuron->{{ variable.get_symbol_name() }});
+        {%- endif -%}
+        {%- endfor %}
+
+        /*
+        // Do something to update the state
+        neuron->v += neuron->inputs[0] - neuron->inputs[1];
+        neuron->inputs[0] = 0;
+        neuron->inputs[1] = 0;
+        */
+
+{%- if neuron.get_update_blocks() %}
+{%-   filter indent(2) %}
+{%-     for block in neuron.get_update_blocks() %}
+{%-       set ast = block.get_block() %}
+{%-       if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-       endif %}
+{%-       include "directives_cpp/Block.jinja2" %}
+{%-     endfor %}
+{%-   endfilter %}
+{%- endif %}
+
+        // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
+    }
+}
+
+#if LOG_LEVEL >= LOG_DEBUG
+void neuron_impl_print_inputs(uint32_t n_neurons) {
+    log_debug("-------------------------------------\n");
+    for (index_t i = 0; i < n_neurons; i++) {
+        neuron_impl_t *neuron = &neuron_array[i];
+        log_debug("inputs: %k %k", neuron->inputs[0], neuron->inputs[1]);
+    }
+    log_debug("-------------------------------------\n");
+}
+
+void neuron_impl_print_synapse_parameters(uint32_t n_neurons) {
+    // there aren't any accessible in this example
+    use(n_neurons);
+}
+
+const char *neuron_impl_get_synapse_type_char(uint32_t synapse_type) {
+    use(synapse_type);
+    return 0;
+}
+#endif // LOG_LEVEL >= LOG_DEBUG
+
+
+#endif // _{{neuronName.upper()}}_IMPL_

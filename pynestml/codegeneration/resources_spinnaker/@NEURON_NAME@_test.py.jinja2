@@ -1,0 +1,83 @@
+/*
+ *  {{neuronName}}.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Generated from NESTML at time: {{now}}
+**/
+
+import spynnaker8 as p
+
+
+import sys
+print(sys.path)
+sys.path.append('/home/bbpnrsoa/sPyNNakerGit/sPyNNaker8NewModelTemplate')
+#sys.path.append('/home/bbpnrsoa/sPyNNakerGit/sPyNNaker8NewModelTemplate/build/lib/python_models8/model_binaries')
+
+from pyNN.utility.plotting import Figure, Panel
+import matplotlib.pyplot as plt
+
+import python_models8
+
+print(python_models8.__file__)
+
+
+
+# import models
+from python_models8.neuron.builds.my_full_neuron import MyFullNeuron
+
+
+# Set the run time of the execution
+run_time = 1000
+
+# Set the time step of the simulation in milliseconds
+time_step = 1.0
+
+# Set the number of neurons to simulate
+n_neurons = 1
+
+# Set the i_offset current
+i_offset = 0.0
+
+# Set the weight of input spikes
+weight = 2.0
+
+# Set the times at which to input a spike
+spike_times = range(0, run_time, 100)
+
+p.setup(time_step)
+
+spikeArray = {"spike_times": spike_times}
+input_pop = p.Population(
+    n_neurons, p.SpikeSourceArray(**spikeArray), label="input")
+
+my_full_neuron_pop = p.Population(
+    n_neurons, {{neuronName(time_step), label="my_full_neuron_pop")  # N.B. time step is required for computing propagator constants in case of analytically solveable ODEs
+p.Projection(
+    input_pop, my_full_neuron_pop,
+    p.OneToOneConnector(), receptor_type='excitatory',
+    synapse_type=p.StaticSynapse(weight=weight))
+
+my_full_neuron_pop.record(['v'])
+
+p.run(run_time)
+
+#print(stdp_connection.get('weight', 'list'))
+
+# get v for each example
+v_my_full_neuron_pop = my_full_neuron_pop.get_data('v')

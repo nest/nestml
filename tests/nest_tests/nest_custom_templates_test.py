@@ -45,7 +45,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        codegen_opts = {"templates": {"path": "point_neuron",
+        codegen_opts = {"templates": {"path": "resources_nest/point_neuron",
                                       "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                                                           "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
@@ -88,7 +88,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                       "synapse": "stdp_triplet",
                                       "post_ports": ["post_spikes"]}],
             "templates": {
-                "path": "point_neuron",
+                "path": "resources_nest/point_neuron",
                 "model_templates": {
                     "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                     "synapse": ["@SYNAPSE_NAME@.h.jinja2"]

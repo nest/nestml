@@ -72,8 +72,7 @@ class CodeGenerator(WithOptions):
         templates_root_dir = self.get_option("templates")["path"]
         if not os.path.isabs(templates_root_dir):
             # Prefix the default templates location
-            resources_dir = "resources_" + self._target.lower()
-            templates_root_dir = os.path.join(os.path.dirname(__file__), resources_dir, templates_root_dir)
+            templates_root_dir = os.path.join(os.path.dirname(__file__), templates_root_dir)
             code, message = Messages.get_template_root_path_created(templates_root_dir)
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         if not os.path.isdir(templates_root_dir):
@@ -97,8 +96,6 @@ class CodeGenerator(WithOptions):
         # Setup modules template environment
         if "module_templates" in self.get_option("templates"):
             module_templates = self.get_option("templates")["module_templates"]
-            if not module_templates:
-                raise Exception("A list of module template files/directories is missing.")
             self._module_templates.extend(self._setup_template_env(module_templates, templates_root_dir))
 
     def _init_templates_list(self):

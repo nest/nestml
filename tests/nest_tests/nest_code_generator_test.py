@@ -117,7 +117,7 @@ class CodeGeneratorTest(unittest.TestCase):
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
         codegen_opts = {"templates": {
-            "path": "point_neuron",
+            "path": "resources_nest/point_neuron",
             "model_templates": {
                 "neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2'],
                 "synapse": []

@@ -108,7 +108,7 @@ class NESTCodeGenerator(CodeGenerator):
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": "point_neuron",
+            "path": "resources_nest/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@.h.jinja2"]

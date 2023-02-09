@@ -51,8 +51,13 @@ setup(
     package_data={"pynestml": ["codegeneration/resources_autodoc/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/common/*.jinja2",
-                               "codegeneration/resources_nest/point_neuron/directives/*.jinja2",
-                               "codegeneration/resources_nest/point_neuron/setup/*.jinja2"]},
+                               "codegeneration/resources_nest/point_neuron/directives_cpp/*.jinja2",
+                               "codegeneration/resources_nest/point_neuron/setup/*.jinja2",
+                               "codegeneration/resources_nest/python_standalone/*.jinja2",
+                               "codegeneration/resources_nest/python_standalone/directives_py/*.jinja2",
+                               "codegeneration/resources_nest/spinnaker/*.jinja2",
+                               "codegeneration/resources_nest/spinnaker/directives_py",
+                               "codegeneration/resources_nest/spinnaker/directives_cpp"]},
     data_files=data_files,
     entry_points={
         "console_scripts": [

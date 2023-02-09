@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "python_standalone", "autodoc", "none"]
+    targets = ["NEST", "python_standalone", "autodoc", "spinnaker", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -59,14 +59,16 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() == "NEST":
+    if target_name.upper() in ["NEST", "SPINNAKER"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
-        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # rewrite all C++ keywords
         # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
         variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(variable_name_rewriter)
+
+    if target_name.upper() == "NEST":
+        from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # co-generate neuron and synapse
         synapse_post_neuron_co_generation = SynapsePostNeuronTransformer()
@@ -101,6 +103,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         assert options is None or options == {}, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
 
+    if target_name.upper() == "SPINNAKER":
+        from pynestml.codegeneration.spinnaker_code_generator import SpiNNakerCodeGenerator
+        return SpiNNakerCodeGenerator(options)
+
     if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code
         code, message = Messages.get_no_code_generated()
@@ -120,6 +126,10 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_builder import NESTBuilder
         return NESTBuilder(options)
+
+    if target_name.upper() == "SPINNAKER":
+        from pynestml.codegeneration.spinnaker_builder import SpiNNakerBuilder
+        return SpiNNakerBuilder(options)
 
     return None  # no builder requested or available
 
@@ -269,6 +279,7 @@ def main() -> int:
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException as e:
+        print(e)
         return 1
     # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
