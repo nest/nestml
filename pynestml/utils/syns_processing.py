@@ -39,6 +39,9 @@ from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer imp
 from odetoolbox import analysis
 import json
 
+#for work in progress:
+from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
+
 
 class SynsProcessing(object):
     padding_character = "_"
@@ -138,15 +141,21 @@ class SynsProcessing(object):
 
         synapse_inlines = info_collector.get_inline_expressions_with_kernels()
         for synapse_inline in synapse_inlines:
-
             synapse_name = synapse_inline.variable_name
-            syns_info[synapse_name] = {
-                "inline_expression": synapse_inline,
-                "parameters_used": info_collector.get_synapse_specific_parameter_declarations(synapse_inline),
-                "states_used": info_collector.get_synapse_specific_state_declarations(synapse_inline),
-                "internals_used_declared": info_collector.get_synapse_specific_internal_declarations(synapse_inline),
-                "total_used_declared": info_collector.get_variable_names_of_synapse(synapse_inline),
-                "convolutions": {}}
+            syns_info[synapse_name] = defaultdict()
+            syns_info[synapse_name]["inline_expression"] = synapse_inline
+
+        syns_info = info_collector.collect_synapse_related_definitions(neuron, syns_info)
+        #syns_info = info_collector.extend_variables_with_initialisations(neuron, syns_info)
+
+        synapse_inlines = info_collector.get_inline_expressions_with_kernels()
+        for synapse_inline in synapse_inlines:
+            synapse_name = synapse_inline.variable_name
+            syns_info[synapse_name]["parameters_used"] = info_collector.get_synapse_specific_parameter_declarations(synapse_inline)
+            syns_info[synapse_name]["states_used"] = info_collector.get_synapse_specific_state_declarations(synapse_inline)
+            syns_info[synapse_name]["internals_used_declared"] = info_collector.get_synapse_specific_internal_declarations(synapse_inline)
+            syns_info[synapse_name]["total_used_declared"] = info_collector.get_variable_names_of_synapse(synapse_inline)
+            syns_info[synapse_name]["convolutions"] = defaultdict()
 
             kernel_arg_pairs = info_collector.get_extracted_kernel_args(
                 synapse_inline)
@@ -352,7 +361,7 @@ class SynsProcessing(object):
                     entry["initial_values"][ASTUtils.to_ode_toolbox_name(
                         iv_symbol_name)] = expr
             odetoolbox_indict["dynamics"].append(entry)
-        """
+
 
         # write a copy for each (kernel, spike buffer) combination
 
@@ -463,11 +472,15 @@ class SynsProcessing(object):
         # and there would be no kernels or inlines any more
         if cls.first_time_run[neuron]:
             syns_info, info_collector = cls.detectSyns(neuron)
+            print("POST AST COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
+            ASTChannelInformationCollector.print_dictionary(syns_info, 0)
             if len(syns_info) > 0:
                 # only do this if any synapses found
                 # otherwise tests may fail
                 syns_info = cls.collect_and_check_inputs_per_synapse(
                     neuron, info_collector, syns_info)
+                print("POST INPUT COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
+                ASTChannelInformationCollector.print_dictionary(syns_info, 0)
 
             syns_info = cls.ode_toolbox_processing(neuron, syns_info)
             cls.syns_info[neuron] = syns_info

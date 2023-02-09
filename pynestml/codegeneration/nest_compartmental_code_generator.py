@@ -720,13 +720,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
 
         namespace["syns_info"] = SynsProcessing.get_syns_info(neuron)
-        print("SYNS INFO:")
-        print("PRE TRANSFORM")
-        ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
+        #print("SYNS INFO:")
+        #print("PRE TRANSFORM")
+        #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
         syns_info_enricher = SynsInfoEnricher(neuron)
         namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
-        print("POST TRANSFORM")
-        ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
+        #print("POST TRANSFORM")
+        #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
 
         # maybe log this on DEBUG?
         # print("syns_info: ")

@@ -184,6 +184,8 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
     g_val = - d_i_tot_dv / 2.;
     i_val = i_tot - d_i_tot_dv * v_comp / 2.;
 
+    return std::make_pair(g_val, i_val);
+
     {#
     const double dt = Time::get_resolution().get_ms();
 
@@ -358,7 +360,7 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 
 }
 
-{%- for function in neuron.get_functions() %}
+{%- for function in synapse_info["functions_used"] %}
 {{ function_declaration.FunctionDeclaration(function, "nest::"~synapse_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}

@@ -106,7 +106,7 @@ class CMTest(unittest.TestCase):
             target_path=os.path.join(target_path, "compartmental_model/"),
             module_name="cm_defaultmodule",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="INFO"
         )
 
     def get_model(self, reinstall_flag=True):

@@ -96,7 +96,16 @@ neuron cm_default:
       i_val = i_X - d(i_X)/d(v_comp) / 2.
 
     """
+
+    ### ODE for evolution of gatingvariable state ###
+
+    m_Na'= (m_inf_Na(v_comp) - m_Na) / (tau_m_Na(v_comp) * 1 s)
+    h_Na'= (h_inf_Na(v_comp) - h_Na) / (tau_h_Na(v_comp) * 1 s)
+
+    n_K'= (n_inf_K(v_comp) - n_K) / (tau_n_K(v_comp) * 1 s)
+
     ### ion channels, recognized by lack of convolutions ###
+
     inline Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp)
     inline K real = gbar_K * n_K * (e_K - v_comp)
 
