@@ -131,7 +131,7 @@ parser grammar PyNestMLParser;
   * Procedural-Language
   *********************************************************************************************************************/
 
-  block : ( stmt | NEWLINE )*;
+  block : NEWLINE INDENT stmt+ DEDENT;
 
   stmt : smallStmt | compoundStmt;
 
@@ -139,10 +139,10 @@ parser grammar PyNestMLParser;
                | forStmt
                | whileStmt;
 
-  smallStmt : assignment
+  smallStmt : (assignment
             | functionCall
             | declaration
-            | returnStmt;
+            | returnStmt) NEWLINE;
 
   assignment : lhs_variable=variable
                 (directAssignment=EQUALS |
@@ -188,8 +188,7 @@ parser grammar PyNestMLParser;
 
   ifStmt : ifClause
             elifClause*
-            (elseClause)?
-            END_KEYWORD;
+            (elseClause)?;
 
   ifClause : IF_KEYWORD expression COLON block;
 
@@ -200,10 +199,9 @@ parser grammar PyNestMLParser;
   forStmt : FOR_KEYWORD var=NAME IN_KEYWORD start_from=expression ELLIPSIS end_at=expression STEP_KEYWORD
             (negative=MINUS?) (UNSIGNED_INTEGER | FLOAT)
             COLON
-             block
-            END_KEYWORD;
+             block;
 
-  whileStmt : WHILE_KEYWORD expression COLON block END_KEYWORD;
+  whileStmt : WHILE_KEYWORD expression COLON block;
 
   /*********************************************************************************************************************
   * NestML: language root element
@@ -212,7 +210,7 @@ parser grammar PyNestMLParser;
   /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestMLCompilationUnit: (neuron | synapse | NEWLINE )* EOF;
+  nestMLCompilationUnit: (neuron | synapse)* EOF;
 
 /*********************************************************************************************************************
   * NestML neuron
@@ -233,9 +231,7 @@ parser grammar PyNestMLParser;
     @attribute function: A block declaring a user-defined function.
   */
   neuronBody: COLON
-         (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
-         END_KEYWORD;
-
+         NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)+ DEDENT;
 /*********************************************************************************************************************
   * NestML synapse
   *********************************************************************************************************************/
@@ -256,15 +252,13 @@ parser grammar PyNestMLParser;
     @attribute onReceive: A block declaring an event handler.
   */
   synapseBody:
-         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )*
-         END_KEYWORD;
+         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )*;
 
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
    */
   onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON
-                block
-                END_KEYWORD;
+                block;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
     state:
@@ -279,8 +273,7 @@ parser grammar PyNestMLParser;
   blockWithVariables:
     blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD)
     COLON
-      (declaration | NEWLINE)*
-    END_KEYWORD;
+      NEWLINE INDENT declaration+ DEDENT;
 
   /** ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated:
       update:
@@ -291,8 +284,7 @@ parser grammar PyNestMLParser;
      @attribute block Implementation of the dynamics.
    */
   updateBlock: UPDATE_KEYWORD COLON
-                block
-                END_KEYWORD;
+                block;
 
   /** ASTEquationsBlock A block declaring equations, kernels and inline expressions:
        equations:
@@ -305,7 +297,7 @@ parser grammar PyNestMLParser;
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
                    (inlineExpression | odeEquation | kernel | NEWLINE)*
-                   END_KEYWORD;
+                   ;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
@@ -316,7 +308,7 @@ parser grammar PyNestMLParser;
   */
   inputBlock: INPUT_KEYWORD COLON
               (inputPort | NEWLINE)*
-              END_KEYWORD;
+              ;
 
   /** ASTInputPort represents a single input port, e.g.:
       spike_in <- excitatory spike
@@ -359,7 +351,7 @@ parser grammar PyNestMLParser;
   function: FUNCTION_KEYWORD NAME LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN (returnType=dataType)?
            COLON
              block
-           END_KEYWORD;
+           ;
 
   /** ASTParameter represents a single parameter consisting of a name and the corresponding
       data type, e.g. T_in ms

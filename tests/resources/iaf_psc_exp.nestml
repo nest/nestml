@@ -1,0 +1,3 @@
+neuron iaf_psc_exp:
+    parameters:
+        v_m mV = -5.0 mV
