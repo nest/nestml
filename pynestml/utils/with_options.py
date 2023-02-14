@@ -51,8 +51,6 @@ class WithOptions:
             else:
                 raise Exception(f"The key '{key}' already exists in  the options list!")
 
-        self._options.update(options)
-
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
         unhandled_options = {}
