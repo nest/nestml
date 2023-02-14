@@ -35,8 +35,6 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestWBCondExpTest(unittest.TestCase):
 
@@ -73,7 +71,7 @@ class NestWBCondExpTest(unittest.TestCase):
                                  "AMPA_g_peak": 0.1})
 
         multimeter = nest.Create("multimeter", 2)
-        if nest_version.startswith("v2"):
+        if NESTTools.detect_nest_version().startswith("v2"):
             nest.SetStatus([multimeter[0]], {"record_from": ["V_m"],
                                              "interval": dt})
         else:
@@ -81,7 +79,7 @@ class NestWBCondExpTest(unittest.TestCase):
                                            "interval": dt})
         record_from = ["V_m", "I_syn_ampa",
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
-        if nest_version.startswith("v2"):
+        if NESTTools.detect_nest_version().startswith("v2"):
             nest.SetStatus([multimeter[1]], {"record_from": record_from,
                                              "interval": dt})
         else:
@@ -93,7 +91,7 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 4})  # GABAB
 
-        if nest_version.startswith("v2"):
+        if NESTTools.detect_nest_version().startswith("v2"):
             nest.Connect([multimeter[0]], neuron1, "one_to_one")
             nest.Connect([multimeter[1]], neuron2)
             spike_recorder = nest.Create("spike_detector")

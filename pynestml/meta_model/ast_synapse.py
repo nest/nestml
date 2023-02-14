@@ -21,14 +21,10 @@
 
 from typing import List, Optional
 
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.messages import Messages
 
 
 class ASTSynapse(ASTNeuronOrSynapse):
@@ -105,14 +101,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
     def get_default_weight(self):
         return self._default_weight
 
-    def get_body(self):
-        """
-        Return the body of the synapse.
-        :return: the body containing the definitions.
-        :rtype: ASTNeuronOrSynapseBody
-        """
-        return self.body
-
     def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
         if not self.get_body():
             return []
@@ -123,31 +111,12 @@ class ASTSynapse(ASTNeuronOrSynapse):
             return None
         return self.get_body().get_on_receive_block(port_name)
 
-    def get_input_blocks(self):
-        """
-        Returns a list of all input-blocks defined.
-        :return: a list of defined input-blocks.
-        :rtype: list(ASTInputBlock)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_input_block import ASTInputBlock
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTInputBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
-            return None
-        else:
-            return ret
-
     def get_input_buffers(self):
         """
         Returns a list of all defined input buffers.
         :return: a list of all input buffers.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:

@@ -1,0 +1,5 @@
+import numpy as np
+
+def steps(time_ms: float, timestep: float):
+    r"""Convert a time period (in milliseconds) to number of simulation steps"""
+    return int(np.ceil(time_ms / timestep))

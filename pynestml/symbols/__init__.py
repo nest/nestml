@@ -24,7 +24,6 @@ __all__ = [
     'error_type_symbol',
     'function_symbol',
     'integer_type_symbol',
-    'nest_time_type_symbol',
     'predefined_functions',
     'predefined_types',
     'predefined_units',

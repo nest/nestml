@@ -54,11 +54,6 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#indexParameter.
-    def visitIndexParameter(self, ctx:PyNestMLParser.IndexParameterContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by PyNestMLParser#variable.
     def visitVariable(self, ctx:PyNestMLParser.VariableContext):
         return self.visitChildren(ctx)

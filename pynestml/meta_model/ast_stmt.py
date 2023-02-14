@@ -21,9 +21,7 @@
 
 from typing import Optional
 
-from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 
 
 class ASTStmt(ASTNode):

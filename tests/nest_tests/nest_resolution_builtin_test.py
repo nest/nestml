@@ -30,9 +30,6 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-nest_version = NESTTools.detect_nest_version()
-
-
 class NestResolutionBuiltinTest(unittest.TestCase):
     """Check that the ``resolution()`` function returns a meaningful result in all contexts where it is can appear"""
 
@@ -51,7 +48,7 @@ class NestResolutionBuiltinTest(unittest.TestCase):
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test",
                                                                      "synapse": "CoCoResolutionLegallyUsed"}]})
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_resolution_function(self):
         nest.set_verbosity("M_ALL")

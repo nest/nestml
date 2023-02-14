@@ -41,7 +41,7 @@ help_logging = 'Indicates which messages shall be logged and printed to the scre
 help_module = 'Indicates the name of the module. Optional. If not indicated, the name of the directory containing the models is used'
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
 help_suffix = 'A suffix string that will be appended to the name of all generated models.'
-help_dev = 'Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.'
+help_dev = 'Enable development mode: extra information is rendered in the generated code, like the name of the template that generates the code.'
 help_codegen_opts = 'Path to a JSON file containing additional options for the target platform code generator.'
 
 qualifier_input_path_arg = '--input_path'

@@ -3,11 +3,56 @@ name: NESTML compatibility check with older NEST versions
 on: [push, pull_request]
 
 jobs:
+
+  link_checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.2.0
+        with:
+          args: --verbose --no-progress **/*.md **/*.html **/*.rst
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  static_checks:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v2
+
+      # Setup Python version
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-all-dev
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pycodestyle
+          python -m pip install -r requirements.txt
+
+      # Static code analysis
+      - name: Static code style analysis
+        run: |
+          python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
+
   build_and_test:
+    needs: [static_checks]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.3", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.1", "v3.2", "v3.3", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
@@ -33,11 +78,6 @@ jobs:
           python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
 
-      # Static code analysis
-      - name: Static code style analysis
-        run: |
-          python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
-
       # Install Java
       - name: Install Java 11
         uses: actions/setup-java@v1
@@ -60,7 +100,6 @@ jobs:
         run: |
           python -m pip install cython
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          cd $GITHUB_WORKSPACE/..
           NEST_SIMULATOR=$(pwd)/nest-simulator
           NEST_INSTALL=$(pwd)/nest_install
           echo "NEST_SIMULATOR = $NEST_SIMULATOR"
@@ -77,7 +116,6 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          cd $GITHUB_WORKSPACE
           export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
@@ -85,7 +123,6 @@ jobs:
 
       - name: Generate Lexer and Parser using Antlr4
         run: |
-          cd $GITHUB_WORKSPACE
           find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
@@ -101,7 +138,6 @@ jobs:
       # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests
         run: |
-          cd $GITHUB_WORKSPACE
           # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
           export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
           echo $ALL_MODEL_FILENAMES
@@ -113,21 +149,28 @@ jobs:
 
       # Integration tests
       - name: Run integration tests
+        if: ${{ matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2' }}
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
-          cd $GITHUB_WORKSPACE
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
 
+      # Run only the nest_integration_test for the NEST versions other than master and 2.20.2
+      - name: Run integration tests
+        if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
+        env:
+          LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
+        run: |
+          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
+
       # Run IPython/Jupyter notebooks
       - name: Run Jupyter notebooks
         if: ${{ matrix.nest_branch == 'master' }}
         run: |
-          cd $GITHUB_WORKSPACE
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
           for fn in $ipynb_fns; do

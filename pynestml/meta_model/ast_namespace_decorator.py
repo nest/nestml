@@ -18,18 +18,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Optional
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class ASTNamespaceDecorator(ASTNode):
-    """
+    r"""
+    Namespace decorator, for example "@nest::delay".
     """
 
-    def __init__(self, namespace=None, name=None, *args, **kwargs):
-        """
-        """
+    def __init__(self, namespace: str = "", name: str = "", *args, **kwargs):
         super(ASTNamespaceDecorator, self).__init__(*args, **kwargs)
         self.namespace = namespace
         self.name = name
@@ -39,7 +39,6 @@ class ASTNamespaceDecorator(ASTNode):
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTExpression
         """
         dup = ASTNamespaceDecorator(namespace=self.namespace,
                                     name=self.name,
@@ -54,29 +53,25 @@ class ASTNamespaceDecorator(ASTNode):
 
         return dup
 
-    def get_namespace(self):
+    def get_namespace(self) -> str:
         """
         Returns the left-hand side variable.
         :return: left-hand side variable object.
-        :rtype: ASTVariable
         """
         return self.namespace
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns the right-hand side rhs.
         :return: rhs object.
-        :rtype: ast_expression
         """
         return self.name
 
-    def get_parent(self, ast):
+    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
         """
         if self.get_name() is ast:
             return self
@@ -84,13 +79,11 @@ class ASTNamespaceDecorator(ASTNode):
             return self
         return None
 
-    def equals(self, other):
+    def equals(self, other: ASTNode) -> bool:
         """
         The equals operation.
         :param other: a different object.
-        :type other: object
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTNamespaceDecorator):
             return False

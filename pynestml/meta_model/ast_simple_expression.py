@@ -21,11 +21,8 @@
 
 from typing import Optional, Union
 
-import numpy as np
-
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.cloning_helpers import clone_numeric_literal
 

@@ -21,8 +21,6 @@
 
 from typing import Optional
 
-from copy import copy
-
 from pynestml.meta_model.ast_variable import ASTVariable
 
 

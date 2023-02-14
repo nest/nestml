@@ -40,15 +40,13 @@ import unittest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestFirFilterTest(unittest.TestCase):
     r"""
     Tests the working of FIR filter model in NEST
     """
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_fir_filter(self):
         nestml_model_file = "FIR_filter.nestml"

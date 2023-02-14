@@ -38,8 +38,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 sim_mdl = True
 sim_ref = True
 
@@ -82,7 +80,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                              codegen_opts={"neuron_parent_class": "ArchivingNode",
                                            "neuron_parent_class_include": "archiving_node.h"})
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_nest_stdp_synapse(self):
 

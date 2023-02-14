@@ -18,10 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
-from pynestml.codegeneration.printers.unit_converter import UnitConverter
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -50,19 +51,19 @@ class ExpressionTestVisitor(ASTVisitor):
 
         _expr = node.get_expression()
 
-        var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+        variable_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.get_type_symbol().equals(_expr.type) \
-            or var_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
+        _equals = variable_symbol.get_type_symbol().equals(_expr.type) \
+            or variable_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
 
         message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
-                  var_symbol.get_type_symbol().get_symbol_name() + \
+                  variable_symbol.get_type_symbol().get_symbol_name() + \
                   ' RHS = ' + _expr.type.get_symbol_name() + \
                   ' Equal ? ' + str(_equals)
 
         if isinstance(_expr.type, UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-                       str(UnitConverter().get_factor(_expr.type.astropy_unit))
+                       str(NESTUnitConverter.get_factor(_expr.type.astropy_unit))
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)

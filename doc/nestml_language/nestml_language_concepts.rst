@@ -1047,7 +1047,7 @@ Recording values with devices
 
    equations:
      ...
-     recordable inline V_m mV = V_abs + V_reset
+     recordable inline V_m mV = V_rel + E_L
    end
 
 

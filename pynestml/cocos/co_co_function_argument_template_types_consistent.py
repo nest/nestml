@@ -19,22 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.cocos.co_co import CoCo
-from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
-from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
-from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 
 
 class CoCoFunctionArgumentTemplateTypesConsistent(CoCo):
@@ -88,7 +80,6 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
                                log_level=LoggingLevel.ERROR)
             self._failure_occurred = True
             return
-        return_type = method_symbol.get_return_type()
 
         template_symbol_to_actual_symbol = {}
         template_symbol_to_parameter_indices = {}

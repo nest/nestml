@@ -21,9 +21,14 @@
 
 from typing import List, Optional
 
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_output_block import ASTOutputBlock
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 
 
 class ASTNeuronOrSynapseBody(ASTNode):
@@ -93,46 +98,44 @@ class ASTNeuronOrSynapseBody(ASTNode):
                 ret.append(elem)
         return ret
 
-    def get_update_blocks(self):
+    def get_update_blocks(self) -> List[ASTUpdateBlock]:
         """
         Returns a list of all update blocks defined in this body.
         :return: a list of update-block elements.
-        :rtype: list(ASTUpdateBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_update_block import ASTUpdateBlock
         for elem in self.get_body_elements():
             if isinstance(elem, ASTUpdateBlock):
                 ret.append(elem)
+
         return ret
 
-    def get_state_blocks(self):
+    def get_state_blocks(self) -> List[ASTBlockWithVariables]:
         """
         Returns a list of all state blocks defined in this body.
         :return: a list of state-blocks.
-        :rtype: list(ASTBlockWithVariables)
         """
         ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_state:
                 ret.append(elem)
+
         return ret
 
-    def get_parameter_blocks(self):
+    def get_parameters_blocks(self) -> List[ASTBlockWithVariables]:
         """
         Returns a list of all parameter blocks defined in this body.
         :return: a list of parameters-blocks.
-        :rtype: list(ASTBlockWithVariables)
         """
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
                 ret.append(elem)
+
         return ret
 
-    def get_internals_blocks(self):
+    def get_internals_blocks(self) -> List[ASTBlockWithVariables]:
         """
         Returns a list of all internals blocks defined in this body.
         :return: a list of internals-blocks.
@@ -143,6 +146,7 @@ class ASTNeuronOrSynapseBody(ASTNode):
         for elem in self.get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
                 ret.append(elem)
+
         return ret
 
     def get_on_receive_block(self, port_name) -> Optional[ASTOnReceiveBlock]:
@@ -158,43 +162,41 @@ class ASTNeuronOrSynapseBody(ASTNode):
                 on_receive_blocks.append(elem)
         return on_receive_blocks
 
-    def get_equations_blocks(self):
+    def get_equations_blocks(self) -> List[ASTEquationsBlock]:
         """
         Returns a list of all equations blocks defined in this body.
         :return: a list of equations-blocks.
-        :rtype: list(ASTEquationsBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         for elem in self.get_body_elements():
             if isinstance(elem, ASTEquationsBlock):
                 ret.append(elem)
+
         return ret
 
-    def get_input_blocks(self):
+    def get_input_blocks(self) -> List[ASTInputBlock]:
         """
         Returns a list of all input-blocks defined.
         :return: a list of defined input-blocks.
-        :rtype: list(ASTInputBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_input_block import ASTInputBlock
         for elem in self.get_body_elements():
             if isinstance(elem, ASTInputBlock):
                 ret.append(elem)
+
         return ret
 
-    def get_output_blocks(self):
+    def get_output_blocks(self) -> List[ASTOutputBlock]:
         """
         Returns a list of all output-blocks defined.
         :return: a list of defined output-blocks.
         :rtype: list(ASTOutputBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_output_block import ASTOutputBlock
         for elem in self.get_body_elements():
             if isinstance(elem, ASTOutputBlock):
                 ret.append(elem)
+
         return ret
 
     def get_parent(self, ast=None):
@@ -219,11 +221,10 @@ class ASTNeuronOrSynapseBody(ASTNode):
         """
         ret = list()
         blocks = self.get_input_blocks()
-        if isinstance(blocks, list):
-            for block in blocks:
-                for port in block.get_input_ports():
-                    if port.is_spike():
-                        ret.append(port)
+        for block in blocks:
+            for port in block.get_input_ports():
+                if port.is_spike():
+                    ret.append(port)
         return ret
 
     def equals(self, other):

@@ -31,7 +31,7 @@ from pynestml.exceptions.code_generator_options_exception import CodeGeneratorOp
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
-    qualifier_dev_arg, qualifier_codegen_opts_arg, qualifier_install_path_arg
+    qualifier_dev_arg, qualifier_install_path_arg
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "autodoc", "none"]
+    targets = ["NEST", "python_standalone", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -73,6 +73,14 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
+    if target_name.upper() in ["PYTHON_STANDALONE"]:
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+
+        # rewrite all Python keywords
+        # from: ``import keyword; print(keyword.kwlist)``
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']})
+        transformers.append(variable_name_rewriter)
+
     return transformers, options
 
 
@@ -83,6 +91,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
+
+    if target_name.upper() == "PYTHON_STANDALONE":
+        from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+        return PythonStandaloneCodeGenerator(options)
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
@@ -217,6 +229,35 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
                     dev=dev, codegen_opts=codegen_opts)
 
 
+def generate_python_standalone_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                                      logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
+                                      suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    r"""Generate and build code for the standalone Python target.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        The name of the generated Python module.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="python_standalone", target_path=target_path,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    codegen_opts=codegen_opts)
+
+
 def main() -> int:
     """
     Entry point for the command-line application.
@@ -245,8 +286,6 @@ def process():
         Flag indicating whether errors occurred during processing
     """
 
-    errors_occurred = False
-
     # init log dir
     create_report_dir()
 
@@ -262,8 +301,11 @@ def process():
 
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_model(nestml_file)
-        if parsed_unit is not None:
-            compilation_units.append(parsed_unit)
+        if parsed_unit is None:
+            # Parsing error in the NESTML model, return True
+            return True
+
+        compilation_units.append(parsed_unit)
 
     # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
@@ -290,15 +332,13 @@ def process():
         CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev:
-            for model in models:
-                if Logger.has_errors(model):
-                    code, message = Messages.get_model_contains_errors(model.get_name())
-                    Logger.log_message(node=model, code=code, message=message,
-                                       error_position=model.get_source_position(),
-                                       log_level=LoggingLevel.WARNING)
-                    models.remove(model)
-                    errors_occurred = True
+        for model in models:
+            if Logger.has_errors(model):
+                code, message = Messages.get_model_contains_errors(model.get_name())
+                Logger.log_message(node=model, code=code, message=message,
+                                   error_position=model.get_source_position(),
+                                   log_level=LoggingLevel.WARNING)
+                return True
 
         # run transformers
         for transformer in transformers:
@@ -306,19 +346,16 @@ def process():
 
         # perform code generation
         _codeGenerator.generate_code(models)
-        for model in models:
-            if Logger.has_errors(model):
-                errors_occurred = True
-                break
 
     # perform build
-    if not errors_occurred and _builder is not None:
+    if _builder is not None:
         _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    return errors_occurred
+    # Everything is fine, return false, i.e., no errors have occurred.
+    return False
 
 
 def init_predefined():

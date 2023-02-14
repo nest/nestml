@@ -33,7 +33,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoStateVariablesInitialized:
     state:
         V_m mV = 10 mV
-        V_abs mV = -10 mV
         r integer = 5
     end
 end

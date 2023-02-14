@@ -1,7 +1,7 @@
 Section 4: Extending PyNESTML 
 ------------------------------
 
-As typical for all types of software, requirements of the implementation often change. PyNESTML was implemented with the aim to provide a modular and easy to extend framework which can be adjusted and reconfigured by exchanging components, e.g., context conditions and reference converters. In this section, we will briefly demonstrate how extensions to PyNESTML can be implemented. Representing components which are often adapted, the following use cases are introduced:
+As typical for all types of software, requirements of the implementation often change. PyNESTML was implemented with the aim to provide a modular and easy to extend framework which can be adjusted and reconfigured by exchanging components, e.g., context conditions and AST printers. In this section, we will briefly demonstrate how extensions to PyNESTML can be implemented. Representing components which are often adapted, the following use cases are introduced:
 
 -  Grammar: How can the grammar artifacts be extended and in consequence which components have to be adapted?
 

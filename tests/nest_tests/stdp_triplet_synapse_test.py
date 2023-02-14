@@ -214,7 +214,7 @@ def run_nest_simulation(neuron_model_name,
     external_input = nest.Create('spike_generator', params={'spike_times': pre_spike_times_req})
     external_input1 = nest.Create('spike_generator', params={'spike_times': post_spike_times_req})
 
-    if nest_version.startswith("v2"):
+    if NESTTools.detect_nest_version().startswith("v2"):
         spikes = nest.Create('spike_detector')
     else:
         spikes = nest.Create('spike_recorder')
@@ -239,7 +239,7 @@ def run_nest_simulation(neuron_model_name,
 
     # Connect nodes ------------------------------------------------
 
-    if nest_version.startswith("v2"):
+    if NESTTools.detect_nest_version().startswith("v2"):
         nest.Connect([neurons[0]], [neurons[1]], syn_spec={'model': synapse_model_name + "_rec"})
         nest.Connect(external_input, [neurons[0]], syn_spec='excitatory_noise')
         nest.Connect(external_input1, [neurons[1]], syn_spec='excitatory_noise')
@@ -508,9 +508,6 @@ def test_stdp_triplet_synapse_delay_5(spike_times_len):
 # import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
 # @pytest.mark.xfail(strict=True, raises=Exception)
 # @pytest.mark.parametrize('spike_times_len', [1, 10, 100])
-
-
-nest_version = NESTTools.detect_nest_version()
 
 
 @pytest.mark.parametrize('spike_times_len', [10])

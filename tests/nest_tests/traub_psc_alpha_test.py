@@ -35,8 +35,6 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 
 class NestWBCondExpTest(unittest.TestCase):
 
@@ -70,7 +68,7 @@ class NestWBCondExpTest(unittest.TestCase):
         multimeter = nest.Create("multimeter")
         nest.SetStatus(multimeter, {"record_from": ["V_m"],
                                     "interval": dt})
-        if nest_version.startswith("v2"):
+        if NESTTools.detect_nest_version().startswith("v2"):
             spike_recorder = nest.Create("spike_detector")
         else:
             spike_recorder = nest.Create("spike_recorder")

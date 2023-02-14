@@ -1,17 +1,16 @@
-{%- if variable.is_inline_expression and not utils.contains_convolve_call(variable) %}
-inline {{declarations.print_variable_type(variable)}} {{names.getter(variable)}}() const
+{% if variable_symbol.is_inline_expression and not utils.contains_convolve_call(variable_symbol) -%}
+inline {{ declarations.print_variable_type(variable_symbol) }} {{ printer_no_origin.print(variable) }} const
 {
-  return {{printer.print_expression(variable.get_declaring_expression())}};
+  return {{ printer.print(variable_symbol.get_declaring_expression()) }};
 }
-{% else -%}
-inline {{declarations.print_variable_type(variable)}} {{names.getter(variable)}}() const
+{%- else -%}
+inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no_origin.print(variable) }}() const
 {
-  return {{printer.print_origin(variable)}}{{names.name(variable)}};
-}
-
-inline void {{names.setter(variable)}}(const {{declarations.print_variable_type(variable)}} __v)
-{
-  {{printer.print_origin(variable)}}{{names.name(variable)}} = __v;
+  return {{ nest_codegen_utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }};
 }
 
-{% endif -%}
+inline void set_{{ printer_no_origin.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
+{
+  {{ nest_codegen_utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }} = __v;
+}
+{%- endif %}

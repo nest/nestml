@@ -19,14 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_input_block import ASTInputBlock
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.symbols.symbol import SymbolKind
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -86,11 +92,10 @@ class ASTNeuronOrSynapse(ASTNode):
 
         return dup
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns the name of the neuron.
         :return: the name of the neuron.
-        :rtype: str
         """
         return self.name
 
@@ -100,27 +105,24 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         self.name = name
 
-    def get_body(self):
+    def get_body(self) -> ASTNeuronOrSynapseBody:
         """
         Return the body of the neuron.
         :return: the body containing the definitions.
-        :rtype: ASTNeuronOrSynapseBody or ASTNeuronOrSynapseBody
         """
         return self.body
 
-    def get_artifact_name(self):
+    def get_artifact_name(self) -> str:
         """
         Returns the name of the artifact this neuron has been stored in.
         :return: the name of the file
-        :rtype: str
         """
         return self.artifact_name
 
-    def get_functions(self):
+    def get_functions(self) -> List[ASTFunction]:
         """
         Returns a list of all function block declarations in this body.
         :return: a list of function declarations.
-        :rtype: list(ASTFunction)
         """
         ret = list()
         from pynestml.meta_model.ast_function import ASTFunction
@@ -129,96 +131,40 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.append(elem)
         return ret
 
-    def get_update_blocks(self):
-        """
-        Returns a list of all update blocks defined in this body.
-        :return: a list of update-block elements.
-        :rtype: list(ASTUpdateBlock)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_update_block import ASTUpdateBlock
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTUpdateBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
-
-    def get_state_blocks(self):
+    def get_state_blocks(self) -> List[ASTBlockWithVariables]:
         """
         Returns a list of all state blocks defined in this body.
         :return: a list of state-blocks.
-        :rtype: list(ASTBlockWithVariables)
         """
-        ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_state:
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
+        return self.get_body().get_state_blocks()
 
-    def get_parameter_blocks(self):
+    def get_parameters_blocks(self) -> List[ASTBlockWithVariables]:
         """
         Returns a list of all parameter blocks defined in this body.
         :return: a list of parameters-blocks.
-        :rtype: list(ASTBlockWithVariables)
         """
-        ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
+        return self.get_body().get_parameters_blocks()
 
-    def get_internals_blocks(self):
+    def get_internals_blocks(self) -> List[ASTBlockWithVariables]:
         """
         Returns a list of all internals blocks defined in this body.
         :return: a list of internals-blocks.
-        :rtype: list(ASTBlockWithVariables)
         """
-        ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
+        return self.get_body().get_internals_blocks()
 
-    def get_equations_blocks(self) -> Optional[Union[ASTEquationsBlock, List[ASTEquationsBlock]]]:
+    def get_equations_blocks(self) -> List[ASTEquationsBlock]:
         """
         Returns a list of all ``equations`` blocks defined in this body.
         :return: a list of equations-blocks.
         """
-        ret = list()
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTEquationsBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
+        return self.get_body().get_equations_blocks()
 
-    def get_equations_block(self):
+    def get_update_blocks(self) -> List[ASTUpdateBlock]:
         """
-        Returns the unique equations block defined in this body.
-        :return: a  equations-block.
-        :rtype: ASTEquationsBlock
+        Returns a list of all update blocks defined in this body.
+        :return: a list of update-block elements.
         """
-        return self.get_equations_blocks()
+        return self.get_body().get_update_blocks()
 
     def remove_equations_block(self) -> None:
         """
@@ -229,60 +175,44 @@ class ASTNeuronOrSynapse(ASTNode):
             if isinstance(elem, ASTEquationsBlock):
                 self.get_body().get_body_elements().remove(elem)
 
-    def get_initial_value(self, variable_name):
-        assert type(variable_name) is str
-
-        for decl in self.get_state_blocks().get_declarations():
-            for var in decl.variables:
-                if var.get_complete_name() == variable_name:
-                    return decl.get_expression()
-
-        return None
-
     def get_state_declarations(self):
         """
         Returns a list of initial values declarations made in this neuron.
         :return: a list of initial values declarations
         :rtype: list(ASTDeclaration)
         """
-        initial_values_block = self.get_state_blocks()
         initial_values_declarations = list()
-        if initial_values_block is not None:
-            for decl in initial_values_block.get_declarations():
+        for state_block in self.get_state_blocks():
+            for decl in state_block.get_declarations():
                 initial_values_declarations.append(decl)
+
         return initial_values_declarations
 
-    def get_equations(self):
+    def get_equations(self) -> List[ASTOdeEquation]:
         """
         Returns all ode equations as defined in this neuron.
         :return list of ode-equations
-        :rtype list(ASTOdeEquation)
         """
         ret = list()
-        blocks = self.get_equations_blocks()
-        # the get equations block is not deterministic method, it can return a list or a single object.
-        if isinstance(blocks, list):
-            for block in blocks:
-                ret.extend(block.get_ode_equations())
-        if isinstance(blocks, ASTEquationsBlock):
-            return blocks.get_ode_equations()
+
+        for block in self.get_equations_blocks():
+            ret.extend(block.get_ode_equations())
+
         return ret
 
-    def get_input_blocks(self):
+    def get_input_blocks(self) -> List[ASTInputBlock]:
         """
         Returns a list of all input-blocks defined.
         :return: a list of defined input-blocks.
-        :rtype: list(ASTInputBlock)
         """
-        ret = list()
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTInputBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
+        return self.get_body().get_input_blocks()
+
+    def get_output_blocks(self) -> List[ASTOutputBlock]:
+        """
+        Returns a list of all output-blocks defined.
+        :return: a list of defined output-blocks.
+        """
+        return self.get_body().get_output_blocks()
 
     def get_input_buffers(self):
         """
@@ -349,11 +279,10 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_internal_symbols(self):
+    def get_internal_symbols(self) -> List[VariableSymbol]:
         """
         Returns a list of all internals symbol defined in the model.
         :return: a list of internals symbols.
-        :rtype: list(VariableSymbol)
         """
         from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
@@ -378,52 +307,33 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_output_blocks(self):
+    def is_multisynapse_spikes(self) -> bool:
         """
-        Returns a list of all output-blocks defined.
-        :return: a list of defined output-blocks.
-        :rtype: list(ASTOutputBlock)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_output_block import ASTOutputBlock
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTOutputBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
-
-    def is_multisynapse_spikes(self):
-        """
-        Returns whether this neuron uses multi-synapse spikes.
+        Returns whether this neuron uses multi-synapse inputs.
         :return: True if multi-synaptic, otherwise False.
-        :rtype: bool
         """
-        buffers = self.get_spike_buffers()
-        for iBuffer in buffers:
-            if iBuffer.has_vector_parameter():
+        ports = self.get_spike_input_ports()
+        for port in ports:
+            if port.has_vector_parameter():
                 return True
         return False
 
-    def get_multiple_receptors(self):
+    def get_multiple_receptors(self) -> List[VariableSymbol]:
         """
-        Returns a list of all spike buffers which are defined as inhibitory and excitatory.
-        :return: a list of spike buffers variable symbols
-        :rtype: list(VariableSymbol)
+        Returns a list of all spike input ports which are defined as both inhibitory *and* excitatory at the same time.
+        :return: a list of spike input port variable symbols
         """
         ret = list()
-        for iBuffer in self.get_spike_buffers():
-            if iBuffer.is_excitatory() and iBuffer.is_inhibitory():
-                if iBuffer is not None:
-                    ret.append(iBuffer)
+        for port in self.get_spike_input_ports():
+            if port.is_excitatory() and port.is_inhibitory():
+                if port is not None:
+                    ret.append(port)
                 else:
-                    code, message = Messages.get_could_not_resolve(iBuffer.get_symbol_name())
+                    code, message = Messages.get_could_not_resolve(port.get_symbol_name())
                     Logger.log_message(
                         message=message,
                         code=code,
-                        error_position=iBuffer.get_source_position(),
+                        error_position=port.get_source_position(),
                         log_level=LoggingLevel.ERROR)
         return ret
 
@@ -431,26 +341,30 @@ class ASTNeuronOrSynapse(ASTNode):
         assert type(kernel_name) is str
         kernel_name = kernel_name.split("__X__")[0]
 
-        if not self.get_equations_block():
+        if not self.get_equations_blocks():
             return None
 
         # check if defined as a direct function of time
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
-                return decl
+        for equations_block in self.get_equations_blocks():
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
+                    return decl
 
-        # check if defined for a higher order of differentiation
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                return decl
+            # check if defined for a higher order of differentiation
+        for equations_block in self.get_equations_blocks():
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                    return decl
 
         return None
 
     def get_all_kernels(self):
         kernels = []
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel:
-                kernels.append(decl)
+        for equations_block in self.get_equations_blocks():
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel:
+                    kernels.append(decl)
+
         return kernels
 
     def get_non_inline_state_symbols(self) -> List[VariableSymbol]:
@@ -513,65 +427,83 @@ class ASTNeuronOrSynapse(ASTNode):
         :return: a list of rhs representing invariants
         :rtype: list(ASTExpression)
         """
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         ret = list()
-        blocks = self.get_parameter_blocks()
-        # the get parameters block is not deterministic method, it can return a list or a single object.
-        if isinstance(blocks, list):
-            for block in blocks:
-                for decl in block.get_declarations():
-                    if decl.has_invariant():
-                        ret.append(decl.get_invariant())
-        elif isinstance(blocks, ASTBlockWithVariables):
-            for decl in blocks.get_declarations():
+        for block in self.get_parameters_blocks():
+            for decl in block.get_declarations():
                 if decl.has_invariant():
                     ret.append(decl.get_invariant())
+
+        return ret
+
+    def get_parameter_variables(self) -> List[ASTVariable]:
+        """
+        Returns a list of all parameters.
+        :return:
+        """
+        ret = []
+        blocks = set(self.get_parameters_blocks())
+        if not isinstance(blocks, list):
+            blocks = [blocks]
+        for block in blocks:
+            for decl in block.get_declarations():
+                ret.extend(decl.get_varibles())
+        return ret
+
+    def get_state_variables(self) -> List[ASTVariable]:
+        """
+        Returns a list of all state variables.
+        :return:
+        """
+        ret = []
+        for block in self.get_state_blocks():
+            for decl in block.get_declarations():
+                ret.extend(decl.get_varibles())
+
         return ret
 
     def create_empty_update_block(self):
         """
         Create an empty update block. Only makes sense if one does not already exist.
         """
-        assert self.get_update_blocks() is None or len(self.get_update_blocks(
-        )) == 0, "create_empty_update_block() called although update block already present"
+        assert not self.get_update_blocks(), "create_empty_update_block() called although update block already present"
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
         self.get_body().get_body_elements().append(update_block)
 
-    def add_to_internal_block(self, declaration, index=-1):
+    def add_to_internals_block(self, declaration: ASTDeclaration, index: int = -1) -> None:
         """
-        Adds the handed over declaration the internal block
+        Adds the handed over declaration the internals block
         :param declaration: a single declaration
-        :type declaration: ast_declaration
         """
+        assert len(self.get_internals_blocks()) <= 1, "Only one internals block supported for now"
         from pynestml.utils.ast_utils import ASTUtils
-        if self.get_internals_blocks() is None:
+        if not self.get_internals_blocks():
             ASTUtils.create_internal_block(self)
-        n_declarations = len(self.get_internals_blocks().get_declarations())
+        n_declarations = len(self.get_internals_blocks()[0].get_declarations())
         if n_declarations == 0:
             index = 0
         else:
-            index = 1 + (index % len(self.get_internals_blocks().get_declarations()))
-        self.get_internals_blocks().get_declarations().insert(index, declaration)
-        declaration.update_scope(self.get_internals_blocks().get_scope())
+            index = 1 + (index % len(self.get_internals_blocks()[0].get_declarations()))
+        self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
+        declaration.update_scope(self.get_internals_blocks()[0].get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
         declaration.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
 
-    def add_to_state_block(self, declaration):
+    def add_to_state_block(self, declaration: ASTDeclaration) -> None:
         """
-        Adds the handed over declaration to the state block.
+        Adds the handed over declaration to an arbitrary state block. A state block will be created if none exists.
         :param declaration: a single declaration.
-        :type declaration: ast_declaration
         """
+        assert len(self.get_state_blocks()) <= 1, "Only one internals block supported for now"
         from pynestml.utils.ast_utils import ASTUtils
-        if self.get_state_blocks() is None:
+        if not self.get_state_blocks():
             ASTUtils.create_state_block(self)
-        self.get_state_blocks().get_declarations().append(declaration)
-        declaration.update_scope(self.get_state_blocks().get_scope())
+        self.get_state_blocks()[0].get_declarations().append(declaration)
+        declaration.update_scope(self.get_state_blocks()[0].get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         symtable_vistor = ASTSymbolTableVisitor()
@@ -584,85 +516,19 @@ class ASTNeuronOrSynapse(ASTNode):
         assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(),
                                                          SymbolKind.VARIABLE) is not None
 
-    def add_kernel(self, kernel: ASTKernel) -> None:
+    def print_comment(self, prefix: str = "") -> str:
         """
-        Adds the handed over declaration to the state block.
-        :param kernel: a single declaration.
-        """
-        assert self.get_equations_block() is not None
-        self.get_equations_block().get_declarations().append(kernel)
-        kernel.update_scope(self.get_equations_blocks().get_scope())
-
-    """
-    The following print methods are used by the backend and represent the comments as stored at the corresponding
-    parts of the neuron definition.
-    """
-
-    def print_dynamics_comment(self, prefix=None):
-        """
-        Prints the dynamic block comment.
+        Prints the header comment of this neuron.
         :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_update_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_parameter_comment(self, prefix=None):
-        """
-        Prints the update block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_parameter_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_state_comment(self, prefix=None):
-        """
-        Prints the state block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_state_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_internal_comment(self, prefix=None):
-        """
-        Prints the internal block comment.
-        :param prefix: a prefix string
-        :type prefix: str
-        :return: the corresponding comment.
-        :rtype: str
-        """
-        block = self.get_internals_blocks()
-        if block is None:
-            return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
-
-    def print_comment(self, prefix=None):
-        """
-        Prints the header information of this neuron.
-        :param prefix: a prefix string
-        :type prefix: str
         :return: the comment.
-        :rtype: str
         """
-        ret = ''
         if self.get_comment() is None or len(self.get_comment()) == 0:
-            return prefix if prefix is not None else ''
+            return prefix
+
+        ret = ''
         for comment in self.get_comment():
-            ret += (prefix if prefix is not None else '') + comment + '\n'
+            ret += prefix + comment + '\n'
+
         return ret
 
     def get_parent(self, ast):
@@ -679,54 +545,26 @@ class ASTNeuronOrSynapse(ASTNode):
             return self.get_body().get_parent(ast)
         return None
 
-    def equals(self, other):
+    def equals(self, other: ASTNode) -> bool:
         """
         The equals method.
         :param other: a different object.
-        :type other: object
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
-        if not isinstance(other, ASTNeuron):
+        if not isinstance(other, ASTNeuronOrSynapse):
             return False
         return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
 
-    def get_initial_value(self, variable_name):
+    def get_initial_value(self, variable_name: str):
         assert type(variable_name) is str
 
-        if self.get_state_blocks() is None:
-            return None
-
-        for decl in self.get_state_blocks().get_declarations():
-            for var in decl.variables:
-                if var.get_complete_name() == variable_name:
-                    return decl.get_expression()
+        for state_block in self.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.variables:
+                    if var.get_complete_name() == variable_name:
+                        return decl.get_expression()
 
         return None
-
-    def get_kernel_by_name(self, kernel_name) -> Optional[ASTKernel]:
-        assert type(kernel_name) is str
-        kernel_name = kernel_name.split("__X__")[0]
-
-        # check if defined as a direct function of time
-        if self.get_equations_block():
-            for decl in self.get_equations_block().get_declarations():
-                if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
-                    return decl
-
-            # check if defined for a higher order of differentiation
-            for decl in self.get_equations_block().get_declarations():
-                if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                    return decl
-
-        return None
-
-    def get_all_kernels(self):
-        kernels = []
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel:
-                kernels.append(decl)
-        return kernels
 
     def has_delay_variables(self) -> bool:
         """

@@ -37,8 +37,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-nest_version = NESTTools.detect_nest_version()
-
 sim_mdl = True
 sim_ref = True
 
@@ -57,7 +55,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
                                                       "synapse": "stdp",
                                                       "post_ports": ["post_spikes"]}]}
-        if not nest_version.startswith("v2"):
+        if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
@@ -73,7 +71,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                              suffix="_nestml",
                              codegen_opts=jit_codegen_opts)
 
-        if nest_version.startswith("v2"):
+        if NESTTools.detect_nest_version().startswith("v2"):
             non_jit_codegen_opts = {"neuron_parent_class": "Archiving_Node",
                                     "neuron_parent_class_include": "archiving_node.h"}
         else:
@@ -183,7 +181,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
             post_neuron_ref = nest.Create(ref_neuron_model_name)
 
         if sim_mdl:
-            if nest_version.startswith("v2"):
+            if NESTTools.detect_nest_version().startswith("v2"):
                 spikedet_pre = nest.Create("spike_detector")
                 spikedet_post = nest.Create("spike_detector")
             else:
@@ -192,7 +190,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
             mm = nest.Create("multimeter", params={"record_from": [
                              "V_m", "post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"]})
         if sim_ref:
-            if nest_version.startswith("v2"):
+            if NESTTools.detect_nest_version().startswith("v2"):
                 spikedet_pre_ref = nest.Create("spike_detector")
                 spikedet_post_ref = nest.Create("spike_detector")
             else:
@@ -203,7 +201,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         if sim_mdl:
             nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if nest_version.startswith("v2"):
+            if NESTTools.detect_nest_version().startswith("v2"):
                 nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
             else:
                 nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
@@ -213,7 +211,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         if sim_ref:
             nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if nest_version.startswith("v2"):
+            if NESTTools.detect_nest_version().startswith("v2"):
                 nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
                              syn_spec={"model": ref_synapse_model_name})
             else:
