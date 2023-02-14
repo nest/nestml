@@ -51,7 +51,6 @@ class Builder(WithOptions, metaclass=ABCMeta):
         self._target = target
 
     def __del__(self):
-        print("======= Testting __del__ features +======")
         if self.get_option("redirect"):
             self.get_option("stdout").close()
             self.get_option("stderr").close()
