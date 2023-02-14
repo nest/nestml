@@ -1,10 +1,17 @@
 The NESTML modeling language
 ============================
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/doc_blurb/doc/fig/nestml_clip_art.png
-   :width: 296px
-   :height: 350px
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/neuron_illustration.svg
+   :width: 324px
+   :height: 307px
    :align: right
+   :target: nestml_language/neurons_in_nestml.html
+
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/synapse_illustration.svg
+   :width: 326px
+   :height: 203px
+   :align: right
+   :target: nestml_language/synapses_in_nestml.html
 
 NESTML is a domain-specific language for neuron and synapse models. These dynamical models can be used in simulations of brain activity on several platforms, in particular the `NEST Simulator <https://nest-simulator.readthedocs.org/>`_.
 
@@ -57,4 +64,4 @@ This software was initially supported by the JARA-HPC Seed Fund *NESTML - A mode
 
 This software was developed in part or in whole in the Human Brain Project, funded from the European Union's Horizon 2020 Framework Programme for Research and Innovation under Specific Grant Agreements No. 720270, No. 785907 and No. 945539 (Human Brain Project SGA1, SGA2 and SGA3).
 
-Neuron and synapse illustration: copyright Sebastian B.C. Lehmann <se.lehmann@fz-juelich.de>, INM-6, Forschungszentrum Jülich GmbH (CC-BY-SA)
+Neuron and synapse illustration: copyright Angela Fischer <a.fischer@fz-juelich.de>, INM-6, Forschungszentrum Jülich GmbH (CC-BY-SA)
