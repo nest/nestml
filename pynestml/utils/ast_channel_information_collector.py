@@ -41,6 +41,7 @@ from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToo
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.utils.ast_utils import ASTUtils
 from odetoolbox import analysis
+import sympy
 import json
 
 
@@ -916,6 +917,40 @@ class ASTChannelInformationCollector(object):
             for ode_variable_name, ode in channel_info["ODEs"].items():
                 print("replace")
 
+    @classmethod
+    def check_if_key_zero_var_for_expression(cls, rhs_expression_str, var_str):
+        print(rhs_expression_str)
+        sympy_expression = sympy.parsing.sympy_parser.parse_expr(rhs_expression_str, evaluate=False)
+        if isinstance(sympy_expression, sympy.core.add.Add) and \
+                cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) and \
+                cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str):
+            return True
+        elif isinstance(sympy_expression, sympy.core.mul.Mul) and \
+                (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or \
+                cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
+            return True
+        elif rhs_expression_str == var_str:
+            return True
+        else:
+            return False
+
+    @classmethod
+    def search_for_key_zero_parameters_for_expression(cls, rhs_expression_str, parameters):
+        key_zero_parameters = list()
+        for parameter_name, parameter_info in parameters.items():
+            if cls.check_if_key_zero_var_for_expression(rhs_expression_str, parameter_name):
+                print("found key-zero parameter")
+                key_zero_parameters.append(parameter_name)
+
+        return key_zero_parameters
+
+    @classmethod
+    def write_key_zero_parameters_for_root_inlines(cls, chan_info):
+        for channel_name, channel_info in chan_info.items():
+            root_inline_rhs = cls._ode_toolbox_printer.print(channel_info["RootInlineExpression"].get_expression())
+            chan_info[channel_name]["RootInlineKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(root_inline_rhs, channel_info["Parameters"])
+
+        return chan_info
 
 
     """
@@ -1052,6 +1087,7 @@ class ASTChannelInformationCollector(object):
             #cls.print_dictionary(chan_info, 0)
             chan_info = cls.collect_raw_odetoolbox_output(chan_info)
             #cls.print_dictionary(chan_info, 0)
+            chan_info = cls.write_key_zero_parameters_for_root_inlines(chan_info)
 
 
             #chan_info = cls.calc_expected_function_names_for_channels(chan_info)

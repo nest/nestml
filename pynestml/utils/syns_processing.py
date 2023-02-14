@@ -338,7 +338,6 @@ class SynsProcessing(object):
         odetoolbox_indict["dynamics"] = []
 
         equations_block = neuron.get_equations_blocks()[0]
-
         """
         for equation in equations_block.get_ode_equations():
             # n.b. includes single quotation marks to indicate differential
@@ -361,7 +360,7 @@ class SynsProcessing(object):
                     entry["initial_values"][ASTUtils.to_ode_toolbox_name(
                         iv_symbol_name)] = expr
             odetoolbox_indict["dynamics"].append(entry)
-
+        """
 
         # write a copy for each (kernel, spike buffer) combination
 
@@ -472,15 +471,15 @@ class SynsProcessing(object):
         # and there would be no kernels or inlines any more
         if cls.first_time_run[neuron]:
             syns_info, info_collector = cls.detectSyns(neuron)
-            print("POST AST COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
-            ASTChannelInformationCollector.print_dictionary(syns_info, 0)
+            #print("POST AST COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
+            #ASTChannelInformationCollector.print_dictionary(syns_info, 0)
             if len(syns_info) > 0:
                 # only do this if any synapses found
                 # otherwise tests may fail
                 syns_info = cls.collect_and_check_inputs_per_synapse(
                     neuron, info_collector, syns_info)
-                print("POST INPUT COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
-                ASTChannelInformationCollector.print_dictionary(syns_info, 0)
+                #print("POST INPUT COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
+                #ASTChannelInformationCollector.print_dictionary(syns_info, 0)
 
             syns_info = cls.ode_toolbox_processing(neuron, syns_info)
             cls.syns_info[neuron] = syns_info
