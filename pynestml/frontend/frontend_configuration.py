@@ -73,6 +73,7 @@ class FrontendConfiguration:
     is_dev = False
     codegen_opts = {}  # type: Mapping[str, Any]
     codegen_opts_fn = ''
+    build_opts_ = {"redirect_build_output": False, "build_output_dir": ""}
 
     @classmethod
     def parse_config(cls, args):
@@ -198,9 +199,23 @@ appropriate numeric solver otherwise.
         return cls.codegen_opts
 
     @classmethod
+    def get_build_opts(cls):
+        return cls.build_opts_
+
+    @classmethod
     def set_codegen_opts(cls, codegen_opts):
         """Set the code generator options dictionary"""
         cls.codegen_opts = codegen_opts
+        cls._extract_build_options()
+
+    @classmethod
+    def _extract_build_options(cls):
+        """Extract the build options dictionary from the code generator dictionary"""
+        dict_keys = list(cls.build_opts_.keys())
+        require_redirect_key = dict_keys[0]
+        redirection_path_key = dict_keys[1]
+        cls.build_opts_[require_redirect_key] = cls.codegen_opts.pop(require_redirect_key, False)
+        cls.build_opts_[redirection_path_key] = cls.codegen_opts.pop(redirection_path_key, "")
 
     @classmethod
     def handle_codegen_opts_fn(cls, codegen_opts_fn):
@@ -215,6 +230,7 @@ appropriate numeric solver otherwise.
             if FrontendConfiguration.codegen_opts_fn:
                 with open(FrontendConfiguration.codegen_opts_fn) as json_file:
                     cls.codegen_opts = json.load(json_file)
+                    cls._extract_build_options()
             Logger.log_message(message='Loaded code generator options from file: ' + FrontendConfiguration.codegen_opts_fn,
                                log_level=LoggingLevel.INFO)
             if not cls.codegen_opts:

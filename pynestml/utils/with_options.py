@@ -45,6 +45,12 @@ class WithOptions:
 
     def add_options(self, options: Mapping[str, Any]) -> None:
         r"""Extend the current options dictionary with extra options."""
+        for key in options:
+            if not key in self._options:
+                self._options[key] = options[key]
+            else:
+                raise Exception(f"The key '{key}' already exists in  the options list!")
+
         self._options.update(options)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
