@@ -34,6 +34,8 @@ lexer grammar PyNestMLLexer;
   DOCSTRING_TRIPLEQUOTE : '"""';
   fragment NEWLINE_FRAG : '\r'? '\n';  // non-capturing newline, as a helper to define the channel rules
 
+  KERNEL_JOINING : COMMA NEWLINE_FRAG WS?;
+
   WS : [ \t]+ -> channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
@@ -41,7 +43,7 @@ lexer grammar PyNestMLLexer;
 
   DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) NEWLINE_FRAG -> channel(2);
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
 
   // newline is defined as a token
   NEWLINE
@@ -50,13 +52,13 @@ lexer grammar PyNestMLLexer;
    )
    {self.onNewLine()}
   ;
+
   /**
   * Symbols and literals are parsed first
   *
   * Decorator (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a decorator keyword. (Rules are matched in the order in which they appear.)
   */
 
-  //END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';
   REAL_KEYWORD : 'real';
   STRING_KEYWORD : 'string';

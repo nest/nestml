@@ -121,11 +121,11 @@ parser grammar PyNestMLParser;
   * Equations-Language
   *********************************************************************************************************************/
 
-  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
+  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)? NEWLINE;
 
-  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
+  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)? NEWLINE;
 
-  kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA NEWLINE* variable EQUALS expression)* (SEMICOLON)?;
+  kernel : KERNEL_KEYWORD variable EQUALS expression (KERNEL_JOINING variable EQUALS expression)* SEMICOLON? NEWLINE;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -168,6 +168,8 @@ parser grammar PyNestMLParser;
     ( EQUALS rhs = expression)?
     (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?
     decorator=anyDecorator*;
+
+  declaration_newline: declaration NEWLINE;
 
   /** ...
   */
@@ -262,8 +264,7 @@ parser grammar PyNestMLParser;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
     state:
-      y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
-    end
+        y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
 
     @attribute state: True iff the varblock is a state.
     @attribute parameters:  True iff the varblock is a parameters block.
@@ -273,42 +274,36 @@ parser grammar PyNestMLParser;
   blockWithVariables:
     blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD)
     COLON
-      NEWLINE INDENT declaration+ DEDENT;
+      NEWLINE INDENT declaration_newline+ DEDENT;
 
   /** ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated:
       update:
-        if r == 0: # not refractory
-          integrate(V)
-        end
-      end
+          if r == 0: # not refractory
+              integrate(V)
      @attribute block Implementation of the dynamics.
    */
   updateBlock: UPDATE_KEYWORD COLON
                 block;
 
   /** ASTEquationsBlock A block declaring equations, kernels and inline expressions:
-       equations:
-         G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-         V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
-       end
+      equations:
+          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+          V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
      @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
      @attribute kernel:      A single kernel statement, e.g., kernel V_m = ....
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   (inlineExpression | odeEquation | kernel | NEWLINE)*
-                   ;
+                   NEWLINE INDENT (inlineExpression | odeEquation | kernel)* DEDENT;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
-      spike_in <- excitatory spike
-      current_in pA <- continuous
-    end
+        spike_in <- excitatory spike
+        current_in pA <- continuous
     @attribute inputPort: A list of input ports.
   */
   inputBlock: INPUT_KEYWORD COLON
-              (inputPort | NEWLINE)*
-              ;
+              NEWLINE INDENT inputPort+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
       spike_in <- excitatory spike
@@ -324,7 +319,7 @@ parser grammar PyNestMLParser;
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
     (dataType)?
     LEFT_ANGLE_MINUS inputQualifier*
-    (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
+    (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD) NEWLINE;
 
   /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
     @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
@@ -337,12 +332,12 @@ parser grammar PyNestMLParser;
       @attribute isSpike: true if and only if the neuron has a spike output.
       @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
-  outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) ;
+  outputBlock: OUTPUT_KEYWORD COLON
+               (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) NEWLINE;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):
-        y3 = v - E_L
-      end
+          y3 = v - E_L
     @attribute name: The name of the function.
     @attribute parameters: List with function parameters.
     @attribute returnType: An arbitrary return type, e.g. string or mV.

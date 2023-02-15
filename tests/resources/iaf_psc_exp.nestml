@@ -1,3 +1,52 @@
-neuron iaf_psc_exp:
+"""
+FunctionParameterTemplatingTest.nestml
+######################################
+
+
+Description
++++++++++++
+
+This test is used to test the correct derivation of types when functions use templated type parameters.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
     parameters:
         v_m mV = -5.0 mV
+        tau ms = 10 ms
+    equations:
+        kernel I_kernel_inh = exp(-t / tau_syn_inh)
+        kernel I_kernel_exc = exp(-t / tau_syn_exc)
+        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+    update:
+        i integer = 1
+        i += 1
+        if i > 0:
+            print("Function call")
+        else:
+            print("Else")
+
+"""
+neuron iaf_psc_exp:
+    state:
+        r integer = 0    # Counts number of tick during the refractory period
+        V_m mV = E_L     # Membrane potential
