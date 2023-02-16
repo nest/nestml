@@ -60,6 +60,8 @@ class FrontendConfiguration:
     """
     This class encapsulates all settings as handed over to the frontend at start of the toolchain.
     """
+    DEFAULT_TARGET_PATH_: str = "target"
+
     argument_parser = None
     paths_to_compilation_units = None
     provided_input_path = None
@@ -250,25 +252,42 @@ appropriate numeric solver otherwise.
         cls.target_platform = target_platform
 
     @classmethod
-    def handle_target_path(cls, path):
-        r"""check if a target has been selected, otherwise set to `[pynestml directory]/target`"""
-        if path is not None:
-            if os.path.isabs(path):
-                cls.target_path = path
-            # a relative path, reconstruct it. get the parent dir where models, pynestml etc. is located
-            else:
-                pynestml_dir = os.getcwd()
-                cls.target_path = os.path.join(pynestml_dir, path)
+    def handle_target_path(cls, path: Optional[str]) -> None:
+        r"""Process the target path parameter.
+
+        Create the target path if it is specified as a string, but does not exist. Its parent directory has to exist already.
+
+        If the path is None, it will default to ``FrontendConfiguration.DEFAULT_TARGET_PATH_`` in the current working directory.
+        """
+
+        if path is None:
+            cls.target_path = os.path.abspath(cls.DEFAULT_TARGET_PATH_)
+        elif os.path.isabs(path):
+            cls.target_path = path
         else:
-            cls.target_path = os.path.join(os.getcwd(), 'target')
-            Logger.log_message(code=MessageCode.TARGET_PATH_INFO, log_level=LoggingLevel.INFO,
-                               message='Target files will be generated in directory \'' + cls.target_path + '\'')
-        # check if the target path dir already exists
+            cls.target_path = os.path.abspath(path)
+
+        # create the target_path directory if it does not yet exist
         if not os.path.isdir(cls.target_path):
-            os.makedirs(cls.target_path)
+            parent_dir = os.path.abspath(os.path.join(cls.target_path, os.path.pardir))
+            if os.path.isdir(parent_dir):
+                code, msg = Messages.get_creating_target_path(cls.target_path)
+                Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
+                os.makedirs(cls.target_path)
+                return
+
+            # target_path nor parent_dir exist
+            raise InvalidPathException("Target path \"" + str(cls.target_path) + "\" not found.")
+
+        code, msg = Messages.get_target_path_info(cls.target_path)
+        Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
+
 
     @classmethod
-    def handle_install_path(cls, path):
+    def handle_install_path(cls, path: Optional[str]) -> None:
+        r"""Process the installation path parameter.
+
+        Create the installation path if it is specified as a string, but does not exist. Its parent directory has to exist already. The path will not be created if ``path`` is None."""
         if path is None:
             return
 
@@ -277,9 +296,20 @@ appropriate numeric solver otherwise.
         else:
             cls.install_path = os.path.abspath(path)
 
-        # check if the installation path exists
-        if not os.path.isdir(path):
-            raise InvalidPathException("Installation path \"" + str(path) + "\" not found.")
+        # create the install_path directory if it does not yet exist
+        if not os.path.isdir(cls.install_path):
+            parent_dir = os.path.abspath(os.path.join(cls.install_path, os.path.pardir))
+            if os.path.isdir(parent_dir):
+                code, msg = Messages.get_creating_install_path(cls.install_path)
+                Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
+                os.makedirs(cls.install_path)
+                return
+
+            # install_path nor parent_dir exist
+            raise InvalidPathException("Installation path \"" + str(cls.install_path) + "\" not found.")
+
+        code, msg = Messages.get_install_path_info(cls.install_path)
+        Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
 
     @classmethod
     def handle_input_path(cls, path) -> None:

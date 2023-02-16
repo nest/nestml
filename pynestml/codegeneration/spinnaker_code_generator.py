@@ -151,11 +151,9 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 "neuron": ["@NEURON_NAME@_impl.h.jinja2",
                            "@NEURON_NAME@.py.jinja2",
                            "@NEURON_NAME@_impl.py.jinja2",
-                           "extra.mk.jinja2",
-                           "extra_neuron.mk.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
             },
-            "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra_neuron.mk.jinja2"]
+            "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra.mk.jinja2", "extra_neuron.mk.jinja2"]
         }
     }
 
@@ -166,7 +164,8 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname and "@NEURON_NAME@" in fname)]
         options_cpp["templates"]["model_templates"].pop("synapse")
         options_cpp["nest_version"] = "<not available>"
-        options_cpp["templates"]["module_templates"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if fname.endswith(".mk.jinja2") or ("Makefile" in fname and not "@NEURON_NAME@" in fname)]
+        options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
+        print(options_cpp["templates"]["module_templates"] )
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_cpp = CustomNESTCodeGenerator(options_cpp)
         self.codegen_cpp._target = "SpiNNaker"
