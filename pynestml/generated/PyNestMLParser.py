@@ -10,7 +10,7 @@ else:
 
 def serializedATN():
     return [
-        4,1,90,604,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
+        4,1,90,605,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
         6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,
         2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,
         7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,
@@ -45,40 +45,40 @@ def serializedATN():
         25,10,25,12,25,404,9,25,1,25,3,25,407,8,25,1,26,1,26,1,26,1,26,1,
         26,1,27,1,27,1,27,1,27,1,27,1,28,1,28,1,28,1,28,1,29,1,29,1,29,1,
         29,1,29,1,29,1,29,1,29,3,29,431,8,29,1,29,1,29,1,29,1,29,1,30,1,
-        30,1,30,1,30,1,30,1,31,1,31,4,31,444,8,31,11,31,12,31,445,1,31,1,
-        31,1,32,1,32,1,32,1,32,1,33,1,33,1,33,1,33,1,33,1,33,1,33,1,33,1,
-        33,4,33,463,8,33,11,33,12,33,464,1,33,1,33,1,34,1,34,1,34,1,34,1,
-        34,1,35,1,35,1,35,1,35,1,35,1,35,1,35,1,35,1,35,4,35,483,8,35,11,
-        35,12,35,484,1,35,1,35,1,36,1,36,1,36,1,36,1,36,5,36,494,8,36,10,
-        36,12,36,497,9,36,1,36,1,36,1,36,1,36,1,37,1,37,1,37,1,37,1,37,4,
-        37,508,8,37,11,37,12,37,509,1,37,1,37,1,38,1,38,1,38,1,38,1,39,1,
-        39,1,39,1,39,1,39,1,39,1,39,4,39,525,8,39,11,39,12,39,526,1,39,1,
-        39,1,40,1,40,1,40,1,40,1,40,4,40,536,8,40,11,40,12,40,537,1,40,1,
-        40,1,41,1,41,1,41,1,41,1,41,3,41,547,8,41,1,41,3,41,550,8,41,1,41,
-        1,41,5,41,554,8,41,10,41,12,41,557,9,41,1,41,1,41,3,41,561,8,41,
-        1,41,1,41,1,42,1,42,3,42,567,8,42,1,43,1,43,1,43,1,43,3,43,573,8,
-        43,1,43,1,43,1,44,1,44,1,44,1,44,1,44,1,44,5,44,583,8,44,10,44,12,
-        44,586,9,44,3,44,588,8,44,1,44,1,44,3,44,592,8,44,1,44,1,44,1,44,
-        1,45,1,45,1,45,1,46,1,46,1,46,1,46,1,46,0,2,2,6,47,0,2,4,6,8,10,
-        12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,
-        56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,0,4,2,0,
-        51,51,75,75,1,0,89,90,1,0,33,35,3,0,25,25,86,87,89,90,665,0,100,
-        1,0,0,0,2,111,1,0,0,0,4,128,1,0,0,0,6,143,1,0,0,0,8,217,1,0,0,0,
-        10,222,1,0,0,0,12,229,1,0,0,0,14,238,1,0,0,0,16,242,1,0,0,0,18,244,
-        1,0,0,0,20,257,1,0,0,0,22,272,1,0,0,0,24,284,1,0,0,0,26,292,1,0,
-        0,0,28,311,1,0,0,0,30,322,1,0,0,0,32,327,1,0,0,0,34,333,1,0,0,0,
-        36,337,1,0,0,0,38,348,1,0,0,0,40,378,1,0,0,0,42,388,1,0,0,0,44,390,
-        1,0,0,0,46,392,1,0,0,0,48,394,1,0,0,0,50,398,1,0,0,0,52,408,1,0,
-        0,0,54,413,1,0,0,0,56,418,1,0,0,0,58,422,1,0,0,0,60,436,1,0,0,0,
-        62,443,1,0,0,0,64,449,1,0,0,0,66,453,1,0,0,0,68,468,1,0,0,0,70,473,
-        1,0,0,0,72,488,1,0,0,0,74,502,1,0,0,0,76,513,1,0,0,0,78,517,1,0,
-        0,0,80,530,1,0,0,0,82,541,1,0,0,0,84,566,1,0,0,0,86,568,1,0,0,0,
-        88,576,1,0,0,0,90,596,1,0,0,0,92,599,1,0,0,0,94,101,5,10,0,0,95,
-        101,5,11,0,0,96,101,5,12,0,0,97,101,5,13,0,0,98,101,5,14,0,0,99,
-        101,3,2,1,0,100,94,1,0,0,0,100,95,1,0,0,0,100,96,1,0,0,0,100,97,
-        1,0,0,0,100,98,1,0,0,0,100,99,1,0,0,0,101,1,1,0,0,0,102,103,6,1,
-        -1,0,103,104,5,49,0,0,104,105,3,2,1,0,105,106,5,50,0,0,106,112,1,
-        0,0,0,107,108,5,89,0,0,108,109,5,79,0,0,109,112,3,2,1,2,110,112,
+        30,1,30,1,30,1,30,1,31,1,31,1,31,4,31,445,8,31,11,31,12,31,446,1,
+        31,1,31,1,32,1,32,1,32,1,32,1,33,1,33,1,33,1,33,1,33,1,33,1,33,1,
+        33,1,33,4,33,464,8,33,11,33,12,33,465,1,33,1,33,1,34,1,34,1,34,1,
+        34,1,34,1,35,1,35,1,35,1,35,1,35,1,35,1,35,1,35,1,35,4,35,484,8,
+        35,11,35,12,35,485,1,35,1,35,1,36,1,36,1,36,1,36,1,36,5,36,495,8,
+        36,10,36,12,36,498,9,36,1,36,1,36,1,36,1,36,1,37,1,37,1,37,1,37,
+        1,37,4,37,509,8,37,11,37,12,37,510,1,37,1,37,1,38,1,38,1,38,1,38,
+        1,39,1,39,1,39,1,39,1,39,1,39,1,39,4,39,526,8,39,11,39,12,39,527,
+        1,39,1,39,1,40,1,40,1,40,1,40,1,40,4,40,537,8,40,11,40,12,40,538,
+        1,40,1,40,1,41,1,41,1,41,1,41,1,41,3,41,548,8,41,1,41,3,41,551,8,
+        41,1,41,1,41,5,41,555,8,41,10,41,12,41,558,9,41,1,41,1,41,3,41,562,
+        8,41,1,41,1,41,1,42,1,42,3,42,568,8,42,1,43,1,43,1,43,1,43,3,43,
+        574,8,43,1,43,1,43,1,44,1,44,1,44,1,44,1,44,1,44,5,44,584,8,44,10,
+        44,12,44,587,9,44,3,44,589,8,44,1,44,1,44,3,44,593,8,44,1,44,1,44,
+        1,44,1,45,1,45,1,45,1,46,1,46,1,46,1,46,1,46,0,2,2,6,47,0,2,4,6,
+        8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,
+        52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,0,
+        4,2,0,51,51,75,75,1,0,89,90,1,0,33,35,3,0,25,25,86,87,89,90,667,
+        0,100,1,0,0,0,2,111,1,0,0,0,4,128,1,0,0,0,6,143,1,0,0,0,8,217,1,
+        0,0,0,10,222,1,0,0,0,12,229,1,0,0,0,14,238,1,0,0,0,16,242,1,0,0,
+        0,18,244,1,0,0,0,20,257,1,0,0,0,22,272,1,0,0,0,24,284,1,0,0,0,26,
+        292,1,0,0,0,28,311,1,0,0,0,30,322,1,0,0,0,32,327,1,0,0,0,34,333,
+        1,0,0,0,36,337,1,0,0,0,38,348,1,0,0,0,40,378,1,0,0,0,42,388,1,0,
+        0,0,44,390,1,0,0,0,46,392,1,0,0,0,48,394,1,0,0,0,50,398,1,0,0,0,
+        52,408,1,0,0,0,54,413,1,0,0,0,56,418,1,0,0,0,58,422,1,0,0,0,60,436,
+        1,0,0,0,62,444,1,0,0,0,64,450,1,0,0,0,66,454,1,0,0,0,68,469,1,0,
+        0,0,70,474,1,0,0,0,72,489,1,0,0,0,74,503,1,0,0,0,76,514,1,0,0,0,
+        78,518,1,0,0,0,80,531,1,0,0,0,82,542,1,0,0,0,84,567,1,0,0,0,86,569,
+        1,0,0,0,88,577,1,0,0,0,90,597,1,0,0,0,92,600,1,0,0,0,94,101,5,10,
+        0,0,95,101,5,11,0,0,96,101,5,12,0,0,97,101,5,13,0,0,98,101,5,14,
+        0,0,99,101,3,2,1,0,100,94,1,0,0,0,100,95,1,0,0,0,100,96,1,0,0,0,
+        100,97,1,0,0,0,100,98,1,0,0,0,100,99,1,0,0,0,101,1,1,0,0,0,102,103,
+        6,1,-1,0,103,104,5,49,0,0,104,105,3,2,1,0,105,106,5,50,0,0,106,112,
+        1,0,0,0,107,108,5,89,0,0,108,109,5,79,0,0,109,112,3,2,1,2,110,112,
         5,88,0,0,111,102,1,0,0,0,111,107,1,0,0,0,111,110,1,0,0,0,112,124,
         1,0,0,0,113,116,10,3,0,0,114,117,5,77,0,0,115,117,5,79,0,0,116,114,
         1,0,0,0,116,115,1,0,0,0,117,118,1,0,0,0,118,123,3,2,1,4,119,120,
@@ -180,60 +180,60 @@ def serializedATN():
         5,24,0,0,429,431,5,75,0,0,430,429,1,0,0,0,430,431,1,0,0,0,431,432,
         1,0,0,0,432,433,7,1,0,0,433,434,5,82,0,0,434,435,3,28,14,0,435,59,
         1,0,0,0,436,437,5,22,0,0,437,438,3,6,3,0,438,439,5,82,0,0,439,440,
-        3,28,14,0,440,61,1,0,0,0,441,444,3,64,32,0,442,444,3,68,34,0,443,
-        441,1,0,0,0,443,442,1,0,0,0,444,445,1,0,0,0,445,443,1,0,0,0,445,
-        446,1,0,0,0,446,447,1,0,0,0,447,448,5,0,0,1,448,63,1,0,0,0,449,450,
-        5,31,0,0,450,451,5,88,0,0,451,452,3,66,33,0,452,65,1,0,0,0,453,454,
-        5,82,0,0,454,455,5,9,0,0,455,462,5,1,0,0,456,463,3,74,37,0,457,463,
-        3,78,39,0,458,463,3,80,40,0,459,463,3,86,43,0,460,463,3,76,38,0,
-        461,463,3,88,44,0,462,456,1,0,0,0,462,457,1,0,0,0,462,458,1,0,0,
-        0,462,459,1,0,0,0,462,460,1,0,0,0,462,461,1,0,0,0,463,464,1,0,0,
-        0,464,462,1,0,0,0,464,465,1,0,0,0,465,466,1,0,0,0,466,467,5,2,0,
-        0,467,67,1,0,0,0,468,469,5,32,0,0,469,470,5,88,0,0,470,471,5,82,
-        0,0,471,472,3,70,35,0,472,69,1,0,0,0,473,474,5,9,0,0,474,482,5,1,
-        0,0,475,483,3,74,37,0,476,483,3,78,39,0,477,483,3,80,40,0,478,483,
-        3,86,43,0,479,483,3,88,44,0,480,483,3,72,36,0,481,483,3,76,38,0,
-        482,475,1,0,0,0,482,476,1,0,0,0,482,477,1,0,0,0,482,478,1,0,0,0,
-        482,479,1,0,0,0,482,480,1,0,0,0,482,481,1,0,0,0,483,484,1,0,0,0,
-        484,482,1,0,0,0,484,485,1,0,0,0,485,486,1,0,0,0,486,487,5,2,0,0,
-        487,71,1,0,0,0,488,489,5,41,0,0,489,490,5,49,0,0,490,495,5,88,0,
-        0,491,492,5,74,0,0,492,494,3,92,46,0,493,491,1,0,0,0,494,497,1,0,
-        0,0,495,493,1,0,0,0,495,496,1,0,0,0,496,498,1,0,0,0,497,495,1,0,
-        0,0,498,499,5,50,0,0,499,500,5,82,0,0,500,501,3,28,14,0,501,73,1,
-        0,0,0,502,503,7,2,0,0,503,504,5,82,0,0,504,505,5,9,0,0,505,507,5,
-        1,0,0,506,508,3,40,20,0,507,506,1,0,0,0,508,509,1,0,0,0,509,507,
-        1,0,0,0,509,510,1,0,0,0,510,511,1,0,0,0,511,512,5,2,0,0,512,75,1,
-        0,0,0,513,514,5,36,0,0,514,515,5,82,0,0,515,516,3,28,14,0,516,77,
-        1,0,0,0,517,518,5,37,0,0,518,519,5,82,0,0,519,520,5,9,0,0,520,524,
-        5,1,0,0,521,525,3,22,11,0,522,525,3,24,12,0,523,525,3,26,13,0,524,
-        521,1,0,0,0,524,522,1,0,0,0,524,523,1,0,0,0,525,526,1,0,0,0,526,
-        524,1,0,0,0,526,527,1,0,0,0,527,528,1,0,0,0,528,529,5,2,0,0,529,
-        79,1,0,0,0,530,531,5,38,0,0,531,532,5,82,0,0,532,533,5,9,0,0,533,
-        535,5,1,0,0,534,536,3,82,41,0,535,534,1,0,0,0,536,537,1,0,0,0,537,
-        535,1,0,0,0,537,538,1,0,0,0,538,539,1,0,0,0,539,540,5,2,0,0,540,
-        81,1,0,0,0,541,546,5,88,0,0,542,543,5,56,0,0,543,544,3,6,3,0,544,
-        545,5,58,0,0,545,547,1,0,0,0,546,542,1,0,0,0,546,547,1,0,0,0,547,
-        549,1,0,0,0,548,550,3,0,0,0,549,548,1,0,0,0,549,550,1,0,0,0,550,
-        551,1,0,0,0,551,555,5,57,0,0,552,554,3,84,42,0,553,552,1,0,0,0,554,
-        557,1,0,0,0,555,553,1,0,0,0,555,556,1,0,0,0,556,560,1,0,0,0,557,
-        555,1,0,0,0,558,561,5,40,0,0,559,561,5,42,0,0,560,558,1,0,0,0,560,
-        559,1,0,0,0,561,562,1,0,0,0,562,563,5,9,0,0,563,83,1,0,0,0,564,567,
-        5,43,0,0,565,567,5,44,0,0,566,564,1,0,0,0,566,565,1,0,0,0,567,85,
-        1,0,0,0,568,569,5,39,0,0,569,572,5,82,0,0,570,573,5,42,0,0,571,573,
-        5,40,0,0,572,570,1,0,0,0,572,571,1,0,0,0,573,574,1,0,0,0,574,575,
-        5,9,0,0,575,87,1,0,0,0,576,577,5,15,0,0,577,578,5,88,0,0,578,587,
-        5,49,0,0,579,584,3,90,45,0,580,581,5,74,0,0,581,583,3,90,45,0,582,
-        580,1,0,0,0,583,586,1,0,0,0,584,582,1,0,0,0,584,585,1,0,0,0,585,
-        588,1,0,0,0,586,584,1,0,0,0,587,579,1,0,0,0,587,588,1,0,0,0,588,
-        589,1,0,0,0,589,591,5,50,0,0,590,592,3,0,0,0,591,590,1,0,0,0,591,
-        592,1,0,0,0,592,593,1,0,0,0,593,594,5,82,0,0,594,595,3,28,14,0,595,
-        89,1,0,0,0,596,597,5,88,0,0,597,598,3,0,0,0,598,91,1,0,0,0,599,600,
-        5,88,0,0,600,601,5,76,0,0,601,602,7,3,0,0,602,93,1,0,0,0,66,100,
-        111,116,122,124,128,143,152,158,177,184,191,198,203,205,212,217,
-        222,229,238,242,249,254,264,267,272,280,288,303,307,316,322,327,
-        333,343,348,351,358,364,370,375,388,396,402,406,430,443,445,462,
-        464,482,484,495,509,524,526,537,546,549,555,560,566,572,584,587,
-        591
+        3,28,14,0,440,61,1,0,0,0,441,445,3,64,32,0,442,445,3,68,34,0,443,
+        445,5,9,0,0,444,441,1,0,0,0,444,442,1,0,0,0,444,443,1,0,0,0,445,
+        446,1,0,0,0,446,444,1,0,0,0,446,447,1,0,0,0,447,448,1,0,0,0,448,
+        449,5,0,0,1,449,63,1,0,0,0,450,451,5,31,0,0,451,452,5,88,0,0,452,
+        453,3,66,33,0,453,65,1,0,0,0,454,455,5,82,0,0,455,456,5,9,0,0,456,
+        463,5,1,0,0,457,464,3,74,37,0,458,464,3,78,39,0,459,464,3,80,40,
+        0,460,464,3,86,43,0,461,464,3,76,38,0,462,464,3,88,44,0,463,457,
+        1,0,0,0,463,458,1,0,0,0,463,459,1,0,0,0,463,460,1,0,0,0,463,461,
+        1,0,0,0,463,462,1,0,0,0,464,465,1,0,0,0,465,463,1,0,0,0,465,466,
+        1,0,0,0,466,467,1,0,0,0,467,468,5,2,0,0,468,67,1,0,0,0,469,470,5,
+        32,0,0,470,471,5,88,0,0,471,472,5,82,0,0,472,473,3,70,35,0,473,69,
+        1,0,0,0,474,475,5,9,0,0,475,483,5,1,0,0,476,484,3,74,37,0,477,484,
+        3,78,39,0,478,484,3,80,40,0,479,484,3,86,43,0,480,484,3,88,44,0,
+        481,484,3,72,36,0,482,484,3,76,38,0,483,476,1,0,0,0,483,477,1,0,
+        0,0,483,478,1,0,0,0,483,479,1,0,0,0,483,480,1,0,0,0,483,481,1,0,
+        0,0,483,482,1,0,0,0,484,485,1,0,0,0,485,483,1,0,0,0,485,486,1,0,
+        0,0,486,487,1,0,0,0,487,488,5,2,0,0,488,71,1,0,0,0,489,490,5,41,
+        0,0,490,491,5,49,0,0,491,496,5,88,0,0,492,493,5,74,0,0,493,495,3,
+        92,46,0,494,492,1,0,0,0,495,498,1,0,0,0,496,494,1,0,0,0,496,497,
+        1,0,0,0,497,499,1,0,0,0,498,496,1,0,0,0,499,500,5,50,0,0,500,501,
+        5,82,0,0,501,502,3,28,14,0,502,73,1,0,0,0,503,504,7,2,0,0,504,505,
+        5,82,0,0,505,506,5,9,0,0,506,508,5,1,0,0,507,509,3,40,20,0,508,507,
+        1,0,0,0,509,510,1,0,0,0,510,508,1,0,0,0,510,511,1,0,0,0,511,512,
+        1,0,0,0,512,513,5,2,0,0,513,75,1,0,0,0,514,515,5,36,0,0,515,516,
+        5,82,0,0,516,517,3,28,14,0,517,77,1,0,0,0,518,519,5,37,0,0,519,520,
+        5,82,0,0,520,521,5,9,0,0,521,525,5,1,0,0,522,526,3,22,11,0,523,526,
+        3,24,12,0,524,526,3,26,13,0,525,522,1,0,0,0,525,523,1,0,0,0,525,
+        524,1,0,0,0,526,527,1,0,0,0,527,525,1,0,0,0,527,528,1,0,0,0,528,
+        529,1,0,0,0,529,530,5,2,0,0,530,79,1,0,0,0,531,532,5,38,0,0,532,
+        533,5,82,0,0,533,534,5,9,0,0,534,536,5,1,0,0,535,537,3,82,41,0,536,
+        535,1,0,0,0,537,538,1,0,0,0,538,536,1,0,0,0,538,539,1,0,0,0,539,
+        540,1,0,0,0,540,541,5,2,0,0,541,81,1,0,0,0,542,547,5,88,0,0,543,
+        544,5,56,0,0,544,545,3,6,3,0,545,546,5,58,0,0,546,548,1,0,0,0,547,
+        543,1,0,0,0,547,548,1,0,0,0,548,550,1,0,0,0,549,551,3,0,0,0,550,
+        549,1,0,0,0,550,551,1,0,0,0,551,552,1,0,0,0,552,556,5,57,0,0,553,
+        555,3,84,42,0,554,553,1,0,0,0,555,558,1,0,0,0,556,554,1,0,0,0,556,
+        557,1,0,0,0,557,561,1,0,0,0,558,556,1,0,0,0,559,562,5,40,0,0,560,
+        562,5,42,0,0,561,559,1,0,0,0,561,560,1,0,0,0,562,563,1,0,0,0,563,
+        564,5,9,0,0,564,83,1,0,0,0,565,568,5,43,0,0,566,568,5,44,0,0,567,
+        565,1,0,0,0,567,566,1,0,0,0,568,85,1,0,0,0,569,570,5,39,0,0,570,
+        573,5,82,0,0,571,574,5,42,0,0,572,574,5,40,0,0,573,571,1,0,0,0,573,
+        572,1,0,0,0,574,575,1,0,0,0,575,576,5,9,0,0,576,87,1,0,0,0,577,578,
+        5,15,0,0,578,579,5,88,0,0,579,588,5,49,0,0,580,585,3,90,45,0,581,
+        582,5,74,0,0,582,584,3,90,45,0,583,581,1,0,0,0,584,587,1,0,0,0,585,
+        583,1,0,0,0,585,586,1,0,0,0,586,589,1,0,0,0,587,585,1,0,0,0,588,
+        580,1,0,0,0,588,589,1,0,0,0,589,590,1,0,0,0,590,592,5,50,0,0,591,
+        593,3,0,0,0,592,591,1,0,0,0,592,593,1,0,0,0,593,594,1,0,0,0,594,
+        595,5,82,0,0,595,596,3,28,14,0,596,89,1,0,0,0,597,598,5,88,0,0,598,
+        599,3,0,0,0,599,91,1,0,0,0,600,601,5,88,0,0,601,602,5,76,0,0,602,
+        603,7,3,0,0,603,93,1,0,0,0,66,100,111,116,122,124,128,143,152,158,
+        177,184,191,198,203,205,212,217,222,229,238,242,249,254,264,267,
+        272,280,288,303,307,316,322,327,333,343,348,351,358,364,370,375,
+        388,396,402,406,430,444,446,463,465,483,485,496,510,525,527,538,
+        547,550,556,561,567,573,585,588,592
     ]
 
 class PyNestMLParser ( Parser ):
@@ -3134,6 +3134,12 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.SynapseContext,i)
 
 
+        def NEWLINE(self, i:int=None):
+            if i is None:
+                return self.getTokens(PyNestMLParser.NEWLINE)
+            else:
+                return self.getToken(PyNestMLParser.NEWLINE, i)
+
         def getRuleIndex(self):
             return PyNestMLParser.RULE_nestMLCompilationUnit
 
@@ -3153,11 +3159,11 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 443 
+            self.state = 444 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 443
+                self.state = 444
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNestMLParser.NEURON_KEYWORD]:
@@ -3168,16 +3174,20 @@ class PyNestMLParser ( Parser ):
                     self.state = 442
                     self.synapse()
                     pass
+                elif token in [PyNestMLParser.NEWLINE]:
+                    self.state = 443
+                    self.match(PyNestMLParser.NEWLINE)
+                    pass
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 445 
+                self.state = 446 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==PyNestMLParser.NEURON_KEYWORD or _la==PyNestMLParser.SYNAPSE_KEYWORD):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.NEURON_KEYWORD) | (1 << PyNestMLParser.SYNAPSE_KEYWORD))) != 0)):
                     break
 
-            self.state = 447
+            self.state = 448
             self.match(PyNestMLParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -3223,11 +3233,11 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 64, self.RULE_neuron)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 449
-            self.match(PyNestMLParser.NEURON_KEYWORD)
             self.state = 450
-            self.match(PyNestMLParser.NAME)
+            self.match(PyNestMLParser.NEURON_KEYWORD)
             self.state = 451
+            self.match(PyNestMLParser.NAME)
+            self.state = 452
             self.neuronBody()
         except RecognitionException as re:
             localctx.exception = re
@@ -3318,53 +3328,53 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 453
-            self.match(PyNestMLParser.COLON)
             self.state = 454
-            self.match(PyNestMLParser.NEWLINE)
+            self.match(PyNestMLParser.COLON)
             self.state = 455
+            self.match(PyNestMLParser.NEWLINE)
+            self.state = 456
             self.match(PyNestMLParser.INDENT)
-            self.state = 462 
+            self.state = 463 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 462
+                self.state = 463
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNestMLParser.STATE_KEYWORD, PyNestMLParser.PARAMETERS_KEYWORD, PyNestMLParser.INTERNALS_KEYWORD]:
-                    self.state = 456
+                    self.state = 457
                     self.blockWithVariables()
                     pass
                 elif token in [PyNestMLParser.EQUATIONS_KEYWORD]:
-                    self.state = 457
+                    self.state = 458
                     self.equationsBlock()
                     pass
                 elif token in [PyNestMLParser.INPUT_KEYWORD]:
-                    self.state = 458
+                    self.state = 459
                     self.inputBlock()
                     pass
                 elif token in [PyNestMLParser.OUTPUT_KEYWORD]:
-                    self.state = 459
+                    self.state = 460
                     self.outputBlock()
                     pass
                 elif token in [PyNestMLParser.UPDATE_KEYWORD]:
-                    self.state = 460
+                    self.state = 461
                     self.updateBlock()
                     pass
                 elif token in [PyNestMLParser.FUNCTION_KEYWORD]:
-                    self.state = 461
+                    self.state = 462
                     self.function()
                     pass
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 464 
+                self.state = 465 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD))) != 0)):
                     break
 
-            self.state = 466
+            self.state = 467
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -3413,13 +3423,13 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 68, self.RULE_synapse)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 468
-            self.match(PyNestMLParser.SYNAPSE_KEYWORD)
             self.state = 469
-            self.match(PyNestMLParser.NAME)
+            self.match(PyNestMLParser.SYNAPSE_KEYWORD)
             self.state = 470
-            self.match(PyNestMLParser.COLON)
+            self.match(PyNestMLParser.NAME)
             self.state = 471
+            self.match(PyNestMLParser.COLON)
+            self.state = 472
             self.synapseBody()
         except RecognitionException as re:
             localctx.exception = re
@@ -3514,55 +3524,55 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 473
-            self.match(PyNestMLParser.NEWLINE)
             self.state = 474
+            self.match(PyNestMLParser.NEWLINE)
+            self.state = 475
             self.match(PyNestMLParser.INDENT)
-            self.state = 482 
+            self.state = 483 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 482
+                self.state = 483
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNestMLParser.STATE_KEYWORD, PyNestMLParser.PARAMETERS_KEYWORD, PyNestMLParser.INTERNALS_KEYWORD]:
-                    self.state = 475
+                    self.state = 476
                     self.blockWithVariables()
                     pass
                 elif token in [PyNestMLParser.EQUATIONS_KEYWORD]:
-                    self.state = 476
+                    self.state = 477
                     self.equationsBlock()
                     pass
                 elif token in [PyNestMLParser.INPUT_KEYWORD]:
-                    self.state = 477
+                    self.state = 478
                     self.inputBlock()
                     pass
                 elif token in [PyNestMLParser.OUTPUT_KEYWORD]:
-                    self.state = 478
+                    self.state = 479
                     self.outputBlock()
                     pass
                 elif token in [PyNestMLParser.FUNCTION_KEYWORD]:
-                    self.state = 479
+                    self.state = 480
                     self.function()
                     pass
                 elif token in [PyNestMLParser.ON_RECEIVE_KEYWORD]:
-                    self.state = 480
+                    self.state = 481
                     self.onReceiveBlock()
                     pass
                 elif token in [PyNestMLParser.UPDATE_KEYWORD]:
-                    self.state = 481
+                    self.state = 482
                     self.updateBlock()
                     pass
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 484 
+                self.state = 485 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD) | (1 << PyNestMLParser.ON_RECEIVE_KEYWORD))) != 0)):
                     break
 
-            self.state = 486
+            self.state = 487
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -3632,29 +3642,29 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 488
-            self.match(PyNestMLParser.ON_RECEIVE_KEYWORD)
             self.state = 489
-            self.match(PyNestMLParser.LEFT_PAREN)
+            self.match(PyNestMLParser.ON_RECEIVE_KEYWORD)
             self.state = 490
+            self.match(PyNestMLParser.LEFT_PAREN)
+            self.state = 491
             localctx.inputPortName = self.match(PyNestMLParser.NAME)
-            self.state = 495
+            self.state = 496
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PyNestMLParser.COMMA:
-                self.state = 491
-                self.match(PyNestMLParser.COMMA)
                 self.state = 492
+                self.match(PyNestMLParser.COMMA)
+                self.state = 493
                 self.constParameter()
-                self.state = 497
+                self.state = 498
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 498
-            self.match(PyNestMLParser.RIGHT_PAREN)
             self.state = 499
-            self.match(PyNestMLParser.COLON)
+            self.match(PyNestMLParser.RIGHT_PAREN)
             self.state = 500
+            self.match(PyNestMLParser.COLON)
+            self.state = 501
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -3720,7 +3730,7 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 502
+            self.state = 503
             localctx.blockType = self._input.LT(1)
             _la = self._input.LA(1)
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD))) != 0)):
@@ -3728,25 +3738,25 @@ class PyNestMLParser ( Parser ):
             else:
                 self._errHandler.reportMatch(self)
                 self.consume()
-            self.state = 503
-            self.match(PyNestMLParser.COLON)
             self.state = 504
-            self.match(PyNestMLParser.NEWLINE)
+            self.match(PyNestMLParser.COLON)
             self.state = 505
+            self.match(PyNestMLParser.NEWLINE)
+            self.state = 506
             self.match(PyNestMLParser.INDENT)
-            self.state = 507 
+            self.state = 508 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 506
+                self.state = 507
                 self.declaration_newline()
-                self.state = 509 
+                self.state = 510 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==PyNestMLParser.INLINE_KEYWORD or _la==PyNestMLParser.RECORDABLE_KEYWORD or _la==PyNestMLParser.NAME):
                     break
 
-            self.state = 511
+            self.state = 512
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -3792,11 +3802,11 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 76, self.RULE_updateBlock)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 513
-            self.match(PyNestMLParser.UPDATE_KEYWORD)
             self.state = 514
-            self.match(PyNestMLParser.COLON)
+            self.match(PyNestMLParser.UPDATE_KEYWORD)
             self.state = 515
+            self.match(PyNestMLParser.COLON)
+            self.state = 516
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -3869,43 +3879,43 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 517
-            self.match(PyNestMLParser.EQUATIONS_KEYWORD)
             self.state = 518
-            self.match(PyNestMLParser.COLON)
+            self.match(PyNestMLParser.EQUATIONS_KEYWORD)
             self.state = 519
-            self.match(PyNestMLParser.NEWLINE)
+            self.match(PyNestMLParser.COLON)
             self.state = 520
+            self.match(PyNestMLParser.NEWLINE)
+            self.state = 521
             self.match(PyNestMLParser.INDENT)
-            self.state = 524 
+            self.state = 525 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 524
+                self.state = 525
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD]:
-                    self.state = 521
+                    self.state = 522
                     self.inlineExpression()
                     pass
                 elif token in [PyNestMLParser.NAME]:
-                    self.state = 522
+                    self.state = 523
                     self.odeEquation()
                     pass
                 elif token in [PyNestMLParser.KERNEL_KEYWORD]:
-                    self.state = 523
+                    self.state = 524
                     self.kernel()
                     pass
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 526 
+                self.state = 527 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.KERNEL_KEYWORD))) != 0) or _la==PyNestMLParser.NAME):
                     break
 
-            self.state = 528
+            self.state = 529
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -3964,27 +3974,27 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 530
-            self.match(PyNestMLParser.INPUT_KEYWORD)
             self.state = 531
-            self.match(PyNestMLParser.COLON)
+            self.match(PyNestMLParser.INPUT_KEYWORD)
             self.state = 532
-            self.match(PyNestMLParser.NEWLINE)
+            self.match(PyNestMLParser.COLON)
             self.state = 533
+            self.match(PyNestMLParser.NEWLINE)
+            self.state = 534
             self.match(PyNestMLParser.INDENT)
-            self.state = 535 
+            self.state = 536 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 534
+                self.state = 535
                 self.inputPort()
-                self.state = 537 
+                self.state = 538 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==PyNestMLParser.NAME):
                     break
 
-            self.state = 539
+            self.state = 540
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -4061,55 +4071,55 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 541
+            self.state = 542
             localctx.name = self.match(PyNestMLParser.NAME)
-            self.state = 546
+            self.state = 547
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNestMLParser.LEFT_SQUARE_BRACKET:
-                self.state = 542
-                self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 543
-                localctx.sizeParameter = self.expression(0)
+                self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 544
+                localctx.sizeParameter = self.expression(0)
+                self.state = 545
                 self.match(PyNestMLParser.RIGHT_SQUARE_BRACKET)
 
 
-            self.state = 549
+            self.state = 550
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.UNSIGNED_INTEGER:
-                self.state = 548
+                self.state = 549
                 self.dataType()
 
 
-            self.state = 551
+            self.state = 552
             self.match(PyNestMLParser.LEFT_ANGLE_MINUS)
-            self.state = 555
+            self.state = 556
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PyNestMLParser.INHIBITORY_KEYWORD or _la==PyNestMLParser.EXCITATORY_KEYWORD:
-                self.state = 552
+                self.state = 553
                 self.inputQualifier()
-                self.state = 557
+                self.state = 558
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 560
+            self.state = 561
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
-                self.state = 558
+                self.state = 559
                 localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             elif token in [PyNestMLParser.SPIKE_KEYWORD]:
-                self.state = 559
+                self.state = 560
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 562
+            self.state = 563
             self.match(PyNestMLParser.NEWLINE)
         except RecognitionException as re:
             localctx.exception = re
@@ -4153,15 +4163,15 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 84, self.RULE_inputQualifier)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 566
+            self.state = 567
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNestMLParser.INHIBITORY_KEYWORD]:
-                self.state = 564
+                self.state = 565
                 localctx.isInhibitory = self.match(PyNestMLParser.INHIBITORY_KEYWORD)
                 pass
             elif token in [PyNestMLParser.EXCITATORY_KEYWORD]:
-                self.state = 565
+                self.state = 566
                 localctx.isExcitatory = self.match(PyNestMLParser.EXCITATORY_KEYWORD)
                 pass
             else:
@@ -4218,25 +4228,25 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 86, self.RULE_outputBlock)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 568
-            self.match(PyNestMLParser.OUTPUT_KEYWORD)
             self.state = 569
+            self.match(PyNestMLParser.OUTPUT_KEYWORD)
+            self.state = 570
             self.match(PyNestMLParser.COLON)
-            self.state = 572
+            self.state = 573
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNestMLParser.SPIKE_KEYWORD]:
-                self.state = 570
+                self.state = 571
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
                 pass
             elif token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
-                self.state = 571
+                self.state = 572
                 localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 574
+            self.state = 575
             self.match(PyNestMLParser.NEWLINE)
         except RecognitionException as re:
             localctx.exception = re
@@ -4310,45 +4320,45 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 576
-            self.match(PyNestMLParser.FUNCTION_KEYWORD)
             self.state = 577
-            self.match(PyNestMLParser.NAME)
+            self.match(PyNestMLParser.FUNCTION_KEYWORD)
             self.state = 578
+            self.match(PyNestMLParser.NAME)
+            self.state = 579
             self.match(PyNestMLParser.LEFT_PAREN)
-            self.state = 587
+            self.state = 588
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNestMLParser.NAME:
-                self.state = 579
+                self.state = 580
                 self.parameter()
-                self.state = 584
+                self.state = 585
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==PyNestMLParser.COMMA:
-                    self.state = 580
-                    self.match(PyNestMLParser.COMMA)
                     self.state = 581
+                    self.match(PyNestMLParser.COMMA)
+                    self.state = 582
                     self.parameter()
-                    self.state = 586
+                    self.state = 587
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
 
 
-            self.state = 589
+            self.state = 590
             self.match(PyNestMLParser.RIGHT_PAREN)
-            self.state = 591
+            self.state = 592
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.UNSIGNED_INTEGER:
-                self.state = 590
+                self.state = 591
                 localctx.returnType = self.dataType()
 
 
-            self.state = 593
-            self.match(PyNestMLParser.COLON)
             self.state = 594
+            self.match(PyNestMLParser.COLON)
+            self.state = 595
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -4391,9 +4401,9 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 90, self.RULE_parameter)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 596
-            self.match(PyNestMLParser.NAME)
             self.state = 597
+            self.match(PyNestMLParser.NAME)
+            self.state = 598
             self.dataType()
         except RecognitionException as re:
             localctx.exception = re
@@ -4453,11 +4463,11 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 599
-            localctx.name = self.match(PyNestMLParser.NAME)
             self.state = 600
-            self.match(PyNestMLParser.EQUALS)
+            localctx.name = self.match(PyNestMLParser.NAME)
             self.state = 601
+            self.match(PyNestMLParser.EQUALS)
+            self.state = 602
             localctx.value = self._input.LT(1)
             _la = self._input.LA(1)
             if not(_la==PyNestMLParser.INF_KEYWORD or ((((_la - 86)) & ~0x3f) == 0 and ((1 << (_la - 86)) & ((1 << (PyNestMLParser.BOOLEAN_LITERAL - 86)) | (1 << (PyNestMLParser.STRING_LITERAL - 86)) | (1 << (PyNestMLParser.UNSIGNED_INTEGER - 86)) | (1 << (PyNestMLParser.FLOAT - 86)))) != 0)):

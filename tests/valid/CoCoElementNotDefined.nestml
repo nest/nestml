@@ -36,5 +36,3 @@ neuron CoCoElementNotDefined:
     state:
         test integer = 0
         test1 integer = test +1 # all reference are defined and declared, thus everything correct
-    end
-end

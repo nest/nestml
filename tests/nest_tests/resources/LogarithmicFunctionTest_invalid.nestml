@@ -24,21 +24,17 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron logarithm_function_test_invalid:
-  state:
-    x real = 0.
-    ln_state real = 0.
-    log10_state real = 0.
-  end
+    state:
+        x real = 0.
+        ln_state real = 0.
+        log10_state real = 0.
 
-  input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents pA <- continuous
-  end
+    input:
+        spikeInh nS <- inhibitory spike
+        spikeExc nS <- excitatory spike
+        currents pA <- continuous
 
-  update:
-    ln_state = log10(x)
-    log10_state = ln(x)
-    x = x + 1.
-  end
-end
+    update:
+        ln_state = log10(x)
+        log10_state = ln(x)
+        x = x + 1.

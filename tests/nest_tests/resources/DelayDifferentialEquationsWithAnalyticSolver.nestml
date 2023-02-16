@@ -28,21 +28,15 @@ neuron dde_analytic:
     state:
         u_bar_plus real = -70.
         foo real = 0
-    end
 
     equations:
         u_bar_plus' = -u_bar_plus / tau
         foo' = u_bar_plus(t - delay) / tau
-    end
 
     parameters:
         tau ms = 1.5 ms
         delay ms = 5. ms
         b real = 0.
-    end
 
     update:
         integrate_odes()
-    end
-
-end

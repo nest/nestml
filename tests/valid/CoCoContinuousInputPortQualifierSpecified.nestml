@@ -32,5 +32,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoContinuousInputPortQualifierSpecified:
     input:
         currents pA <- continuous   # no qualifier specified for current port, thus correct
-    end
-end

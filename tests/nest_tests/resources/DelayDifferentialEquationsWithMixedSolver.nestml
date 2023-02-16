@@ -23,29 +23,22 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron dde_mixed:
+    state:
+        x real = 0.01
+        z real = 0.01
 
-  state:
-    x real = 0.01
-    z real = 0.01
-  end
+    equations:
+        inline eta_act real = (etaX - epsilon) * (1 + etaX**n_act)
+        x' = etaX - x / ms
+        z' = epsilon + eta_act / ((1 + x(t - delay)**n_act) * ms) - z
 
-  equations:
-    inline eta_act real = (etaX - epsilon) * (1 + etaX**n_act)
-    x' = etaX - x / ms
-    z' = epsilon + eta_act / ((1 + x(t - delay)**n_act) * ms) - z
-  end
+    parameters:
+        etaX integer = 6
+        n_act integer = -2
+        epsilon real = 0.5
 
-  parameters:
-    etaX integer = 6
-    n_act integer = -2
-    epsilon real = 0.5
+        # delay parameter
+        delay integer = 2
 
-    # delay parameter
-    delay integer = 2
-  end
-
-  update:
-    integrate_odes()
-  end
-
-end
+    update:
+        integrate_odes()

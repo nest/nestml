@@ -21,13 +21,10 @@
 import glob
 import os
 
-import nest
 import pytest
 from antlr4 import FileStream, BailErrorStrategy, CommonTokenStream
 from antlr4.error.ErrorListener import ConsoleErrorListener
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 
 from pynestml.utils.logger import LoggingLevel, Logger
 
@@ -89,24 +86,13 @@ class TestModelWithoutEndKeyword:
             assert compilation_unit is not None
 
     def test_model_parser_without_end_keyword(self):
-        input_path = str(os.path.join(
-            os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "models", "neurons")),
-            "iaf_psc_exp.nestml"))
-        target_path = "target"
-        params = list()
-        params.append('--input_path')
-        params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
-        params.append(target_path)
-        params.append('--dev')
-        FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
-        print(compilation_unit)
-
-        generate_nest_target(input_path=input_path,
-                             target_path=target_path,
-                             logging_level="INFO",
-                             suffix="_nestml")
-        nest.Install("nestmlmodule")
+        # input_path = str(os.path.join(
+        #     os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "models", "neurons")),
+        #     "iaf_psc_exp.nestml"))
+        input_paths = os.path.join(
+            os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "models", "neurons")))
+        for input_file in glob.glob(input_paths + "/*.nestml"):
+            generate_nest_target(input_path=input_file,
+                                 target_path="target",
+                                 logging_level="INFO",
+                                 suffix="_nestml")
