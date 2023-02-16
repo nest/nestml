@@ -8,29 +8,21 @@ Description
 Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
 """
 synapse noisy_synapse:
+    state:
+        w nS = 1 nS
 
-  state:
-    w nS = 1 nS
-  end
+    parameters:
+        the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+        A_noise real = .4
 
-  parameters:
-    the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
-    A_noise real = .4
-  end
+    input:
+        pre_spikes nS <- spike
 
-  input:
-    pre_spikes nS <- spike
-  end
+    output: spike
 
-  output: spike
+    onReceive(pre_spikes):
+        # temporary variable for the "weight" that will be transmitted
+        w_ nS = w + A_noise * random_normal(0, 1)
 
-  onReceive(pre_spikes):
-    # temporary variable for the "weight" that will be transmitted
-    w_ nS = w + A_noise * random_normal(0, 1)
-
-    # deliver spike to postsynaptic partner
-    deliver_spike(w_, the_delay)
-  end
-
-end
-
+        # deliver spike to postsynaptic partner
+        deliver_spike(w_, the_delay)

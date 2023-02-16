@@ -212,7 +212,7 @@ parser grammar PyNestMLParser;
   /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestMLCompilationUnit: (neuron | synapse)* EOF;
+  nestMLCompilationUnit: (neuron | synapse)+ EOF;
 
 /*********************************************************************************************************************
   * NestML neuron
@@ -254,7 +254,7 @@ parser grammar PyNestMLParser;
     @attribute onReceive: A block declaring an event handler.
   */
   synapseBody:
-         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )*;
+         NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )+ DEDENT;
 
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
@@ -294,7 +294,7 @@ parser grammar PyNestMLParser;
      @attribute kernel:      A single kernel statement, e.g., kernel V_m = ....
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   NEWLINE INDENT (inlineExpression | odeEquation | kernel)* DEDENT;
+                   NEWLINE INDENT (inlineExpression | odeEquation | kernel)+ DEDENT;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
