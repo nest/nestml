@@ -81,6 +81,8 @@ Edit ``nest-config`` and correct the entry under ``--compiler`` with the output 
 
    nano /home/graber/miniconda3/envs/wnestml/bin/nest-config
 
+macOS users must in addition replace the ``-fopenmp=libomp`` entries with ``-Xclang -fopenmp`` under both ``--cflags`` and ``--libs`` in the ``nest-config``.
+
 Now set the correct paths and start ``ipython``:
 
 .. code-block:: bash
