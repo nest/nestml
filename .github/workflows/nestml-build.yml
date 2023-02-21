@@ -130,10 +130,7 @@ jobs:
       # Unit tests
       - name: Run unit tests
         run: |
-          pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests || :
-          git ls-remote git://github.com/nest/nest-simulator.git | grep refs/heads/master | cut -f 1 > latest_nest_master_commit_hash.txt
-          echo "Latest NEST master commit hash:"
-          cat latest_nest_master_commit_hash.txt
+          pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests
 
       # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests
