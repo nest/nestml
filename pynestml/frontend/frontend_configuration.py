@@ -73,7 +73,6 @@ class FrontendConfiguration:
     is_dev = False
     codegen_opts = {}  # type: Mapping[str, Any]
     codegen_opts_fn = ''
-    build_opts_ = {"redirect_build_output": False, "build_output_dir": ""}
 
     @classmethod
     def parse_config(cls, args):
