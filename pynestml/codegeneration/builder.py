@@ -50,11 +50,6 @@ class Builder(WithOptions, metaclass=ABCMeta):
 
         self._target = target
 
-    def __del__(self):
-        if self.get_option("redirect"):
-            self.get_option("stdout").close()
-            self.get_option("stderr").close()
-
     def process_output_redirection_(self, options):
         require_redirect_key = options.get("redirect_build_output", False)
         redirection_path_key = options.get("build_output_dir", "")
@@ -66,8 +61,8 @@ class Builder(WithOptions, metaclass=ABCMeta):
         error_location = "stderr"
 
         if options and len(options) > 0 and require_redirect_key:
-            output_file_name = f"{self.get_builder_name()}_output.txt"
-            error_file_name = f"{self.get_builder_name()}_error.txt"
+            output_file_name = f"{self.get_builder_name()}_stdout.txt"
+            error_file_name = f"{self.get_builder_name()}_stderr.txt"
 
             if redirection_path_key != "":
                 if not os.path.isdir(redirection_path_key):
@@ -81,8 +76,6 @@ class Builder(WithOptions, metaclass=ABCMeta):
                 stderr = os.path.join(target_path, error_file_name)
 
             error_location = stderr
-            stdout = open(stdout, "w")
-            stderr = open(stderr, "w")
             redirect = True
 
         self.add_options({"stdout": stdout, "stderr": stderr, "redirect": redirect, "error_location": error_location})

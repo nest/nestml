@@ -111,7 +111,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -119,9 +119,11 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
 
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_builder import NESTBuilder
-        return NESTBuilder(options)
+        nest_builder = NESTBuilder(options)
+        remaining_options = nest_builder.set_options(options)
+        return nest_builder, remaining_options
 
-    return None  # no builder requested or available
+    return None, options  # no builder requested or available
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
@@ -313,10 +315,7 @@ def process():
                                                                            options=codegen_and_builder_opts)
     _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
-    _builder = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=FrontendConfiguration.get_build_opts())
-
-    if _builder is not None:
-        codegen_and_builder_opts = _builder.set_options(codegen_and_builder_opts)
+    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
 
     if len(codegen_and_builder_opts) > 0:
         raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
