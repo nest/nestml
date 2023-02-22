@@ -258,7 +258,7 @@ appropriate numeric solver otherwise.
     def handle_target_path(cls, path: Optional[str]) -> None:
         r"""Process the target path parameter.
 
-        Create the target path if it is specified as a string, but does not exist. Its parent directory has to exist already.
+        Create the target path directory if it is specified as a string, but does not exist. Its parent directory has to exist already.
 
         If the path is None, it will default to ``FrontendConfiguration.DEFAULT_TARGET_PATH_`` in the current working directory.
         """
