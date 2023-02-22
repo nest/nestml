@@ -289,7 +289,7 @@ appropriate numeric solver otherwise.
     def handle_install_path(cls, path: Optional[str]) -> None:
         r"""Process the installation path parameter.
 
-        Create the installation path if it is specified as a string, but does not exist. Its parent directory has to exist already. The path will not be created if ``path`` is None."""
+        Create the installation path directory if it is specified as a string, but does not exist. Its parent directory has to exist already. The path will not be created if ``path`` is None."""
         if path is None:
             return
 
