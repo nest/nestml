@@ -58,6 +58,7 @@ from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -719,7 +720,7 @@ class ASTUtils:
 
         decls = ASTUtils.get_declarations_from_block(var_name, from_block)
         if var_name.endswith(var_name_suffix):
-            decls.extend(ASTUtils.get_declarations_from_block(var_name.removesuffix(var_name_suffix), from_block))
+            decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
             Logger.log_message(None, -1, "Moving definition of " + var_name + " from synapse to neuron",
