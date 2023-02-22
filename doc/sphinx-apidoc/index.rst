@@ -1,13 +1,13 @@
 The NESTML modeling language
 ============================
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/neuron_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/neuron_illustration.svg
    :width: 324px
    :height: 307px
    :align: right
    :target: nestml_language/neurons_in_nestml.html
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/synapse_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/synapse_illustration.svg
    :width: 326px
    :height: 203px
    :align: right
