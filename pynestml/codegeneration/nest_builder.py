@@ -151,32 +151,35 @@ class NESTBuilder(Builder):
         stages_exception = {"cmake": f"Error occurred during cmake! More detailed error messages can be found in {error_location}.", "build": f"Error occurred during 'make all'! More detailed error messages can be found in {error_location}.",
                             "install":  f"Error occurred during 'make install'! More detailed error messages can be found in {error_location}."}
         current_stage = ""
-        try:
-            if self._options["redirect"]:
-                with open(self._options["stdout"], 'w') as stdout, open(self._options["stderr"], 'w') as stderr:
-                    current_stage = "cmake"
-                    subprocess.check_call(cmake_cmd, stderr=stderr, stdout=stdout, shell=shell,
-                                          cwd=str(os.path.join(target_path)))
-                    current_stage = "build"
-                    subprocess.check_call(make_all_cmd, stderr=stderr, stdout=stdout, shell=shell,
-                                          cwd=str(os.path.join(target_path)))
-                    current_stage = "install"
-                    subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
-                                          cwd=str(os.path.join(target_path)))
 
-            else:
-                current_stage = "cmake"
-                stdout = self._options["stdout"]
-                stderr = self._options["stderr"]
-                subprocess.check_call(cmake_cmd, stderr=stderr, stdout=stdout, shell=shell,
-                                      cwd=str(os.path.join(target_path)))
-                current_stage = "build"
-                subprocess.check_call(make_all_cmd, stderr=stderr, stdout=stdout, shell=shell,
-                                      cwd=str(os.path.join(target_path)))
-                current_stage = "install"
-                subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
-                                      cwd=str(os.path.join(target_path)))
-        except IOError as e1:
-            print(f"Failed to open file: {e1}")
-        except subprocess.CalledProcessError as e2:
+        stdout = self._options["stdout"]
+        stderr = self._options["stderr"]
+
+        if self._options["redirect"]:
+            try:
+                stdout = open(stdout, "w")
+                stderr = open(stderr, "w")
+            except IOError as e:
+                raise GeneratedCodeBuildException(f"Failed to open file: {e}")
+
+        try:
+
+            current_stage = "cmake"
+            subprocess.check_call(cmake_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+            current_stage = "build"
+            subprocess.check_call(make_all_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+            current_stage = "install"
+            subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+
+            if self._options["redirect"]:
+                stderr.close()
+                stdout.close()
+
+        except subprocess.CalledProcessError as e:
+            if self._options["redirect"]:
+                stderr.close()
+                stdout.close()
             raise GeneratedCodeBuildException(stages_exception[current_stage])
