@@ -174,12 +174,10 @@ class NESTBuilder(Builder):
             subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
                                   cwd=str(os.path.join(target_path)))
 
-            if self._options["redirect"]:
-                stderr.close()
-                stdout.close()
-
         except subprocess.CalledProcessError as e:
+            raise GeneratedCodeBuildException(stages_exception[current_stage])
+
+        finally:
             if self._options["redirect"]:
                 stderr.close()
                 stdout.close()
-            raise GeneratedCodeBuildException(stages_exception[current_stage])
