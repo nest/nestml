@@ -65,6 +65,10 @@ jobs:
         with:
           python-version: 3.8
 
+      # tmate debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       # Install dependencies
       - name: Install apt dependencies
         run: |
