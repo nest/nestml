@@ -8,10 +8,7 @@ else:
     from typing.io import TextIO
 
 
-if __name__ is not None and "." in __name__:
-    from .PyNestMLLexerBase import PyNestMLLexerBase
-else:
-    from PyNestMLLexerBase import PyNestMLLexerBase
+from pynestml.generated.PyNestMLLexerBase import PyNestMLLexerBase
 
 def serializedATN():
     return [
