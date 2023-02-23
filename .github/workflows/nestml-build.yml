@@ -65,10 +65,6 @@ jobs:
         with:
           python-version: 3.8
 
-      # tmate debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       # Install dependencies
       - name: Install apt dependencies
         run: |
@@ -131,6 +127,11 @@ jobs:
           find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
+
+      # tmate debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 30
 
       # Unit tests
       - name: Run unit tests
