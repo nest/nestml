@@ -158,9 +158,14 @@ class NESTBuilder(Builder):
         if self._options["redirect"]:
             try:
                 stdout = open(stdout, "w")
+            except IOError as e:
+                raise GeneratedCodeBuildException(f"Failed to open file for stdout: {e}")
+
+            try:
                 stderr = open(stderr, "w")
             except IOError as e:
-                raise GeneratedCodeBuildException(f"Failed to open file: {e}")
+                stdout.close()
+                raise GeneratedCodeBuildException(f"Failed to open file for stderr: {e}")
 
         try:
 
