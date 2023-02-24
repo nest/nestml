@@ -41,9 +41,9 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -53,11 +53,12 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -719,7 +720,7 @@ class ASTUtils:
 
         decls = ASTUtils.get_declarations_from_block(var_name, from_block)
         if var_name.endswith(var_name_suffix):
-            decls.extend(ASTUtils.get_declarations_from_block(var_name.removesuffix(var_name_suffix), from_block))
+            decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
             Logger.log_message(None, -1, "Moving definition of " + var_name + " from synapse to neuron",
@@ -1219,7 +1220,15 @@ class ASTUtils:
         assert type(kernel_var_name) is str
         assert type(order) is int
         assert type(diff_order_symbol) is str
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+
+        if isinstance(spike_input_port, ASTSimpleExpression):
+            spike_input_port = spike_input_port.get_variable()
+
+        spike_input_port_name = spike_input_port.get_name()
+        if spike_input_port.has_vector_parameter():
+            spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
+
+        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,

@@ -36,6 +36,7 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -493,8 +494,8 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse.paired_neuron = new_neuron
         new_neuron.paired_synapse = new_synapse
 
-        base_neuron_name = neuron.get_name().removesuffix(FrontendConfiguration.suffix)
-        base_synapse_name = synapse.get_name().removesuffix(FrontendConfiguration.suffix)
+        base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
+        base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
 
         new_synapse.post_port_names = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
         new_synapse.spiking_post_port_names = self.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name)
