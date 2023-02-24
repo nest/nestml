@@ -131,7 +131,7 @@ jobs:
       # tmate debug
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 30
+        timeout-minutes: 1440
 
       # Unit tests
       - name: Run unit tests
