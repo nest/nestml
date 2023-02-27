@@ -77,7 +77,7 @@ The following default values are used, corresponding to the command line default
      - False
    * - codegen_opts
      - Optional[Mapping[str, Any]]
-     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. These options are specific to a given target platform, see for example :ref:`Running NESTML with custom templates`.
+     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
 A typical script for the NEST Simulator target could look like the following. First, import the function:
 
@@ -150,7 +150,7 @@ This will generate, compile, build, and install the code for a set of specified 
    * - ``--dev``
      - (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
    * - ``--codegen_opts``
-     - (Optional) Path to a JSON file containing additional options for the target platform code generator.
+     - (Optional) Path to a JSON file containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
 
 NEST Simulator target
