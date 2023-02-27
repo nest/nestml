@@ -5,7 +5,7 @@ Creating neuron models
 
   Learn how to write the Izhikevich spiking neuron model in NESTML.
 
-* :doc:`Spike-frequency adaptation </tutorials/spike_frequency_adaptation/nestml_spike_frequency_adaptation_tutorial.ipynb>`
+* :doc:`Spike-frequency adaptation </tutorials/spike_frequency_adaptation/nestml_spike_frequency_adaptation_tutorial>`
 
   Spike-frequency adaptation (SFA) is the empirically observed phenomenon where the firing rate of a neuron decreases for a sustained, constant stimulus. Learn how to model SFA using threshold adaptation and an adaptation current.
 
