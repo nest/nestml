@@ -182,7 +182,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
                     function_call = search_functions[0]
                     for function in global_functions:
                         if function.name == function_call.callee_name:
-                            print("function found")
+                            #print("function found")
                             synapse_functions.append(function)
                             found_functions.append(function_call)
 
@@ -204,7 +204,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
                     variable = search_variables[0]
                     for kernel in global_kernels:
                         if variable.name == kernel.get_variables()[0].name:
-                            print("kernel found")
+                            #print("kernel found")
                             synapse_kernels.append(kernel)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
@@ -221,7 +221,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
 
                     for inline in global_inlines:
                         if variable.name == inline.variable_name:
-                            print("inline found")
+                            #print("inline found")
                             synapse_inlines.append(inline)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
@@ -236,7 +236,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
 
                     for ode in global_odes:
                         if variable.name == ode.lhs.name:
-                            print("ode found")
+                            #print("ode found")
                             synapse_odes.append(ode)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
@@ -251,20 +251,20 @@ class ASTSynapseInformationCollector(ASTVisitor):
 
                     for state in global_states:
                         if variable.name == state.name:
-                            print("state found")
+                            #print("state found")
                             synapse_states.append(state)
 
                     for parameter in global_parameters:
                         if variable.name == parameter.name:
-                            print("parameter found")
+                            #print("parameter found")
                             synapse_parameters.append(parameter)
 
                     search_variables.remove(variable)
                     found_variables.append(variable)
                     # IMPLEMENT CATCH NONDEFINED!!!
 
-            #syns_info[synapse_name]["states_used"] = synapse_states
-            #syns_info[synapse_name]["parameters_used"] = synapse_parameters
+            syns_info[synapse_name]["states_used"] = synapse_states
+            syns_info[synapse_name]["parameters_used"] = synapse_parameters
             syns_info[synapse_name]["functions_used"] = synapse_functions
             syns_info[synapse_name]["secondaryInlineExpressions"] = synapse_inlines
             syns_info[synapse_name]["ODEs"] = synapse_odes
@@ -273,14 +273,14 @@ class ASTSynapseInformationCollector(ASTVisitor):
         return syns_info
 
     @classmethod
-    def extend_variables_with_initialisations(cls, neuron, chan_info):
-        for ion_channel_name, channel_info in chan_info.items():
+    def extend_variables_with_initialisations(cls, neuron, syns_info):
+        for ion_channel_name, channel_info in syns_info.items():
             var_init_visitor = VariableInitializationVisitor(channel_info)
             neuron.accept(var_init_visitor)
-            chan_info[ion_channel_name]["states_used"] = var_init_visitor.states
-            chan_info[ion_channel_name]["parameters_used"] = var_init_visitor.parameters
+            syns_info[ion_channel_name]["states_used"] = var_init_visitor.states
+            syns_info[ion_channel_name]["parameters_used"] = var_init_visitor.parameters
 
-        return chan_info
+        return syns_info
 
     def get_variable_names_of_synapse(self, synapse_inline: ASTInlineExpression, exclude_names: set = set(), exclude_ignorable=True) -> set:
         if exclude_ignorable:
@@ -422,8 +422,9 @@ class ASTSynapseInformationCollector(ASTVisitor):
                     kernel, spikes = node.get_args()
                     kernel_var = kernel.get_variables()[0]
                     spikes_var = spikes.get_variables()[0]
-                    self.inline_expression_to_kernel_args[self.current_inline_expression].add(
-                        (kernel_var, spikes_var))
+                    if "mechanism::receptor" in [(e.namespace + "::" + e.name) for e in self.current_inline_expression.get_decorators()]:
+                        self.inline_expression_to_kernel_args[self.current_inline_expression].add(
+                            (kernel_var, spikes_var))
                 else:
                     self.inline_expression_to_function_calls[self.current_inline_expression].add(
                         node)
@@ -657,6 +658,10 @@ class VariableInitializationVisitor(ASTVisitor):
             self.inside_state_block = True
         if node.is_parameters:
             self.inside_parameter_block = True
+
+    def endvisit_block_with_variables(self, node):
+        self.inside_state_block = False
+        self.inside_parameter_block = False
 
     def visit_variable(self, node):
         self.inside_variable = True

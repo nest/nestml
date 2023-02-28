@@ -153,10 +153,19 @@ private:
   double {{param_name}};
   {%- endfor %}
 
+      // states
+    {%- for pure_variable_name, variable_info in synapse_info["states_used"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+  {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
   double {{internal_name}};
   {%- endfor %}
+
+
 
   // spike buffer
   RingBuffer* {{synapse_info["buffer_name"]}}_;
@@ -189,7 +198,7 @@ public:
   };
 
   // function declarations
-  {% for function in neuron.get_functions() %}
+  {%- for function in synapse_info["functions_used"] %}
   {{ function_declaration.FunctionDeclaration(function, "") -}};
 
   {% endfor %}

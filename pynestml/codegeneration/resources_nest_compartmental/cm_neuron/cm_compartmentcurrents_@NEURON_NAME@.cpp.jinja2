@@ -264,7 +264,7 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
 nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
-    {{ param_name }}({{ printer_no_origin.print(param_declaration.get_expression()) }})
+    {{ param_name }}({{ printer_no_origin.print(param_declaration["rhs_expression"]) }})
   {%- endfor %}
 {
   syn_idx = syn_index;
@@ -274,7 +274,7 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}
 nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
-    {{ param_name }}({{ printer_no_origin.print(param_declaration.get_expression()) }})
+    {{ param_name }}({{ printer_no_origin.print(param_declaration["rhs_expression"]) }})
   {%- endfor %}
 {
   syn_idx = syn_index;
@@ -313,7 +313,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
   // initial values for user defined states
   // warning: this shadows class variables
   {%- for state_name, state_declaration in synapse_info["states_used"].items() %}
-  double {{state_name}} = {{ printer_no_origin.print(state_declaration.get_expression()) }};
+  double {{state_name}} = {{ printer_no_origin.print(state_declaration["rhs_expression"]) }};
   {%- endfor %}
 
   // initial values for kernel state variables, set to zero
@@ -336,6 +336,18 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
   // get spikes
   double s_val = {{synapse_info["buffer_name"]}}_->get_value( lag ); //  * g_norm_;
 
+  //update ODE state variable
+  double {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
+  {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
+      {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+  double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
+      {%- endfor %}
+      {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+        {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
+  {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
+      {%- endfor %}
+  {%- endfor %}
+
   // update kernel state variable / compute synaptic conductance
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
@@ -357,7 +369,7 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
   // for numerical integration
   double g_val = - d_i_tot_dv / 2.;
   double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
-
+  //std::cout << "g_val: " << g_val << "  i_val: " << i_val << std::endl;
   return std::make_pair(g_val, i_val);
 
 }

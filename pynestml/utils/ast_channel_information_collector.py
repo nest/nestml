@@ -25,6 +25,8 @@ import copy
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -636,15 +638,13 @@ class ASTChannelInformationCollector(object):
         neuron.accept(
             inline_expressions_inside_equations_block_collector_visitor)
         inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
-
         # filter for any inline that has no kernel
         relevant_inline_expressions_to_variables = defaultdict(lambda: list())
         for expression, variables in inline_expressions_dict.items():
-            print("ja")
+            print(type(expression))
+            print(expression.get_decorators()[0].namespace + "::" + expression.get_decorators()[0].name)
             inline_expression_name = expression.variable_name
-            if not inline_expressions_inside_equations_block_collector_visitor.is_synapse_inline(
-                    inline_expression_name):
-                print("ja wirklich")
+            if "mechanism::channel" in [(e.namespace+"::"+e.name) for e in expression.get_decorators()]:
                 relevant_inline_expressions_to_variables[expression] = variables
 
         # create info structure
@@ -839,7 +839,6 @@ class ASTChannelInformationCollector(object):
                     function_call = search_functions[0]
                     for function in global_functions:
                         if function.name == function_call.callee_name:
-                            print("function found")
                             channel_functions.append(function)
                             found_functions.append(function_call)
 
@@ -861,7 +860,6 @@ class ASTChannelInformationCollector(object):
                     variable = search_variables[0]
                     for inline in global_inlines:
                         if variable.name == inline.variable_name:
-                            print("inline found")
                             channel_inlines.append(inline)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
@@ -876,7 +874,6 @@ class ASTChannelInformationCollector(object):
 
                     for ode in global_odes:
                         if variable.name == ode.lhs.name:
-                            print("ode found")
                             channel_odes.append(ode)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
@@ -891,12 +888,10 @@ class ASTChannelInformationCollector(object):
 
                     for state in global_states:
                         if variable.name == state.name:
-                            print("state found")
                             channel_states.append(state)
 
                     for parameter in global_parameters:
                         if variable.name == parameter.name:
-                            print("parameter found")
                             channel_parameters.append(parameter)
 
                     search_variables.remove(variable)
@@ -919,7 +914,6 @@ class ASTChannelInformationCollector(object):
 
     @classmethod
     def check_if_key_zero_var_for_expression(cls, rhs_expression_str, var_str):
-        print(rhs_expression_str)
         sympy_expression = sympy.parsing.sympy_parser.parse_expr(rhs_expression_str, evaluate=False)
         if isinstance(sympy_expression, sympy.core.add.Add) and \
                 cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) and \
@@ -939,7 +933,6 @@ class ASTChannelInformationCollector(object):
         key_zero_parameters = list()
         for parameter_name, parameter_info in parameters.items():
             if cls.check_if_key_zero_var_for_expression(rhs_expression_str, parameter_name):
-                print("found key-zero parameter")
                 key_zero_parameters.append(parameter_name)
 
         return key_zero_parameters
@@ -1009,7 +1002,7 @@ class ASTChannelInformationCollector(object):
             print("----", end="")
         print(name + ": ", end="")
         if isinstance(element, defaultdict):
-            print("\n")
+            print("\n", end="")
             cls.print_dictionary(element, rec_step + 1)
         else:
             if hasattr(element, 'name'):
@@ -1017,15 +1010,14 @@ class ASTChannelInformationCollector(object):
             elif isinstance(element, str):
                 print(element, end="")
             elif isinstance(element, dict):
-                #try:
-                #    print(json.dumps(element, indent=4), end="")
-                #except:
-                print("\n")
+                print("\n", end="")
                 cls.print_dictionary(element, rec_step + 1)
             elif isinstance(element, list):
                 for index in range(len(element)):
-                    print("\n")
+                    print("\n", end="")
                     cls.print_element(str(index), element[index], rec_step+1)
+            elif isinstance(element, ASTExpression) or isinstance(element, ASTSimpleExpression):
+                print(cls._ode_toolbox_printer.print(element), end="")
 
             print("(" + type(element).__name__ + ")", end="")
 
@@ -1033,7 +1025,7 @@ class ASTChannelInformationCollector(object):
     def print_dictionary(cls, dictionary, rec_step):
         for name, element in dictionary.items():
             cls.print_element(name, element, rec_step)
-            print("\n")
+            print("\n", end="")
 
 
 
@@ -1457,6 +1449,10 @@ class VariableInitializationVisitor(ASTVisitor):
             self.inside_state_block = True
         if node.is_parameters:
             self.inside_parameter_block = True
+
+    def endvisit_block_with_variables(self, node):
+        self.inside_state_block = False
+        self.inside_parameter_block = False
 
     def visit_variable(self, node):
         self.inside_variable = True

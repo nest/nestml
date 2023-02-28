@@ -506,6 +506,17 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single inline expression.
         :type node: ASTInlineExpression
         """
+
+        # split the decorators in the AST up into namespace decorators and other decorators
+        decorators = []
+        namespace_decorators = {}
+        for d in node.get_decorators():
+            if isinstance(d, ASTNamespaceDecorator):
+                namespace_decorators[str(d.get_namespace())] = str(
+                    d.get_name())
+            else:
+                decorators.append(d)
+
         data_type_visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(data_type_visitor)
         type_symbol = PredefinedTypes.get_type(data_type_visitor.result)

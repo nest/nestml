@@ -151,8 +151,8 @@ class SynsProcessing(object):
         synapse_inlines = info_collector.get_inline_expressions_with_kernels()
         for synapse_inline in synapse_inlines:
             synapse_name = synapse_inline.variable_name
-            syns_info[synapse_name]["parameters_used"] = info_collector.get_synapse_specific_parameter_declarations(synapse_inline)
-            syns_info[synapse_name]["states_used"] = info_collector.get_synapse_specific_state_declarations(synapse_inline)
+            #syns_info[synapse_name]["parameters_used"] = info_collector.get_synapse_specific_parameter_declarations(synapse_inline)
+            #syns_info[synapse_name]["states_used"] = info_collector.get_synapse_specific_state_declarations(synapse_inline)
             syns_info[synapse_name]["internals_used_declared"] = info_collector.get_synapse_specific_internal_declarations(synapse_inline)
             syns_info[synapse_name]["total_used_declared"] = info_collector.get_variable_names_of_synapse(synapse_inline)
             syns_info[synapse_name]["convolutions"] = defaultdict()
@@ -451,6 +451,10 @@ class SynsProcessing(object):
     def ode_toolbox_processing(cls, neuron, syns_info):
         parameters_block = neuron.get_parameters_blocks()[0]
 
+        #Process explicitly written ODEs
+        syns_info = ASTChannelInformationCollector.prepare_equations_for_ode_toolbox(neuron, syns_info)
+        syns_info = ASTChannelInformationCollector.collect_raw_odetoolbox_output(syns_info)
+        #Process convolutions
         for synapse_name, synapse_info in syns_info.items():
             for convolution_name, convolution_info in synapse_info["convolutions"].items():
                 kernel_buffer = (convolution_info["kernel"]["ASTKernel"], convolution_info["spikes"]["ASTInputPort"])
@@ -481,6 +485,7 @@ class SynsProcessing(object):
                 #print("POST INPUT COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
                 #ASTChannelInformationCollector.print_dictionary(syns_info, 0)
 
+            syns_info = ASTSynapseInformationCollector.extend_variables_with_initialisations(neuron, syns_info)
             syns_info = cls.ode_toolbox_processing(neuron, syns_info)
             cls.syns_info[neuron] = syns_info
             cls.first_time_run[neuron] = False

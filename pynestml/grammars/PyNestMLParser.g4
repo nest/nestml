@@ -121,7 +121,7 @@ parser grammar PyNestMLParser;
   * Equations-Language
   *********************************************************************************************************************/
 
-  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
+  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)? decorator=anyDecorator*;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
