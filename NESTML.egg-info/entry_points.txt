@@ -1,0 +1,3 @@
+[console_scripts]
+nestml = pynestml.frontend.pynestml_frontend:main
+
