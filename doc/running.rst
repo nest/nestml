@@ -279,12 +279,14 @@ For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https:/
 Compatibility with different versions of NEST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with particular release versions of NEST Simulator, the code generator option  ``nest_version`` can be used. It takes a string as its value that corresponds to a git tag or git branch name. The following values are supported:
+To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-- ``"v2.20.2"``: Latest NEST 2 release.
 - ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
+- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, ``"v3.3"``, ``"v3.4"``: NEST 3 release versions.
 
+For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
 
 Python-standalone target
 ------------------------
