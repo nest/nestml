@@ -124,14 +124,13 @@ jobs:
 
       - name: Generate Lexer and Parser using Antlr4
         run: |
-          find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
 
       # tmate debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 1440
+      # - name: Setup tmate session
+      #  uses: mxschmitt/action-tmate@v3
+      #  timeout-minutes: 1440
 
       # Unit tests
       - name: Run unit tests
