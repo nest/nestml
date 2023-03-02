@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterable, List, Mapping, Optional, Sequence, Union
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
 import re
 import sympy
 
-from pynestml.codegeneration.printers.printer import Printer
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -40,9 +41,9 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -51,17 +52,19 @@ from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTUtils:
-    """
+    r"""
     A collection of helpful methods for AST manipulation.
     """
 
@@ -717,7 +720,7 @@ class ASTUtils:
 
         decls = ASTUtils.get_declarations_from_block(var_name, from_block)
         if var_name.endswith(var_name_suffix):
-            decls.extend(ASTUtils.get_declarations_from_block(var_name.removesuffix(var_name_suffix), from_block))
+            decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
             Logger.log_message(None, -1, "Moving definition of " + var_name + " from synapse to neuron",
@@ -1217,7 +1220,15 @@ class ASTUtils:
         assert type(kernel_var_name) is str
         assert type(order) is int
         assert type(diff_order_symbol) is str
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+
+        if isinstance(spike_input_port, ASTSimpleExpression):
+            spike_input_port = spike_input_port.get_variable()
+
+        spike_input_port_name = spike_input_port.get_name()
+        if spike_input_port.has_vector_parameter():
+            spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
+
+        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -1316,17 +1327,118 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_parameter_by_name(cls, parameters_block: ASTBlockWithVariables, var_name: str) -> ASTDeclaration:
+    def get_parameter_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the parameter
-        :param parameters_block: the parameter block
+        :param node: the neuron or synapse containing the parameter
         :param var_name: variable name to be searched
         :return: declaration containing the variable
         """
-        for decl in parameters_block.get_declarations():
-            for var in decl.get_variables():
-                if var.get_name() == var_name:
-                    return decl
+        for param_block in node.get_parameters_blocks():
+            for decl in param_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
+        return None
+
+    @classmethod
+    def get_parameter_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTVariable:
+        """
+        Get a parameter node based on the name of the parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: the parameter node
+        """
+        for param_block in node.get_parameters_blocks():
+            for decl in param_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_internal_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> ASTDeclaration:
+        """
+        Get the declaration based on the name of the internal parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for internals_block in node.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
+        return None
+
+    @classmethod
+    def get_internal_variable_by_name(cls, node: ASTVariable, var_name: str) -> ASTVariable:
+        """
+        Get the internal parameter node based on the name of the internal parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable
+        """
+        for internals_block in node.get_internals_blocks():
+            for decl in internals_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
+        """
+        Get a variable or parameter node based on the name
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: the node if found, otherwise None
+        """
+        var = ASTUtils.get_state_variable_by_name(node, var_name)
+
+        if not var:
+            var = ASTUtils.get_parameter_variable_by_name(node, var_name)
+
+        if not var:
+            var = ASTUtils.get_internal_variable_by_name(node, var_name)
+
+        if not var:
+            expr = ASTUtils.get_inline_expression_by_name(node, var_name)
+            if expr:
+                var = ASTNodeFactory.create_ast_variable(var_name, differential_order=0)
+                assert len(node.get_equations_blocks()) == 1, "Only one equations block supported for now"
+                var.scope = node.get_equations_blocks()[0].scope
+
+        return var
+
+    @classmethod
+    def get_state_variable_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTVariable]:
+        """
+        Get a state variable node based on the name
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: the node if found, otherwise None
+        """
+        for state_block in node.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return var
+        return None
+
+    @classmethod
+    def get_state_variable_declaration_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[ASTDeclaration]:
+        """
+        Get the declaration based on the name of the parameter
+        :param node: the neuron or synapse containing the parameter
+        :param var_name: variable name to be searched
+        :return: declaration containing the variable if found, otherwise None
+        """
+        for state_block in node.get_state_blocks():
+            for decl in state_block.get_declarations():
+                for var in decl.get_variables():
+                    if var.get_name() == var_name:
+                        return decl
         return None
 
     @classmethod
@@ -1517,7 +1629,7 @@ class ASTUtils:
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_blocks: Sequence[ASTBlockWithVariables],
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: Printer) -> dict:
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> Dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
 
@@ -1542,7 +1654,7 @@ class ASTUtils:
             for equation in equations_block.get_ode_equations():
                 # n.b. includes single quotation marks to indicate differential order
                 lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
-                rhs = printer.print_expression(equation.get_rhs())
+                rhs = printer.print(equation.get_rhs())
                 entry = {"expression": lhs + " = " + rhs}
                 symbol_name = equation.get_lhs().get_name()
                 symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
@@ -1553,7 +1665,7 @@ class ASTUtils:
                     iv_symbol_name = symbol_name + "'" * order
                     initial_value_expr = neuron.get_initial_value(iv_symbol_name)
                     if initial_value_expr:
-                        expr = printer.print_expression(initial_value_expr)
+                        expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
                 odetoolbox_indict["dynamics"].append(entry)
 
@@ -1584,7 +1696,7 @@ class ASTUtils:
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_
                     initial_value_expr = symbol.get_declaring_expression()
                     assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print_expression(initial_value_expr)
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print(initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
 
@@ -1592,8 +1704,7 @@ class ASTUtils:
         for parameters_block in parameters_blocks:
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
-                    odetoolbox_indict["parameters"][var.get_complete_name(
-                    )] = printer.print_expression(decl.get_expression())
+                    odetoolbox_indict["parameters"][var.get_complete_name()] = printer.print(decl.get_expression())
 
         return odetoolbox_indict
 
@@ -1856,7 +1967,7 @@ class ASTUtils:
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
-        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
+        r"""Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
         if node is None:
             return
 
@@ -1951,3 +2062,63 @@ class ASTUtils:
             if sym:
                 return sym
         return None
+
+    @classmethod
+    def get_unit_name(cls, variable: ASTVariable) -> str:
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
+
+        variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
+        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+            return symbol.get_type_symbol().unit.unit.to_string()
+
+        return ''
+
+    @classmethod
+    def _find_port_in_dict(cls, rport_to_port_map: Dict[int, List[VariableSymbol]], port: VariableSymbol) -> int:
+        """
+        Finds the corresponding "inhibitory" port for a given "excitatory" port and vice versa in the handed over map.
+        :param rport_to_port_map: map containing NESTML port names for the rport
+        :param port: port to be searched
+        :return: key value in the map if the port is found, else None
+        """
+        for key, value in rport_to_port_map.items():
+            if len(value) == 1:
+                if (port.is_excitatory() and value[0].is_inhibitory() and not value[0].is_excitatory()) \
+                        or (port.is_inhibitory() and value[0].is_excitatory() and not value[0].is_inhibitory()):
+                    if port.has_vector_parameter():
+                        if cls.get_numeric_vector_size(port) == cls.get_numeric_vector_size(value[0]):
+                            return key
+                    else:
+                        return key
+        return None
+
+    @classmethod
+    def get_spike_input_ports_in_pairs(cls, neuron: ASTNeuron) -> Dict[int, List[VariableSymbol]]:
+        """
+        Returns a list of spike input ports in pairs in case of input port qualifiers.
+        The result of this function is used to construct a vector that provides a mapping to the NESTML spike buffer index. The vector looks like below:
+        .. code-block::
+            [ {AMPA_SPIKES, GABA_SPIKES}, {NMDA_SPIKES, -1} ]
+
+        where the vector index is the NEST rport number. The value is a tuple containing the NESTML index(es) to the spike buffer.
+        In case if the rport is shared between two NESTML buffers, the vector element contains the tuple of the form (excitatory_port_index, inhibitory_port_index). Otherwise, the tuple is of the form (spike_port_index, -1).
+        """
+        rport_to_port_map = {}
+        rport = 0
+        for port in neuron.get_spike_input_ports():
+            if port.is_excitatory() and port.is_inhibitory():
+                rport_to_port_map[rport] = [port]
+                rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
+            else:
+                key = cls._find_port_in_dict(rport_to_port_map, port)
+                if key is not None:
+                    # The corresponding spiking input pair is found.
+                    # Add the port to the list and update rport
+                    rport_to_port_map[key].append(port)
+                    rport += cls.get_numeric_vector_size(port) if port.has_vector_parameter() else 1
+                else:
+                    # New input port. Retain the same rport number until the corresponding input port pair is found.
+                    rport_to_port_map[rport] = [port]
+
+        return rport_to_port_map

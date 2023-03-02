@@ -138,6 +138,13 @@ class ASTNeuron(ASTNeuronOrSynapse):
 
         return vector_symbols
 
+    def get_single_receptors(self) -> List[VariableSymbol]:
+        """
+        Returns a list of spike input ports that are defined as either excitatory or inhibitory.
+        :return: a list of spike input port variable symbols
+        """
+        return list(set(self.get_spike_input_ports()) - set(self.get_multiple_receptors()))
+
     def has_vector_port(self) -> bool:
         """
         This method indicates whether this neuron contains input ports defined vector-wise.

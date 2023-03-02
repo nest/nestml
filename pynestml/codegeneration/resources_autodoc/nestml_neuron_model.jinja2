@@ -7,7 +7,7 @@
 Parameters
 ++++++++++
 
-{% for block in neuron.get_parameters_blocks() %}
+{%- for block in neuron.get_parameters_blocks() %}
 {{ block.print_comment() }}
 {%- include "block_decl_table.jinja2" %}
 {%- endfor %}

@@ -174,7 +174,7 @@ class ASTNode(metaclass=ABCMeta):
 
     def has_comment(self):
         """
-        Indicates whether this element stores a prefix.
+        Indicates whether this element stores a comment.
         :return: True if has comment, otherwise False.
         :rtype: bool
         """
@@ -217,4 +217,4 @@ class ASTNode(metaclass=ABCMeta):
 
     def __str__(self):
         from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
-        return NESTMLPrinter().print_node(self)
+        return NESTMLPrinter().print(self)

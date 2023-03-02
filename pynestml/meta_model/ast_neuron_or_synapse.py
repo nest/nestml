@@ -22,6 +22,7 @@
 from typing import List, Optional
 
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_function import ASTFunction
@@ -180,11 +181,11 @@ class ASTNeuronOrSynapse(ASTNode):
         :return: a list of initial values declarations
         :rtype: list(ASTDeclaration)
         """
-        initial_values_block = self.get_state_blocks()
         initial_values_declarations = list()
-        if initial_values_block is not None:
-            for decl in initial_values_block.get_declarations():
+        for state_block in self.get_state_blocks():
+            for decl in state_block.get_declarations():
                 initial_values_declarations.append(decl)
+
         return initial_values_declarations
 
     def get_equations(self) -> List[ASTOdeEquation]:
@@ -350,6 +351,7 @@ class ASTNeuronOrSynapse(ASTNode):
                     return decl
 
             # check if defined for a higher order of differentiation
+        for equations_block in self.get_equations_blocks():
             for decl in equations_block.get_declarations():
                 if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
                     return decl
@@ -430,6 +432,32 @@ class ASTNeuronOrSynapse(ASTNode):
             for decl in block.get_declarations():
                 if decl.has_invariant():
                     ret.append(decl.get_invariant())
+
+        return ret
+
+    def get_parameter_variables(self) -> List[ASTVariable]:
+        """
+        Returns a list of all parameters.
+        :return:
+        """
+        ret = []
+        blocks = set(self.get_parameters_blocks())
+        if not isinstance(blocks, list):
+            blocks = [blocks]
+        for block in blocks:
+            for decl in block.get_declarations():
+                ret.extend(decl.get_varibles())
+        return ret
+
+    def get_state_variables(self) -> List[ASTVariable]:
+        """
+        Returns a list of all state variables.
+        :return:
+        """
+        ret = []
+        for block in self.get_state_blocks():
+            for decl in block.get_declarations():
+                ret.extend(decl.get_varibles())
 
         return ret
 
