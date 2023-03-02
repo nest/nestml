@@ -5,6 +5,11 @@ target/
 build/
 buildNest/
 venv/
+spinnaker-install/
+spinnaker-target/
+report/
+nestml-*/
+*.egg-info
 
 
 __*
