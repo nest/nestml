@@ -1,0 +1,20 @@
+{#
+  Generates an Enum with state variables that are recordable when the neuron model uses vectors
+  @param neuron ASTNeuron: the neuron model
+-#}
+
+enum StateVecVars {
+{%- set ns = namespace(count=0) %}
+{%- for variable in neuron.get_state_symbols() %}
+{%-     set varDomain = declarations.get_domain_from_type(variable.get_type_symbol()) %}
+{%-     if varDomain == "double" and variable.is_recordable %}
+    {{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable.get_symbol_name())).upper() }} = {{ ns.count }},
+{%-         if variable.has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(variable) %}
+{%-             set ns.count = ns.count + size %}
+{%-         else %}
+{%-             set ns.count = ns.count + 1 %}
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
+};

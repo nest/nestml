@@ -25,6 +25,7 @@ from setuptools import setup, find_packages
 
 assert sys.version_info.major >= 3 and sys.version_info.minor >= 9, "Python 3.9 or higher is required to run NESTML"
 
+
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
@@ -68,3 +69,4 @@ setup(
     install_requires=requirements,
     test_suite="tests",
 )
+
