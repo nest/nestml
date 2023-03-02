@@ -98,7 +98,7 @@ class NoisySynapseTest(unittest.TestCase):
 
         wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "noisy_synapse_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
