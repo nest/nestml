@@ -188,7 +188,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 spikedet_pre = nest.Create("spike_recorder")
                 spikedet_post = nest.Create("spike_recorder")
             mm = nest.Create("multimeter", params={"record_from": [
-                             "V_m", "post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"]})
+                             "V_m", "post_trace__for_stdp_nestml"]})
         if sim_ref:
             if NESTTools.detect_nest_version().startswith("v2"):
                 spikedet_pre_ref = nest.Create("spike_detector")
@@ -251,8 +251,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
             if sim_mdl:
                 timevec = nest.GetStatus(mm, "events")[0]["times"]
                 V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-                ax2.plot(timevec, nest.GetStatus(mm, "events")[
-                         0]["post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"], label="post_tr nestml")
+                ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="post_tr nestml")
                 ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
             if sim_ref:
                 pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
@@ -324,8 +323,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                     else:
                         _lbl = None
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
-            ax2.plot(timevec, nest.GetStatus(mm, "events")[
-                     0]["post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"], label="nestml post tr")
+            ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             if sim_mdl:
