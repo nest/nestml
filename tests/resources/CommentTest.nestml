@@ -39,10 +39,7 @@ neuron commentTest:
     #pre comment 1 ok
     #pre comment 2 ok
     test boolean = True #inline comment ok
-    #post comment 1 ok
-    #post comment 2 ok
 
-    #post comment not ok
   end
 
   #equations comment ok
