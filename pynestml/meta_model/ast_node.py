@@ -46,8 +46,8 @@ class ASTNode(metaclass=ABCMeta):
         implicit_conversion_factor = None
     """
 
-    def __init__(self, source_position: ASTSourceLocation = None, scope:Scope = None, comment: Optional[str] = None, pre_comments:Optional[List[str]] = None,
-                 in_comment: Optional[str] = None, implicit_conversion_factor:Optional[float] = None):
+    def __init__(self, source_position: ASTSourceLocation = None, scope: Scope = None, comment: Optional[str] = None, pre_comments: Optional[List[str]] = None,
+                 in_comment: Optional[str] = None, implicit_conversion_factor: Optional[float] = None):
         """
         The standard constructor.
         :param source_position: a source position element.
