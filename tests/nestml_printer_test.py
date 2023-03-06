@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import os
 import unittest
 
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
@@ -112,7 +112,7 @@ class NestMLPrinterTest(unittest.TestCase):
         neuron = "# pre\n" \
                  "neuron test: # in\n" \
                  "    parameters:\n" \
-                 "        foo integer = 0"
+                 "        foo integer = 0\n"
         model = ModelParser.parse_nestml_compilation_unit(neuron)
         model_printer = NESTMLPrinter()
         self.assertEqual(neuron, model_printer.print(model))
@@ -152,7 +152,7 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_equations_block_without_comments(self):
         block = "equations:\n" \
-                "    v' = -v / t"
+                "    v' = -v / t\n"
         model = ModelParser.parse_equations_block(block)
         model_printer = NESTMLPrinter()
         self.assertEqual(block, model_printer.print(model))
@@ -173,9 +173,9 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(stmt, model_printer.print(model))
 
     def test_while_stmt_with_comments(self):
-        stmt = "# pre\n" \
-               "while true: # in\n" \
-               "    i += 1\n"
+        stmt = "    # pre\n" \
+               "    while true: # in\n" \
+               "        i += 1\n"
         model = ModelParser.parse_block(stmt)
         model_printer = NESTMLPrinter()
         self.assertEqual(stmt, model_printer.print(model))
@@ -220,3 +220,13 @@ class NestMLPrinterTest(unittest.TestCase):
             model = ModelParser.parse_unary_operator(op)
             model_printer = NESTMLPrinter()
             self.assertEqual(op, model_printer.print(model))
+
+    def test_neuorn_model(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir,
+                                                                "models", "neurons", "iaf_psc_exp.nestml")))
+        model = ModelParser.parse_model(input_path)
+        model_printer = NESTMLPrinter()
+        # print(model_printer.print(model))
+        with open(input_path, "r") as f:
+            expected = f.read()
+        self.assertEqual(expected, model_printer.print(model))
