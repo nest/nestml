@@ -100,10 +100,12 @@ class PyNestMLLexerBase(Lexer):
         dedent.line = self.lastToken.line
         return dedent
 
-    def commonToken(self, type, text, indent=0):
+    def commonToken(self, type, text, indent=0, channel=None):
         stop = self.getCharIndex() - 1 - indent
         start = (stop - len(text) + 1) if text else stop
-        return CommonToken(self._tokenFactorySourcePair, type, super().DEFAULT_TOKEN_CHANNEL, start, stop)
+        if not channel:
+            channel = super().DEFAULT_TOKEN_CHANNEL
+        return CommonToken(self._tokenFactorySourcePair, type, channel, start, stop)
 
     @staticmethod
     def getIndentationCount(spaces):
@@ -138,7 +140,11 @@ class PyNestMLLexerBase(Lexer):
         else:
             nextnext_eof = False
         if self.opened > 0 or nextnext_eof is False and (
-                la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
+                la_char == '\r' or la_char == '\n' or la_char == '\f'):
+            # Emit a newline token but in the comments channel (2).
+            # This newline is used as a separator between comments while parsing.
+            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, '\n', channel=2))
+        elif self.opened > 0 or nextnext_eof is False and (la_char == '#'):
             self.skip()
         else:
             indent = self.getIndentationCount(spaces)

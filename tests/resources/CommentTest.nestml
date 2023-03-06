@@ -30,18 +30,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron commentTest:
+neuron commentTest:  #neuron in comment ok
+
     #state comment ok
-    state:
+    state:  #in comment ok
         #pre comment not ok
 
         #pre comment 1 ok
         #pre comment 2 ok
         test real = -50 #inline comment ok
-        #post comment 1 ok
-        #post comment 2 ok
-
-        #post comment not ok
 
     #equations comment ok
     equations:

@@ -164,6 +164,14 @@ def is_newline(tok):
     return tok.text in ['\n', '\r\n']
 
 
+def is_indent(tok):
+    return tok.type == 1  # INDENT token
+
+
+def is_dedent(tok):
+    return tok.type == 2  # DEDENT token
+
+
 def get_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     """
     Returns all pre-, inline and post-comments.
@@ -200,14 +208,13 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     empty_before = __no_definitions_before(ctx, tokens)
     temp = None
     for possibleCommentToken in reversed(tokens[0:tokens.index(ctx.start)]):
-        # skip whitespaces
-        if possibleCommentToken.channel == 1:
-            continue
         # if we hit a normal token (i.e. not whitespace and not newline) then stop
-        if possibleCommentToken.channel == 0 and (not is_newline(possibleCommentToken)):
+        if possibleCommentToken.channel == 0 \
+                and not (is_newline(possibleCommentToken)
+                         or is_indent(possibleCommentToken) or is_dedent(possibleCommentToken)):
             break
-        # a newline by itself separates elements
-        if possibleCommentToken.channel == 0 and is_newline(possibleCommentToken):
+        # a newline on comment channel (2) by itself separates elements
+        if possibleCommentToken.channel == 2 and is_newline(possibleCommentToken):
             if temp is not None:
                 comments.append(temp)
             break
@@ -251,7 +258,7 @@ def __no_definitions_before(ctx, tokens):
     :rtype: bool
     """
     for token in tokens[0:tokens.index(ctx.start)]:
-        if token.channel == 0 and (not is_newline(token)):
+        if token.channel == 0 and not is_newline(token) and not is_indent(token):
             return False
     return True
 
@@ -267,6 +274,8 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
     """
     for possibleComment in tokens[tokens.index(ctx.start):]:
         if possibleComment.channel == 2:
+            if is_newline(possibleComment):  # new line, thus the one line comment ends here
+                break
             if strip_delim:
                 comment = replace_delimiters(possibleComment.text)
             else:
@@ -276,8 +285,6 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
             if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
                 comment = comment[:-2]
             return comment
-        if is_newline(possibleComment):  # new line, thus the one line comment ends here
-            break
     return None
 
 
@@ -307,7 +314,7 @@ def get_post_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
                 break
             prev_token_was_comment = True
     for possibleCommentToken in tokens[next_line_start_index:]:
-        if possibleCommentToken.channel == 2:
+        if possibleCommentToken.channel == 2 and not is_newline(possibleCommentToken):
             # if it is a comment on the comment channel -> get it
             if strip_delim:
                 comments.append(replace_delimiters(possibleCommentToken.text))

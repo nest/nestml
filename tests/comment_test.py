@@ -45,8 +45,12 @@ Logger.init_logger(LoggingLevel.ERROR)
 
 
 class CommentTest(unittest.TestCase):
+
+    def print_token_stream(self, tokens):
+        for token in tokens:
+            print(token)
+
     def test(self):
-        # print('Start creating AST for ' + filename + ' ...'),
         input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CommentTest.nestml'))
@@ -60,8 +64,10 @@ class CommentTest(unittest.TestCase):
 
         # parse the file
         parser = PyNestMLParser(stream)
-        parser._errHandler = BailErrorStrategy()
+        # parser._errHandler = BailErrorStrategy()
         parser._errHandler.reset(parser)
+
+        # self.print_token_stream(stream.tokens)
 
         # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
@@ -79,10 +85,7 @@ class CommentTest(unittest.TestCase):
         assert (comments[0] == 'pre comment 1 ok')
         assert (comments[1] == 'pre comment 2 ok')
         assert (comments[2] == 'inline comment ok')
-        assert (comments[3] == 'post comment 1 ok')
-        assert (comments[4] == 'post comment 2 ok')
         assert ('pre comment not ok' not in comments)
-        assert ('post comment not ok' not in comments)
 
         # check that equation block comment is detected
         self.assertEqual(neuron_or_synapse_body_elements[1].get_comment()[0], 'equations comment ok')

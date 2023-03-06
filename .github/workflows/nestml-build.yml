@@ -127,11 +127,6 @@ jobs:
           cd pynestml/grammars
           ./generate_lexer_parser
 
-      # tmate debug
-      # - name: Setup tmate session
-      #  uses: mxschmitt/action-tmate@v3
-      #  timeout-minutes: 1440
-
       # Unit tests
       - name: Run unit tests
         run: |

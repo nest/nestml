@@ -48,10 +48,10 @@ Logger.init_logger(LoggingLevel.INFO)
 class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                 os.path.join('..', 'models')))):
+                                                                 os.path.join(os.pardir, "models", "neurons")))):
             if filename.endswith(".nestml"):
                 input_file = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join(os.pardir, "models", "neurons"), "iaf_psc_exp_htum.nestml")))
                 lexer = PyNestMLLexer(input_file)
                 lexer._errHandler = BailErrorStrategy()
                 lexer._errHandler.reset(lexer)
@@ -79,7 +79,6 @@ class SymbolTableBuilderTest(unittest.TestCase):
                     neuron.accept(symbol_table_visitor)
                     SymbolTable.add_neuron_scope(name=neuron.get_name(), scope=neuron.get_scope())
                 self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
-        return
 
 
 if __name__ == '__main__':

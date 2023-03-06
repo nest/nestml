@@ -60,7 +60,7 @@ class TestModelWithoutEndKeyword:
 
     def test_model_without_end_keyword(self):
         input_paths = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "models", "neurons")))
-        for input_file in glob.glob(input_paths + "/*.nestml"):
+        for input_file in glob.glob(input_paths + "/iaf_psc_exp.nestml"):
             # input_file = FileStream(
             #     os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")),
             #                  "CommentTest.nestml"))

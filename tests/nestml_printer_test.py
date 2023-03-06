@@ -48,12 +48,13 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_block_with_variables_with_comments(self):
         block = "# pre1\n" \
-                "# pre2\n" \
-                "state: # in\n" \
-                "# post1\n" \
-                "# post2\n\n"
+                "state: # in\n"\
+                "    # real pre\n" \
+                "    # real pre2\n" \
+                "    r real = 0\n"
         model = ModelParser.parse_block_with_variables(block)
         model_printer = NESTMLPrinter()
+        print(model_printer.print(model))
         self.assertEqual(block, model_printer.print(model))
 
     def test_block_with_variables_without_comments(self):
@@ -64,10 +65,8 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(block, model_printer.print(model))
 
     def test_assignment_with_comments(self):
-        assignment = "  # pre\n" \
-                     "  a = b # in\n" \
-                     "  # post\n" \
-                     "\n"
+        assignment = "    # pre\n" \
+                     "    a = b # in\n"
         model = ModelParser.parse_block(assignment)
         model_printer = NESTMLPrinter()
         self.assertEqual(assignment, model_printer.print(model))
@@ -83,10 +82,7 @@ class NestMLPrinterTest(unittest.TestCase):
                      "function test(Tau_1 ms) real: # in func\n" \
                      "    # decl pre\n" \
                      "    exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms # decl in\n" \
-                     "    # decl post\n" \
-                     "\n" \
-                     "    return normalisation_factor\n" \
-                     "# post func\n\n"
+                     "    return normalisation_factor\n"
         model = ModelParser.parse_function(t_function)
         model_printer = NESTMLPrinter()
         self.assertEqual(t_function, model_printer.print(model))
@@ -100,9 +96,8 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(t_function, model_printer.print(model))
 
     def test_function_call_with_comments(self):
-        function_call = "  # pre\n" \
-                        "  min(1,2) # in\n" \
-                        "  # post\n\n"
+        function_call = "    # pre\n" \
+                        "    min(1,2) # in\n"
         model = ModelParser.parse_block(function_call)
         model_printer = NESTMLPrinter()
         self.assertEqual(function_call, model_printer.print(model))
@@ -116,7 +111,8 @@ class NestMLPrinterTest(unittest.TestCase):
     def test_neuron_with_comments(self):
         neuron = "# pre\n" \
                  "neuron test: # in\n" \
-                 "# post\n\n\n"
+                 "    parameters:\n" \
+                 "        foo integer = 0"
         model = ModelParser.parse_nestml_compilation_unit(neuron)
         model_printer = NESTMLPrinter()
         self.assertEqual(neuron, model_printer.print(model))
@@ -131,9 +127,8 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(neuron, model_printer.print(model))
 
     def test_declaration_with_comments(self):
-        declaration = "  # pre\n" \
-                      "  test mV = 10mV # in\n" \
-                      "  # post\n\n"
+        declaration = "    # pre\n" \
+                      "    test mV = 10mV # in\n"
         model = ModelParser.parse_block(declaration)
         model_printer = NESTMLPrinter()
         self.assertEqual(declaration, model_printer.print(model))
@@ -147,24 +142,25 @@ class NestMLPrinterTest(unittest.TestCase):
     def test_equations_block_with_comments(self):
         block = "# pre\n" \
                 "equations: # in\n" \
-                "    v' = -v/t" \
-                "# post\n\n"
+                "    # pre1 v\n" \
+                "    # pre2 v\n" \
+                "    v' = -v / t\n"
         model = ModelParser.parse_equations_block(block)
         model_printer = NESTMLPrinter()
+        print(model_printer.print(model))
         self.assertEqual(block, model_printer.print(model))
 
     def test_equations_block_without_comments(self):
         block = "equations:\n" \
-                "    v' = -v/t"
+                "    v' = -v / t"
         model = ModelParser.parse_equations_block(block)
         model_printer = NESTMLPrinter()
         self.assertEqual(block, model_printer.print(model))
 
     def test_for_stmt_with_comments(self):
-        stmt = "  # pre\n" \
-               "  for i in 10 - 3.14...10 + 3.14 step -1: # in\n" \
-               "      j = j + 1\n" \
-               "  # post\n\n"
+        stmt = "    # pre\n" \
+               "    for i in 10 - 3.14...10 + 3.14 step -1: # in\n" \
+               "        j = j + 1\n"
         model = ModelParser.parse_block(stmt)
         model_printer = NESTMLPrinter()
         self.assertEqual(stmt, model_printer.print(model))
@@ -177,10 +173,9 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(stmt, model_printer.print(model))
 
     def test_while_stmt_with_comments(self):
-        stmt = "  # pre\n" \
-               "  while true: # in \n" \
-               "      i += 1\n" \
-               "  # post\n\n"
+        stmt = "# pre\n" \
+               "while true: # in\n" \
+               "    i += 1\n"
         model = ModelParser.parse_block(stmt)
         model_printer = NESTMLPrinter()
         self.assertEqual(stmt, model_printer.print(model))
@@ -195,8 +190,7 @@ class NestMLPrinterTest(unittest.TestCase):
     def test_update_block_with_comments(self):
         block = "# pre\n" \
                 "update: # in\n" \
-                "    j = 0\n" \
-                "# post\n\n"
+                "    j = 0\n"
         model = ModelParser.parse_update_block(block)
         model_printer = NESTMLPrinter()
         self.assertEqual(block, model_printer.print(model))
