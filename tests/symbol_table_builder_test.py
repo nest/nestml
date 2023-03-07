@@ -51,7 +51,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                                                                  os.path.join(os.pardir, "models", "neurons")))):
             if filename.endswith(".nestml"):
                 input_file = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join(os.pardir, "models", "neurons"), "iaf_psc_exp_htum.nestml")))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, "models", "neurons", filename)))
                 lexer = PyNestMLLexer(input_file)
                 lexer._errHandler = BailErrorStrategy()
                 lexer._errHandler.reset(lexer)

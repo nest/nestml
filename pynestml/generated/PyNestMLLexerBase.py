@@ -143,7 +143,7 @@ class PyNestMLLexerBase(Lexer):
                 la_char == '\r' or la_char == '\n' or la_char == '\f'):
             # Emit a newline token but in the comments channel (2).
             # This newline is used as a separator between comments while parsing.
-            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, '\n', channel=2))
+            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, newLine, channel=2))
         elif self.opened > 0 or nextnext_eof is False and (la_char == '#'):
             self.skip()
         else:
