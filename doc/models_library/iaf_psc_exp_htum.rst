@@ -52,10 +52,7 @@ References
 
 Parameters
 ++++++++++
-
-
-
-.. csv-table::
+  Capacitance of the membrane.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -65,12 +62,11 @@ Parameters
     "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"    
     "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
     "t_ref_abs", "ms", "2ms", "Absolute refractory period"    
-    "t_ref_tot", "ms", "2ms", "total refractory period"    
-    "E_L", "mV", "-70mV", "if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_expResting potential"    
-    "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potential"    
-    "V_th", "mV", "-55.0mV - E_L", "RELATIVE TO RESTING POTENTIAL(!)I.e. the real threshold is (V_reset + E_L).Threshold, RELATIVE TO RESTING POTENTIAL(!)"    
+    "t_ref_tot", "ms", "2ms", "total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"    
+    "E_L", "mV", "-70mV", "Resting potential"    
+    "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potentia. lRELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L)."    
+    "V_th", "mV", "-55.0mV - E_L", "Threshold, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (E_L + V_th)"    
     "I_e", "pA", "0pA", "constant external input current"
-
 
 
 
@@ -94,11 +90,8 @@ Equations
 
 
 
-
 .. math::
    \frac{ dV_{m} } { dt }= \frac{ -V_{m} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
-
-
 
 
 
@@ -108,83 +101,65 @@ Source code
 .. code-block:: nestml
 
    neuron iaf_psc_exp_htum:
-     state:
-       r_tot integer = 0
-       r_abs integer = 0
-       V_m mV = 0.0mV # Membrane potential
-     end
-     equations:
-       kernel I_kernel_inh = exp(-t / tau_syn_inh)
-       kernel I_kernel_exc = exp(-t / tau_syn_exc)
-       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
-       V_m'=-V_m / tau_m + (I_syn + I_e + I_stim) / C_m
-     end
-
-     parameters:
-       C_m pF = 250pF # Capacitance of the membrane
-       tau_m ms = 10ms # Membrane time constant
-       tau_syn_inh ms = 2ms # Time constant of inhibitory synaptic current
-       tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
-       t_ref_abs ms = 2ms # Absolute refractory period
-       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
-
-       # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
-       E_L mV = -70mV # Resting potential
-       V_reset mV = -70.0mV - E_L # Reset value of the membrane potential. RELATIVE TO RESTING POTENTIAL(!), I.e. the real threshold is (V_reset + E_L).
-
-       # RELATIVE TO RESTING POTENTIAL(!)
-       # I.e. the real threshold is (V_reset + E_L).
-       V_th mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!), I.e. the real threshold is (E_L + V_th)
-
-       # constant external input current
-       I_e pA = 0pA
-     end
-     internals:
-       # TauR specifies the length of the absolute refractory period as
-       # a double_t in ms. The grid based iaf_psc_exp_htum can only handle refractory
-       # periods that are integer multiples of the computation step size (h).
-       # To ensure consistency with the overall simulation scheme such conversion
-       # should be carried out via objects of class nest::Time. The conversion
-       # requires 2 steps:
-       #     1. A time object r is constructed defining  representation of
-       #        TauR in tics. This representation is then converted to computation
-       #        time steps again by a strategy defined by class nest::Time.
-       #     2. The refractory time in units of steps is read out get_steps(), a
-       #        member function of class nest::Time.
-       # Choosing a TauR that is not an integer multiple of the computation time
-       # step h will leed to accurate (up to the resolution h) and self-consistent
-       # results. However, a neuron model capable of operating with real valued
-       # spike time may exhibit a different effective refractory time.
-       RefractoryCountsAbs integer = steps(t_ref_abs) [[RefractoryCountsAbs > 0]]
-       RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
-     end
-     input:
-       exc_spikes pA <-excitatory spike
-       inh_spikes pA <-inhibitory spike
-       I_stim pA <-current
-     end
-
-     output: spike
-
-     update:
-       if r_abs == 0: # neuron not absolute refractory, so evolve V
-         integrate_odes()
-       else:
-         r_abs -= 1 # neuron is absolute refractory
-       end
-       if r_tot == 0:
-         if V_m >= V_th: # threshold crossing
-           r_abs = RefractoryCountsAbs
-           r_tot = RefractoryCountsTot
-           V_m = V_reset
-           emit_spike()
-         end
-       else:
-         r_tot -= 1 # neuron is totally refractory (cannot generate spikes)
-       end
-     end
-
-   end
+       state:
+           r_tot integer = 0
+           r_abs integer = 0
+           V_m mV = 0.0mV # Membrane potential
+       equations:
+           kernel I_kernel_inh = exp(-t / tau_syn_inh)
+           kernel I_kernel_exc = exp(-t / tau_syn_exc)
+           inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
+           V_m' = -V_m / tau_m + (I_syn + I_e + I_stim) / C_m
+       parameters: # Capacitance of the membrane
+           C_m pF = 250pF # Capacitance of the membrane
+           tau_m ms = 10ms # Membrane time constant
+           tau_syn_inh ms = 2ms # Time constant of inhibitory synaptic current
+           tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
+           t_ref_abs ms = 2ms # Absolute refractory period
+           t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
+           E_L mV = -70mV # Resting potential
+           V_reset mV = -70.0mV - E_L # Reset value of the membrane potentia. lRELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L).
+           V_th mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (E_L + V_th)
+           # constant external input current
+           I_e pA = 0pA
+       internals: # TauR specifies the length of the absolute refractory period as
+           # a double_t in ms. The grid based iaf_psc_exp_htum can only handle refractory
+           # periods that are integer multiples of the computation step size (h).
+           # To ensure consistency with the overall simulation scheme such conversion
+           # should be carried out via objects of class nest::Time. The conversion
+           # requires 2 steps:
+           #     1. A time object r is constructed defining  representation of
+           #        TauR in tics. This representation is then converted to computation
+           #        time steps again by a strategy defined by class nest::Time.
+           #     2. The refractory time in units of steps is read out get_steps(), a
+           #        member function of class nest::Time.
+           # Choosing a TauR that is not an integer multiple of the computation time
+           # step h will leed to accurate (up to the resolution h) and self-consistent
+           # results. However, a neuron model capable of operating with real valued
+           # spike time may exhibit a different effective refractory time.
+           RefractoryCountsAbs integer = steps(t_ref_abs) [[RefractoryCountsAbs > 0]]
+           RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
+       input:
+           exc_spikes pA <-excitatory spike
+           inh_spikes pA <-inhibitory spike
+           I_stim pA <-current
+       output: spike
+       update: # neuron not absolute refractory, so evolve V
+           if r_abs == 0: # neuron not absolute refractory, so evolve V
+               integrate_odes() # neuron is absolute refractory
+           else:
+               r_abs -= 1 # neuron is absolute refractory
+        
+           if r_tot == 0: # threshold crossing
+               if V_m >= V_th: # threshold crossing
+                   r_abs = RefractoryCountsAbs # neuron is totally refractory (cannot generate spikes)
+                   r_tot = RefractoryCountsTot # neuron is totally refractory (cannot generate spikes)
+                   V_m = V_reset # neuron is totally refractory (cannot generate spikes)
+                   emit_spike() # neuron is totally refractory (cannot generate spikes)
+            
+           else:
+               r_tot -= 1 # neuron is totally refractory (cannot generate spikes)
+        
 
 
 
@@ -196,4 +171,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-28 19:04:30.127400
+   Generated at 2023-03-09 09:13:57.184517

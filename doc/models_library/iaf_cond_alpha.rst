@@ -37,14 +37,12 @@ See also
 
 iaf_cond_exp
 
+ counts number of tick during the refractory period
 
 
 Parameters
 ++++++++++
-
-
-
-.. csv-table::
+  Threshold potential.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -60,7 +58,6 @@ Parameters
     "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "2ms", "Synaptic time constant of inhibitory synapse"    
     "I_e", "pA", "0pA", "constant external input current"
-
 
 
 
@@ -83,11 +80,8 @@ Equations
 
 
 
-
 .. math::
    \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
-
-
 
 
 
@@ -96,60 +90,47 @@ Source code
 
 .. code-block:: nestml
 
-   neuron iaf_cond_alpha:
-     state:
-       r integer = 0 # counts number of tick during the refractory period
-       V_m mV = E_L # membrane potential
-     end
-     equations:
-       kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
-       kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-       inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
-       inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
-       inline I_leak pA = g_L * (V_m - E_L)
-       V_m'=(-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-     end
-
-     parameters:
-       V_th mV = -55mV # Threshold potential
-       V_reset mV = -60mV # Reset potential
-       t_ref ms = 2ms # Refractory period
-       g_L nS = 16.6667nS # Leak conductance
-       C_m pF = 250pF # Membrane capacitance
-       E_exc mV = 0mV # Excitatory reversal potential
-       E_inh mV = -85mV # Inhibitory reversal potential
-       E_L mV = -70mV # Leak reversal potential (aka resting potential)
-       tau_syn_exc ms = 0.2ms # Synaptic time constant of excitatory synapse
-       tau_syn_inh ms = 2ms # Synaptic time constant of inhibitory synapse
-       # constant external input current
-
-       # constant external input current
-       I_e pA = 0pA
-     end
-     internals:
-       RefractoryCounts integer = steps(t_ref) # refractory time in steps
-     end
-     input:
-       inh_spikes nS <-inhibitory spike
-       exc_spikes nS <-excitatory spike
-       I_stim pA <-current
-     end
-
-     output: spike
-
-     update:
-       integrate_odes()
-       if r != 0: # neuron is absolute refractory
-         r = r - 1
-         V_m = V_reset # clamp potential
-       elif V_m >= V_th:
-         r = RefractoryCounts
-         V_m = V_reset # clamp potential
-         emit_spike()
-       end
-     end
-
-   end
+   neuron iaf_cond_alpha: # counts number of tick during the refractory period
+       state: # counts number of tick during the refractory period
+           r integer = 0 # counts number of tick during the refractory period
+           V_m mV = E_L # membrane potential
+       equations:
+           kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+           kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
+           inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
+           inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
+           inline I_leak pA = g_L * (V_m - E_L)
+           V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
+       parameters: # Threshold potential
+           V_th mV = -55mV # Threshold potential
+           V_reset mV = -60mV # Reset potential
+           t_ref ms = 2ms # Refractory period
+           g_L nS = 16.6667nS # Leak conductance
+           C_m pF = 250pF # Membrane capacitance
+           E_exc mV = 0mV # Excitatory reversal potential
+           E_inh mV = -85mV # Inhibitory reversal potential
+           E_L mV = -70mV # Leak reversal potential (aka resting potential)
+           tau_syn_exc ms = 0.2ms # Synaptic time constant of excitatory synapse
+           tau_syn_inh ms = 2ms # Synaptic time constant of inhibitory synapse
+           # constant external input current
+           I_e pA = 0pA
+       internals: # refractory time in steps
+           RefractoryCounts integer = steps(t_ref) # refractory time in steps
+       input:
+           inh_spikes nS <-inhibitory spike
+           exc_spikes nS <-excitatory spike
+           I_stim pA <-current
+       output: spike
+       update: # neuron is absolute refractory
+           integrate_odes() # neuron is absolute refractory
+           if r != 0: # neuron is absolute refractory
+               r = r - 1 # clamp potential
+               V_m = V_reset # clamp potential
+           elif V_m >= V_th:
+               r = RefractoryCounts # clamp potential
+               V_m = V_reset # clamp potential
+               emit_spike()
+        
 
 
 
@@ -161,4 +142,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-28 19:04:28.988795
+   Generated at 2023-03-09 09:13:57.158374

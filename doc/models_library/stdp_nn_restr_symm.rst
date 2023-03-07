@@ -50,8 +50,7 @@ Parameters
 ++++++++++
 
 
-
-.. csv-table::
+  !!! cannot have a variable called "delay".. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -65,7 +64,6 @@ Parameters
     "mu_minus", "real", "1.0", ""    
     "Wmax", "real", "100.0", ""    
     "Wmin", "real", "0.0", ""
-
 
 
 State variables
@@ -86,60 +84,50 @@ Source code
 .. code-block:: nestml
 
    synapse stdp_nn_restr_symm:
-     state:
-       w real = 1.0
-       pre_trace real = 0.0
-       post_trace real = 0.0
-       pre_handled boolean = true
-     end
-     parameters:
-       the_delay ms = 1ms # !!! cannot have a variable called "delay"
-       lambda real = 0.01
-       tau_tr_pre ms = 20ms
-       tau_tr_post ms = 20ms
-       alpha real = 1.0
-       mu_plus real = 1.0
-       mu_minus real = 1.0
-       Wmax real = 100.0
-       Wmin real = 0.0
-     end
-     equations:
-       # nearest-neighbour trace of presynaptic neuron
-       pre_trace'=-pre_trace / tau_tr_pre
-       # nearest-neighbour trace of postsynaptic neuron
-       post_trace'=-post_trace / tau_tr_post
-     end
+       state:
+           w real = 1.0
+           pre_trace real = 0.0
+           post_trace real = 0.0
+           pre_handled boolean = true
+       parameters: # !!! cannot have a variable called "delay"
+           the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
+           lambda real = 0.01
+           tau_tr_pre ms = 20ms
+           tau_tr_post ms = 20ms
+           alpha real = 1.0
+           mu_plus real = 1.0
+           mu_minus real = 1.0
+           Wmax real = 100.0
+           Wmin real = 0.0
+       equations: # nearest-neighbour trace of presynaptic neuron
+           pre_trace' = -pre_trace / tau_tr_pre
+           # nearest-neighbour trace of postsynaptic neuron
+           post_trace' = -post_trace / tau_tr_post
+       input:
+           pre_spikes nS <-spike
+           post_spikes nS <-spike
+       output: spike
+       onReceive(post_spikes):
+           post_trace = 1
+           # potentiate synapse
+           if not pre_handled:
+               w_ real = Wmax * (w / Wmax + (lambda * (1.0 - (w / Wmax)) ** mu_plus * pre_trace))
+               w = min(Wmax,w_)
+               pre_handled = true
+        
+    
+       onReceive(pre_spikes):
+           pre_trace = 1
+           # depress synapse
+           if pre_handled:
+               w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax) ** mu_minus * post_trace))
+               w = max(Wmin,w_)
+        
+           pre_handled = false
+           # deliver spike to postsynaptic partner
+           deliver_spike(w,the_delay)
+    
 
-     input:
-       pre_spikes nS <-spike
-       post_spikes nS <-spike
-     end
-
-     output: spike
-
-     onReceive(post_spikes):
-       post_trace = 1
-       # potentiate synapse
-       if not pre_handled:
-         w_ real = Wmax * (w / Wmax + (lambda * (1.0 - (w / Wmax)) ** mu_plus * pre_trace))
-         w = min(Wmax,w_)
-         pre_handled = true
-       end
-     end
-
-     onReceive(pre_spikes):
-       pre_trace = 1
-       # depress synapse
-       if pre_handled:
-         w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax) ** mu_minus * post_trace))
-         w = max(Wmin,w_)
-       end
-       pre_handled = false
-       # deliver spike to postsynaptic partner
-       deliver_spike(w,the_delay)
-     end
-
-   end
 
 
 
@@ -151,4 +139,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:33.039457
+   Generated at 2023-03-09 09:14:34.940282
