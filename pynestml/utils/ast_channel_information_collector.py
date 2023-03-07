@@ -641,8 +641,6 @@ class ASTChannelInformationCollector(object):
         # filter for any inline that has no kernel
         relevant_inline_expressions_to_variables = defaultdict(lambda: list())
         for expression, variables in inline_expressions_dict.items():
-            print(type(expression))
-            print(expression.get_decorators()[0].namespace + "::" + expression.get_decorators()[0].name)
             inline_expression_name = expression.variable_name
             if "mechanism::channel" in [(e.namespace+"::"+e.name) for e in expression.get_decorators()]:
                 relevant_inline_expressions_to_variables[expression] = variables
