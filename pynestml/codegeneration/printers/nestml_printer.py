@@ -174,7 +174,6 @@ class NESTMLPrinter(ModelPrinter):
         if node.get_declarations() is not None:
             for decl in node.get_declarations():
                 ret += self.print(decl)
-        ret += (print_n_spaces(temp_indent) + "\n") if len(node.post_comments) else ""
         self.dec_indent()
         return ret
 
@@ -283,7 +282,6 @@ class NESTMLPrinter(ModelPrinter):
         for decl in node.get_declarations():
             ret += self.print(decl)
         self.dec_indent()
-        ret += (print_n_spaces(temp_indent) + "\n") if len(node.post_comments) else ""
         return ret
 
     def print_expression(self, node: ASTExpression) -> str:
@@ -363,7 +361,6 @@ class NESTMLPrinter(ModelPrinter):
         if node.get_input_ports() is not None:
             for inputDef in node.get_input_ports():
                 ret += self.print(inputDef)
-        ret += print_n_spaces(temp_indent) + ("\n" if len(node.post_comments) else "")
         self.dec_indent()
         return ret
 
@@ -544,7 +541,7 @@ class NESTMLPrinter(ModelPrinter):
     def print_update_block(self, node: ASTUpdateBlock):
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "update:" + print_sl_comment(node.in_comment) + "\n"
-        ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + ("\n" if len(node.post_comments) else ""))
+        ret += self.print(node.get_block())
         return ret
 
     def print_variable(self, node: ASTVariable):
@@ -562,7 +559,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += (print_n_spaces(self.indent) + "while " + self.print(node.get_condition())
                 + ":" + print_sl_comment(node.in_comment) + "\n")
         ret += self.print(node.get_block())
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def inc_indent(self):

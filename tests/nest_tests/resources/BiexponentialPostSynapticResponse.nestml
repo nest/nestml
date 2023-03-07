@@ -91,20 +91,20 @@ neuron biexp_postsynaptic_response:
 
     internals:
         # time of peak conductance excursion after spike arrival at t = 0
-        t_peak_E real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12 ms
-                        ? tau_syn_decay_E
+        t_peak_E real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12 ms \
+                        ? tau_syn_decay_E \
                         : tau_syn_decay_E * tau_syn_rise_E * ln(tau_syn_decay_E / tau_syn_rise_E) / (tau_syn_decay_E - tau_syn_rise_E)
-        t_peak_I real = abs(tau_syn_decay_I - tau_syn_rise_I) < 1E-12 ms
-                        ? tau_syn_decay_I
+        t_peak_I real = abs(tau_syn_decay_I - tau_syn_rise_I) < 1E-12 ms \
+                        ? tau_syn_decay_I \
                         : tau_syn_decay_I * tau_syn_rise_I * ln(tau_syn_decay_I / tau_syn_rise_I) / (tau_syn_decay_I - tau_syn_rise_I)
         t_peak_gap real = tau_syn_decay_gap * tau_syn_rise_gap / (tau_syn_decay_gap - tau_syn_rise_gap) * ln(tau_syn_decay_gap / tau_syn_rise_gap)
 
         # normalisation constants to ensure arriving spike yields peak conductance of 1 nS
-        g_E_const real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12 ms ?
-                             exp(1) / tau_syn_decay_E :
-                             1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
-        g_I_const real = abs(tau_syn_decay_I - tau_syn_rise_I) < 1E-12 ms ?
-                             exp(1) / tau_syn_decay_I :
+        g_E_const real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12 ms \
+                         ? exp(1) / tau_syn_decay_E \
+                         : 1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
+        g_I_const real = abs(tau_syn_decay_I - tau_syn_rise_I) < 1E-12 ms ? \
+                             exp(1) / tau_syn_decay_I : \
                              1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
         g_gap_const real = 1 / (exp(-t_peak_gap / tau_syn_decay_gap) - exp(-t_peak_gap / tau_syn_rise_gap))
 

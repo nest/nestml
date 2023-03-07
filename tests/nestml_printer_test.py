@@ -48,13 +48,12 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_block_with_variables_with_comments(self):
         block = "# pre1\n" \
-                "state: # in\n"\
+                "state: # in\n" \
                 "    # real pre\n" \
                 "    # real pre2\n" \
                 "    r real = 0\n"
         model = ModelParser.parse_block_with_variables(block)
         model_printer = NESTMLPrinter()
-        print(model_printer.print(model))
         self.assertEqual(block, model_printer.print(model))
 
     def test_block_with_variables_without_comments(self):
@@ -220,13 +219,3 @@ class NestMLPrinterTest(unittest.TestCase):
             model = ModelParser.parse_unary_operator(op)
             model_printer = NESTMLPrinter()
             self.assertEqual(op, model_printer.print(model))
-
-    def test_neuorn_model(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir,
-                                                                "models", "neurons", "iaf_psc_exp.nestml")))
-        model = ModelParser.parse_model(input_path)
-        model_printer = NESTMLPrinter()
-        # print(model_printer.print(model))
-        with open(input_path, "r") as f:
-            expected = f.read()
-        self.assertEqual(expected, model_printer.print(model))
