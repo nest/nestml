@@ -97,9 +97,6 @@ class DocstringCommentTest(unittest.TestCase):
                     if "\"\"\"" in comment \
                        and not (isinstance(ast, ASTNeuron) or isinstance(ast, ASTNestMLCompilationUnit)):
                         raise DocstringCommentException()
-                for comment in ast.get_post_comments():
-                    if "\"\"\"" in comment:
-                        raise DocstringCommentException()
         visitor = CommentCheckerVisitor()
         ast.accept(visitor)
 

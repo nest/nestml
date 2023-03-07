@@ -327,10 +327,11 @@ Example of single or multi-line comments:
    #  a comment
    #   over several lines.
 
-To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target and the comment should be placed before the target line or on the same line as the target. For example:
 
 .. code-block:: nestml
 
+   # I am a comment of the membrane potential
    V_m mV = -55 mV # I am a comment of the membrane potential
 
    # I am not a comment of the membrane potential. A white line separates us.
@@ -339,15 +340,17 @@ If a comment shall be attached to an element, no white lines are allowed.
 
 .. code-block:: nestml
 
-   V_m mV = -55 mV # I am a comment of the membrane potential
+   # I am not a comment of the membrane potential.
+
    # I am a comment of the membrane potential.
+   V_m mV = -55 mV # I am a comment of the membrane potential
 
 Whitelines are therefore used to separate comment targets:
 
 .. code-block:: nestml
 
-   V_m mV = -55 mV
    # I am a comment of the membrane potential.
+   V_m mV = -55 mV
 
    # I am a comment of the resting potential.
    V_rest mV = -60 mV

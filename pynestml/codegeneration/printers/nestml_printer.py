@@ -82,7 +82,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += "neuron " + node.get_name() + ":" + print_sl_comment(node.in_comment)
         ret += "\n" + self.print(node.get_body())
         self.dec_indent()
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_synapse(self, node: ASTSynapse) -> str:
@@ -91,7 +90,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += "synapse " + node.get_name() + ":" + print_sl_comment(node.in_comment)
         ret += "\n" + self.print(node.get_body()) + "\n"
         self.dec_indent()
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_arithmetic_operator(celf, node: ASTArithmeticOperator) -> str:
@@ -129,7 +127,6 @@ class NESTMLPrinter(ModelPrinter):
         else:
             ret += "="
         ret += " " + self.print(node.rhs) + print_sl_comment(node.in_comment) + "\n"
-        ret += print_ml_comments(node.post_comments, self.indent, True)
 
         return ret
 
@@ -152,13 +149,12 @@ class NESTMLPrinter(ModelPrinter):
         raise RuntimeError("Unknown bit operator")
 
     def print_block(self, node: ASTBlock) -> str:
-        ret = ""  # print_ml_comments(node.pre_comments, self.indent, False)
+        ret = ""
         self.inc_indent()
         for stmt in node.stmts:
             ret += self.print(stmt)
 
         self.dec_indent()
-        # ret += print_ml_comments(node.post_comments, self.indent, True)
 
         return ret
 
@@ -179,7 +175,6 @@ class NESTMLPrinter(ModelPrinter):
             for decl in node.get_declarations():
                 ret += self.print(decl)
         ret += (print_n_spaces(temp_indent) + "\n") if len(node.post_comments) else ""
-        ret += print_ml_comments(node.post_comments, temp_indent, True)
         self.dec_indent()
         return ret
 
@@ -270,7 +265,6 @@ class NESTMLPrinter(ModelPrinter):
             else:
                 ret += " @" + str(decorator)
         ret += print_sl_comment(node.in_comment) + "\n"
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_elif_clause(self, node: ASTElifClause) -> str:
@@ -290,7 +284,6 @@ class NESTMLPrinter(ModelPrinter):
             ret += self.print(decl)
         self.dec_indent()
         ret += (print_n_spaces(temp_indent) + "\n") if len(node.post_comments) else ""
-        ret += print_ml_comments(node.post_comments, temp_indent, True)
         return ret
 
     def print_expression(self, node: ASTExpression) -> str:
@@ -321,7 +314,6 @@ class NESTMLPrinter(ModelPrinter):
                 + self.print(node.get_end_at()) + " step "
                 + str(node.get_step()) + ":" + print_sl_comment(node.in_comment) + "\n")
         ret += self.print(node.get_block())
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_function(self, node: ASTFunction) -> str:
@@ -335,7 +327,6 @@ class NESTMLPrinter(ModelPrinter):
             ret += " " + self.print(node.get_return_type())
         ret += ":" + print_sl_comment(node.in_comment) + "\n"
         ret += self.print(node.get_block()) + "\n"
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_function_call(self, node: ASTFunctionCall) -> str:
@@ -352,7 +343,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + "if " + self.print(node.get_condition()) + ":"
         ret += print_sl_comment(node.in_comment) + "\n"
         ret += self.print(node.get_block())
-        ret += print_ml_comments(node.post_comments, self.indent)
         return ret
 
     def print_if_stmt(self, node: ASTIfStmt) -> str:
@@ -374,7 +364,6 @@ class NESTMLPrinter(ModelPrinter):
             for inputDef in node.get_input_ports():
                 ret += self.print(inputDef)
         ret += print_n_spaces(temp_indent) + ("\n" if len(node.post_comments) else "")
-        ret += print_ml_comments(node.post_comments, temp_indent, True)
         self.dec_indent()
         return ret
 
@@ -394,7 +383,6 @@ class NESTMLPrinter(ModelPrinter):
         else:
             ret += "current"
         ret += print_sl_comment(node.in_comment) + "\n"
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_input_qualifier(self, node: ASTInputQualifier) -> str:
@@ -430,7 +418,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += (print_n_spaces(self.indent) + self.print(node.get_lhs())
                 + " = " + self.print(node.get_rhs())
                 + print_sl_comment(node.in_comment) + "\n")
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_inline_expression(self, node: ASTInlineExpression) -> str:
@@ -441,7 +428,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += ("inline "
                 + str(node.get_variable_name()) + " " + self.print(node.get_data_type())
                 + " = " + self.print(node.get_expression()) + print_sl_comment(node.in_comment) + "\n")
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_kernel(self, node: ASTKernel) -> str:
@@ -455,7 +441,6 @@ class NESTMLPrinter(ModelPrinter):
             ret += ", "
         ret = ret[:-2]
         ret += print_sl_comment(node.in_comment) + "\n"
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_output_block(self, node: ASTOutputBlock) -> str:
@@ -463,7 +448,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + "output: " + ("spike" if node.is_spike() else "current")
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_parameter(self, node: ASTParameter) -> str:
@@ -510,7 +494,6 @@ class NESTMLPrinter(ModelPrinter):
             ret = print_ml_comments(node.pre_comments, self.indent, False)
             ret += print_n_spaces(self.indent) + self.print(node.get_function_call())
             ret += print_sl_comment(node.in_comment) + "\n"
-            ret += print_ml_comments(node.post_comments, self.indent, True)
         elif node.is_declaration():
             ret = self.print(node.get_declaration())
         else:
@@ -556,14 +539,12 @@ class NESTMLPrinter(ModelPrinter):
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
         ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + "\n")
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_update_block(self, node: ASTUpdateBlock):
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "update:" + print_sl_comment(node.in_comment) + "\n"
         ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + ("\n" if len(node.post_comments) else ""))
-        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_variable(self, node: ASTVariable):
