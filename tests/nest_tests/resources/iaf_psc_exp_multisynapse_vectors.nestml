@@ -26,19 +26,16 @@ neuron iaf_psc_exp_multisynapse_vectors_neuron:
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
-        C_m      pF = 250pF  # Capacity of the membrane
-        tau_m    ms = 10ms # Membrane time constant.
+        C_m      pF = 250pF    # Capacity of the membrane
+        tau_m    ms = 10ms     # Membrane time constant.
         tau_syn1 ms = .2ms     # Time constant of synaptic current.
-        tau_syn2 ms = 2ms     # Time constant of synaptic current.
+        tau_syn2 ms = 2ms      # Time constant of synaptic current.
         tau_syn3 ms = 20ms     # Time constant of synaptic current.
-        t_ref    ms = 2ms    # Refractory period.
+        t_ref    ms = 2ms      # Refractory period.
         E_L      mV = -70mV    # Resting potential.
-        V_reset mV = -70.0 mV - E_L # Reset value of the membrane potential
-                                    # RELATIVE TO RESTING POTENTIAL(!).
-                                    # I.e. the real threshold is (V_reset + E_L).
-        V_th   mV = -55.0 mV - E_L  # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-                                    # I.e. the real threshold is (E_L+V_th).
-        I_e     pA = 0pA     # External current.
+        V_reset mV = -70.0 mV  # Reset value of the membrane potential
+        V_th   mV = -55.0 mV   # Threshold
+        I_e     pA = 0pA       # External current.
 
     internals:
         # refractory time in steps
