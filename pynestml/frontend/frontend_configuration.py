@@ -285,7 +285,6 @@ appropriate numeric solver otherwise.
         code, msg = Messages.get_target_path_info(cls.target_path)
         Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
 
-
     @classmethod
     def handle_install_path(cls, path: Optional[str]) -> None:
         r"""Process the installation path parameter.
