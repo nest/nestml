@@ -33,9 +33,8 @@ class ASTFunction(ASTNode):
     """
     This class is used to store a user-defined function.
     ASTFunction a function definition:
-      function set_V_m(v mV):
-        y3 = v - E_L
-      end
+        function set_V_m(v mV):
+            y3 = v - E_L
     @attribute name Functionname.
     @attribute parameter A single parameter.
     @attribute returnType Complex return type, e.g. String

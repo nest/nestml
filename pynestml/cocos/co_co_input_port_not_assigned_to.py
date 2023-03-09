@@ -38,7 +38,6 @@ class CoCoInputPortNotAssignedTo(CoCo):
 
        input:
            current_in pA <- continuous
-       end
 
     Allowed:
 
