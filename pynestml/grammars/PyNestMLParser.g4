@@ -123,7 +123,7 @@ parser grammar PyNestMLParser;
 
   inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)? decorator=anyDecorator*;
 
-  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
+  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)? decorator=anyDecorator*;
 
   kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA NEWLINE* variable EQUALS expression)* (SEMICOLON)?;
 
