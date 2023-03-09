@@ -122,12 +122,17 @@ const std::string
 void
 {{moduleName}}::init( SLIInterpreter* i )
 {
-  {% for neuron in neurons %}
+{%- if neurons %}
+    // register neurons
+{%-   for neuron in neurons %}
     nest::kernel().model_manager.register_node_model<{{neuron.get_name()}}>("{{neuron.get_name()}}");
-  {% endfor %}
+{%-   endfor %}
+{%- endif %}
+{%- if synapses %}
 
-  {% for synapse in synapses %}
-  nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
-  {% endfor %}
-
+    // register synapses
+{%-   for synapse in synapses %}
+    nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
+{%-   endfor %}
+{%- endif %}
 } // {{moduleName}}::init()

@@ -51,13 +51,13 @@ class ExpressionTestVisitor(ASTVisitor):
 
         _expr = node.get_expression()
 
-        var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+        variable_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.get_type_symbol().equals(_expr.type) \
-            or var_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
+        _equals = variable_symbol.get_type_symbol().equals(_expr.type) \
+            or variable_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
 
         message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
-                  var_symbol.get_type_symbol().get_symbol_name() + \
+                  variable_symbol.get_type_symbol().get_symbol_name() + \
                   ' RHS = ' + _expr.type.get_symbol_name() + \
                   ' Equal ? ' + str(_equals)
 

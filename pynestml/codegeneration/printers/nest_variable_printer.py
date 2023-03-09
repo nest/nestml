@@ -21,6 +21,9 @@
 
 from __future__ import annotations
 
+from pynestml.utils.ast_utils import ASTUtils
+
+from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
@@ -31,7 +34,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -79,7 +81,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self.print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -89,8 +91,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print(variable, symbol, with_origin=self.with_origin) + "_grid_sum_" + vector_param
-            s += vector_param
+            s += "B_." + self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -118,7 +119,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return ""
 
-    def print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
+    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
         """
         Converts the vector parameter into NEST processable format
         :param variable:
@@ -136,6 +137,23 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return self._expression_printer.print(vector_parameter)
 
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if variable_symbol.is_spike_input_port():
+            var_name = variable_symbol.get_symbol_name().upper()
+            if variable.get_vector_parameter() is not None:
+                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
+                var_name = var_name + "_" + str(vector_parameter)
+
+            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+        return variable_symbol.get_symbol_name() + '_grid_sum_'
+
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         assert all([type(s) == str for s in self._state_symbols])
 
@@ -148,6 +166,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
-            return ASTUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
 
         return variable_name

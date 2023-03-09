@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.type_symbol_printer import TypeSymbolPrinter
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -114,6 +115,6 @@ class NestDeclarationsHelper:
                                                                    SymbolKind.VARIABLE)
         if symbol is not None:
             # delay parameter is a variable
-            return ASTUtils.print_symbol_origin(symbol) % delay_parameter
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol) % delay_parameter
 
         return delay_parameter

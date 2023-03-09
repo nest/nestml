@@ -14,7 +14,7 @@
 {%-     if lhs_variable_sym.has_vector_parameter() %}
 {%-         set lhs_vector_variable = lhs_variable.get_vector_parameter() %}
 {%-         if lhs_vector_variable.is_numeric_literal() %}
-{{ utils.print_symbol_origin(lhs_variable_sym) % printer_no_origin.print(lhs_variable) }}[{{ ast.get_variable().get_vector_parameter() }}]
+{{ nest_codegen_utils.print_symbol_origin(lhs_variable_sym) % printer_no_origin.print(lhs_variable) }}[{{ ast.get_variable().get_vector_parameter() }}]
 {%-         elif lhs_vector_variable.is_variable() %}
 {%-             set vec_symbol = lhs_vector_variable.get_scope().resolve_to_symbol(lhs_vector_variable.get_variable().get_complete_name(), SymbolKind.VARIABLE) %}
 {{ printer.print(lhs_variable) }}

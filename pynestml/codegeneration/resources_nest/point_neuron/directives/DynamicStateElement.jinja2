@@ -36,7 +36,7 @@ inline double get_state_element(size_t elem)
 {%-      set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 
     {
-      return {{ utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
+      return {{ nest_codegen_utils.print_symbol_origin(variable_symbol, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(variable) }}[ elem - State_::{{ printer_no_origin.print(variable).upper() }} ];
     }
 {%-   else %}
     {
