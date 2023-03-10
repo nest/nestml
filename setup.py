@@ -25,6 +25,7 @@ from setuptools import setup, find_packages
 
 assert sys.version_info.major >= 3 and sys.version_info.minor >= 8, "Python 3.8 or higher is required to run NESTML"
 
+
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
@@ -56,8 +57,8 @@ setup(
                                "codegeneration/resources_python_standalone/point_neuron/*.jinja2",
                                "codegeneration/resources_python_standalone/point_neuron/directives_py/*.jinja2",
                                "codegeneration/resources_spinnaker/*.jinja2",
-                               "codegeneration/resources_spinnaker/directives_py",
-                               "codegeneration/resources_spinnaker/directives_cpp"]},
+                               "codegeneration/resources_spinnaker/directives_py/*.jinja2",
+                               "codegeneration/resources_spinnaker/directives_cpp/*.jinja2"]},
     data_files=data_files,
     entry_points={
         "console_scripts": [
@@ -68,3 +69,4 @@ setup(
     install_requires=requirements,
     test_suite="tests",
 )
+
