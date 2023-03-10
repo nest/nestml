@@ -1,7 +1,10 @@
 .settings/
 target/
 .idea/
+.vscode
 .mypy_cache/
+.github/
+.pytest_cache/
 build/
 buildNest/
 venv/
