@@ -80,10 +80,16 @@ static bool neuron_impl_initialise(uint32_t n_neurons) {
 
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_load_neuron_parameters(
-        address_t address, uint32_t next, uint32_t n_neurons) {
+        address_t address, uint32_t next, uint32_t n_neurons, address_t save_initial_state) {
     // Copy parameters to DTCM from SDRAM
     spin1_memcpy(neuron_array, &address[next],
             n_neurons * sizeof(neuron_impl_t));
+    // If we are to save the initial state, copy the whole of the parameters
+    // to the initial state
+    if (save_initial_state) {
+        spin1_memcpy(save_initial_state, neuron_array,
+                n_neurons * sizeof(neuron_impl_t));
+    }
 }
 
 __attribute__((unused)) // Marked unused as only used sometimes
