@@ -6,9 +6,9 @@
 #include <debug.h>
 
 {%- set ns = namespace(count=0) %}
-{%- for variable in neuron.get_state_variables() %}
+{%- for variable in neuron.get_state_symbols() %}
 {% if variable.is_recordable -%}
-#define {{ printer.print(variable).upper() }}_RECORDING_INDEX {{ ns.count }}
+#define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
 {%- set ns.count = ns.count + 1 -%}
 {%- endif -%}
 {%- endfor %}
@@ -126,18 +126,18 @@ static void neuron_impl_do_timestep_update(
         neuron->inputs[1] = 0;
         */
 
-{%- if neuron.get_update_blocks() %}
-{%-   filter indent(2) %}
-{%-     for block in neuron.get_update_blocks() %}
-{%-       set ast = block.get_block() %}
-{%-       if ast.print_comment('*')|length > 1 %}
-/*
- {{ast.print_comment('*')}}
- */
-{%-       endif %}
-{%-       include "directives_cpp/Block.jinja2" %}
-{%-     endfor %}
-{%-   endfilter %}
+        {%- if neuron.get_update_blocks() %}
+        {%-   filter indent(2) %}
+        {%-     for block in neuron.get_update_blocks() %}
+        {%-       set ast = block.get_block() %}
+        {%-       if ast.print_comment('*')|length > 1 %}
+        /*
+        {{ast.print_comment('*')}}
+        */
+        {%-       endif %}
+        {%-       include "directives_cpp/Block.jinja2" %}
+        {%-     endfor %}
+        {%-   endfilter %}
 {%- endif %}
 
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
