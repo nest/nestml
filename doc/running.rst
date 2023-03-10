@@ -11,14 +11,14 @@ Currently, the following code generators are supported:
 
 * `NEST Simulator <NEST Simulator target_>`_
 
-  .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/nest-simulator-logo.png
+  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
      :width: 95px
      :height: 40px
      :target: #nest-simulator-target
 
 * `Python-standalone <Python-standalone target_>`_
 
-  .. figure:: https://raw.githubusercontent.com/clinssen/nestml/python-target-new/doc/fig/python-logo.png
+  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
      :width: 40px
      :height: 40px
      :target: #python-standalone-target
@@ -77,7 +77,7 @@ The following default values are used, corresponding to the command line default
      - False
    * - codegen_opts
      - Optional[Mapping[str, Any]]
-     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. These options are specific to a given target platform, see for example :ref:`Running NESTML with custom templates`.
+     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
 A typical script for the NEST Simulator target could look like the following. First, import the function:
 
@@ -150,7 +150,7 @@ This will generate, compile, build, and install the code for a set of specified 
    * - ``--dev``
      - (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
    * - ``--codegen_opts``
-     - (Optional) Path to a JSON file containing additional options for the target platform code generator.
+     - (Optional) Path to a JSON file containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
 
 NEST Simulator target
@@ -191,7 +191,7 @@ Multiple input ports
 
 See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
 
-After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
+After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <https://nest-simulator.readthedocs.io/en/latest/synapses/connection_management.html#receptor-types>`_:
 
 .. code-block:: python
 
@@ -279,12 +279,14 @@ For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https:/
 Compatibility with different versions of NEST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with particular release versions of NEST Simulator, the code generator option  ``nest_version`` can be used. It takes a string as its value that corresponds to a git tag or git branch name. The following values are supported:
+To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-- ``"v2.20.2"``: Latest NEST 2 release.
 - ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
+- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, ``"v3.3"``, ``"v3.4"``: NEST 3 release versions.
 
+For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
 
 Python-standalone target
 ------------------------

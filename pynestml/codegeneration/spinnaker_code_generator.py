@@ -136,7 +136,6 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
 
-
 class SpiNNakerCodeGenerator(CodeGenerator):
     r"""
     Code generator for SpiNNaker
@@ -165,7 +164,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_cpp["templates"]["model_templates"].pop("synapse")
         options_cpp["nest_version"] = "<not available>"
         options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
-        print(options_cpp["templates"]["module_templates"] )
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_cpp = CustomNESTCodeGenerator(options_cpp)
         self.codegen_cpp._target = "SpiNNaker"

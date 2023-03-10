@@ -89,29 +89,31 @@ class SpiNNakerBuilder(Builder):
             # copy C files from target to install directory
             try:
                 os.mkdir(os.path.join(install_path, "c_models"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             try:
                 os.mkdir(os.path.join(install_path, "c_models/src"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             try:
                 os.mkdir(os.path.join(install_path, "c_models/src/my_models"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             try:
                 os.mkdir(os.path.join(install_path, "c_models/src/my_models/implementations"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             for fn in generated_file_names_neuron_c:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")], stderr=subprocess.STDOUT, shell=shell,
-                                        cwd=str(os.path.join(target_path)))
-                except subprocess.CalledProcessError as e:
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=str(os.path.join(target_path)))
+                except subprocess.CalledProcessError:
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
 
@@ -119,80 +121,92 @@ class SpiNNakerBuilder(Builder):
 
             try:
                 os.mkdir(os.path.join(install_path, "python_models8"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             try:
                 os.mkdir(os.path.join(install_path, "python_models8", "neuron"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             try:
                 os.mkdir(os.path.join(install_path, "python_models8", "neuron", "builds"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             for fn in generated_file_names_neuron_py:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "python_models8", "neuron", "builds")], stderr=subprocess.STDOUT, shell=shell,
-                                        cwd=target_path)
-                except subprocess.CalledProcessError as e:
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "python_models8", "neuron", "builds")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                except subprocess.CalledProcessError:
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # Copy the pyNN implementation file
             try:
                 os.makedirs(os.path.join(install_path, "python_models8", "neuron", "implementations"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             for fn in generated_file_names_neuron_impl_py:
                 try:
-                    subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "python_models8", "neuron", "implementations")], stderr=subprocess.STDOUT, shell=shell,
-                                        cwd=target_path)
-                except subprocess.CalledProcessError as e:
+                    subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "python_models8", "neuron", "implementations")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                except subprocess.CalledProcessError:
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # copy makefiles
             try:
                 os.makedirs(os.path.join(install_path, "python_models8", "model_binaries"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             # Copy the root Makefile
             try:
                 os.makedirs(os.path.join(install_path, "c_models", "makefiles"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
 
             try:
-                subprocess.check_call(["cp", "Makefile_root", os.path.join(install_path, "c_models", "Makefile")], stderr=subprocess.STDOUT, shell=shell,
-                                    cwd=target_path)
-            except subprocess.CalledProcessError as e:
+                subprocess.check_call(["cp", "Makefile_root", os.path.join(install_path, "c_models", "Makefile")],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=target_path)
+            except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
                     'Error occurred during install! More detailed error messages can be found in stdout.')
 
             try:
-                subprocess.check_call(["cp", "Makefile_models", os.path.join(install_path, "c_models", "makefiles", "Makefile")], stderr=subprocess.STDOUT, shell=shell,
-                                    cwd=target_path)
-            except subprocess.CalledProcessError as e:
+                subprocess.check_call(["cp", "Makefile_models", os.path.join(install_path, "c_models", "makefiles", "Makefile")],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=target_path)
+            except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
                     'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # Copy the extra.mk file
             try:
-                subprocess.check_call(["cp", "extra.mk", os.path.join(install_path, "c_models", "makefiles")], stderr=subprocess.STDOUT, shell=shell,
-                                    cwd=target_path)
-            except subprocess.CalledProcessError as e:
+                subprocess.check_call(["cp", "extra.mk", os.path.join(install_path, "c_models", "makefiles")],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=target_path)
+            except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
                     'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # Copy the extra_neuron.mk file
             try:
-                subprocess.check_call(["cp", "extra_neuron.mk", os.path.join(install_path, "c_models", "makefiles")], stderr=subprocess.STDOUT, shell=shell,
-                                    cwd=target_path)
-            except subprocess.CalledProcessError as e:
+                subprocess.check_call(["cp", "extra_neuron.mk", os.path.join(install_path, "c_models", "makefiles")],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=target_path)
+            except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
                     'Error occurred during install! More detailed error messages can be found in stdout.')
 
@@ -202,38 +216,46 @@ class SpiNNakerBuilder(Builder):
 
                 try:
                     os.mkdir(os.path.join(install_path, "c_models", "makefiles", neuron_subdir))
-                except:
+                except (FileExistsError, FileNotFoundError):
                     pass
 
                 try:
                     try:
                         os.makedirs(os.path.join(install_path, "c_models", "makefiles", neuron_subdir))
-                    except:
+                    except (FileExistsError, FileNotFoundError):
                         pass
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "makefiles", neuron_subdir, "Makefile")], stderr=subprocess.STDOUT, shell=shell,
-                                        cwd=target_path)
-                except subprocess.CalledProcessError as e:
+
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "makefiles", neuron_subdir, "Makefile")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                except subprocess.CalledProcessError:
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # Copy the .h files of the neuron model
             try:
                 os.makedirs(os.path.join(install_path, "c_models", "src", "my_models", "implementations"))
-            except:
+            except (FileExistsError, FileNotFoundError):
                 pass
+
             for fn in generated_file_names_neuron_c:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations", fn)], stderr=subprocess.STDOUT, shell=shell,
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations", fn)],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
                                           cwd=target_path)
-                except:
+                except subprocess.CalledProcessError:
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
 
             # call make
             try:
-                subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, shell=shell,
+                subprocess.check_call(make_cmd,
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
                                       cwd=str(os.path.join(install_path, "c_models", "makefiles")))
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 raise GeneratedCodeBuildException(
                     'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
         finally:

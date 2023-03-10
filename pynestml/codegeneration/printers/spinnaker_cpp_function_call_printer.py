@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_function_call_printer.py
+# spinnaker_cpp_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Tuple
+
 from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# __init__.py
+# string_utils.py
 #
 # This file is part of NEST.
 #
@@ -19,16 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "5.2.0-post-dev"
 
-__all__ = ['cocos',
-           'codegeneration',
-           'exceptions',
-           'frontend',
-           'generated',
-           'meta_model',
-           'symbols',
-           'symbol_table',
-           'transformers',
-           'utils',
-           'visitors']
+def removeprefix(s: str, prefix: str) -> str:
+    if prefix and s.startswith(prefix):
+        return s[len(prefix):]
+
+    return s
+
+
+def removesuffix(s: str, suffix: str) -> str:
+    if suffix and s.endswith(suffix):
+        return s[:-len(suffix)]
+
+    return s

@@ -60,8 +60,11 @@ class FrontendConfiguration:
     """
     This class encapsulates all settings as handed over to the frontend at start of the toolchain.
     """
+
+    # static properties
     DEFAULT_TARGET_PATH_: str = "target"
 
+    # member variables
     argument_parser = None
     paths_to_compilation_units = None
     provided_input_path = None
@@ -71,10 +74,10 @@ class FrontendConfiguration:
     target_path = None
     module_name = None
     store_log = False
-    suffix = ''
+    suffix = ""
     is_dev = False
     codegen_opts = {}  # type: Mapping[str, Any]
-    codegen_opts_fn = ''
+    codegen_opts_fn = ""
 
     @classmethod
     def parse_config(cls, args):
@@ -255,7 +258,7 @@ appropriate numeric solver otherwise.
     def handle_target_path(cls, path: Optional[str]) -> None:
         r"""Process the target path parameter.
 
-        Create the target path if it is specified as a string, but does not exist. Its parent directory has to exist already.
+        Create the target path directory if it is specified as a string, but does not exist. Its parent directory has to exist already.
 
         If the path is None, it will default to ``FrontendConfiguration.DEFAULT_TARGET_PATH_`` in the current working directory.
         """
@@ -282,12 +285,11 @@ appropriate numeric solver otherwise.
         code, msg = Messages.get_target_path_info(cls.target_path)
         Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
 
-
     @classmethod
     def handle_install_path(cls, path: Optional[str]) -> None:
         r"""Process the installation path parameter.
 
-        Create the installation path if it is specified as a string, but does not exist. Its parent directory has to exist already. The path will not be created if ``path`` is None."""
+        Create the installation path directory if it is specified as a string, but does not exist. Its parent directory has to exist already. The path will not be created if ``path`` is None."""
         if path is None:
             return
 
@@ -300,7 +302,7 @@ appropriate numeric solver otherwise.
         if not os.path.isdir(cls.install_path):
             parent_dir = os.path.abspath(os.path.join(cls.install_path, os.path.pardir))
             if os.path.isdir(parent_dir):
-                code, msg = Messages.get_creating_install_path(cls.install_path)
+                code, msg = Messages.get_creating_install_path(path)
                 Logger.log_message(code=code, message=msg, log_level=LoggingLevel.INFO)
                 os.makedirs(cls.install_path)
                 return

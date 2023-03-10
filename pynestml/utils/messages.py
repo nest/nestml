@@ -1202,8 +1202,8 @@ class Messages:
         return MessageCode.INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO, message
 
     @classmethod
-    def get_target_path_info(cls, target_path: str):
-        message = "Target platform code will be generated in directory: '" + target_path + "'"
+    def get_target_path_info(cls, target_dir: str):
+        message = "Target platform code will be generated in directory: '" + target_dir + "'"
         return MessageCode.TARGET_PATH_INFO, message
 
     @classmethod

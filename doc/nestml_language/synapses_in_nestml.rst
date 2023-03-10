@@ -3,7 +3,7 @@ Modeling synapses in NESTML
 
 .. toctree::
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/angela_illustrations/doc/fig/synapse_illustration.svg
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/synapse_illustration.svg
    :width: 326px
    :height: 203px
    :align: right
