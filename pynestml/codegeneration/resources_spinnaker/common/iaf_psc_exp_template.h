@@ -125,17 +125,17 @@ const double PORT_NOT_AVAILABLE = -1; // TODO: correct type of "nest::port" (ass
 // -------------------------------------------------------------------------
 //  Constructors
 // -------------------------------------------------------------------------
-static void Parameters_init ();
+static struct Parameters_ Parameters_init ();
 
-static void State_init ();
+static struct State_ State_init ();
 
-static void Variables_init ();
+static struct Variables_ Variables_init ();
 
-static void Buffers_init (iaf_psc_exp * neuron);
-static void Buffers_init_copy (const struct Buffers_ * buffer, iaf_psc_exp * neuron);
+static struct Buffers_ Buffers_init (iaf_psc_exp * neuron);
+static struct Buffers_ Buffers_init_copy (const struct Buffers_ * buffer, iaf_psc_exp * neuron);
 
-void iaf_psc_exp_init ();
-void iaf_psc_exp_copy_init (const iaf_psc_exp * neuron);
+static iaf_psc_exp iaf_psc_exp_init ();
+static iaf_psc_exp iaf_psc_exp_copy_init (const iaf_psc_exp * neuron);
 
 // -------------------------------------------------------------------------
 //  Functions

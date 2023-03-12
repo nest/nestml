@@ -10,31 +10,37 @@ static iaf_psc_exp * neuron_array;
 //  Constructors
 // -------------------------------------------------------------------------
 
-void Parameters_init() {
+static struct Parameters_ Parameters_init() {
 
 };
 
-void State_init() {
+static struct State_ State_init() {
 
 };
 
-void Variables_init() {
+static struct Variables_ Variables_init() {
 
 };
 
-void Buffers_init(iaf_psc_exp * neuron) {
+static struct Buffers_ Buffers_init(iaf_psc_exp * neuron) {
+    spike_inputs_ = std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS );
+    spike_inputs_grid_sum_ = std::vector< double >( NUM_SPIKE_RECEPTORS );
+    
+};
+
+static struct Buffers_ Buffers_init_copy(const struct Buffers_ * buffer, iaf_psc_exp * neuron) {
+    spike_inputs_ = std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS );
+    spike_inputs_grid_sum_ = std::vector< double >( NUM_SPIKE_RECEPTORS );
+};
+
+static iaf_psc_exp iaf_psc_exp_init () {
+    Parameters_init();
+    State_init();
+
 
 };
 
-void Buffers_init(const struct Buffers_ * buffer, iaf_psc_exp * neuron) {
-
-};
-
-void iaf_psc_exp_init () {
-
-};
-
-void iaf_psc_exp_copy_init (const iaf_psc_exp * neuron) {
+static iaf_psc_exp iaf_psc_exp_copy_init (const iaf_psc_exp * neuron) {
 
 };
 
