@@ -117,6 +117,7 @@ class MessageCode(Enum):
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
+    INTEGRATE_ODES_WRONG_ARG = 91
 
 
 class Messages:
@@ -1220,3 +1221,8 @@ class Messages:
     def get_creating_install_path(cls, install_path: str):
         message = "Creating installation directory: '" + install_path + "'"
         return MessageCode.CREATING_INSTALL_PATH, message
+
+    @classmethod
+    def get_integrate_odes_wrong_arg(cls, arg: str):
+        message = "Parameter provided to integrate_odes() function is not a state variable: '" + arg + "'"
+        return MessageCode.INTEGRATE_ODES_WRONG_ARG, message

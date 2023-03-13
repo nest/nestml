@@ -110,10 +110,9 @@ class PredefinedFunctions:
         cls.__register_max_function()
         cls.__register_min_function()
         cls.__register_abs_function()
-        cls.__register_integrated_odes_function()
+        cls.__register_integrate_odes_function()
         cls.__register_convolve()
         cls.__register_deliver_spike()
-        return
 
     @classmethod
     def register_function(cls, name, params, return_type, element_reference):
@@ -133,7 +132,6 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_integer_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.TIME_STEPS] = symbol
-        return
 
     @classmethod
     def __register_emit_spike_function(cls):
@@ -388,11 +386,12 @@ class PredefinedFunctions:
         cls.name2function[cls.ABS] = symbol
 
     @classmethod
-    def __register_integrated_odes_function(cls):
+    def __register_integrate_odes_function(cls):
         """
-        Registers the integrate-odes function.
+        Registers the integrate_odes() function.
         """
         params = list()
+        params.append(PredefinedTypes.get_variadic_type())
         symbol = FunctionSymbol(name=cls.INTEGRATE_ODES, param_types=params,
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
@@ -434,17 +433,18 @@ class PredefinedFunctions:
         return cls.name2function
 
     @classmethod
-    def get_function(cls, name):
+    def get_function(cls, name: str):
         """
         Returns a copy of a element in the set of defined functions if one exists, otherwise None
+
         :param name: the name of the function symbol
-        :type name: str
         :return: a copy of the element if such exists in the dict, otherwise None
         :rtype: None or FunctionSymbol
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided (%s)!' % type(name)
+
         if name in cls.name2function.keys():
             return cls.name2function[name]
-        else:
-            return None
+
+        return None

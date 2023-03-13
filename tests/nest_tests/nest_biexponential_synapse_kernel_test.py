@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import nest
+import numpy as np
 import os
 import unittest
 
@@ -53,19 +54,22 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
 
         # network construction
 
-        neuron = nest.Create("biexp_postsynaptic_response_nestml")
+        neuron = nest.Create("biexp_postsynaptic_response_nestml", params={"V_th": 999.})
+
+        sd = nest.Create("spike_recorder")
+        nest.Connect(neuron, sd)
 
         sg = nest.Create("spike_generator", params={"spike_times": [10., 30.]})
-        nest.Connect(sg, neuron, syn_spec={"receptor_type": 1, "weight": 1000., "delay": 0.1})
+        nest.Connect(sg, neuron, syn_spec={"receptor_type": 1, "weight": 100.})
 
         sg2 = nest.Create("spike_generator", params={"spike_times": [20., 40.]})
-        nest.Connect(sg2, neuron, syn_spec={"receptor_type": 2, "weight": 1000., "delay": 0.1})
+        nest.Connect(sg2, neuron, syn_spec={"receptor_type": 2, "weight": 100.})
 
         sg3 = nest.Create("spike_generator", params={"spike_times": [25., 45.]})
-        nest.Connect(sg3, neuron, syn_spec={"receptor_type": 3, "weight": 1000., "delay": 0.1})
+        nest.Connect(sg3, neuron, syn_spec={"receptor_type": 3, "weight": 100.})
 
         sg4 = nest.Create("spike_generator", params={"spike_times": [35., 55.]})
-        nest.Connect(sg3, neuron, syn_spec={"receptor_type": 4, "weight": 1000., "delay": 0.1})
+        nest.Connect(sg4, neuron, syn_spec={"receptor_type": 4, "weight": 100.})
 
         i_1 = nest.Create("multimeter", params={"record_from": [
                           "g_gap__X__spikeGap", "g_ex__X__spikeExc", "g_in__X__spikeInh", "g_GABA__X__spikeGABA"], "interval": .1})
@@ -83,19 +87,20 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         vm_1 = nest.GetStatus(vm_1)[0]["events"]
         i_1 = nest.GetStatus(i_1)[0]["events"]
         if TEST_PLOTS:
-            self.plot(vm_1, i_1)
+            self.plot(vm_1, i_1, sd)
 
         # verification
         final_v_m = vm_1["V_m"][-1]
         print("final V_m = " + str(final_v_m))
-        MAX_ABS_ERROR = 1E-6
-        assert abs(final_v_m - -64.2913308548727) < MAX_ABS_ERROR
+        np.testing.assert_allclose(final_v_m, -67.90799540728226)
 
-    def plot(self, vm_1, i_1):
+    def plot(self, vm_1, i_1, sd):
         fig, ax = plt.subplots(nrows=5)
 
         ax[0].plot(vm_1["times"], vm_1["V_m"], label="V_m")
         ax[0].set_ylabel("voltage")
+
+        ax[0].scatter(sd.events["times"], np.mean(vm_1["V_m"]) * np.ones_like(sd.events["times"]))
 
         ax[1].plot(i_1["times"], i_1["g_gap__X__spikeGap"], label="g_gap__X__spikeGap")
         ax[1].set_ylabel("current")

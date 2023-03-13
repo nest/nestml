@@ -254,13 +254,13 @@ class Neuron_{{neuronName}}(Neuron):
     r"""Integrate all ODEs defined in the model equation block by one timestep.
     """
 {%- filter indent(4) %}
-{%-     with analytic_state_variables_ = analytic_state_variables %}
+{%-     with analytic_state_variables_ = analytic_state_variables_except_convolutions %}
 {%-         include "directives/AnalyticIntegrationStep_begin.jinja2" %}
 {%-     endwith %}
 {%-     if uses_numeric_solver %}
 {%-        include "directives/GSLIntegrationStep.jinja2" %}
 {%-     endif %}
-{%-     with analytic_state_variables_ = analytic_state_variables %}
+{%-     with analytic_state_variables_ = analytic_state_variables_except_convolutions %}
 {%-         include "directives/AnalyticIntegrationStep_end.jinja2" %}
 {%-     endwith %}
 {%- endfilter %}
@@ -268,6 +268,20 @@ class Neuron_{{neuronName}}(Neuron):
 
   def step(self, origin: float, timestep: float) -> None:
     __resolution: float = timestep   # do not remove, this is necessary for the resolution() function
+
+    # -------------------------------------------------------------------------
+    #     process spikes from buffers
+    # -------------------------------------------------------------------------
+
+{%- include "directives/ApplySpikesFromBuffers.jinja2" %}
+
+    # -------------------------------------------------------------------------
+    #     integrate variables related to convolutions
+    # -------------------------------------------------------------------------
+
+{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%- endwith %}
 
     # -------------------------------------------------------------------------
     #     NESTML generated code for the update block
@@ -281,6 +295,14 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+
+    # -------------------------------------------------------------------------
+    #     integrate variables related to convolutions
+    # -------------------------------------------------------------------------
+
+{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endwith %}
 
     # -------------------------------------------------------------------------
     #     Clear spike buffers at end of timestep

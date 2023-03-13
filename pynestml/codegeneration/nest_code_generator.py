@@ -263,13 +263,14 @@ class NESTCodeGenerator(CodeGenerator):
             synapse.spike_updates = spike_updates
 
     def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment],
-                                                         List[ASTOdeEquation]]:
+                                                         List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
         :return: see documentation for get_spike_update_expressions() for more information.
         :return: post_spike_updates: list of post-synaptic spike update expressions
         :return: equations_with_delay_vars: list of equations containing delay variables
+        :return: equations_with_vector_vars: list of equations containing delay variables
         """
         code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -280,7 +281,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
-            return [], [], [], []
+            return {}, {}, [], []
 
         if len(neuron.get_equations_blocks()) > 1:
             raise Exception("Only one equations block per model supported for now")
@@ -514,7 +515,13 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
-
+            namespace["analytic_state_variables_except_convolutions"] = []
+            namespace["analytic_state_variables_from_convolutions"] = []
+            for sym in namespace["analytic_state_variables"]:
+                if "__X__" in sym:
+                    namespace["analytic_state_variables_from_convolutions"].append(sym)
+                else:
+                    namespace["analytic_state_variables_except_convolutions"].append(sym)
             namespace["propagators"] = self.analytic_solver[synapse.get_name()]["propagators"]
 
         namespace["uses_numeric_solver"] = synapse.get_name() in self.numeric_solver.keys() \
@@ -611,6 +618,14 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name()]["state_variables"]
             namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
+
+            namespace["analytic_state_variables_except_convolutions"] = []
+            namespace["analytic_state_variables_from_convolutions"] = []
+            for sym in namespace["analytic_state_variables"]:
+                if "__X__" in sym:
+                    namespace["analytic_state_variables_from_convolutions"].append(sym)
+                else:
+                    namespace["analytic_state_variables_except_convolutions"].append(sym)
 
             namespace["update_expressions"] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():

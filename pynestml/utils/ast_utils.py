@@ -154,6 +154,18 @@ class ASTUtils:
         return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
+    def filter_variables_list(cls, variables_list, variables_to_filter_by):
+        """
+        """
+        variables_to_filter_by = [str(var) for var in variables_to_filter_by]
+        ret = []
+        for var in variables_list:
+            if var in variables_to_filter_by:
+                ret.append(var)
+
+        return ret
+
+    @classmethod
     def has_spike_input(cls, body: ASTNeuronOrSynapseBody) -> bool:
         """
         Checks if the handed over neuron contains a spike input port.
@@ -180,29 +192,34 @@ class ASTUtils:
         return False
 
     @classmethod
-    def compute_type_name(cls, data_type):
+    def compute_type_name(cls, data_type) -> str:
         """
         Computes the representation of the data type.
         :param data_type: a single data type.
         :type data_type: ast_data_type
         :return: the corresponding representation.
-        :rtype: str
         """
         if data_type.is_boolean:
             return 'boolean'
-        elif data_type.is_integer:
+
+        if data_type.is_integer:
             return 'integer'
-        elif data_type.is_real:
+
+        if data_type.is_real:
             return 'real'
-        elif data_type.is_string:
+
+        if data_type.is_string:
             return 'string'
-        elif data_type.is_void:
+
+        if data_type.is_void:
             return 'void'
-        elif data_type.is_unit_type():
+
+        if data_type.is_unit_type():
             return str(data_type)
-        else:
-            Logger.log_message(message='Type could not be derived!', log_level=LoggingLevel.ERROR)
-            return ''
+
+        Logger.log_message(message='Type could not be derived!', log_level=LoggingLevel.ERROR)
+
+        return ''
 
     @classmethod
     def deconstruct_assignment(cls, lhs=None, is_plus=False, is_minus=False, is_times=False, is_divide=False,
@@ -1898,8 +1915,7 @@ class ASTUtils:
                    and isinstance(decl.get_expression(), ASTSimpleExpression) \
                    and '__X__' in str(decl.get_expression()):
                     replace_with_var_name = decl.get_expression().get_variable().get_name()
-                    neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
-                        x, decl.get_variable_name(), replace_with_var_name)))
+                    neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
 
     @classmethod
     def replace_variable_names_in_expressions(cls, neuron: ASTNeuron, solver_dicts: List[dict]) -> None:

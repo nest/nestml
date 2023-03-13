@@ -479,6 +479,9 @@ class NESTMLPrinter(ModelPrinter):
             return str(node.numeric_literal)
 
         if node.is_variable():
+            print("PRINTING " +node.get_variable().get_complete_name())
+            if node.get_variable().get_name() == "I_dend":
+                import pdb;pdb.set_trace()
             return self.print_variable(node.get_variable())
 
         if node.is_string():

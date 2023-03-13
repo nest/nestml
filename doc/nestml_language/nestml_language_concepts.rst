@@ -1001,9 +1001,9 @@ Dynamics and time evolution
 
 Inside the ``update`` block, the current time can be accessed via the variable ``t``.
 
-``integrate_odes``: this function can be used to integrate all stated differential equations of the ``equations`` block.
+``integrate_odes()``: this function can be used to integrate the differential equations defined in the ``equations`` block. Integration from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``.
 
-``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+``emit_spike()``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 
 Concepts for refractoriness

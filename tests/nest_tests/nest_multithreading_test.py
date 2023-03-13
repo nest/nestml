@@ -101,7 +101,7 @@ class TestNestMultithreading:
         v_m = events["V_m"]
         senders = events["senders"]
         v_m_sender = v_m[senders == gid_post]
-        np.testing.assert_almost_equal(v_m_sender[-1], -69.97074345103816)
+        np.testing.assert_almost_equal(v_m_sender[-1], -69.97093762485729)
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -149,4 +149,4 @@ class TestNestMultithreading:
         senders = events["senders"]
         V_m = events["V_m"]
         V_m_sender = V_m[senders == gid_post]
-        np.testing.assert_almost_equal(V_m_sender[-1], -58.64615287)
+        np.testing.assert_almost_equal(V_m_sender[-1], -69.38769318221705)

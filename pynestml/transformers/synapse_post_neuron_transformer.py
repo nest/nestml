@@ -505,8 +505,10 @@ class SynapsePostNeuronTransformer(Transformer):
         #    add modified versions of neuron and synapse to list
         #
 
-        new_neuron.accept(ASTSymbolTableVisitor())
-        new_synapse.accept(ASTSymbolTableVisitor())
+        ast_symbol_table_visitor = ASTSymbolTableVisitor()
+        ast_symbol_table_visitor.after_ast_rewrite_ = True
+        new_neuron.accept(ast_symbol_table_visitor)
+        new_synapse.accept(ast_symbol_table_visitor)
 
         ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 

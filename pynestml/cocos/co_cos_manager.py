@@ -24,6 +24,7 @@ from typing import Union
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
+from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
@@ -271,6 +272,14 @@ class CoCosManager:
         CoCoConvolveCondCorrectlyBuilt.check_co_co(neuron)
 
     @classmethod
+    def check_integrate_odes_params_correct(cls, neuron: ASTNeuron):
+        """
+        Checks if all integrate_odes() calls have correct parameters.
+        :param neuron: a single neuron object.
+        """
+        CoCoIntegrateODEsParamsCorrect.check_co_co(neuron)
+
+    @classmethod
     def check_correct_usage_of_kernels(cls, neuron: ASTNeuron):
         """
         Checks if all kernels are only used in convolve.
@@ -376,7 +385,6 @@ class CoCosManager:
         """
         cls.check_each_block_defined_at_most_once(neuron)
         cls.check_function_defined(neuron)
-        cls.check_function_declared_and_correctly_typed(neuron)
         cls.check_variables_unique_in_scope(neuron)
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
@@ -394,9 +402,11 @@ class CoCosManager:
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
+        cls.check_integrate_odes_params_correct(neuron)
         cls.check_output_port_defined_if_emit_call(neuron)
         if not after_ast_rewrite:
-            # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
+            # units might be incorrect due to e.g. refactoring convolve call (``real`` type assigned)
+            cls.check_function_declared_and_correctly_typed(neuron)
             cls.check_odes_have_consistent_units(neuron)
             cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
             cls.check_correct_usage_of_kernels(neuron)

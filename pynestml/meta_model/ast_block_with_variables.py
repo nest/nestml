@@ -30,10 +30,9 @@ class ASTBlockWithVariables(ASTNode):
           y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
         end
 
-    attribute state true: if the varblock is a state.
+    attribute state: true if the varblock is a state.
     attribute parameter: true if the varblock is a parameter.
     attribute internal: true if the varblock is a state internal.
-    attribute AliasDecl: a list with variable declarations
     Grammar:
          blockWithVariables:
             blockType=('state'|'parameters'|'internals')
