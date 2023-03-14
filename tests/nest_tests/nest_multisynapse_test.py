@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import nest
+import numpy as np
 import os
 import unittest
 
@@ -81,12 +82,9 @@ class NestMultiSynapseTest(unittest.TestCase):
         V_m_timevec = nest.GetStatus(vm_1)[0]["events"]["times"]
         V_m = nest.GetStatus(vm_1)[0]["events"]["V_m"]
         mm = nest.GetStatus(mm)[0]["events"]
-        MAX_ABS_ERROR = 1E-6
-        print("Final V_m = " + str(V_m[-1]))
-        assert abs(V_m[-1] - -72.89041451202348) < MAX_ABS_ERROR
+        np.testing.assert_almost_equal(V_m[-1], -72.87687647817297)
 
         if TEST_PLOTS:
-
             fig, ax = plt.subplots(nrows=4)
 
             ax[0].plot(V_m_timevec, V_m, label="V_m")
@@ -111,7 +109,7 @@ class NestMultiSynapseTest(unittest.TestCase):
 
             ax[-1].set_xlabel("time")
 
-            plt.show()
+            fig.savefig("/tmp/test_multisynapse.png")
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
@@ -158,5 +156,4 @@ class NestMultiSynapseTest(unittest.TestCase):
 
         # analysis
         V_m = nest.GetStatus(vm_1)[0]["events"]["V_m"]
-        MAX_ABS_ERROR = 1E-6
-        assert abs(V_m[-1] - -72.89041451202348) < MAX_ABS_ERROR
+        np.testing.assert_almost_equal(V_m[-1], -72.87687647817297)

@@ -1890,10 +1890,12 @@ class ASTUtils:
         return kernel_buffers
 
     @classmethod
-    def replace_convolution_aliasing_inlines(cls, neuron: ASTNeuron) -> None:
+    def replace_convolution_aliasing_inlines(cls, neuron: ASTNeuron) -> Dict[str, str]:
         """
         Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
         """
+        aliases: Dict[str, str] = {}
+
         def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
@@ -1902,12 +1904,14 @@ class ASTUtils:
                                                differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
+                    aliases[var.get_name()] = replace_with_var_name + '__d' * var.get_differential_order()
 
             elif isinstance(_expr, ASTVariable):
                 var = _expr
                 if var.get_name() == replace_var_name:
                     var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
                     var.set_differential_order(0)
+                    aliases[var.get_name()] = replace_with_var_name + '__d' * var.get_differential_order()
 
         for equation_block in neuron.get_equations_blocks():
             for decl in equation_block.get_declarations():
@@ -1916,6 +1920,8 @@ class ASTUtils:
                    and '__X__' in str(decl.get_expression()):
                     replace_with_var_name = decl.get_expression().get_variable().get_name()
                     neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
+
+        return aliases
 
     @classmethod
     def replace_variable_names_in_expressions(cls, neuron: ASTNeuron, solver_dicts: List[dict]) -> None:

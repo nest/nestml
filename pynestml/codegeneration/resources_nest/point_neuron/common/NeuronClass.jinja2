@@ -517,22 +517,15 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {% if propagators_are_state_dependent %}
   // the propagators are state dependent; update them!
   recompute_internal_variables();
+
 {% endif %}
   for ( long lag = from ; lag < to ; ++lag )
   {
-    for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
-    {
-        get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
-    }
-
-    // process spikes from buffers
+    // process inputs from continuous-type input ports
 {%- for inputPort in neuron.get_continuous_input_ports() %}
     B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
-{% endfor %}
-{%- filter indent(4) %}
-{%-   include "directives/ApplySpikesFromBuffers.jinja2" %}
 
-{% endfilter %}
+{% endfor %}
 {%- if has_delay_variables %}
     // delay variables
 
@@ -554,16 +547,25 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
-
 {%- if analytic_state_variables_from_convolutions | length > 0 %}
 {%- set analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-    // integrate variables related to convolutions
 
-{%- filter indent(4) %}
+    // integrate variables related to convolutions
+{%  filter indent(4) %}
 {%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
 {%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
 {%- endfilter %}
-{% endif %}
+{%- endif %}
+
+    // process spikes from buffers
+
+    for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
+    {
+      get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
+    }
+{%- filter indent(4) %}
+{%-   include "directives/ApplySpikesFromBuffers.jinja2" %}
+{% endfilter %}
 
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);

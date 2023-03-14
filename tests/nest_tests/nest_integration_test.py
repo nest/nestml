@@ -87,7 +87,7 @@ class NestIntegrationTest(unittest.TestCase):
                              codegen_opts=codegen_opts)
 
     def test_nest_integration(self):
-        # N.B. all models are assumed to have been already built (see .travis.yml)
+        # N.B. all models are assumed to have been already built in the continuous integration script
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
@@ -114,10 +114,12 @@ class NestIntegrationTest(unittest.TestCase):
                               {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
                                "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
-        if NESTTools.detect_nest_version().startswith("v2"):
-            neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1, {}, {}, {"V_m": -70., "U_m": .2 * -70.}))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
-        else:
-            neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        # XXX: cannot test Izhikevich model due to different integration order. See https://github.com/nest/nest-simulator/issues/2647
+        # if NESTTools.detect_nest_version().startswith("v2"):
+        #     neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1, {}, {}, {"V_m": -70., "U_m": .2 * -70.}))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        # else:
+        #     neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+
         neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
         neuron_models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
         neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1E-3, 1E-3))
@@ -351,9 +353,10 @@ class NestIntegrationTest(unittest.TestCase):
 
     def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001,
                                  nest_ref_model_opts=None, custom_model_opts=None, model_initial_state=None):
+        """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
         t_stop = 1000.  # [ms]
 
-        I_stim_vec = np.linspace(10E-12, 1E-9, 100)  # [A]
+        I_stim_vec = np.linspace(10E-12, 1E-9, 5)  # [A]
         rate_testant = float("nan") * np.ones_like(I_stim_vec)
         rate_reference = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):

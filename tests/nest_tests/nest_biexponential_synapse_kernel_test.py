@@ -80,7 +80,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
 
         # simulate
 
-        nest.Simulate(125.)
+        nest.Simulate(80.)
 
         # analysis
 
@@ -92,7 +92,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         # verification
         final_v_m = vm_1["V_m"][-1]
         print("final V_m = " + str(final_v_m))
-        np.testing.assert_allclose(final_v_m, -67.90799540728226)
+        np.testing.assert_allclose(final_v_m, -65.484765)
 
     def plot(self, vm_1, i_1, sd):
         fig, ax = plt.subplots(nrows=5)
@@ -117,7 +117,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         for _ax in ax:
             # _ax.legend()
             _ax.legend(loc="upper right")
-            _ax.set_xlim(0., 125.)
+            _ax.set_xlim(0., 80.)
             _ax.grid(True)
 
         for _ax in ax[:-1]:

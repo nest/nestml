@@ -148,8 +148,6 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_WARNING")
 
-        post_weights = {'parrot': []}
-
         nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
@@ -236,6 +234,8 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
             if sim_ref:
                 pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
                 print("Actual pre ref spike times: " + str(pre_ref_spike_times_))
+
+            np.testing.assert_almost_equal(pre_spike_times_, pre_ref_spike_times_)
 
             if sim_mdl:
                 n_spikes = len(pre_spike_times_)
