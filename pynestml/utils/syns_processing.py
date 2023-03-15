@@ -377,7 +377,7 @@ class SynsProcessing(object):
                 print("spike_input_port.name=" + spike_input_port.name)
                 print("spike_input_port.signal_type=" + str(spike_input_port.signal_type))
                 kernel_X_spike_buf_name_ticks = ASTUtils.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_input_port.name, kernel_order, diff_order_symbol="'")
+                    kernel_var.get_name(), spike_input_port.get_name(), kernel_order, diff_order_symbol="'")
                 print("kernel_X_spike_buf_name_ticks=" + kernel_X_spike_buf_name_ticks)
 
                 ASTUtils.replace_rhs_variables(expr, kernel_buffers)

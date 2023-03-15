@@ -287,7 +287,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
         decorators = []
         for kw in ctx.anyDecorator():
-            #print("decorator type: " + type(self.visit(kw)))
             decorators.append(self.visit(kw))
 
         inlineExpr = ASTNodeFactory.create_ast_inline_expression(is_recordable=is_recordable, variable_name=variable_name,
@@ -301,7 +300,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOdeEquation(self, ctx):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
-        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx))
+
+        decorators = []
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
+
+        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx), decorators = decorators)
         update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 

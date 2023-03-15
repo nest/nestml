@@ -79,7 +79,7 @@ class ASTInlineExpression(ASTNode):
                                   variable_name=self.variable_name,
                                   data_type=data_type_dup,
                                   expression=expression_dup,
-                                  decorators=self.decorators,
+                                  decorators=decorators_dup,
                                   # ASTNode common attributes:
                                   source_position=self.source_position,
                                   scope=self.scope,

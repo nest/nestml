@@ -24,6 +24,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTOdeEquation(ASTNode):
@@ -40,7 +41,7 @@ class ASTOdeEquation(ASTNode):
         rhs = None
     """
 
-    def __init__(self, lhs, rhs, *args, **kwargs):
+    def __init__(self, lhs, rhs, decorators=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -56,6 +57,7 @@ class ASTOdeEquation(ASTNode):
         assert isinstance(rhs, ASTExpression) or isinstance(rhs, ASTSimpleExpression)
         self.lhs = lhs
         self.rhs = rhs
+        self.decorators = decorators
 
     def clone(self):
         """
@@ -64,8 +66,14 @@ class ASTOdeEquation(ASTNode):
         :return: new AST node instance
         :rtype: ASTOdeEquation
         """
+        decorators_dup = None
+        if self.decorators:
+            decorators_dup = [dec.clone() if isinstance(dec, ASTNamespaceDecorator) else str(dec) for dec in
+                              self.decorators]
+
         dup = ASTOdeEquation(lhs=self.lhs.clone(),
                              rhs=self.rhs.clone(),
+                             decorators = decorators_dup,
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,
@@ -76,6 +84,11 @@ class ASTOdeEquation(ASTNode):
                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
+
+    def get_decorators(self):
+        """
+        """
+        return self.decorators
 
     def get_lhs(self):
         """
