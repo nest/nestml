@@ -2,7 +2,24 @@ stdp_triplet
 ############
 
 
-XXX: NAIVE VERSION: unclear about relative timing of pre and post trace updates due to incoming pre and post spikes
+stdp_triplet - Synapse type with triplet spike-timing dependent plasticity
+
+Description
++++++++++++
+
+stdp_triplet_synapse is a connection with spike time dependent
+plasticity accounting for spike triplet effects (as defined in [1]_).
+
+.. warning::
+
+   NAIVE VERSION: unclear about relative timing of pre and post trace updates due to incoming pre and post spikes
+
+
+References
+++++++++++
+.. [1] Pfister JP, Gerstner W (2006). Triplets of spikes in a model
+       of spike timing-dependent plasticity.  The Journal of Neuroscience
+       26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
 
 
 
@@ -10,13 +27,12 @@ Parameters
 ++++++++++
 
 
-
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "tau_plus", "ms", "16.8ms", "time constant for tr_r1"    
     "tau_x", "ms", "101ms", "time constant for tr_r2"    
     "tau_minus", "ms", "33.7ms", "time constant for tr_o1"    
@@ -29,7 +45,6 @@ Parameters
     "Wmin", "nS", "0nS", ""
 
 
-
 State variables
 +++++++++++++++
 
@@ -38,7 +53,7 @@ State variables
     :widths: auto
 
     
-    "w", "nS", "1nS", ""
+    "w", "nS", "1nS", "Synaptic weight"
 Source code
 +++++++++++
 
@@ -46,10 +61,10 @@ Source code
 
    synapse stdp_triplet:
      state:
-       w nS = 1nS
+       w nS = 1nS # Synaptic weight
      end
      parameters:
-       the_delay ms = 1ms # !!! cannot have a variable called "delay"
+       d ms = 1ms @nest::delay # Synaptic transmission delay
        tau_plus ms = 16.8ms # time constant for tr_r1
        tau_x ms = 101ms # time constant for tr_r2
        tau_minus ms = 33.7ms # time constant for tr_o1
@@ -88,11 +103,11 @@ Source code
 
      onReceive(pre_spikes):
        # depress synapse
-       #w_ nS = Wmax * ( w / Wmax  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
+       #w_ nS = Wmax * ( w / Wmax - tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
        w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
        w = max(Wmin,w_)
        # deliver spike to postsynaptic partner
-       deliver_spike(w,the_delay)
+       deliver_spike(w,d)
      end
 
    end
@@ -107,4 +122,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:33.021181
+   Generated at 2023-03-02 18:49:47.365985
