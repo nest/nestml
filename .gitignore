@@ -34,3 +34,5 @@ venv
 *.gdf
 *~
 *.iml
+pynestml/codegeneration/resources_spinnaker/common/iaf_psc_exp_template.c
+pynestml/codegeneration/resources_spinnaker/common/iaf_psc_exp_template.h
