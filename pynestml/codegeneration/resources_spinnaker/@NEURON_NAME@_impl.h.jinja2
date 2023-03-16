@@ -138,8 +138,8 @@ static void neuron_impl_do_timestep_update(
 {%-       set ast = block.get_block() %}
 {%-       if ast.print_comment('*')|length > 1 %}
 /*
-{{ast.print_comment('*')}}
-*/
+ {{ast.print_comment('*')}}
+ */
 {%-       endif %}
 {%-       include "directives_cpp/Block.jinja2" %}
 {%-     endfor %}
