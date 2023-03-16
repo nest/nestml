@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
+
+from pynestml.symbols.type_symbol import TypeSymbol
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
@@ -589,20 +592,21 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input port.
         :type node: ASTInputPort
         """
-        if not node.has_datatype():
-            code, message = Messages.get_input_port_type_not_defined(node.get_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        else:
-            node.get_datatype().update_scope(node.get_scope())
+        if node.is_continuous():
+            if not node.has_datatype():
+                code, message = Messages.get_input_port_type_not_defined(node.get_name())
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
+            else:
+                node.get_datatype().update_scope(node.get_scope())
 
         for qual in node.get_input_qualifiers():
             qual.update_scope(node.get_scope())
 
     def endvisit_input_port(self, node):
-        if not node.has_datatype():
-            return
-        type_symbol = node.get_datatype().get_type_symbol()
+        type_symbol = RealTypeSymbol()
+        if node.is_continuous() and not node.has_datatype():
+            type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),

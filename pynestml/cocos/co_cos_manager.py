@@ -45,7 +45,6 @@ from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
@@ -231,14 +230,6 @@ class CoCosManager:
         CoCoOdeFunctionsHaveConsistentUnits.check_co_co(neuron)
 
     @classmethod
-    def check_input_port_data_type(cls, neuron: ASTNeuron):
-        """
-        Checks that input ports have specified the data type if required and no data type if not allowed.
-        :param neuron: a single neuron object.
-        """
-        CoCoInputPortDataType.check_co_co(neuron)
-
-    @classmethod
     def check_integrate_odes_called_if_equations_defined(cls, neuron: ASTNeuron):
         """
         Ensures that integrate_odes() is called if one or more dynamical equations are defined.
@@ -389,7 +380,6 @@ class CoCosManager:
         cls.check_input_port_qualifier_unique(neuron)
         cls.check_parameters_not_assigned_outside_parameters_block(neuron)
         cls.check_continuous_input_ports_not_qualified(neuron)
-        cls.check_input_port_data_type(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)
