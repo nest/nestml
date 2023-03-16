@@ -32,12 +32,12 @@ Parameters
 ++++++++++
 
 
-  !!! cannot have a variable called "delay".. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "tau_tr_pre", "ms", "20ms", "STDP time constant for weight changes caused by pre-before-post spike pairings."    
     "tau_tr_post", "ms", "20ms", "STDP time constant for weight changes caused by post-before-pre spike pairings."    
     "tau_c", "ms", "1000ms", "Time constant of eligibility trace"    
@@ -76,6 +76,7 @@ Source code
            post_tr real = 0.0
        parameters: # !!! cannot have a variable called "delay"
            the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
+           d ms = 1ms @nest::delay # Synaptic transmission delay
            tau_tr_pre ms = 20ms # STDP time constant for weight changes caused by pre-before-post spike pairings.
            tau_tr_post ms = 20ms # STDP time constant for weight changes caused by post-before-pre spike pairings.
            tau_c ms = 1000ms # Time constant of eligibility trace
@@ -91,8 +92,8 @@ Source code
        internals:
            tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
        input:
-           pre_spikes nS <-spike
-           post_spikes nS <-spike
+           pre_spikes real <-spike
+           post_spikes real <-spike
            mod_spikes real <-spike
        output: spike
        onReceive(mod_spikes):
@@ -108,7 +109,7 @@ Source code
            # depression
            c -= A_minus * post_tr
            # deliver spike to postsynaptic partner
-           deliver_spike(w,the_delay)
+           deliver_spike(w,d)
     
        # update from time t to t + resolution()
        update: # resolution() returns the timestep to be made (in units of time)
@@ -128,4 +129,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.942985
+   Generated at 2023-03-02 18:49:47.377456

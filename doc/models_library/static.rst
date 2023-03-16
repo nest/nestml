@@ -19,10 +19,8 @@ Parameters
     :widths: auto
 
     
-    "w", "real", "900", ""    
-    "d", "ms", "0.9ms", ""    
-    "a", "real", "3.141592653589793", ""    
-    "b", "real", "100.0", ""
+    "w", "real", "1", "Synaptic weight"    
+    "d", "ms", "1ms", "Synaptic transmission delay"
 Source code
 +++++++++++
 
@@ -30,14 +28,12 @@ Source code
 
    synapse static:
        parameters:
-           w real = 900 @nest::weight @45
-           d ms = 0.9ms @nest::delay @46
-           a real = 3.141592653589793 @nest::a @45
-           b real = 100.0 @nest::b @46
+           w real = 1 @nest::weight # Synaptic weight
+           d ms = 1ms @nest::delay # Synaptic transmission delay
        input:
-           pre_spikes mV <-spike
+           pre_spikes real <-spike
        onReceive(pre_spikes):
-           deliver_spike(0.00318 * a * b * w,d)
+           deliver_spike(w,d)
     
 
 
@@ -51,4 +47,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.933019
+   Generated at 2023-03-02 18:49:47.383073

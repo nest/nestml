@@ -50,12 +50,12 @@ Parameters
 ++++++++++
 
 
-  !!! cannot have a variable called "delay".. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "lambda", "real", "0.01", ""    
     "tau_tr_pre", "ms", "20ms", ""    
     "tau_tr_post", "ms", "20ms", ""    
@@ -74,7 +74,7 @@ State variables
     :widths: auto
 
     
-    "w", "real", "1.0", ""    
+    "w", "real", "1.0", "Synaptic weight"    
     "pre_trace", "real", "0.0", ""    
     "post_trace", "real", "0.0", ""    
     "pre_handled", "boolean", "true", ""
@@ -85,12 +85,12 @@ Source code
 
    synapse stdp_nn_restr_symm:
        state:
-           w real = 1.0
+           w real = 1.0 # Synaptic weight
            pre_trace real = 0.0
            post_trace real = 0.0
            pre_handled boolean = true
        parameters: # !!! cannot have a variable called "delay"
-           the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
+           d ms = 1ms @nest::delay # Synaptic transmission delay
            lambda real = 0.01
            tau_tr_pre ms = 20ms
            tau_tr_post ms = 20ms
@@ -104,8 +104,8 @@ Source code
            # nearest-neighbour trace of postsynaptic neuron
            post_trace' = -post_trace / tau_tr_post
        input:
-           pre_spikes nS <-spike
-           post_spikes nS <-spike
+           pre_spikes real <-spike
+           post_spikes real <-spike
        output: spike
        onReceive(post_spikes):
            post_trace = 1
@@ -125,7 +125,7 @@ Source code
         
            pre_handled = false
            # deliver spike to postsynaptic partner
-           deliver_spike(w,the_delay)
+           deliver_spike(w,d)
     
 
 
@@ -139,4 +139,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.940282
+   Generated at 2023-03-02 18:49:47.374456

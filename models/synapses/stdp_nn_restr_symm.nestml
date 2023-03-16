@@ -44,13 +44,13 @@ References
 """
 synapse stdp_nn_restr_symm:
     state:
-        w real = 1.
+        w real = 1.   # Synaptic weight
         pre_trace real = 0.
         post_trace real = 0.
         pre_handled boolean = True
 
     parameters:
-        the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
@@ -68,8 +68,8 @@ synapse stdp_nn_restr_symm:
         post_trace' = -post_trace / tau_tr_post
 
     input:
-        pre_spikes nS <- spike
-        post_spikes nS <- spike
+        pre_spikes real <- spike
+        post_spikes real <- spike
 
     output: spike
 
@@ -93,4 +93,4 @@ synapse stdp_nn_restr_symm:
         pre_handled = False
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, the_delay)
+        deliver_spike(w, d)

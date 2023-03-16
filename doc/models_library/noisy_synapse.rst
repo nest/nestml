@@ -15,42 +15,30 @@ Parameters
 ++++++++++
 
 
-  !!! cannot have a variable called "delay".. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "w", "real", "1", "Synaptic weight"    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "A_noise", "real", "0.4", ""
-
-
-State variables
-+++++++++++++++
-
-.. csv-table::
-    :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "w", "nS", "1nS", ""
 Source code
 +++++++++++
 
 .. code-block:: nestml
 
    synapse noisy_synapse:
-       state:
-           w nS = 1nS
-       parameters: # !!! cannot have a variable called "delay"
-           the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
+       parameters:
+            w real = 1 # Synaptic weight
+           d ms = 1ms @nest::delay # Synaptic transmission delay
            A_noise real = 0.4
        input:
-           pre_spikes nS <-spike
+           pre_spikes real <-spike
        output: spike
        onReceive(pre_spikes): # temporary variable for the "weight" that will be transmitted
-           w_ nS = w + A_noise * random_normal(0,1)
+           w_ real = w + A_noise * random_normal(0,1)
            # deliver spike to postsynaptic partner
-           deliver_spike(w_,the_delay)
+           deliver_spike(w_,d)
     
 
 
@@ -64,4 +52,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.931768
+   Generated at 2023-03-02 18:49:47.386807

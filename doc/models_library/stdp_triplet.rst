@@ -14,6 +14,8 @@ plasticity accounting for spike triplet effects (as defined in [1]_).
 
    NAIVE VERSION: unclear about relative timing of pre and post trace updates due to incoming pre and post spikes
 
+stdp_triplet_synapse is a connection with spike time dependent
+plasticity accounting for spike triplet effects (as defined in [1]_).
 
 References
 ++++++++++
@@ -32,7 +34,7 @@ Parameters
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "tau_plus", "ms", "16.8ms", "time constant for tr_r1"    
     "tau_x", "ms", "101ms", "time constant for tr_r2"    
     "tau_minus", "ms", "33.7ms", "time constant for tr_o1"    
@@ -53,7 +55,7 @@ State variables
     :widths: auto
 
     
-    "w", "nS", "1nS", ""
+    "w", "nS", "1nS", "Synaptic weight"
 Source code
 +++++++++++
 
@@ -61,9 +63,10 @@ Source code
 
    synapse stdp_triplet:
        state:
-           w nS = 1nS
+           w nS = 1nS # Synaptic weight
        parameters: # !!! cannot have a variable called "delay"
            the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
+           d ms = 1ms @nest::delay # Synaptic transmission delay
            tau_plus ms = 16.8ms # time constant for tr_r1
            tau_x ms = 101ms # time constant for tr_r2
            tau_minus ms = 33.7ms # time constant for tr_o1
@@ -93,11 +96,11 @@ Source code
            w = min(Wmax,w_)
     
        onReceive(pre_spikes): # depress synapse
-           #w_ nS = Wmax * ( w / Wmax  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
+           #w_ nS = Wmax * ( w / Wmax - tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
            w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
            w = max(Wmin,w_)
            # deliver spike to postsynaptic partner
-           deliver_spike(w,the_delay)
+           deliver_spike(w,d)
     
 
 
@@ -111,4 +114,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.923418
+   Generated at 2023-03-02 18:49:47.365985
