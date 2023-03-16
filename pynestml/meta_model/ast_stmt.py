@@ -21,9 +21,7 @@
 
 from typing import Optional
 
-from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 
 
 class ASTStmt(ASTNode):
@@ -72,7 +70,6 @@ class ASTStmt(ASTNode):
                       comment=self.comment,
                       pre_comments=[s for s in self.pre_comments],
                       in_comment=self.in_comment,
-                      post_comments=[s for s in self.post_comments],
                       implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup

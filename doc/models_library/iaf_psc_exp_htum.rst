@@ -126,19 +126,15 @@ Source code
        tau_syn_inh ms = 2ms # Time constant of inhibitory synaptic current
        tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
        t_ref_abs ms = 2ms # Absolute refractory period
-       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # total refractory period
-       # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
+       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
 
        # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
        E_L mV = -70mV # Resting potential
-       V_reset mV = -70.0mV - E_L # Reset value of the membrane potential
-       # RELATIVE TO RESTING POTENTIAL(!)
-       # I.e. the real threshold is (V_reset + E_L).
+       V_reset mV = -70.0mV - E_L # Reset value of the membrane potential. RELATIVE TO RESTING POTENTIAL(!), I.e. the real threshold is (V_reset + E_L).
 
        # RELATIVE TO RESTING POTENTIAL(!)
        # I.e. the real threshold is (V_reset + E_L).
-       V_th mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!)
-       # I.e. the real threshold is (E_L + V_th)
+       V_th mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!), I.e. the real threshold is (E_L + V_th)
 
        # constant external input current
        I_e pA = 0pA

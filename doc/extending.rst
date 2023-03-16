@@ -73,7 +73,7 @@ If a directory is given, the directory is recursively searched for templates (fi
 Adding a new target platform
 ----------------------------
 
-* Add a new set of templates in a new directory under `https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__.
+* Add a new set of templates in a new directory under `pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__.
 * Implement a new code generator, for example based on the existing `nest_code_generator.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_code_generator.py>`_.
 * Optionally, implement a new builder, for example based on the existing `nest_builder.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_builder.py>`_.
 * Add the new target platform to the frontend in `pynestml_frontend.py <https://github.com/nest/nestml/blob/master/pynestml/frontend/pynestml_frontend.py>`__.

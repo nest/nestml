@@ -47,6 +47,7 @@ class PredefinedFunctions:
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         CLIP                  The callee name of the clip function.
+        POW                   The callee name of the pow function.
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
         ABS                   The callee name of the abs function.
@@ -72,6 +73,7 @@ class PredefinedFunctions:
     EXPM1 = 'expm1'
     DELTA = 'delta'
     CLIP = 'clip'
+    POW = 'pow'
     MAX = 'max'
     MIN = 'min'
     ABS = 'abs'
@@ -104,6 +106,7 @@ class PredefinedFunctions:
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_clip_function()
+        cls.__register_pow_function()
         cls.__register_max_function()
         cls.__register_min_function()
         cls.__register_abs_function()
@@ -345,6 +348,19 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MAX] = symbol
+
+    @classmethod
+    def __register_pow_function(cls):
+        """
+        Registers the power function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))    # base
+        params.append(PredefinedTypes.get_template_type(1))    # exponent
+        symbol = FunctionSymbol(name=cls.POW, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.POW] = symbol
 
     @classmethod
     def __register_min_function(cls):

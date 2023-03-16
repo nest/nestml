@@ -727,7 +727,6 @@ class ASTVisitor:
     def set_real_self(self, _visitor):
         assert (_visitor is not None and isinstance(_visitor, ASTVisitor))
         self.real_self = _visitor
-        return
 
     def get_real_self(self):
         return self.real_self
@@ -736,7 +735,6 @@ class ASTVisitor:
         self.get_real_self().visit(_node)
         self.get_real_self().traverse(_node)
         self.get_real_self().endvisit(_node)
-        return
 
     def visit(self, node):
         """
@@ -1129,7 +1127,6 @@ class ASTVisitor:
         if isinstance(node, ASTStmt):
             self.endvisit_stmt(node)
             return
-        return
 
     def traverse_arithmetic_operator(self, node):
         return
@@ -1139,7 +1136,6 @@ class ASTVisitor:
             node.get_variable().accept(self.get_real_self())
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
-        return
 
     def traverse_bit_operator(self, node):
         return
@@ -1148,25 +1144,21 @@ class ASTVisitor:
         if node.get_stmts() is not None:
             for sub_node in node.get_stmts():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_block_with_variables(self, _node):
         if _node.get_declarations() is not None:
             for sub_node in _node.get_declarations():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_neuron_or_synapse_body(self, node):
         if node.get_body_elements() is not None:
             for sub_node in node.get_body_elements():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_synapse_body(self, node):
         if node.get_body_elements() is not None:
             for sub_node in node.get_body_elements():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_comparison_operator(self, node):
         return
@@ -1178,12 +1170,10 @@ class ASTVisitor:
             node.get_while_stmt().accept(self.get_real_self())
         if node.get_for_stmt() is not None:
             node.get_for_stmt().accept(self.get_real_self())
-        return
 
     def traverse_data_type(self, node):
         if node.get_unit_type() is not None:
             node.get_unit_type().accept(self.get_real_self())
-        return
 
     def traverse_declaration(self, node):
         if node.get_variables() is not None:
@@ -1195,25 +1185,21 @@ class ASTVisitor:
             node.get_expression().accept(self.get_real_self())
         if node.get_invariant() is not None:
             node.get_invariant().accept(self.get_real_self())
-        return
 
     def traverse_elif_clause(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_else_clause(self, node):
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_equations_block(self, node):
         if node.get_declarations() is not None:
             for sub_node in node.get_declarations():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_expression(self, node):
         if node.get_expression() is not None:
@@ -1240,7 +1226,6 @@ class ASTVisitor:
             node.get_end_at().accept(self.get_real_self())
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_function(self, node):
         for sub_node in node.get_parameters():
@@ -1249,20 +1234,17 @@ class ASTVisitor:
             node.get_return_type().accept(self.get_real_self())
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_function_call(self, node):
         if node.get_args() is not None:
             for sub_node in node.get_args():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_if_clause(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_if_stmt(self, node):
         if node.get_if_clause() is not None:
@@ -1271,19 +1253,16 @@ class ASTVisitor:
             elifClause.accept(self.get_real_self())
         if node.get_else_clause() is not None:
             node.get_else_clause().accept(self.get_real_self())
-        return
 
     def traverse_input_block(self, node):
         if node.get_input_ports() is not None:
             for sub_node in node.get_input_ports():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_input_port(self, node):
         if node.get_input_qualifiers() is not None:
             for sub_node in node.get_input_qualifiers():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_input_qualifier(self, node):
         return
@@ -1298,37 +1277,31 @@ class ASTVisitor:
         if node.get_synapse_list() is not None:
             for sub_node in node.get_synapse_list():
                 sub_node.accept(self.get_real_self())
-        return
 
     def traverse_neuron(self, node):
         if node.get_body() is not None:
             node.get_body().accept(self.get_real_self())
-        return
 
     def traverse_synapse(self, node):
         if node.get_body() is not None:
             node.get_body().accept(self.get_real_self())
-        return
 
     def traverse_ode_equation(self, node):
         if node.get_lhs() is not None:
             node.get_lhs().accept(self.get_real_self())
         if node.get_rhs() is not None:
             node.get_rhs().accept(self.get_real_self())
-        return
 
     def traverse_inline_expression(self, node):
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
-        return
 
     def traverse_kernel(self, node):
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             var.accept(self.get_real_self())
             expr.accept(self.get_real_self())
-        return
 
     def traverse_output_block(self, node):
         return
@@ -1336,19 +1309,16 @@ class ASTVisitor:
     def traverse_parameter(self, node):
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
-        return
 
     def traverse_return_stmt(self, node):
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
-        return
 
     def traverse_simple_expression(self, node):
         if node.get_function_call() is not None:
             node.get_function_call().accept(self.get_real_self())
         if node.get_variable() is not None:
             node.get_variable().accept(self.get_real_self())
-        return
 
     def traverse_small_stmt(self, node):
         if node.get_assignment() is not None:
@@ -1359,7 +1329,6 @@ class ASTVisitor:
             node.get_declaration().accept(self.get_real_self())
         if node.get_return_stmt() is not None:
             node.get_return_stmt().accept(self.get_real_self())
-        return
 
     def traverse_unary_operator(self, _node):
         return
@@ -1374,27 +1343,25 @@ class ASTVisitor:
             node.get_rhs().accept(self.get_real_self())
         if node.compound_unit is not None:
             node.compound_unit.accept(self.get_real_self())
-        return
 
     def traverse_update_block(self, node):
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_on_receive_block(self, node):
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_variable(self, node):
         return
+        # if node.get_vector_parameter() is not None:
+        #     node.get_vector_parameter().accept(self.get_real_self())
 
     def traverse_while_stmt(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
-        return
 
     def traverse_stmt(self, node):
         if node.is_small_stmt():

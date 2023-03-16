@@ -18,4 +18,4 @@ The NEST users mailing list is intended to be a forum for questions on the usage
 
 By subscribing to the mailing list you will also get notified of all NEST related events!
 
-Before submitting a question, please take a look at our `guidelines for the NEST mailing list <https://nest-simulator.readthedocs.io/en/stable/contribute/mailing_list_guidelines.html>`_.
+Before submitting a question, please take a look at our `guidelines for the NEST mailing list <https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_.

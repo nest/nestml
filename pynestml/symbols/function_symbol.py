@@ -52,7 +52,7 @@ class FunctionSymbol(Symbol):
         self.return_type = return_type
         self.is_predefined = is_predefined
 
-    def print_symbol(self):
+    def print_symbol(self) -> str:
         """
         Returns a string representation of this symbol.
         """

@@ -18,13 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_kernel import ASTKernel

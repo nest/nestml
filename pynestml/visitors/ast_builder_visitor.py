@@ -257,10 +257,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitVariable(self, ctx):
         vector_parameter = None
         if ctx.vectorParameter is not None:
-            if ctx.vectorParameter.sizeStr is not None:
-                vector_parameter = ctx.vectorParameter.sizeStr.text
-            elif ctx.vectorParameter.sizeInt is not None:
-                vector_parameter = ctx.vectorParameter.sizeInt.text
+            vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
@@ -664,7 +661,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#inputPort.
     def visitInputPort(self, ctx):
         name = str(ctx.name.text) if ctx.name is not None else None
-        size_parameter = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
+        size_parameter = None
+        if ctx.sizeParameter is not None:
+            size_parameter = self.visit(ctx.sizeParameter)
         input_qualifiers = []
         if ctx.inputQualifier() is not None:
             for qual in ctx.inputQualifier():
@@ -748,7 +747,6 @@ def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]
-    node.post_comments = comments[3]
 
 
 def get_next(_elements=list()):
