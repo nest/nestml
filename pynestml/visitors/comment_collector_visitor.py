@@ -159,7 +159,7 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
 
 
 def is_newline(tok):
-    return tok.text in ['\n', '\r\n']
+    return tok.type == 9  # NEWLINE token
 
 
 def is_indent(tok):
@@ -202,26 +202,34 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     comments = list()
     empty_before = __no_definitions_before(ctx, tokens)
     temp = None
+    lastToken = None
     for possibleCommentToken in reversed(tokens[0:tokens.index(ctx.start)]):
         # if we hit a normal token (i.e. not whitespace and not newline) then stop
         if possibleCommentToken.channel == 0 \
                 and not (is_newline(possibleCommentToken)
                          or is_indent(possibleCommentToken) or is_dedent(possibleCommentToken)):
+            # This is to omit the inline comments that are parsed
+            if is_newline(lastToken) and temp is not None:
+                comments.append(temp)
             break
+
         # a newline on comment channel (2) by itself separates elements
-        if possibleCommentToken.channel == 2 and is_newline(possibleCommentToken):
+        if possibleCommentToken.channel == 2 and is_newline(possibleCommentToken) and is_newline(lastToken):
             if temp is not None:
                 comments.append(temp)
             break
+
         # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
         # in the same line, since in this case, the comments does not belong to us
-        if possibleCommentToken.channel == 2:
+        if possibleCommentToken.channel == 2 and not is_newline(possibleCommentToken):
             if temp is not None:
                 comments.append(temp)
             if strip_delim:
                 temp = replace_delimiters(possibleCommentToken.text)
             else:
                 temp = possibleCommentToken.text
+        lastToken = possibleCommentToken
+
     # this last part is required in the case, that the very first token is a comment
     if empty_before and temp is not None and temp not in comments:
         comments.append(temp)

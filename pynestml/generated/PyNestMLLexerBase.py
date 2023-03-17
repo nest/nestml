@@ -140,12 +140,14 @@ class PyNestMLLexerBase(Lexer):
         else:
             nextnext_eof = False
         if self.opened > 0 or nextnext_eof is False and (
-                la_char == '\r' or la_char == '\n' or la_char == '\f'):
+                la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
             # Emit a newline token but in the comments channel (2).
             # This newline is used as a separator between comments while parsing.
-            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, newLine, channel=2))
-        elif self.opened > 0 or nextnext_eof is False and (la_char == '#'):
-            self.skip()
+            indent = self.getIndentationCount(spaces)
+            self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, newLine, indent=indent, channel=2))
+        # elif self.opened > 0 or nextnext_eof is False and (la_char == '#'):
+        #     indent = self.getIndentationCount(spaces)
+        #     self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, newLine, indent=indent, channel=2))
         else:
             indent = self.getIndentationCount(spaces)
             previous = self.indents[-1] if self.indents else 0
