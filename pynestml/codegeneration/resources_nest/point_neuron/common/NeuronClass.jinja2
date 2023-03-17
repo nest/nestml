@@ -512,6 +512,7 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
+  auto get_t = [](){ return nest::Time( nest::Time::step( nest::kernel().simulation_manager.get_slice_origin().get_steps() ) ).get_ms(); };
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 {% if propagators_are_state_dependent %}
