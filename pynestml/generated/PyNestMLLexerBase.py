@@ -145,9 +145,6 @@ class PyNestMLLexerBase(Lexer):
             # This newline is used as a separator between comments while parsing.
             indent = self.getIndentationCount(spaces)
             self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, newLine, indent=indent, channel=2))
-        # elif self.opened > 0 or nextnext_eof is False and (la_char == '#'):
-        #     indent = self.getIndentationCount(spaces)
-        #     self.emitToken(self.commonToken(PyNestMLParser.NEWLINE, newLine, indent=indent, channel=2))
         else:
             indent = self.getIndentationCount(spaces)
             previous = self.indents[-1] if self.indents else 0

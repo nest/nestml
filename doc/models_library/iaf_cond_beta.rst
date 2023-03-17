@@ -104,66 +104,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron iaf_cond_beta: # counts number of tick during the refractory period
-       state: # counts number of tick during the refractory period
-           r integer = 0 # counts number of tick during the refractory period
-           V_m mV = E_L # membrane potential
-           # inputs from the inhibitory conductance
-           g_in real = 0
-           g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
-           # inputs from the excitatory conductance
-           g_ex real = 0
-           g_ex$ real = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
-       equations:
-           kernel g_in' = g_in$ - g_in / tau_syn_rise_I, g_in$' = -g_in$ / tau_syn_decay_I
-           kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E, g_ex$' = -g_ex$ / tau_syn_decay_E
-           inline I_syn_exc pA = (F_E + convolve(g_ex,exc_spikes)) * (V_m - E_ex) # pA = nS * mV
-           inline I_syn_inh pA = (F_I + convolve(g_in,inh_spikes)) * (V_m - E_in) # pA = nS * mV
-           inline I_leak pA = g_L * (V_m - E_L) # pA = nS * mV
-           V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-       parameters: # Leak reversal potential (aka resting potential)
-           E_L mV = -70mV # Leak reversal potential (aka resting potential)
-           C_m pF = 250pF # Capacitance of the membrane
-           t_ref ms = 2ms # Refractory period
-           V_th mV = -55mV # Threshold potential
-           V_reset mV = -60mV # Reset potential
-           E_ex mV = 0mV # Excitatory reversal potential
-           E_in mV = -85mV # Inhibitory reversal potential
-           g_L nS = 16.6667nS # Leak conductance
-           tau_syn_rise_I ms = 0.2ms # Synaptic time constant excitatory synapse
-           tau_syn_decay_I ms = 2ms # Synaptic time constant for inhibitory synapse
-           tau_syn_rise_E ms = 0.2ms # Synaptic time constant excitatory synapse
-           tau_syn_decay_E ms = 2ms # Synaptic time constant for inhibitory synapse
-           F_E nS = 0nS # Constant external input conductance (excitatory).
-           F_I nS = 0nS # Constant external input conductance (inhibitory).
-           # constant external input current
-           I_e pA = 0pA
-       internals: # time of peak conductance excursion after spike arrival at t = 0
-           t_peak_E real = tau_syn_decay_E * tau_syn_rise_E * ln(tau_syn_decay_E / tau_syn_rise_E) / (tau_syn_decay_E - tau_syn_rise_E)
-           t_peak_I real = tau_syn_decay_I * tau_syn_rise_I * ln(tau_syn_decay_I / tau_syn_rise_I) / (tau_syn_decay_I - tau_syn_rise_I)
-           # normalisation constants to ensure arriving spike yields peak conductance of 1 nS
-           g_E_const real = 1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
-           g_I_const real = 1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-       input:
-           inh_spikes nS <-inhibitory spike
-           exc_spikes nS <-excitatory spike
-           I_stim pA <-current
-       output: spike
-       update: # not refractory
-           integrate_odes() # not refractory
-           if r != 0: # not refractory
-               r = r - 1 # clamp potential
-               V_m = V_reset # clamp potential
-           elif V_m >= V_th:
-               r = RefractoryCounts # clamp potential
-               V_m = V_reset # clamp potential
-               emit_spike()
-        
-
-
+The model source code can be found in the NESTML models repository here: `iaf_cond_beta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_beta.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -173,4 +114,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:56.998352
+   Generated at 2023-03-17 14:50:06.125077

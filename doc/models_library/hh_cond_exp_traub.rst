@@ -120,78 +120,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron hh_cond_exp_traub:
-       state: # counts number of tick during the refractory period
-           r integer = 0 # counts number of tick during the refractory period
-           V_m mV = E_L # Membrane potential
-           Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
-           Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
-           Inact_n real = alpha_n_init / (alpha_n_init + beta_n_init)
-       equations: # synapses: exponential conductance
-           kernel g_inh = exp(-t / tau_syn_inh)
-           kernel g_exc = exp(-t / tau_syn_exc)
-           # Add aliases to simplify the equation definition of V_m
-           inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
-           inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
-           inline I_L pA = g_L * (V_m - E_L)
-           inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
-           inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
-           V_m' = (-I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-           # channel dynamics
-           inline V_rel mV = V_m - V_T
-           inline alpha_n 1/ms = 0.032 / (ms * mV) * (15.0mV - V_rel) / (exp((15.0mV - V_rel) / 5.0mV) - 1.0)
-           inline beta_n 1/ms = 0.5 / ms * exp((10.0mV - V_rel) / 40.0mV)
-           inline alpha_m 1/ms = 0.32 / (ms * mV) * (13.0mV - V_rel) / (exp((13.0mV - V_rel) / 4.0mV) - 1.0)
-           inline beta_m 1/ms = 0.28 / (ms * mV) * (V_rel - 40.0mV) / (exp((V_rel - 40.0mV) / 5.0mV) - 1.0)
-           inline alpha_h 1/ms = 0.128 / ms * exp((17.0mV - V_rel) / 18.0mV)
-           inline beta_h 1/ms = (4.0 / (1.0 + exp((40.0mV - V_rel) / 5.0mV))) / ms
-           Act_m' = (alpha_m - (alpha_m + beta_m) * Act_m)
-           Act_h' = (alpha_h - (alpha_h + beta_h) * Act_h)
-           Inact_n' = (alpha_n - (alpha_n + beta_n) * Inact_n)
-       parameters: # Na Conductance
-           g_Na nS = 20000nS # Na Conductance
-           g_K nS = 6000nS # K Conductance
-           g_L nS = 10nS # Leak Conductance
-           C_m pF = 200pF # Membrane Capacitance
-           E_Na mV = 50mV # Reversal potentials
-           E_K mV = -90mV # Potassium reversal potential
-           E_L mV = -60mV # Leak reversal potential (aka resting potential)
-           V_T mV = -63mV # Voltage offset that controls dynamics. For default
-           # parameters, V_T = -63 mV results in a threshold around -50 mV.
-           tau_syn_exc ms = 5ms # Synaptic time constant of excitatory synapse
-           tau_syn_inh ms = 10ms # Synaptic time constant of inhibitory synapse
-           t_ref ms = 2ms # Refractory period
-           E_exc mV = 0mV # Excitatory synaptic reversal potential
-           E_inh mV = -80mV # Inhibitory synaptic reversal potential
-           alpha_n_init 1/ms = 0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)
-           beta_n_init 1/ms = 0.5 / ms * exp((10.0mV - E_L) / 40.0mV)
-           alpha_m_init 1/ms = 0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)
-           beta_m_init 1/ms = 0.28 / (ms * mV) * (E_L - 40.0mV) / (exp((E_L - 40.0mV) / 5.0mV) - 1.0)
-           alpha_h_init 1/ms = 0.128 / ms * exp((17.0mV - E_L) / 18.0mV)
-           beta_h_init 1/ms = (4.0 / (1.0 + exp((40.0mV - E_L) / 5.0mV))) / ms
-           # constant external input current
-           I_e pA = 0pA
-       internals:
-           RefractoryCounts integer = steps(t_ref)
-       input:
-           inh_spikes nS <-inhibitory spike
-           exc_spikes nS <-excitatory spike
-           I_stim pA <-current
-       output: spike
-       update:
-           U_old mV = V_m
-           integrate_odes()
-           # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-           if r > 0:
-               r -= 1
-           elif V_m > V_T + 30mV and U_old > V_m:
-               r = RefractoryCounts
-               emit_spike()
-        
-
-
+The model source code can be found in the NESTML models repository here: `hh_cond_exp_traub <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_traub.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -201,4 +130,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:56.850547
+   Generated at 2023-03-17 14:50:05.965863

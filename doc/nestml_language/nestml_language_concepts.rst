@@ -1,6 +1,36 @@
 NESTML language concepts
 ========================
 
+NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. At the end of each block, the statements must be de-indented with the same indentation level. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. For example, the following neuron model is defined with an indentation level of 4:
+
+.. code-block:: nestml
+
+   neuron test:
+       state:
+           tau ms = 42 ms
+           foo s = 0 s
+
+       update:
+           if tau > 0:
+               foo += 1
+           else:
+               foo -= 1
+
+Similar to Python, a single line can be split into multiple lines by using a backslash (``\``). For example, the expression in the below model is split into multiple lines using a backslash.
+
+.. code-block:: nestml
+
+   neuron test:
+       state:
+           tau ms = 42 ms
+           foo s = 0 s
+
+       update:
+           foo = tau > 0 \
+               ? foo + 1 \
+               : foo - 1
+
+
 Data types and physical units
 -----------------------------
 
@@ -628,8 +658,13 @@ e.g.:
 
 .. code-block:: nestml
 
-   if 2 < 3:
-       # <statements>
+   parameters:
+       foo integer = 2
+       bar integer = 3
+
+   update:
+       if foo < bar:
+           # <statements>
 
 The second example shows an if-else block, which executes the ``if_statements`` in case the boolean expression evaluates to true and the ``else_statements`` else.
 
@@ -644,10 +679,11 @@ e.g.:
 
 .. code-block:: nestml
 
-   if 2 < 3:
-       # <if_statements>
-   else:
-       # <else_statements>
+   update:
+       if foo < bar:
+           # <if_statements>
+       else:
+           # <else_statements>
 
 In order to allow grouping a sequence of related ``if`` conditions, NESTML also supports the ``elif``-conditionals. An ``if`` condition can be followed by an arbitrary number of ``elif`` conditions. Optionally, this variant also supports the ``else`` keyword for a catch-all statement.
 
@@ -664,25 +700,27 @@ e.g.:
 
 .. code-block:: nestml
 
-   if 2 < 3:
-       # <if_statements>
-   elif 4 > 6:
-       # <elif_statements>
-   else:
-       # <else_statements>
+   parameters:
+       foo integer = 2
+       bar integer = 3
+       x integer = 4
+       y integer = 6
 
-   if 2 < 3:
-       # <if_statements>
-   elif 4>6:
-       # <elif_statements>
+   update:
+       if foo < bar:
+           # <if_statements>
+       elif x > y:
+           # <elif_statements>
+       else:
+           # <else_statements>
 
 Conditionals can also be nested inside of each other.
 
 .. code-block:: nestml
 
-   if 1 < 4:
+   if foo < bar:
        # <statements>
-       if 2 < 3:
+       if x < y:
            # <statements>
 
 Expressions and operators

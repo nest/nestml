@@ -8,13 +8,14 @@ Description
 +++++++++++
 A synapse where the synaptic strength (weight) does not evolve with simulated time, but is defined as a (constant) parameter.
 
+ Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-.. csv-table::
+  Synaptic weight.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -24,19 +25,7 @@ Parameters
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse static:
-       parameters:
-           w real = 1 @nest::weight # Synaptic weight
-           d ms = 1ms @nest::delay # Synaptic transmission delay
-       input:
-           pre_spikes real <-spike
-       onReceive(pre_spikes):
-           deliver_spike(w,d)
-    
-
-
+The model source code can be found in the NESTML models repository here: `static <https://github.com/nest/nestml/tree/master/models/synapses/static_synapse.nestml>`_.
 
 
 Characterisation
@@ -47,4 +36,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-02 18:49:47.383073
+   Generated at 2023-03-17 14:48:41.193757

@@ -99,65 +99,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron iaf_cond_exp_sfa_rr:
-       state: # counts number of tick during the refractory period
-           r integer = 0 # counts number of tick during the refractory period
-           V_m mV = E_L # membrane potential
-           g_sfa nS = 0nS # inputs from the sfa conductance
-           g_rr nS = 0nS # inputs from the rr conductance
-       equations: # inputs from the inh conductance
-           kernel g_inh = exp(-t / tau_syn_inh) # inputs from the inh conductance
-           kernel g_exc = exp(-t / tau_syn_exc) # inputs from the exc conductance
-           g_sfa' = -g_sfa / tau_sfa
-           g_rr' = -g_rr / tau_rr
-           inline I_syn_exc pA = convolve(g_exc,exc_spikes) * (V_m - E_exc)
-           inline I_syn_inh pA = convolve(g_inh,inh_spikes) * (V_m - E_inh)
-           inline I_L pA = g_L * (V_m - E_L)
-           inline I_sfa pA = g_sfa * (V_m - E_sfa)
-           inline I_rr pA = g_rr * (V_m - E_rr)
-           V_m' = (-I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr) / C_m
-       parameters: # Threshold potential
-           V_th mV = -57.0mV # Threshold potential
-           V_reset mV = -70.0mV # Reset potential
-           t_ref ms = 0.5ms # Refractory period
-           g_L nS = 28.95nS # Leak conductance
-           C_m pF = 289.5pF # Membrane capacitance
-           E_exc mV = 0mV # Excitatory reversal potential
-           E_inh mV = -75.0mV # Inhibitory reversal potential
-           E_L mV = -70.0mV # Leak reversal potential (aka resting potential)
-           tau_syn_exc ms = 1.5ms # Synaptic time constant of excitatory synapse
-           tau_syn_inh ms = 10.0ms # Synaptic time constant of inhibitory synapse
-           q_sfa nS = 14.48nS # Outgoing spike activated quantal spike-frequency adaptation conductance increase
-           q_rr nS = 3214.0nS # Outgoing spike activated quantal relative refractory conductance increase
-           tau_sfa ms = 110.0ms # Time constant of spike-frequency adaptation
-           tau_rr ms = 1.97ms # Time constant of the relative refractory mechanism
-           E_sfa mV = -70.0mV # spike-frequency adaptation conductance reversal potential
-           E_rr mV = -70.0mV # relative refractory mechanism conductance reversal potential
-           # constant external input current
-           I_e pA = 0pA
-       internals: # refractory time in steps
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-       input:
-           inh_spikes nS <-inhibitory spike
-           exc_spikes nS <-excitatory spike
-           I_stim pA <-current
-       output: spike
-       update: # neuron is absolute refractory
-           integrate_odes() # neuron is absolute refractory
-           if r != 0: # neuron is absolute refractory
-               r = r - 1 # clamp potential
-               V_m = V_reset # clamp potential
-           elif V_m >= V_th:
-               r = RefractoryCounts # clamp potential
-               V_m = V_reset # clamp potential
-               g_sfa += q_sfa
-               g_rr += q_rr
-               emit_spike()
-        
-
-
+The model source code can be found in the NESTML models repository here: `iaf_cond_exp_sfa_rr <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_exp_sfa_rr.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -167,4 +109,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:57.142129
+   Generated at 2023-03-17 14:50:06.282053

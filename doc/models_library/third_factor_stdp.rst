@@ -38,13 +38,14 @@ References
     Stable Hebbian learning from spike timing-dependent
     plasticity, Journal of Neuroscience, 20:23,8812--8821
 
+ Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-.. csv-table::
+  Synaptic transmission delay.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -72,50 +73,7 @@ State variables
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse third_factor_stdp:
-       state:
-           w real = 1.0 # Synaptic weight
-       parameters: # !!! cannot have a variable called "delay"
-           d ms = 1ms @nest::delay # Synaptic transmission delay
-           lambda real = 0.01
-           tau_tr_pre ms = 20ms
-           tau_tr_post ms = 20ms
-           alpha real = 1.0
-           mu_plus real = 1.0
-           mu_minus real = 1.0
-           Wmax real = 100.0
-           Wmin real = 0.0
-       equations:
-           kernel pre_trace_kernel = exp(-t / tau_tr_pre)
-           inline pre_trace real = convolve(pre_trace_kernel,pre_spikes)
-           # all-to-all trace of postsynaptic neuron
-           kernel post_trace_kernel = exp(-t / tau_tr_post)
-           inline post_trace real = convolve(post_trace_kernel,post_spikes)
-       input:
-           pre_spikes real <-spike
-           post_spikes real <-spike
-           I_post_dend pA <-current
-       output: spike
-       onReceive(post_spikes): # potentiate synapse
-           w_ real = Wmax * (w / Wmax + (lambda * (1.0 - (w / Wmax)) ** mu_plus * pre_trace)) # "gating" of the weight update
-           if I_post_dend <= 1pA: # "gating" of the weight update
-               w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w # "gating" of the weight update
-        
-           w = min(Wmax,w_)
-    
-       onReceive(pre_spikes): # depress synapse
-           w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax) ** mu_minus * post_trace)) # "gating" of the weight update
-           if I_post_dend <= 1pA: # "gating" of the weight update
-               w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w # "gating" of the weight update
-        
-           w = max(Wmin,w_)
-           # deliver spike to postsynaptic partner
-           deliver_spike(w,d)
-    
-
-
+The model source code can be found in the NESTML models repository here: `third_factor_stdp <https://github.com/nest/nestml/tree/master/models/synapses/third_factor_stdp_synapse.nestml>`_.
 
 
 Characterisation
@@ -126,4 +84,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-02 18:49:47.383596
+   Generated at 2023-03-17 14:48:41.197536

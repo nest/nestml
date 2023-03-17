@@ -102,62 +102,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron iaf_psc_delta: # Counts number of tick during the refractory period
-       state: # Counts number of tick during the refractory period
-           refr_spikes_buffer mV = 0mV # Counts number of tick during the refractory period
-           r integer = 0 # Counts number of tick during the refractory period
-           V_m mV = E_L # Membrane potential
-       equations:
-           kernel G = delta(t)
-           V_m' = -(V_m - E_L) / tau_m + (mV / pA / ms) * convolve(G,spikes) + (I_e + I_stim) / C_m
-       parameters: # Membrane time constant
-           tau_m ms = 10ms # Membrane time constant
-           C_m pF = 250pF # Capacity of the membrane
-           t_ref ms = 2ms # Duration of refractory period
-           tau_syn ms = 2ms # Time constant of synaptic current
-           E_L mV = -70mV # Resting membrane potential
-           V_reset mV = -70mV # Reset potential of the membrane
-           V_th mV = -55mV # Spike threshold
-           V_min mV = -inf * 1mV # Absolute lower value for the membrane potential
-           with_refr_input boolean = false # If true, do not discard input during refractory period.
-           # constant external input current
-           I_e pA = 0pA
-       internals: # refractory time in steps
-           h ms = resolution() # refractory time in steps
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-       input:
-           spikes pA <-spike
-           I_stim pA <-current
-       output: spike
-       update: # neuron not refractory
-           if r == 0: # neuron not refractory
-               integrate_odes()
-               # if we have accumulated spikes from refractory period,
-               # add and reset accumulator
-               if with_refr_input and refr_spikes_buffer != 0.0mV:
-                   V_m += refr_spikes_buffer
-                   refr_spikes_buffer = 0.0mV
-            
-               # lower bound of membrane potential
-               V_m = V_m < V_min?V_min:V_m
-           else:
-               # read spikes from buffer and accumulate them, discounting
-               # for decay until end of refractory period
-               # the buffer is clear automatically
-               if with_refr_input:
-                   refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV / pA
-            
-               r -= 1
-        
-           if V_m >= V_th: # threshold crossing
-               r = RefractoryCounts
-               V_m = V_reset
-               emit_spike()
-        
-
-
+The model source code can be found in the NESTML models repository here: `iaf_psc_delta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_delta.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -167,4 +112,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:57.076923
+   Generated at 2023-03-17 14:50:06.214318

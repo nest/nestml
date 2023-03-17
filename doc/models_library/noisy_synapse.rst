@@ -9,12 +9,14 @@ Description
 
 Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
 
+ Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
+  Synaptic weight.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -25,23 +27,7 @@ Parameters
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse noisy_synapse:
-       parameters:
-            w real = 1 # Synaptic weight
-           d ms = 1ms @nest::delay # Synaptic transmission delay
-           A_noise real = 0.4
-       input:
-           pre_spikes real <-spike
-       output: spike
-       onReceive(pre_spikes): # temporary variable for the "weight" that will be transmitted
-           w_ real = w + A_noise * random_normal(0,1)
-           # deliver spike to postsynaptic partner
-           deliver_spike(w_,d)
-    
-
-
+The model source code can be found in the NESTML models repository here: `noisy_synapse <https://github.com/nest/nestml/tree/master/models/synapses/noisy_synapse.nestml>`_.
 
 
 Characterisation
@@ -52,4 +38,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-02 18:49:47.386807
+   Generated at 2023-03-17 14:48:41.192672

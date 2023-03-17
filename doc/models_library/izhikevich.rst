@@ -88,41 +88,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron izhikevich: # Membrane potential
-       state: # Membrane potential
-           V_m mV = V_m_init # Membrane potential
-           U_m real = b * V_m_init # Membrane potential recovery variable
-       equations:
-           V_m' = (0.04 * V_m * V_m / mV + 5.0 * V_m + (140 - U_m) * mV + ((I_e + I_stim) * GOhm)) / ms
-           U_m' = a * (b * V_m - U_m * mV) / (mV * ms)
-       parameters: # describes time scale of recovery variable
-           a real = 0.02 # describes time scale of recovery variable
-           b real = 0.2 # sensitivity of recovery variable
-           c mV = -65mV # after-spike reset value of V_m
-           d real = 8.0 # after-spike reset value of U_m
-           V_m_init mV = -65mV # initial membrane potential
-           V_min mV = -inf * mV # Absolute lower value for the membrane potential.
-           # constant external input current
-           I_e pA = 0pA
-       input:
-           spikes mV <-spike
-           I_stim pA <-current
-       output: spike
-       update: # Add synaptic current
-           integrate_odes() # Add synaptic current
-           V_m += spikes
-           # lower bound of membrane potential
-           V_m = (V_m < V_min)?V_min:V_m
-           # threshold crossing
-           if V_m >= 30mV:
-               V_m = c
-               U_m += d
-               emit_spike()
-        
-
-
+The model source code can be found in the NESTML models repository here: `izhikevich <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -132,4 +98,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:57.193029
+   Generated at 2023-03-17 14:50:06.336161
