@@ -67,8 +67,6 @@ class CommentTest(unittest.TestCase):
         # parser._errHandler = BailErrorStrategy()
         parser._errHandler.reset(parser)
 
-        # self.print_token_stream(stream.tokens)
-
         # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
 
