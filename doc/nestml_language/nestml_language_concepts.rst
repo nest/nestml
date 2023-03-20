@@ -1,6 +1,10 @@
 NESTML language concepts
 ========================
 
+
+Structure and indentation
+-------------------------
+
 NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent (i.e. post block) statements must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
@@ -765,7 +769,7 @@ For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ 
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
 
 ::
 
