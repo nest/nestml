@@ -1,7 +1,7 @@
 NESTML language concepts
 ========================
 
-NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. At the end of each block, the statements must be de-indented with the same indentation level. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. For example, the following neuron model is defined with an indentation level of 4:
+NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent (i.e. post block) statements must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
 
@@ -16,7 +16,7 @@ NESTML uses Python-like indentation to group statements into blocks. Leading whi
            else:
                foo -= 1
 
-Similar to Python, a single line can be split into multiple lines by using a backslash (``\``). For example, the expression in the below model is split into multiple lines using a backslash.
+Similar to Python, a single line can be split into multiple lines by using a backslash (``\``). For example, the expression in the ``update`` block of the model below is split into multiple lines using this technique.
 
 .. code-block:: nestml
 
