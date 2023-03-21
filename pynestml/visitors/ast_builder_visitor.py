@@ -747,7 +747,6 @@ def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]
-    node.post_comments = comments[3]
 
 
 def get_next(_elements=list()):

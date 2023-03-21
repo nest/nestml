@@ -79,10 +79,7 @@ class CommentTest(unittest.TestCase):
         assert (comments[0] == 'pre comment 1 ok')
         assert (comments[1] == 'pre comment 2 ok')
         assert (comments[2] == 'inline comment ok')
-        assert (comments[3] == 'post comment 1 ok')
-        assert (comments[4] == 'post comment 2 ok')
         assert ('pre comment not ok' not in comments)
-        assert ('post comment not ok' not in comments)
 
         # check that equation block comment is detected
         self.assertEqual(neuron_or_synapse_body_elements[1].get_comment()[0], 'equations comment ok')
