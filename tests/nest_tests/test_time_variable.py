@@ -28,6 +28,8 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestTimeVariable:
     """Sanity test for the predefined variable ``t``, which represents simulation time"""
 
@@ -57,16 +59,9 @@ class TestTimeVariable:
 
         nest.Simulate(100.0)
 
-        nest_version = NESTTools.detect_nest_version()
-
-        if nest_version.startswith("v2"):
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            x = nest.GetStatus(mm, "events")[0]["x"]
-            y = nest.GetStatus(mm, "events")[0]["y"]
-        else:
-            timevec = mm.get("events")["times"]
-            x = mm.get("events")["x"]
-            y = mm.get("events")["y"]
+        timevec = mm.get("events")["times"]
+        x = mm.get("events")["x"]
+        y = mm.get("events")["y"]
 
         np.testing.assert_allclose(x, timevec)
         np.testing.assert_allclose(1E-3 * x, y)
