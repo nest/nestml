@@ -50,8 +50,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
         for filename in glob.glob(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "models", "**", "*.nestml")),
                                   recursive=True):
-            input_file = FileStream(
-                os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, "models", "neurons", filename)))
+            input_file = FileStream(filename)
             lexer = PyNestMLLexer(input_file)
             lexer._errHandler = BailErrorStrategy()
             lexer._errHandler.reset(lexer)
