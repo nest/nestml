@@ -78,8 +78,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {{ synapse.print_comment() }}
 **/
 
-#define POST_NEURON_TYPE {{ paired_neuron }}
-
 //#define DEBUG
 
 namespace nest
@@ -219,6 +217,10 @@ public:
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
 {
+{%- if paired_neuron | length > 0 %}
+  typedef {{ paired_neuron }} post_neuron_t;
+
+{% endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 public:
   void trigger_update_weight( thread t,
