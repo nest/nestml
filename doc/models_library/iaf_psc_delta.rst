@@ -51,12 +51,11 @@ See also
 
 iaf_psc_alpha, iaf_psc_exp
 
- Counts number of tick during the refractory period
 
 
 Parameters
 ++++++++++
-  Membrane time constant.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -82,7 +81,7 @@ State variables
     :widths: auto
 
     
-    "refr_spikes_buffer", "mV", "0mV", "Counts number of tick during the refractory period"    
+    "refr_spikes_buffer", "mV", "0mV", ""    
     "r", "integer", "0", "Counts number of tick during the refractory period"    
     "V_m", "mV", "E_L", "Membrane potential"
 
@@ -112,4 +111,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.214318
+   Generated at 2023-03-22 17:48:48.845377

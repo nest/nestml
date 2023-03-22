@@ -40,14 +40,14 @@ References
 
 Parameters
 ++++++++++
-  1.0 - 1.85.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "E_Na", "mV", "30.0mV", "1.0 - 1.85"    
-    "E_K", "mV", "-90.0mV", "1.0 - 1.85"    
-    "g_NaL", "nS", "0.2nS", "1.0 - 1.85"    
+    "E_Na", "mV", "30.0mV", ""    
+    "E_K", "mV", "-90.0mV", ""    
+    "g_NaL", "nS", "0.2nS", ""    
     "g_KL", "nS", "1.0nS", "1.0 - 1.85"    
     "Tau_m", "ms", "16.0ms", "membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])"    
     "Theta_eq", "mV", "-51.0mV", "equilibrium value"    
@@ -151,4 +151,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.136525
+   Generated at 2023-03-22 17:48:48.773169

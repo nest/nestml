@@ -38,12 +38,11 @@ References
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
- Membrane potential
 
 
 Parameters
 ++++++++++
-  describes time scale of recovery variable.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -98,4 +97,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.336161
+   Generated at 2023-03-22 17:48:48.970819

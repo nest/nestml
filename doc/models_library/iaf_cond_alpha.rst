@@ -37,12 +37,11 @@ See also
 
 iaf_cond_exp
 
- counts number of tick during the refractory period
 
 
 Parameters
 ++++++++++
-  Threshold potential.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -98,4 +97,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.299045
+   Generated at 2023-03-22 17:48:48.934362

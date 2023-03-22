@@ -22,12 +22,11 @@ See also
 
 hh_cond_exp_traub
 
- number of steps in the current refractory phase
 
 
 Parameters
 ++++++++++
-  Refractory period.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -96,4 +95,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.061255
+   Generated at 2023-03-22 17:48:48.698546

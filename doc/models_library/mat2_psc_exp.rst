@@ -44,12 +44,11 @@ References
        threshold. Frontiers in Computuational Neuroscience 3:9.
        DOI: https://doi.org/10.3389/neuro.10.009.2009
 
- Two-timescale adaptive threshold
 
 
 Parameters
 ++++++++++
-  Membrane time constant.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -108,4 +107,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.490244
+   Generated at 2023-03-22 17:48:49.118418

@@ -31,7 +31,7 @@ iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 
 Parameters
 ++++++++++
-  Threshold potential.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -87,4 +87,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.364903
+   Generated at 2023-03-22 17:48:48.999982

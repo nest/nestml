@@ -30,12 +30,11 @@ References
        Pathological Thalamic Rhythmicity in a Computational Model
        Journal of Computational Neuroscience, 16, 211-235 (2004)
 
- counts number of ticks during the refractory period
 
 
 Parameters
 ++++++++++
-  Resting membrane potential.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -112,4 +111,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.004281
+   Generated at 2023-03-22 17:48:48.643623

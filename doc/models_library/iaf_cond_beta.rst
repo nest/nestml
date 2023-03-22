@@ -45,12 +45,11 @@ See also
 
 iaf_cond_exp, iaf_cond_alpha
 
- counts number of tick during the refractory period
 
 
 Parameters
 ++++++++++
-  Leak reversal potential (aka resting potential).. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -114,4 +113,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.125077
+   Generated at 2023-03-22 17:48:48.761456

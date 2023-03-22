@@ -288,6 +288,8 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
             if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
                 comment = comment[:-2]
             return comment
+        if possibleComment.channel == 0 and is_newline(possibleComment):
+            break
     return None
 
 

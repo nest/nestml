@@ -53,7 +53,7 @@ hh_psc_alpha
 
 Parameters
 ++++++++++
-  Na Conductance.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -130,4 +130,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:05.965863
+   Generated at 2023-03-22 17:48:48.607331

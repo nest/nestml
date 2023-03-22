@@ -48,10 +48,18 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_block_with_variables_with_comments(self):
         block = "# pre1\n" \
-                "state: # in\n" \
+                "state:\n" \
                 "    # real pre\n" \
                 "    # real pre2\n" \
                 "    r real = 0\n"
+        model = ModelParser.parse_block_with_variables(block)
+        model_printer = NESTMLPrinter()
+        self.assertEqual(block, model_printer.print(model))
+
+    def test_block_with_variables_with_in_comments(self):
+        block = "# pre1\n" \
+                "state:\n" \
+                "    r real = 0 # in comment\n"
         model = ModelParser.parse_block_with_variables(block)
         model_printer = NESTMLPrinter()
         self.assertEqual(block, model_printer.print(model))

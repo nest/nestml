@@ -39,7 +39,7 @@ aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
 
 Parameters
 ++++++++++
-  Threshold potential.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -109,4 +109,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:50:06.282053
+   Generated at 2023-03-22 17:48:48.917439
