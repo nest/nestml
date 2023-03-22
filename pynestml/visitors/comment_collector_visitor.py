@@ -275,6 +275,7 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
     :type tokens: list(Tokens)
     :return: a comment
     """
+    prevToken = None
     for possibleComment in tokens[tokens.index(ctx.start):]:
         if possibleComment.channel == 2:
             if is_newline(possibleComment):  # new line, thus the one line comment ends here
@@ -288,8 +289,11 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
             if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
                 comment = comment[:-2]
             return comment
-        if possibleComment.channel == 0 and is_newline(possibleComment):
+        # While parsing blocks separately, there can be cases where the ctx.start (possibleComment) can begin with a new line.
+        # In this case, the parsing should not be stopped. Hence, prevToken checks if possibleComment is the first new line.
+        if possibleComment.channel == 0 and prevToken is not None and is_newline(possibleComment):
             break
+        prevToken = possibleComment
     return None
 
 
