@@ -22,6 +22,7 @@
 import nest
 import numpy as np
 import os
+import pytest
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
@@ -30,14 +31,14 @@ from pynestml.codegeneration.nest_tools import NESTTools
 class TestTimeVariable:
     """Sanity test for the predefined variable ``t``, which represents simulation time"""
 
-    def test_time_variable(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariableNeuron.nestml"))),
+    @pytest.fixture(scope="module", autouse=True)
+    def setUp(self):
+        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariableNeuron.nestml"))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariableSynapse.nestml")))]
         target_path = "target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
         suffix = "_nestml"
-
-        nest_version = NESTTools.detect_nest_version()
 
         nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,
@@ -45,15 +46,18 @@ class TestTimeVariable:
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.ResetKernel()
         nest.Install(module_name)
 
+    def test_time_variable_neuron(self):
+        nest.ResetKernel()
         nrn = nest.Create("time_variable_neuron_nestml")
         mm = nest.Create("multimeter")
         nest.SetStatus(mm, {"record_from": ["x", "y"]})
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
+
+        nest_version = NESTTools.detect_nest_version()
 
         if nest_version.startswith("v2"):
             timevec = nest.GetStatus(mm, "events")[0]["times"]
@@ -64,5 +68,26 @@ class TestTimeVariable:
             x = mm.get("events")["x"]
             y = mm.get("events")["y"]
 
+        np.testing.assert_allclose(x, timevec)
         np.testing.assert_allclose(1E-3 * x, y)
-        np.testing.assert_allclose(x, timevec - 1)
+
+    def test_time_variable_synapse(self):
+        """a synapse is only updated when presynaptic spikes arrive"""
+        nest.ResetKernel()
+        nrn = nest.Create("iaf_psc_delta", 2)
+        nrn[0].I_e = 1000.  # [pA]
+        sr = nest.Create("spike_recorder")
+        nest.Connect(nrn[0], sr)
+        nest.Connect(nrn[0], nrn[1], syn_spec={"synapse_model": "time_variable_synapse_nestml"})
+        syn = nest.GetConnections(nrn[0], nrn[1])
+        assert len(syn) == 1
+
+        nest.Simulate(50.)
+
+        assert len(sr.get("events")["times"]) > 2, "Was expecting some more presynaptic spikes"
+
+        x = syn[0].get("x")
+        y = syn[0].get("y")
+
+        np.testing.assert_allclose(x, sr.get("events")["times"][-2])
+        np.testing.assert_allclose(y, sr.get("events")["times"][-1])

@@ -1167,6 +1167,7 @@ inline void
   }
 
   const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
+  auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 #ifdef DEBUG
   std::cout<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
