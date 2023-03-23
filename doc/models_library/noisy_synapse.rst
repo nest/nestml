@@ -9,14 +9,13 @@ Description
 
 Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
 
- Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-  Synaptic weight.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -38,4 +37,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:48:41.192672
+   Generated at 2023-03-23 09:41:54.864688

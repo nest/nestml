@@ -25,14 +25,13 @@ References
        of STDP and dopamine signaling. Cerebral Cortex, 17(10):2443-2452.
        DOI: https://doi.org/10.1093/cercor/bhl152
 
- Neuromodulator concentration
 
 
 Parameters
 ++++++++++
 
 
-  Synaptic transmission delay.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -57,7 +56,7 @@ State variables
     :widths: auto
 
     
-    "w", "real", "1.0", "Neuromodulator concentration"    
+    "w", "real", "1.0", ""    
     "n", "real", "0.0", "Neuromodulator concentration"    
     "c", "real", "0.0", "Eligibility trace"    
     "pre_tr", "real", "0.0", ""    
@@ -76,4 +75,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:48:41.203717
+   Generated at 2023-03-23 09:41:54.875739

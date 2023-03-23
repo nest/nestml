@@ -35,14 +35,13 @@ References
        Stable Hebbian learning from spike timing-dependent
        plasticity, Journal of Neuroscience, 20:23,8812--8821
 
- Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-  Synaptic transmission delay.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -83,4 +82,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:48:41.212977
+   Generated at 2023-03-23 09:41:54.884461

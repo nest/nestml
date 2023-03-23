@@ -44,14 +44,13 @@ References
        models of synaptic plasticity based on spike timing,
        Biol. Cybern. 98, 459--478
 
- Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-  Synaptic transmission delay.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -93,4 +92,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:48:41.200938
+   Generated at 2023-03-23 09:41:54.872436

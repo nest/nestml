@@ -18,14 +18,13 @@ References
        of spike timing-dependent plasticity.  The Journal of Neuroscience
        26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
 
- Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-  Synaptic transmission delay.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -70,4 +69,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:48:41.206931
+   Generated at 2023-03-23 09:41:54.879171

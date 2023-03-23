@@ -8,14 +8,13 @@ Description
 +++++++++++
 A synapse where the synaptic strength (weight) does not evolve with simulated time, but is defined as a (constant) parameter.
 
- Synaptic weight
 
 
 Parameters
 ++++++++++
 
 
-  Synaptic weight.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -36,4 +35,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-17 14:48:41.193757
+   Generated at 2023-03-23 09:41:54.866055
