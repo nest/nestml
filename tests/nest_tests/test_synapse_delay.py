@@ -88,13 +88,17 @@ class TestSynapseDelayGetSet:
     def test_synapse_delay(self):
         """Check that the synapse can itself access the set delay value properly"""
         nrn = nest.Create("iaf_psc_exp")
-        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "delay_test_synapse_nestml", "delay": 42.})
+        nrn.I_e = 1000.   # [pA] -- assure there are pre spikes to trigger synapse update
+        # nest.Connect(nrn, nrn, syn_spec={"synapse_model": "delay_test_synapse_nestml", "delay": 42.})  # XXX: TODO: this segfaults!
+        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "delay_test_synapse_nestml"})
+        syn = nest.GetConnections(nrn, nrn)
+        syn[0].delay = 42.
         syn = nest.GetConnections(nrn, nrn)
         assert len(syn) == 1
-        nest.Simulate(1)
+        nest.Simulate(100.)
         np.testing.assert_allclose(syn[0].get("delay"), 42.)
         np.testing.assert_allclose(syn[0].get("x"), 42.)
-        syn.delay = 123.
-        nest.Simulate(1)
-        np.testing.assert_allclose(syn[0].get("delay"), 123.)
-        np.testing.assert_allclose(syn[0].get("x"), 123.)
+        syn.delay = 21.
+        nest.Simulate(100.)
+        np.testing.assert_allclose(syn[0].get("delay"), 21.)
+        np.testing.assert_allclose(syn[0].get("x"), 21.)

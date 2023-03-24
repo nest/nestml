@@ -87,12 +87,18 @@ namespace {{names_namespace}}
 {
 {%- if synapse.get_state_symbols()|length > 0 %}
 {%- for sym in synapse.get_state_symbols() %}
+{%-     set variable = utils.get_variable_by_name(synapse, sym.get_symbol_name()) %}
+{%-     if not (sym.namespace_decorators and sym.namespace_decorators | length > 0) %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%-     endif %}
 {%- endfor %}
 {%- endif %}
 {%- if synapse.get_parameter_symbols()|length > 0 %}
 {%- for sym in synapse.get_parameter_symbols() %}
+{%-     set variable = utils.get_variable_by_name(synapse, sym.get_symbol_name()) %}
+{%-     if not (sym.namespace_decorators and sym.namespace_decorators | length > 0) %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%-     endif %}
 {%- endfor %}
 {%- endif %}
 }
@@ -316,7 +322,7 @@ private:
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not isHomogeneous %}
+{%-     if not isHomogeneous and not (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0) %}
 {%-         include 'directives/MemberDeclaration.jinja2' %}
 {%-     else %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
@@ -941,6 +947,9 @@ void
 {{synapseName}}< targetidentifierT >::set_status( const DictionaryDatum& __d,
   ConnectorModel& cm )
 {
+  // call parent class method
+  ConnectionBase::set_status( __d, cm );
+
   double tmp_delay; // special case for NEST synapse delay property
 
   // parameters
@@ -956,7 +965,7 @@ void
 {#              check if this parameter is in the dictionary under its namespace name or under its NESTML parameter name #}
 // special case for NEST namespace marked variable
 
-if ( __d->known(nest::{{ names_namespace }}::_{{ printer_no_origin.print(variable) }}) )
+if ( __d->known("{{ printer_no_origin.print(variable) }}") )
 {
   throw std::invalid_argument("When marking a parameter with the NEST namespace decorator ``@nest::...``, please use the namespace name to set or get the value.");
 }
@@ -1095,8 +1104,18 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     set has_namespace_decorator = (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0) %}
 {%-     if not isHomogeneous %}
-{%-         include "directives/MemberInitialization.jinja2" %}
+{%-         if not has_namespace_decorator %}
+{%-             include "directives/MemberInitialization.jinja2" %}
+{%-         else %}
+{%-             set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
+{%-             if namespaceName == "delay" %}
+set_delay({{ printer.print(variable_symbol.get_declaring_expression()) }});
+{%-             else %}
+{{ raise("Unknown NEST namespace name: " + namespaceName) }}
+{%-             endif %}
+{%-         endif %}
 {%-     endif %}
 {%- endfor %}
 
@@ -1125,8 +1144,18 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     set has_namespace_decorator = (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0) %}
 {%-     if not isHomogeneous %}
+{%-         if not has_namespace_decorator %}
     {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
+{%-         else %}
+{%-             set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
+{%-             if namespaceName == "delay" %}
+    set_delay(rhs.get_delay());
+{%-             else %}
+{{ raise("Unknown NEST namespace name: " + namespaceName) }}
+{%-             endif %}
+{%-         endif %}
 {%-     endif %}
 {%- endfor %}
 

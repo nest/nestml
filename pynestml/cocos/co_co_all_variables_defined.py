@@ -61,6 +61,10 @@ class CoCoAllVariablesDefined(CoCo):
             for var in vars:
                 symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
+                if var.alternate_scope and var.alternate_scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE):
+                    # external reference resolved in a different scope
+                    continue
+
                 # test if the symbol has been defined at least
                 if symbol is None:
                     if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly

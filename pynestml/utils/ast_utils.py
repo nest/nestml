@@ -35,7 +35,6 @@ from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
@@ -572,7 +571,7 @@ class ASTUtils:
     @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
         """
-        Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
+        Set alternate name on all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node, indicating that they are moved to the postsynaptic neuron.
         """
 
         def replace_var(_expr=None):
@@ -586,13 +585,15 @@ class ASTUtils:
             if var.get_name() != var_name:
                 return
 
-            ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
-                                              differential_order=var.get_differential_order(),
-                                              source_position=var.get_source_position())
-            if alternate_name:
-                ast_ext_var.set_alternate_name(alternate_name)
+            ast_ext_var = ASTVariable(name=var_name + suffix,
+                                      alternate_name="((post_neuron_t*)(__target))->get_" + var.get_name() + suffix + "(_tr_t)",
+                                      alternate_scope=new_scope,
+                                      differential_order=var.get_differential_order(),
+                                      source_position=var.get_source_position())
 
-            ast_ext_var.update_alt_scope(new_scope)
+            if alternate_name:
+                ast_ext_var.set_alternate_name("((post_neuron_t*)(__target))->get_" + alternate_name + "(_tr_t)")
+
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
@@ -1930,6 +1931,49 @@ class ASTUtils:
             return replace_var(x)
 
         neuron.accept(ASTHigherOrderVisitor(func))
+
+    @classmethod
+    def set_nest_namespace_decorator_alternate_name(cls, synapse, decorator_replacements):
+        """Set alternate name for variables that are decorated with a namespace decorator, e.g. ``@nest::delay``."""
+
+        class VariableNameAlternateNameVisitor(ASTVisitor):
+
+            def _do_replace(self, var):
+                sym = synapse.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+
+                if not sym:
+                    return
+
+                for decorator in sym.get_namespace_decorators().values():
+                    if decorator in decorator_replacements.keys():
+                        var.set_alternate_name(decorator_replacements[decorator])
+
+            def visit_simple_expression(self, node):
+                if node.is_variable():
+                    var = node.get_variable()
+                    self._do_replace(var)
+
+            def visit_declaration(self, node):
+                for var in node.get_variables():
+                    if var.get_name() in decorator_replacements.keys():
+                        self._do_replace(var)
+
+            def visit_assignment(self, node):
+                var = node.get_variable()
+                if var.get_name() in decorator_replacements.keys():
+                    self._do_replace(var)
+
+            def visit_expression(self, node):
+                for var in node.get_variables():
+                    if var.get_name() in decorator_replacements.keys():
+                        self._do_replace(var)
+
+            def visit_ode_equation(self, node):
+                var = node.lhs
+                if var.get_name() in decorator_replacements.keys():
+                    self._do_replace(var)
+
+        synapse.accept(VariableNameAlternateNameVisitor())
 
     @classmethod
     def replace_convolve_calls_with_buffers_(cls, neuron: ASTNeuron, equations_block: ASTEquationsBlock) -> None:

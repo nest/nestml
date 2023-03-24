@@ -160,7 +160,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "delay": 1., "receptor_type": 0})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
 

@@ -1,0 +1,28 @@
+"""
+delay_test_synapse
+##################
+"""
+synapse delay_test_synapse:
+
+  state:
+    x ms = 0 ms
+  end
+
+  parameters:
+    w real = 1
+    d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+  end
+
+  input:
+    pre_spikes real <- spike
+  end
+
+  onReceive(pre_spikes):
+    deliver_spike(w, d)
+  end
+
+  update:
+    x = d
+  end
+
+end
