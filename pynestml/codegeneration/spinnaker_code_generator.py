@@ -50,6 +50,7 @@ from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTy
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
 from pynestml.codegeneration.printers.spinnaker_cpp_type_symbol_printer import SpinnakerCppTypeSymbolPrinter
 from pynestml.codegeneration.printers.spinnaker_cpp_function_call_printer import SpinnakerCppFunctionCallPrinter
+from pynestml.codegeneration.printers.spinnaker_variable_printer import SPINNAKERVariablePrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
@@ -60,7 +61,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
-        self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
+        self._nest_variable_printer = SPINNAKERVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
         self._nest_function_call_printer = SpinnakerCppFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCppFunctionCallPrinter(None)
 

@@ -18,46 +18,66 @@
 #define SPIKE_RECORDING_BITFIELD 0
 #define N_BITFIELD_VARS 1
 
+//TODO: change to generating the correct function instead of this define
+#define emit_spike() send_spike(timer_count, time, neuron_index)
+
 #include <neuron/neuron_recording.h>
 
 //#include <neuron/current_sources/current_source_impl.h>
 //#include <neuron/current_sources/current_source.h>
 
+{% if has_multiple_synapses -%}
+  /**
+   * Synapse types to connect to
+   * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
+   *       Excluding port 0 avoids accidental connections.
+  **/
+  const long MIN_SPIKE_RECEPTOR = 1;
+{%-   set ns = namespace(count=1) %}
+{%- else %}
+  const long MIN_SPIKE_RECEPTOR = 0;
+{%-   set ns = namespace(count=0) %}
+{%- endif %}
+
 enum input_indices
 {
-    {%- set ns = namespace(count=0) %}
-    {%- for variable in neuron.get_spike_input_ports() %}
-        {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
-        {%- set ns.count = ns.count + 1 -%}
-    {%- endfor %}
+{%- set ns = namespace(count=0) %}
+{%- for variable in neuron.get_spike_input_ports() %}
+    {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
+{%- set ns.count = ns.count + 1 -%}
+{%- endfor %}
 };
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
-    {%- if neuron.get_spike_input_ports()|length > 1 %}
-        accum inputs[{{ neuron.get_spike_input_ports()|length }}];
-    {%- endif %}
+{%- if neuron.get_spike_input_ports()|length > 1 %}
+    accum inputs[{{ neuron.get_spike_input_ports()|length }}];
+{%- endif %}
+    
+    //TODO: Generate this
+    accum I_stim_grid_sum_;
+
     // State variables of the neuron
-    {%- for sym in neuron.get_state_symbols() %}
-        accum {{ sym.get_symbol_name() }};
-    {%- endfor %}
+{%- for sym in neuron.get_state_symbols() %}
+    accum {{ sym.get_symbol_name() }};
+{%- endfor %}
 
     // Parameters of the neuron
-    {%- for sym in neuron.get_parameter_symbols() %}
-        accum {{ sym.get_symbol_name() }};
-    {%- endfor %}
+{%- for sym in neuron.get_parameter_symbols() %}
+    accum {{ sym.get_symbol_name() }};
+{%- endfor %}
 
-    {#
+{#
     // input ports of the neuron
-    {%- for sym in neuron.get_spike_input_ports() %}
-        accum {{sym.get_symbol_name()}};
-    {%- endfor %}
-    #}
+{%- for sym in neuron.get_spike_input_ports() %}
+    accum {{sym.get_symbol_name()}};
+{%- endfor %}
+#}
 
     // Internal variables of the neuron
-    {%- for sym in neuron.get_internal_symbols() %}
-        accum {{sym.get_symbol_name()}};
-    {%- endfor %}
+{%- for sym in neuron.get_internal_symbols() %}
+    accum {{sym.get_symbol_name()}};
+{%- endfor %}
 
 } neuron_impl_t;
 
