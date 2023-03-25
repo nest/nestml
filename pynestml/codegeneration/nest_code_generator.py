@@ -397,7 +397,8 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.add_timestep_symbol(synapse)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
-        ASTUtils.set_nest_namespace_decorator_alternate_name(synapse, {"delay": "get_delay()"})
+        ASTUtils.set_nest_namespace_decorator_alternate_name(synapse, {"delay": "get_delay()",
+                                                                       "weight": "get_weight()"})
 
         return spike_updates
 

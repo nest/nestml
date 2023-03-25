@@ -592,7 +592,7 @@ class ASTUtils:
                                       source_position=var.get_source_position())
 
             if alternate_name:
-                ast_ext_var.set_alternate_name("((post_neuron_t*)(__target))->get_" + alternate_name + "(_tr_t)")
+                ast_ext_var.set_alternate_name("((post_neuron_t*)(__target))->get_" + alternate_name + "()")
 
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())

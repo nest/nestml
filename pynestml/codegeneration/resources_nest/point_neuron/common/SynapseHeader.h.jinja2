@@ -919,7 +919,7 @@ void
 {%-                 include "directives/WriteInDictionary.jinja2" %}
 {%-             endfilter %}
 {%-         else %}
-  def< {{ declarations.print_variable_type(variable_symbol) }} >( __d, names::{{ namespaceName }}, get_delay() );  // special case: use nest::names name because of ``@nest::...`` decorator
+  def< {{ declarations.print_variable_type(variable_symbol) }} >( __d, names::{{ namespaceName }}, get_{{namespaceName}}() );  // special case: use nest::names name because of ``@nest::...`` decorator
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
@@ -951,6 +951,7 @@ void
   ConnectionBase::set_status( __d, cm );
 
   double tmp_delay; // special case for NEST synapse delay property
+  double tmp_weight; // special case for NEST synapse weight property
 
   // parameters
 {%- filter indent(2,True) %}
@@ -975,6 +976,8 @@ if ( __d->known(nest::names::{{ namespaceName }}) )
 {
 {%- if namespaceName == "delay" %}
   updateValue< double >(__d, nest::names::delay, tmp_delay);
+{%- elif namespaceName == "weight" %}
+  updateValue< double >(__d, nest::names::weight, tmp_weight);
 {%- else %}
 {{ raise("Unknown NEST namespace name: " + namespaceName) }}
 {%- endif %}
@@ -1065,6 +1068,9 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
 {%-     if namespaceName == "delay" %}
   // special treatment of NEST delay
   set_delay(tmp_delay);
+{%-     elif namespaceName == "weight" %}
+  // special treatment of NEST weight
+  set_weight(tmp_weight);
 {%-     else %}
 {{ raise("Unknown NEST namespace name: " + namespaceName) }}
 {%-     endif %}
@@ -1112,6 +1118,8 @@ template < typename targetidentifierT >
 {%-             set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
 {%-             if namespaceName == "delay" %}
 set_delay({{ printer.print(variable_symbol.get_declaring_expression()) }});
+{%-             elif namespaceName == "weight" %}
+set_weight({{ printer.print(variable_symbol.get_declaring_expression()) }});
 {%-             else %}
 {{ raise("Unknown NEST namespace name: " + namespaceName) }}
 {%-             endif %}
@@ -1152,6 +1160,8 @@ template < typename targetidentifierT >
 {%-             set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
 {%-             if namespaceName == "delay" %}
     set_delay(rhs.get_delay());
+{%-             elif namespaceName == "weight" %}
+    set_weight(rhs.get_weight());
 {%-             else %}
 {{ raise("Unknown NEST namespace name: " + namespaceName) }}
 {%-             endif %}
@@ -1172,8 +1182,9 @@ template < typename targetidentifierT >
 {%- endif %}
     t_lastspike_  = rhs.t_lastspike_;
 
-    // special treatment of NEST delay
+    // special treatment of NEST delay and weight
     set_delay(rhs.get_delay());
+    set_weight(rhs.get_weight());
 }
 
 template < typename targetidentifierT >
