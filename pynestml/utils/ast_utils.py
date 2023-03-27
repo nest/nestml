@@ -145,17 +145,6 @@ class ASTUtils:
         return isinstance(ast, ASTCompoundStmt)
 
     @classmethod
-    def is_integrate(cls, function_call):
-        """
-        Checks if the handed over function call is a ode integration function call.
-        :param function_call: a single function call
-        :type function_call: ASTFunctionCall
-        :return: True if ode integration call, otherwise False.
-        :rtype: bool
-        """
-        return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
-
-    @classmethod
     def filter_variables_list(cls, variables_list, variables_to_filter_by):
         """
         """

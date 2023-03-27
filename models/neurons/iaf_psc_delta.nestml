@@ -89,6 +89,7 @@ neuron iaf_psc_delta:
 
   update:
     if r == 0: # neuron not refractory
+      process_input(I_stim)
       integrate_odes()
 
       # lower bound of membrane potential
@@ -96,6 +97,8 @@ neuron iaf_psc_delta:
     else: # neuron is absolute refractory
       r -= 1
     end
+
+    process_input(spikes)
 
     if V_m >= V_th: # threshold crossing
         r = RefractoryCounts

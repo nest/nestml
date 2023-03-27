@@ -514,18 +514,19 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
+  for ( long lag = from ; lag < to ; ++lag )
+  {
 {% if propagators_are_state_dependent %}
   // the propagators are state dependent; update them!
   recompute_internal_variables();
 
 {% endif %}
-  for ( long lag = from ; lag < to ; ++lag )
-  {
-    // process inputs from continuous-type input ports
-{%- for inputPort in neuron.get_continuous_input_ports() %}
-    B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
+    // buffer spikes from input ports
+    for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
+    {
+      get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
+    }
 
-{% endfor %}
 {%- if has_delay_variables %}
     // delay variables
 
@@ -556,16 +557,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
 {%- endfilter %}
 {%- endif %}
-
-    // process spikes from buffers
-
-    for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
-    {
-      get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
-    }
-{%- filter indent(4) %}
-{%-   include "directives/ApplySpikesFromBuffers.jinja2" %}
-{% endfilter %}
 
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);

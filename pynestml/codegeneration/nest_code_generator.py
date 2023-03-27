@@ -434,6 +434,9 @@ class NESTCodeGenerator(CodeGenerator):
             if kw.isupper():
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
+        namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace["PredefinedFunctions"] = pynestml.symbols.predefined_functions.PredefinedFunctions
+
         return namespace
 
     def _get_synapse_model_namespace(self, synapse: ASTSynapse) -> Dict:
@@ -491,7 +494,6 @@ class NESTCodeGenerator(CodeGenerator):
                     and int(synapse.get_on_receive_block(namespace["pre_ports"][0]).get_const_parameters()["priority"]) < post_spike_port_priority:
                 namespace["pre_before_post_update"] = 1   # C++-compatible boolean...
 
-        namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace["UnitTypeSymbol"] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
         namespace["SymbolKind"] = pynestml.symbols.symbol.SymbolKind
 
@@ -588,7 +590,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["neuron_parent_class"] = self.get_option("neuron_parent_class")
             namespace["neuron_parent_class_include"] = self.get_option("neuron_parent_class_include")
 
-        namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace["UnitTypeSymbol"] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
         namespace["SymbolKind"] = pynestml.symbols.symbol.SymbolKind
 
