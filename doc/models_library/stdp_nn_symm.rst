@@ -55,13 +55,12 @@ Parameters
 ++++++++++
 
 
-
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "lambda", "real", "0.01", ""    
     "tau_tr_pre", "ms", "20ms", ""    
     "tau_tr_post", "ms", "20ms", ""    
@@ -72,7 +71,6 @@ Parameters
     "Wmin", "real", "0.0", ""
 
 
-
 State variables
 +++++++++++++++
 
@@ -81,7 +79,7 @@ State variables
     :widths: auto
 
     
-    "w", "real", "1.0", ""    
+    "w", "real", "1.0", "Synaptic weight"    
     "pre_trace", "real", "0.0", ""    
     "post_trace", "real", "0.0", ""
 Source code
@@ -91,12 +89,12 @@ Source code
 
    synapse stdp_nn_symm:
      state:
-       w real = 1.0
+       w real = 1.0 # Synaptic weight
        pre_trace real = 0.0
        post_trace real = 0.0
      end
      parameters:
-       the_delay ms = 1ms # !!! cannot have a variable called "delay"
+       d ms = 1ms @nest::delay # Synaptic transmission delay
        lambda real = 0.01
        tau_tr_pre ms = 20ms
        tau_tr_post ms = 20ms
@@ -114,8 +112,8 @@ Source code
      end
 
      input:
-       pre_spikes nS <-spike
-       post_spikes nS <-spike
+       pre_spikes real <-spike
+       post_spikes real <-spike
      end
 
      output: spike
@@ -133,7 +131,7 @@ Source code
        w_ real = Wmax * (w / Wmax - (alpha * lambda * (w / Wmax) ** mu_minus * post_trace))
        w = max(Wmin,w_)
        # deliver spike to postsynaptic partner
-       deliver_spike(w,the_delay)
+       deliver_spike(w,d)
      end
 
    end
@@ -148,4 +146,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:33.029274
+   Generated at 2023-03-02 18:49:47.380598
