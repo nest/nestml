@@ -109,6 +109,12 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.TANH:
             return 'std::tanh({!s})'
 
+        if function_name == PredefinedFunctions.ERF:
+            return 'std::erf({!s})'
+
+        if function_name == PredefinedFunctions.ERFC:
+            return 'std::erfc({!s})'
+
         if function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1({!s})'
 
