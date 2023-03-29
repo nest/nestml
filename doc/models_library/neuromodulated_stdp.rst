@@ -25,19 +25,18 @@ References
        of STDP and dopamine signaling. Cerebral Cortex, 17(10):2443-2452.
        DOI: https://doi.org/10.1093/cercor/bhl152
 
- Neuromodulator concentration
 
 
 Parameters
 ++++++++++
 
 
-  !!! cannot have a variable called "delay".. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "tau_tr_pre", "ms", "20ms", "STDP time constant for weight changes caused by pre-before-post spike pairings."    
     "tau_tr_post", "ms", "20ms", "STDP time constant for weight changes caused by post-before-pre spike pairings."    
     "tau_c", "ms", "1000ms", "Time constant of eligibility trace"    
@@ -57,7 +56,7 @@ State variables
     :widths: auto
 
     
-    "w", "real", "1.0", "Neuromodulator concentration"    
+    "w", "real", "1.0", ""    
     "n", "real", "0.0", "Neuromodulator concentration"    
     "c", "real", "0.0", "Eligibility trace"    
     "pre_tr", "real", "0.0", ""    
@@ -65,59 +64,7 @@ State variables
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse neuromodulated_stdp: # Neuromodulator concentration
-       state: # Neuromodulator concentration
-           w real = 1.0 # Neuromodulator concentration
-           n real = 0.0 # Neuromodulator concentration
-           c real = 0.0 # Eligibility trace
-           pre_tr real = 0.0
-           post_tr real = 0.0
-       parameters: # !!! cannot have a variable called "delay"
-           the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
-           tau_tr_pre ms = 20ms # STDP time constant for weight changes caused by pre-before-post spike pairings.
-           tau_tr_post ms = 20ms # STDP time constant for weight changes caused by post-before-pre spike pairings.
-           tau_c ms = 1000ms # Time constant of eligibility trace
-           tau_n ms = 200ms # Time constant of dopaminergic trace
-           b real = 0.0 # Dopaminergic baseline concentration
-           Wmax real = 200.0 # Maximal synaptic weight
-           Wmin real = 0.0 # Minimal synaptic weight
-           A_plus real = 1.0 # Multiplier applied to weight changes caused by pre-before-post spike pairings. If b (dopamine baseline concentration) is zero, then A_plus is simply the multiplier for facilitation (as in the stdp_synapse model). If b is not zero, then A_plus will be the multiplier for facilitation only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_plus will be the multiplier for depression.
-           A_minus real = 1.5 # Multiplier applied to weight changes caused by post-before-pre spike pairings. If b (dopamine baseline concentration) is zero, then A_minus is simply the multiplier for depression (as in the stdp_synapse model). If b is not zero, then A_minus will be the multiplier for depression only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_minus will be the multiplier for facilitation.
-       equations:
-           pre_tr' = -pre_tr / tau_tr_pre
-           post_tr' = -post_tr / tau_tr_post
-       internals:
-           tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
-       input:
-           pre_spikes nS <-spike
-           post_spikes nS <-spike
-           mod_spikes real <-spike
-       output: spike
-       onReceive(mod_spikes):
-           n += 1.0 / tau_n
-    
-       onReceive(post_spikes):
-           post_tr += 1.0
-           # facilitation
-           c += A_plus * pre_tr
-    
-       onReceive(pre_spikes):
-           pre_tr += 1.0
-           # depression
-           c -= A_minus * post_tr
-           # deliver spike to postsynaptic partner
-           deliver_spike(w,the_delay)
-    
-       # update from time t to t + resolution()
-       update: # resolution() returns the timestep to be made (in units of time)
-           # the sequence here matters: the update step for w requires the "old" values of c and n
-           w -= c * (n / tau_s * expm1(-tau_s * resolution()) - b * tau_c * expm1(-resolution() / tau_c))
-           c = c * exp(-resolution() / tau_c)
-           n = n * exp(-resolution() / tau_n)
-
-
+The model source code can be found in the NESTML models repository here: `neuromodulated_stdp <https://github.com/nest/nestml/tree/master/models/synapses/neuromodulated_stdp.nestml>`_.
 
 
 Characterisation
@@ -128,4 +75,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.942985
+   Generated at 2023-03-23 09:41:54.875739

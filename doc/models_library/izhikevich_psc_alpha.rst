@@ -38,12 +38,11 @@ References
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
- Number of steps in the current refractory phase
 
 
 Parameters
 ++++++++++
-  Membrane capacitance.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -95,55 +94,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron izhikevich_psc_alpha: # Number of steps in the current refractory phase
-       state: # Number of steps in the current refractory phase
-           r integer = 0 # Number of steps in the current refractory phase
-           V_m mV = -65mV # Membrane potential
-           U_m pA = 0pA # Membrane potential recovery variable
-       equations: # synapses: alpha functions
-           kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
-           kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-           inline I_syn_exc pA = convolve(K_syn_exc,exc_spikes)
-           inline I_syn_inh pA = convolve(K_syn_inh,inh_spikes)
-           V_m' = (k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
-           U_m' = a * (b * (V_m - V_r) - U_m)
-       parameters: # Membrane capacitance
-           C_m pF = 200pF # Membrane capacitance
-           k pF/mV/ms = 8pF / mV / ms # Spiking slope
-           V_r mV = -65mV # Resting potential
-           V_t mV = -45mV # Threshold potential
-           a 1/ms = 0.01 / ms # Time scale of recovery variable
-           b nS = 9nS # Sensitivity of recovery variable
-           c mV = -65mV # After-spike reset value of V_m
-           d pA = 60pA # After-spike reset value of U_m
-           V_peak mV = 0mV # Spike detection threshold (reset condition)
-           tau_syn_exc ms = 0.2ms # Synaptic time constant of excitatory synapse
-           tau_syn_inh ms = 2ms # Synaptic time constant of inhibitory synapse
-           t_ref ms = 2ms # Refractory period
-           # constant external input current
-           I_e pA = 0pA
-       internals: # refractory time in steps
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-       input:
-           inh_spikes pA <-inhibitory spike
-           exc_spikes pA <-excitatory spike
-           I_stim pA <-current
-       output: spike
-       update:
-           integrate_odes()
-           # refractoriness and threshold crossing
-           if r > 0: # is refractory?
-               r -= 1
-           elif V_m >= V_peak:
-               V_m = c
-               U_m += d
-               emit_spike()
-               r = RefractoryCounts
-        
-
-
+The model source code can be found in the NESTML models repository here: `izhikevich_psc_alpha <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich_psc_alpha.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -153,4 +104,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:56.921401
+   Generated at 2023-03-22 17:48:48.680240

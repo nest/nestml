@@ -44,12 +44,11 @@ References
        threshold. Frontiers in Computuational Neuroscience 3:9.
        DOI: https://doi.org/10.3389/neuro.10.009.2009
 
- Two-timescale adaptive threshold
 
 
 Parameters
 ++++++++++
-  Membrane time constant.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -98,61 +97,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron mat2_psc_exp: # Two-timescale adaptive threshold
-       state: # Two-timescale adaptive threshold
-           V_th_alpha_1 mV = 0mV # Two-timescale adaptive threshold
-           V_th_alpha_2 mV = 0mV # Two-timescale adaptive threshold
-           r integer = 0 # counts number of tick during the refractory period
-           V_m mV = E_L # Absolute membrane potential.
-       equations:
-           kernel I_kernel_inh = exp(-t / tau_syn_inh)
-           kernel I_kernel_exc = exp(-t / tau_syn_exc)
-           inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
-           V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
-       parameters: # Membrane time constant
-           tau_m ms = 5ms # Membrane time constant
-           C_m pF = 100pF # Capacitance of the membrane
-           t_ref ms = 2ms # Duration of absolute refractory period (no spiking)
-           E_L mV = -70mV # Resting potential
-           tau_syn_exc ms = 1ms # Time constant of postsynaptic excitatory currents
-           tau_syn_inh ms = 3ms # Time constant of postsynaptic inhibitory currents
-           tau_1 ms = 10ms # Short time constant of adaptive threshold
-           tau_2 ms = 200ms # Long time constant of adaptive threshold
-           alpha_1 mV = 37mV # Amplitude of short time threshold adaption [3]
-           alpha_2 mV = 2mV # Amplitude of long time threshold adaption [3]
-           omega mV = 19mV # Resting spike threshold (absolute value, not relative to E_L)
-           # constant external input current
-           I_e pA = 0pA
-       internals:
-           h ms = resolution()
-           P11th real = exp(-h / tau_1)
-           P22th real = exp(-h / tau_2)
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-       input:
-           exc_spikes pA <-excitatory spike
-           inh_spikes pA <-inhibitory spike
-           I_stim pA <-current
-       output: spike
-       update: # evolve membrane potential
-           integrate_odes()
-           # evolve adaptive threshold
-           V_th_alpha_1 = V_th_alpha_1 * P11th
-           V_th_alpha_2 = V_th_alpha_2 * P22th
-           if r == 0: # not refractory
-               if V_m >= E_L + omega + V_th_alpha_1 + V_th_alpha_2: # threshold crossing
-                   r = RefractoryCounts
-                   # procedure for adaptive potential
-                   V_th_alpha_1 += alpha_1 # short time
-                   V_th_alpha_2 += alpha_2 # long time
-                   emit_spike()
-            
-           else:
-               r = r - 1
-        
-
-
+The model source code can be found in the NESTML models repository here: `mat2_psc_exp <https://github.com/nest/nestml/tree/master/models/neurons/mat2_psc_exp.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -162,4 +107,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:57.323637
+   Generated at 2023-03-22 17:48:49.118418

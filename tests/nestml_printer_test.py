@@ -56,6 +56,14 @@ class NestMLPrinterTest(unittest.TestCase):
         model_printer = NESTMLPrinter()
         self.assertEqual(block, model_printer.print(model))
 
+    def test_block_with_variables_with_in_comments(self):
+        block = "# pre1\n" \
+                "state:\n" \
+                "    r real = 0 # in comment\n"
+        model = ModelParser.parse_block_with_variables(block)
+        model_printer = NESTMLPrinter()
+        self.assertEqual(block, model_printer.print(model))
+
     def test_block_with_variables_without_comments(self):
         block = "state:\n" \
                 "    r real = 0\n"
@@ -146,7 +154,6 @@ class NestMLPrinterTest(unittest.TestCase):
                 "    v' = -v / t\n"
         model = ModelParser.parse_equations_block(block)
         model_printer = NESTMLPrinter()
-        print(model_printer.print(model))
         self.assertEqual(block, model_printer.print(model))
 
     def test_equations_block_without_comments(self):

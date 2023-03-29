@@ -45,12 +45,11 @@ See also
 
 hh_cond_exp_traub
 
- number of steps in the current refractory phase
 
 
 Parameters
 ++++++++++
-  Refractory period.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -115,74 +114,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron hh_psc_alpha: # number of steps in the current refractory phase
-       state: # number of steps in the current refractory phase
-           r integer = 0 # number of steps in the current refractory phase
-           V_m mV = V_m_init # Membrane potential
-           Act_m real = alpha_m_init / (alpha_m_init + beta_m_init) # Activation variable m for Na
-           Inact_h real = alpha_h_init / (alpha_h_init + beta_h_init) # Inactivation variable h for Na
-           Act_n real = alpha_n_init / (alpha_n_init + beta_n_init) # Activation variable n for K
-       equations: # synapses: alpha functions
-           kernel K_syn_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
-           kernel K_syn_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-           inline I_syn_exc pA = convolve(K_syn_exc,exc_spikes)
-           inline I_syn_inh pA = convolve(K_syn_inh,inh_spikes)
-           inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
-           inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
-           inline I_L pA = g_L * (V_m - E_L)
-           # Act_n
-           inline alpha_n real = (0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0)) # n-variable
-           inline beta_n real = 0.125 * exp(-(V_m / mV + 65.0) / 80.0) # n-variable
-           Act_n' = (alpha_n * (1 - Act_n) - beta_n * Act_n) / ms # n-variable
-           # Act_m
-           inline alpha_m real = (0.1 * (V_m / mV + 40.0)) / (1.0 - exp(-(V_m / mV + 40.0) / 10.0)) # m-variable
-           inline beta_m real = 4.0 * exp(-(V_m / mV + 65.0) / 18.0) # m-variable
-           Act_m' = (alpha_m * (1 - Act_m) - beta_m * Act_m) / ms # m-variable
-           # Inact_h'
-           inline alpha_h real = 0.07 * exp(-(V_m / mV + 65.0) / 20.0) # h-variable
-           inline beta_h real = 1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0)) # h-variable
-           Inact_h' = (alpha_h * (1 - Inact_h) - beta_h * Inact_h) / ms # h-variable
-           V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_exc - I_syn_inh) / C_m
-       parameters: # Refractory period
-           t_ref ms = 2ms # Refractory period
-           g_Na nS = 12000nS # Sodium peak conductance
-           g_K nS = 3600nS # Potassium peak conductance
-           g_L nS = 30nS # Leak conductance
-           C_m pF = 100pF # Membrane Capacitance
-           E_Na mV = 50mV # Sodium reversal potential
-           E_K mV = -77mV # Potassium reversal potential
-           E_L mV = -54.402mV # Leak reversal Potential (aka resting potential)
-           tau_syn_exc ms = 0.2ms # Rise time of the excitatory synaptic alpha function
-           tau_syn_inh ms = 2ms # Rise time of the inhibitory synaptic alpha function
-           V_m_init mV = -65mV # Initial membrane potential
-           alpha_n_init real = (0.01 * (V_m_init / mV + 55.0)) / (1.0 - exp(-(V_m_init / mV + 55.0) / 10.0))
-           beta_n_init real = 0.125 * exp(-(V_m_init / mV + 65.0) / 80.0)
-           alpha_m_init real = (0.1 * (V_m_init / mV + 40.0)) / (1.0 - exp(-(V_m_init / mV + 40.0) / 10.0))
-           beta_m_init real = 4.0 * exp(-(V_m_init / mV + 65.0) / 18.0)
-           alpha_h_init real = 0.07 * exp(-(V_m_init / mV + 65.0) / 20.0)
-           beta_h_init real = 1.0 / (1.0 + exp(-(V_m_init / mV + 35.0) / 10.0))
-           # constant external input current
-           I_e pA = 0pA
-       internals: # refractory time in steps
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-       input:
-           inh_spikes pA <-inhibitory spike
-           exc_spikes pA <-excitatory spike
-           I_stim pA <-current
-       output: spike
-       update: # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-           U_old mV = V_m # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-           integrate_odes() # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-           if r > 0: # is refractory?
-               r -= 1 # threshold && maximum
-           elif V_m > 0mV and U_old > V_m:
-               r = RefractoryCounts
-               emit_spike()
-        
-
-
+The model source code can be found in the NESTML models repository here: `hh_psc_alpha <https://github.com/nest/nestml/tree/master/models/neurons/hh_psc_alpha.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -192,4 +124,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:57.262161
+   Generated at 2023-03-22 17:48:49.051544

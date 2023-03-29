@@ -38,10 +38,10 @@ References
 """
 synapse third_factor_stdp:
     state:
-        w real = 1.
+        w real = 1.   # Synaptic weight
 
     parameters:
-        the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
@@ -60,8 +60,8 @@ synapse third_factor_stdp:
         inline post_trace real = convolve(post_trace_kernel, post_spikes)
 
     input:
-        pre_spikes nS <- spike
-        post_spikes nS <- spike
+        pre_spikes real <- spike
+        post_spikes real <- spike
         I_post_dend pA <- continuous
 
     output: spike
@@ -81,4 +81,4 @@ synapse third_factor_stdp:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, the_delay)
+        deliver_spike(w, d)

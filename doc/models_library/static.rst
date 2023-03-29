@@ -19,28 +19,12 @@ Parameters
     :widths: auto
 
     
-    "w", "real", "900", ""    
-    "d", "ms", "0.9ms", ""    
-    "a", "real", "3.141592653589793", ""    
-    "b", "real", "100.0", ""
+    "w", "real", "1", "Synaptic weight"    
+    "d", "ms", "1ms", "Synaptic transmission delay"
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse static:
-       parameters:
-           w real = 900 @nest::weight @45
-           d ms = 0.9ms @nest::delay @46
-           a real = 3.141592653589793 @nest::a @45
-           b real = 100.0 @nest::b @46
-       input:
-           pre_spikes mV <-spike
-       onReceive(pre_spikes):
-           deliver_spike(0.00318 * a * b * w,d)
-    
-
-
+The model source code can be found in the NESTML models repository here: `static <https://github.com/nest/nestml/tree/master/models/synapses/static_synapse.nestml>`_.
 
 
 Characterisation
@@ -51,4 +35,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.933019
+   Generated at 2023-03-23 09:41:54.866055

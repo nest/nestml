@@ -32,7 +32,7 @@ synapse neuromodulated_stdp:
         post_tr real = 0.
 
     parameters:
-        the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
         tau_tr_pre ms = 20 ms   # STDP time constant for weight changes caused by pre-before-post spike pairings.
         tau_tr_post ms = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
         tau_c ms = 1000 ms    # Time constant of eligibility trace
@@ -51,8 +51,8 @@ synapse neuromodulated_stdp:
         tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
 
     input:
-        pre_spikes nS <- spike
-        post_spikes nS <- spike
+        pre_spikes real <- spike
+        post_spikes real <- spike
         mod_spikes real <- spike
 
     output: spike
@@ -73,7 +73,7 @@ synapse neuromodulated_stdp:
         c -= A_minus * post_tr
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, the_delay)
+        deliver_spike(w, d)
 
     # update from time t to t + resolution()
     update:

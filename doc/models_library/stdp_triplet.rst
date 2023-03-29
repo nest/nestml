@@ -27,12 +27,12 @@ Parameters
 ++++++++++
 
 
-  !!! cannot have a variable called "delay".. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "the_delay", "ms", "1ms", "!!! cannot have a variable called ""delay"""    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
     "tau_plus", "ms", "16.8ms", "time constant for tr_r1"    
     "tau_x", "ms", "101ms", "time constant for tr_r2"    
     "tau_minus", "ms", "33.7ms", "time constant for tr_o1"    
@@ -53,54 +53,11 @@ State variables
     :widths: auto
 
     
-    "w", "nS", "1nS", ""
+    "w", "nS", "1nS", "Synaptic weight"
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse stdp_triplet:
-       state:
-           w nS = 1nS
-       parameters: # !!! cannot have a variable called "delay"
-           the_delay ms = 1ms @nest::delay # !!! cannot have a variable called "delay"
-           tau_plus ms = 16.8ms # time constant for tr_r1
-           tau_x ms = 101ms # time constant for tr_r2
-           tau_minus ms = 33.7ms # time constant for tr_o1
-           tau_y ms = 125ms # time constant for tr_o2
-           A2_plus real = 7.5e-10
-           A3_plus real = 0.0093
-           A2_minus real = 0.007
-           A3_minus real = 0.00023
-           Wmax nS = 100nS
-           Wmin nS = 0nS
-       equations:
-           kernel tr_r1_kernel = exp(-t / tau_plus)
-           inline tr_r1 real = convolve(tr_r1_kernel,pre_spikes)
-           kernel tr_r2_kernel = exp(-t / tau_x)
-           inline tr_r2 real = convolve(tr_r2_kernel,pre_spikes)
-           kernel tr_o1_kernel = exp(-t / tau_minus)
-           inline tr_o1 real = convolve(tr_o1_kernel,post_spikes)
-           kernel tr_o2_kernel = exp(-t / tau_y)
-           inline tr_o2 real = convolve(tr_o2_kernel,post_spikes)
-       input:
-           pre_spikes nS <-spike
-           post_spikes nS <-spike
-       output: spike
-       onReceive(post_spikes): # potentiate synapse
-           #w_ nS = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
-           w_ nS = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
-           w = min(Wmax,w_)
-    
-       onReceive(pre_spikes): # depress synapse
-           #w_ nS = Wmax * ( w / Wmax  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
-           w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
-           w = max(Wmin,w_)
-           # deliver spike to postsynaptic partner
-           deliver_spike(w,the_delay)
-    
-
-
+The model source code can be found in the NESTML models repository here: `stdp_triplet <https://github.com/nest/nestml/tree/master/models/synapses/stdp_triplet_naive.nestml>`_.
 
 
 Characterisation
@@ -111,4 +68,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:14:34.923418
+   Generated at 2023-03-23 09:41:54.854909

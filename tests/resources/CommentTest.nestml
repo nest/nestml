@@ -32,8 +32,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron commentTest:  #neuron in comment ok
 
-    #state comment ok
-    state:  #in comment ok
+    #state pre comment ok
+    state:  #state in comment ok
         #pre comment not ok
 
         #pre comment 1 ok
@@ -42,7 +42,7 @@ neuron commentTest:  #neuron in comment ok
 
     #equations comment ok
     equations:
-        test' = -test/tau
+        test' = -test/tau  # ODE for test
 
     #parameters comment ok
     parameters:

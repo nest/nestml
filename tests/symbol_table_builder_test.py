@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import glob
 import os
 import unittest
 
@@ -47,38 +48,36 @@ Logger.init_logger(LoggingLevel.INFO)
 
 class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
-        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                 os.path.join(os.pardir, "models", "neurons")))):
-            if filename.endswith(".nestml"):
-                input_file = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, "models", "neurons", filename)))
-                lexer = PyNestMLLexer(input_file)
-                lexer._errHandler = BailErrorStrategy()
-                lexer._errHandler.reset(lexer)
+        for filename in glob.glob(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "models", "**", "*.nestml")),
+                                  recursive=True):
+            input_file = FileStream(filename)
+            lexer = PyNestMLLexer(input_file)
+            lexer._errHandler = BailErrorStrategy()
+            lexer._errHandler.reset(lexer)
 
-                # create a token stream
-                stream = CommonTokenStream(lexer)
-                stream.fill()
+            # create a token stream
+            stream = CommonTokenStream(lexer)
+            stream.fill()
 
-                # parse the file
-                parser = PyNestMLParser(stream)
-                parser._errHandler = BailErrorStrategy()
-                parser._errHandler.reset(parser)
+            # parse the file
+            parser = PyNestMLParser(stream)
+            parser._errHandler = BailErrorStrategy()
+            parser._errHandler.reset(parser)
 
-                # process the comments
-                compilation_unit = parser.nestMLCompilationUnit()
+            # process the comments
+            compilation_unit = parser.nestMLCompilationUnit()
 
-                # create a new visitor and return the new AST
-                ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
-                ast = ast_builder_visitor.visit(compilation_unit)
+            # create a new visitor and return the new AST
+            ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
+            ast = ast_builder_visitor.visit(compilation_unit)
 
-                # update the corresponding symbol tables
-                SymbolTable.initialize_symbol_table(ast.get_source_position())
-                symbol_table_visitor = ASTSymbolTableVisitor()
-                for neuron in ast.get_neuron_list():
-                    neuron.accept(symbol_table_visitor)
-                    SymbolTable.add_neuron_scope(name=neuron.get_name(), scope=neuron.get_scope())
-                self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
+            # update the corresponding symbol tables
+            SymbolTable.initialize_symbol_table(ast.get_source_position())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            for neuron in ast.get_neuron_list():
+                neuron.accept(symbol_table_visitor)
+                SymbolTable.add_neuron_scope(name=neuron.get_name(), scope=neuron.get_scope())
+            self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 
 if __name__ == '__main__':

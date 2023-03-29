@@ -67,8 +67,6 @@ class CommentTest(unittest.TestCase):
         # parser._errHandler = BailErrorStrategy()
         parser._errHandler.reset(parser)
 
-        # self.print_token_stream(stream.tokens)
-
         # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
 
@@ -78,7 +76,8 @@ class CommentTest(unittest.TestCase):
         neuron_or_synapse_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
 
         # check if init values comment is correctly detected
-        assert (neuron_or_synapse_body_elements[0].get_comment()[0] == 'state comment ok')
+        assert (neuron_or_synapse_body_elements[0].get_comment()[0] == 'state pre comment ok')
+        assert (neuron_or_synapse_body_elements[0].get_comment()[1] == 'state in comment ok')
 
         # check that all declaration comments are detected
         comments = neuron_or_synapse_body_elements[0].get_declarations()[0].get_comment()

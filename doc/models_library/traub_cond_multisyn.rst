@@ -27,12 +27,11 @@ See also
 
 hh_cond_exp_traub
 
- number of steps in the current refractory phase
 
 
 Parameters
 ++++++++++
-  Refractory period 2.0.. csv-table::
+.. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
@@ -115,120 +114,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron traub_cond_multisyn: # number of steps in the current refractory phase
-       state: # number of steps in the current refractory phase
-           r integer = 0 # number of steps in the current refractory phase
-           V_m mV = -70.0mV # Membrane potential
-           Act_m real = alpha_m_init / (alpha_m_init + beta_m_init) # Activation variable m for Na
-           Inact_h real = alpha_h_init / (alpha_h_init + beta_h_init) # Inactivation variable h for Na
-           Act_n real = alpha_n_init / (alpha_n_init + beta_n_init) # Activation variable n for K
-           g_AMPA real = 0
-           g_NMDA real = 0
-           g_GABAA real = 0
-           g_GABAB real = 0
-           g_AMPA$ real = AMPAInitialValue
-           g_NMDA$ real = NMDAInitialValue
-           g_GABAA$ real = GABA_AInitialValue
-           g_GABAB$ real = GABA_BInitialValue
-       equations:
-           recordable inline I_syn_ampa pA = -convolve(g_AMPA,AMPA) * (V_m - AMPA_E_rev)
-           recordable inline I_syn_nmda pA = -convolve(g_NMDA,NMDA) * (V_m - NMDA_E_rev) / (1 + exp((NMDA_Vact - V_m) / NMDA_Sact))
-           recordable inline I_syn_gaba_a pA = -convolve(g_GABAA,GABA_A) * (V_m - GABA_A_E_rev)
-           recordable inline I_syn_gaba_b pA = -convolve(g_GABAB,GABA_B) * (V_m - GABA_B_E_rev)
-           recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
-           inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
-           inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
-           inline I_L pA = g_L * (V_m - E_L)
-           V_m' = (-(I_Na + I_K + I_L) + I_e + I_stim + I_syn) / C_m
-           # Act_n
-           inline alpha_n real = 0.032 * (V_m / mV + 52.0) / (1.0 - exp(-(V_m / mV + 52.0) / 5.0)) # n-variable
-           inline beta_n real = 0.5 * exp(-(V_m / mV + 57.0) / 40.0) # n-variable
-           Act_n' = (alpha_n * (1 - Act_n) - beta_n * Act_n) / ms # n-variable
-           # Act_m
-           inline alpha_m real = 0.32 * (V_m / mV + 54.0) / (1.0 - exp(-(V_m / mV + 54.0) / 4.0)) # m-variable
-           inline beta_m real = 0.28 * (V_m / mV + 27.0) / (exp((V_m / mV + 27.0) / 5.0) - 1.0) # m-variable
-           Act_m' = (alpha_m * (1 - Act_m) - beta_m * Act_m) / ms # m-variable
-           # Inact_h'
-           inline alpha_h real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0) # h-variable
-           inline beta_h real = 4.0 / (1.0 + exp(-(V_m / mV + 27.0) / 5.0)) # h-variable
-           Inact_h' = (alpha_h * (1 - Inact_h) - beta_h * Inact_h) / ms # h-variable
-           kernel g_AMPA' = g_AMPA$ - g_AMPA / tau_AMPA_2, g_AMPA$' = -g_AMPA$ / tau_AMPA_1
-           kernel g_NMDA' = g_NMDA$ - g_NMDA / tau_NMDA_2, g_NMDA$' = -g_NMDA$ / tau_NMDA_1
-           kernel g_GABAA' = g_GABAA$ - g_GABAA / tau_GABAA_2, g_GABAA$' = -g_GABAA$ / tau_GABAA_1
-           kernel g_GABAB' = g_GABAB$ - g_GABAB / tau_GABAB_2, g_GABAB$' = -g_GABAB$ / tau_GABAB_1
-       parameters: # Refractory period 2.0
-           t_ref ms = 2.0ms # Refractory period 2.0
-           g_Na nS = 10000.0nS # Sodium peak conductance
-           g_K nS = 8000.0nS # Potassium peak conductance
-           g_L nS = 10nS # Leak conductance
-           C_m pF = 100.0pF # Membrane Capacitance
-           E_Na mV = 50.0mV # Sodium reversal potential
-           E_K mV = -100.0mV # Potassium reversal potentia
-           E_L mV = -67.0mV # Leak reversal Potential (aka resting potential)
-           V_Tr mV = -20.0mV # Spike Threshold
-           # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
-           AMPA_g_peak nS = 0.1nS # peak conductance
-           AMPA_E_rev mV = 0.0mV # reversal potential
-           tau_AMPA_1 ms = 0.5ms # rise time
-           tau_AMPA_2 ms = 2.4ms # decay time, Tau_1 < Tau_2
-           NMDA_g_peak nS = 0.075nS # peak conductance
-           tau_NMDA_1 ms = 4.0ms # rise time
-           tau_NMDA_2 ms = 40.0ms # decay time, Tau_1 < Tau_2
-           NMDA_E_rev mV = 0.0mV # reversal potential
-           NMDA_Vact mV = -58.0mV # inactive for V << Vact, inflection of sigmoid
-           NMDA_Sact mV = 2.5mV # scale of inactivation
-           GABA_A_g_peak nS = 0.33nS # peak conductance
-           tau_GABAA_1 ms = 1.0ms # rise time
-           tau_GABAA_2 ms = 7.0ms # decay time, Tau_1 < Tau_2
-           GABA_A_E_rev mV = -70.0mV # reversal potential
-           GABA_B_g_peak nS = 0.0132nS # peak conductance
-           tau_GABAB_1 ms = 60.0ms # rise time
-           tau_GABAB_2 ms = 200.0ms # decay time, Tau_1 < Tau_2
-           GABA_B_E_rev mV = -90.0mV # reversal potential for intrinsic current
-           # constant external input current
-           I_e pA = 0pA
-       internals: # refractory time in steps
-           AMPAInitialValue real = compute_synapse_constant(tau_AMPA_1,tau_AMPA_2,AMPA_g_peak) # refractory time in steps
-           NMDAInitialValue real = compute_synapse_constant(tau_NMDA_1,tau_NMDA_2,NMDA_g_peak) # refractory time in steps
-           GABA_AInitialValue real = compute_synapse_constant(tau_GABAA_1,tau_GABAA_2,GABA_A_g_peak) # refractory time in steps
-           GABA_BInitialValue real = compute_synapse_constant(tau_GABAB_1,tau_GABAB_2,GABA_B_g_peak) # refractory time in steps
-           RefractoryCounts integer = steps(t_ref) # refractory time in steps
-           alpha_n_init real = 0.032 * (V_m / mV + 52.0) / (1.0 - exp(-(V_m / mV + 52.0) / 5.0))
-           beta_n_init real = 0.5 * exp(-(V_m / mV + 57.0) / 40.0)
-           alpha_m_init real = 0.32 * (V_m / mV + 54.0) / (1.0 - exp(-(V_m / mV + 54.0) / 4.0))
-           beta_m_init real = 0.28 * (V_m / mV + 27.0) / (exp((V_m / mV + 27.0) / 5.0) - 1.0)
-           alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
-           beta_h_init real = 4.0 / (1.0 + exp(-(V_m / mV + 27.0) / 5.0))
-       input:
-           AMPA nS <-spike
-           NMDA nS <-spike
-           GABA_A nS <-spike
-           GABA_B nS <-spike
-           I_stim pA <-current
-       output: spike
-       update:
-           U_old mV = V_m
-           integrate_odes()
-           # sending spikes:
-           if r > 0: # is refractory?
-               r -= 1 # threshold && maximum
-           elif V_m > V_Tr and U_old > V_Tr:
-               r = RefractoryCounts
-               emit_spike()
-        
-   function compute_synapse_constant(Tau_1 msTau_2 msg_peak real) real: # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
-           # in the ht_neuron_dynamics integration of the synapse terms.
-           # See: Exact digital simulation of time-invariant linear systems
-           # with applications to neuronal modeling, Rotter and Diesmann,
-           # section 3.1.2.
-           exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms
-           t_peak real = (Tau_2 * Tau_1) * ln(Tau_2 / Tau_1) / (Tau_2 - Tau_1) / ms
-           normalisation_factor real = 1 / (exp(-t_peak / Tau_1) - exp(-t_peak / Tau_2))
-           return g_peak * normalisation_factor * exact_integration_adjustment
-
-
+The model source code can be found in the NESTML models repository here: `traub_cond_multisyn <https://github.com/nest/nestml/tree/master/models/neurons/traub_cond_multisyn.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -238,4 +124,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-09 09:13:57.227353
+   Generated at 2023-03-22 17:48:49.009221
