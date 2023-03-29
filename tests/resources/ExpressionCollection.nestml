@@ -156,6 +156,8 @@ neuron ExpressionCollection:
         testsinh real = sinh(0.)
         testcosh real = cosh(0.)
         testtanh real = tanh(0.)
+        testerf real = erf(0.)
+        testerfc real = erfc(0.)
 
     equations:
         #neuron aeif_cond_alpha_neuron

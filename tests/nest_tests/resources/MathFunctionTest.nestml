@@ -1,6 +1,6 @@
-"""
-LogarithmicFunctionTest_invalid.nestml
-######################################
+""" 
+MathFunctionTest.nestml
+#######################
 
 
 Copyright statement
@@ -23,18 +23,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron logarithm_function_test_invalid:
+neuron math_function_test:
     state:
         x real = 0.
         ln_state real = 0.
         log10_state real = 0.
-
-    input:
-        spikeInh nS <- inhibitory spike
-        spikeExc nS <- excitatory spike
-        currents pA <- continuous
+        erf_state real = 0.
+        erfc_state real = 0.
 
     update:
-        ln_state = log10(x)
-        log10_state = ln(x)
+        ln_state = ln(x)
+        log10_state = log10(x)
+        erf_state = erf(x)
+        erfc_state = erfc(x)
         x = x + 1.
