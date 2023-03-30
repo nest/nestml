@@ -29,21 +29,23 @@ A neuron model written in NESTML can be configured to receive two distinct types
 
    input:
        I_stim pA <- continuous
-       AMPA_spikes pA <- spike
+       AMPA_spikes <- spike
 
 The general syntax is:
 
 ::
 
-    port_name dataType <- inputQualifier* (spike | continuous)
+    port_name <- inputQualifier spike
+    port_name dataType <- continuous
 
+The spiking input ports are declared without a data type and the continuous input port must have a data type of the continuous input.
 For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
 
 .. code-block:: nestml
 
    input:
        # [...]
-       all_spikes pA <- spike
+       all_spikes <- spike
 
 In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
 
@@ -51,8 +53,8 @@ In this case, all spike events will be processed through the ``all_spikes`` inpu
 
    input:
        # [...]
-       AMPA_spikes pA <- excitatory spike
-       GABA_spikes pA <- inhibitory spike
+       AMPA_spikes <- excitatory spike
+       GABA_spikes <- inhibitory spike
 
 In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
 
@@ -165,9 +167,9 @@ If there is more than one line specifying a `spike` or `continuous` port with th
 .. code-block:: nestml
 
    input:
-       spikes1 nS <- spike
-       spikes2 nS <- spike
-       spikes3 nS <- spike
+       spikes1 <- spike
+       spikes2 <- spike
+       spikes3 <- spike
 
 For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
 
@@ -177,7 +179,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
        kernel I_kernel1 = exp(-t / tau_syn1)
        kernel I_kernel2 = exp(-t / tau_syn2)
        kernel I_kernel3 = -exp(-t / tau_syn3)
-       inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+       inline I_syn pA = (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)) * pA
        V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
 
@@ -187,18 +189,18 @@ The input ports can also be defined as vectors. For example,
 .. code-block:: nestml
    neuron multi_synapse_vectors:
        input:
-           AMPA_spikes pA <- excitatory spike
-           GABA_spikes pA <- inhibitory spike
-           NMDA_spikes pA <- spike
-           foo[2] pA <- spike
-           exc_spikes[3] pA <- excitatory spike
-           inh_spikes[3] pA <- inhibitory spike
+           AMPA_spikes <- excitatory spike
+           GABA_spikes <- inhibitory spike
+           NMDA_spikes <- spike
+           foo[2] <- spike
+           exc_spikes[3] <- excitatory spike
+           inh_spikes[3] <- inhibitory spike
 
        equations:
            kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
            kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
-           inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1])
-           inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1])
+           inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1]) * pA
+           inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1]) * pA
 
 
 In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
