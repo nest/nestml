@@ -27,7 +27,6 @@ __all__ = [
     'co_co_convolve_cond_correctly_built.py',
     'co_co_correct_numerator_of_unit.py',
     'co_co_correct_order_in_equation.py',
-    'co_co_continuous_input_port_not_qualified.py',
     'co_co_each_block_unique_and_defined.py',
     'co_co_equations_only_for_init_values.py',
     'co_co_function_calls_consistent.py',

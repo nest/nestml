@@ -26,7 +26,6 @@ from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssi
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
-from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -195,14 +194,6 @@ class CoCosManager:
         :param neuron: a single neuron object.
         """
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(neuron)
-
-    @classmethod
-    def check_continuous_input_ports_not_qualified(cls, neuron: ASTNeuron):
-        """
-        Checks that continuous time input ports have not been specified with keywords, e.g., inhibitory.
-        :param neuron: a single neuron object.
-        """
-        CoCoContinuousInputPortNotQualified.check_co_co(neuron)
 
     @classmethod
     def check_output_port_defined_if_emit_call(cls, neuron: ASTNeuron):
@@ -379,7 +370,6 @@ class CoCosManager:
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_input_port_qualifier_unique(neuron)
         cls.check_parameters_not_assigned_outside_parameters_block(neuron)
-        cls.check_continuous_input_ports_not_qualified(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)

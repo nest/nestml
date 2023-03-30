@@ -43,4 +43,4 @@ neuron CoCoConvolveNotCorrectlyParametrized:
         inline testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
 
     input:
-        spikeExc pA <- excitatory spike
+        spikeExc <- excitatory spike

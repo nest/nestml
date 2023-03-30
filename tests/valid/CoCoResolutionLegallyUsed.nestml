@@ -41,7 +41,7 @@ synapse CoCoResolutionLegallyUsed:
         q ms = resolution()
 
     input:
-        pre_spikes real <- spike
+        pre_spikes <- spike
 
     onReceive(pre_spikes):
         x ms = resolution()
