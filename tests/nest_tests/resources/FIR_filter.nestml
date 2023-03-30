@@ -43,7 +43,7 @@ neuron fir_filter:
         h[N] real = 1.   # filter coefficients
 
     input:
-        spike_in real <- spike
+        spike_in <- spike
 
     update:
         # circular buffer for input spike count per timestep

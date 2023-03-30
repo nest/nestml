@@ -37,8 +37,8 @@ synapse synapse_event_inv_priority_test:
         d ms = 1. ms  @nest::delay
 
     input:
-        pre_spikes real <- spike
-        post_spikes real <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
 
     onReceive(pre_spikes, priority=2):
         tr += 1.
