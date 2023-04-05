@@ -30,28 +30,21 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 synapse CoCoResolutionLegallyUsed:
-  parameters:
-    d ms = 1 ms  @nest::delay
-    a ms = resolution()
-  end
+    parameters:
+        d ms = 1 ms  @nest::delay
+        a ms = resolution()
 
-  internals:
-    b ms = resolution()
-  end
+    internals:
+        b ms = resolution()
 
-  state:
-    q ms = resolution()
-  end
-    
-  input:
-    pre_spikes real <- spike
-  end
+    state:
+        q ms = resolution()
 
-  onReceive(pre_spikes):
-    x ms = resolution()
-  end
+    input:
+        pre_spikes real <- spike
 
-  update:
-    z ms = resolution()
-  end
-end
+    onReceive(pre_spikes):
+        x ms = resolution()
+
+    update:
+        z ms = resolution()

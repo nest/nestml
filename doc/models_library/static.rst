@@ -24,23 +24,7 @@ Parameters
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse static:
-     parameters:
-       w real = 1 @nest::weight # Synaptic weight
-       d ms = 1ms @nest::delay # Synaptic transmission delay
-     end
-     input:
-       pre_spikes real <-spike
-     end
-
-     onReceive(pre_spikes):
-       deliver_spike(w,d)
-     end
-
-   end
-
+The model source code can be found in the NESTML models repository here: `static <https://github.com/nest/nestml/tree/master/models/synapses/static_synapse.nestml>`_.
 
 
 Characterisation
@@ -51,4 +35,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-02 18:49:47.383073
+   Generated at 2023-03-23 09:41:54.866055

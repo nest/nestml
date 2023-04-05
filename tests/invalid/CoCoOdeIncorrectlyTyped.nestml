@@ -37,9 +37,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoOdeIncorrectlyTyped:
     state:
         V_m mV = 10mV
-    end
 
     equations:
         V_m' = 10 mA
-    end
-end

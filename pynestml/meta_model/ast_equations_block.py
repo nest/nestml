@@ -32,9 +32,8 @@ class ASTEquationsBlock(ASTNode):
     This class is used to store an equations block.
     ASTEquationsBlock a special function definition:
        equations:
-         G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-         V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
-       end
+           G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+           V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
      @attribute odeDeclaration Block with equations and differential equations.
      Grammar:
           equationsBlock:

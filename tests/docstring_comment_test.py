@@ -24,12 +24,11 @@ import pytest
 import unittest
 
 from antlr4 import *
-from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
+from antlr4.error.ErrorStrategy import BailErrorStrategy
+from antlr4.error.Errors import ParseCancellationException
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -38,8 +37,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
 
 
 # setups the infrastructure
@@ -60,7 +57,7 @@ class DocstringCommentTest(unittest.TestCase):
     def test_docstring_success(self):
         self.run_docstring_test('valid')
 
-    @pytest.mark.xfail(strict=True, raises=DocstringCommentException)
+    @pytest.mark.xfail(strict=True, raises=ParseCancellationException)
     def test_docstring_failure(self):
         self.run_docstring_test('invalid')
 
@@ -83,22 +80,8 @@ class DocstringCommentTest(unittest.TestCase):
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        neuron_or_synapse_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
 
-        # now run the docstring checker visitor
-        visitor = CommentCollectorVisitor(stream.tokens, strip_delim=False)
-        compilation_unit.accept(visitor)
-        # test whether ``"""`` is used correctly
         assert len(ast.get_neuron_list()) == 1, "Neuron failed to load correctly"
-
-        class CommentCheckerVisitor(ASTVisitor):
-            def visit(self, ast):
-                for comment in ast.get_comments():
-                    if "\"\"\"" in comment \
-                       and not (isinstance(ast, ASTNeuron) or isinstance(ast, ASTNestMLCompilationUnit)):
-                        raise DocstringCommentException()
-        visitor = CommentCheckerVisitor()
-        ast.accept(visitor)
 
 
 if __name__ == '__main__':

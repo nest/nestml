@@ -27,8 +27,7 @@ class ASTBlockWithVariables(ASTNode):
     This class is used to store a block of variable declarations.
     ast_block_with_variables.py represent a block with variables, e.g.:
         state:
-          y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
-        end
+            y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
 
     attribute state true: if the varblock is a state.
     attribute parameter: true if the varblock is a parameter.

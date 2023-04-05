@@ -68,7 +68,6 @@ neuron ExpressionCollection:
         g_NMDA' nS/ms = 0.
         g_GABAA' nS/ms = 0.
         g_GABAB' nS/ms = 0.
-    end
 
     parameters:
         #neuron aeif_cond_alpha_neuron
@@ -159,7 +158,6 @@ neuron ExpressionCollection:
         testtanh real = tanh(0.)
         testerf real = erf(0.)
         testerfc real = erfc(0.)
-    end
 
     equations:
         #neuron aeif_cond_alpha_neuron
@@ -465,7 +463,6 @@ neuron ExpressionCollection:
         t_peak123 = ( Tau_2 * Tau_1 ) * ln( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
         normalisation_factor = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
         test = g_peak * normalisation_factor * exact_integration_adjustment
-    end
 
     update:
         test56 += b
@@ -491,7 +488,3 @@ neuron ExpressionCollection:
         elif V_m > 0 mV and U_old > V_m: # threshold && maximum
           r = RefractoryCounts
           test57 = emit_spike()
-        end
-
-    end
-end

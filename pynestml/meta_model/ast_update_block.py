@@ -28,10 +28,8 @@ class ASTUpdateBlock(ASTNode):
     This class is used to store dynamic blocks.
     ASTUpdateBlock is a special function definition:
       update:
-        if r == 0: # not refractory
-          integrate(V)
-        end
-      end
+          if r == 0: # not refractory
+              integrate(V)
      @attribute block Implementation of the dynamics.
 
     Grammar:

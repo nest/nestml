@@ -34,5 +34,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoVariableWithSameNameAsUnit:
     state:
         eV mV = 1 mV # should not conflict with predefined unit eV but throw a warning
-    end
-end
