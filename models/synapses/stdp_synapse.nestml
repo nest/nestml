@@ -5,7 +5,7 @@ stdp - Synapse model for spike-timing dependent plasticity
 Description
 +++++++++++
 
-stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression. Examples:
+stdp_synapse is a synapse with spike-timing dependent plasticity (as defined in [1]_). Here the weight dependence exponent can be set separately for potentiation and depression. Examples:
 
 =================== ==== =============================
 Multiplicative STDP [2]_ mu_plus = mu_minus = 1
@@ -34,62 +34,45 @@ References
        plasticity, Journal of Neuroscience, 20:23,8812--8821
 """
 synapse stdp:
+    state:
+        w real = 1.    @nest::weight   # Synaptic weight
+        pre_trace real = 0.
+        post_trace real = 0.
 
-  state:
-    w real = 1.    @nest::weight
-    #pre_trace real = 0.
-    #post_trace real = 0.
-  end
+    parameters:
+        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        lambda real = .01
+        tau_tr_pre ms = 20 ms
+        tau_tr_post ms = 20 ms
+        alpha real = 1
+        mu_plus real = 1
+        mu_minus real = 1
+        Wmax real = 100.
+        Wmin real = 0.
 
-  parameters:
-    the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
-    lambda real = .01
-    tau_tr_pre ms = 20 ms
-    tau_tr_post ms = 20 ms
-    alpha real = 1
-    mu_plus real = 1
-    mu_minus real = 1
-    Wmax real = 100.
-    Wmin real = 0.
-  end
+    equations:
+        pre_trace' = -pre_trace / tau_tr_pre
+        post_trace' = -post_trace / tau_tr_post
 
-  equations:
-    kernel pre_trace_kernel = exp(-t / tau_tr_pre)
-    inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
+    input:
+        pre_spikes real <- spike
+        post_spikes real <- spike
 
-    # all-to-all trace of postsynaptic neuron
-    kernel post_trace_kernel = exp(-t / tau_tr_post)
-    inline post_trace real = convolve(post_trace_kernel, post_spikes)
+    output: spike
 
-#     pre_trace' = -pre_trace / tau_tr_pre
-#     post_trace' = -post_trace / tau_tr_post
-  end
+    onReceive(post_spikes):
+        post_trace += 1
 
-  input:
-    pre_spikes nS <- spike
-    post_spikes nS <- spike
-  end
+        # potentiate synapse
+        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w = min(Wmax, w_)
 
-  output: spike
+    onReceive(pre_spikes):
+        pre_trace += 1
 
-  onReceive(post_spikes):
-    #post_trace += 1
+        # depress synapse
+        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w = max(Wmin, w_)
 
-    # potentiate synapse
-    w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-    w = min(Wmax, w_)
-  end
-
-  onReceive(pre_spikes):
-    #pre_trace += 1
-
-    # depress synapse
-    w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
-    w = max(Wmin, w_)
-
-    # deliver spike to postsynaptic partner
-    deliver_spike(w, the_delay)
-  end
-
-end
-
+        # deliver spike to postsynaptic partner
+        deliver_spike(w, d)

@@ -34,9 +34,4 @@ class NestMLVariablePrinter(VariablePrinter):
         :param node: the node to print
         :return: string representation
         """
-        s = node.get_complete_name()
-        if "_is_numeric" in dir(node):
-            if s._is_numeric:
-                print("(Numeric)")
-            else:
-                print("(Not numeric)")
+        return node.get_complete_name()

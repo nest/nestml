@@ -35,14 +35,10 @@ neuron CoCoIntegrateOdesCalledIfEquationsDefined:
     state:
         x real = 1.
         y integer = 0
-    end
 
     equations:
         x' = -x / (10 ms)
-    end
 
     update:
         y = min(x, y)
         integrate_odes()
-    end
-end
