@@ -255,11 +255,13 @@ class NESTCodeGenerator(CodeGenerator):
         visitor._numeric_state_variables = numeric_state_variable_names
         neuron.accept(visitor)
 
-        for expr in update_expressions.values():
-            expr.accept(visitor)
+        if update_expressions:
+            for expr in update_expressions.values():
+                expr.accept(visitor)
 
-        for expr in numeric_update_expressions.values():
-            expr.accept(visitor)
+        if numeric_update_expressions:
+            for expr in numeric_update_expressions.values():
+                expr.accept(visitor)
 
         for update_expr_list in neuron.spike_updates.values():
             for update_expr in update_expr_list:
@@ -745,7 +747,7 @@ class NESTCodeGenerator(CodeGenerator):
             if "analytic_state_variables_moved" in namespace.keys():
                 numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"])
             namespace["numerical_state_symbols"] = numeric_state_variable_names
-            self.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"], namespace["update_expressions"])
+            self.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
 
         namespace["spike_updates"] = neuron.spike_updates
 
