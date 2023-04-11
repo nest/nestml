@@ -814,6 +814,7 @@ class ASTChannelInformationCollector(object):
             channel_functions = list()
             channel_inlines = list()
             channel_odes = list()
+            channel_dependencies = list()
 
             channel_inlines.append(chan_info[ion_channel_name]["RootInlineExpression"])
 
@@ -857,12 +858,20 @@ class ASTChannelInformationCollector(object):
                 elif (len(search_variables) > 0):
                     variable = search_variables[0]
                     for inline in global_inlines:
-                        if variable.name == inline.variable_name:
+                        is_dependency = False
+                        if isinstance(inline.get_decorators(), list):
+                            if "mechanism" in [e.namespace for e in inline.get_decorators()]:
+                                channel_dependencies.append(inline)
+                                is_dependency = True
+
+                        if not is_dependency:
                             channel_inlines.append(inline)
 
                             local_variable_collector = ASTVariableCollectorVisitor()
                             inline.accept(local_variable_collector)
-                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                                              local_variable_collector.all_variables,
+                                                                                              search_variables + found_variables)
 
                             local_function_call_collector = ASTFunctionCallCollectorVisitor()
                             inline.accept(local_function_call_collector)
@@ -872,17 +881,26 @@ class ASTChannelInformationCollector(object):
 
                     for ode in global_odes:
                         if variable.name == ode.lhs.name:
-                            channel_odes.append(ode)
+                            is_dependency = False
+                            if isinstance(ode.get_decorators(), list):
+                                if "mechanism" in [e.namespace for e in ode.get_decorators()]:
+                                    channel_dependencies.append(ode)
+                                    is_dependency = True
 
-                            local_variable_collector = ASTVariableCollectorVisitor()
-                            ode.accept(local_variable_collector)
-                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+                            if not is_dependency:
+                                channel_odes.append(ode)
 
-                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
-                            ode.accept(local_function_call_collector)
-                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
-                                                                                                   local_function_call_collector.all_function_calls,
-                                                                                                   search_functions + found_functions)
+                                local_variable_collector = ASTVariableCollectorVisitor()
+                                ode.accept(local_variable_collector)
+                                search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                                                  local_variable_collector.all_variables,
+                                                                                                  search_variables + found_variables)
+
+                                local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                                ode.accept(local_function_call_collector)
+                                search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                       local_function_call_collector.all_function_calls,
+                                                                                                       search_functions + found_functions)
 
                     for state in global_states:
                         if variable.name == state.name:
@@ -942,6 +960,21 @@ class ASTChannelInformationCollector(object):
             chan_info[channel_name]["RootInlineKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(root_inline_rhs, channel_info["Parameters"])
 
         return chan_info
+
+    @classmethod
+    def determine_dependencies(cls, mechs_info):
+        for mechanism_name, mechanism_info in mechs_info.items():
+            dependencies = list()
+            for inline in mechanism_info["SecondaryInlineExpressions"]:
+                if isinstance(inline.get_decorators(), list):
+                    if "mechanism" in [e.namespace for e in inline.get_decorators()]:
+                        dependencies.append(inline)
+            for ode in mechanism_info["ODEs"]:
+                if isinstance(ode.get_decorators(), list):
+                    if "mechanism" in [e.namespace for e in ode.get_decorators()]:
+                        dependencies.append(ode)
+            mechs_info[mechanism_name]["dependencies"] = dependencies
+        return mechs_info
 
 
     """
@@ -1042,7 +1075,6 @@ class ASTChannelInformationCollector(object):
 
         # trigger generation via check_co_co
         # if it has not been called before
-        print("GET CHAN INFO")
         if cls.first_time_run[neuron]:
             cls.check_co_co(neuron)
 
@@ -1063,6 +1095,7 @@ class ASTChannelInformationCollector(object):
 
             chan_info = cls.detect_cm_inline_expressions_ode(neuron)
             chan_info = cls.collect_channel_related_definitions(neuron, chan_info)
+            chan_info = cls.determine_dependencies(chan_info)
 
             # further computation not necessary if there were no cm neurons
             if not chan_info:

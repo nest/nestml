@@ -218,8 +218,8 @@ class ChanInfoEnricher():
                 solution_transformed["propagators"] = defaultdict()
 
                 for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
-                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                              SymbolKind.VARIABLE)
+                    prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                                   SymbolKind.VARIABLE)
 
                     expression = ModelParser.parse_expression(rhs_str)
                     # pretend that update expressions are in "equations" block,
@@ -239,14 +239,18 @@ class ChanInfoEnricher():
                     update_expr_ast.accept(ASTSymbolTableVisitor())
 
                     solution_transformed["states"][variable_name] = {
-                        "ASTVariable": variable,
+                        "ASTVariable": prop_variable,
                         "init_expression": expression,
                         "update_expression": update_expr_ast,
                     }
+
                 for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items(
                 ):
-                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                              SymbolKind.VARIABLE)
+                    import pdb;
+                    prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                                   SymbolKind.VARIABLE)
+                    if prop_variable is None:
+                        pdb.set_trace()
 
                     expression = ModelParser.parse_expression(rhs_str)
                     # pretend that update expressions are in "equations" block,
@@ -257,7 +261,7 @@ class ChanInfoEnricher():
                     expression.accept(ASTSymbolTableVisitor())
 
                     solution_transformed["propagators"][variable_name] = {
-                        "ASTVariable": variable, "init_expression": expression, }
+                        "ASTVariable": prop_variable, "init_expression": expression, }
                     expression_variable_collector = ASTEnricherInfoCollectorVisitor()
                     expression.accept(expression_variable_collector)
 
@@ -266,6 +270,7 @@ class ChanInfoEnricher():
 
                     #print("TRV: " + PredefinedFunctions.TIME_RESOLUTION)
                     for variable in expression_variable_collector.all_variables:
+                        print(variable.get_name())
                         for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
                             #print(internal_declaration.get_variables()[0].get_name())
                             #print(internal_declaration.get_expression().callee_name)

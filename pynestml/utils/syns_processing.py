@@ -373,12 +373,8 @@ class SynsProcessing(object):
                 expr = ASTUtils.get_expr_from_kernel_var(
                     kernel, kernel_var.get_complete_name())
                 kernel_order = kernel_var.get_differential_order()
-                print("kernel_order=" + str(kernel_order))
-                print("spike_input_port.name=" + spike_input_port.name)
-                print("spike_input_port.signal_type=" + str(spike_input_port.signal_type))
                 kernel_X_spike_buf_name_ticks = ASTUtils.construct_kernel_X_spike_buf_name(
                     kernel_var.get_name(), spike_input_port.get_name(), kernel_order, diff_order_symbol="'")
-                print("kernel_X_spike_buf_name_ticks=" + kernel_X_spike_buf_name_ticks)
 
                 ASTUtils.replace_rhs_variables(expr, kernel_buffers)
 
@@ -463,6 +459,21 @@ class SynsProcessing(object):
         return syns_info
 
     @classmethod
+    def determine_dependencies(cls, mechs_info):
+        for mechanism_name, mechanism_info in mechs_info.items():
+            dependencies = list()
+            for inline in mechanism_info["secondaryInlineExpressions"]:
+                if isinstance(inline.get_decorators(), list):
+                    if "mechanism" in [e.namespace for e in inline.get_decorators()]:
+                        dependencies.append(inline)
+            for ode in mechanism_info["ODEs"]:
+                if isinstance(ode.get_decorators(), list):
+                    if "mechanism" in [e.namespace for e in ode.get_decorators()]:
+                        dependencies.append(ode)
+            mechs_info[mechanism_name]["dependencies"] = dependencies
+        return mechs_info
+
+    @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
         Checks if synapse conditions apply for the handed over neuron.
@@ -475,6 +486,7 @@ class SynsProcessing(object):
         # and there would be no kernels or inlines any more
         if cls.first_time_run[neuron]:
             syns_info, info_collector = cls.detectSyns(neuron)
+            syns_info = cls.determine_dependencies(syns_info)
             #print("POST AST COLLECTOR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:")
             #ASTChannelInformationCollector.print_dictionary(syns_info, 0)
             if len(syns_info) > 0:
@@ -487,5 +499,6 @@ class SynsProcessing(object):
 
             syns_info = ASTSynapseInformationCollector.extend_variables_with_initialisations(neuron, syns_info)
             syns_info = cls.ode_toolbox_processing(neuron, syns_info)
+
             cls.syns_info[neuron] = syns_info
             cls.first_time_run[neuron] = False

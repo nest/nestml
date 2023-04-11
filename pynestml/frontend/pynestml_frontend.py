@@ -360,11 +360,13 @@ def process():
     codegen_and_builder_opts = _codeGenerator.set_options(
         codegen_and_builder_opts)
     _builder = builder_from_target_name(
-        FrontendConfiguration.get_target_platform())
+        FrontendConfiguration.get_target_platform(), codegen_and_builder_opts)
 
+    """
     if _builder is not None:
         codegen_and_builder_opts = _builder.set_options(
             codegen_and_builder_opts)
+    """
 
     if len(codegen_and_builder_opts) > 0:
         raise CodeGeneratorOptionsException(
@@ -401,7 +403,7 @@ def process():
 
     # perform build
     if _builder is not None:
-        _builder.build()
+        _builder[0].build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()

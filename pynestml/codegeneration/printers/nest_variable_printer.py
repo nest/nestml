@@ -98,7 +98,8 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
-            return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+            # return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+            return self._print(variable, symbol, with_origin=False) #temporary modification to not enforce getter function
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 

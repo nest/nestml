@@ -53,6 +53,7 @@ from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFunc
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
 from pynestml.cocos.co_co_synapses_model import CoCoSynapsesModel
+from pynestml.cocos.co_co_concentrations_model import CoCoConcentrationsModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
@@ -127,6 +128,10 @@ class CoCosManager:
         synapses are defined by inlines that use kernels
         """
         CoCoSynapsesModel.check_co_co(neuron)
+
+    @classmethod
+    def check_concentrations_model(cls, neuron: ASTNeuron) -> None:
+        CoCoConcentrationsModel.check_co_co(neuron)
 
     @classmethod
     def check_v_comp_requirement(cls, neuron: ASTNeuron, after_ast_rewrite: bool):
@@ -430,6 +435,7 @@ class CoCosManager:
         cls.check_v_comp_requirement(neuron, after_ast_rewrite)
         cls.check_compartmental_model(neuron, after_ast_rewrite)
         cls.check_synapses_model(neuron)
+        cls.check_concentrations_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
         cls.check_inline_has_max_one_lhs(neuron)
         cls.check_input_ports_not_assigned_to(neuron)
