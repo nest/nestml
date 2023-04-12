@@ -605,7 +605,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def endvisit_input_port(self, node):
         type_symbol = RealTypeSymbol()
-        if node.is_continuous() and not node.has_datatype():
+        if node.is_continuous() and node.has_datatype():
             type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
