@@ -18,15 +18,16 @@ from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer imp
 from odetoolbox import analysis
 import json
 
-import abc
+import types
 
 class MechanismProcessing(object):
-    __metaclass__ = abc.ABCMeta
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co
     first_time_run = defaultdict(lambda: defaultdict(lambda: True))
     # stores syns_info from the first call of check_co_co
     mechs_info = defaultdict(lambda: defaultdict())
+
+    mechType = str()
 
     # ODE-toolbox printers
     _constant_printer = ConstantPrinter()
@@ -95,10 +96,10 @@ class MechanismProcessing(object):
         mechs_info = cls.collect_raw_odetoolbox_output(mechs_info)
         return mechs_info
 
-    @abc.abstractmethod
-    def collect_information_for_specific_mech_types(self, neuron, mechs_info):
-        """to be implemented for specific mechanisms (concentration, synapse, channel)"""
-        return
+    def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
+        #to be implemented for specific mechanisms (concentration, synapse, channel)
+        pass
+
 
     @classmethod
     def determine_dependencies(cls, mechs_info):
@@ -118,7 +119,7 @@ class MechanismProcessing(object):
 
 
     @classmethod
-    def get_mechs_info(cls, neuron: ASTNeuron, mechType: str):
+    def get_mechs_info(cls, neuron: ASTNeuron):
         """
         returns previously generated mechs_info
         as a deep copy so it can't be changed externally
@@ -127,12 +128,10 @@ class MechanismProcessing(object):
         :type neuron: ASTNeuron
         """
 
-        return copy.deepcopy(cls.mechs_info[neuron][mechType])
-
-
+        return copy.deepcopy(cls.mechs_info[neuron][cls.mechType])
 
     @classmethod
-    def check_co_co(cls, neuron: ASTNeuron, mechType: str):
+    def check_co_co(cls, neuron: ASTNeuron):
         """
         Checks if mechanism conditions apply for the handed over neuron.
         :param neuron: a single neuron instance.
@@ -142,10 +141,10 @@ class MechanismProcessing(object):
         # make sure we only run this a single time
         # subsequent calls will be after AST has been transformed
         # and there would be no kernels or inlines any more
-        if cls.first_time_run[neuron][mechType]:
+        if cls.first_time_run[neuron][cls.mechType]:
             #collect root expressions and initialize collector
             info_collector = ASTMechanismInformationCollector(neuron)
-            mechs_info = info_collector.detect_mechs(mechType)
+            mechs_info = info_collector.detect_mechs(cls.mechType)
 
             #collect and process all basic mechanism information
             mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info)
@@ -153,7 +152,7 @@ class MechanismProcessing(object):
             mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
 
             #collect and process all mechanism type specific information
-            mechs_info = cls.collect_information_for_specific_mech_types(cls, neuron, mechs_info)
+            mechs_info = cls.collect_information_for_specific_mech_types(neuron, mechs_info)
 
-            cls.mechs_info[neuron][mechType] = mechs_info
-            cls.first_time_run[neuron][mechType] = False
+            cls.mechs_info[neuron][cls.mechType] = mechs_info
+            cls.first_time_run[neuron][cls.mechType] = False
