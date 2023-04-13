@@ -70,7 +70,8 @@ neuron aeif_cond_alpha_implicit:
         # input decl post
 
     # output pre
-    output: spike # output in
+    output:
+        spike # output in
     # output post
 
     # update pre

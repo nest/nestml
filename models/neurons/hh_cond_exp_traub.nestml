@@ -119,7 +119,8 @@ neuron hh_cond_exp_traub:
         exc_spikes nS  <- excitatory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         U_old mV = V_m

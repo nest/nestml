@@ -328,12 +328,13 @@ parser grammar PyNestMLParser;
   inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
   /** ASTOutputBlock Represents the output block of the neuron, i.e., declarations of output ports:
-        output: spike
+        output:
+            spike
       @attribute isSpike: true if and only if the neuron has a spike output.
       @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
   outputBlock: OUTPUT_KEYWORD COLON
-               (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) NEWLINE;
+               NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) NEWLINE DEDENT;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):

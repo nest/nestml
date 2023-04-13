@@ -117,7 +117,8 @@ neuron biexp_postsynaptic_response:
         spikeGABA nS  <- spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

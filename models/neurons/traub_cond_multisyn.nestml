@@ -146,7 +146,8 @@ neuron traub_cond_multisyn:
         GABA_B nS <- spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         U_old mV = V_m
