@@ -31,9 +31,8 @@ class ASTInputBlock(ASTNode):
     .. code-block:: nestml
 
        input:
-         spike_in pA <- excitatory spike
-         current_in pA <- continuous
-       end
+           spike_in pA <- excitatory spike
+           current_in pA <- continuous
 
     @attribute inputPort set of input ports.
     Grammar:

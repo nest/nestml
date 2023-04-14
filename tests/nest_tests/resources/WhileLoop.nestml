@@ -27,20 +27,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron while_loop:
     state:
         y real = 0.025
-    end
 
     parameters:
-      N integer = 5
-    end
+        N integer = 5
 
     update:
-      k integer = 3
-      j integer = 0
-      while j <= N:
-        y = max(k, j)
-        y += 0.011
-        j += 1
-      end
-    end
-
-end
+        k integer = 3
+        j integer = 0
+        while j <= N:
+            y = max(k, j)
+            y += 0.011
+            j += 1

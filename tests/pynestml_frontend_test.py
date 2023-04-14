@@ -99,7 +99,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         path = tempfile.mkdtemp(prefix="nestml-")
         fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
         with open(fpath, "w") as f:
-            f.write("neuron foo:\nend\n")
+            f.write("neuron foo:\n")
             os.close(fd)
 
         params = list()
@@ -115,11 +115,11 @@ class PyNestMLFrontendTest(unittest.TestCase):
         path = tempfile.mkdtemp(prefix="nestml-")
         fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
         with open(fpath, "w") as f:
-            f.write("neuron foo:\nend\n")
+            f.write("neuron foo:\n")
             os.close(fd)
         fd, fpath = tempfile.mkstemp(dir=path, suffix=".nestml")
         with open(fpath, "w") as f:
-            f.write("neuron bar:\nend\n")
+            f.write("neuron bar:\n")
             os.close(fd)
 
         params = list()

@@ -8,19 +8,14 @@ A synapse where the synaptic strength (weight) does not evolve with simulated ti
 """
 synapse static_synapse:
 
-  parameters:
-    w real = 900  @nest::weight @homogeneous
-    d ms = .9 ms  @nest::delay @heterogeneous
-    a real = 3.141592653589793  @nest::a @homogeneous
-    b real = 100.  @nest::b @heterogeneous
-  end
+    parameters:
+        w real = 900  @nest::weight @homogeneous
+        d ms = .9 ms  @nest::delay @heterogeneous
+        a real = 3.141592653589793  @nest::a @homogeneous
+        b real = 100.  @nest::b @heterogeneous
 
-  input:
-    pre_spikes mV <- spike
-  end
+    input:
+        pre_spikes mV <- spike
 
-  onReceive(pre_spikes):
-    deliver_spike(3.18E-3 * a * b * w, d)
-  end
-
-end
+    onReceive(pre_spikes):
+        deliver_spike(3.18E-3 * a * b * w, d)

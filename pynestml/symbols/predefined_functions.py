@@ -27,6 +27,8 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions:
     r"""
     This class is used to represent all predefined functions of NESTML.
+        ERF                   The callee name of the error function
+        ERFC                  The callee name of the complementary error function
     """
 
     TIME_RESOLUTION = "resolution"
@@ -39,6 +41,8 @@ class PredefinedFunctions:
     LOG10 = "log10"
     COSH = "cosh"
     SINH = "sinh"
+    ERF = "erf"
+    ERFC = "erfc"
     TANH = "tanh"
     LOGGER_INFO = "info"
     LOGGER_WARNING = "warning"
@@ -74,6 +78,8 @@ class PredefinedFunctions:
         cls.__register_cosh_function()
         cls.__register_sinh_function()
         cls.__register_tanh_function()
+        cls.__register_erf_function()
+        cls.__register_erfc_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_normal_function()
@@ -214,6 +220,30 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.TANH] = symbol
+
+    @classmethod
+    def __register_erf_function(cls):
+        """
+        Registers the error function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.ERF, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ERF] = symbol
+
+    @classmethod
+    def __register_erfc_function(cls):
+        """
+        Registers the complementary error function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.ERFC, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ERFC] = symbol
 
     @classmethod
     def __register_logger_info_function(cls):

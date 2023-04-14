@@ -36,19 +36,14 @@ neuron CoCoFunctionNotUnique:
     function delta(Tau_a ms,Tau_b ms) real: # redeclaration should be detected
         test real = 1
         return # missing return type should be detected
-    end
 
     function deltaBoolean(Tau_a ms,Tau_b ms) boolean:
         test string = "bl"
         return test # here wrong type of return should be detected
-    end
 
     function deltaNoReturn(Tau_a ms,Tau_b ms) boolean:
         test real = 1
         if True == True:
             return True
         else:
-           test = test # here no return statement should be detected
-        end
-    end
-end
+            test = test # here no return statement should be detected

@@ -34,5 +34,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoContinuousInputPortQualifierSpecified:
     input:
         currents pA <- inhibitory continuous   # qualifiers may not be specified for a continuous time input port
-    end
-end

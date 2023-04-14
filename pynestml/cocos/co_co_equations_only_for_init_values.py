@@ -34,11 +34,9 @@ class CoCoEquationsOnlyForInitValues(CoCo):
 
         state:
             V_m mV = 10 mV
-        end
 
         equations:
             V_m' = ....
-        end
 
     Not allowed:
 
@@ -46,11 +44,9 @@ class CoCoEquationsOnlyForInitValues(CoCo):
 
         state:
             V_rel mV = 0 mV
-        end
 
         equations:
             V_m' = ....
-        end
 
     """
 

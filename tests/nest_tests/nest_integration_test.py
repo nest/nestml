@@ -34,7 +34,6 @@ from pynestml.utils.string_utils import removeprefix, removesuffix
 try:
     import matplotlib
     import matplotlib.pyplot as plt
-    import logging;logging.getLogger('matplotlib.font_manager').disabled = True
 
     TEST_PLOTS = True
 except BaseException:
@@ -50,32 +49,32 @@ def get_model_doc_title(model_fname: str):
 class TestNestIntegration:
 
     def generate_all_models(self):
-        codegen_opts = {}#{"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                #   "synapse": "neuromodulated_stdp",
-                                                #   "post_ports": ["post_spikes"],
-                                                #   "vt_ports": ["mod_spikes"]},
-                                                #  {"neuron": "iaf_psc_exp",
-                                                #   "synapse": "stdp",
-                                                #   "post_ports": ["post_spikes"]},
-                                                #  {"neuron": "iaf_psc_delta",
-                                                #   "synapse": "stdp_triplet",
-                                                #   "post_ports": ["post_spikes"]},
-                                                #  {"neuron": "iaf_psc_delta",
-                                                #   "synapse": "stdp_triplet_nn",
-                                                #   "post_ports": ["post_spikes"]},
-                                                #  {"neuron": "iaf_psc_exp",
-                                                #   "synapse": "stdp_nn_symm",
-                                                #   "post_ports": ["post_spikes"]},
-                                                #  {"neuron": "iaf_psc_exp",
-                                                #   "synapse": "stdp_nn_restr_symm",
-                                                #   "post_ports": ["post_spikes"]},
-                                                #  {"neuron": "iaf_psc_exp_dend",
-                                                #   "synapse": "third_factor_stdp",
-                                                #   "post_ports": ["post_spikes",
-                                                #                  ["I_post_dend", "I_dend"]]},
-                                                #  {"neuron": "iaf_psc_exp",
-                                                #   "synapse": "stdp_nn_pre_centered",
-                                                #   "post_ports": ["post_spikes"]}]}
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                  "synapse": "neuromodulated_stdp",
+                                                  "post_ports": ["post_spikes"],
+                                                  "vt_ports": ["mod_spikes"]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_delta",
+                                                  "synapse": "stdp_triplet",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_delta",
+                                                  "synapse": "stdp_triplet_nn",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp_nn_symm",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp_nn_restr_symm",
+                                                  "post_ports": ["post_spikes"]},
+                                                 {"neuron": "iaf_psc_exp_dend",
+                                                  "synapse": "third_factor_stdp",
+                                                  "post_ports": ["post_spikes",
+                                                                 ["I_post_dend", "I_dend"]]},
+                                                 {"neuron": "iaf_psc_exp",
+                                                  "synapse": "stdp_nn_pre_centered",
+                                                  "post_ports": ["post_spikes"]}]}
         if NESTTools.detect_nest_version().startswith("v3"):
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
@@ -363,7 +362,7 @@ class TestNestIntegration:
         return s
 
     def _test_model_curr_inj(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001,
-                                 nest_ref_model_opts=None, custom_model_opts=None, model_initial_state=None):
+                             nest_ref_model_opts=None, custom_model_opts=None, model_initial_state=None):
         """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
         t_stop = 1000.  # [ms]
 
@@ -518,7 +517,7 @@ class TestNestIntegration:
             ax[1].plot(ts2, Vms2, label="Testant " + testant)
             ax[1].scatter(spike_recorder2.events["times"], Vms2[0] * np.ones_like(spike_recorder2.events["times"]))
             np.testing.assert_allclose(ts1, ts2)
-            ax[2].semilogy(ts2, np.abs(Vms1-Vms2), label="Error", color="red")
+            ax[2].semilogy(ts2, np.abs(Vms1 - Vms2), label="Error", color="red")
             for _ax in ax:
                 _ax.legend(loc="upper right")
                 _ax.grid()

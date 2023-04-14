@@ -50,61 +50,51 @@ See also
 iaf_psc_alpha, iaf_psc_exp
 """
 neuron iaf_psc_delta:
+    state:
+        r integer = 0    # Counts number of tick during the refractory period
+        V_m mV = E_L     # Membrane potential
 
-  state:
-    r integer = 0    # Counts number of tick during the refractory period
-    V_m mV = E_L     # Membrane potential
-  end
+    equations:
+        kernel G = delta(t)
+        V_m' = -(V_m - E_L) / tau_m + (mV / pA / ms) * convolve(G, spikes) + (I_e + I_stim) / C_m
 
-  equations:
-    kernel G = delta(t)
-    V_m' = -(V_m - E_L) / tau_m + (mV / pA / ms) * convolve(G, spikes) + (I_e + I_stim) / C_m
-  end
+    parameters:
+        tau_m   ms = 10 ms              # Membrane time constant
+        C_m     pF = 250 pF             # Capacity of the membrane
+        t_ref   ms = 2 ms               # Duration of refractory period
+        tau_syn ms = 2 ms               # Time constant of synaptic current
+        E_L     mV = -70 mV             # Resting membrane potential
+        V_reset mV = -70 mV             # Reset potential of the membrane
+        V_th    mV = -55 mV             # Spike threshold
+        V_min   mV = -inf * 1 mV        # Absolute lower value for the membrane potential
 
-  parameters:
-    tau_m   ms = 10 ms              # Membrane time constant
-    C_m     pF = 250 pF             # Capacity of the membrane
-    t_ref   ms = 2 ms               # Duration of refractory period
-    tau_syn ms = 2 ms               # Time constant of synaptic current
-    E_L     mV = -70 mV             # Resting membrane potential
-    V_reset mV = -70 mV             # Reset potential of the membrane
-    V_th    mV = -55 mV             # Spike threshold
-    V_min   mV = -inf * 1 mV        # Absolute lower value for the membrane potential
+        # constant external input current
+        I_e pA = 0 pA
 
-    # constant external input current
-    I_e pA = 0 pA
-  end
+    internals:
+        h ms = resolution()
+        RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
-  internals:
-    h ms = resolution()
-    RefractoryCounts integer = steps(t_ref) # refractory time in steps
-  end
+    input:
+        spikes pA <- spike
+        I_stim pA <- continuous
 
-  input:
-    spikes pA <- spike
-    I_stim pA <- continuous
-  end
+    output: spike
 
-  output: spike
+    update:
+        process_input(I_stim)
 
-  update:
-    process_input(I_stim)
+        if r == 0: # neuron not refractory
+            integrate_odes()
 
-    if r == 0: # neuron not refractory
-      integrate_odes()
+            # lower bound of membrane potential
+            V_m = V_m < V_min ? V_min : V_m
+        else: # neuron is absolute refractory
+            r -= 1
 
-      # lower bound of membrane potential
-      V_m = V_m < V_min ? V_min : V_m
-    else: # neuron is absolute refractory
-      r -= 1
-    end
+        process_input(spikes)
 
-    process_input(spikes)
-
-    if V_m >= V_th: # threshold crossing
-        r = RefractoryCounts
-        V_m = V_reset
-        emit_spike()
-    end
-  end
-end
+        if V_m >= V_th: # threshold crossing
+            r = RefractoryCounts
+            V_m = V_reset
+            emit_spike()

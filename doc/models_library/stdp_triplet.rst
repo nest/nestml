@@ -57,61 +57,7 @@ State variables
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   synapse stdp_triplet:
-     state:
-       w nS = 1nS # Synaptic weight
-     end
-     parameters:
-       d ms = 1ms @nest::delay # Synaptic transmission delay
-       tau_plus ms = 16.8ms # time constant for tr_r1
-       tau_x ms = 101ms # time constant for tr_r2
-       tau_minus ms = 33.7ms # time constant for tr_o1
-       tau_y ms = 125ms # time constant for tr_o2
-       A2_plus real = 7.5e-10
-       A3_plus real = 0.0093
-       A2_minus real = 0.007
-       A3_minus real = 0.00023
-       Wmax nS = 100nS
-       Wmin nS = 0nS
-     end
-     equations:
-       kernel tr_r1_kernel = exp(-t / tau_plus)
-       inline tr_r1 real = convolve(tr_r1_kernel,pre_spikes)
-       kernel tr_r2_kernel = exp(-t / tau_x)
-       inline tr_r2 real = convolve(tr_r2_kernel,pre_spikes)
-       kernel tr_o1_kernel = exp(-t / tau_minus)
-       inline tr_o1 real = convolve(tr_o1_kernel,post_spikes)
-       kernel tr_o2_kernel = exp(-t / tau_y)
-       inline tr_o2 real = convolve(tr_o2_kernel,post_spikes)
-     end
-
-     input:
-       pre_spikes nS <-spike
-       post_spikes nS <-spike
-     end
-
-     output: spike
-
-     onReceive(post_spikes):
-       # potentiate synapse
-       #w_ nS = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
-       w_ nS = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
-       w = min(Wmax,w_)
-     end
-
-     onReceive(pre_spikes):
-       # depress synapse
-       #w_ nS = Wmax * ( w / Wmax - tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
-       w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
-       w = max(Wmin,w_)
-       # deliver spike to postsynaptic partner
-       deliver_spike(w,d)
-     end
-
-   end
-
+The model source code can be found in the NESTML models repository here: `stdp_triplet <https://github.com/nest/nestml/tree/master/models/synapses/stdp_triplet_naive.nestml>`_.
 
 
 Characterisation
@@ -122,4 +68,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-02 18:49:47.365985
+   Generated at 2023-03-23 09:41:54.854909
