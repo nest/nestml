@@ -74,8 +74,8 @@ neuron aeif_cond_alpha:
     b pA = 80.5 pA            # Spike-triggered adaptation
     Delta_T mV = 2.0 mV       # Slope factor
     tau_w ms = 144.0 ms       # Adaptation time constant
-    V_th mV = -50.4 mV        # Threshold Potential
-    V_peak mV = 0 mV          # Spike detection threshold
+    V_th mV = -50.4 mV        # Threshold potential
+    V_th mV = 0 mV            # Spike threshold
 
     # synaptic parameters
     E_exc mV = 0 mV            # Excitatory reversal Potential
@@ -96,31 +96,38 @@ neuron aeif_cond_alpha:
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
+
     # counts number of tick during the refractory period
     r integer
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
   output: spike
 
   update:
-    integrate_odes()
+    process_input(I_stim)
 
-    if r > 0: # refractory
-      r -= 1 # decrement refractory ticks count
-      V_m = V_reset # clamp potential
-    elif V_m >= V_peak: # threshold crossing detection
+    integrate_odes(w)
+
+    if r > 0:
+      # neuron is absolute refractory
+      r -= 1
+    else:
+      integrate_odes(V_m)
+    end
+
+    process_input(exc_spikes, inh_spikes)
+
+    if V_m >= V_th:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
       w += b
       emit_spike()
     end
-
   end
-
 end

@@ -97,22 +97,21 @@ neuron iaf_psc_alpha:
   output: spike
 
   update:
-    if r == 0: # neuron not refractory
-      integrate_odes()
-    else: # neuron is absolute refractory
+    process_input(I_stim)
+
+    if r > 0:
+      # neuron is absolute refractory
       r = r - 1
+    else:
+      integrate_odes()
     end
 
+    process_input(exc_spikes, inh_spikes)
+
     if V_m >= V_th: # threshold crossing
-      # A supra-threshold membrane potential should never be observable.
-      # The reset at the time of threshold crossing enables accurate
-      # integration independent of the computation step size, see [2,3] for
-      # details.
       r = RefractoryCounts
       V_m = V_reset
       emit_spike()
     end
-
   end
-
 end

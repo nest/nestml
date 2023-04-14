@@ -55,13 +55,13 @@ neuron biexp_postsynaptic_response:
             g_in$' = -g_in$ / tau_syn_rise_I
 
       kernel g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
-    
+
       #kernel g_alpha = (e / tau_syn_alpha) * t * exp(-t / tau_syn_alpha)
 
       #kernel g_GABA'' = g_gap_const * (exp(-t/tau_syn_decay_E) / tau_syn_decay_E**2 - exp(-t/tau_syn_rise_E) / tau_syn_rise_E**2)
 
       kernel g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
-      
+
       inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
       inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
       inline I_syn_gap pA = (F_I + convolve(g_gap, spikeGap)) * (V_m - E_gap)
@@ -106,7 +106,7 @@ neuron biexp_postsynaptic_response:
                     ? tau_syn_decay_I
                     : tau_syn_decay_I * tau_syn_rise_I * ln(tau_syn_decay_I / tau_syn_rise_I) / (tau_syn_decay_I - tau_syn_rise_I)
     t_peak_gap real = tau_syn_decay_gap * tau_syn_rise_gap / (tau_syn_decay_gap - tau_syn_rise_gap) * ln(tau_syn_decay_gap / tau_syn_rise_gap)
-  
+
     # normalisation constants to ensure arriving spike yields peak conductance of 1 nS
     g_E_const real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12 ms ?
                          exp(1) / tau_syn_decay_E :
@@ -131,6 +131,7 @@ neuron biexp_postsynaptic_response:
 
   update:
     integrate_odes()
+    process_input(spikeInh, spikeExc, spikeGap, spikeGABA)
     if r != 0: # not refractory
       r =  r - 1
       V_m = V_reset # clamp potential

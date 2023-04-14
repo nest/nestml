@@ -83,16 +83,18 @@ neuron iaf_chxk_2008:
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
   output: spike
 
   update:
+    process_input(I_stim)
     vm_prev mV = V_m
     integrate_odes()
+    process_input(exc_spikes, inh_spikes)
     if vm_prev < V_th and V_m >= V_th:
       # Neuron is not absolute refractory
 
@@ -101,22 +103,20 @@ neuron iaf_chxk_2008:
 
       alpha real = exp( -sigma / tau_ahp )
 
-      delta_g_ahp real = PSConInit_AHP * sigma * alpha
       delta_dg_ahp real = PSConInit_AHP * alpha
+      delta_g_ahp real = delta_dg_ahp * sigma  #PSConInit_AHP * sigma * alpha
 
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
-        g_ahp  = delta_g_ahp * nS
+        g_ahp = delta_g_ahp * nS
         g_ahp' = delta_dg_ahp * nS/ms
       else:
         # Correct implementation adds initial values for new AHP to AHP history
-        g_ahp  += delta_g_ahp * nS
+        g_ahp += delta_g_ahp * nS
         g_ahp' += delta_dg_ahp * nS/ms
       end
 
       emit_spike()
     end
-
   end
-
 end

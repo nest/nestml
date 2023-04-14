@@ -86,15 +86,17 @@ neuron iaf_cond_exp_sfa_rr:
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
   output: spike
 
   update:
+    process_input(I_stim)
     integrate_odes()
+    process_input(exc_spikes, inh_spikes)
     if r != 0:  # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential
@@ -105,7 +107,5 @@ neuron iaf_cond_exp_sfa_rr:
       g_rr += q_rr
       emit_spike()
     end
-
   end
-
 end

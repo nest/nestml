@@ -61,6 +61,8 @@ neuron iaf_psc_exp_multisynapse_neuron:
       r = r - 1 # neuron is absolute refractory
     end
 
+    process_input(spikes1, spikes2, spikes3)
+
     if V_m >= V_th: # threshold crossing
       r = RefractoryCounts
       V_m = V_reset

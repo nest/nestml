@@ -155,7 +155,12 @@ neuron traub_cond_multisyn:
 
   update:
     U_old mV = V_m
+
+    process_input(I_stim)
+
     integrate_odes()
+
+    process_input(AMPA, NMDA, GABA_A, GABA_B)
 
     # sending spikes:
     if r > 0: # is refractory?
@@ -164,7 +169,6 @@ neuron traub_cond_multisyn:
       r = RefractoryCounts
       emit_spike()
     end
-
   end
 
 

@@ -88,8 +88,9 @@ neuron iaf_psc_delta:
   output: spike
 
   update:
+    process_input(I_stim)
+
     if r == 0: # neuron not refractory
-      process_input(I_stim)
       integrate_odes()
 
       # lower bound of membrane potential
@@ -105,7 +106,5 @@ neuron iaf_psc_delta:
         V_m = V_reset
         emit_spike()
     end
-
   end
-
 end

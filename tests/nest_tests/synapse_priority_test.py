@@ -68,15 +68,6 @@ class NestSynapsePriorityTest(unittest.TestCase):
 
         fname_snip = ""
 
-        pre_spike_times = [1., 11., 21.]    # [ms]
-        post_spike_times = [6., 16., 26.]  # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-
         # one additional pre spike to ensure processing of post spikes in the intermediate interval
         pre_spike_times = np.array([3., 50.])
         post_spike_times = np.array([2.])

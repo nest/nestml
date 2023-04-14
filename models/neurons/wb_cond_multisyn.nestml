@@ -50,17 +50,17 @@ neuron wb_cond_multisyn:
     recordable inline I_syn_nmda pA = -convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
     recordable inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
     recordable inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
-    recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b  
-    
+    recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+
     inline I_Na  pA = g_Na * Act_m_inf(V_m)**3 * Inact_h * ( V_m - E_Na )
     inline I_K   pA = g_K * Act_n**4 * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
-    
+
     Inact_h' = ( alpha_h(V_m) * ( 1 - Inact_h ) - beta_h(V_m) * Inact_h ) / ms # h-variable
     Act_n' = ( alpha_n(V_m) * ( 1 - Act_n ) - beta_n(V_m) * Act_n ) / ms # n-variable
     V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn ) / C_m
 
-    
+
     #############
     # Synapses
     #############
@@ -88,25 +88,25 @@ neuron wb_cond_multisyn:
     E_K mV = -90.0 mV        # Potassium reversal potentia
     E_L mV = -65.0 mV     # Leak reversal Potential (aka resting potential)
     V_Tr mV = -55.0 mV        # Spike Threshold
-    
+
     # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
     AMPA_g_peak nS = 0.1 nS      # peak conductance
     AMPA_E_rev mV = 0.0 mV       # reversal potential
     AMPA_Tau_1 ms = 0.5 ms       # rise time
     AMPA_Tau_2 ms = 2.4 ms       # decay time, Tau_1 < Tau_2
-    
+
     NMDA_g_peak nS = 0.075 nS    # peak conductance
     NMDA_Tau_1 ms = 4.0 ms       # rise time
     NMDA_Tau_2 ms = 40.0 ms      # decay time, Tau_1 < Tau_2
     NMDA_E_rev mV = 0.0 mV       # reversal potential
     NMDA_Vact mV = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
     NMDA_Sact mV = 2.5 mV        # scale of inactivation
-    
+
     GABA_A_g_peak nS = 0.33 nS   # peak conductance
     GABA_A_Tau_1 ms = 1.0 ms     # rise time
     GABA_A_Tau_2 ms = 7.0 ms     # decay time, Tau_1 < Tau_2
     GABA_A_E_rev mV = -70.0 mV   # reversal potential
-    
+
     GABA_B_g_peak nS = 0.0132 nS # peak conductance
     GABA_B_Tau_1 ms = 60.0 ms    # rise time
     GABA_B_Tau_2 ms = 200.0 ms   # decay time, Tau_1 < Tau_2
@@ -143,16 +143,19 @@ neuron wb_cond_multisyn:
 
   update:
     U_old mV = V_m
+
+    process_input(I_stim)
+
     integrate_odes()
-    
-    # sending spikes: 
+
+    process_input(AMPA, NMDA, GABA_A, GABA_B)
+
     if r > 0: # is refractory?
       r -= 1
     elif V_m > V_Tr and U_old > V_m: # threshold && maximum
       r = RefractoryCounts
       emit_spike()
     end
-
   end
 
   function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak nS) real:
@@ -196,6 +199,4 @@ neuron wb_cond_multisyn:
   function beta_h(V_m mV) real:
     return 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
   end
-
 end
-

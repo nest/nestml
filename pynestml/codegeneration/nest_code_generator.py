@@ -111,7 +111,7 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
-        "preserve_expressions": False,
+        "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "point_neuron",
@@ -822,15 +822,12 @@ class NESTCodeGenerator(CodeGenerator):
 
     def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         r"""
-        Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after
-        ode-toolbox.
+        Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ODE-toolbox.
 
-        For example, a resulting `assignment_str` could be "I_kernel_in += (inh_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
-        from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from
-        user specification in the model.
+        For example, a resulting ``assignment_str`` could be "I_kernel_in += (inh_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
 
-        Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the
-        initial value of the corresponding ODE dimension.
+        Note that for kernels, ``initial_values`` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
+
         ``spike_updates`` is a mapping from input port name (as a string) to update expressions.
 
         ``post_spike_updates`` is a mapping from kernel name (as a string) to update expressions.
@@ -849,7 +846,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
                and spike_input_port.get_variable()._is_post_port:
-                # it's a port in the neuron ??? that receives post spikes ???
+                # it's a port in the neuron that receives post spikes
                 orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
                 buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:

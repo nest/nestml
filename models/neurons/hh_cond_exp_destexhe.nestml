@@ -55,10 +55,10 @@ neuron hh_cond_exp_destexhe:
     inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     inline I_K pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     inline I_L pA = g_L * ( V_m - E_L )
-    
+
     inline I_M pA = g_M * Noninact_p * (V_m - E_K)
     inline I_noise pA = (g_noise_exc * (V_m - E_exc) + g_noise_inh * (V_m - E_inh))
-    
+
     inline I_syn_exc pA = convolve(g_exc, exc_spikes) * ( V_m - E_exc )
     inline I_syn_inh pA = convolve(g_inh, inh_spikes) * ( V_m - E_inh )
 
@@ -79,7 +79,7 @@ neuron hh_cond_exp_destexhe:
     Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m )
     Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h )
     Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n )
-    
+
     Noninact_p' = ( alpha_p - ( alpha_p + beta_p ) * Noninact_p )
   end
 
@@ -97,9 +97,9 @@ neuron hh_cond_exp_destexhe:
     tau_syn_inh ms = 10.5ms    # Synaptic Time Constant for Inhibitory Synapse
     E_exc mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_inh mV = -75.0mV         # Inhibitory synaptic reversal potential
-    
+
     g_M nS = 173.18 nS        # Conductance of non-inactivating K+ channel
-	
+
     # Conductance OU noise
     g_noise_exc0 uS = 0.012 uS		# Mean of the excitatory noise conductance
     g_noise_inh0 uS = 0.057 uS		# Mean of the inhibitory noise conductance
@@ -112,7 +112,7 @@ neuron hh_cond_exp_destexhe:
     beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
     alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
     beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
-    
+
     alpha_p_init 1/ms = 0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp(-(V_m + 30. mV) / 9. mV))
     beta_p_init 1/ms = -0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp( (V_m + 30. mV) / 9. mV ))
 
@@ -129,8 +129,8 @@ neuron hh_cond_exp_destexhe:
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
@@ -138,10 +138,15 @@ neuron hh_cond_exp_destexhe:
 
   update:
     U_old mV = V_m
+
+    process_input(I_stim)
+
     integrate_odes()
 
-    g_noise_exc = g_noise_exc0 + (g_noise_exc - g_noise_exc0) * exp(-resolution() / tau_syn_exc) + A_exc * random_normal(0, 1)	
-    g_noise_inh = g_noise_inh0 + (g_noise_inh - g_noise_inh0) * exp(-resolution() / tau_syn_inh) + A_inh * random_normal(0, 1)	
+    g_noise_exc = g_noise_exc0 + (g_noise_exc - g_noise_exc0) * exp(-resolution() / tau_syn_exc) + A_exc * random_normal(0, 1)
+    g_noise_inh = g_noise_inh0 + (g_noise_inh - g_noise_inh0) * exp(-resolution() / tau_syn_inh) + A_inh * random_normal(0, 1)
+
+    process_input(exc_spikes, inh_spikes)
 
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
@@ -150,7 +155,5 @@ neuron hh_cond_exp_destexhe:
       r = RefractoryCounts
       emit_spike()
     end
-
   end
-
 end

@@ -148,8 +148,8 @@ neuron terub_stn:
   end
 
   input:
-    inh_spikes pA <- inhibitory spike
     exc_spikes pA <- excitatory spike
+    inh_spikes pA <- inhibitory spike
     I_stim pA <- continuous
   end
 
@@ -157,7 +157,12 @@ neuron terub_stn:
 
   update:
     U_old mV = V_m
+
+    process_input(I_stim)
+
     integrate_odes()
+
+    process_input(exc_spikes, inh_spikes)
 
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
@@ -166,7 +171,5 @@ neuron terub_stn:
       r = refractory_counts
       emit_spike()
     end
-
   end
-
 end

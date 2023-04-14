@@ -82,8 +82,8 @@ neuron wb_cond_exp:
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
@@ -91,8 +91,13 @@ neuron wb_cond_exp:
 
   update:
     U_old mV = V_m
+
+    process_input(I_stim)
+
     integrate_odes()
-    # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+
+    process_input(exc_spikes, inh_spikes)
+
     if r > 0: # is refractory?
       r -= 1
     elif V_m > V_Tr and U_old > V_m: # threshold && maximum

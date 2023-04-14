@@ -91,31 +91,38 @@ neuron aeif_cond_exp:
   internals:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
+
     # counts number of tick during the refractory period
     r integer
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
   output: spike
 
   update:
-    integrate_odes()
+    process_input(I_stim)
 
-    if r > 0: # refractory
+    integrate_odes(w)
+
+    if r > 0:
+      # neuron is absolute refractory
       r -= 1 # decrement refractory ticks count
-      V_m = V_reset # clamp potential
-    elif V_m >= V_peak: # threshold crossing detection
+    else:
+      integrate_odes(V_m)
+    end
+
+    process_input(exc_spikes, inh_spikes)
+
+    if V_m >= V_peak: # threshold crossing detection
       r = RefractoryCounts + 1
       V_m = V_reset # clamp potential
       w += b
       emit_spike()
     end
-
   end
-
 end

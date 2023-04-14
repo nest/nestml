@@ -39,7 +39,7 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
 {%- elif ast.get_name() == PredefinedFunctions.PROCESS_INPUT %}
     // process continuous type inputs
-    
+
 {%-     if ast.get_args() | length > 0 %}
 {%- set continuous_port_names = neuron.get_continuous_input_ports() %}
 {%-     else %}
@@ -63,6 +63,33 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
     // process spike type inputs
 {%-                 set comment_printed = true %}
 {%-                 endif %}
+
+
+
+{%- if analytic_state_variables_from_convolutions | length > 0 %}
+    // integrate variables related to convolutions
+{%-     for variable_name in analytic_state_variables_from_convolutions %}
+{%-         if port_name in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+const double {{variable_name}}__tmp = {{printer.print_expression(update_expr)}};
+{%-         endif %}
+{%-     endfor %}
+
+{%-     for variable_name in analytic_state_variables_from_convolutions %}
+{%-         if port_name in variable_name %}
+{%-             set variable_symbol = variable_symbols[variable_name] %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{{ printer.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} = {{ variable_name }}__tmp;
+{%-         endif %}
+{%-     endfor %}
+
+
+{%- endif %}
+
+
+
+
+
 {%-                 include "directives/Assignment.jinja2" %}
 {%-             endfor %}
 {%-         endif %}
@@ -70,6 +97,16 @@ const double {{ variable_name }}__orig = {{ printer.print(utils.get_state_variab
 {%- endfor %}
 
 {%-     else %}
+
+{%- if analytic_state_variables_from_convolutions | length > 0 %}
+{%- set analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+
+    // integrate variables related to convolutions
+{%  filter indent(4) %}
+{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endfilter %}
+{%- endif %}
 
 {%- filter indent(4) %}
 {%-   include "directives/ApplySpikesFromBuffers.jinja2" %}

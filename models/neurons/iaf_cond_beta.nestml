@@ -104,23 +104,28 @@ neuron iaf_cond_beta:
   end
 
   input:
-    inh_spikes nS <- inhibitory spike
     exc_spikes nS <- excitatory spike
+    inh_spikes nS <- inhibitory spike
     I_stim pA <- continuous
   end
 
   output: spike
 
   update:
-    integrate_odes()
-    if r != 0: # not refractory
-      r =  r - 1
-      V_m = V_reset # clamp potential
-    elif V_m >= V_th:
-      r = RefractoryCounts
-      V_m = V_reset # clamp potential
-      emit_spike()
-    end
-  end
+    if r > 0:
+      # neuron is absolute refractory
+      r = r - 1
+    else:
+      integrate_odes()
 
+      if V_m >= V_th:
+        r = RefractoryCounts
+        V_m = V_reset   # clamp potential
+        emit_spike()
+      end
+    end
+
+    process_input(exc_spikes, inh_spikes)
+    process_input(I_stim)
+  end
 end

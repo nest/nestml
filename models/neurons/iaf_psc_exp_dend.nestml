@@ -77,6 +77,8 @@ neuron iaf_psc_exp_dend:
   output: spike
 
   update:
+    process_input(I_stim)
+
     I_dend *= .95
 
     if r == 0: # neuron not refractory, so evolve V
@@ -85,12 +87,12 @@ neuron iaf_psc_exp_dend:
       r = r - 1 # neuron is absolute refractory
     end
 
+    process_input(exc_spikes, inh_spikes)
+
     if V_m >= V_th: # threshold crossing
       r = RefractoryCounts
       V_m = V_reset
       emit_spike()
     end
-
   end
-
 end

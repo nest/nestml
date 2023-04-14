@@ -77,10 +77,13 @@ neuron iaf_psc_exp:
 
   update:
     if r == 0: # neuron not refractory, so evolve V
+      process_input(I_stim)
       integrate_odes()
     else:
       r = r - 1 # neuron is absolute refractory
     end
+
+    process_input(exc_spikes, inh_spikes)  # synaptic currents are always processed, regardless of refractory state
 
     if V_m >= V_th: # threshold crossing
       r = RefractoryCounts

@@ -88,8 +88,8 @@ neuron traub_psc_alpha:
   end
 
   input:
-    inh_spikes pA <- inhibitory spike
     exc_spikes pA <- excitatory spike
+    inh_spikes pA <- inhibitory spike
     I_stim pA <- continuous
   end
 
@@ -97,16 +97,19 @@ neuron traub_psc_alpha:
 
   update:
     U_old mV = V_m
+
+    process_input(I_stim)
+
     integrate_odes()
-    # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+
+    process_input(exc_spikes, inh_spikes)
+
     if r > 0: # is refractory?
       r -= 1
     elif V_m > V_Tr and U_old > V_Tr: # threshold && maximum
       r = RefractoryCounts
       emit_spike()
     end
-
   end
-
 end
 

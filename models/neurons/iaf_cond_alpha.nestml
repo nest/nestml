@@ -82,15 +82,21 @@ neuron iaf_cond_alpha:
   output: spike
 
   update:
-    integrate_odes()
-    if r != 0: # neuron is absolute refractory
+    process_input(I_stim)
+
+    if r > 0:
+      # neuron is absolute refractory
       r =  r - 1
-      V_m = V_reset # clamp potential
-    elif V_m >= V_th:  # neuron is not absolute refractory
+    else:
+      integrate_odes()
+    end
+
+    process_input(exc_spikes, inh_spikes)
+
+    if V_m >= V_th:
       r = RefractoryCounts
-      V_m = V_reset # clamp potential
+      V_m = V_reset   # clamp potential
       emit_spike()
     end
   end
-
 end

@@ -358,13 +358,18 @@ void {{neuronName}}::init_state_(const Node& proto)
 
 void {{neuronName}}::init_buffers_()
 {
-{% if (neuron.get_spike_input_ports())|length > 0 -%}
+{%- if (neuron.get_spike_input_ports())|length > 0 %}
   get_spike_inputs_().clear();
   get_spike_inputs_grid_sum_().clear();
+{% endif %}
+{% if neuron.get_continuous_input_ports() | length > 0 %}
+{%-   filter indent(4,True) %}
+{%-     for inputPort in neuron.get_continuous_input_ports() %}
+{{ buffer_initialization.BufferInitialization(inputPort) }}
+{%-     endfor %}
+{%-   endfilter %}
 {%- endif %}
-{% for inputPort in neuron.get_continuous_input_ports() %}
-  {{ buffer_initialization.BufferInitialization(inputPort) }}
-{%- endfor %}
+
   B_.logger_.reset();
 {%- if has_delay_variables %}
   // Initialize helper variables for delay-based variables
@@ -547,15 +552,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-             include "directives/Block.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
-{%- endif %}
-{%- if analytic_state_variables_from_convolutions | length > 0 %}
-{%- set analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-
-    // integrate variables related to convolutions
-{%  filter indent(4) %}
-{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
-{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
-{%- endfilter %}
 {%- endif %}
 
     // voltage logging

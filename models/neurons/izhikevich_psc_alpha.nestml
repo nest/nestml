@@ -80,15 +80,19 @@ neuron izhikevich_psc_alpha:
   end
 
   input:
-    inh_spikes pA <- inhibitory spike
     exc_spikes pA <- excitatory spike
+    inh_spikes pA <- inhibitory spike
     I_stim pA <- continuous
   end
 
   output: spike
 
   update:
+    process_input(I_stim)
+
     integrate_odes()
+
+    process_input(exc_spikes, inh_spikes)
 
     # refractoriness and threshold crossing
     if r > 0: # is refractory?
@@ -99,7 +103,5 @@ neuron izhikevich_psc_alpha:
       emit_spike()
       r = RefractoryCounts
     end
-
   end
-
 end
