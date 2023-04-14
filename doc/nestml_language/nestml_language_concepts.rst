@@ -100,71 +100,71 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
    * - radian
      - rad
      - angle
-     - 
+     -
      - m⋅m\ :sup:`-1`
    * - steradian
      - sr
      - solid angle
-     - 
+     -
      - m\ :sup:`2`\ ⋅m\ :sup:`−2`
    * - Hertz
      - Hz
      - frequency
      -
      - s\ :sup:`−1`
-   * - Newton      
-     - N        
-     - force, weight                                
+   * - Newton
+     - N
+     - force, weight
      -
      - kg⋅m⋅s\ :sup:`−2`
-   * - Pascal      
-     - Pa       
-     - pressure, stress                             
-     - N/m\ :sup:`2`                                                                                                        
+   * - Pascal
+     - Pa
+     - pressure, stress
+     - N/m\ :sup:`2`
      - kg⋅m\ :sup:`−1`\ ⋅s\ :sup:`−2`
-   * - Joule       
-     - J        
-     - energy, work, heat                           
+   * - Joule
+     - J
+     - energy, work, heat
      - N⋅m=Pa⋅m\ :sup:`3`
-     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−2`                                                                       
-   * - Watt        
-     - W        
-     - power, radiant flux                          
-     - J/s                                                                                                         
-     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`                                                                                         
-   * - Coulomb     
-     - C        
-     - electric charge or quantity of electricity   
-     -                                                                                                             
-     - s⋅A                                                                                                    
-   * - Volt        
-     - V        
-     - voltage (electrical potential), emf          
-     - W/A                                                                                                         
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−2`
+   * - Watt
+     - W
+     - power, radiant flux
+     - J/s
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`
+   * - Coulomb
+     - C
+     - electric charge or quantity of electricity
+     -
+     - s⋅A
+   * - Volt
+     - V
+     - voltage (electrical potential), emf
+     - W/A
      - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`\ ⋅ A\ :sup:`−1`
    * - Farad
      - F
      - capacitance
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
-   * - Ohm         
-     - Ω        
-     - resistance, impedance, reactance             
-     - V/A                                                                                                         
-     - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )                                                                           
-   * - Siemens     
-     - S        
-     - electrical conductance                       
+   * - Ohm
+     - Ω
+     - resistance, impedance, reactance
+     - V/A
+     - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )
+   * - Siemens
+     - S
+     - electrical conductance
      - Ω\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
-   * - Weber       
-     - Wb       
-     - magnetic flux                                
-     - V⋅s                                                                                                         
-     - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )                                                                         
-   * - Tesla       
-     - T        
-     - magnetic flux density                        
+   * - Weber
+     - Wb
+     - magnetic flux
+     - V⋅s
+     - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )
+   * - Tesla
+     - T
+     - magnetic flux density
      - Wb/m\ :sup:`2`
      - kg⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )
    * - Henry
@@ -172,36 +172,36 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - inductance
      - Wb/A
      - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−2`\ )
-   * - lumen       
-     - lm       
-     - luminous flux                                
+   * - lumen
+     - lm
+     - luminous flux
      - cd⋅sr
      - cd
    * - lux
      - lx
      - illuminance
      - lm/m\ :sup:`2`
-     - m\ :sup:`−2`\ ⋅ cd                                                 
-   * - Becquerel   
-     - Bq       
-     - radioactivity (decays per unit time)         
-     -                                                                                                             
+     - m\ :sup:`−2`\ ⋅ cd
+   * - Becquerel
+     - Bq
+     - radioactivity (decays per unit time)
+     -
      - s\ :sup:`−1`
-   * - Gray        
-     - Gy       
-     - absorbed dose (of ionizing radiation)        
-     - J/kg                                                                                                        
-     - (m\ :sup:`2`\ )⋅(s\ :sup:`−2`\ )                                                                                      
-   * - Sievert     
-     - Sv       
-     - equivalent dose (of ionizing radiation)      
-     - J/kg                                                                                                        
-     - (m\ :sup:`2`\ )⋅ (s\ :sup:`−2`\ )                                                                                      
-   * - katal       
-     - kat      
-     - catalytic activity                           
-     -                                                                                                             
-     - mol⋅(s\ :sup:`−1`\ )                                                                                            
+   * - Gray
+     - Gy
+     - absorbed dose (of ionizing radiation)
+     - J/kg
+     - (m\ :sup:`2`\ )⋅(s\ :sup:`−2`\ )
+   * - Sievert
+     - Sv
+     - equivalent dose (of ionizing radiation)
+     - J/kg
+     - (m\ :sup:`2`\ )⋅ (s\ :sup:`−2`\ )
+   * - katal
+     - kat
+     - catalytic activity
+     -
+     - mol⋅(s\ :sup:`−1`\ )
 
 
 Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
@@ -294,16 +294,16 @@ Each neuron model may be documented by a block of text in reStructuredText forma
    """
    iaf_psc_custom: My customized version of iaf_psc
    ################################################
-   
+
    Description
    +++++++++++
-   
+
    Long description follows here. We can typeset LaTeX math:
-   
+
    .. math::
 
       E = mc^2
-   
+
    """
    neuron iaf_psc_custom:
      # [...]
@@ -323,7 +323,7 @@ Example of single or multi-line comments:
 
    var1 real # single line comment
 
-   # This is 
+   # This is
    #  a comment
    #   over several lines.
 
@@ -363,8 +363,8 @@ NESTML supports simple or compound assignments. The left-hand side of the assign
 
 Examples for valid assignments for a numeric variable ``n`` are
 
-* simple assignment: ``n = 10`` 
-* compound sum: ``n += 10`` which corresponds to ``n = n + 10`` 
+* simple assignment: ``n = 10``
+* compound sum: ``n += 10`` which corresponds to ``n = n + 10``
 * compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
@@ -893,7 +893,7 @@ For a full example, please refer to the tests at `tests/nest_tests/nest_delay_ba
    - Delay differential equations with multiple delay values for the same variable are also not supported.
 
 Inline expressions
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or kernel expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
 
@@ -906,7 +906,7 @@ Because of nested substitutions, inline statements may cause the expressions to 
 
 
 Kernel functions
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 A `kernel` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying kernel could be described as a direct function of time, as follows:
 
@@ -963,7 +963,7 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
          g real = 0
          g$ real = 1
        end
-       
+
    Note that the types of both differential equations are :math:`\text{ms}^{-1}`.
 
 (3) As a second-order differential equation:
@@ -1001,13 +1001,26 @@ Dynamics and time evolution
 
 Inside the ``update`` block, the current time can be accessed via the variable ``t``.
 
-``integrate_odes()``: this function can be used to integrate the differential equations defined in the ``equations`` block. Integration from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``.
+``integrate_odes\(\)``: this function can be used to integrate the differential equations defined in the ``equations`` block. Integration from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``.
 
-``emit_spike()``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. See also :ref:`Integrating spiking input`.
+
+``emit_spike\(\)``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+
+
+Integration order
+~~~~~~~~~~~~~~~~~
+
+Integrating the ODEs and processing incoming spike events need to be triggered explicitly in NESTML by using the ``integrate_odes()`` and ``process_events()`` functions in the NESTML ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. In addition, this allows a wider range of models to be reproduced from the literature.
+
+The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called) and only afterwards, incoming spikes are processed (by calling ``process_events()``).
+
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
+   :alt: Integration order. Modified after [1]_, their Fig. 10.2.
 
 
 Concepts for refractoriness
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
 
@@ -1073,3 +1086,9 @@ e.g.:
    parameters:
      t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
    end
+
+
+References
+----------
+
+.. [1] Morrison A, Diesmann M (2008). Maintaining causality in discrete time neuronal network simulations. Lectures in Supercomputational Neurosciences: Dynamics in Complex Brain Networks, 267-278.
