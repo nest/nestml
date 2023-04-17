@@ -456,8 +456,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_expression
         """
         from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+
         if isinstance(node, ASTSimpleExpression):
             return self.visit_simple_expression(node)
+
         if node.is_logical_not:
             node.get_expression().update_scope(node.get_scope())
         elif node.is_encapsulated:
@@ -469,10 +471,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_lhs().update_scope(node.get_scope())
             node.get_binary_operator().update_scope(node.get_scope())
             node.get_rhs().update_scope(node.get_scope())
-        if node.is_ternary_operator():
+        elif node.is_ternary_operator():
             node.get_condition().update_scope(node.get_scope())
             node.get_if_true().update_scope(node.get_scope())
             node.get_if_not().update_scope(node.get_scope())
+        elif node.is_expression():
+            node.get_expression().update_scope(node.get_scope())
 
     def visit_simple_expression(self, node):
         """
