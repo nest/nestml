@@ -1008,33 +1008,34 @@ Note that the dynamical equations that correspond to convolutions are always upd
 Integration order
 ~~~~~~~~~~~~~~~~~
 
-Integrating the ODEs and processing incoming spike events need to be triggered explicitly in NESTML by using the ``integrate_odes()`` and ``process_events()`` functions in the NESTML ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. In addition, this allows a wider range of models to be reproduced from the literature.
+Integrating the ODEs and processing incoming spike events need to be triggered explicitly in NESTML by using the ``integrate_odes()`` and ``process_input()`` functions in the NESTML ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. In addition, this allows a wider range of models to be reproduced from the literature.
 
-The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called) and only afterwards, incoming spikes are processed (by calling ``process_events()``).
+The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called) and only afterwards, incoming spikes are processed (by calling ``process_input()``).
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
    :alt: Integration order. Modified after [1]_, their Fig. 10.2.
 
 
-Concepts for refractoriness
+Implementing refractoriness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (``T_ref``) is introduced that defines the duration of the refractory period. A new state variable (``ref_count``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory period in number of simulation timesteps every time the refractoriness condition holds. Else, the refractory offset is decremented. Using an integer counter helps avoid issues with floating point comparisons.
 
 .. code-block:: nestml
 
    parameters:
-       t_ref ms = 5 ms
+       T_ref ms = 5 ms
 
-   internals:
-       ref_counts = 0
+   state:
+       ref_count integer = 0
 
    update:
-       if ref_count == 0: # neuron is in non-refractory state
-           if <refractoriness_condition>:
-               ref_counts = steps(t_ref) # make neuron refractory for 5 ms
-           else:
-               ref_counts -= 1 # neuron is refractory
+       if ref_count > 0:
+           ref_count -= 1 # neuron is refractory
+       else:
+           # neuron is in non-refractory state
+           if <spiking_condition>:
+               ref_count = steps(T_ref) # make neuron refractory for 5 ms
 
 
 Setting and retrieving model properties
