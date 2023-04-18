@@ -789,6 +789,9 @@ class ASTChannelInformationCollector(object):
 
     @classmethod
     def collect_channel_related_definitions(cls, neuron, chan_info):
+        from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+        from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+
         for ion_channel_name, channel_info in chan_info.items():
             variable_collector = ASTVariableCollectorVisitor()
             neuron.accept(variable_collector)
@@ -814,7 +817,9 @@ class ASTChannelInformationCollector(object):
             channel_functions = list()
             channel_inlines = list()
             channel_odes = list()
-            channel_dependencies = list()
+            channel_dependencies = defaultdict()
+            channel_dependencies["odes"] = list()
+            channel_dependencies["inlines"] = list()
 
             channel_inlines.append(chan_info[ion_channel_name]["RootInlineExpression"])
 
@@ -857,35 +862,41 @@ class ASTChannelInformationCollector(object):
 
                 elif (len(search_variables) > 0):
                     variable = search_variables[0]
+                    is_dependency = False
                     for inline in global_inlines:
-                        is_dependency = False
-                        if isinstance(inline.get_decorators(), list):
-                            if "mechanism" in [e.namespace for e in inline.get_decorators()]:
-                                channel_dependencies.append(inline)
-                                is_dependency = True
+                        if variable.name == inline.variable_name:
+                            if isinstance(inline.get_decorators(), list):
+                                if "mechanism" in [e.namespace for e in inline.get_decorators()]:
+                                    is_dependency = True
+                                    if not (isinstance(channel_info["RootInlineExpression"],
+                                                       ASTInlineExpression) and inline.variable_name == channel_info[
+                                                "RootInlineExpression"].variable_name):
+                                        channel_dependencies["inlines"].append(inline)
 
-                        if not is_dependency:
-                            channel_inlines.append(inline)
+                            if not is_dependency:
+                                channel_inlines.append(inline)
 
-                            local_variable_collector = ASTVariableCollectorVisitor()
-                            inline.accept(local_variable_collector)
-                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
-                                                                                              local_variable_collector.all_variables,
-                                                                                              search_variables + found_variables)
+                                local_variable_collector = ASTVariableCollectorVisitor()
+                                inline.accept(local_variable_collector)
+                                search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                                                  local_variable_collector.all_variables,
+                                                                                                  search_variables + found_variables)
 
-                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
-                            inline.accept(local_function_call_collector)
-                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
-                                                                                                   local_function_call_collector.all_function_calls,
-                                                                                                   search_functions + found_functions)
+                                local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                                inline.accept(local_function_call_collector)
+                                search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                       local_function_call_collector.all_function_calls,
+                                                                                                       search_functions + found_functions)
 
                     for ode in global_odes:
                         if variable.name == ode.lhs.name:
-                            is_dependency = False
                             if isinstance(ode.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in ode.get_decorators()]:
-                                    channel_dependencies.append(ode)
                                     is_dependency = True
+                                    if not (isinstance(channel_info["RootInlineExpression"],
+                                                       ASTOdeEquation) and ode.lhs.name == channel_info[
+                                                "RootInlineExpression"].lhs.name):
+                                        channel_dependencies["odes"].append(ode)
 
                             if not is_dependency:
                                 channel_odes.append(ode)
@@ -903,7 +914,7 @@ class ASTChannelInformationCollector(object):
                                                                                                        search_functions + found_functions)
 
                     for state in global_states:
-                        if variable.name == state.name:
+                        if variable.name == state.name and not is_dependency:
                             channel_states.append(state)
 
                     for parameter in global_parameters:
@@ -919,6 +930,7 @@ class ASTChannelInformationCollector(object):
             chan_info[ion_channel_name]["Functions"] = channel_functions
             chan_info[ion_channel_name]["SecondaryInlineExpressions"] = channel_inlines
             chan_info[ion_channel_name]["ODEs"] = channel_odes
+            chan_info[ion_channel_name]["Dependencies"] = channel_dependencies
 
         return chan_info
 

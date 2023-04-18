@@ -1774,20 +1774,26 @@ class ASTUtils:
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         for m in inline_expressions:
-            source_position = m.get_source_position()
-            for target in definitions:
-                matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
-                target_definition = str(target.get_rhs())
-                target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
-                target.rhs = ModelParser.parse_expression(target_definition)
-                target.update_scope(m.get_scope())
-                target.accept(ASTSymbolTableVisitor())
+            if "mechanism" not in [e.namespace for e in m.get_decorators()]:
+                """
+                exclude compartmental mechanism definitions in order to have the 
+                inline as a barrier inbetween odes that are meant to be solved independently
+                """
 
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
+                source_position = m.get_source_position()
+                for target in definitions:
+                    matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
+                    target_definition = str(target.get_rhs())
+                    target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
+                    target.rhs = ModelParser.parse_expression(target_definition)
+                    target.update_scope(m.get_scope())
+                    target.accept(ASTSymbolTableVisitor())
 
-                target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+                    def log_set_source_position(node):
+                        if node.get_source_position().is_added_source_position():
+                            node.set_source_position(source_position)
+
+                    target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
         return definitions
 

@@ -291,12 +291,18 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                                        ASTInputPort]):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
+        print("ODE Input:")
+        print(json.dumps(odetoolbox_indict, indent=4), end="")
+
         full_solver_result = analysis(
             odetoolbox_indict,
             disable_stiffness_check=True,
             preserve_expressions=self.get_option("preserve_expressions"),
             simplify_expression=self.get_option("simplify_expression"),
             log_level=FrontendConfiguration.logging_level)
+        print("ODE Output:")
+        print(json.dumps(full_solver_result, indent=4), end="")
+
         analytic_solver = None
         analytic_solvers = [
             x for x in full_solver_result if x["solver"] == "analytical"]
@@ -326,11 +332,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         kernel_name_to_analytic_solver = dict()
         for kernel_buffer in kernel_buffers:
-            print("BUFFER")
-            print(type(kernel_buffer))
             _, analytic_result = self.ode_solve_analytically(
                 neuron, parameters_block, set([tuple(kernel_buffer)]))
-            print(json.dumps(analytic_result, indent=4), end="")
             kernel_name = kernel_buffer[0].get_variables()[0].get_name()
             kernel_name_to_analytic_solver[kernel_name] = analytic_result
 

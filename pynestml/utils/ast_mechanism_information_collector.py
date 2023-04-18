@@ -73,6 +73,9 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def collect_mechanism_related_definitions(cls, neuron, mechs_info):
+        from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+        from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+
         for mechanism_name, mechanism_info in mechs_info.items():
             variable_collector = ASTVariableCollectorVisitor()
             neuron.accept(variable_collector)
@@ -96,7 +99,9 @@ class ASTMechanismInformationCollector(object):
             mechanism_functions = list()
             mechanism_inlines = list()
             mechanism_odes = list()
-            mechanism_dependencies = list()
+            mechanism_dependencies = defaultdict()
+            mechanism_dependencies["odes"] = list()
+            mechanism_dependencies["inlines"] = list()
 
             mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
 
@@ -136,13 +141,14 @@ class ASTMechanismInformationCollector(object):
 
                 elif (len(search_variables) > 0):
                     variable = search_variables[0]
+                    is_dependency = False
                     for inline in global_inlines:
                         if variable.name == inline.variable_name:
-                            is_dependency = False
                             if isinstance(inline.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in inline.get_decorators()]:
-                                    mechanism_dependencies.append(inline)
                                     is_dependency = True
+                                    if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
+                                        mechanism_dependencies["inlines"].append(inline)
 
                             if not is_dependency:
                                 mechanism_inlines.append(inline)
@@ -159,11 +165,11 @@ class ASTMechanismInformationCollector(object):
 
                     for ode in global_odes:
                         if variable.name == ode.lhs.name:
-                            is_dependency = False
                             if isinstance(ode.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in ode.get_decorators()]:
-                                    mechanism_dependencies.append(ode)
                                     is_dependency = True
+                                    if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
+                                        mechanism_dependencies["odes"].append(ode)
 
                             if not is_dependency:
                                 mechanism_odes.append(ode)
@@ -179,7 +185,7 @@ class ASTMechanismInformationCollector(object):
                                                                                                        search_functions + found_functions)
 
                     for state in global_states:
-                        if variable.name == state.name:
+                        if variable.name == state.name and not is_dependency:
                             mechanism_states.append(state)
 
                     for parameter in global_parameters:

@@ -55,22 +55,10 @@ private:
         {%- set rhs_expression = variable_info["rhs_expression"] %}
     {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
-    {#
-// user-defined parameters {{ion_channel_name}} channel (maximal conductance, reversal potential)
-    {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
-    // state variable {{pure_variable_name -}}
-        {%- set variable = variable_info["state_variable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{render_variable_type(variable)}} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) -}};
-    {%- endfor %}
-// state variables {{ion_channel_name}} channel
-    {%- for variable_type, variable_info in channel_info["channel_parameters"].items() %}
-    // parameter {{ variable_type -}}
-        {%- set variable = variable_info["parameter_block_variable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{render_variable_type(variable)}} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) -}};
-    {%- endfor %}
-    #}
+
+    // ion-channel root-inline value
+    double {{ion_channel_name}} = 0;
+
 public:
     // constructor, destructor
     {{ion_channel_name}}{{cm_unique_suffix}}();
@@ -94,19 +82,17 @@ public:
                             const long compartment_idx);
 
     // numerical integration step
-    std::pair< double, double > f_numstep( const double v_comp );
+    std::pair< double, double > f_numstep( const double v_comp{% for ode in channel_info["Dependencies"]["odes"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in channel_info["Dependencies"]["inlines"] %}, double {{inline.variable_name}}{% endfor %});
 
     // function declarations
-    {#
-{%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
-{% for function_type, function_info in state_variable_info["expected_functions"].items() %}
-    {{ function_declaration.FunctionDeclaration(function_info["ASTFunction"], "") -}};
-{% endfor %}
-{%- endfor %}
-    #}
+
 {%- for function in channel_info["Functions"] %}
     {{ function_declaration.FunctionDeclaration(function) }};
 {%- endfor %}
+
+    // root_inline getter
+    double get_{{ion_channel_name}}();
 
 };
 {% endfor -%}
@@ -159,6 +145,7 @@ private:
         {%- set rhs_expression = variable_info["rhs_expression"] %}
   {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
+    double {{synapse_name}} = 0;
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
@@ -208,9 +195,72 @@ public:
 {% endfor -%}
 {% endwith -%}
 
+///////////////////////////////////////////// concentrations
+
+{%- with %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+
+class {{ concentration_name }}{{cm_unique_suffix}}{
+private:
+    // parameters
+    {%- for pure_variable_name, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+
+    // states
+    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+
+    // concentration root-ode value
+    double {{concentration_name}} = 0;
+
+public:
+    // constructor, destructor
+    {{ concentration_name }}{{cm_unique_suffix}}();
+    {{ concentration_name }}{{cm_unique_suffix}}(const DictionaryDatum& concentration_params);
+    ~{{ concentration_name }}{{cm_unique_suffix}}(){};
+
+    // initialization channel
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+    void calibrate() {
+{%- else %}
+    void pre_run_hook() {
+{%- endif %}
+    // states
+    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+    };
+    void append_recordables(std::map< Name, double* >* recordables,
+                            const long compartment_idx);
+
+    // numerical integration step
+    void f_numstep( const double v_comp{% for ode in concentration_info["Dependencies"]["odes"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in concentration_info["Dependencies"]["inlines"] %}, double {{inline.variable_name}}{% endfor %});
+
+    // function declarations
+{%- for function in concentration_info["Functions"] %}
+    {{ function_declaration.FunctionDeclaration(function) }};
+{%- endfor %}
+
+    // root_ode getter
+    double get_{{concentration_name}}();
+
+};
+{% endfor -%}
+{% endwith -%}
+
 ///////////////////////////////////////////// currents
 
 {%- set channel_suffix = "_chan_" %}
+{%- set concentration_suffix = "_conc_" %}
 
 class CompartmentCurrents{{cm_unique_suffix}} {
 private:
@@ -228,13 +278,26 @@ private:
   {% endfor -%}
   {% endwith -%}
 
+    //concentrations
+{% with %}
+  {%- for concentration_name, concentration_info in conc_info.items() %}
+  {{concentration_name}}{{cm_unique_suffix}} {{concentration_name}}{{concentration_suffix}};
+  {% endfor -%}
+{% endwith %}
+
 public:
   CompartmentCurrents{{cm_unique_suffix}}(){};
-  explicit CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
+  explicit CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& compartment_params)
   {
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}{{cm_unique_suffix}}( channel_params );
+    {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}{{cm_unique_suffix}}( compartment_params );
+    {% endfor -%}
+  {% endwith -%}
+
+{%- with %}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    {{ concentration_name }}{{concentration_suffix}} = {{ concentration_name }}{{cm_unique_suffix}}( compartment_params );
     {% endfor -%}
   {% endwith -%}
   };
@@ -252,6 +315,17 @@ public:
     {{ion_channel_name}}{{channel_suffix}}.calibrate();
 {%- else %}
     {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
+{%- endif %}
+    {% endfor -%}
+  {% endwith -%}
+
+// initialization of the concentrations
+  {%- with %}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+    {{ concentration_name }}{{concentration_suffix}}.calibrate();
+{%- else %}
+    {{ concentration_name }}{{concentration_suffix}}.pre_run_hook();
 {%- endif %}
     {% endfor -%}
   {% endwith -%}
@@ -347,6 +421,13 @@ public:
     {% endfor -%}
     {% endwith -%}
 
+    // append concentration state variables to recordables
+    {%- with %}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    {{concentration_name}}{{concentration_suffix}}.append_recordables( &recordables, compartment_idx );
+    {% endfor -%}
+    {% endwith -%}
+
     // append synapse state variables to recordables
     {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
@@ -366,9 +447,19 @@ public:
     double i_val = 0.;
 
   {%- with %}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    // computation of {{ concentration_name }} concentration
+    {{ concentration_name }}{{concentration_suffix}}.f_numstep( v_comp{% for ode in concentration_info["Dependencies"]["odes"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_{{ode.lhs.name}}(){% endfor %}
+                        {% for inline in concentration_info["Dependencies"]["inlines"] %}, {{inline.variable_name}}{{channel_suffix}}.get_{{inline.variable_name}}(){% endfor %});
+
+    {% endfor -%}
+  {% endwith -%}
+
+  {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
-    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp );
+    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["odes"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_{{ode.lhs.name}}(){% endfor %}
+                        {% for inline in channel_info["Dependencies"]["inlines"] %}, {{inline.variable_name}}{{channel_suffix}}.get_{{inline.variable_name}}(){% endfor %});
 
     g_val += gi.first;
     i_val += gi.second;

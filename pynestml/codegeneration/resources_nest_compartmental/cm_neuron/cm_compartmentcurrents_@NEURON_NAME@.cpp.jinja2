@@ -154,9 +154,11 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
   {% endwith %}
+    ( *recordables )[ Name( "{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &{{ion_channel_name}};
 }
 
-std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp)
+std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in channel_info["Dependencies"]["odes"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in channel_info["Dependencies"]["inlines"] %}, double {{inline.variable_name}}{% endfor %})
 {
     double g_val = 0., i_val = 0.;
 
@@ -168,7 +170,6 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
         double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-        {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
         {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
             {%- endfor %}
         {%- endfor %}
@@ -179,6 +180,7 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
         {%- set inline_expression_d = channel_info["inline_derivative"] %}
         // compute the conductance of the {{ion_channel_name}} channel
         double i_tot = {{ printer_no_origin.print(inline_expression.get_expression()) }};
+        this->{{ion_channel_name}} = i_tot;
         // derivative
         double d_i_tot_dv = {{ printer_no_origin.print(inline_expression_d) }};
 
@@ -188,72 +190,15 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
     }
     return std::make_pair(g_val, i_val);
 
-    {#
-    const double dt = Time::get_resolution().get_ms();
-
-    double g_val = 0., i_val = 0.;
-    {%- set inline_expression = channel_info["ASTInlineExpression"] %}
-    {%- set inline_expression_d = channel_info["inline_derivative"] %}
-    {%- set dynamic_variable = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
-    {%- set gbar_variable = channel_info["channel_parameters"]["gbar"]["parameter_block_variable"] %}
-    if ({{gbar_variable.name}} > 1e-9)
-    {
-        {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
-        // activation and timescale of state variable '{{pure_variable_name}}'
-            {%- set inner_variable = variable_info["ASTVariable"] %}
-            {%- set expected_functions_info = variable_info["expected_functions"] %}
-            {%- for expected_function_type, expected_function_info in expected_functions_info.items() %}
-                {%- set result_variable_name = expected_function_info["result_variable_name"] %}
-                {%- set function_to_call = expected_function_info["ASTFunction"] %}
-                {%- set function_parameters = function_to_call.get_parameters() %}
-        // {{expected_function_type}}
-        {{render_function_return_type(function_to_call)}} {{ result_variable_name }} = {{function_to_call.get_name()}}(
-        {%- for parameter in function_parameters -%}
-            {{- parameter.name }}
-        {%- endfor -%}
-        );
-        {%- endfor %}
-            {%- endfor %}
-
-        {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
-        // advance state variable {{pure_variable_name}} one timestep
-            {%- set inner_variable = variable_info["ASTVariable"] %}
-            {%- set expected_functions_info = variable_info["expected_functions"] %}
-            {%- set tau_result_variable_name = expected_functions_info["tau"]["result_variable_name"] %}
-            {%- set inf_result_variable_name = expected_functions_info["inf"]["result_variable_name"] %}
-            {%- set propagator = "p_"~pure_variable_name~"_"~ion_channel_name %}
-            {%- set state_variable = render_state_variable_name(pure_variable_name, ion_channel_name) %}
-        {{render_inline_expression_type(inline_expression)}} {{propagator}} = exp(-dt / {{tau_result_variable_name}}); //
-        {{state_variable}} *= {{propagator}} ;
-        {{state_variable}} += (1. - {{propagator}}) * {{inf_result_variable_name}};
-        {%- endfor %}
-
-        {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
-        // compute the conductance of the {{ion_channel_name}} channel
-        double i_tot = {{ printer_no_origin.print(inline_expression.get_expression()) }};
-        // derivative
-        double d_i_tot_dv = {{ printer_no_origin.print(inline_expression_d) }};
-
-        // for numerical integration
-        g_val = - d_i_tot_dv / 2.;
-        i_val = i_tot - d_i_tot_dv * v_comp / 2.;
-    }
-
-    return std::make_pair(g_val, i_val);
-    #}
 }
 
 {%- for function in channel_info["Functions"] %}
 {{render_channel_function(function, ion_channel_name)}}
 {%- endfor %}
 
-{#
-{%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
-{%- for function_type, function_info in state_variable_info["expected_functions"].items() %}
-{{render_channel_function(function_info["ASTFunction"], ion_channel_name)}}
-{%- endfor %}
-{%- endfor %}
-#}
+double nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_{{ion_channel_name}}(){
+    return this->{{ion_channel_name}};
+}
 
 {% endfor -%}
 {% endwith %}
@@ -292,6 +237,7 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, d
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx) )] = &{{convolution}};
   {%- endfor %}
+    ( *recordables )[ Name( "{{synapse_name}}" + std::to_string(syn_idx) )] = &{{synapse_name}};
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -360,6 +306,7 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
   // total current
   // this expression should be the transformed inline expression
   double i_tot = {{ printer_no_origin.print(synapse_info["inline_expression"].get_expression()) }};
+    this->{{synapse_name}} = i_tot;
 
   // derivative of that expression
   // voltage derivative of total current
@@ -387,6 +334,103 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 
 // {{synapse_name}} synapse end ///////////////////////////////////////////////////////////
 {%- endfor %}
+
+//////////////////////////////// concentrations
+{%- with %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+
+// {{ concentration_name }} channel //////////////////////////////////////////////////////////////////
+nest::{{ concentration_name }}{{cm_unique_suffix}}::{{ concentration_name }}{{cm_unique_suffix}}():
+{%- set states_written = False %}
+{%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+// state variable {{pure_variable_name -}}
+{%- set variable = variable_info["ASTVariable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+{% if loop.first %} {%- set states_written = True %} {% else %}, {% endif %}
+{{- variable.name}}({{ printer_no_origin.print(rhs_expression) -}})
+{%- endfor -%}
+
+{% for variable_type, variable_info in concentration_info["Parameters"].items() %}
+// channel parameter {{variable_type -}}
+{%- set variable = variable_info["ASTVariable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+{% if loop.first %} {% if states_written %}, {% endif %} {% else %}, {% endif %}
+{{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
+{%- endfor -%}
+{}
+
+nest::{{ concentration_name }}{{cm_unique_suffix}}::{{ concentration_name }}{{cm_unique_suffix}}(const DictionaryDatum& concentration_params):
+{%- set states_written = False %}
+{%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+// state variable {{pure_variable_name -}}
+{%- set variable = variable_info["ASTVariable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+{% if loop.first %} {%- set states_written = True %} {% else %}, {% endif %}
+{{- variable.name}}({{ printer_no_origin.print(rhs_expression) -}})
+{%- endfor -%}
+
+{% for variable_type, variable_info in concentration_info["Parameters"].items() %}
+// channel parameter {{variable_type -}}
+{%- set variable = variable_info["ASTVariable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+{% if loop.first %} {% if states_written %}, {% endif %} {% else %}, {% endif %}
+{{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
+{%- endfor -%}
+// update {{ concentration_name }} concentration parameters
+{
+    {%- with %}
+    {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %} //have to remove???????????
+    // {{ concentration_name }} concentration parameter {{dynamic_variable }}
+    if( concentration_params->known( "{{variable.name}}" ) )
+        {{variable.name}} = getValue< double >( concentration_params, "{{variable.name}}" );
+    {%- endfor -%}
+    {% endwith %}
+}
+
+void
+nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables,
+                                               const long compartment_idx)
+{
+  // add state variables to recordables map
+  {%- with %}
+  {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+  {%- set variable = variable_info["ASTVariable"] %}
+  ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
+  {%- endfor -%}
+  {% endwith %}
+    ( *recordables )[ Name( "{{concentration_name}}" + std::to_string(compartment_idx) )] = &{{concentration_name}};
+}
+
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in concentration_info["Dependencies"]["odes"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in concentration_info["Dependencies"]["inlines"] %}, double {{inline.variable_name}}{% endfor %})
+{
+
+    double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
+
+    {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
+        {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+    double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
+        {%- endfor %}
+        {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+    {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
+        {%- endfor %}
+    {%- endfor %}
+
+}
+
+{%- for function in concentration_info["Functions"] %}
+{{render_channel_function(function, concentration_name)}}
+{%- endfor %}
+
+double nest::{{concentration_name}}{{cm_unique_suffix}}::get_{{concentration_name}}(){
+    return this->{{concentration_name}};
+}
+
+
+{% endfor -%}
+{% endwith %}
 
 
 

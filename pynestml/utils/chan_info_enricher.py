@@ -247,10 +247,15 @@ class ChanInfoEnricher():
                 for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items(
                 ):
                     import pdb;
+                    from pynestml.utils.ast_utils import ASTUtils
                     prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                    SymbolKind.VARIABLE)
                     if prop_variable is None:
-                        pdb.set_trace()
+                        ASTUtils.add_declarations_to_internals(
+                            neuron, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])
+                        prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                                       SymbolKind.VARIABLE)
+
 
                     expression = ModelParser.parse_expression(rhs_str)
                     # pretend that update expressions are in "equations" block,
