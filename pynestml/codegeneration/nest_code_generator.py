@@ -240,39 +240,6 @@ class NESTCodeGenerator(CodeGenerator):
                      "now": datetime.datetime.utcnow()}
         return namespace
 
-    def assign_numeric_non_numeric_state_variables(self, neuron, numeric_state_variable_names, numeric_update_expressions, update_expressions):
-        class ASTVariableOriginSetterVisitor(ASTVisitor):
-            def visit_variable(self, node):
-                assert isinstance(node, ASTVariable)
-                if node.get_complete_name() in self._numeric_state_variables:
-                    node._is_numeric = True
-                    print("Numeric!" + str(node))
-                else:
-                    node._is_numeric = False
-                    print("Not numeric!" + str(node))
-
-        visitor = ASTVariableOriginSetterVisitor()
-        visitor._numeric_state_variables = numeric_state_variable_names
-        neuron.accept(visitor)
-
-        if update_expressions:
-            for expr in update_expressions.values():
-                expr.accept(visitor)
-
-        if numeric_update_expressions:
-            for expr in numeric_update_expressions.values():
-                expr.accept(visitor)
-
-        for update_expr_list in neuron.spike_updates.values():
-            for update_expr in update_expr_list:
-                update_expr.accept(visitor)
-
-        for update_expr in neuron.post_spike_updates.values():
-            update_expr.accept(visitor)
-
-        for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
-            node.accept(visitor)
-
     def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
         """
         Analyse and transform a list of neurons.
@@ -747,7 +714,7 @@ class NESTCodeGenerator(CodeGenerator):
             if "analytic_state_variables_moved" in namespace.keys():
                 numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"])
             namespace["numerical_state_symbols"] = numeric_state_variable_names
-            self.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
+            ASTUtils.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
 
         namespace["spike_updates"] = neuron.spike_updates
 
