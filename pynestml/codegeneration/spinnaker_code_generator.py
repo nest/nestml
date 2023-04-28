@@ -106,7 +106,7 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
         self._constant_printer = ConstantPrinter()
 
         # Python/mini simulation environment API printers
-        self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
+        self._nest_variable_printer = PythonVariablePrinter(expression_printer=None, with_origin=False, with_vector_parameter=True)
         self._nest_function_call_printer = PythonFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
 

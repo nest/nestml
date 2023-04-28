@@ -426,6 +426,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
+        namespace["tracing"]=True
+
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -538,6 +540,8 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
         namespace["spike_updates"] = synapse.spike_updates
+
+        namespace["tracing"] = True
 
         return namespace
 
