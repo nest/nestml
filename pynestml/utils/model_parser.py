@@ -102,8 +102,8 @@ class ModelParser:
         lexer.addErrorListener(ConsoleErrorListener())
         lexerErrorListener = NestMLErrorListener()
         lexer.addErrorListener(lexerErrorListener)
-        # lexer._errHandler = BailErrorStrategy()  # N.B. uncomment this line and the next to halt immediately on lexer errors
-        # lexer._errHandler.reset(lexer)
+        lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
+        lexer._errHandler.reset(lexer)
         lexer.inputStream = input_file
         # create a token stream
         stream = CommonTokenStream(lexer)
