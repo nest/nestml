@@ -531,6 +531,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
   for ( long lag = from ; lag < to ; ++lag )
   {
+    auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
         get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
