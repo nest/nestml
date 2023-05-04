@@ -120,6 +120,8 @@ class TestNestIntegration:
         #                       {"tau_rise_ex": 2., "tau_decay_ex": 2.},
         #                       {"tau_syn_rise_E": 2., "tau_syn_decay_E": 2.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
+        # models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3)) # XXX: TODO should be fixed after merging fix for ternary operators
+
         # # XXX: cannot test Izhikevich model due to different integration order. See https://github.com/nest/nest-simulator/issues/2647
         # # if NESTTools.detect_nest_version().startswith("v2"):
         # #     neuron_models.append(("izhikevich", "izhikevich_nestml", None, 1E-6, {}, {}, {"V_m": -70., "U_m": .2 * -70.}))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
@@ -135,7 +137,6 @@ class TestNestIntegration:
         # XXX: TODO!
 
         # neuron_models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 10., default_tolerance))   # TODO because NESTML does not support SpikeEvent.set_offset()
-        # models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3))
         # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 1E-3))
         # models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
         # models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
