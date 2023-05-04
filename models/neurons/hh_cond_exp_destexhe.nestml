@@ -129,7 +129,8 @@ neuron hh_cond_exp_destexhe:
         inh_spikes nS <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         U_old mV = V_m

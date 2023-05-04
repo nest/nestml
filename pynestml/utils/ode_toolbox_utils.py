@@ -20,8 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import sympy
-
-import odetoolbox
+from sympy.printing.str import StrPrinter
 
 
 class ODEToolboxUtils:
@@ -34,10 +33,15 @@ class ODEToolboxUtils:
         r"""Rewrite calls to ``Piecewise((expr_if_true, cond), (expr_if_false, True))`` in sympy syntax to ``cond ? expr_if_true : expr_if_false`` in NESTML syntax.
         """
 
-        sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=odetoolbox.Shape._sympy_globals)
+        _sympy_globals_no_functions = {"Symbol": sympy.Symbol,
+                                       "Integer": sympy.Integer,
+                                       "Float": sympy.Float,
+                                       "Function": sympy.Function}
 
-        class MySympyPrinter(sympy.printing.str.StrPrinter):
-            """Print derivative of a function of symbols in a shorter form.
+        sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
+
+        class MySympyPrinter(StrPrinter):
+            """Resulting expressions will be parsed by NESTML parser. R
             """
             def _print_Function(self, expr):
                 if expr.func.__name__ == "Piecewise":
@@ -47,9 +51,9 @@ class ODEToolboxUtils:
                     assert cond_always_true == sympy.true
                     expr_if_true = self.doprint(expr.args[0][0])
                     expr_if_false = self.doprint(expr.args[1][0])
-                    return "((" + cond + ") ? (" + expr_if_true + ") : (" + str(expr_if_false) + "))"
+                    return "((" + cond + ") ? (" + expr_if_true + ") : (" + expr_if_false + "))"
 
-                return expr.func.__name__ + "(%s)" % self.stringify(expr.args, ", ")
+                return super()._print_Function(expr)
 
         s_reformatted = MySympyPrinter().doprint(sympy_expr)
 

@@ -86,7 +86,8 @@ neuron iaf_cond_exp_sfa_rr:
         inh_spikes nS <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         process_input(I_stim)

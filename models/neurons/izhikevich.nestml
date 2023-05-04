@@ -61,7 +61,8 @@ neuron izhikevich:
         spikes mV <- spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

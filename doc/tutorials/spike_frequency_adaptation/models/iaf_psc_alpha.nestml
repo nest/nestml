@@ -89,7 +89,8 @@ neuron iaf_psc_alpha:
         inh_spikes pA <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         if r == 0: # neuron not refractory

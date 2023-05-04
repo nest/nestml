@@ -88,7 +88,8 @@ neuron traub_psc_alpha:
         inh_spikes pA <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         U_old mV = V_m

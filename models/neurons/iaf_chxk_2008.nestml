@@ -83,7 +83,8 @@ neuron iaf_chxk_2008:
         inh_spikes nS <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         process_input(I_stim)

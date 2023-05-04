@@ -103,7 +103,8 @@ neuron iaf_cond_beta:
         inh_spikes nS <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         if r > 0:

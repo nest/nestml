@@ -1,4 +1,4 @@
-name: NESTML compatibility check with older NEST versions
+name: NESTML build
 
 on: [push, pull_request]
 

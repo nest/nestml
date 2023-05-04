@@ -59,4 +59,5 @@ neuron recordable_variables:
             V_rel = 0 mV    # Reset the membrane potential
             emit_spike()
 
-    output: spike
+    output:
+        spike
