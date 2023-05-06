@@ -231,7 +231,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- filter indent(2) %}
 {%- for variable in parameter_vars_with_iv %}
 {%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%-     include "_cpp/MemberInitialization.jinja2" %}
+{%-     include "directives_cpp/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
