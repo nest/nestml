@@ -2127,6 +2127,9 @@ class ASTUtils:
 
     @classmethod
     def assign_numeric_non_numeric_state_variables(cls, neuron, numeric_state_variable_names, numeric_update_expressions, update_expressions):
+        r"""For each ASTVariable, set the ``node._is_numeric`` member to True or False based on whether this variable will be solved with the analytic or numeric solver.
+
+        Ideally, this would not be a property of the ASTVariable as it is an implementation detail (that only emerges during code generation) and not an intrinsic part of the model itself. However, this approach is preferred over setting it as a property of the variable printers as it would have to make each printer aware of all models and variables therein."""
         class ASTVariableOriginSetterVisitor(ASTVisitor):
             def visit_variable(self, node):
                 assert isinstance(node, ASTVariable)
