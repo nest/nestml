@@ -83,7 +83,8 @@ neuron iaf_chxk_2008:
         exc_spikes nS <- excitatory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         vm_prev mV = V_m

@@ -56,7 +56,8 @@ synapse stdp_triplet:
         pre_spikes nS <- spike
         post_spikes nS <- spike
 
-    output: spike
+    output:
+        spike
 
     onReceive(post_spikes):
         # potentiate synapse
