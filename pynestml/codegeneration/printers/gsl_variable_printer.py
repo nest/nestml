@@ -31,10 +31,6 @@ class GSLVariablePrinter(CppVariablePrinter):
     Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter) -> None:
-        super().__init__(expression_printer)
-        self._state_symbols = []
-
     def print_variable(self, node: ASTVariable) -> str:
         """
         Converts a single name reference to a gsl processable format.
@@ -48,7 +44,7 @@ class GSLVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(node)
 
         if symbol.is_state() and not symbol.is_inline_expression:
-            if node.get_complete_name() in self._state_symbols:
+            if "_is_numeric" in dir(node) and node._is_numeric:
                 # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
                 return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
 

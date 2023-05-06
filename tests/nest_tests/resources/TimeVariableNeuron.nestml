@@ -27,10 +27,7 @@ neuron time_variable_neuron:
   state:
     x ms = 0. ms
     y s = 0. s
-  end
 
   update:
     x = t
     y = t
-  end
-end

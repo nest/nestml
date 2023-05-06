@@ -27,21 +27,15 @@ synapse time_variable_synapse:
   state:
     x ms = 0. ms
     y ms = 0. ms
-  end
 
   onReceive(pre_spikes):
     y = t
-  end
 
   parameters:
     d ms = 1 ms @nest::delay
-  end
 
   input:
     pre_spikes real <- spike
-  end
 
   update:
     x = t
-  end
-end
