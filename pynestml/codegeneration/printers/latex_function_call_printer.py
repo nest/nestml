@@ -23,6 +23,7 @@ from typing import Tuple
 
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
@@ -31,6 +32,11 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in LaTeX syntax.
     """
+
+    def print(self, node: ASTNode) -> str:
+        assert isinstance(node, ASTFunctionCall)
+
+        return self.print_function_call(node)
 
     def _print_function_call(self, node: ASTFunctionCall) -> str:
         r"""
@@ -70,15 +76,19 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
         return r"\text{" + function_name + r"}"
 
     def print_function_call(self, function_call: ASTFunctionCall) -> str:
-        function_name = self._print_function_name(function_call)
-        if ASTUtils.needs_arguments(function_call):
-            return function_name % self._print_function_call_argument_list(function_call)
+        result = self._print_function_call(function_call)
 
-        return function_name
+        if ASTUtils.needs_arguments(function_call):
+            n_args = len(function_call.get_args())
+            result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+        else:
+            result += '()'
+
+        return result % self._print_function_call_argument_list(function_call)
 
     def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []
         for arg in function_call.get_args():
-            ret.append(self.print_expression(arg))
+            ret.append(self._expression_printer.print(arg))
 
         return tuple(ret)

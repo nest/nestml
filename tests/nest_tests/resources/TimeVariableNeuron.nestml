@@ -1,6 +1,6 @@
-"""
-LogarithmicFunctionTest_invalid.nestml
-######################################
+""" 
+TimeVariableNeuron.nestml
+#########################
 
 
 Copyright statement
@@ -23,22 +23,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron logarithm_function_test_invalid:
+neuron time_variable_neuron:
   state:
-    x real = 0.
-    ln_state real = 0.
-    log10_state real = 0.
-  end
-
-  input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents pA <- continuous
-  end
+    x ms = 0. ms
+    y s = 0. s
 
   update:
-    ln_state = log10(x)
-    log10_state = ln(x)
-    x = x + 1.
-  end
-end
+    x = t
+    y = t

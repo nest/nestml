@@ -30,21 +30,16 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron input_ports:
+    state:
+        bar pA = 1.5 pA
 
-  state:
-    bar pA = 1.5 pA
-  end
+    input:
+        AMPA_spikes pA <- excitatory spike
+        GABA_spikes pA <- inhibitory spike
+        NMDA_spikes pA <- spike
+        foo[2] pA <- spike
+        my_spikes[3] pA <- excitatory spike
+        my_spikes2[3] pA <- inhibitory spike
 
-  input:
-    AMPA_spikes pA <- excitatory spike
-    GABA_spikes pA <- inhibitory spike
-    NMDA_spikes pA <- spike
-    foo[2] pA <- spike
-    my_spikes[3] pA <- excitatory spike
-    my_spikes2[3] pA <- inhibitory spike
-  end
-
-  update:
-    bar = foo[1]
-  end
-end
+    update:
+        bar = foo[1]

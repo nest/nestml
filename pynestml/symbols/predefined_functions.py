@@ -40,6 +40,8 @@ class PredefinedFunctions:
         COSH                  The callee name of the hyperbolic cosine.
         SINH                  The callee name of the hyperbolic sine.
         TANH                  The callee name of the hyperbolic tangent.
+        ERF                   The callee name of the error function
+        ERFC                  The callee name of the complementary error function
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
@@ -66,6 +68,8 @@ class PredefinedFunctions:
     COSH = 'cosh'
     SINH = 'sinh'
     TANH = 'tanh'
+    ERF = 'erf'
+    ERFC = 'erfc'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
     RANDOM_NORMAL = 'random_normal'
@@ -99,6 +103,8 @@ class PredefinedFunctions:
         cls.__register_cosh_function()
         cls.__register_sinh_function()
         cls.__register_tanh_function()
+        cls.__register_erf_function()
+        cls.__register_erfc_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_normal_function()
@@ -240,6 +246,30 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.TANH] = symbol
+
+    @classmethod
+    def __register_erf_function(cls):
+        """
+        Registers the error function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.ERF, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ERF] = symbol
+
+    @classmethod
+    def __register_erfc_function(cls):
+        """
+        Registers the complementary error function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.ERFC, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ERFC] = symbol
 
     @classmethod
     def __register_logger_info_function(cls):

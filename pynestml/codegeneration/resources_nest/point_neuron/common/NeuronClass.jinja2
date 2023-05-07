@@ -288,7 +288,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
-  {{ nest_codegen_utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }};
+  {{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }};
 {%-   endif %}
 {%- endfor %}
 
@@ -358,15 +358,25 @@ void {{neuronName}}::init_state_(const Node& proto)
 
 void {{neuronName}}::init_buffers_()
 {
-{% if (neuron.get_spike_input_ports())|length > 0 -%}
+{%- if neuron.get_spike_input_ports() | length > 0 %}
+  // spike input buffers
   get_spike_inputs_().clear();
   get_spike_inputs_grid_sum_().clear();
 {%- endif %}
-{% for inputPort in neuron.get_continuous_input_ports() %}
-  {{ buffer_initialization.BufferInitialization(inputPort) }}
-{%- endfor %}
+{%- if neuron.get_continuous_input_ports() | length > 0 %}
+
+  // continuous time input buffers
+{%-   filter indent(2,True) %}
+{%-     for inputPort in neuron.get_continuous_input_ports() %}
+{{ buffer_initialization.BufferInitialization(inputPort) }}
+{%-     endfor %}
+{%-   endfilter %}
+{%- endif %}
+
   B_.logger_.reset();
-{%- if has_delay_variables %}
+
+{% if has_delay_variables %}
+
   // Initialize helper variables for delay-based variables
 {%-   for variable in neuron.get_state_symbols() %}
 {%-     if variable.has_delay_parameter() %}
@@ -374,8 +384,8 @@ void {{neuronName}}::init_buffers_()
 {%-     endif %}
 {%-   endfor %}
 {%- endif %}
-
 {%- if paired_neuron is defined %}
+
   clear_history();
 {%- endif %}
 {%- if uses_numeric_solver %}
@@ -521,6 +531,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
   for ( long lag = from ; lag < to ; ++lag )
   {
+    auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
         get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);

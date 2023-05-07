@@ -61,14 +61,18 @@ class NESTVariablePrinter(CppVariablePrinter):
             _name = str(variable)
             if variable.get_alternate_name():
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
-                return "((POST_NEURON_TYPE*)(__target))->get_" + variable.get_alternate_name() + "()"
+                return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
-            return "((POST_NEURON_TYPE*)(__target))->get_" + _name + "(_tr_t)"
+            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
+        if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
+            return "get_t()"
+
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
@@ -166,6 +170,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
-            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name

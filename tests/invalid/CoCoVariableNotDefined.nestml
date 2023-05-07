@@ -34,6 +34,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoVariableNotDefined:
     update:
         test1 = test2 + 1
-    end
-end
-

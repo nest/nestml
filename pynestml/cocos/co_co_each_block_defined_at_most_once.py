@@ -38,11 +38,9 @@ class CoCoEachBlockDefinedAtMostOnce(CoCo):
 
        state:
            ...
-       end
        ...
        state:
            ...
-       end
     """
 
     @classmethod
