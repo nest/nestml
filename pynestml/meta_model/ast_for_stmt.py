@@ -18,8 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_expression import ASTExpression
 
 
 class ASTForStmt(ASTNode):
@@ -69,7 +69,7 @@ class ASTForStmt(ASTNode):
         """
         variable_dup = None
         if self.variable:
-            variable_dup = self.variable.clone()
+            variable_dup = self.variable
         start_from_dup = None
         if self.start_from:
             start_from_dup = self.start_from.clone()
@@ -78,7 +78,7 @@ class ASTForStmt(ASTNode):
             end_at_dup = self.end_at.clone()
         step_dup = None
         if self.step:
-            step_dup = self.step.clone()
+            step_dup = self.step
         block_dup = None
         if self.block:
             block_dup = self.block.clone()
@@ -93,7 +93,6 @@ class ASTForStmt(ASTNode):
                          comment=self.comment,
                          pre_comments=[s for s in self.pre_comments],
                          in_comment=self.in_comment,
-                         post_comments=[s for s in self.post_comments],
                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup

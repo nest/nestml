@@ -30,11 +30,11 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
     This coco ensures that ``convolve`` is correctly called, i.e. that the first argument is the variable from the state block and the second argument is a spiking input port.
 
     Allowed:
-        inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * ( V_m - E_exc )
 
     Not allowed:
-        inline I_syn_exc pA = convolve(g_ex, g_ex) * ( V_m - E_ex )
-        inline I_syn_exc pA = convolve(spikesExc, g_ex) * ( V_m - E_ex )
+        inline I_syn_exc pA = convolve(g_exc, g_exc) * ( V_m - E_exc )
+        inline I_syn_exc pA = convolve(exc_spikes, g_exc) * ( V_m - E_exc )
     """
 
     @classmethod

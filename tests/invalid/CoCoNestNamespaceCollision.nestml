@@ -35,5 +35,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoNestNamespaceCollision:
     function handle(Tau_1 mV):# <- function 'handle' already in nest namespace
         return
-    end
-end

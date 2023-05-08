@@ -19,14 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional, List
+
 from abc import ABCMeta, abstractmethod
+
+from pynestml.symbol_table.scope import Scope
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTNode(metaclass=ABCMeta):
     """
-    This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes, e.g., the source position.
+    This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes,
+    e.g., the source position.
 
     This class is abstract, thus no instances can be created.
 
@@ -37,28 +42,20 @@ class ASTNode(metaclass=ABCMeta):
         #
         pre_comments = list()
         in_comment = None
-        post_comments = list()
         #
         implicit_conversion_factor = None
     """
 
-    def __init__(self, source_position=None, scope=None, comment=None, pre_comments=None, in_comment=None, post_comments=None, implicit_conversion_factor=None):
+    def __init__(self, source_position: ASTSourceLocation = None, scope: Scope = None, comment: Optional[str] = None, pre_comments: Optional[List[str]] = None,
+                 in_comment: Optional[str] = None, implicit_conversion_factor: Optional[float] = None):
         """
         The standard constructor.
         :param source_position: a source position element.
-        :type source_position: ASTSourceLocation
         :param scope: the scope in which this element is embedded in.
-        :type scope: Scope
         :param comment: comment for this node
-        :type comment: Optional[str]
         :param pre_comments: pre-comments for this node
-        :type pre_comments: Optional[List[str]]
         :param in_comment: in-comment for this node
-        :type in_comment: Optional[str]
-        :param post_comments: post-comments for this node
-        :type post_comments: Optional[List[str]]
         :param implicit_conversion_factor: see set_implicit_conversion_factor()
-        :type implicit_conversion_factor: Optional[float]
         """
         self.source_position = source_position
         self.scope = scope
@@ -67,9 +64,6 @@ class ASTNode(metaclass=ABCMeta):
             pre_comments = []
         self.pre_comments = pre_comments
         self.in_comment = in_comment
-        if post_comments is None:
-            post_comments = []
-        self.post_comments = post_comments
         self.implicit_conversion_factor = implicit_conversion_factor
 
     @abstractmethod
@@ -102,32 +96,20 @@ class ASTNode(metaclass=ABCMeta):
         """
         pass
 
-    def set_implicit_conversion_factor(self, implicit_factor):
+    def set_implicit_conversion_factor(self, implicit_factor: Optional[float]) -> None:
         """
         Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the
         context where it is used. eg. Volt + milliVolt needs to either be
         1000*Volt + milliVolt or Volt + 0.001 * milliVolt
         :param implicit_factor: the factor to be installed
-        :type implicit_factor: Optional[float]
-        :return: nothing
         """
-        from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-        from pynestml.meta_model.ast_expression import ASTExpression
-
-        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         self.implicit_conversion_factor = implicit_factor
 
-    def get_implicit_conversion_factor(self):
+    def get_implicit_conversion_factor(self) -> Optional[float]:
         """
         Returns the factor installed as implicitConversionFactor for this expression
         :return: the conversion factor, if present, or None
-        :rtype: Optional[float]
         """
-
-        from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-        from pynestml.meta_model.ast_expression import ASTExpression
-
-        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         return self.implicit_conversion_factor
 
     def get_source_position(self):
@@ -184,19 +166,17 @@ class ASTNode(metaclass=ABCMeta):
 
     def has_comment(self):
         """
-        Indicates whether this element stores a prefix.
+        Indicates whether this element stores a comment.
         :return: True if has comment, otherwise False.
         :rtype: bool
         """
         return self.comment is not None and len(self.comment) > 0
 
-    def print_comment(self, prefix):
+    def print_comment(self, prefix: str = "") -> str:
         """
         Prints the comment of this meta_model element.
         :param prefix: a prefix string
-        :type prefix: str
         :return: a comment
-        :rtype: str
         """
         ret = ''
         if not self.has_comment():
@@ -213,11 +193,7 @@ class ASTNode(metaclass=ABCMeta):
         comments.extend(self.pre_comments)
         if self.in_comment is not None:
             comments.append(self.in_comment)
-        comments.extend(self.post_comments)
         return comments
-
-    def get_post_comments(self):
-        return self.post_comments
 
     def accept(self, visitor):
         """
@@ -228,5 +204,5 @@ class ASTNode(metaclass=ABCMeta):
         visitor.handle(self)
 
     def __str__(self):
-        from pynestml.utils.ast_nestml_printer import ASTNestMLPrinter
-        return ASTNestMLPrinter().print_node(self)
+        from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+        return NESTMLPrinter().print(self)

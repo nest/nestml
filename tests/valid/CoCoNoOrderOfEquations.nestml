@@ -34,13 +34,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoNoOrderOfEquations:
     state:
         V_m mV = 10mV
-    end
 
     equations:
         V_m' = 10 mV / s # rhs is provided with an order > 0, thus everything is correct
-    end
 
     update:
         integrate_odes()
-    end
-end

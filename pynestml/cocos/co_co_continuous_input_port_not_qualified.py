@@ -34,7 +34,6 @@ class CoCoContinuousInputPortNotQualified(CoCo):
 
        input:
            x nA <- continuous
-       end
 
     Not allowed:
 
@@ -42,7 +41,6 @@ class CoCoContinuousInputPortNotQualified(CoCo):
 
        input:
            x nA <- inhibitory continuous
-       end
     """
 
     @classmethod

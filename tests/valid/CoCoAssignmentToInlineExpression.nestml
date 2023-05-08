@@ -32,18 +32,13 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoAssignmentToInlineExpression:
     parameters:
         tau_syn ms = 10 ms
-    end
 
     equations:
         kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
         inline foo real = convolve(alpha_kernel, spikes_in)
-    end
 
     input:
         spikes_in real <- spike
-    end
 
     update:
         foo = 42.
-    end
-end

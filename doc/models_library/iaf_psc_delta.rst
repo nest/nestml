@@ -52,34 +52,24 @@ See also
 iaf_psc_alpha, iaf_psc_exp
 
 
-Authors
-+++++++
-
-Diesmann, Gewaltig (September 1999)
-
-
 
 Parameters
 ++++++++++
-
-
-
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
     
-    "tau_m", "ms", "10ms", "Membrane time constant."    
+    "tau_m", "ms", "10ms", "Membrane time constant"    
     "C_m", "pF", "250pF", "Capacity of the membrane"    
-    "t_ref", "ms", "2ms", "Duration of refractory period."    
-    "tau_syn", "ms", "2ms", "Time constant of synaptic current."    
-    "E_L", "mV", "-70mV", "Resting membrane potential."    
-    "V_reset", "mV", "-70mV - E_L", "Reset potential of the membrane."    
-    "Theta", "mV", "-55mV - E_L", "Spike threshold."    
+    "t_ref", "ms", "2ms", "Duration of refractory period"    
+    "tau_syn", "ms", "2ms", "Time constant of synaptic current"    
+    "E_L", "mV", "-70mV", "Resting membrane potential"    
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
+    "V_th", "mV", "-55mV", "Spike threshold"    
     "V_min", "mV", "-inf * 1mV", "Absolute lower value for the membrane potential"    
-    "with_refr_input", "boolean", "false", "If true, do not discard input during  refractory period. Default: false."    
+    "with_refr_input", "boolean", "false", "If true, do not discard input during refractory period."    
     "I_e", "pA", "0pA", "constant external input current"
-
 
 
 
@@ -92,8 +82,8 @@ State variables
 
     
     "refr_spikes_buffer", "mV", "0mV", ""    
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_abs", "mV", "0mV", ""
+    "r", "integer", "0", "Counts number of tick during the refractory period"    
+    "V_m", "mV", "E_L", "Membrane potential"
 
 
 
@@ -103,87 +93,15 @@ Equations
 
 
 
-
 .. math::
-   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + (\frac 1 { \mathrm{ms} } \left( { \frac{ \mathrm{mV} } { \mathrm{pA} } } \right) ) \cdot \text{convolve}(G, spikes) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
-
-
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + (\frac 1 { \mathrm{ms} } \left( { \frac{ \mathrm{mV} } { \mathrm{pA} } } \right) ) \cdot \text{convolve}(G, spikes) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
 
 
 
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron iaf_psc_delta:
-     state:
-       refr_spikes_buffer mV = 0mV
-       r integer = 0 # counts number of tick during the refractory period
-       V_abs mV = 0mV
-     end
-     equations:
-       kernel G = delta(t)
-   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       V_abs'=-V_abs / tau_m + (mV / pA / ms) * convolve(G,spikes) + (I_e + I_stim) / C_m
-     end
-
-     parameters:
-       tau_m ms = 10ms # Membrane time constant.
-       C_m pF = 250pF # Capacity of the membrane
-       t_ref ms = 2ms # Duration of refractory period.
-       tau_syn ms = 2ms # Time constant of synaptic current.
-       E_L mV = -70mV # Resting membrane potential.
-       V_reset mV = -70mV - E_L # Reset potential of the membrane.
-       Theta mV = -55mV - E_L # Spike threshold.
-       V_min mV = -inf * 1mV # Absolute lower value for the membrane potential
-       with_refr_input boolean = false # If true, do not discard input during  refractory period. Default: false.
-       # constant external input current
-
-       # constant external input current
-       I_e pA = 0pA
-     end
-     internals:
-       h ms = resolution()
-       RefractoryCounts integer = steps(t_ref) # refractory time in steps
-     end
-     input:
-       spikes pA <-spike
-       I_stim pA <-current
-     end
-
-     output: spike
-
-     update:
-       if r == 0: # neuron not refractory
-         integrate_odes()
-         # if we have accumulated spikes from refractory period,
-         # add and reset accumulator
-         if with_refr_input and refr_spikes_buffer != 0.0mV:
-           V_abs += refr_spikes_buffer
-           refr_spikes_buffer = 0.0mV
-         end
-         # lower bound of membrane potential
-         V_abs = V_abs < V_min?V_min:V_abs
-       else:
-         # read spikes from buffer and accumulate them, discounting
-         # for decay until end of refractory period
-         # the buffer is clear automatically
-         if with_refr_input:
-           refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV / pA
-         end
-         r -= 1
-       end
-       if V_abs >= Theta: # threshold crossing
-         r = RefractoryCounts
-         V_abs = V_reset
-         emit_spike()
-       end
-     end
-
-   end
-
-
+The model source code can be found in the NESTML models repository here: `iaf_psc_delta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_delta.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -193,4 +111,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.516821
+   Generated at 2023-03-22 17:48:48.845377

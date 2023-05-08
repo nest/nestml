@@ -19,11 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -33,7 +37,6 @@ try:
     TEST_PLOTS = True
 except Exception:
     TEST_PLOTS = False
-
 
 sim_mdl = True
 sim_ref = True
@@ -48,33 +51,37 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
     ref_synapse_model_name = "stdp_nn_pre_centered_synapse"
 
     def setUp(self):
-        """Generate the neuron model code"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+        r"""Generate the neuron model code"""
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        to_nest(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/stdp_nn_pre_centered.nestml"],
-                target_path="/tmp/nestml-jit",
-                logging_level="INFO",
-                module_name="nestml_jit_module",
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                        "synapse": "stdp_nn_pre_centered",
-                                                        "post_ports": ["post_spikes"]}]})
-
-        install_nest("/tmp/nestml-jit", nest_path)
+        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+                 os.path.join("models", "synapses", "stdp_nn_pre_centered.nestml")]
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
+        generate_nest_target(input_path=input_path,
+                             target_path="/tmp/nestml-jit",
+                             logging_level="INFO",
+                             module_name="nestml_jit_module",
+                             suffix="_nestml",
+                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                                           "neuron_parent_class_include": "structural_plasticity_node.h",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                                     "synapse": "stdp_nn_pre_centered",
+                                                                     "post_ports": ["post_spikes"]}]})
 
         # generate the "non-jit" model, that relies on ArchivingNode
-        to_nest(input_path="models/neurons/iaf_psc_exp.nestml",
-                target_path="/tmp/nestml-non-jit",
-                logging_level="INFO",
-                module_name="nestml_non_jit_module",
-                suffix="_nestml_non_jit",
-                codegen_opts={"neuron_parent_class": "ArchivingNode",
-                              "neuron_parent_class_include": "archiving_node.h"})
-        install_nest("/tmp/nestml-non-jit", nest_path)
 
+    generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                  os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
+                         target_path="/tmp/nestml-non-jit",
+                         logging_level="INFO",
+                         module_name="nestml_non_jit_module",
+                         suffix="_nestml_non_jit",
+                         codegen_opts={"neuron_parent_class": "ArchivingNode",
+                                       "neuron_parent_class_include": "archiving_node.h"})
+
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_stdp_nn_synapse(self):
 
         fname_snip = ""
@@ -151,7 +158,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
         wr_ref = nest.Create('weight_recorder')
         if sim_mdl:
             nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                           {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
+                           {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
         if sim_ref:
             nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                            {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
@@ -176,7 +183,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
             spikedet_pre = nest.Create("spike_recorder")
             spikedet_post = nest.Create("spike_recorder")
             mm = nest.Create("multimeter", params={"record_from": [
-                             "V_m", "post_trace__for_stdp_nn_pre_centered_nestml"]})
+                "V_m", "post_trace__for_stdp_nn_pre_centered_nestml"]})
         if sim_ref:
             spikedet_pre_ref = nest.Create("spike_recorder")
             spikedet_post_ref = nest.Create("spike_recorder")
@@ -277,7 +284,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
             if sim_mdl:
                 ax2.plot(nest.GetStatus(mm, "events")[0]["times"], nest.GetStatus(mm, "events")[
-                         0]["post_trace__for_stdp_nn_pre_centered_nestml"], label="nestml post tr")
+                    0]["post_trace__for_stdp_nn_pre_centered_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             if sim_mdl:

@@ -22,19 +22,14 @@
 import os
 import unittest
 
-from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 # minor setup steps required
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
@@ -53,7 +48,7 @@ class FunctionParameterTemplatingTest(unittest.TestCase):
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       'resources', 'FunctionParameterTemplatingTest.nestml'))))
+                                                       "resources", "FunctionParameterTemplatingTest.nestml"))))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
                                                                           LoggingLevel.ERROR)), 7)
 

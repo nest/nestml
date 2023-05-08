@@ -1,6 +1,12 @@
 Modeling neurons in NESTML
 ==========================
 
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/neuron_illustration.svg
+   :width: 324px
+   :height: 307px
+   :align: right
+   :target: #
+
 Writing the NESTML model
 ########################
 
@@ -9,9 +15,7 @@ The top-level element of the model is ``neuron``, followed by a name. All other 
 .. code-block:: nestml
 
    neuron hodkin_huxley:
-     # [...]
-   end
-
+       # [...]
 
 Neuronal interactions
 ---------------------
@@ -19,23 +23,54 @@ Neuronal interactions
 Input
 ~~~~~
 
-A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named input port, or if they should be separated into differently named input ports based on their sign. The ``input`` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
-
-::
-
-    port_name <- inhibitory? excitatory? (spike | continuous)
-
-This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following ``input`` block would be appropriate:
+A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values. This can be indicated using the following syntax:
 
 .. code-block:: nestml
 
    input:
-     I_stim pA <- continuous
-     inh_spikes pA <- inhibitory spike
-     exc_spikes pA <- excitatory spike
-   end
+       I_stim pA <- continuous
+       AMPA_spikes pA <- spike
 
-Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
+The general syntax is:
+
+::
+
+    port_name dataType <- inputQualifier* (spike | continuous)
+
+For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
+
+.. code-block:: nestml
+
+   input:
+       # [...]
+       all_spikes pA <- spike
+
+In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
+
+.. code-block:: nestml
+
+   input:
+       # [...]
+       AMPA_spikes pA <- excitatory spike
+       GABA_spikes pA <- inhibitory spike
+
+In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
+
+It is equivalent if either both `inhibitory` and `excitatory` are given, or neither: an unmarked port will by default handle all incoming presynaptic spikes.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 60
+
+   * - Keyword
+     - The incoming weight :math:`w`...
+   * - none, or ``excitatory`` and ``inhibitory``
+     - ... may be positive or negative. It is added to the buffer with signed value :math:`w` (positive or negative).
+   * - ``excitatory``
+     - ... should not be negative. It is added to the buffer with non-negative magnitude :math:`w`.
+   * - ``inhibitory``
+     - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
+
 
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -44,7 +79,11 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
 
 .. code-block:: nestml
 
-   V_m' = -V_m/tau_m + ... + I_stim
+   equations
+       V_m' = -V_m/tau_m + ... + I_stim
+
+   input:
+       I_stim pA <- continuous
 
 
 Integrating spiking input
@@ -69,9 +108,8 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
 .. code-block:: nestml
 
    equations:
-     kernel G = exp(-t/tau_syn)
-     V_m' = -V_m/tau_m + convolve(G, spikes)
-   end
+       kernel G = exp(-t/tau_syn)
+       V_m' = -V_m/tau_m + convolve(G, spikes)
 
 The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
 
@@ -94,8 +132,7 @@ Then the name ``g_dend`` can be used as a target for assignment:
 .. code-block:: nestml
 
    update:
-     g_dend = 42 pA
-   end
+       g_dend = 42 pA
 
 This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
 
@@ -114,72 +151,60 @@ The name ``h_dend`` now acts as an alias for this particular convolution. We can
 .. code-block:: nestml
 
    update:
-     h_dend = 42 pA
-     h_dend' = 10 pA/ms
-   end
+       h_dend = 42 pA
+       h_dend' = 10 pA/ms
 
-For more information, see the :doc:`Active dendrite tutorial <tutorial/active_dendrite_tutorial>`
+For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
 
-   
 
-Multiple input synapses
-^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports
+^^^^^^^^^^^^^^^^^^^^
 
 If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
 
 .. code-block:: nestml
 
    input:
-     spikes1 nS <- spike
-     spikes2 nS <- spike
-     spikes3 nS <- spike
-   end
+       spikes1 nS <- spike
+       spikes2 nS <- spike
+       spikes3 nS <- spike
 
 For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
 
 .. code-block:: nestml
 
    equations:
-     kernel I_kernel1 = exp(-t / tau_syn1)
-     kernel I_kernel2 = exp(-t / tau_syn2)
-     kernel I_kernel3 = -exp(-t / tau_syn3)
-     function I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3) + ...
-     V_abs' = -V_abs/tau_m + I_syn / C_m
-   end
+       kernel I_kernel1 = exp(-t / tau_syn1)
+       kernel I_kernel2 = exp(-t / tau_syn2)
+       kernel I_kernel3 = -exp(-t / tau_syn3)
+       inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+       V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
-After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
 
-.. code-block:: python
+Multiple input ports with vectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The input ports can also be defined as vectors. For example,
+.. code-block:: nestml
+   neuron multi_synapse_vectors:
+       input:
+           AMPA_spikes pA <- excitatory spike
+           GABA_spikes pA <- inhibitory spike
+           NMDA_spikes pA <- spike
+           foo[2] pA <- spike
+           exc_spikes[3] pA <- excitatory spike
+           inh_spikes[3] pA <- inhibitory spike
 
-   neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+       equations:
+           kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
+           kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
+           inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1])
+           inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1])
 
-   sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
 
-   sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
 
-   sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+They could also be used in differential equations defined in the ``equations`` block as shown for ``exc_spikes[1]`` and ``inh_spikes[1]`` in the example above.
 
-Note that in multisynapse neurons, receptor ports are numbered starting from 1.
-
-We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
-
-.. code-block:: python
-
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
-                                                          'I_kernel2__X__spikes2',
-                                                          'I_kernel3__X__spikes3'],
-                                          'interval': .1})
-   nest.Connect(mm, neuron)
-
-The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
-
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
-   :alt: NESTML multisynapse example waveform traces
-
-For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 Output
 ~~~~~~

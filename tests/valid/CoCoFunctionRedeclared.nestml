@@ -38,14 +38,9 @@ neuron CoCoFunctionRedeclared:
             return arg1
         else:
             return arg2
-        end
-    end
 
     function maxLeq(arg1 integer,arg2 integer) integer:
         if arg1<=arg2:
             return arg2
         else:
             return arg1
-        end
-    end
-end

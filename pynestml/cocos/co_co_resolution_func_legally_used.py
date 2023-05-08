@@ -23,7 +23,6 @@ from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor

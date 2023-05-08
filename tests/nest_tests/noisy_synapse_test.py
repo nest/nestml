@@ -19,11 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
+import pytest
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -41,16 +45,17 @@ class NoisySynapseTest(unittest.TestCase):
     synapse_model_name = "noisy_synapse_nestml"
 
     def setUp(self):
-        """Generate the neuron model code"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+        """Generate and build the model code"""
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                       os.path.join(os.pardir, os.pardir, 'models', 'synapses', 'noisy_synapse.nestml'))))
+        generate_nest_target(input_path=input_path,
+                             target_path="/tmp/nestml-noisy-synapse",
+                             logging_level="INFO",
+                             module_name="nestml_noisy_synapse_module",
+                             suffix="_nestml")
 
-        to_nest(input_path="models/synapses/noisy_synapse.nestml",
-                target_path="/tmp/nestml-noisy-synapse",
-                logging_level="INFO",
-                module_name="nestml_noisy_synapse_module",
-                suffix="_nestml")
-        install_nest("/tmp/nestml-noisy-synapse", nest_path)
-
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_noisy_noisy_synapse_synapse(self):
 
         fname_snip = "noisy_synapse_test"
@@ -93,7 +98,7 @@ class NoisySynapseTest(unittest.TestCase):
 
         wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "noisy_synapse_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",

@@ -28,32 +28,12 @@ enough to exhibit non-trivial dynamics and simple enough compute
 relevant measures analytically.
 
 .. note::
-   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
 
    For details, please see ``IAF_neurons_singularity.ipynb`` in
    the NEST source code (``docs/model_details``).
-
-
-Parameters
-++++++++++
-
-The following parameters can be set in the status dictionary.
-
-=========== ======  ==========================================================
- V_m        mV      Membrane potential
- E_L        mV      Resting membrane potential
- C_m        pF      Capacity of the membrane
- tau_m      ms      Membrane time constant
- t_ref      ms      Duration of refractory period
- V_th       mV      Spike threshold
- V_reset    mV      Reset potential of the membrane
- tau_syn_ex ms      Rise time of the excitatory synaptic alpha function
- tau_syn_in ms      Rise time of the inhibitory synaptic alpha function
- I_e        pA      Constant input current
- V_min      mV      Absolute lower value for the membrane potenial
-=========== ======  ==========================================================
 
 
 References
@@ -79,18 +59,9 @@ See also
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 
 
-Authors
-+++++++
-
-Diesmann, Gewaltig
-
-
 
 Parameters
 ++++++++++
-
-
-
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
@@ -98,14 +69,13 @@ Parameters
     
     "C_m", "pF", "250pF", "Capacitance of the membrane"    
     "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_in", "ms", "2ms", "Time constant of synaptic current"    
-    "tau_syn_ex", "ms", "2ms", "Time constant of synaptic current"    
+    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"    
+    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"    
     "t_ref", "ms", "2ms", "Duration of refractory period"    
     "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70mV - E_L", "Reset potential of the membrane"    
-    "V_th", "mV", "-55mV - E_L", "Spike threshold"    
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
+    "V_th", "mV", "-55mV", "Spike threshold potential"    
     "I_e", "pA", "0pA", "constant external input current"
-
 
 
 
@@ -118,7 +88,7 @@ State variables
 
     
     "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_abs", "mV", "0mV", ""
+    "V_m", "mV", "E_L", ""
 
 
 
@@ -128,77 +98,15 @@ Equations
 
 
 
-
 .. math::
-   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac{ I } { C_{m} }
-
-
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac{ I } { C_{m} }
 
 
 
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron iaf_psc_alpha:
-     state:
-       r integer = 0 # counts number of tick during the refractory period
-       V_abs mV = 0mV
-     end
-     equations:
-       kernel I_kernel_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       kernel I_kernel_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       inline I pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes) + I_e + I_stim
-       V_abs'=-V_abs / tau_m + I / C_m
-     end
-
-     parameters:
-       C_m pF = 250pF # Capacitance of the membrane
-       tau_m ms = 10ms # Membrane time constant
-       tau_syn_in ms = 2ms # Time constant of synaptic current
-       tau_syn_ex ms = 2ms # Time constant of synaptic current
-       t_ref ms = 2ms # Duration of refractory period
-       E_L mV = -70mV # Resting potential
-       V_reset mV = -70mV - E_L # Reset potential of the membrane
-       V_th mV = -55mV - E_L # Spike threshold
-       # constant external input current
-
-       # constant external input current
-       I_e pA = 0pA
-     end
-     internals:
-       RefractoryCounts integer = steps(t_ref) # refractory time in steps
-     end
-     input:
-       ex_spikes pA <-excitatory spike
-       in_spikes pA <-inhibitory spike
-       I_stim pA <-current
-     end
-
-     output: spike
-
-     update:
-       if r == 0: # neuron not refractory
-         integrate_odes()
-       else:
-         r = r - 1
-       end
-       if V_abs >= V_th: # threshold crossing
-         # A supra-threshold membrane potential should never be observable.
-         # The reset at the time of threshold crossing enables accurate
-         # integration independent of the computation step size, see [2,3] for
-         # details.
-         r = RefractoryCounts
-         V_abs = V_reset
-         emit_spike()
-       end
-     end
-
-   end
-
-
+The model source code can be found in the NESTML models repository here: `iaf_psc_alpha <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_alpha.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -208,4 +116,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.507179
+   Generated at 2023-03-22 17:48:48.837818

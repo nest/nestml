@@ -78,7 +78,6 @@ class ASTBitOperator(ASTNode):
                              comment=self.comment,
                              pre_comments=[s for s in self.pre_comments],
                              in_comment=self.in_comment,
-                             post_comments=[s for s in self.post_comments],
                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -104,5 +103,5 @@ class ASTBitOperator(ASTNode):
         if not isinstance(other, ASTBitOperator):
             return False
         return (self.is_bit_and == other.is_bit_and and self.is_bit_or == other.is_bit_or
-                and self.is_bit_xor == other.is_bit_xor and self.is_bit_shift_left == self.is_bit_shift_left
+                and self.is_bit_xor == other.is_bit_xor and self.is_bit_shift_left == other.is_bit_shift_left
                 and self.is_bit_shift_right == other.is_bit_shift_right)

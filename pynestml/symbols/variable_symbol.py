@@ -70,6 +70,7 @@ class VariableSymbol(Symbol):
     Attributes:
         block_type            The type of block in which this symbol has been declared. Type: BlockType
         vector_parameter      The parameter indicating the position in an array. Type: str
+        delay_parameter       The parameter indicating the delay value for this variable. Type: str
         declaring_expression  The rhs defining the value of this symbol. Type: ASTExpression
         is_predefined         Indicates whether this symbol is predefined, e.g., t or e. Type: bool
         is_inline_expression  Indicates whether this symbol belongs to an inline expression. Type: bool
@@ -82,9 +83,10 @@ class VariableSymbol(Symbol):
     """
 
     def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
-                 vector_parameter: str=None, declaring_expression: ASTExpression=None, is_predefined: bool=False,
-                 is_inline_expression: bool=False, is_recordable: bool=False, type_symbol: TypeSymbol=None,
-                 initial_value: ASTExpression=None, variable_type: VariableType=None, decorators=None, namespace_decorators=None):
+                 vector_parameter: str=None, delay_parameter: str=None, declaring_expression: ASTExpression=None,
+                 is_predefined: bool=False, is_inline_expression: bool=False, is_recordable: bool=False,
+                 type_symbol: TypeSymbol=None, initial_value: ASTExpression=None, variable_type: VariableType=None,
+                 decorators=None, namespace_decorators=None):
         """
         Standard constructor.
         :param element_reference: a reference to the first element where this type has been used/defined
@@ -108,6 +110,7 @@ class VariableSymbol(Symbol):
                                              name=name, symbol_kind=SymbolKind.VARIABLE)
         self.block_type = block_type
         self.vector_parameter = vector_parameter
+        self.delay_parameter = delay_parameter
         self.declaring_expression = declaring_expression
         self.is_predefined = is_predefined
         self.is_inline_expression = is_inline_expression
@@ -124,6 +127,7 @@ class VariableSymbol(Symbol):
         self.namespace_decorators = namespace_decorators
 
     def is_homogeneous(self):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
         return PyNestMLLexer.DECORATOR_HOMOGENEOUS in self.decorators
 
     def has_decorators(self):
@@ -149,7 +153,14 @@ class VariableSymbol(Symbol):
         :return: True if vector parameter available, otherwise False.
         :rtype: bool
         """
-        return self.vector_parameter is not None and type(self.vector_parameter) == str
+        return self.vector_parameter is not None
+
+    def has_delay_parameter(self):
+        """
+        Returns whether this variable has a delay value associated with it.
+        :return: bool
+        """
+        return self.delay_parameter is not None and type(self.delay_parameter) == str
 
     def get_block_type(self):
         """
@@ -166,6 +177,19 @@ class VariableSymbol(Symbol):
         :rtype: str
         """
         return self.vector_parameter
+
+    def get_delay_parameter(self):
+        """
+        Returns the delay value associated with this variable
+        :return: the delay parameter
+        """
+        return self.delay_parameter
+
+    def set_delay_parameter(self, delay):
+        """
+        Sets the delay value for this variable
+        """
+        self.delay_parameter = delay
 
     def get_declaring_expression(self):
         """
@@ -413,11 +437,10 @@ class VariableSymbol(Symbol):
                 and self.is_conductance_based == other.is_conductance_based
                 and self.is_recordable == other.is_recordable)
 
-    def print_comment(self, prefix=None):
+    def print_comment(self, prefix: str = "") -> str:
         """
         Prints the stored comment.
         :return: the corresponding comment.
-        :rtype: str
         """
         ret = ''
         if not self.has_comment():
@@ -425,6 +448,5 @@ class VariableSymbol(Symbol):
         # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
         # between the comment and the element
         for comment in self.get_comment():
-            ret += (prefix if prefix is not None else '') + comment + \
-                   ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
+            ret += prefix + comment + ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
         return ret
