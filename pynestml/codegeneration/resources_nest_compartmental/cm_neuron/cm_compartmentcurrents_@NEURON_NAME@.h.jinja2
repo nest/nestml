@@ -65,16 +65,10 @@ public:
 
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate() {
+    void calibrate( const double v_init );
 {%- else %}
-    void pre_run_hook() {
+    void pre_run_hook( const double v_init );
 {%- endif %}
-    {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() -%}
-        {%- set variable = variable_info["state_variable"] -%}
-        {%- set rhs_expression = variable_info["rhs_expression"] -%}
-        {{ variable.name}} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor -%}
-    };
     void append_recordables(std::map< Name, double* >* recordables,
                             const long compartment_idx);
 
@@ -158,9 +152,9 @@ public:
 
   // calibration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
+  void calibrate( const double v_init );
 {%- else %}
-  void pre_run_hook();
+  void pre_run_hook( const double v_init );
 {%- endif %}
   void append_recordables(std::map< Name, double* >* recordables);
   void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
@@ -214,15 +208,15 @@ public:
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   void calibrate() {
 {%- else %}
-  void pre_run_hook() {
+  void pre_run_hook( const double v_init ) {
 {%- endif %}
     // initialization of the ion channels
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    {{ion_channel_name}}{{channel_suffix}}.calibrate();
+    {{ion_channel_name}}{{channel_suffix}}.calibrate( const double v_init );
 {%- else %}
-    {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
+    {{ion_channel_name}}{{channel_suffix}}.pre_run_hook( v_init );
 {%- endif %}
     {% endfor -%}
   {% endwith -%}
@@ -236,9 +230,9 @@ public:
          ++syn_it )
     {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      syn_it->calibrate();
+      syn_it->calibrate( const double v_init );
 {%- else %}
-      syn_it->pre_run_hook();
+      syn_it->pre_run_hook( v_init );
 {%- endif %}
     }
   {% endfor -%}

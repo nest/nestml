@@ -70,6 +70,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , hh( 0.0 )
   , n_passed( 0 )
 {
+  compartment_params->clear_access_flags();
 
   updateValue< double >( compartment_params, names::C_m, ca );
   updateValue< double >( compartment_params, names::g_C, gc );
@@ -79,20 +80,17 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   v_comp = el;
 
   compartment_currents = CompartmentCurrents{{cm_unique_suffix}}( compartment_params );
+
+  ALL_ENTRIES_ACCESSED( *compartment_params, "compartment_params", "Unread dictionary entries: " );
 }
 
 void
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-nest::Compartment{{cm_unique_suffix}}::calibrate()
-{%- else %}
-nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
-{%- endif %}
+nest::Compartment{{cm_unique_suffix}}::pre_run_hook( const double v_init )
 {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  compartment_currents.calibrate();
-{%- else %}
-  compartment_currents.pre_run_hook();
-{%- endif %}
+  compartment_currents.pre_run_hook( v_init );
+
+  // initialize voltage
+  v_comp = v_init;
 
   const double dt = Time::get_resolution().get_ms();
   ca__div__dt = ca / dt;
@@ -123,7 +121,7 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( const long lag 
   // matrix diagonal element
   gg = gg0;
 
-  if ( parent != nullptr )
+  if ( parent )
   {
     gg += gc__div__2;
     // matrix off diagonal element
@@ -138,7 +136,7 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( const long lag 
   // right hand side
   ff = ( ca__div__dt - gl__div__2 ) * v_comp + gl__times__el;
 
-  if ( parent != nullptr )
+  if ( parent )
   {
     ff -= gc__div__2 * ( v_comp - parent->v_comp );
   }
@@ -168,7 +166,7 @@ nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}()
 
 /**
  * Add a compartment to the tree structure via the python interface
- * root shoud have -1 as parent index. Add root compartment first.
+ * root should have -1 as parent index. Add root compartment first.
  * Assumes parent of compartment is already added
  */
 void
@@ -198,7 +196,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( Compartment{{cm_unique_suff
      * exception message
      */
     Compartment{{cm_unique_suffix}}* parent = get_compartment( parent_index, get_root(), 0 );
-    if ( parent == nullptr )
+    if ( not parent )
     {
       std::string msg = "does not exist in tree, but was specified as a parent compartment";
       throw UnknownCompartment( parent_index, msg );
@@ -249,14 +247,14 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment( const long compartment_inde
   else
   {
     auto child_it = compartment->children.begin();
-    while ( ( not r_compartment ) && child_it != compartment->children.end() )
+    while ( not r_compartment and child_it != compartment->children.end() )
     {
       r_compartment = get_compartment( compartment_index, &( *child_it ), 0 );
       ++child_it;
     }
   }
 
-  if ( ( not r_compartment ) && raise_flag )
+  if ( not r_compartment and raise_flag )
   {
     std::string msg = "does not exist in tree";
     throw UnknownCompartment( compartment_index, msg );
@@ -372,11 +370,7 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
  * Initialize state variables
  */
 void
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-nest::CompTree{{cm_unique_suffix}}::calibrate()
-{%- else %}
-nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
-{%- endif %}
+nest::CompTree{{cm_unique_suffix}}::pre_run_hook( const double v_init )
 {
   if ( root_.comp_index < 0 )
   {
@@ -387,11 +381,7 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
   // initialize the compartments
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    ( *compartment_it )->calibrate();
-{%- else %}
-    ( *compartment_it )->pre_run_hook();
-{%- endif %}
+    ( *compartment_it )->pre_run_hook( v_init );
   }
 }
 
@@ -452,7 +442,7 @@ nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep( Compartment{{cm_uniq
   std::pair< double, double > output = compartment->io();
 
   // move on to the parent layer
-  if ( compartment->parent != nullptr )
+  if ( compartment->parent )
   {
     Compartment{{cm_unique_suffix}}* parent = compartment->parent;
     // gather input from child layers
@@ -504,7 +494,7 @@ nest::CompTree{{cm_unique_suffix}}::print_tree() const
     std::cout << "C_m = " << compartment->ca << " nF, ";
     std::cout << "g_L = " << compartment->gl << " uS, ";
     std::cout << "e_L = " << compartment->el << " mV, ";
-    if ( compartment->parent != nullptr )
+    if ( compartment->parent )
     {
       std::cout << "Parent " << compartment->parent->comp_index << " --> ";
       std::cout << "g_c = " << compartment->gc << " uS, ";

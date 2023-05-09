@@ -27,7 +27,7 @@ namespace nest
 
 /*
  * For some reason this code block is needed. However, I have found no
- * difference in calling init_recordable_pointers() from the pre_run_hook() or calibrate() function,
+ * difference in calling init_recordable_pointers() from the pre_run_hook function,
  * except that an unused-variable warning is generated in the code-checks
  */
 template <>
@@ -47,6 +47,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , syn_buffers_( 0 )
   , logger_( *this )
   , V_th_( -55.0 )
+  , V_init_( -70.0 )
 {
   recordablesMap_.create( *this );
   recordables_values.resize( 0 );
@@ -58,6 +59,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
   , syn_buffers_( n.syn_buffers_ )
   , logger_( *this )
   , V_th_( n.V_th_ )
+  , V_init_( n.V_init_ )
 {
   recordables_values.resize( 0 );
 }
@@ -70,6 +72,7 @@ void
 {{neuronSpecificFileNamesCmSyns["main"]}}::get_status( DictionaryDatum& statusdict ) const
 {
   def< double >( statusdict, names::V_th, V_th_ );
+  def< double >( statusdict, "V_init", V_init_ );
   ArchivingNode::get_status( statusdict );
 
   // add all recordables to the status dictionary
@@ -101,31 +104,23 @@ void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDatum& statusdict )
 {
   updateValue< double >( statusdict, names::V_th, V_th_ );
+  updateValue< double >( statusdict, "V_init", V_init_ );
   ArchivingNode::set_status( statusdict );
 
   /**
    * Add a compartment (or compartments) to the tree, so that the new compartment
    * has the compartment specified by "parent_idx" as parent. The parent
    * has to be in the tree, otherwise an error will be raised.  We add either a
-   * single compartment or multiple compartments, depending on wether the
+   * single compartment or multiple compartments, depending on whether the
    * entry was a list of dicts or a single dict
    */
-  if ( statusdict->known( names::compartments ) )
+  const auto add_compartments_list_or_dict = [ this, statusdict ]( const Name name )
   {
-    /**
-     * Until an operator to explicititly append compartments is added to the
-     * API, we disable this functionality
-     */
-    if ( c_tree_.get_size() > 0 )
-    {
-      throw BadProperty( "\'compartments\' is already defined for this model" );
-    }
-
-    Datum* dat = ( *statusdict )[ names::compartments ].datum();
+    Datum* dat = ( *statusdict )[ name ].datum();
     ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
     DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
 
-    if ( ad != nullptr )
+    if ( ad )
     {
       // A list of compartments is provided, we add them all to the tree
       for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
@@ -135,7 +130,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
         add_compartment_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
       }
     }
-    else if ( dd != nullptr )
+    else if ( dd )
     {
       // A single compartment is provided, we add add it to the tree
       add_compartment_( *dd );
@@ -146,31 +141,22 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
         "\'compartments\' entry could not be identified, provide "
         "list of parameter dicts for multiple compartments" );
     }
-  }
+  };
 
   /**
    * Add a receptor (or receptors) to the tree, so that the new receptor
    * targets the compartment specified by "comp_idx". The compartment
    * has to be in the tree, otherwise an error will be raised.  We add either a
-   * single receptor or multiple receptors, depending on wether the
+   * single receptor or multiple receptors, depending on whether the
    * entry was a list of dicts or a single dict
    */
-  if ( statusdict->known( names::receptors ) )
+  const auto add_receptors_list_or_dict = [ this, statusdict ]( const Name name )
   {
-    /**
-     * Until an operator to explicititly append receptors is added to the
-     * API, we disable this functionality
-     */
-    if ( long( syn_buffers_.size() ) > 0 )
-    {
-      throw BadProperty( "\'receptors\' is already defined for this model" );
-    }
-
-    Datum* dat = ( *statusdict )[ names::receptors ].datum();
+    Datum* dat = ( *statusdict )[ name ].datum();
     ArrayDatum* ad = dynamic_cast< ArrayDatum* >( dat );
     DictionaryDatum* dd = dynamic_cast< DictionaryDatum* >( dat );
 
-    if ( ad != nullptr )
+    if ( ad )
     {
       for ( Token* tt = ( *ad ).begin(); tt != ( *ad ).end(); ++tt )
       {
@@ -179,7 +165,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
         add_receptor_( *dynamic_cast< DictionaryDatum* >( tt->datum() ) );
       }
     }
-    else if ( dd != nullptr )
+    else if ( dd )
     {
       add_receptor_( *dd );
     }
@@ -189,7 +175,39 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
         "\'receptors\' entry could not be identified, provide "
         "list of parameter dicts for multiple receptors" );
     }
+  };
+
+  if ( statusdict->known( names::compartments ) )
+  {
+    // Compartments can only be set on a newly created compartment model.
+    // To add additional compartments, add_compartments should be used.
+    if ( c_tree_.get_size() > 0 )
+    {
+      throw BadProperty( "\'compartments\' is already defined for this model" );
+    }
+    add_compartments_list_or_dict( names::compartments );
   }
+
+  if ( statusdict->known( names::add_compartments ) )
+  {
+    add_compartments_list_or_dict( names::add_compartments );
+  }
+
+  if ( statusdict->known( names::receptors ) )
+  {
+    // Receptors can only be set on a newly created compartment model.
+    // To add additional receptors, add_receptors should be used.
+    if ( syn_buffers_.size() > 0 )
+    {
+      throw BadProperty( "\'receptors\' is already defined for this model" );
+    }
+    add_receptors_list_or_dict( names::receptors );
+  }
+  if ( statusdict->known( names::add_receptors ) )
+  {
+    add_receptors_list_or_dict( names::add_receptors );
+  }
+
   /**
    * we need to initialize the recordables pointers to guarantee that the
    * recordables of the new compartments and/or receptors will be in the
@@ -200,6 +218,8 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( DictionaryDatum& dd )
 {
+  dd->clear_access_flags();
+
   if ( dd->known( names::params ) )
   {
     c_tree_.add_compartment(
@@ -209,10 +229,14 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( DictionaryDat
   {
     c_tree_.add_compartment( getValue< long >( dd, names::parent_idx ) );
   }
+
+  ALL_ENTRIES_ACCESSED( *dd, "{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_", "Unread dictionary entries: " );
 }
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum& dd )
 {
+  dd->clear_access_flags();
+
   const long compartment_idx = getValue< long >( dd, names::comp_idx );
   const std::string receptor_type = getValue< std::string >( dd, names::receptor_type );
 
@@ -234,6 +258,8 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   {
     compartment->compartment_currents.add_synapse( receptor_type, syn_idx );
   }
+
+  ALL_ENTRIES_ACCESSED( *dd, "{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_", "Unread dictionary entries: " );
 }
 
 void
@@ -270,11 +296,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_recordables_pointers_()
 }
 
 void
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
-{%- else %}
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
-{%- endif %}
 {
   logger_.init();
 
@@ -285,11 +307,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
   // initialize the recordables pointers
   init_recordables_pointers_();
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  c_tree_.calibrate();
-{%- else %}
-  c_tree_.pre_run_hook();
-{%- endif %}
+  c_tree_.pre_run_hook( V_init_ );
 }
 
 /**
@@ -298,9 +316,6 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, const long from, const long to )
 {
-  assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
-  assert( from < to );
-
   for ( long lag = from; lag < to; ++lag )
   {
     const double v_0_prev = c_tree_.get_root()->v_comp;
@@ -309,7 +324,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
     c_tree_.solve_matrix();
 
     // threshold crossing
-    if ( c_tree_.get_root()->v_comp >= V_th_ && v_0_prev < V_th_ )
+    if ( c_tree_.get_root()->v_comp >= V_th_ and v_0_prev < V_th_ )
     {
       set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
@@ -330,7 +345,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( SpikeEvent& e )
   }
 
   assert( e.get_delay_steps() > 0 );
-  assert( ( e.get_rport() >= 0 ) && ( ( size_t ) e.get_rport() < syn_buffers_.size() ) );
+  assert( ( e.get_rport() >= 0 ) and ( ( size_t ) e.get_rport() < syn_buffers_.size() ) );
 
   syn_buffers_[ e.get_rport() ].add_value(
     e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), e.get_weight() * e.get_multiplicity() );

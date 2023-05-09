@@ -143,6 +143,31 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_
     {% endwith %}
 }
 
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::calibrate( const double v_comp )
+{%- else %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook( const double v_comp )
+{%- endif %}
+{
+    {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
+    // initialization state variable '{{pure_variable_name}}'
+        {%- set inner_variable = variable_info["ASTVariable"] %}
+        {%- set expected_functions_info = variable_info["expected_functions"] %}
+        {%- for expected_function_type, expected_function_info in expected_functions_info.items() %}
+            {%- if "tau" not in expected_function_info["result_variable_name"] %}
+                {%- set state_variable_name = render_state_variable_name(pure_variable_name, ion_channel_name) %}
+                {%- set function_to_call = expected_function_info["ASTFunction"] %}
+                {%- set function_parameters = function_to_call.get_parameters() %}
+    {{state_variable_name}} = {{function_to_call.get_name()}}(
+    {%- for parameter in function_parameters -%}
+        {{- parameter.name }}
+    {%- endfor -%}
+    );
+    {%- endif %}
+    {%- endfor %}
+        {%- endfor %}
+}
+
 void
 nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables,
                                                const long compartment_idx)
@@ -195,6 +220,8 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
         {{render_inline_expression_type(inline_expression)}} {{propagator}} = exp(-dt / {{tau_result_variable_name}}); //
         {{state_variable}} *= {{propagator}} ;
         {{state_variable}} += (1. - {{propagator}}) * {{inf_result_variable_name}};
+        {#- {{render_inline_expression_type(inline_expression)}} {{propagator}} =  dt / (2. * {{tau_result_variable_name}}); // #}
+        {#- {{state_variable}} = ( dt * {{inf_result_variable_name}} / {{tau_result_variable_name}} + (1 - {{propagator}}) * {{state_variable}} ) / (1 + {{propagator}}) ; #}
         {%- endfor %}
 
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
@@ -258,9 +285,9 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, d
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void nest::{{synapse_name}}{{cm_unique_suffix}}::calibrate()
+void nest::{{synapse_name}}{{cm_unique_suffix}}::calibrate( const double v_comp )
 {%- else %}
-void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
+void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook( const double v_comp )
 {%- endif %}
 {
 
