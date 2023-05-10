@@ -3,7 +3,8 @@ from collections import defaultdict
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 class ASTMechanismInformationCollector(object):
-
+    """This class contains all basic mechanism information collection. Further collectors may be implemented to collect
+    further information for specific mechanism types (example: ASTSynapseInformationCollector)"""
     collector_visitor = None
     neuron = None
 
@@ -15,6 +16,8 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def detect_mechs(cls, mechType: str):
+        """This function detects the root expression (either ode or inline) of the given type and returns the initial
+        info dictionary later used by the templates"""
         mechs_info = defaultdict()
         if not FrontendConfiguration.target_is_compartmental():
             return mechs_info
@@ -63,6 +66,7 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def extend_variables_with_initialisations(cls, neuron, mechs_info):
+        """collects ititialization expressions for all variables and parameters contained in mechs_info"""
         for mechanism_name, mechanism_info in mechs_info.items():
             var_init_visitor = VariableInitializationVisitor(mechanism_info)
             neuron.accept(var_init_visitor)
@@ -73,6 +77,8 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def collect_mechanism_related_definitions(cls, neuron, mechs_info):
+        """Collects all parts of the nestml code the root expressions previously collected depend on. recursive search
+        is cut at other mechanisms root expressions"""
         from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
         from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
@@ -94,14 +100,20 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(ode_collector)
             global_odes = ode_collector.all_ode_equations
 
+            kernel_collector = ASTKernelCollectorVisitor()
+            neuron.accept(kernel_collector)
+            global_kernels = kernel_collector.all_kernels
+
             mechanism_states = list()
             mechanism_parameters = list()
             mechanism_functions = list()
             mechanism_inlines = list()
             mechanism_odes = list()
+            synapse_kernels = list()
             mechanism_dependencies = defaultdict()
-            mechanism_dependencies["odes"] = list()
-            mechanism_dependencies["inlines"] = list()
+            mechanism_dependencies["concentrations"] = list()
+            mechanism_dependencies["channels"] = list()
+            mechanism_dependencies["receptors"] = list()
 
             mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
 
@@ -148,7 +160,10 @@ class ASTMechanismInformationCollector(object):
                                 if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                     is_dependency = True
                                     if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
-                                        mechanism_dependencies["inlines"].append(inline)
+                                        if "channel" in [e.name for e in inline.get_decorators()]:
+                                            mechanism_dependencies["channels"].append(inline)
+                                        if "receptor" in [e.name for e in inline.get_decorators()]:
+                                            mechanism_dependencies["receptors"].append(inline)
 
                             if not is_dependency:
                                 mechanism_inlines.append(inline)
@@ -169,7 +184,8 @@ class ASTMechanismInformationCollector(object):
                                 if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                     is_dependency = True
                                     if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
-                                        mechanism_dependencies["odes"].append(ode)
+                                        if "concentration" in [e.name for e in ode.get_decorators()]:
+                                            mechanism_dependencies["concentrations"].append(ode)
 
                             if not is_dependency:
                                 mechanism_odes.append(ode)
@@ -191,6 +207,23 @@ class ASTMechanismInformationCollector(object):
                     for parameter in global_parameters:
                         if variable.name == parameter.name:
                             mechanism_parameters.append(parameter)
+
+                    for kernel in global_kernels:
+                        if variable.name == kernel.get_variables()[0].name:
+                            #print("kernel found")
+                            synapse_kernels.append(kernel)
+
+                            local_variable_collector = ASTVariableCollectorVisitor()
+                            kernel.accept(local_variable_collector)
+                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                                              local_variable_collector.all_variables,
+                                                                                              search_variables + found_variables)
+
+                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                            kernel.accept(local_function_call_collector)
+                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                   local_function_call_collector.all_function_calls,
+                                                                                                   search_functions + found_functions)
 
                     search_variables.remove(variable)
                     found_variables.append(variable)
@@ -361,4 +394,17 @@ class ASTFunctionCallCollectorVisitor(ASTVisitor):
 
     def endvisit_function_call(self, node):
         self.inside_function_call = False
+
+class ASTKernelCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTKernelCollectorVisitor, self).__init__()
+        self.inside_kernel = False
+        self.all_kernels = list()
+
+    def visit_kernel(self, node):
+        self.inside_kernel = True
+        self.all_kernels.append(node.clone())
+
+    def endvisit_kernel(self, node):
+        self.inside_kernel = False
 

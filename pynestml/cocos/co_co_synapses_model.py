@@ -21,7 +21,7 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.utils.syns_processing import SynsProcessing
+from pynestml.utils.synapse_processing import SynapseProcessing
 
 
 class CoCoSynapsesModel(CoCo):
@@ -34,4 +34,4 @@ class CoCoSynapsesModel(CoCo):
         :param neuron: a single neuron instance.
         :type neuron: ast_neuron
         """
-        return SynsProcessing.check_co_co(neuron)
+        return SynapseProcessing.check_co_co(neuron)

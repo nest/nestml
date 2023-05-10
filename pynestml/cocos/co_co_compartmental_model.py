@@ -21,7 +21,7 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
+from pynestml.utils.channel_processing import ChannelProcessing
 
 
 class CoCoCompartmentalModel(CoCo):
@@ -33,4 +33,4 @@ class CoCoCompartmentalModel(CoCo):
         :param neuron: a single neuron instance.
         :type neuron: ast_neuron
         """
-        return ASTChannelInformationCollector.check_co_co(neuron)
+        return ChannelProcessing.check_co_co(neuron)

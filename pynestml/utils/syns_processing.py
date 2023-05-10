@@ -42,7 +42,7 @@ import json
 #for work in progress:
 from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
 
-
+#legacy code (before generalization of mechanism info collection):
 class SynsProcessing(object):
     padding_character = "_"
     tau_sring = "tau"

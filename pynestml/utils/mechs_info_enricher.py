@@ -5,6 +5,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from collections import defaultdict
+from pynestml.utils.ast_utils import ASTUtils
 import copy
 
 class MechsInfoEnricher():
@@ -60,8 +61,14 @@ class MechsInfoEnricher():
                     for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
                         "propagators"].items(
                     ):
-                        variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                        prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                   SymbolKind.VARIABLE)
+                        if prop_variable is None:
+                            ASTUtils.add_declarations_to_internals(
+                                neuron, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])
+                            prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
+                                variable_name,
+                                SymbolKind.VARIABLE)
 
                         expression = ModelParser.parse_expression(rhs_str)
                         # pretend that update expressions are in "equations" block,
@@ -72,7 +79,7 @@ class MechsInfoEnricher():
                         expression.accept(ASTSymbolTableVisitor())
 
                         solution_transformed["propagators"][variable_name] = {
-                            "ASTVariable": variable, "init_expression": expression, }
+                            "ASTVariable": prop_variable, "init_expression": expression, }
                         expression_variable_collector = ASTEnricherInfoCollectorVisitor()
                         expression.accept(expression_variable_collector)
 

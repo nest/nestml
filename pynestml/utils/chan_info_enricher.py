@@ -30,159 +30,41 @@ from collections import defaultdict
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 
-class ChanInfoEnricher():
+class ChanInfoEnricher(MechsInfoEnricher):
+    """Class extends MechanismInfoEnricher by the computation of the inline derivative. This hasnt been done in the
+    channel processing because it would cause a circular dependency with the coco checks used by the ModelParser we need
+    to use"""
 
-    """
-    Adds derivative of inline expression to chan_info
-    This needs to be done used from within nest_codegenerator
-    because the import of ModelParser will otherwise cause
-    a circular dependency when this is used
-    inside CmProcessing
+    def __init__(self, params):
+        super(MechsInfoEnricher, self).__init__(params)
 
-    input:
+    @classmethod
+    def enrich_mechanism_specific(cls, neuron, mechs_info):
+        mechs_info = cls.computeExpressionDerivative(mechs_info)
+        return mechs_info
 
-        {
-        "Na":
-        {
-            "ASTInlineExpression": ASTInlineExpression,
-            "channel_parameters":
-            {
-                "gbar": {
-                            "expected_name": "gbar_Na",
-                            "parameter_block_variable": ASTVariable,
-                            "rhs_expression": ASTSimpleExpression or ASTExpression
-                        },
-                "e":  {
-                            "expected_name": "e_Na",
-                            "parameter_block_variable": ASTVariable,
-                            "rhs_expression": ASTSimpleExpression or ASTExpression
-                        }
-            }
-            "gating_variables":
-            {
-                "m":
-                {
-                    "ASTVariable": ASTVariable,
-                    "state_variable": ASTVariable,
-                    "expected_functions":
-                    {
-                        "tau":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                },
-                        "inf":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                }
-                    }
-                },
-                "h":
-                {
-                    "ASTVariable": ASTVariable,
-                    "state_variable": ASTVariable,
-                    "expected_functions":
-                    {
-                        "tau":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                },
-                        "inf":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                }
-                    }
-                },
-                ...
-            }
-        },
-        "K":
-        {
-            ...
-        }
-    }
+    @classmethod
+    def computeExpressionDerivative(cls, chan_info):
+        for ion_channel_name, ion_channel_info in chan_info.items():
+            inline_expression = chan_info[ion_channel_name]["root_expression"]
+            expr_str = str(inline_expression.get_expression())
+            sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+            sympy_expr = sympy.diff(sympy_expr, "v_comp")
 
-    output:
+            ast_expression_d = ModelParser.parse_expression(str(sympy_expr))
+            # copy scope of the original inline_expression into the the derivative
+            ast_expression_d.update_scope(inline_expression.get_scope())
+            ast_expression_d.accept(ASTSymbolTableVisitor())
 
-        {
-        "Na":
-        {
-            "ASTInlineExpression": ASTInlineExpression,
-            "inline_derivative": ASTInlineExpression,
-            "channel_parameters":
-            {
-                "gbar": {
-                            "expected_name": "gbar_Na",
-                            "parameter_block_variable": ASTVariable,
-                            "rhs_expression": ASTSimpleExpression or ASTExpression
-                        },
-                "e":  {
-                            "expected_name": "e_Na",
-                            "parameter_block_variable": ASTVariable,
-                            "rhs_expression": ASTSimpleExpression or ASTExpression
-                        }
-            }
-            "gating_variables":
-            {
-                "m":
-                {
-                    "ASTVariable": ASTVariable,
-                    "state_variable": ASTVariable,
-                    "expected_functions":
-                    {
-                        "tau":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                },
-                        "inf":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                }
-                    }
-                },
-                "h":
-                {
-                    "ASTVariable": ASTVariable,
-                    "state_variable": ASTVariable,
-                    "expected_functions":
-                    {
-                        "tau":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                },
-                        "inf":  {
-                                    "ASTFunction": ASTFunction,
-                                    "function_name": str,
-                                    "result_variable_name": str,
-                                    "rhs_expression": ASTSimpleExpression or ASTExpression
-                                }
-                    }
-                },
-                ...
-            }
-        },
-        "K":
-        {
-            ...
-        }
-    }
+            chan_info[ion_channel_name]["inline_derivative"] = ast_expression_d
+
+        return chan_info
 
 """
+legacy code (before generalization of mechanism info collection):
 
     @classmethod
     def enrich_with_additional_info(cls, neuron: ASTNeuron, chan_info: dict):
@@ -335,3 +217,4 @@ class ASTEnricherInfoCollectorVisitor(ASTVisitor):
 
     def endvisit_declaration(self, node):
         self.inside_declaration = False
+"""

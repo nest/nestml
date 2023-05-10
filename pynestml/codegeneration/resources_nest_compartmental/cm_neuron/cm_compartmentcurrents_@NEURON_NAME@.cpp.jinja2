@@ -157,8 +157,9 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
     ( *recordables )[ Name( "{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &{{ion_channel_name}};
 }
 
-std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in channel_info["Dependencies"]["odes"] %}, double {{ode.lhs.name}}{% endfor %}
-                        {% for inline in channel_info["Dependencies"]["inlines"] %}, double {{inline.variable_name}}{% endfor %})
+std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in channel_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
+                        {% for inline in channel_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %})
 {
     double g_val = 0., i_val = 0.;
 
@@ -176,7 +177,7 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
 
         const double dt = Time::get_resolution().get_ms();
 
-        {%- set inline_expression = channel_info["RootInlineExpression"] %}
+        {%- set inline_expression = channel_info["root_expression"] %}
         {%- set inline_expression_d = channel_info["inline_derivative"] %}
         // compute the conductance of the {{ion_channel_name}} channel
         double i_tot = {{ printer_no_origin.print(inline_expression.get_expression()) }};
@@ -207,7 +208,7 @@ double nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_{{ion_channel_name}}(
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index )
-  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+  {%- for param_name, param_declaration in synapse_info["Parameters"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{ param_name }}({{ printer_no_origin.print(param_declaration["rhs_expression"]) }})
   {%- endfor %}
@@ -217,7 +218,7 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}
 
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index, const DictionaryDatum& receptor_params )
-  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+  {%- for param_name, param_declaration in synapse_info["Parameters"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{ param_name }}({{ printer_no_origin.print(param_declaration["rhs_expression"]) }})
   {%- endfor %}
@@ -225,7 +226,7 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}
   syn_idx = syn_index;
 
   // update parameters
-  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+  {%- for param_name, param_declaration in synapse_info["Parameters"].items() %}
   if( receptor_params->known( "{{param_name}}" ) )
     {{param_name}} = getValue< double >( receptor_params, "{{param_name}}" );
   {%- endfor %}
@@ -258,7 +259,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
 
   // initial values for user defined states
   // warning: this shadows class variables
-  {%- for state_name, state_declaration in synapse_info["states_used"].items() %}
+  {%- for state_name, state_declaration in synapse_info["States"].items() %}
   double {{state_name}} = {{ printer_no_origin.print(state_declaration["rhs_expression"]) }};
   {%- endfor %}
 
@@ -277,7 +278,9 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
   {{synapse_info["buffer_name"]}}_->clear();
 }
 
-std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numstep( const double v_comp, const long lag )
+std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numstep( const double v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in synapse_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
+                        {% for inline in synapse_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %})
 {
   // get spikes
   double s_val = {{synapse_info["buffer_name"]}}_->get_value( lag ); //  * g_norm_;
@@ -305,7 +308,7 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 
   // total current
   // this expression should be the transformed inline expression
-  double i_tot = {{ printer_no_origin.print(synapse_info["inline_expression"].get_expression()) }};
+  double i_tot = {{ printer_no_origin.print(synapse_info["root_expression"].get_expression()) }};
     this->{{synapse_name}} = i_tot;
 
   // derivative of that expression
@@ -331,6 +334,10 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 {%-   endfilter %}
 }
 {%- endfor %}
+
+    double nest::{{synapse_name}}{{cm_unique_suffix}}::get_{{synapse_name}}(){
+        return this->{{synapse_name}};
+    }
 
 // {{synapse_name}} synapse end ///////////////////////////////////////////////////////////
 {%- endfor %}
@@ -403,8 +410,9 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
     ( *recordables )[ Name( "{{concentration_name}}" + std::to_string(compartment_idx) )] = &{{concentration_name}};
 }
 
-void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in concentration_info["Dependencies"]["odes"] %}, double {{ode.lhs.name}}{% endfor %}
-                        {% for inline in concentration_info["Dependencies"]["inlines"] %}, double {{inline.variable_name}}{% endfor %})
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
+                        {% for inline in concentration_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
+                        {% for inline in concentration_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %})
 {
 
     double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();

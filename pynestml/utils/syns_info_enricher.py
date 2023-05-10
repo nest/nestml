@@ -35,6 +35,8 @@ import sympy
 
 
 class SynsInfoEnricher(ASTVisitor):
+
+
     """
     input: a neuron after ODE-toolbox transformations
 
@@ -504,12 +506,12 @@ class SynsInfoEnricher(ASTVisitor):
                 del enriched_syns_info[synapse_name]["buffers_used"]
                 enriched_syns_info[synapse_name]["buffer_name"] = buffers_used[0]
 
-            inline_expression_name = enriched_syns_info[synapse_name]["inline_expression"].variable_name
-            enriched_syns_info[synapse_name]["inline_expression"] = \
+            inline_expression_name = enriched_syns_info[synapse_name]["root_expression"].variable_name
+            enriched_syns_info[synapse_name]["root_expression"] = \
                 SynsInfoEnricher.inline_name_to_transformed_inline[inline_expression_name]
             enriched_syns_info[synapse_name]["inline_expression_d"] = \
                 cls.computeExpressionDerivative(
-                    enriched_syns_info[synapse_name]["inline_expression"])
+                    enriched_syns_info[synapse_name]["root_expression"])
 
             # now also identify analytic helper variables such as __h
             enriched_syns_info[synapse_name]["analytic_helpers"] = cls.get_analytic_helper_variable_declarations(
@@ -736,7 +738,7 @@ class SynsInfoEnricher(ASTVisitor):
     def get_all_synapse_variables(cls, single_synapse_info):
         # get all variables from transformed inline
         inline_variables = cls.get_variable_names_used(
-            single_synapse_info["inline_expression"])
+            single_synapse_info["root_expression"])
 
         analytic_solution_vars = set()
         # get all variables from transformed analytic solution

@@ -56,6 +56,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
+from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
 from pynestml.utils.conc_info_enricher import ConcInfoEnricher
 from pynestml.utils.ast_utils import ASTUtils
@@ -66,6 +67,7 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
 from pynestml.utils.syns_processing import SynsProcessing
+from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from odetoolbox import analysis
@@ -718,21 +720,24 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols(
         ) if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
-        namespace["chan_info"] = ASTChannelInformationCollector.get_chan_info(neuron)
+        namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
-        print("CHANNEL INFO:")
-        ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
+        #print("CHANNEL INFO:")
+        #ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
 
-        namespace["syns_info"] = SynsProcessing.get_syns_info(neuron)
+        namespace["syns_info"] = SynapseProcessing.get_mechs_info(neuron)
         #print("SYNS INFO:")
         #print("PRE TRANSFORM")
         #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
         syns_info_enricher = SynsInfoEnricher(neuron)
         namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
+        print("SYNAPSE INFO:")
+        ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
+
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
         namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])
-        print("CONCENTRATION INFO")
-        ASTChannelInformationCollector.print_dictionary(namespace["conc_info"], 0)
+        #print("CONCENTRATION INFO")
+        #ASTChannelInformationCollector.print_dictionary(namespace["conc_info"], 0)
         #print("POST TRANSFORM")
         #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
 
