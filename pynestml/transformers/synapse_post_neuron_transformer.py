@@ -254,18 +254,17 @@ class SynapsePostNeuronTransformer(Transformer):
         strictly_synaptic_vars = []
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
-                if not self.is_post_port(port.name, neuron.name, synapse.name):
-                    strictly_synaptic_vars += self.get_all_variables_assigned_to(
-                        synapse.get_on_receive_block(port.name))
+                if (not self.is_post_port(port.name, neuron.name, synapse.name)) or self.is_vt_port(port.name, neuron.name, synapse.name):
+                    strictly_synaptic_vars += self.get_all_variables_assigned_to(synapse.get_on_receive_block(port.name))
+
         for update_block in synapse.get_update_blocks():
             strictly_synaptic_vars += self.get_all_variables_assigned_to(update_block)
 
-        convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(
-            synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
+        convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
 
-        syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars)))
-        Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
-                           None, LoggingLevel.INFO)
+        strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, synapse)
+
+        syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
 
         #
         #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
@@ -276,6 +275,15 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron._transferred_variables = [neuron_state_var + var_name_suffix
                                              for neuron_state_var in syn_to_neuron_state_vars
                                              if new_synapse.get_kernel_by_name(neuron_state_var) is None]
+
+        # all state variables that will be moved from synapse to neuron
+        syn_to_neuron_state_vars = []
+        for var_name in recursive_vars_used:
+            if ASTUtils.get_state_variable_by_name(synapse, var_name):
+                syn_to_neuron_state_vars.append(var_name)
+
+        Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
+                           None, LoggingLevel.INFO)
 
         #
         #   collect all the parameters
@@ -320,7 +328,7 @@ class SynapsePostNeuronTransformer(Transformer):
                                         synapse.get_state_blocks()[0],
                                         var_name_suffix,
                                         block_type=BlockType.STATE)
-            ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names(synapse, decls, var_name_suffix)
 
         #
         #   move defining equations for variables from synapse to neuron
@@ -340,7 +348,7 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            new_neuron.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
-            ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names(synapse, decls, var_name_suffix)
 
         #
         #    move initial values for equations
@@ -408,7 +416,7 @@ class SynapsePostNeuronTransformer(Transformer):
                         vars_used.extend(ASTUtils.collect_variable_names_in_expression(stmt))
                         post_receive_block.block.stmts.remove(stmt)
                         ASTUtils.add_suffix_to_decl_lhs(stmt, suffix=var_name_suffix)
-                        ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix)
+                        ASTUtils.add_suffix_to_variable_names(synapse, stmt, var_name_suffix)
                         stmt.update_scope(new_neuron.get_update_blocks()[0].get_scope())
                         stmt.accept(ASTSymbolTableVisitor())
                         new_neuron.moved_spike_updates.append(stmt)
@@ -447,7 +455,7 @@ class SynapsePostNeuronTransformer(Transformer):
             decls = ASTUtils.move_decls(param_var,
                                         new_synapse.get_parameters_blocks()[0],
                                         new_neuron.get_parameters_blocks()[0],
-                                        var_name_suffix,
+                                        var_name_suffix="", # do not add suffix to parameters
                                         block_type=BlockType.PARAMETERS,
                                         mode="copy")
 
