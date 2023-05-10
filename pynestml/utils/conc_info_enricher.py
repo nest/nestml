@@ -4,6 +4,6 @@ import sympy
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 class ConcInfoEnricher(MechsInfoEnricher):
-
+    """Just created for consistency no more than the base-class enriching needs to be done"""
     def __init__(self, params):
         super(MechsInfoEnricher, self).__init__(params)

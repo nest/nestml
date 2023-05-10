@@ -21,6 +21,10 @@ import json
 import types
 
 class MechanismProcessing(object):
+    """Manages the collection of basic information necesary for all types of mechanisms and uses the
+    collect_information_for_specific_mech_types interface that needs to be implemented by the specific mechanism type
+    processing classes"""
+
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co
     first_time_run = defaultdict(lambda: defaultdict(lambda: True))

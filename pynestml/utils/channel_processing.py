@@ -5,6 +5,8 @@ import sympy
 from pynestml.meta_model.ast_neuron import ASTNeuron
 
 class ChannelProcessing(MechanismProcessing):
+    """Extends MechanismProcessing. Searches for Variables that if 0 lead to the root expression always beeing zero so
+    that the computation can be skipped during the simulation"""
 
     mechType = "channel"
 
