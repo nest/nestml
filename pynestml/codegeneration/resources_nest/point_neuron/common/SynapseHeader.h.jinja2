@@ -172,7 +172,7 @@ public:
         Node* vt = kernel().node_manager.get_node_or_proxy( vtnode_id, tid );
 {%- endif %}
         vt_ = dynamic_cast< volume_transmitter* >( vt );
-        if ( vt_ == 0 )
+        if ( vt_ == nullptr )
         {
           throw BadProperty( "Neuromodulatory source must be volume transmitter" );
         }
@@ -192,11 +192,11 @@ public:
 {%- endfor %}
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
-    volume_transmitter* vt_;
+    volume_transmitter* vt_ = nullptr;
 
     inline long get_vt_node_id() const
     {
-      if ( vt_ != 0 )
+      if ( vt_ != nullptr )
       {
 {%- if nest_version.startswith("v2") %}
         return vt_->get_gid();
@@ -446,8 +446,8 @@ public:
   {{synapseName}}( const {{synapseName}}& rhs );
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
-{%- set vt_port = vt_ports[0] %}
-  void process_{{vt_port}}_spikes_( const std::vector< spikecounter >& vt_spikes,
+{%-     set vt_port = vt_ports[0] %}
+  void process_{{ vt_port }}_spikes_( const std::vector< spikecounter >& vt_spikes,
       double t0,
       double t1,
       const {{synapseName}}CommonSynapseProperties& cp );
@@ -578,7 +578,7 @@ public:
 {%- endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 
-    if ( cp.vt_ == 0 )
+    if ( cp.vt_ == nullptr )
     {
       throw BadProperty( "No volume transmitter has been assigned to the dopamine synapse." );
     }
@@ -1118,7 +1118,7 @@ template < typename targetidentifierT >
 {%- if vt_ports is defined and vt_ports|length > 0  %}
     t_last_update_ = rhs.t_last_update_;
 {%- endif %}
-    t_lastspike_  = rhs.t_lastspike_;
+    t_lastspike_ = rhs.t_lastspike_;
 
     // special treatment of NEST delay
     set_delay(rhs.get_delay());
