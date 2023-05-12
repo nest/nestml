@@ -53,6 +53,8 @@ class MechanismProcessing(object):
 
     @classmethod
     def prepare_equations_for_ode_toolbox(cls, neuron, mechs_info):
+        """Transforms the collected ode equations to the required input format of ode-toolbox and adds it to the
+        mechs_info dictionary"""
         for mechanism_name, mechanism_info in mechs_info.items():
             mechanism_odes = defaultdict()
             for ode in mechanism_info["ODEs"]:
@@ -87,6 +89,7 @@ class MechanismProcessing(object):
 
     @classmethod
     def collect_raw_odetoolbox_output(cls, mechs_info):
+        """calls ode-toolbox for each ode individually and collects the raw output"""
         for mechanism_name, mechanism_info in mechs_info.items():
             for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
                 solver_result = analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True)

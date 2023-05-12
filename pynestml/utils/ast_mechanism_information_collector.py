@@ -161,9 +161,11 @@ class ASTMechanismInformationCollector(object):
                                     is_dependency = True
                                     if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
                                         if "channel" in [e.name for e in inline.get_decorators()]:
-                                            mechanism_dependencies["channels"].append(inline)
+                                            if not inline.variable_name in [i.variable_name for i in mechanism_dependencies["channels"]]:
+                                                mechanism_dependencies["channels"].append(inline)
                                         if "receptor" in [e.name for e in inline.get_decorators()]:
-                                            mechanism_dependencies["receptors"].append(inline)
+                                            if not inline.variable_name in [i.variable_name for i in mechanism_dependencies["receptors"]]:
+                                                mechanism_dependencies["receptors"].append(inline)
 
                             if not is_dependency:
                                 mechanism_inlines.append(inline)
@@ -185,7 +187,8 @@ class ASTMechanismInformationCollector(object):
                                     is_dependency = True
                                     if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
                                         if "concentration" in [e.name for e in ode.get_decorators()]:
-                                            mechanism_dependencies["concentrations"].append(ode)
+                                            if not ode.lhs.name in [o.lhs.name for o in mechanism_dependencies["concentrations"]]:
+                                                mechanism_dependencies["concentrations"].append(ode)
 
                             if not is_dependency:
                                 mechanism_odes.append(ode)
