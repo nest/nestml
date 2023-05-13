@@ -241,18 +241,22 @@ public:
 
 {% if has_spike_input %}
   void handle(nest::SpikeEvent &) override;        //! accept spikes
-{%- endif %}
-{%- if has_continuous_input %}
-  void handle(nest::CurrentEvent &) override;      //! accept input current
-{%- endif %}
-  void handle(nest::DataLoggingRequest &) override;//! allow recording with multimeter
-
-{%- if has_spike_input %}
   nest::port handles_test_event(nest::SpikeEvent&, nest::port) override;
 {%- endif %}
+
 {%- if has_continuous_input %}
+  void handle(nest::CurrentEvent &) override;      //! accept input current
   nest::port handles_test_event(nest::CurrentEvent&, nest::port) override;
 {%- endif %}
+
+  void handle(nest::DataLoggingRequest &) override;//! allow recording with multimeter
+
+{%- if use_gap_junctions %}
+  void handle( nest::GapJunctionEvent& ) override;
+  nest::port handles_test_event( nest::GapJunctionEvent&, nest::rport ) override;
+  bool wfr_update( nest::Time const&, const long, const long ) override;
+{%- endif %}
+
   nest::port handles_test_event(nest::DataLoggingRequest&, nest::port) override;
 
   // -------------------------------------------------------------------------
@@ -447,7 +451,21 @@ private:
   /**
    * Take neuron through given time interval
   **/
+
+{%- if use_gap_junctions %}
+  /** This is the actual update function. The additional boolean parameter
+   * determines if the function is called by update (false) or wfr_update (true)
+   */
+  bool update_( nest::Time const&, const long, const long, const bool );
+
+  inline void
+  update( nest::Time const& origin, const long from, const long to )
+  {
+    update_( origin, from, to, false );
+  }
+{%- else %}
   void update(nest::Time const &, const long, const long) override;
+{%- endif %}
 
   // The next two classes need to be friends to access the State_ class/member
 {%- if (has_state_vectors) %}
@@ -675,7 +693,21 @@ private:
     double __integration_step; //!< current integration time step, updated by GSL
 {%- endif %}
 
+{%- if use_gap_junctions %}
+    // -----------------------------------------------------------------------
+    //   Gap junctions
+    // -----------------------------------------------------------------------
+
+    // remembers current lag for piecewise interpolation
+    long lag_;
+    // remembers y_values from last wfr_update
+    std::vector< double > last_y_values;
+    // summarized gap weight
+    double sumj_g_ij_;
+    // summarized coefficients of the interpolation polynomial
+    std::vector< double > interpolation_coefficients;
   };
+{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
@@ -943,6 +975,32 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
   recompute_internal_variables();
 };
+
+
+
+{%- if use_gap_junctions %}
+inline bool
+{{neuronName}}::wfr_update( nest::Time const& origin, const long from, const long to )
+{
+  State_ old_state = S_; // save state before wfr_update
+  const bool wfr_tol_exceeded = update_( origin, from, to, true );
+  S_ = old_state; // restore old state
+
+  return not wfr_tol_exceeded;
+}
+
+inline nest::port
+{{neuronName}}::handles_test_event( nest::GapJunctionEvent&, nest::rport receptor_type )
+{
+  if ( receptor_type != 0 )
+  {
+    throw nest::UnknownReceptorType( receptor_type, get_name() );
+  }
+  return 0;
+}
+{%- endif %}
+
+
 
 #endif /* #ifndef {{neuronName.upper()}} */
 {# leave this comment here to ensure newline is generated at end of file -#}
