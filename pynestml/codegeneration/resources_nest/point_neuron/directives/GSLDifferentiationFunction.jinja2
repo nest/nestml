@@ -28,7 +28,7 @@ extern "C" inline int {{neuronName}}_dynamics(double __time, const double ode_st
   // set I_gap depending on interpolation order
   double __I_gap = 0.0;
 
-  const double t = __time / node.B_.step_;
+  const double t = __time / nest::Time::get_resolution().get_ms();
 
   switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
   {
@@ -51,20 +51,17 @@ extern "C" inline int {{neuronName}}_dynamics(double __time, const double ode_st
   default:
     throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
   }
-
-  const double {{ gap_junction_current_variable }} = __I_gap;
 {%- endif %}
-
-
-
-
-
 
 
 {%- for variable_name in numeric_state_variables %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
+{%- if use_gap_junctions %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr)|replace("node.B_." + gap_junction_port + "_grid_sum_", "(node.B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
+{%- else %}
   f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
+{%- endif %}
 {%- endfor %}
 {%- if paired_synapse is defined %}
 {%- for variable_name in numeric_state_variables_moved %}

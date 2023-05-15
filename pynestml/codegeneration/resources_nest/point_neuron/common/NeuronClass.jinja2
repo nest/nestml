@@ -358,6 +358,19 @@ void {{neuronName}}::init_state_(const Node& proto)
 
 void {{neuronName}}::init_buffers_()
 {
+
+{%- if use_gap_junctions %}
+  // resize interpolation_coefficients depending on interpolation order
+  const size_t buffer_size =
+    nest::kernel().connection_manager.get_min_delay() * ( nest::kernel().simulation_manager.get_wfr_interpolation_order() + 1 );
+
+  B_.interpolation_coefficients.resize( buffer_size, 0.0 );
+
+  B_.last_y_values.resize( nest::kernel().connection_manager.get_min_delay(), 0.0 );
+
+  B_.sumj_g_ij_ = 0.0;
+{%- endif %}
+
 {%- if neuron.get_spike_input_ports() | length > 0 %}
   // spike input buffers
   get_spike_inputs_().clear();
@@ -551,7 +564,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   {
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
-
 {%- if use_gap_junctions %}
     // B_.lag is needed by GSL stepping function to determine the current section
     B_.lag_ = lag;
@@ -563,7 +575,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
       {
         double f_temp[ State_::STATE_VEC_SIZE ];
         {{neuronName}}_dynamics( 0, S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
-        hf_i = B_.step_ * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+        hf_i = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
       }
     }
 
@@ -571,13 +583,13 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     const double U_old = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
 {%- endif %}
 
-
-
-
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
-  {%- for inputPort in neuron.get_continuous_input_ports() %}
-{%- if use_gap_junctions %}
+        get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
+    }
+
+{%- for inputPort in neuron.get_continuous_input_ports() %}
+{%-   if use_gap_junctions %}
     if ( called_from_wfr_update )
     {
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value_wfr_update(lag);
@@ -586,10 +598,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     {
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
     }
-{%- else %}
+{%-   else %}
     B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
-{%- endif %}
-  {%- endfor %}
+{%-   endif %}
+{%- endfor %}
 
 {%- if has_delay_variables %}
     update_delay_variables();
@@ -614,17 +626,18 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 
     if ( called_from_wfr_update )
-        // check if deviation from last iteration exceeds wfr_tol
-        wfr_tol_exceeded = wfr_tol_exceeded or fabs( S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ] - B_.last_y_values[ lag ] ) > wfr_tol;
-        B_.last_y_values[ lag ] = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
+    {
+      // check if deviation from last iteration exceeds wfr_tol
+      wfr_tol_exceeded = wfr_tol_exceeded or fabs( S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ] - B_.last_y_values[ lag ] ) > wfr_tol;
+      B_.last_y_values[ lag ] = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
 
-        // update different interpolations
+      // update different interpolations
 
-        // constant term is the same for each interpolation order
-        new_coefficients[ lag * ( interpolation_order + 1 ) + 0 ] = y_i;
+      // constant term is the same for each interpolation order
+      new_coefficients[ lag * ( interpolation_order + 1 ) + 0 ] = y_i;
 
-        switch ( interpolation_order )
-        {
+      switch ( interpolation_order )
+      {
         case 0:
           break;
 
@@ -637,8 +650,8 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
         case 3:
           y_ip1 = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
           double f_temp[ State_::STATE_VEC_SIZE ];
-          hh_psc_alpha_gap_dynamics( B_.step_, S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
-          hf_ip1 = B_.step_ * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+          {{ neuronName }}_dynamics( nest::Time::get_resolution().get_ms(), S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
+          hf_ip1 = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
 
           new_coefficients[ lag * ( interpolation_order + 1 ) + 1 ] = hf_i;
           new_coefficients[ lag * ( interpolation_order + 1 ) + 2 ] = -3 * y_i + 3 * y_ip1 - 2 * hf_i - hf_ip1;
@@ -647,11 +660,8 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
         default:
           throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
-        }
       }
-
     }
-
 
     if ( not called_from_wfr_update )
     {
@@ -660,24 +670,22 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     }
   }
 
-
 {%- if use_gap_junctions %}
-  // if not called_from_wfr_update perform constant extrapolation
-  // and reset last_y_values
+  // if not called_from_wfr_update perform constant extrapolation and reset last_y_values
   if ( not called_from_wfr_update )
   {
     for ( long temp = from; temp < to; ++temp )
     {
-      new_coefficients[ temp * ( interpolation_order + 1 ) + 0 ] = S_.ode_state[ State_::V_M ];
+      new_coefficients[ temp * ( interpolation_order + 1 ) + 0 ] = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
     }
 
-    std::vector< double >( kernel().connection_manager.get_min_delay(), 0.0 ).swap( B_.last_y_values );
+    std::vector< double >( nest::kernel().connection_manager.get_min_delay(), 0.0 ).swap( B_.last_y_values );
   }
 
   // Send gap-event
-  GapJunctionEvent ge;
+  nest::GapJunctionEvent ge;
   ge.set_coeffarray( new_coefficients );
-  kernel().event_delivery_manager.send_secondary( *this, ge );
+  nest::kernel().event_delivery_manager.send_secondary( *this, ge );
 
   // Reset variables
   B_.sumj_g_ij_ = 0.0;
@@ -685,7 +693,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
   return wfr_tol_exceeded;
 {%- endif %}
-
 }
 
 // Do not move this function as inline to h-file. It depends on
@@ -1125,9 +1132,12 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 
 
 {%- if use_gap_junctions %}
-void
-nest::hh_psc_alpha_gap::handle( nest::GapJunctionEvent& e )
+void {{neuronName}}::handle( nest::GapJunctionEvent& e )
 {
+#ifdef DEBUG
+  std::cout << "Handling GapJunctionEvent\n";
+#endif
+
   const double weight = e.get_weight();
 
   B_.sumj_g_ij_ += weight;

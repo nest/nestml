@@ -228,6 +228,16 @@ public:
   using nest::Node::handles_test_event;
   using nest::Node::handle;
 
+{%- if use_gap_junctions %}
+  using nest::Node::sends_secondary_event;
+
+  void
+  sends_secondary_event( nest::GapJunctionEvent& ) override
+  {
+  }
+{%- endif %}
+
+
   /**
    * Used to validate that we can send {{ output_event.OutputEvent() }} to desired target:port.
   **/
