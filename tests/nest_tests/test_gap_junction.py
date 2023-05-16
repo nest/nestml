@@ -22,6 +22,7 @@
 import numpy as np
 import os
 import pytest
+import scipy
 
 import nest
 
@@ -39,7 +40,7 @@ except Exception:
 
 class TestGapJunction:
 
-    @pytest.fixture(scope="module", autouse=True, params=["iaf_psc_exp"])
+    @pytest.fixture(scope="module", autouse=True, params=["aeif_cond_exp"])
     def generate_code(self, request):
         neuron_model: str = request.param
 
@@ -57,8 +58,12 @@ class TestGapJunction:
 
         nest.Install("nestml_gap_module")
 
+        return neuron_model
+
     @pytest.mark.parametrize("wfr_interpolation_order", [0, 1, 3])
-    def test_gap_junction(self, wfr_interpolation_order: int):
+    def test_gap_junction(self, generate_code, wfr_interpolation_order: int):
+        neuron_model = generate_code
+
         resolution = .1   # [ms]
         sim_time = 100.   # [ms]
         pre_spike_times = [1., 11., 21.]    # [ms]
@@ -70,8 +75,8 @@ class TestGapJunction:
         nest.wfr_comm_interval = 2.         # [ms]
         nest.wfr_interpolation_order = wfr_interpolation_order
 
-        pre_neuron = nest.Create("iaf_psc_exp_nestml")
-        post_neuron = nest.Create("iaf_psc_exp_nestml")
+        pre_neuron = nest.Create(neuron_model + "_nestml")
+        post_neuron = nest.Create(neuron_model + "_nestml")
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -122,4 +127,10 @@ class TestGapJunction:
             fig.suptitle("wfr interpolation order: " + str(wfr_interpolation_order))
             fig.savefig("/tmp/gap_junction_test_[wfr_order=" + str(wfr_interpolation_order) + "].png", dpi=300)
 
-        assert np.amax(nest.GetStatus(mm_post, "events")[0]["V_m"]) > -69.8
+        V_m_log = nest.GetStatus(mm_post, "events")[0]["V_m"]
+
+        # assert that gap currents bring the neuron at least 1% closer to threshold
+        assert np.amax(V_m_log) > .99 * post_neuron.E_L + .01 * post_neuron.V_th
+
+        # assert that there are n_pre_spikes peaks in V_m
+        assert len(scipy.signal.find_peaks(V_m_log)[0]) >= len(pre_sg.spike_times)
