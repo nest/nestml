@@ -752,6 +752,11 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["use_gap_junctions"] = self.get_option("gap_junctions")["enable"]
         namespace["gap_junction_membrane_potential_variable"] = self.get_option("gap_junctions")["membrane_potential_variable"]
+
+        var = ASTUtils.get_state_variable_by_name(neuron, self.get_option("gap_junctions")["membrane_potential_variable"])
+        namespace["gap_junction_membrane_potential_variable_is_numeric"] = "_is_numeric" in dir(var) and var._is_numeric
+
+        namespace["gap_junction_membrane_potential_variable_cpp"] = NESTVariablePrinter(expression_printer=None).print(var)
         namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
 
         return namespace

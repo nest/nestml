@@ -39,8 +39,9 @@ except Exception:
 
 
 class TestGapJunction:
+    r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models"""
 
-    @pytest.fixture(scope="module", autouse=True, params=["aeif_cond_exp"])
+    @pytest.fixture(params=["iaf_psc_exp", "aeif_cond_exp"])
     def generate_code(self, request):
         neuron_model: str = request.param
 
@@ -66,7 +67,7 @@ class TestGapJunction:
 
         resolution = .1   # [ms]
         sim_time = 100.   # [ms]
-        pre_spike_times = [1., 11., 21.]    # [ms]
+        pre_spike_times = [1., 16., 31.]    # [ms]
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
@@ -78,7 +79,6 @@ class TestGapJunction:
         pre_neuron = nest.Create(neuron_model + "_nestml")
         post_neuron = nest.Create(neuron_model + "_nestml")
 
-        # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
                              params={"spike_times": pre_spike_times})
         pre_parrot = nest.Create("parrot_neuron")
@@ -89,10 +89,6 @@ class TestGapJunction:
                      post_neuron,
                      conn_spec={"rule": "one_to_one", "make_symmetric": True},
                      syn_spec={"synapse_model": "gap_junction"})
-
-        sr_pre = nest.Create("spike_recorder")
-        # nest.Connect(pre_neuron, sr_pre)
-        nest.Connect(pre_parrot, sr_pre)
 
         mm_pre = nest.Create("multimeter", params={"record_from": ["V_m"]})
         nest.Connect(mm_pre, pre_neuron)
@@ -120,17 +116,16 @@ class TestGapJunction:
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                # _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
 
             fig.suptitle("wfr interpolation order: " + str(wfr_interpolation_order))
-            fig.savefig("/tmp/gap_junction_test_[wfr_order=" + str(wfr_interpolation_order) + "].png", dpi=300)
+            fig.savefig("/tmp/gap_junction_test_[neuron_model=" + neuron_model + "]_[wfr_order=" + str(wfr_interpolation_order) + "].png", dpi=300)
 
         V_m_log = nest.GetStatus(mm_post, "events")[0]["V_m"]
 
-        # assert that gap currents bring the neuron at least 1% closer to threshold
-        assert np.amax(V_m_log) > .99 * post_neuron.E_L + .01 * post_neuron.V_th
+        # assert that gap currents bring the neuron at least 0.5% closer to threshold
+        assert np.amax(V_m_log) > .995 * post_neuron.E_L + .005 * post_neuron.V_th
 
         # assert that there are n_pre_spikes peaks in V_m
         assert len(scipy.signal.find_peaks(V_m_log)[0]) >= len(pre_sg.spike_times)

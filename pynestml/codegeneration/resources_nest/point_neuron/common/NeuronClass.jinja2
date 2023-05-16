@@ -568,19 +568,73 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     // B_.lag is needed by GSL stepping function to determine the current section
     B_.lag_ = lag;
 
+
+
+
+
+
+{%- if not gap_junction_membrane_potential_variable_is_numeric %}
+{#      in case V_m is solved analytically, need to compute __I_gap here so dV_m/dt can be computed below #}
+  // set I_gap depending on interpolation order
+  double __I_gap = 0.0;
+
+  const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
+
+  switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
+  {
+  case 0:
+    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ ];
+    break;
+
+  case 1:
+    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 2 + 0 ]
+      + B_.interpolation_coefficients[ B_.lag_ * 2 + 1 ] * __t_gap;
+    break;
+
+  case 3:
+    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+    break;
+
+  default:
+    throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
+  }
+{%- endif %}
+
+
+
+
+
+
+
     if ( called_from_wfr_update )
     {
-      y_i = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
+      y_i = {{ gap_junction_membrane_potential_variable_cpp }};
       if ( interpolation_order == 3 )
       {
+        // find dV_m/dt
+        gap_junction_step = 0;
+        double __I_gap = 0;
+{%-     if gap_junction_membrane_potential_variable_is_numeric %}
+{#          solved using a numeric solver #}
         double f_temp[ State_::STATE_VEC_SIZE ];
-        {{neuronName}}_dynamics( 0, S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
+        {{neuronName}}_dynamics( get_t(), S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
         hf_i = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+{%-     else %}
+{#        solved using an analytic solver #}
+
+{#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
+{%-         with analytic_state_variables_ = analytic_state_variables %}
+{%-             include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-         endwith %}
+
+        hf_i = ({{ gap_junction_membrane_potential_variable }}__tmp - y_i) / nest::Time::get_resolution().get_ms();
+{%-     endif %}
       }
     }
 
-    double t = 0.0;
-    const double U_old = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
 {%- endif %}
 
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
@@ -628,8 +682,8 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     if ( called_from_wfr_update )
     {
       // check if deviation from last iteration exceeds wfr_tol
-      wfr_tol_exceeded = wfr_tol_exceeded or fabs( S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ] - B_.last_y_values[ lag ] ) > wfr_tol;
-      B_.last_y_values[ lag ] = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
+      wfr_tol_exceeded = wfr_tol_exceeded or fabs( {{ gap_junction_membrane_potential_variable_cpp }} - B_.last_y_values[ lag ] ) > wfr_tol;
+      B_.last_y_values[ lag ] = {{ gap_junction_membrane_potential_variable_cpp }};
 
       // update different interpolations
 
@@ -642,16 +696,48 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
           break;
 
         case 1:
-          y_ip1 = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
+          y_ip1 = {{ gap_junction_membrane_potential_variable_cpp }};
 
           new_coefficients[ lag * ( interpolation_order + 1 ) + 1 ] = y_ip1 - y_i;
           break;
 
         case 3:
-          y_ip1 = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
-          double f_temp[ State_::STATE_VEC_SIZE ];
-          {{ neuronName }}_dynamics( nest::Time::get_resolution().get_ms(), S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
-          hf_ip1 = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+          // find dV_m/dt
+          {
+            gap_junction_step = __resolution;
+            y_ip1 = {{ gap_junction_membrane_potential_variable_cpp }};
+{%-     if gap_junction_membrane_potential_variable_is_numeric %}
+            double f_temp[ State_::STATE_VEC_SIZE ];
+            {{ neuronName }}_dynamics( get_t(), S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
+            hf_ip1 = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+{%-     else %}
+{#          solved using an analytic solver #}
+
+
+
+
+
+
+  const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
+
+    double __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+
+
+
+
+
+
+{#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
+{%-         with analytic_state_variables_ = analytic_state_variables %}
+{%-             include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-         endwith %}
+
+            hf_ip1 = ({{ gap_junction_membrane_potential_variable }}__tmp - y_ip1) / nest::Time::get_resolution().get_ms();
+{%-     endif %}
+          }
 
           new_coefficients[ lag * ( interpolation_order + 1 ) + 1 ] = hf_i;
           new_coefficients[ lag * ( interpolation_order + 1 ) + 2 ] = -3 * y_i + 3 * y_ip1 - 2 * hf_i - hf_ip1;
@@ -676,7 +762,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   {
     for ( long temp = from; temp < to; ++temp )
     {
-      new_coefficients[ temp * ( interpolation_order + 1 ) + 0 ] = S_.ode_state[ State_::{{ gap_junction_membrane_potential_variable }} ];
+      new_coefficients[ temp * ( interpolation_order + 1 ) + 0 ] = {{ gap_junction_membrane_potential_variable_cpp }};
     }
 
     std::vector< double >( nest::kernel().connection_manager.get_min_delay(), 0.0 ).swap( B_.last_y_values );

@@ -28,7 +28,7 @@ extern "C" inline int {{neuronName}}_dynamics(double __time, const double ode_st
   // set I_gap depending on interpolation order
   double __I_gap = 0.0;
 
-  const double t = __time / nest::Time::get_resolution().get_ms();
+  const double __t_gap = node.gap_junction_step / nest::Time::get_resolution().get_ms();
 
   switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
   {
@@ -38,14 +38,14 @@ extern "C" inline int {{neuronName}}_dynamics(double __time, const double ode_st
 
   case 1:
     __I_gap = -node.B_.sumj_g_ij_ * ode_state[State_::{{ gap_junction_membrane_potential_variable }}] + node.B_.interpolation_coefficients[ node.B_.lag_ * 2 + 0 ]
-      + node.B_.interpolation_coefficients[ node.B_.lag_ * 2 + 1 ] * t;
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 2 + 1 ] * __t_gap;
     break;
 
   case 3:
     __I_gap = -node.B_.sumj_g_ij_ * ode_state[State_::{{ gap_junction_membrane_potential_variable }}] + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 0 ]
-      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 1 ] * t
-      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 2 ] * t * t
-      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 3 ] * t * t * t;
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 1 ] * __t_gap
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
     break;
 
   default:

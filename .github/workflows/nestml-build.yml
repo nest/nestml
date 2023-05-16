@@ -75,7 +75,7 @@ jobs:
       # Install Python dependencies
       - name: Python dependencies
         run: |
-          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
+          python -m pip install --upgrade pip pytest pytest-xdist jupyterlab matplotlib pycodestyle scipy
           python -m pip install -r requirements.txt
 
       # Install Java
@@ -152,7 +152,7 @@ jobs:
         run: |
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
-              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+              pytest --forked -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
 
@@ -162,7 +162,7 @@ jobs:
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
-          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
+          pytest --forked -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest_integration_test.py
 
       # Run IPython/Jupyter notebooks
       - name: Run Jupyter notebooks
