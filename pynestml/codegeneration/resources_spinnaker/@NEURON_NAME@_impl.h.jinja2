@@ -1,6 +1,7 @@
 #ifndef _{{neuronName.upper()}}_IMPL_
 #define _{{neuronName.upper()}}_IMPL_
 
+#include <math.h>
 #include <neuron/implementations/neuron_impl.h>
 #include <spin1_api.h>
 #include <debug.h>
@@ -50,7 +51,7 @@ enum input_indices
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
-{%- if neuron.get_spike_input_ports()|length > 1 %}
+{%- if neuron.get_spike_input_ports()|length > 0 %}
     accum inputs[{{ neuron.get_spike_input_ports()|length }}];
 {%- endif %}
     
@@ -78,6 +79,25 @@ typedef struct neuron_impl_t {
 {%- for sym in neuron.get_internal_symbols() %}
     accum {{sym.get_symbol_name()}};
 {%- endfor %}
+
+{%- if uses_numeric_solver %}
+
+    // -----------------------------------------------------------------------
+    //   GSL ODE solver data structures
+    // -----------------------------------------------------------------------
+
+    gsl_odeiv_step* __s;    //!< stepping function
+    gsl_odeiv_control* __c; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* __e;  //!< evolution function
+    gsl_odeiv_system __sys; //!< struct describing system
+
+    // __integration_step should be reset with the neuron on ResetNetwork,
+    // but remain unchanged during calibration. Since it is initialized with
+    // step_, and the resolution cannot change after nodes have been created,
+    // it is safe to place both here.
+    double __step;             //!< step size in ms
+    double __integration_step; //!< current integration time step, updated by GSL
+{%- endif %}
 
 } neuron_impl_t;
 

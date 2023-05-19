@@ -26,6 +26,12 @@ from spynnaker.pyNN.utilities.struct import Struct
 from spynnaker.pyNN.models.neuron.implementations import (
     AbstractNeuronImpl, RangedDictVertexSlice)
 
+from spinn_utilities.overrides import overrides
+
+
+# TODO: Find way to generate the variable units
+
+
 
 class {{neuronName}}Impl(AbstractNeuronImpl):
 
@@ -68,48 +74,43 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
         self._struct = Struct([
                  # state:
 {%- for sym in neuron.get_state_symbols() %}
-            DataType.S1615,   # {{sym.get_symbol_name()}}
+            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
-            DataType.S1615,   # {{sym.get_symbol_name()}}
+            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
-            DataType.S1615,   # {{sym.get_symbol_name()}}
+            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # internals:
 {%- for sym in neuron.get_internal_symbols() %}
-            DataType.S1615,   # {{sym.get_symbol_name()}}
+            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
             ])
 
-{%- for sym in neuron.get_state_symbols()|list + neuron.get_parameter_symbols()|list + neuron.get_spike_input_ports()|list %}
     @property
-    def {{sym.get_symbol_name()}}(self):
-        return self._{{sym.get_symbol_name()}}
-
-    @{{sym.get_symbol_name()}}.setter
-    def {{sym.get_symbol_name()}}(self, {{sym.get_symbol_name()}}):
-        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
-{%- endfor %}
+    @overrides(AbstractNeuronImpl.structs)
+    def structs(self):
+        return [self._struct]
 
     @property
+    @overrides(AbstractNeuronImpl.model_name)
     def model_name(self):
         return "{{neuronName}}Impl"
 
     @property
+    @overrides(AbstractNeuronImpl.binary_name)
     def binary_name(self):
         return "{{neuronName}}_impl.aplx"
 
-    def get_sdram_usage_in_bytes(self, n_neurons):
-        # This is extracted from the struct, so no need to update
-        return self._struct.get_size_in_whole_words(n_neurons) * BYTES_PER_WORD
-
+    @overrides(AbstractNeuronImpl.get_global_weight_scale)
     def get_global_weight_scale(self):
         # TODO: Update if a weight scale is required
         return 1.
 
+    @overrides(AbstractNeuronImpl.get_n_synapse_types)
     def get_n_synapse_types(self):
         return 0 \
 {%- for inputPort in neuron.get_spike_input_ports() %}
@@ -117,13 +118,15 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
                 + 0
 
+    @overrides(AbstractNeuronImpl.get_synapse_id_by_target)
     def get_synapse_id_by_target(self, target):
 {%- for sym in neuron.get_spike_input_ports() %}
         if target == "{{sym.get_symbol_name()}}":
-            return {{loop.index}}
+            return {{loop.index -1}}
 {%- endfor %}
         raise ValueError("Unknown target {}".format(target))
 
+    @overrides(AbstractNeuronImpl.get_synapse_targets)
     def get_synapse_targets(self):
         return [
 {%- for sym in neuron.get_spike_input_ports() %}
@@ -131,35 +134,41 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
                ]
 
-    def get_state_symbols(self):
+    @overrides(AbstractNeuronImpl.get_recordable_variables)
+    def get_recordable_variables(self):
         return [
-{%- for sym in neuron.get_spike_input_ports() %}
+{%- for sym in neuron.get_state_symbols() %}
             "{{sym.get_symbol_name()}}",
-{%- endfor %}
-               ]
+{%- endfor %} 
+        ]
 
+    @overrides(AbstractNeuronImpl.get_recordable_data_types)
     def get_recordable_data_types(self):
         return {
-{%- for sym in neuron.get_spike_input_ports() %}
+{%- for sym in neuron.get_state_symbols() %}
             "{{sym.get_symbol_name()}}": DataType.S1615,
 {%- endfor %}
             }
 
+    @overrides(AbstractNeuronImpl.get_recordable_units)
     def get_recordable_units(self, variable):
+    # TODO: Find way to print units not datatypes
 {%- for sym in neuron.get_state_symbols() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{declarations.print_variable_type(sym)}}"
+            return "{{sym.get_type_symbol().print_symbol()}}"
 {%- endfor %}
         raise ValueError("Unknown variable {}".format(variable))
 
+    @overrides(AbstractNeuronImpl.get_recordable_variable_index)
     def get_recordable_variable_index(self, variable):
 {%- for sym in neuron.get_state_symbols() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return {{loop.index}}
+            return {{loop.index-1}}
 {%- endfor %}
 
         raise ValueError("Unknown variable {}".format(variable))
 
+    @overrides(AbstractNeuronImpl.is_recordable)
     def is_recordable(self, variable):
         return variable in [
 {%- for sym in neuron.get_state_symbols() %}
@@ -167,107 +176,58 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
                            ]
 
+    @overrides(AbstractNeuronImpl.add_parameters)
     def add_parameters(self, parameters):
 {%- for sym in neuron.get_parameter_symbols() %}
         parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
 
+{%- for sym in neuron.get_state_symbols() %}
+        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+
+                 # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+                 # internals:
+{%- for sym in neuron.get_internal_symbols() %}
+        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+
+    @overrides(AbstractNeuronImpl.add_state_variables)
     def add_state_variables(self, state_variables):
-{%- for sym in neuron.get_parameter_symbols() %}
+{%- for sym in neuron.get_state_symbols() %}
         state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
 
-    def get_data(self, parameters, state_variables, vertex_slice, atoms_shape):
-        """get the data in the appropriate form to match the struct"""
-        values = [
-{%- for sym in neuron.get_state_symbols() %}
-            state_variables["{{sym.get_symbol_name()}}"],
-{%- endfor %}
-
-{%- for sym in neuron.get_parameter_symbols() %}
-            parameters["{{sym.get_symbol_name()}}"],
-{%- endfor %}
-
-{%- for sym in neuron.get_spike_input_ports() %}
-            state_variables["{{sym.get_symbol_name()}}"],
-{%- endfor %}
-
-{%- for sym in neuron.get_internal_symbols() %}
-            parameters["{{sym.get_symbol_name()}}"],
-{%- endfor %}
-                 ]
-        return self._struct.get_data(values, vertex_slice, atoms_shape)
-
-    def read_data(
-            self, data, offset, vertex_slice, parameters, state_variables):
-        """Extract items from the data to be updated"""
-        (
-{%- for sym in neuron.get_state_symbols() %}
-            {{sym.get_symbol_name()}},
-{%- endfor %}
-
-{%- for sym in neuron.get_parameter_symbols() %}
-            {{sym.get_symbol_name()}},
-{%- endfor %}
-
-{%- for sym in neuron.get_spike_input_ports() %}
-            {{sym.get_symbol_name()}},
-{%- endfor %}
-
-{%- for sym in neuron.get_internal_symbols() %}
-            {{sym.get_symbol_name()}},
-{%- endfor %}
-
-        ) = self._struct.read_data(
-            data, offset, vertex_slice.n_atoms)
-        new_offset = offset + self._struct.get_size_in_whole_words(
-            vertex_slice.n_atoms)
-        variables = RangedDictVertexSlice(state_variables, vertex_slice)
-
-        # state:
-{%- for sym in neuron.get_state_symbols() %}
-        variables["{{sym.get_symbol_name()}}"] = {{sym.get_symbol_name()}}
-{%- endfor %}
-        # parameters:
-{%- for sym in neuron.get_parameter_symbols() %}
-        variables["{{sym.get_symbol_name()}}"] = {{sym.get_symbol_name()}}
-{%- endfor %}
-        # spike input ports:
-{%- for sym in neuron.get_spike_input_ports() %}
-        variables["{{sym.get_symbol_name()}}"] = {{sym.get_symbol_name()}}
-{%- endfor %}
-        # internal parameters:
-{%- for sym in neuron.get_internal_symbols() %}
-        variables["{{sym.get_symbol_name()}}"] = {{sym.get_symbol_name()}}
-{%- endfor %}
-
-        return new_offset
-
+    @overrides(AbstractNeuronImpl.get_units)
     def get_units(self, variable):
         # state:
 {%- for sym in neuron.get_state_symbols() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{declarations.print_variable_type(sym)}}"
+            return "{{sym.get_type_symbol().print_symbol()}}"
 {%- endfor %}
         # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{declarations.print_variable_type(sym)}}"
+            return "{{sym.get_type_symbol().print_symbol()}}"
 {%- endfor %}
         # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{declarations.print_variable_type(sym)}}"
+            return "{{sym.get_type_symbol().print_symbol()}}"
 {%- endfor %}
         # internal parameters:
 {%- for sym in neuron.get_internal_symbols() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{declarations.print_variable_type(sym)}}"
+            return "{{sym.get_type_symbol().print_symbol()}}"
 {%- endfor %}
 
         raise ValueError("Unknown variable {}".format(variable))
 
     @property
+    @overrides(AbstractNeuronImpl.is_conductance_based)
     def is_conductance_based(self):
         # TODO: Update if uses conductance
         return False

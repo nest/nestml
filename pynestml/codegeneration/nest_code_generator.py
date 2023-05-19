@@ -544,6 +544,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["spike_updates"] = synapse.spike_updates
 
+        namespace["tracing"] = True
+
         return namespace
 
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:

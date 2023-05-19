@@ -68,3 +68,68 @@ class SpinnakerCppFunctionCallPrinter(CppFunctionCallPrinter):
             raise Exception("deliver_spike() function not yet implemented")
 
         return super()._print_function_call(node)
+
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
+        r"""
+        Converts a single handed over function call to C++ NEST API syntax.
+
+        Parameters
+        ----------
+        function_call
+            The function call node to convert.
+
+        Returns
+        -------
+        s
+            The function call string in C++ syntax.
+        """
+        function_name = function_call.get_name()
+
+        if function_name == PredefinedFunctions.CLIP:
+            # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
+            return 'min({2!s}, std::max({1!s}, {0!s}))'
+
+        if function_name == PredefinedFunctions.MAX:
+            return 'max({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.MIN:
+            return 'min({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.EXP:
+            return 'exp({!s})'
+
+        if function_name == PredefinedFunctions.LN:
+            return 'log({!s})'
+
+        if function_name == PredefinedFunctions.LOG10:
+            return 'log10({!s})'
+
+        if function_name == PredefinedFunctions.COSH:
+            return 'cosh({!s})'
+
+        if function_name == PredefinedFunctions.SINH:
+            return 'sinh({!s})'
+
+        if function_name == PredefinedFunctions.TANH:
+            return 'tanh({!s})'
+
+        if function_name == PredefinedFunctions.ERF:
+            return 'erf({!s})'
+
+        if function_name == PredefinedFunctions.ERFC:
+            return 'erfc({!s})'
+
+        if function_name == PredefinedFunctions.EXPM1:
+            return 'expm1({!s})'
+
+        if function_name == PredefinedFunctions.PRINT:
+            return 'printf({!s})'
+
+        if function_name == PredefinedFunctions.PRINTLN:
+            return 'printf({!s}+"\n")'
+
+        if ASTUtils.needs_arguments(function_call):
+            n_args = len(function_call.get_args())
+            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+
+        return function_name + '()'

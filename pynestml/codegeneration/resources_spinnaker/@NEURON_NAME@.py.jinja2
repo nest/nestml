@@ -19,28 +19,43 @@
 #  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 #  Generated from NESTML at time: {{now}}
+from numpy import exp, ceil
 
 from spynnaker.pyNN.models.neuron import AbstractPyNNNeuronModel
 from spynnaker.pyNN.models.defaults import default_parameters
+from spynnaker.pyNN.data.spynnaker_data_view import SpynnakerDataView
+
 from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronName}}Impl
 
+# TODO: Better way to generate steps function (even necessary ? )
+def steps(time_ms: float, timestep: float):
+    r"""Convert a time period (in milliseconds) to number of simulation steps"""
+    return int(ceil(time_ms / timestep))
 
 class {{neuronName}}(AbstractPyNNNeuronModel):
 
     def __init__(self,
+#TODO: 'V_m' can't be initialized with E_L
 # XXX: need to print default values here?
 {%- for sym in neuron.get_state_symbols() %}
-                 {{sym.get_symbol_name()}},
+{%- set otherInititial = utils.get_variable_by_name(astnode, sym.get_initial_value()|string())%}
+{%- if not otherInititial%}
+                {{sym.get_symbol_name()}}={{sym.get_initial_value()}},
+{%- else%}
+                {{sym.get_symbol_name()}} = {{otherInititial.resolve_in_own_scope().get_initial_value()}},
+{%- endif%}
 {%- endfor %}
 
 {%- for sym in neuron.get_parameter_symbols() %}
-                 {{sym.get_symbol_name()}},
+                {{sym.get_symbol_name()}}={{sym.get_initial_value()}},
 {%- endfor %}
 
 {%- for sym in neuron.get_spike_input_ports() %}
-                 {{sym.get_symbol_name()}},
+                {{sym.get_symbol_name()}}={{sym.get_initial_value()}},
 {%- endfor %}
                 ):
+
+        timestep = (SpynnakerDataView.get_simulation_time_step_ms())
 
         # compute propagators and other internal parameters
 {%- filter indent(8) %}
@@ -53,21 +68,21 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
         super().__init__({{neuronName}}Impl(
                  # state:
 {%- for sym in neuron.get_state_symbols() %}
-                 {{sym.get_symbol_name()}},
+                {{sym.get_symbol_name()}},
 {%- endfor %}
 
                  # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
-                 {{sym.get_symbol_name()}},
+                {{sym.get_symbol_name()}},
 {%- endfor %}
 
                  # input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
-                 {{sym.get_symbol_name()}},
+                {{sym.get_symbol_name()}},
 {%- endfor %}
 
                  # internal variables:
 {%- for sym in neuron.get_internal_symbols() %}
-                 {{sym.get_symbol_name()}},
+                {{sym.get_symbol_name()}},
 {%- endfor %}
                                            ))
