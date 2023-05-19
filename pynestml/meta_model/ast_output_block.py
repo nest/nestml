@@ -27,7 +27,8 @@ class ASTOutputBlock(ASTNode):
     """
     This class is used to store output port declarations.
     ASTOutput represents the output block of the neuron:
-        output: spike
+        output:
+            spike
       @attribute spike true if and only if the neuron has a spike output.
       @attribute continuous true if and only if the neuron has a continuous time output.
     Grammar:
@@ -63,7 +64,6 @@ class ASTOutputBlock(ASTNode):
                              comment=self.comment,
                              pre_comments=[s for s in self.pre_comments],
                              in_comment=self.in_comment,
-                             post_comments=[s for s in self.post_comments],
                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup

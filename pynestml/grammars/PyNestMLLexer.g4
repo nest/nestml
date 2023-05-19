@@ -22,30 +22,43 @@
 
 lexer grammar PyNestMLLexer;
 
+  tokens { INDENT, DEDENT }
+
+  options {
+    superClass=PyNestMLLexerBase;
+  }
+
   // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2
   channels {COMMENT}
 
   DOCSTRING_TRIPLEQUOTE : '"""';
   fragment NEWLINE_FRAG : '\r'? '\n';  // non-capturing newline, as a helper to define the channel rules
 
-  WS : (' ' | '\t') -> channel(1);
+  KERNEL_JOINING : COMMA NEWLINE_FRAG WS?;
+
+  WS : [ \t]+ -> channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' NEWLINE_FRAG -> channel(1);
 
   DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) NEWLINE_FRAG -> channel(2);
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
 
   // newline is defined as a token
-  NEWLINE : '\r'? '\n';
+  NEWLINE
+  : ( {self.atStartOfInput()}? WS
+   | ( '\r'? '\n' ) WS?
+   )
+   {self.onNewLine()}
+  ;
+
   /**
   * Symbols and literals are parsed first
   *
   * Decorator (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a decorator keyword. (Rules are matched in the order in which they appear.)
   */
 
-  END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';
   REAL_KEYWORD : 'real';
   STRING_KEYWORD : 'string';

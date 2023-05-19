@@ -26,11 +26,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 neuron simple_vectors_model:
-  state:
-   g_ex [20] real = 1.2
-  end
+    state:
+        g_ex [20] real = 1.2
 
-  update:
-    g_ex[2] = 10.5
-  end
-end
+    update:
+        g_ex[2] = 10.5

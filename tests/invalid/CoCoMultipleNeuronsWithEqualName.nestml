@@ -33,7 +33,9 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoMultipleNeuronsWithEqualName:
-end
+    state:
+        v_m mV = -10 mV
 
 neuron CoCoMultipleNeuronsWithEqualName:
-end
+    state:
+        v_m mV = -55 mV
