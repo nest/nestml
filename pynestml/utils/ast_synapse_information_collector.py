@@ -150,8 +150,6 @@ class ASTSynapseInformationCollector(ASTVisitor):
             neuron.accept(kernel_collector)
             global_kernels = kernel_collector.all_kernels
 
-            #print("states: "+str(len(global_states))+" param: "+str(len(global_parameters))+" funcs: "+str(len(global_functions))+" inlines: "+str(len(global_inlines))+" odes: "+str(len(global_odes)))
-
             synapse_states = list()
             synapse_parameters = list()
             synapse_functions = list()

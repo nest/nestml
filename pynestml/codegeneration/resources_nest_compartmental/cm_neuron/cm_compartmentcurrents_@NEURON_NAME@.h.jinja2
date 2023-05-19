@@ -42,13 +42,6 @@ namespace nest
 
 class {{ion_channel_name}}{{cm_unique_suffix}}{
 private:
-    // parameters
-    {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor %}
-
     // states
     {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -56,8 +49,15 @@ private:
     {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
 
+    // parameters
+    {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+    {%- endfor %}
+
     // ion-channel root-inline value
-    double {{ion_channel_name}} = 0;
+    double i_tot_{{ion_channel_name}} = 0;
 
 public:
     // constructor, destructor
@@ -82,9 +82,9 @@ public:
                             const long compartment_idx);
 
     // numerical integration step
-    std::pair< double, double > f_numstep( const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
-                        {% for inline in channel_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
-                        {% for inline in channel_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
+    std::pair< double, double > f_numstep( const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
 
     // function declarations
 
@@ -93,7 +93,7 @@ public:
 {%- endfor %}
 
     // root_inline getter
-    double get_{{ion_channel_name}}();
+    double get_current_{{ion_channel_name}}();
 
 };
 {% endfor -%}
@@ -146,7 +146,7 @@ private:
         {%- set rhs_expression = variable_info["rhs_expression"] %}
   {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
-    double {{synapse_name}} = 0;
+    double i_tot_{{synapse_name}} = 0;
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
@@ -171,9 +171,9 @@ public:
   };
 
   // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
-                        {% for inline in synapse_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
-                        {% for inline in synapse_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
+  std::pair< double, double > f_numstep( const double v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
 
   // calibration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -194,7 +194,7 @@ public:
   {% endfor %}
 
     // root_inline getter
-    double get_{{synapse_name}}();
+    double get_current_{{synapse_name}}();
 };
 
 
@@ -222,7 +222,7 @@ private:
     {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
     {%- endfor %}
 
-    // concentration root-ode value
+    // concentration value (root-ode state)
     double {{concentration_name}} = 0;
 
 public:
@@ -248,9 +248,9 @@ public:
                             const long compartment_idx);
 
     // numerical integration step
-    void f_numstep( const double v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
-                        {% for inline in concentration_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
-                        {% for inline in concentration_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
+    void f_numstep( const double v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
 
     // function declarations
 {%- for function in concentration_info["Functions"] %}
@@ -258,7 +258,7 @@ public:
 {%- endfor %}
 
     // root_ode getter
-    double get_{{concentration_name}}();
+    double get_concentration_{{concentration_name}}();
 
 };
 {% endfor -%}
@@ -315,7 +315,7 @@ public:
 {%- else %}
   void pre_run_hook() {
 {%- endif %}
-    // initialization of the ion channels
+    // initialization of ion channels
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -326,7 +326,7 @@ public:
     {% endfor -%}
   {% endwith -%}
 
-// initialization of the concentrations
+    // initialization of concentrations
   {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -453,21 +453,21 @@ public:
     double g_val = 0.;
     double i_val = 0.;
 {%- for synapse_name, synapse_info in syns_info.items() %}
-    double {{synapse_name}}{{channel_suffix}}_added_current = 0;
+    double {{synapse_name}}{{channel_suffix}}current_sum = 0;
     for( auto syn_it = {{synapse_name}}_syns_.begin();
          syn_it != {{synapse_name}}_syns_.end();
          ++syn_it )
     {
-        {{synapse_name}}{{channel_suffix}}_added_current += syn_it->get_{{synapse_name}}();
+        {{synapse_name}}{{channel_suffix}}current_sum += syn_it->get_current_{{synapse_name}}();
     }
 {% endfor %}
 
   {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     // computation of {{ concentration_name }} concentration
-    {{ concentration_name }}{{concentration_suffix}}.f_numstep( v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_{{ode.lhs.name}}(){% endfor %}
-                        {% for inline in concentration_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_added_current{% endfor %}
-                        {% for inline in concentration_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_{{inline.variable_name}}(){% endfor %});
+    {{ concentration_name }}{{concentration_suffix}}.f_numstep( v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_current_sum{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current_{{inline.variable_name}}(){% endfor %});
 
     {% endfor -%}
   {% endwith -%}
@@ -475,9 +475,9 @@ public:
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
-    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_{{ode.lhs.name}}(){% endfor %}
-                        {% for inline in channel_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_added_current{% endfor %}
-                        {% for inline in channel_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_{{inline.variable_name}}(){% endfor %});
+    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_current_sum{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current_{{inline.variable_name}}(){% endfor %});
 
     g_val += gi.first;
     i_val += gi.second;
@@ -492,9 +492,9 @@ public:
          syn_it != {{synapse_name}}_syns_.end();
          ++syn_it )
     {
-      gi = syn_it->f_numstep( v_comp, lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_{{ode.lhs.name}}(){% endfor %}
-                        {% for inline in synapse_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_added_current{% endfor %}
-                        {% for inline in synapse_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_{{inline.variable_name}}(){% endfor %});
+      gi = syn_it->f_numstep( v_comp, lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_current_sum{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current{{inline.variable_name}}(){% endfor %});
 
       g_val += gi.first;
       i_val += gi.second;

@@ -722,8 +722,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
-        #print("CHANNEL INFO:")
-        #ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
+        print("CHANNEL INFO:")
+        ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
 
         namespace["syns_info"] = SynapseProcessing.get_mechs_info(neuron)
         #print("SYNS INFO:")
@@ -731,8 +731,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
         syns_info_enricher = SynsInfoEnricher(neuron)
         namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
-        print("SYNAPSE INFO:")
-        ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
+        #print("SYNAPSE INFO:")
+        #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
 
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
         namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])

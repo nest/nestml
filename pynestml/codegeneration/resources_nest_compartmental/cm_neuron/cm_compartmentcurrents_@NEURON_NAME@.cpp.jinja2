@@ -154,7 +154,7 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
   {% endwith %}
-    ( *recordables )[ Name( "{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &{{ion_channel_name}};
+    ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &i_tot_{{ion_channel_name}};
 }
 
 std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
@@ -164,7 +164,7 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
     double g_val = 0., i_val = 0.;
 
     if({%- for key_zero_param in channel_info["RootInlineKeyZeros"] %} {{ key_zero_param }} > 1e-9 && {%- endfor %} true ){
-        double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
+        {% if channel_info["ODEs"].items()|length %} double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms(); {% endif %}
 
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
@@ -175,19 +175,15 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
             {%- endfor %}
         {%- endfor %}
 
-        const double dt = Time::get_resolution().get_ms();
-
         {%- set inline_expression = channel_info["root_expression"] %}
         {%- set inline_expression_d = channel_info["inline_derivative"] %}
         // compute the conductance of the {{ion_channel_name}} channel
-        double i_tot = {{ printer_no_origin.print(inline_expression.get_expression()) }};
-        this->{{ion_channel_name}} = i_tot;
+        this->i_tot_{{ion_channel_name}} = {{ printer_no_origin.print(inline_expression.get_expression()) }};
         // derivative
         double d_i_tot_dv = {{ printer_no_origin.print(inline_expression_d) }};
 
-        //Numerical integration (???)
         g_val = - d_i_tot_dv / 2.;
-        i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+        i_val = this->i_tot_{{ion_channel_name}} - d_i_tot_dv * v_comp / 2.;
     }
     return std::make_pair(g_val, i_val);
 
@@ -197,10 +193,11 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
 {{render_channel_function(function, ion_channel_name)}}
 {%- endfor %}
 
-double nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_{{ion_channel_name}}(){
-    return this->{{ion_channel_name}};
+double nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_current_{{ion_channel_name}}(){
+    return this->i_tot_{{ion_channel_name}};
 }
 
+// {{ion_channel_name}} channel end ///////////////////////////////////////////////////////////
 {% endfor -%}
 {% endwith %}
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,7 +213,6 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}
   syn_idx = syn_index;
 }
 
-// {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["Parameters"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
@@ -238,7 +234,7 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, d
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx) )] = &{{convolution}};
   {%- endfor %}
-    ( *recordables )[ Name( "{{synapse_name}}" + std::to_string(syn_idx) )] = &{{synapse_name}};
+    ( *recordables )[ Name( "i_tot_{{synapse_name}}" + std::to_string(syn_idx) )] = &i_tot_{{synapse_name}};
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -286,13 +282,12 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
   double s_val = {{synapse_info["buffer_name"]}}_->get_value( lag ); //  * g_norm_;
 
   //update ODE state variable
-  double {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
+  {% if synapse_info["ODEs"].items()|length %} double {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }} = Time::get_resolution().get_ms(); {% endif %}
   {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
       {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
   double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
       {%- endfor %}
       {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-        {# {{state}} = {{local_variables_printer.print_expression(update_expression_rhs, with_origins = False)}}; -#}
   {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
       {%- endfor %}
   {%- endfor %}
@@ -308,8 +303,7 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 
   // total current
   // this expression should be the transformed inline expression
-  double i_tot = {{ printer_no_origin.print(synapse_info["root_expression"].get_expression()) }};
-    this->{{synapse_name}} = i_tot;
+  this->i_tot_{{synapse_name}} = {{ printer_no_origin.print(synapse_info["root_expression"].get_expression()) }};
 
   // derivative of that expression
   // voltage derivative of total current
@@ -318,8 +312,8 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 
   // for numerical integration
   double g_val = - d_i_tot_dv / 2.;
-  double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
-  //std::cout << "g_val: " << g_val << "  i_val: " << i_val << std::endl;
+  double i_val = this->i_tot_{{synapse_name}} - d_i_tot_dv * v_comp / 2.;
+
   return std::make_pair(g_val, i_val);
 
 }
@@ -335,8 +329,8 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 }
 {%- endfor %}
 
-    double nest::{{synapse_name}}{{cm_unique_suffix}}::get_{{synapse_name}}(){
-        return this->{{synapse_name}};
+    double nest::{{synapse_name}}{{cm_unique_suffix}}::get_current_{{synapse_name}}(){
+        return this->i_tot_{{synapse_name}};
     }
 
 // {{synapse_name}} synapse end ///////////////////////////////////////////////////////////
@@ -346,7 +340,7 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 {%- with %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
 
-// {{ concentration_name }} channel //////////////////////////////////////////////////////////////////
+// {{ concentration_name }} concentration //////////////////////////////////////////////////////////////////
 nest::{{ concentration_name }}{{cm_unique_suffix}}::{{ concentration_name }}{{cm_unique_suffix}}():
 {%- set states_written = False %}
 {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
@@ -432,11 +426,11 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double 
 {{render_channel_function(function, concentration_name)}}
 {%- endfor %}
 
-double nest::{{concentration_name}}{{cm_unique_suffix}}::get_{{concentration_name}}(){
+double nest::{{concentration_name}}{{cm_unique_suffix}}::get_concentration_{{concentration_name}}(){
     return this->{{concentration_name}};
 }
 
-
+// {{concentration_name}} concentration end ///////////////////////////////////////////////////////////
 {% endfor -%}
 {% endwith %}
 

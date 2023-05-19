@@ -22,6 +22,11 @@
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.variable_symbol import BlockType
 
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+
+from collections import defaultdict
+
 
 class NESTCodeGeneratorUtils:
 
@@ -51,3 +56,34 @@ class NESTCodeGeneratorUtils:
             return 'B_.%s'
 
         return ''
+
+    @classmethod
+    def print_element(cls, name, element, rec_step):
+        for indent in range(rec_step):
+            print("----", end="")
+        print(name + ": ", end="")
+        if isinstance(element, defaultdict):
+            print("\n", end="")
+            cls.print_dictionary(element, rec_step + 1)
+        else:
+            if hasattr(element, 'name'):
+                print(element.name, end="")
+            elif isinstance(element, str):
+                print(element, end="")
+            elif isinstance(element, dict):
+                print("\n", end="")
+                cls.print_dictionary(element, rec_step + 1)
+            elif isinstance(element, list):
+                for index in range(len(element)):
+                    print("\n", end="")
+                    cls.print_element(str(index), element[index], rec_step + 1)
+            elif isinstance(element, ASTExpression) or isinstance(element, ASTSimpleExpression):
+                print(cls._ode_toolbox_printer.print(element), end="")
+
+            print("(" + type(element).__name__ + ")", end="")
+
+    @classmethod
+    def print_dictionary(cls, dictionary, rec_step):
+        for name, element in dictionary.items():
+            cls.print_element(name, element, rec_step)
+            print("\n", end="")

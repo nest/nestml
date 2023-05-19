@@ -16,8 +16,8 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def detect_mechs(cls, mechType: str):
-        """This function detects the root expression (either ode or inline) of the given type and returns the initial
-        info dictionary later used by the templates"""
+        """Detects the root expressions (either ode or inline) of the given type and returns the initial
+        info dictionary"""
         mechs_info = defaultdict()
         if not FrontendConfiguration.target_is_compartmental():
             return mechs_info
@@ -66,7 +66,7 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def extend_variables_with_initialisations(cls, neuron, mechs_info):
-        """collects ititialization expressions for all variables and parameters contained in mechs_info"""
+        """collects initialization expressions for all variables and parameters contained in mechs_info"""
         for mechanism_name, mechanism_info in mechs_info.items():
             var_init_visitor = VariableInitializationVisitor(mechanism_info)
             neuron.accept(var_init_visitor)
@@ -77,7 +77,7 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def collect_mechanism_related_definitions(cls, neuron, mechs_info):
-        """Collects all parts of the nestml code the root expressions previously collected depend on. recursive search
+        """Collects all parts of the nestml code the root expressions previously collected depend on. search
         is cut at other mechanisms root expressions"""
         from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
         from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -153,80 +153,80 @@ class ASTMechanismInformationCollector(object):
 
                 elif (len(search_variables) > 0):
                     variable = search_variables[0]
-                    is_dependency = False
-                    for inline in global_inlines:
-                        if variable.name == inline.variable_name:
-                            if isinstance(inline.get_decorators(), list):
-                                if "mechanism" in [e.namespace for e in inline.get_decorators()]:
-                                    is_dependency = True
-                                    if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
-                                        if "channel" in [e.name for e in inline.get_decorators()]:
-                                            if not inline.variable_name in [i.variable_name for i in mechanism_dependencies["channels"]]:
-                                                mechanism_dependencies["channels"].append(inline)
-                                        if "receptor" in [e.name for e in inline.get_decorators()]:
-                                            if not inline.variable_name in [i.variable_name for i in mechanism_dependencies["receptors"]]:
-                                                mechanism_dependencies["receptors"].append(inline)
+                    if not variable.name == "v_comp":
+                        is_dependency = False
+                        for inline in global_inlines:
+                            if variable.name == inline.variable_name:
+                                if isinstance(inline.get_decorators(), list):
+                                    if "mechanism" in [e.namespace for e in inline.get_decorators()]:
+                                        is_dependency = True
+                                        if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
+                                            if "channel" in [e.name for e in inline.get_decorators()]:
+                                                if not inline.variable_name in [i.variable_name for i in mechanism_dependencies["channels"]]:
+                                                    mechanism_dependencies["channels"].append(inline)
+                                            if "receptor" in [e.name for e in inline.get_decorators()]:
+                                                if not inline.variable_name in [i.variable_name for i in mechanism_dependencies["receptors"]]:
+                                                    mechanism_dependencies["receptors"].append(inline)
 
-                            if not is_dependency:
-                                mechanism_inlines.append(inline)
+                                if not is_dependency:
+                                    mechanism_inlines.append(inline)
+
+                                    local_variable_collector = ASTVariableCollectorVisitor()
+                                    inline.accept(local_variable_collector)
+                                    search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+
+                                    local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                                    inline.accept(local_function_call_collector)
+                                    search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                           local_function_call_collector.all_function_calls,
+                                                                                                           search_functions + found_functions)
+
+                        for ode in global_odes:
+                            if variable.name == ode.lhs.name:
+                                if isinstance(ode.get_decorators(), list):
+                                    if "mechanism" in [e.namespace for e in ode.get_decorators()]:
+                                        is_dependency = True
+                                        if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
+                                            if "concentration" in [e.name for e in ode.get_decorators()]:
+                                                if not ode.lhs.name in [o.lhs.name for o in mechanism_dependencies["concentrations"]]:
+                                                    mechanism_dependencies["concentrations"].append(ode)
+
+                                if not is_dependency:
+                                    mechanism_odes.append(ode)
+
+                                    local_variable_collector = ASTVariableCollectorVisitor()
+                                    ode.accept(local_variable_collector)
+                                    search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+
+                                    local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                                    ode.accept(local_function_call_collector)
+                                    search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                           local_function_call_collector.all_function_calls,
+                                                                                                           search_functions + found_functions)
+
+                        for state in global_states:
+                            if variable.name == state.name and not is_dependency:
+                                mechanism_states.append(state)
+
+                        for parameter in global_parameters:
+                            if variable.name == parameter.name:
+                                mechanism_parameters.append(parameter)
+
+                        for kernel in global_kernels:
+                            if variable.name == kernel.get_variables()[0].name:
+                                synapse_kernels.append(kernel)
 
                                 local_variable_collector = ASTVariableCollectorVisitor()
-                                inline.accept(local_variable_collector)
-                                search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
+                                kernel.accept(local_variable_collector)
+                                search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                                                  local_variable_collector.all_variables,
+                                                                                                  search_variables + found_variables)
 
                                 local_function_call_collector = ASTFunctionCallCollectorVisitor()
-                                inline.accept(local_function_call_collector)
+                                kernel.accept(local_function_call_collector)
                                 search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
                                                                                                        local_function_call_collector.all_function_calls,
                                                                                                        search_functions + found_functions)
-
-                    for ode in global_odes:
-                        if variable.name == ode.lhs.name:
-                            if isinstance(ode.get_decorators(), list):
-                                if "mechanism" in [e.namespace for e in ode.get_decorators()]:
-                                    is_dependency = True
-                                    if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
-                                        if "concentration" in [e.name for e in ode.get_decorators()]:
-                                            if not ode.lhs.name in [o.lhs.name for o in mechanism_dependencies["concentrations"]]:
-                                                mechanism_dependencies["concentrations"].append(ode)
-
-                            if not is_dependency:
-                                mechanism_odes.append(ode)
-
-                                local_variable_collector = ASTVariableCollectorVisitor()
-                                ode.accept(local_variable_collector)
-                                search_variables = cls.extend_variable_list_name_based_restricted(search_variables, local_variable_collector.all_variables, search_variables+found_variables)
-
-                                local_function_call_collector = ASTFunctionCallCollectorVisitor()
-                                ode.accept(local_function_call_collector)
-                                search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
-                                                                                                       local_function_call_collector.all_function_calls,
-                                                                                                       search_functions + found_functions)
-
-                    for state in global_states:
-                        if variable.name == state.name and not is_dependency:
-                            mechanism_states.append(state)
-
-                    for parameter in global_parameters:
-                        if variable.name == parameter.name:
-                            mechanism_parameters.append(parameter)
-
-                    for kernel in global_kernels:
-                        if variable.name == kernel.get_variables()[0].name:
-                            #print("kernel found")
-                            synapse_kernels.append(kernel)
-
-                            local_variable_collector = ASTVariableCollectorVisitor()
-                            kernel.accept(local_variable_collector)
-                            search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
-                                                                                              local_variable_collector.all_variables,
-                                                                                              search_variables + found_variables)
-
-                            local_function_call_collector = ASTFunctionCallCollectorVisitor()
-                            kernel.accept(local_function_call_collector)
-                            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
-                                                                                                   local_function_call_collector.all_function_calls,
-                                                                                                   search_functions + found_functions)
 
                     search_variables.remove(variable)
                     found_variables.append(variable)
