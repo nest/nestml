@@ -46,7 +46,6 @@ from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer imp
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -55,7 +54,6 @@ from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
 from pynestml.utils.conc_info_enricher import ConcInfoEnricher
@@ -66,7 +64,6 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
-from pynestml.utils.syns_processing import SynsProcessing
 from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -293,8 +290,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                                                        ASTInputPort]):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
-        print("ODE Input:")
-        print(json.dumps(odetoolbox_indict, indent=4), end="")
 
         full_solver_result = analysis(
             odetoolbox_indict,
@@ -302,8 +297,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             preserve_expressions=self.get_option("preserve_expressions"),
             simplify_expression=self.get_option("simplify_expression"),
             log_level=FrontendConfiguration.logging_level)
-        print("ODE Output:")
-        print(json.dumps(full_solver_result, indent=4), end="")
 
         analytic_solver = None
         analytic_solvers = [
@@ -314,32 +307,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             analytic_solver = analytic_solvers[0]
 
         return full_solver_result, analytic_solver
-
-    def ode_toolbox_anaysis_cm_syns(
-            self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
-        """
-        Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
-        """
-        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
-        assert len(neuron.get_parameters_blocks()) == 1, "Only one parameters block supported for now"
-
-        equations_block = neuron.get_equations_blocks()[0]
-
-        if len(equations_block.get_kernels()) == 0 and len(
-                equations_block.get_ode_equations()) == 0:
-            # no equations defined -> no changes to the neuron
-            return None, None
-
-        parameters_block = neuron.get_parameters_blocks()[0]
-
-        kernel_name_to_analytic_solver = dict()
-        for kernel_buffer in kernel_buffers:
-            _, analytic_result = self.ode_solve_analytically(
-                neuron, parameters_block, set([tuple(kernel_buffer)]))
-            kernel_name = kernel_buffer[0].get_variables()[0].get_name()
-            kernel_name_to_analytic_solver[kernel_name] = analytic_result
-
-        return kernel_name_to_analytic_solver
 
     def ode_toolbox_analysis(self, neuron: ASTNeuron,
                              kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
@@ -476,6 +443,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # then attempt to solve numerically
         # "update_expressions" key in those solvers contains a mapping
         # {expression1: update_expression1, expression2: update_expression2}
+        
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(
             neuron, kernel_buffers)
 
@@ -720,17 +688,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols(
         ) if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
         namespace["cm_unique_suffix"] = self.getUniqueSuffix(neuron)
+
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
-        print("CHANNEL INFO:")
-        ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
+        #print("CHANNEL INFO:")
+        #ASTChannelInformationCollector.print_dictionary(namespace["chan_info"], 0)
 
         namespace["syns_info"] = SynapseProcessing.get_mechs_info(neuron)
-        #print("SYNS INFO:")
-        #print("PRE TRANSFORM")
-        #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
-        syns_info_enricher = SynsInfoEnricher(neuron)
-        namespace["syns_info"] = syns_info_enricher.enrich_with_additional_info(neuron, namespace["syns_info"], self.kernel_name_to_analytic_solver)
+        namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(neuron, namespace["syns_info"])
         #print("SYNAPSE INFO:")
         #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
 
@@ -738,8 +703,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])
         #print("CONCENTRATION INFO")
         #ASTChannelInformationCollector.print_dictionary(namespace["conc_info"], 0)
-        #print("POST TRANSFORM")
-        #ASTChannelInformationCollector.print_dictionary(namespace["syns_info"], 0)
 
         # maybe log this on DEBUG?
         # print("syns_info: ")

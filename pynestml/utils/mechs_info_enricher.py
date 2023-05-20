@@ -6,7 +6,6 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from collections import defaultdict
 from pynestml.utils.ast_utils import ASTUtils
-import copy
 
 class MechsInfoEnricher():
 

@@ -104,7 +104,7 @@ class MechanismProcessing(object):
         return mechs_info
 
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
-        #to be implemented for specific mechanisms (concentration, synapse, channel)
+        #to be implemented for specific mechanisms by child class (concentration, synapse, channel)
         pass
 
 
