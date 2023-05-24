@@ -24,7 +24,8 @@ import pytest
 import unittest
 
 from antlr4 import *
-from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
+from antlr4.error.ErrorStrategy import BailErrorStrategy
+from antlr4.error.Errors import ParseCancellationException
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser

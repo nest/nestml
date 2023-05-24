@@ -15,9 +15,7 @@ The top-level element of the model is ``neuron``, followed by a name. All other 
 .. code-block:: nestml
 
    neuron hodkin_huxley:
-     # [...]
-   end
-
+       # [...]
 
 Neuronal interactions
 ---------------------
@@ -30,9 +28,8 @@ A neuron model written in NESTML can be configured to receive two distinct types
 .. code-block:: nestml
 
    input:
-     I_stim pA <- continuous
-     AMPA_spikes pA <- spike
-   end
+       I_stim pA <- continuous
+       AMPA_spikes pA <- spike
 
 The general syntax is:
 
@@ -45,19 +42,17 @@ For spiking input ports, the qualifier keywords decide whether inhibitory and ex
 .. code-block:: nestml
 
    input:
-     # [...]
-     all_spikes pA <- spike
-   end
+       # [...]
+       all_spikes pA <- spike
 
 In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
 
 .. code-block:: nestml
 
    input:
-     # [...]
-     AMPA_spikes pA <- excitatory spike
-     GABA_spikes pA <- inhibitory spike
-   end
+       # [...]
+       AMPA_spikes pA <- excitatory spike
+       GABA_spikes pA <- inhibitory spike
 
 In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
 
@@ -85,13 +80,10 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
 .. code-block:: nestml
 
    equations
-     V_m' = -V_m/tau_m + ... + I_stim
-   end
+       V_m' = -V_m/tau_m + ... + I_stim
 
    input:
-     I_stim pA <- continuous
-   end
-
+       I_stim pA <- continuous
 
 
 Integrating spiking input
@@ -116,9 +108,8 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
 .. code-block:: nestml
 
    equations:
-     kernel G = exp(-t/tau_syn)
-     V_m' = -V_m/tau_m + convolve(G, spikes)
-   end
+       kernel G = exp(-t/tau_syn)
+       V_m' = -V_m/tau_m + convolve(G, spikes)
 
 The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
 
@@ -141,8 +132,7 @@ Then the name ``g_dend`` can be used as a target for assignment:
 .. code-block:: nestml
 
    update:
-     g_dend = 42 pA
-   end
+       g_dend = 42 pA
 
 This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
 
@@ -161,9 +151,8 @@ The name ``h_dend`` now acts as an alias for this particular convolution. We can
 .. code-block:: nestml
 
    update:
-     h_dend = 42 pA
-     h_dend' = 10 pA/ms
-   end
+       h_dend = 42 pA
+       h_dend' = 10 pA/ms
 
 For more information, see the :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`.
 
@@ -176,22 +165,20 @@ If there is more than one line specifying a `spike` or `continuous` port with th
 .. code-block:: nestml
 
    input:
-     spikes1 nS <- spike
-     spikes2 nS <- spike
-     spikes3 nS <- spike
-   end
+       spikes1 nS <- spike
+       spikes2 nS <- spike
+       spikes3 nS <- spike
 
 For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
 
 .. code-block:: nestml
 
    equations:
-     kernel I_kernel1 = exp(-t / tau_syn1)
-     kernel I_kernel2 = exp(-t / tau_syn2)
-     kernel I_kernel3 = -exp(-t / tau_syn3)
-     inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
-     V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
-   end
+       kernel I_kernel1 = exp(-t / tau_syn1)
+       kernel I_kernel2 = exp(-t / tau_syn2)
+       kernel I_kernel3 = -exp(-t / tau_syn3)
+       inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+       V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
 
 Multiple input ports with vectors
@@ -200,21 +187,19 @@ The input ports can also be defined as vectors. For example,
 .. code-block:: nestml
    neuron multi_synapse_vectors:
        input:
-         AMPA_spikes pA <- excitatory spike
-         GABA_spikes pA <- inhibitory spike
-         NMDA_spikes pA <- spike
-         foo[2] pA <- spike
-         exc_spikes[3] pA <- excitatory spike
-         inh_spikes[3] pA <- inhibitory spike
-       end
+           AMPA_spikes pA <- excitatory spike
+           GABA_spikes pA <- inhibitory spike
+           NMDA_spikes pA <- spike
+           foo[2] pA <- spike
+           exc_spikes[3] pA <- excitatory spike
+           inh_spikes[3] pA <- inhibitory spike
 
        equations:
-         kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
-         kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
-         inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1])
-         inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1])
-       end
-   end
+           kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
+           kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
+           inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1])
+           inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1])
+
 
 In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
 

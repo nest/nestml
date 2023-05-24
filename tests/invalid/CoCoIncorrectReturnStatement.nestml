@@ -41,22 +41,17 @@ neuron CoCoIncorrectReturnStatement:
         else:
             return 20mV # here, it should be detected, that it is not the last statement
             test = 20mV
-        end
 
         return True# here, it should be detected, that the type is wrong
-    end
 
     function noReturn():
         return True # here it should be detected that no return has been specified but a return with a wrong type defined
-    end
 
     function bar() mV:
+        test mV = -5.5 mV
         # here it should be detected, that the function has been defined with a type, but no return stmt is present
-    end
 
     function foobar() mV:
         # here, it should be detected that no return statement has been provided
         test mV = 10mV
         test = test*2
-    end
-end

@@ -614,9 +614,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
     def visitBlockWithVariables(self, ctx):
         declarations = list()
-        if ctx.declaration() is not None:
-            for child in ctx.declaration():
-                declarations.append(self.visit(child))
+        if ctx.declaration_newline() is not None:
+            for child in ctx.declaration_newline():
+                declarations.append(self.visit(child.declaration()))
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
         if block_type == 'state':
@@ -758,7 +758,6 @@ def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]
-    node.post_comments = comments[3]
 
 
 def get_next(_elements=list()):

@@ -36,8 +36,5 @@ neuron CoCoVectorInNonVectorDeclaration:
     state:
         g_ex [ten] mV = 10mV
         g_in mV = 10mV + g_ex
-    end
     parameters:
         ten integer = 10
-    end
-end

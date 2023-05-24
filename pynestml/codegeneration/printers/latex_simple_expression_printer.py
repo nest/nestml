@@ -65,6 +65,6 @@ class LatexSimpleExpressionPrinter(SimpleExpressionPrinter):
             return self._variable_printer.print_variable(node.get_variable())
 
         if node.is_function_call():
-            return self.print_function_call(node.get_function_call())
+            return self._function_call_printer.print(node.get_function_call())
 
         raise Exception("Unknown node type")

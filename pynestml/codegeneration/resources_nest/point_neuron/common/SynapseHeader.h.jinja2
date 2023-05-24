@@ -78,8 +78,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {{ synapse.print_comment() }}
 **/
 
-#define POST_NEURON_TYPE {{ paired_neuron }}
-
 //#define DEBUG
 
 namespace nest
@@ -219,6 +217,10 @@ public:
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
 {
+{%- if paired_neuron | length > 0 %}
+  typedef {{ paired_neuron }} post_neuron_t;
+
+{% endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
 public:
   void trigger_update_weight( thread t,
@@ -677,6 +679,7 @@ public:
         timestep += (start->t_ + __dendritic_delay) - t_lastspike_;
 
         const double _tr_t = start->t_;
+        auto get_t = [_tr_t](){ return _tr_t; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
@@ -720,7 +723,10 @@ public:
 #endif
     //std::cout << "r2 = " << get_tr_r2() << std::endl;
 
-{%- filter indent(4, True) %}
+    {
+        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+
+{%- filter indent(8, True) %}
 {%- for pre_port in pre_ports %}
 /**
  *  NESTML generated onReceive code block for presynaptic port "{{pre_port}}" begins here!
@@ -732,6 +738,7 @@ public:
 {%-     endwith %}
 {%- endfor %}
 {%- endfilter %}
+    }
 
 #ifdef DEBUG
     std::cout <<"\t-> new w = " << S_.w << std::endl;
@@ -755,6 +762,8 @@ public:
 
     if (pre_before_post_flag)
     {
+        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -1128,6 +1137,7 @@ inline void
   }
 
   const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
+  auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 #ifdef DEBUG
   std::cout<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";

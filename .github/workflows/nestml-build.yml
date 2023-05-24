@@ -1,4 +1,4 @@
-name: NESTML compatibility check with older NEST versions
+name: NESTML build
 
 on: [push, pull_request]
 
@@ -124,7 +124,6 @@ jobs:
 
       - name: Generate Lexer and Parser using Antlr4
         run: |
-          find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
 

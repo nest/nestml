@@ -39,7 +39,3 @@ neuron BlockTest:
         while j < 3.14 and j>0 or False==true:
             for i in 10-3.14 ... 10+3.14e0 step -1:
                 j += i
-            end
-        end
-    end
-end

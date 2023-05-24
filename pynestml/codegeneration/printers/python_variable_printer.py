@@ -157,6 +157,6 @@ class PythonVariablePrinter(VariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
-            return PythonCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return PythonCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name

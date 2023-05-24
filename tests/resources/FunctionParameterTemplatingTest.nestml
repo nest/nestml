@@ -31,9 +31,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron templated_function_parameters_type_test:
     state:
-       force N = 1.5 N
-       foo real = 10
-    end
+        force N = 1.5 N
+        foo real = 10
 
     update:
         force = max(1 N, 10 N)
@@ -41,5 +40,3 @@ neuron templated_function_parameters_type_test:
         force = max(1 N, 10 A)
         force = max(1 A, 10 A)
         foo = max(1, 3.14)
-    end
-end
