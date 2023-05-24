@@ -288,7 +288,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
-  {{ nest_codegen_utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, numerical_state_symbols=numerical_state_symbols) % printer_no_origin.print(node) }};
+  {{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }};
 {%-   endif %}
 {%- endfor %}
 
@@ -532,6 +532,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {% endif %}
     // buffer spikes from input ports
+    auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
       get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);

@@ -546,6 +546,7 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_variable(self, node: ASTVariable):
         ret = node.name
+
         if node.get_vector_parameter():
             ret += "[" + self.print(node.get_vector_parameter()) + "]"
 

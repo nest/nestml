@@ -69,6 +69,10 @@ class NESTVariablePrinter(CppVariablePrinter):
             return "numerics::e"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
+        if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
+            return "get_t()"
+
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
@@ -166,6 +170,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
-            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name
