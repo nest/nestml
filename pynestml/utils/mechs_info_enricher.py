@@ -8,7 +8,10 @@ from collections import defaultdict
 from pynestml.utils.ast_utils import ASTUtils
 
 class MechsInfoEnricher():
-
+    """
+    Adds information collection that can't be done in the processing class since that is used in the cocos.
+    Here we use the ModelParser which would lead to a cyclic dependency.
+    """
     def __init__(self, params):
         pass
 

@@ -15,6 +15,10 @@ class ChannelProcessing(MechanismProcessing):
 
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
+        """
+        Searching for parameters in the root-expression that if zero lead to the expression always being zero so that
+        the computation may be skipped.
+        """
         mechs_info = cls.write_key_zero_parameters_for_root_inlines(mechs_info)
 
         return mechs_info
