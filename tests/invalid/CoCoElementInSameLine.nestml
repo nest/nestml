@@ -35,5 +35,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoElementInSameLine:
     state:
         test1 integer = test1 # case 1: variable set to value as currently declared
-    end
-end

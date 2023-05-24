@@ -103,6 +103,12 @@ class ODEToolboxFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.TANH:
             return 'tanh({!s})'
 
+        if function_name == PredefinedFunctions.ERF:
+            return 'erf({!s})'
+
+        if function_name == PredefinedFunctions.ERFC:
+            return 'erfc({!s})'
+
         if function_name == PredefinedFunctions.EXPM1:
             return 'expm1({!s})'
 

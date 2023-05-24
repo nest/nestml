@@ -24,7 +24,8 @@ import pytest
 import unittest
 
 from antlr4 import *
-from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
+from antlr4.error.ErrorStrategy import BailErrorStrategy
+from antlr4.error.Errors import ParseCancellationException
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -65,9 +66,7 @@ class DocstringCommentTest(unittest.TestCase):
     def test_docstring_success(self):
         self.run_docstring_test('valid')
 
-    # for some reason xfail is completely ignored when executing on my machine (python 3.8.5)
-    # pytest bug?
-    @pytest.mark.xfail(strict=True, raises=DocstringCommentException)
+    @pytest.mark.xfail(strict=True, raises=ParseCancellationException)
     def test_docstring_failure(self):
         self.run_docstring_test('invalid')
 

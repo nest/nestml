@@ -25,10 +25,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron BlockTest:
     state:
-      lhs mV = 0 mV
-    end
+        lhs mV = 0 mV
 
     update:
-      lhs = 10V + 5mV +20V + 1kV
-    end
-end
+        lhs = 10V + 5mV +20V + 1kV

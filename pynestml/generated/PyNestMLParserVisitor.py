@@ -109,6 +109,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#declaration_newline.
+    def visitDeclaration_newline(self, ctx:PyNestMLParser.Declaration_newlineContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#anyDecorator.
     def visitAnyDecorator(self, ctx:PyNestMLParser.AnyDecoratorContext):
         return self.visitChildren(ctx)

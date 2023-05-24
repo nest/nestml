@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
+import sympy
+from sympy.printing.str import StrPrinter
 
 
 class ODEToolboxUtils:
@@ -31,14 +32,29 @@ class ODEToolboxUtils:
     def _rewrite_piecewise_into_ternary(cls, s: str) -> str:
         r"""Rewrite calls to ``Piecewise((expr_if_true, cond), (expr_if_false, True))`` in sympy syntax to ``cond ? expr_if_true : expr_if_false`` in NESTML syntax.
         """
-        for match in re.findall(r"Piecewise\(.*\)", s):
-            match = match[len("Piecewise("):]
-            match = match[:-1]
-            args = re.findall(r"\(.*?\,.*?\)", match)
-            assert len(args) == 2, "Can only handle two-part piecewise conditional function"
-            expr_if_true = re.search(r"\(.*?\,", args[0])[0][1:-1]
-            expr_if_false = re.search(r"\(.*?\,", args[1])[0][1:-1]
-            cond = re.search(r"\,.*?\)", args[0])[0][2:-1]
-            s = s.replace("Piecewise(" + match + ")", "((" + cond + ") ? (" + expr_if_true + ") : (" + str(expr_if_false) + "))")
 
-        return s
+        _sympy_globals_no_functions = {"Symbol": sympy.Symbol,
+                                       "Integer": sympy.Integer,
+                                       "Float": sympy.Float,
+                                       "Function": sympy.Function}
+
+        sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
+
+        class MySympyPrinter(StrPrinter):
+            """Resulting expressions will be parsed by NESTML parser. R
+            """
+            def _print_Function(self, expr):
+                if expr.func.__name__ == "Piecewise":
+                    assert len(expr.args) == 2, "Can only handle two-part piecewise conditional function"
+                    cond = self.doprint(expr.args[0][1])
+                    cond_always_true = expr.args[1][1]
+                    assert cond_always_true == sympy.true
+                    expr_if_true = self.doprint(expr.args[0][0])
+                    expr_if_false = self.doprint(expr.args[1][0])
+                    return "((" + cond + ") ? (" + expr_if_true + ") : (" + expr_if_false + "))"
+
+                return super()._print_Function(expr)
+
+        s_reformatted = MySympyPrinter().doprint(sympy_expr)
+
+        return s_reformatted

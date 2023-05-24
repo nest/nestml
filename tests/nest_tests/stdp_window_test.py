@@ -82,7 +82,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     if "__with" in synapse_model_name:
         weight_variable_name = "w"
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "the_delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+                       {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "d": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
     else:
         weight_variable_name = "weight"
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",

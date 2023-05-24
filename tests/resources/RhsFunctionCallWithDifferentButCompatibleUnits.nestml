@@ -25,14 +25,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron BlockTest:
     state:
-      lhs mV = 0 mV
-    end
+        lhs mV = 0 mV
 
     function foo(bar mV) mV:
         return bar
-    end
 
     update:
-      lhs = foo(10V)
-    end
-end
+        lhs = foo(10V)

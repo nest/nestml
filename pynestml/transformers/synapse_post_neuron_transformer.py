@@ -377,7 +377,6 @@ class SynapsePostNeuronTransformer(Transformer):
                     if self.is_post_port(var_base_name, neuron.name, synapse.name):
                         post_ports.append(var)
                         var._is_post_port = True
-                        print("Marking " + str(var.name) + " as post port")
 
             mark_node.accept(ASTHigherOrderVisitor(lambda x: mark_post_port(x)))
             return post_ports

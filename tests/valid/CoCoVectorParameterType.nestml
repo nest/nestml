@@ -37,9 +37,6 @@ neuron CoCoVectorParameterDeclaration:
     state:
         v_m [size] mV = -55 mV
         y [15] real = 1.5
-    end
 
     parameters:
         size integer = 20
-    end
-end

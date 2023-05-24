@@ -31,11 +31,9 @@ class CoCoCorrectOrderInEquation(CoCo):
     Allowed:
         equations:
             V_m' = ...
-        end
     Not allowed:
         equations:
             V_m = ...
-        end
     """
 
     @classmethod
