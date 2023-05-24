@@ -130,6 +130,7 @@ class MessageCode(Enum):
     CM_NO_VALUE_ASSIGNMENT = 106
     SYNS_BAD_BUFFER_COUNT = 107
     CM_NO_V_COMP = 108
+    MECHS_DICTIONARY_INFO = 109
 
 
 class Messages:
@@ -1379,3 +1380,12 @@ class Messages:
     def get_creating_install_path(cls, install_path: str):
         message = "Creating installation directory: '" + install_path + "'"
         return MessageCode.CREATING_INSTALL_PATH, message
+
+    @classmethod
+    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info):
+        message = ""
+        message += "chan_info:\n" + chan_info + "\n"
+        message += "syns_info:\n" + syns_info + "\n"
+        message += "conc_info:\n" + conc_info + "\n"
+
+        return MessageCode.MECHS_DICTIONARY_INFO, message

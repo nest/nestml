@@ -1,10 +1,7 @@
 from collections import defaultdict
 import copy
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
 from pynestml.utils.ast_mechanism_information_collector import ASTMechanismInformationCollector
 
 from pynestml.utils.ast_utils import ASTUtils
@@ -16,9 +13,9 @@ from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import O
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from odetoolbox import analysis
-import json
 
-import types
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 class MechanismProcessing(object):
     """Manages the collection of basic information necesary for all types of mechanisms and uses the
@@ -163,3 +160,41 @@ class MechanismProcessing(object):
 
             cls.mechs_info[neuron][cls.mechType] = mechs_info
             cls.first_time_run[neuron][cls.mechType] = False
+
+    @classmethod
+    def print_element(cls, name, element, rec_step):
+        message = ""
+        for indent in range(rec_step):
+            message += "----"
+        message += name + ": "
+        if isinstance(element, defaultdict):
+            message += "\n"
+            message += cls.print_dictionary(element, rec_step + 1)
+        else:
+            if hasattr(element, 'name'):
+                message += element.name
+            elif isinstance(element, str):
+                message += element
+            elif isinstance(element, dict):
+                message += "\n"
+                message += cls.print_dictionary(element, rec_step + 1)
+            elif isinstance(element, list):
+                for index in range(len(element)):
+                    message += "\n"
+                    message += cls.print_element(str(index), element[index], rec_step + 1)
+            elif isinstance(element, ASTExpression) or isinstance(element, ASTSimpleExpression):
+                message += cls._ode_toolbox_printer.print(element)
+
+            message += "(" + type(element).__name__ + ")"
+        return message
+
+    @classmethod
+    def print_dictionary(cls, dictionary, rec_step):
+        """
+        Print the mechanisms info dictionaries.
+        """
+        message = ""
+        for name, element in dictionary.items():
+            message += cls.print_element(name, element, rec_step)
+            message += "\n"
+        return message
