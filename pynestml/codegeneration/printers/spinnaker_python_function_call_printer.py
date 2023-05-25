@@ -143,7 +143,7 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             return "timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
-            return "self.emit_spike(origin)"
+            return "emit_spike(origin)"
 
         s = function_call.get_name()
 
