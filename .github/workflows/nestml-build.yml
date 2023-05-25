@@ -132,6 +132,11 @@ jobs:
         run: |
           pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests
 
+      # tmate session
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 720
+
       # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests
         run: |
