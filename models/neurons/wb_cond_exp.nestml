@@ -82,7 +82,8 @@ neuron wb_cond_exp:
         exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         U_old mV = V_m

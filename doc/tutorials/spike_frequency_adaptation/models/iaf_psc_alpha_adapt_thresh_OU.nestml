@@ -103,7 +103,8 @@ neuron iaf_psc_alpha_adapt_thresh_OU:
         inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         I_noise = I_noise0 + (I_noise - I_noise0) * exp(-resolution() / tau_syn_exc) + A_noise * random_normal(0, 1)

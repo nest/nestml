@@ -78,7 +78,8 @@ neuron izhikevich_psc_alpha:
         exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

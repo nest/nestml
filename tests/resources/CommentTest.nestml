@@ -57,7 +57,8 @@ neuron commentTest:  #neuron in comment ok
         NMDA <- spike
 
     #output comment ok
-    output: spike
+    output:
+        spike
 
     #update comment ok
     update:

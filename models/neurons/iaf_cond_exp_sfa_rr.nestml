@@ -86,7 +86,8 @@ neuron iaf_cond_exp_sfa_rr:
         exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

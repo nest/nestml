@@ -188,7 +188,8 @@ neuron hill_tononi:
         GABA_B <- spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

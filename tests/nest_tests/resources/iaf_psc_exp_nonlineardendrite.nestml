@@ -70,7 +70,8 @@ neuron iaf_psc_exp_nonlineardendrite:
         I_2 <- spike
         I_3 <- spike
 
-    output: spike
+    output:
+        spike
 
     update:
         # solve ODEs

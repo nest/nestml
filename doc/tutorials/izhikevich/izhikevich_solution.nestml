@@ -18,7 +18,8 @@ neuron izhikevich_tutorial:
         spikes <- spike
         I_e pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

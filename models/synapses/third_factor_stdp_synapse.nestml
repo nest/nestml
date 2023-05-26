@@ -64,7 +64,8 @@ synapse third_factor_stdp:
         post_spikes <- spike
         I_post_dend pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     onReceive(post_spikes):
         # potentiate synapse

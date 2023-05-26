@@ -42,7 +42,8 @@ neuron iaf_psc_exp_resolution_test:
         inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         d ms = resolution()

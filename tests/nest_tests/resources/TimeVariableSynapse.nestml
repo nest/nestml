@@ -1,14 +1,6 @@
-"""
-CoCoOutputPortDefinedIfEmitCall-2.nestml
-########################################
-
-
-Description
-+++++++++++
-
-This model is used to test if broken CoCos are identified correctly. Here, if the output port has the wrong type.
-
-Negative case.
+""" 
+TimeVariableSynapse.nestml
+##########################
 
 
 Copyright statement
@@ -31,9 +23,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron spiking_output_port_is_defined2:
-    output:
-        continuous  # inappropriate
+synapse time_variable_synapse:
+  state:
+    x ms = 0. ms
+    y ms = 0. ms
 
-    update:
-        emit_spike()
+  onReceive(pre_spikes):
+    y = t
+
+  parameters:
+    d ms = 1 ms @nest::delay
+
+  input:
+    pre_spikes real <- spike
+
+  update:
+    x = t

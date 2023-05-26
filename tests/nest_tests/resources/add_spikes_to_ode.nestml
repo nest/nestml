@@ -1,15 +1,8 @@
 """
-CoCoOutputPortDefinedIfEmitCall-2.nestml
-########################################
+add_spikes_to_ode.nestml
+########################
 
-
-Description
-+++++++++++
-
-This model is used to test if broken CoCos are identified correctly. Here, if the output port has the wrong type.
-
-Negative case.
-
+Test that spikes from an input port can be directly added to a linear (propagator-solved) and nonlinear (numeric solver) ODE.
 
 Copyright statement
 +++++++++++++++++++
@@ -31,9 +24,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron spiking_output_port_is_defined2:
-    output:
-        continuous  # inappropriate
+neuron add_spikes_to_ode:
+  state:
+    x real = 0
+    y real = 0
 
-    update:
-        emit_spike()
+  equations:
+    x' = -x + 42 * spikes / s      # linear eq
+    y' = -y**2 + 123 * spikes / s   # nonlinear eq
+
+  input:
+    spikes real <- spike
+
+  output:
+    spike
+
+  update:
+    integrate_odes()
+
+    x += spikes / 5
+    y += spikes / 42

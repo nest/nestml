@@ -96,7 +96,8 @@ neuron aeif_cond_exp:
         exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         integrate_odes()

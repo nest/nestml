@@ -69,7 +69,8 @@ neuron iaf_psc_exp_dend:
         inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
-    output: spike
+    output:
+        spike
 
     update:
         I_dend *= .95
