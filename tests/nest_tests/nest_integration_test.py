@@ -78,8 +78,8 @@ class TestNestIntegration:
         if NESTTools.detect_nest_version().startswith("v3"):
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
-
-        generate_nest_target(input_path=["models/neurons/hh_psc_alpha.nestml"],
+        codegen_opts={}
+        generate_nest_target(input_path=["models/neurons/aeif_cond_exp.nestml"],
                              target_path="/tmp/nestml-allmodels",
                              logging_level="DEBUG",
                              module_name="nestml_allmodels_module",
@@ -93,8 +93,8 @@ class TestNestIntegration:
         self.generate_all_models()
 
         nest.ResetKernel()
-        # nest.SetKernelStatus({"resolution": .1})
-        nest.set_verbosity("M_ALL")
+
+
         try:
             nest.Install("nestml_allmodels_module")
         except Exception:
@@ -128,8 +128,9 @@ class TestNestIntegration:
         # # else:
         # neuron_models.append(("izhikevich", "izhikevich_nestml", None, 1E-6))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
 
-        neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", None, default_tolerance, {"I_e": 100.}, {"I_e": 100.}))
-        # neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", None, default_tolerance))
+        # neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", None, default_tolerance, {"I_e": 100.}, {"I_e": 100.}))
+
+        neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", None, default_tolerance)) # needs resolution 0.01 because the NEST model overrides this internally
         # neuron_models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", None, default_tolerance))"""
         # neuron_models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", None, 1E-6))   # larger tolerance because NESTML solves PSCs analytically; NEST solves all ODEs numerically
 
@@ -373,6 +374,8 @@ class TestNestIntegration:
         for i, I_stim in enumerate(I_stim_vec):
 
             nest.ResetKernel()
+            nest.SetKernelStatus({"resolution": .01})    # aeif_cond_exp model requires resolution <= 0.01 ms
+
             neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
             neuron2 = nest.Create(testant, params=custom_model_opts)
             if model_initial_state is not None:
@@ -466,6 +469,8 @@ class TestNestIntegration:
                         custom_model_opts=None, model_initial_state=None, max_weight: float = 10.):
 
         nest.ResetKernel()
+        nest.SetKernelStatus({"resolution": .01})    # aeif_cond_exp model requires resolution <= 0.01 ms
+
 
         spike_times = np.linspace(100, 200, 11)
         spike_weights = np.linspace(1, max_weight, 11)

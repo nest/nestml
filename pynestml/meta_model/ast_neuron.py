@@ -97,6 +97,14 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(port)
         return ret
 
+
+    def get_spike_input_port_names(self) -> List[str]:
+        """
+        Returns a list of all spike input ports defined in the model.
+        """
+        print("get_spike_input_port_names = " + str([port.get_symbol_name() for port in self.get_spike_input_ports()]))
+        return [port.get_symbol_name() for port in self.get_spike_input_ports()]
+
     def get_continuous_input_ports(self) -> List[VariableSymbol]:
         """
         Returns a list of all continuous time input ports defined in the model.
@@ -106,6 +114,12 @@ class ASTNeuron(ASTNeuronOrSynapse):
             if port.is_continuous_input_port():
                 ret.append(port)
         return ret
+
+    def get_continuous_input_port_names(self) -> List[str]:
+        """
+        Returns a list of all continuous time input ports defined in the model.
+        """
+        return [port.get_symbol_name() for port in self.get_continuous_input_ports()]
 
     def get_vector_state_symbols(self) -> List[VariableSymbol]:
         """

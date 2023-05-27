@@ -221,6 +221,10 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- endif %}
 
 {%- if uses_numeric_solver %}
+  // by default, integrate all variables
+  for (int i = 0; i < State_::STATE_VEC_SIZE; ++i) {
+    S_.ode_state_integration_inhibit[i] = 0;
+  }
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;

@@ -575,6 +575,7 @@ private:
 
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
+    bool ode_state_integration_inhibit[STATE_VEC_SIZE];
 {%- endif %}
 
     State_();

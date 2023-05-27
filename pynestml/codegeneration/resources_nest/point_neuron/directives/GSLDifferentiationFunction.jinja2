@@ -35,5 +35,14 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 {%- endfor %}
 {%- endif %}
 
+  // in case we are only integrating a subset of the variables
+{%- for variable_name in numeric_state_variables %}
+{%-     set variable_symbol = variable_symbols[variable_name] %}
+  if (node.S_.ode_state_integration_inhibit[State_::{{ variable_symbol.get_symbol_name() }}])
+  {
+      f[State_::{{ variable_symbol.get_symbol_name() }}] = 0.;
+  }
+{%- endfor %}
+
   return GSL_SUCCESS;
 }

@@ -103,13 +103,13 @@ neuron aeif_cond_exp:
     update:
         process_input(I_stim)
 
-        integrate_odes(w)
-
         if r > 0:
             # neuron is absolute refractory
             r -= 1 # decrement refractory ticks count
+
+            integrate_odes(w)    # do not integrate V_m
         else:
-            integrate_odes(V_m)
+            integrate_odes()    # integrate all ODEs
 
         process_input(exc_spikes, inh_spikes)
 
