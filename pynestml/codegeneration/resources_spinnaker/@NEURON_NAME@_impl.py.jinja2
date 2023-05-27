@@ -182,25 +182,19 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
         parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
 
-{%- for sym in neuron.get_state_symbols() %}
-        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
-{%- endfor %}
-
-                 # spike input ports:
-{%- for sym in neuron.get_spike_input_ports() %}
-        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
-{%- endfor %}
-                 # internals:
-{%- for sym in neuron.get_internal_symbols() %}
-        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
-{%- endfor %}
-
     @overrides(AbstractNeuronImpl.add_state_variables)
     def add_state_variables(self, state_variables):
 {%- for sym in neuron.get_state_symbols() %}
         state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
-
+                 # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+                 # internals:
+{%- for sym in neuron.get_internal_symbols() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
     @overrides(AbstractNeuronImpl.get_units)
     def get_units(self, variable):
         # state:
