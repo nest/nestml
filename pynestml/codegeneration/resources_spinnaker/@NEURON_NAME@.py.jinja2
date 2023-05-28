@@ -32,11 +32,18 @@ def steps(time_ms: float, timestep: float):
     r"""Convert a time period (in milliseconds) to number of simulation steps"""
     return int(ceil(time_ms / timestep))
 
+
+
 class {{neuronName}}(AbstractPyNNNeuronModel):
 
+
+    @default_parameters({
+{%- for sym in neuron.get_parameter_symbols() %}
+        "{{sym.get_symbol_name()}}", \
+{%- endfor %}
+    })
     def __init__(self,
-# TODO: Add FunctionParameterdeclaration to directives_py
-# TODO: recursive checking until initial value not another member
+# TODO: Initial values of input ports incorrect
 # XXX: need to print default values here?
 
 {%- filter indent(16) %}
