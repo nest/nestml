@@ -62,7 +62,7 @@ class TestGapJunction:
         return neuron_model
 
     @pytest.mark.parametrize("wfr_interpolation_order", [0, 1, 3])
-    def test_gap_junction(self, generate_code, wfr_interpolation_order: int):
+    def test_gap_junction_effect_on_membrane_potential(self, generate_code, wfr_interpolation_order: int):
         neuron_model = generate_code
 
         resolution = .1   # [ms]
