@@ -97,7 +97,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(port)
         return ret
 
-
     def get_spike_input_port_names(self) -> List[str]:
         """
         Returns a list of all spike input ports defined in the model.

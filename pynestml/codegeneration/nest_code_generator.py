@@ -47,6 +47,7 @@ from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODET
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
+from pynestml.codegeneration.printers.unitless_sympy_simple_expression_printer import UnitlessSympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_input_port import ASTInputPort
@@ -190,9 +191,9 @@ class NESTCodeGenerator(CodeGenerator):
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
-        self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
-                                                                                                                             constant_printer=self._constant_printer,
-                                                                                                                             function_call_printer=self._ode_toolbox_function_call_printer))
+        self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=UnitlessSympySimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
+                                                                                                                               constant_printer=self._constant_printer,
+                                                                                                                               function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
