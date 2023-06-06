@@ -21,19 +21,20 @@
 
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class NESTCodeGeneratorUtils:
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol, variable: ASTVariable) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
         if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
-            if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
+            if "_is_numeric" in dir(variable) and variable._is_numeric:
                 return 'S_.ode_state[State_::%s]'
 
             return 'S_.%s'

@@ -33,12 +33,9 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoVectorInputPortSizeAndType:
-  parameters:
-    TWO integer = 2
-  end
+    parameters:
+        TWO integer = 2
 
-  input:
-    foo[TWO] pA <- spike
-    bar[-3] pA <- spike
-  end
-end
+    input:
+        foo[TWO] pA <- spike
+        bar[-3] pA <- spike

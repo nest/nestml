@@ -1,4 +1,4 @@
-name: NESTML compatibility check with older NEST versions
+name: NESTML build
 
 on: [push, pull_request]
 
@@ -25,10 +25,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python version
-      - name: Setup Python 3.9
+      - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.1", "v3.2", "v3.3", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.1", "v3.2", "v3.3", "v3.4", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
@@ -60,10 +60,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python version
-      - name: Setup Python 3.9
+      - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -80,8 +80,9 @@ jobs:
 
       # Install Java
       - name: Install Java 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
           java-version: '11.0.x'
           java-package: jre
 
@@ -116,24 +117,20 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
 
       - name: Generate Lexer and Parser using Antlr4
         run: |
-          find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
 
       # Unit tests
       - name: Run unit tests
         run: |
-          pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests || :
-          git ls-remote git://github.com/nest/nest-simulator.git | grep refs/heads/master | cut -f 1 > latest_nest_master_commit_hash.txt
-          echo "Latest NEST master commit hash:"
-          cat latest_nest_master_commit_hash.txt
+          pytest -s -o norecursedirs='*' -o log_cli=true -o log_cli_level="DEBUG" tests
 
       # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests

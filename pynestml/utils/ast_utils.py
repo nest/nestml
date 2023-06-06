@@ -24,6 +24,8 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 import re
 import sympy
 
+import odetoolbox
+
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -41,9 +43,9 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -53,11 +55,12 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -719,7 +722,7 @@ class ASTUtils:
 
         decls = ASTUtils.get_declarations_from_block(var_name, from_block)
         if var_name.endswith(var_name_suffix):
-            decls.extend(ASTUtils.get_declarations_from_block(var_name.removesuffix(var_name_suffix), from_block))
+            decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
             Logger.log_message(None, -1, "Moving definition of " + var_name + " from synapse to neuron",
@@ -1219,7 +1222,15 @@ class ASTUtils:
         assert type(kernel_var_name) is str
         assert type(order) is int
         assert type(diff_order_symbol) is str
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+
+        if isinstance(spike_input_port, ASTSimpleExpression):
+            spike_input_port = spike_input_port.get_variable()
+
+        spike_input_port_name = spike_input_port.get_name()
+        if spike_input_port.has_vector_parameter():
+            spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
+
+        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -1792,9 +1803,9 @@ class ASTUtils:
                 if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
                     inport = conv_call.args[1].get_variable()
                     expr_str = str(expr)
-                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.Shape._sympy_globals)
                     sympy_expr = sympy.expand(sympy_expr)
-                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call))
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.Shape._sympy_globals)
                     factor_str = []
                     for term in sympy.Add.make_args(sympy_expr):
                         if term.find(sympy_conv_expr):
@@ -2113,3 +2124,38 @@ class ASTUtils:
                     rport_to_port_map[rport] = [port]
 
         return rport_to_port_map
+
+    @classmethod
+    def assign_numeric_non_numeric_state_variables(cls, neuron, numeric_state_variable_names, numeric_update_expressions, update_expressions):
+        r"""For each ASTVariable, set the ``node._is_numeric`` member to True or False based on whether this variable will be solved with the analytic or numeric solver.
+
+        Ideally, this would not be a property of the ASTVariable as it is an implementation detail (that only emerges during code generation) and not an intrinsic part of the model itself. However, this approach is preferred over setting it as a property of the variable printers as it would have to make each printer aware of all models and variables therein."""
+        class ASTVariableOriginSetterVisitor(ASTVisitor):
+            def visit_variable(self, node):
+                assert isinstance(node, ASTVariable)
+                if node.get_complete_name() in self._numeric_state_variables:
+                    node._is_numeric = True
+                else:
+                    node._is_numeric = False
+
+        visitor = ASTVariableOriginSetterVisitor()
+        visitor._numeric_state_variables = numeric_state_variable_names
+        neuron.accept(visitor)
+
+        if update_expressions:
+            for expr in update_expressions.values():
+                expr.accept(visitor)
+
+        if numeric_update_expressions:
+            for expr in numeric_update_expressions.values():
+                expr.accept(visitor)
+
+        for update_expr_list in neuron.spike_updates.values():
+            for update_expr in update_expr_list:
+                update_expr.accept(visitor)
+
+        for update_expr in neuron.post_spike_updates.values():
+            update_expr.accept(visitor)
+
+        for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
+            node.accept(visitor)

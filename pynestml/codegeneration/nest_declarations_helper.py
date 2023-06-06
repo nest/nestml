@@ -115,6 +115,6 @@ class NestDeclarationsHelper:
                                                                    SymbolKind.VARIABLE)
         if symbol is not None:
             # delay parameter is a variable
-            return NESTCodeGeneratorUtils.print_symbol_origin(symbol) % delay_parameter
+            return NESTCodeGeneratorUtils.print_symbol_origin(symbol, delay_parameter_var) % delay_parameter
 
         return delay_parameter

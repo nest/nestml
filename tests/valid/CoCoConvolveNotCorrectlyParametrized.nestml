@@ -32,22 +32,15 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoConvolveNotCorrectlyParametrized:
-
     parameters:
         tau ms = 20 ms
-    end
 
     state:
         G real = 1.
-    end
 
     equations:
         kernel G' = -G / tau
         inline testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
-    end
 
     input:
         spikeExc pA <- excitatory spike
-    end
-end
-

@@ -26,7 +26,7 @@ from pynestml.symbols.variable_symbol import BlockType
 class PythonCodeGeneratorUtils:
 
     @classmethod
-    def print_symbol_origin(cls, variable_symbol: VariableSymbol, numerical_state_symbols=None) -> str:
+    def print_symbol_origin(cls, variable_symbol: VariableSymbol) -> str:
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.

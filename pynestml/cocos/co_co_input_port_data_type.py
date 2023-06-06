@@ -38,7 +38,6 @@ class CoCoInputPortDataType(CoCo):
        input:
            spikeIn integer <- inhibitory spike
            current pA <- continuous
-       end
 
     Not allowed:
 
@@ -47,7 +46,6 @@ class CoCoInputPortDataType(CoCo):
        input:
            spikeIn <- inhibitory spike
            current <- continuous
-       end
     """
 
     @classmethod
