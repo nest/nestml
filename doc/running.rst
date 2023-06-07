@@ -79,9 +79,6 @@ The following default values are used, corresponding to the command line default
      - Optional[Mapping[str, Any]]
      - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
-
-For a detailed description of all the arguments of ``generate_target()``, see the API documentation at :mod:`pynestml`.
-
 A typical script for the NEST Simulator target could look like the following. First, import the function:
 
 .. code-block:: python
