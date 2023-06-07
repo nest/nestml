@@ -35,7 +35,7 @@ neuron recordable_variables:
 
     equations:
         kernel I_kernel = exp(-1/tau_syn*t)
-        inline I_syn pA = convolve(I_kernel, spikes) * pA
+        inline I_syn pA = convolve(I_kernel, spikes)
         recordable inline V_m mV = V_rel + V_reset
         V_rel' = -V_rel / tau_m + (I_syn + I_e + I_stim) / C_m
 
@@ -48,7 +48,7 @@ neuron recordable_variables:
         V_thr mV = -55 mV
 
     input:
-        spikes <- spike
+        spikes pA/s <- spike
         I_stim pA <- continuous
 
     update:

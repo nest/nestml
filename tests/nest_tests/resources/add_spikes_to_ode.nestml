@@ -30,11 +30,11 @@ neuron add_spikes_to_ode:
     y real = 0
 
   equations:
-    x' = -x + 42 * spikes / s      # linear eq
-    y' = -y**2 + 123 * spikes / s   # nonlinear eq
+    x' = -x + 42 * spikes * s / s      # linear eq
+    y' = -y**2 + 123 * spikes * s / s   # nonlinear eq
 
   input:
-    spikes real <- spike
+    spikes 1/s <- spike
 
   output:
     spike
@@ -42,5 +42,5 @@ neuron add_spikes_to_ode:
   update:
     integrate_odes()
 
-    x += spikes / 5
-    y += spikes / 42
+    x += spikes * s / 5
+    y += spikes * s / 42

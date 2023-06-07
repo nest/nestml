@@ -53,8 +53,8 @@ synapse stdp_triplet:
         inline tr_o2 real = convolve(tr_o2_kernel, post_spikes)
 
     input:
-        pre_spikes <- spike
-        post_spikes <- spike
+        pre_spikes 1/s <- spike
+        post_spikes 1/s <- spike
 
     output:
         spike

@@ -16,7 +16,7 @@ neuron iaf_psc_exp_resolution_test:
     equations:
         kernel I_kernel_inh = exp(-t/tau_syn_inh)
         kernel I_kernel_exc = exp(-t/tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) * pA + convolve(I_kernel_exc, exc_spikes) * pA + I_e + I_stim
+        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) + convolve(I_kernel_exc, exc_spikes) + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
     parameters:
@@ -38,8 +38,8 @@ neuron iaf_psc_exp_resolution_test:
         c ms = resolution()
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes pA/s <- excitatory spike
+        inh_spikes pA/s <- inhibitory spike
         I_stim pA <- continuous
 
     output:

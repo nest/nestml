@@ -72,8 +72,8 @@ synapse stdp_nn_symm:
         post_trace' = -post_trace / tau_tr_post
 
     input:
-        pre_spikes <- spike
-        post_spikes <- spike
+        pre_spikes 1/s <- spike
+        post_spikes 1/s <- spike
 
     output:
         spike

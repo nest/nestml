@@ -51,9 +51,9 @@ synapse neuromodulated_stdp:
         tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
 
     input:
-        pre_spikes <- spike
-        post_spikes <- spike
-        mod_spikes <- spike
+        pre_spikes 1/s <- spike
+        post_spikes 1/s <- spike
+        mod_spikes 1/s <- spike
 
     output:
         spike

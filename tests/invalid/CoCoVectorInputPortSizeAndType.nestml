@@ -37,5 +37,5 @@ neuron CoCoVectorInputPortSizeAndType:
         TWO integer = 2
 
     input:
-        foo[TWO] <- spike
-        bar[-3] <- spike
+        foo[TWO] pA/s <- spike
+        bar[-3] pA/s <- spike

@@ -65,7 +65,7 @@ neuron iaf_psc_alpha:
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) * pA + I_e + I_stim
+        inline I pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes) + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I / C_m
 
     parameters:
@@ -85,8 +85,8 @@ neuron iaf_psc_alpha:
         RefractoryCounts integer = steps(t_ref)    # refractory time in steps
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes pA/s <- excitatory spike
+        inh_spikes pA/s <- inhibitory spike
         I_stim pA <- continuous
 
     output:

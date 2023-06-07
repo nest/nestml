@@ -56,7 +56,7 @@ neuron iaf_psc_exp_htum:
     equations:
         kernel I_kernel_inh = exp(-t / tau_syn_inh)
         kernel I_kernel_exc = exp(-t / tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
+        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)
         V_m' = -V_m / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
@@ -94,8 +94,8 @@ neuron iaf_psc_exp_htum:
         RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes pA/s <- excitatory spike
+        inh_spikes pA/s <- inhibitory spike
         I_stim pA <- continuous
 
     output:

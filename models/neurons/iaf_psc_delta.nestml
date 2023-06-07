@@ -57,7 +57,7 @@ neuron iaf_psc_delta:
 
     equations:
         kernel G = delta(t)
-        V_m' = -(V_m - E_L) / tau_m + (mV / pA / ms) * convolve(G, spikes) * s + (I_e + I_stim) / C_m
+        V_m' = -(V_m - E_L) / tau_m + (mV / pA / ms) * convolve(G, spikes) + (I_e + I_stim) / C_m
 
     parameters:
         tau_m   ms = 10 ms              # Membrane time constant

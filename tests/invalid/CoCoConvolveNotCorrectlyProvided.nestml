@@ -42,7 +42,7 @@ neuron CoCoConvolveNotCorrectlyProvided:
         V_m' = 20 mV/ms
 
     input:
-        spikeExc <- excitatory spike
+        spikeExc pA/s <- excitatory spike
 
     update:
         integrate_odes()
