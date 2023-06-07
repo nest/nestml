@@ -79,6 +79,9 @@ The following default values are used, corresponding to the command line default
      - Optional[Mapping[str, Any]]
      - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
+
+For a detailed description of all the arguments of ``generate_target()``, see :func:`pynestml.frontend.pynestml_frontend.generate_target`.
+
 A typical script for the NEST Simulator target could look like the following. First, import the function:
 
 .. code-block:: python
@@ -186,8 +189,8 @@ Custom templates
 See :ref:`Running NESTML with custom templates`.
 
 
-Multiple input ports
-~~~~~~~~~~~~~~~~~~~~
+Multiple input ports in NEST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
 
@@ -226,8 +229,8 @@ The output shows the currents for each synapse (three bottom rows) and the net e
 For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 
-Multiple input ports with vectors
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports with vectors in NEST
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 
