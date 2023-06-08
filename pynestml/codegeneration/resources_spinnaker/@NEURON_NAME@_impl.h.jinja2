@@ -47,16 +47,26 @@ enum input_indices
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
 {%- set ns.count = ns.count + 1 -%}
 {%- endfor %}
+{%- for variable in neuron.get_continuous_input_ports() %}
+    {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
+{%- set ns.count = ns.count + 1 -%}
+{%- endfor %}
 {# Not resetting count here to use for input generation #}
 };
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
 {# Make shure count is |spike_input_ports| + |continous_input_ports| #}
+
+// 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     accum inputs[{{ ns.count }}];
 {%- endif %}
     
+    // input ports of the neuron
+{%- for sym in neuron.get_spike_input_ports() %}
+    accum {{sym.get_symbol_name()}};
+{%- endfor %}
 
     // State variables of the neuron
 {%- for sym in neuron.get_state_symbols() %}
@@ -68,19 +78,13 @@ typedef struct neuron_impl_t {
     accum {{ sym.get_symbol_name() }};
 {%- endfor %}
 
-{#
-    // input ports of the neuron
-{%- for sym in neuron.get_spike_input_ports() %}
-    accum {{sym.get_symbol_name()}};
-{%- endfor %}
-#}
-
     // Internal variables of the neuron
 {%- for sym in neuron.get_internal_symbols() %}
     accum {{sym.get_symbol_name()}};
 {%- endfor %}
 
-accum I_stim_grid_sum_;
+    // Uncomment while neuron->inputs[2] not used
+    // accum I_stim_grid_sum_;
 
 {%- if uses_numeric_solver %}
 
@@ -178,6 +182,10 @@ static void neuron_impl_do_timestep_update(
         neuron->inputs[1] = 0;
         */
 
+
+
+
+// TODO: change I_stim_input_sum to neuron->inputs[2]
 {%- if neuron.get_update_blocks() %}
 {%-   filter indent(2) %}
 {%-     for block in neuron.get_update_blocks() %}
@@ -193,7 +201,6 @@ static void neuron_impl_do_timestep_update(
 {%- endif %}
 
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
-    
     }
 }
 

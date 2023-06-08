@@ -32,10 +32,7 @@ def steps(time_ms: float, timestep: float):
     r"""Convert a time period (in milliseconds) to number of simulation steps"""
     return int(ceil(time_ms / timestep))
 
-
-
 class {{neuronName}}(AbstractPyNNNeuronModel):
-
 
     @default_parameters({
 {%- for sym in neuron.get_parameter_symbols() %}
@@ -75,7 +72,6 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 {%-   include "directives_py/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
-
 
         super().__init__({{neuronName}}Impl(
                  # state:
