@@ -182,9 +182,6 @@ static void neuron_impl_do_timestep_update(
         neuron->inputs[1] = 0;
         */
 
-
-
-
 // TODO: change I_stim_input_sum to neuron->inputs[2]
 {%- if neuron.get_update_blocks() %}
 {%-   filter indent(2) %}

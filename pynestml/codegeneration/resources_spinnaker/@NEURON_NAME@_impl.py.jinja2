@@ -72,7 +72,6 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
 
         self._struct = Struct([
-                 
                  # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
             (DataType.S1615,   "{{sym.get_symbol_name()}}"),
