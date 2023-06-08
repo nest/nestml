@@ -11,8 +11,10 @@ venv/
 spinnaker-install/
 spinnaker-target/
 report/
+reports/
 nestml-*/
 *.egg-info
+stash/
 
 
 __*
