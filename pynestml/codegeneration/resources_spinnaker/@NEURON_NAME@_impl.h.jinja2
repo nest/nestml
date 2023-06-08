@@ -47,16 +47,16 @@ enum input_indices
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
 {%- set ns.count = ns.count + 1 -%}
 {%- endfor %}
+{# Not resetting count here to use for input generation #}
 };
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
-{%- if neuron.get_spike_input_ports()|length > 0 %}
-    accum inputs[{{ neuron.get_spike_input_ports()|length }}];
+{# Make shure count is |spike_input_ports| + |continous_input_ports| #}
+{%- if ns.count > 0 %}
+    accum inputs[{{ ns.count }}];
 {%- endif %}
     
-    //TODO: Generate this
-    accum I_stim_grid_sum_;
 
     // State variables of the neuron
 {%- for sym in neuron.get_state_symbols() %}
@@ -79,6 +79,8 @@ typedef struct neuron_impl_t {
 {%- for sym in neuron.get_internal_symbols() %}
     accum {{sym.get_symbol_name()}};
 {%- endfor %}
+
+accum I_stim_grid_sum_;
 
 {%- if uses_numeric_solver %}
 
@@ -140,6 +142,10 @@ static void neuron_impl_store_neuron_parameters(
             n_neurons * sizeof(neuron_impl_t));
 }
 
+// This should handle incoming input events (spike and additional inputs e.g. current)
+// For implementation follow the nestml "handle"- function
+// Weights are already applied ? 
+// Apply synapse type before adding to buffer (delta, exp, ...)
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_add_inputs(
         index_t synapse_type_index, index_t neuron_index,
@@ -187,6 +193,7 @@ static void neuron_impl_do_timestep_update(
 {%- endif %}
 
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
+    
     }
 }
 

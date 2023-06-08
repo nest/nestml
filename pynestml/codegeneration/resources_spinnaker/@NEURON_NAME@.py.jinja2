@@ -32,27 +32,38 @@ def steps(time_ms: float, timestep: float):
     r"""Convert a time period (in milliseconds) to number of simulation steps"""
     return int(ceil(time_ms / timestep))
 
+
+
 class {{neuronName}}(AbstractPyNNNeuronModel):
 
-    def __init__(self,
-#TODO: 'V_m' can't be initialized with E_L
-# XXX: need to print default values here?
-{%- for sym in neuron.get_state_symbols() %}
-{%- set otherInititial = utils.get_variable_by_name(astnode, sym.get_initial_value()|string())%}
-{%- if not otherInititial%}
-                {{sym.get_symbol_name()}}={{sym.get_initial_value()}},
-{%- else%}
-                {{sym.get_symbol_name()}} = {{otherInititial.resolve_in_own_scope().get_initial_value()}},
-{%- endif%}
-{%- endfor %}
 
+    @default_parameters({
 {%- for sym in neuron.get_parameter_symbols() %}
-                {{sym.get_symbol_name()}}={{sym.get_initial_value()}},
+        "{{sym.get_symbol_name()}}", \
+{%- endfor %}
+    })
+    def __init__(self,
+# TODO: Initial values of input ports incorrect
+# XXX: need to print default values here?
+
+{%- filter indent(16) %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
+{%- endfor %}
+{%- endfilter %}
+
+{%- filter indent(16) %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
+{%- endfor %}
+{%- endfilter %}
+
+{%- for variable_symbol in neuron.get_spike_input_ports() %}
+                {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
 {%- endfor %}
 
-{%- for sym in neuron.get_spike_input_ports() %}
-                {{sym.get_symbol_name()}}={{sym.get_initial_value()}},
-{%- endfor %}
                 ):
 
         timestep = (SpynnakerDataView.get_simulation_time_step_ms())
@@ -64,6 +75,7 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 {%-   include "directives_py/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
+
 
         super().__init__({{neuronName}}Impl(
                  # state:
