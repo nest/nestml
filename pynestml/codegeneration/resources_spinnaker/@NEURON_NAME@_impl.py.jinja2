@@ -72,16 +72,17 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
 
         self._struct = Struct([
+                 
+                 # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
                  # state:
 {%- for sym in neuron.get_state_symbols() %}
             (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
-            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
-{%- endfor %}
-                 # spike input ports:
-{%- for sym in neuron.get_spike_input_ports() %}
             (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # internals:

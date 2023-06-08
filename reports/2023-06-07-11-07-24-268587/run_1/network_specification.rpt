@@ -1,0 +1,13 @@
+*** Vertices:
+Vertex input, size: 1, model: SpikeSourceArrayVertex, max_atoms: 9223372036854775807
+    Outgoing Edge Partitions:
+    Partition SPIKE:
+        Edge: projection edge 1, From input to my_full_neuron_pop, model: ProjectionApplicationEdge
+        Edge: projection edge 2, From input to iaf_psc_exp_pop, model: ProjectionApplicationEdge
+
+Vertex my_full_neuron_pop, size: 1, model: AbstractPopulationVertex, max_atoms: 256
+    Outgoing Edge Partitions:
+
+Vertex iaf_psc_exp_pop, size: 1, model: AbstractPopulationVertex, max_atoms: 256
+    Outgoing Edge Partitions:
+

@@ -1,0 +1,5 @@
+ x    y       route         [cores][links]
+0  :0   contains route 128        [1] []
+0  :1   contains route 32         [] [S]
+1  :0   contains route 8          [] [W]
+1  :1   contains route 16         [] [SW]

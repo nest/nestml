@@ -47,22 +47,16 @@ enum input_indices
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
 {%- set ns.count = ns.count + 1 -%}
 {%- endfor %}
-{%- for variable in neuron.get_continuous_input_ports() %}
-    {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
-{%- set ns.count = ns.count + 1 -%}
-{%- endfor %}
 {# Not resetting count here to use for input generation #}
 };
 
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
 {# Make shure count is |spike_input_ports| + |continous_input_ports| #}
-{%- if ns.count > 1 %}
+{%- if ns.count > 0 %}
     accum inputs[{{ ns.count }}];
 {%- endif %}
     
-    //TODO: Generate this
-    accum I_stim_grid_sum_;
 
     // State variables of the neuron
 {%- for sym in neuron.get_state_symbols() %}
@@ -85,6 +79,8 @@ typedef struct neuron_impl_t {
 {%- for sym in neuron.get_internal_symbols() %}
     accum {{sym.get_symbol_name()}};
 {%- endfor %}
+
+accum I_stim_grid_sum_;
 
 {%- if uses_numeric_solver %}
 

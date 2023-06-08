@@ -1,0 +1,15 @@
+[INFO] (data_specification.c: 111): magic = ad130ad6, version = 1.0
+[INFO] Setting reinject mc to 1
+[INFO] Setting reinject pp to 0
+[INFO] Setting reinject fr to 0
+[INFO] Setting reinject nn to 0
+[INFO] extra monitor initialisation complete
+[INFO] Setting reinject mc to 0
+[INFO] Setting reinject pp to 0
+[INFO] Setting reinject fr to 0
+[INFO] Setting reinject nn to 0
+[INFO] Setting reinject mc to 1
+[INFO] Setting reinject pp to 0
+[INFO] Setting reinject fr to 0
+[INFO] Setting reinject nn to 0
+

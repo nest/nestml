@@ -1,0 +1,22 @@
+
+core iaf_psc_exp_pop(0:0) 
+    10 packets received.
+    0 were detected as redundant packets by the bitfield filter.
+    0 were detected as having no targets after the DMA stage.
+    0 were detected as packets which we should not have received in the first place.
+    Overall this makes a redundant percentage of 0.0
+
+core my_full_neuron_pop(0:0) 
+    10 packets received.
+    0 were detected as redundant packets by the bitfield filter.
+    0 were detected as having no targets after the DMA stage.
+    0 were detected as packets which we should not have received in the first place.
+    Overall this makes a redundant percentage of 0.0
+
+The total packets flown in system was 20.
+    The max, min and avergae per core was 10, 10, 10.0 packets.
+The total redundant packets was 0.
+    The max, min and avergae per core was 0, 0, 0.0 packets.
+The percentages of redundant packets was 0.0.
+    The max and min percentages of redundant packets are 0.0 and 0.0.
+    The average redundant percentages from each core were 0.0 accordingly.

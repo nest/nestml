@@ -1,0 +1,6 @@
+Tags actually read off the machine
+==================================
+IPTag(board_address=192.168.240.253, destination_x=0, destination_y=0, tag=7, port=43724, ip_address=192.168.240.217, strip_sdp=True, traffic_identifier=DEFAULT)
+IPTag(board_address=192.168.240.253, destination_x=0, destination_y=0, tag=8, port=57486, ip_address=192.168.240.217, strip_sdp=False, traffic_identifier=DEFAULT)
+IPTag(board_address=192.168.240.253, destination_x=0, destination_y=0, tag=7, port=43724, ip_address=192.168.240.217, strip_sdp=True, traffic_identifier=DEFAULT)
+IPTag(board_address=192.168.240.253, destination_x=0, destination_y=0, tag=8, port=39732, ip_address=192.168.240.217, strip_sdp=False, traffic_identifier=DEFAULT)
