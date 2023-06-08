@@ -1,1 +1,0 @@
-IPTag(board_address=192.168.240.253, destination_x=0, destination_y=0, tag=7, port=10000, ip_address=localhost, strip_sdp=True, traffic_identifier=DATA_SPEED_UP)

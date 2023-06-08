@@ -1,8 +1,0 @@
-[INFO] (data_speed_up_packet_gatherer.c: 938): Configuring packet gatherer
-[INFO] (data_specification.c: 111): magic = ad130ad6, version = 1.0
-[INFO] (data_speed_up_packet_gatherer.c: 875): Initialising data out
-[INFO] (data_speed_up_packet_gatherer.c: 889): new seq key = -8, first data key = -9, transaction id key = -11, end flag key = -10, basic_data_key = -7
-[INFO] (data_speed_up_packet_gatherer.c: 891): the tag id being used is 7
-[INFO] (data_speed_up_packet_gatherer.c: 906): Initialising data in
-[INFO] (data_speed_up_packet_gatherer.c: 944): Starting
-
