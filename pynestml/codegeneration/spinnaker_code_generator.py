@@ -60,7 +60,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._constant_printer = ConstantPrinter()
 
         # C++/NEST API printers
-        self._type_symbol_printer = NESTCppTypeSymbolPrinter()
+        self._type_symbol_printer = SpinnakerCppTypeSymbolPrinter()
         self._nest_variable_printer = SPINNAKERVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
         self._nest_function_call_printer = SpinnakerCppFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCppFunctionCallPrinter(None)
