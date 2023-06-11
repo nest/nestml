@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_python_function_call_printer.py
+# c_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -32,10 +32,13 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
+
+# TODO: Make C conform
+class CFunctionCallPrinter(FunctionCallPrinter):
     r"""
-    Printer for ASTFunctionCall in Python syntax.
+    Printer for ASTFunctionCall in C syntax.
     """
+
     def print(self, node: ASTNode) -> str:
         assert isinstance(node, ASTFunctionCall)
 
@@ -55,7 +58,6 @@ class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
             The function call string.
         """
         assert isinstance(function_call, ASTFunctionCall)
-
         function_name = self._print_function_call_format_string(function_call)
         if ASTUtils.needs_arguments(function_call):
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
@@ -64,6 +66,71 @@ class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
             return function_name.format(*self._print_function_call_argument_list(function_call))
 
         return function_name
+
+    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
+        r"""
+        Converts a single handed over function call to C NEST API syntax.
+
+        Parameters
+        ----------
+        function_call
+            The function call node to convert.
+
+        Returns
+        -------
+        s
+            The function call string in C syntax.
+        """
+        function_name = function_call.get_name()
+
+        if function_name == PredefinedFunctions.CLIP:
+            # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
+            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
+
+        if function_name == PredefinedFunctions.MAX:
+            return 'std::max({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.MIN:
+            return 'std::min({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.EXP:
+            return 'std::exp({!s})'
+
+        if function_name == PredefinedFunctions.LN:
+            return 'std::log({!s})'
+
+        if function_name == PredefinedFunctions.LOG10:
+            return 'std::log10({!s})'
+
+        if function_name == PredefinedFunctions.COSH:
+            return 'std::cosh({!s})'
+
+        if function_name == PredefinedFunctions.SINH:
+            return 'std::sinh({!s})'
+
+        if function_name == PredefinedFunctions.TANH:
+            return 'std::tanh({!s})'
+
+        if function_name == PredefinedFunctions.ERF:
+            return 'std::erf({!s})'
+
+        if function_name == PredefinedFunctions.ERFC:
+            return 'std::erfc({!s})'
+
+        if function_name == PredefinedFunctions.EXPM1:
+            return 'numerics::expm1({!s})'
+
+        if function_name == PredefinedFunctions.PRINT:
+            return 'std::cout << {!s}'
+
+        if function_name == PredefinedFunctions.PRINTLN:
+            return 'std::cout << {!s} << std::endl'
+
+        if ASTUtils.needs_arguments(function_call):
+            n_args = len(function_call.get_args())
+            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+
+        return function_name + '()'
 
     def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []
@@ -80,78 +147,44 @@ class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
         :return: the converted print string with corresponding variables, if any
         """
         stmt = function_call.get_args()[0].get_string()
-        stmt = stmt[stmt.index("\"") + 1: stmt.rindex("\"")]  # Remove the double quotes from the string
+        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
         scope = function_call.get_scope()
         return self.__convert_print_statement_str(stmt, scope)
 
     def __convert_print_statement_str(self, stmt: str, scope: Scope) -> str:
         r"""
-        Converts the string argument of the print or println function to Python format
-        Variables are resolved to Python format and printed with physical units as mentioned in model, separated by a space
+        Converts the string argument of the print or println function to NEST processable format
+        Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
 
         .. code-block:: nestml
-
-            println("Hello World")
-
-        .. code-block:: Python
 
             print("Hello World")
 
+        .. code-block:: C++
+
+            std::cout << "Hello World";
+
         .. code-block:: nestml
 
-            println("Membrane potential = {V_m}")
+            print("Membrane potential = {V_m}")
 
-        .. code-block:: Python
+        .. code-block:: C++
 
-            print("Membrane potential = " + str(V_m) + " mV")
+            std::cout << "Membrane potential = " << V_m << " mV";
 
         :param stmt: argument to the print or println function
         :param scope: scope of the variables in the argument, if any
-        :return: the converted string
+        :return: the converted string to NEST
         """
-        pattern = re.compile(r"\{[a-zA-Z_][a-zA-Z0-9_]*\}")  # Match the variables enclosed within "{ }"
+        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
         match = pattern.search(stmt)
         if match:
-            var_name = match.group(0)[match.group(0).find("{") + 1:match.group(0).find("}")]
+            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + " + " if lhs else "")
-            fun_right = (lambda rhs: " + " + self.__convert_print_statement_str(rhs, scope) if rhs else "")
+            fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
+            fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
             ast_var = ASTVariable(var_name, scope=scope)
-            right = " " + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+            right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
-        return "\"" + stmt + "\""  # format bare string in Python (add double quotes)
-
-    def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
-        """
-        Converts a single handed over function call to Python syntax.
-
-        Parameters
-        ----------
-        function_call
-            The function call node to convert.
-
-        Returns
-        -------
-        s
-            The function call string in Python syntax.
-        """
-        if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
-            return "steps({!s}, timestep)"
-
-        if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
-            return "timestep"
-
-        if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
-            return "emit_spike(origin)"
-
-        s = function_call.get_name()
-
-        s += "("
-        if ASTUtils.needs_arguments(function_call):
-            n_args = len(function_call.get_args())
-            s += ", ".join(["{!s}" for _ in range(n_args)])
-
-        s += ")"
-
-        return s
+        return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
