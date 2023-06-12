@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_cpp_type_symbol_printer.py
+# spinnaker_c_type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -30,7 +30,7 @@ from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-class SpinnakerCppTypeSymbolPrinter(TypeSymbolPrinter):
+class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
     """
     Returns a Spinnaker C++ syntax version of the handed over type.
     """
@@ -44,7 +44,7 @@ class SpinnakerCppTypeSymbolPrinter(TypeSymbolPrinter):
         assert isinstance(type_symbol, TypeSymbol)
 
         if isinstance(type_symbol, RealTypeSymbol):
-            return "accum"
+            return "REAL"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
             return "unsigned int"

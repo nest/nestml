@@ -27,7 +27,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class SpinnakerCppFunctionCallPrinter(CppFunctionCallPrinter):
+class SpinnakerCFunctionCallPrinter(CppFunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in LaTeX syntax.
     """

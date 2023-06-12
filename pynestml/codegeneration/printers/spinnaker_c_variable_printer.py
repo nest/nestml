@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_variable_printer.py
+# spinnaker_c_variable_printer.py
 #
 # This file is part of NEST.
 #
@@ -38,7 +38,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class SPINNAKERVariablePrinter(CppVariablePrinter):
+class SpinnakerCVariablePrinter(CppVariablePrinter):
     r"""
     Variable printer for C syntax and the SPINNAKER API.
     """

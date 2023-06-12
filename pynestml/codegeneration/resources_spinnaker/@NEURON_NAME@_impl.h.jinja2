@@ -7,7 +7,7 @@
 #include <debug.h>
 
 {%- set ns = namespace(count=0) %}
-{%- for variable in neuron.get_state_symbols() %}
+{%- for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
 {% if variable.is_recordable -%}
 #define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
 {%- set ns.count = ns.count + 1 -%}
@@ -43,7 +43,7 @@
 enum input_indices
 {
 {%- set ns = namespace(count=0) %}
-{%- for variable in neuron.get_spike_input_ports() %}
+{%- for variable in neuron.get_spike_input_ports() | sort(attribute="name") %}
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
 {%- set ns.count = ns.count + 1 -%}
 {%- endfor %}
@@ -59,25 +59,25 @@ typedef struct neuron_impl_t {
     
 
     // State variables of the neuron
-{%- for sym in neuron.get_state_symbols() %}
-    accum {{ sym.get_symbol_name() }};
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
 
     // Parameters of the neuron
-{%- for sym in neuron.get_parameter_symbols() %}
-    accum {{ sym.get_symbol_name() }};
+{%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
 
 {#
     // input ports of the neuron
-{%- for sym in neuron.get_spike_input_ports() %}
-    accum {{sym.get_symbol_name()}};
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
 #}
 
     // Internal variables of the neuron
-{%- for sym in neuron.get_internal_symbols() %}
-    accum {{sym.get_symbol_name()}};
+{%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
 
 accum I_stim_grid_sum_;
@@ -179,7 +179,7 @@ static void neuron_impl_do_timestep_update(
         */
 
 {%- if neuron.get_update_blocks() %}
-{%-   filter indent(2) %}
+{%-   filter indent(8) %}
 {%-     for block in neuron.get_update_blocks() %}
 {%-       set ast = block.get_block() %}
 {%-       if ast.print_comment('*')|length > 1 %}
@@ -194,6 +194,9 @@ static void neuron_impl_do_timestep_update(
 
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
     
+{%- for variable in neuron.get_spike_input_ports() %}
+        neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+{%- endfor %}
     }
 }
 
