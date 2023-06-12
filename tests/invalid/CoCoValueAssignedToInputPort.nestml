@@ -36,4 +36,4 @@ neuron CoCoValueAssignedToInputPort:
         spikeInh 1/s <- inhibitory spike
 
     update:
-        spikeInh = 10
+        spikeInh = 10 / s
