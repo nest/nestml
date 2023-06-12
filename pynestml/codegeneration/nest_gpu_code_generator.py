@@ -45,14 +45,20 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                            "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
             },
             "module_templates": [""]
-        }
+        },
+        "solver": "analytic"
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(NESTCodeGenerator, self).__init__("nest_gpu",
                                                 NESTGPUCodeGenerator._default_options.update(options if options else {}))
         self._target = "NEST_GPU"
+        self.analytic_solver = {}
+        self.numeric_solver = {}
+        self.non_equations_state_variables = {}
+
         self.setup_template_env()
+        self.setup_printers()
         # TODO: setup the printers and reference converters
 
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
