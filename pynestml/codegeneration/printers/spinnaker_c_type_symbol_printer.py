@@ -56,7 +56,7 @@ class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
         #     return "void"
 
         if isinstance(type_symbol, UnitTypeSymbol):
-            return "accum"
+            return "REAL"
 
         if isinstance(type_symbol, ErrorTypeSymbol):
             return "ERROR"
