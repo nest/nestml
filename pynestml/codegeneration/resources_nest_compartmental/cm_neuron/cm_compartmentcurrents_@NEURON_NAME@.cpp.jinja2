@@ -408,18 +408,18 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double 
                         {% for inline in concentration_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
                         {% for inline in concentration_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %})
 {
+    if({%- for key_zero_param in concentration_info["RootInlineKeyZeros"] %} {{ key_zero_param }} > 1e-9 && {%- endfor %} true ){
+        double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
 
-    double {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }} = Time::get_resolution().get_ms();
-
-    {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
-        {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-    double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
+        {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
+            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+        double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
+            {%- endfor %}
+            {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+        {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
+            {%- endfor %}
         {%- endfor %}
-        {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-    {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
-        {%- endfor %}
-    {%- endfor %}
-
+    }
 }
 
 {%- for function in concentration_info["Functions"] %}

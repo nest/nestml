@@ -1,7 +1,8 @@
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from collections import defaultdict
 
-from pynestml.meta_model.ast_neuron import ASTNeuron
+import sympy
+import re
 
 class ConcentrationProcessing(MechanismProcessing):
     """The default Processing ignores the root expression when solving the odes which in case of the concentration
@@ -13,16 +14,59 @@ class ConcentrationProcessing(MechanismProcessing):
 
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
-        for mechanism_name, mechanism_info in mechs_info.items():
-            #Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
-            fake_mechs_info = defaultdict()
-            fake_mechanism_info = defaultdict()
-            fake_mechanism_info["ODEs"] = list()
-            fake_mechanism_info["ODEs"].append(mechanism_info["root_expression"])
-            fake_mechs_info["fake"] = fake_mechanism_info
-
-            fake_mechs_info = cls.ode_toolbox_processing(neuron, fake_mechs_info)
-
-            mechs_info[mechanism_name]["ODEs"] = mechs_info[mechanism_name]["ODEs"] | fake_mechs_info["fake"]["ODEs"]
+        mechs_info = cls.ode_toolbox_processing_for_root_expression(neuron, mechs_info)
+        mechs_info = cls.write_key_zero_parameters_for_root_odes(mechs_info)
 
         return mechs_info
+
+    @classmethod
+    def ode_toolbox_processing_for_root_expression(cls, neuron, conc_info):
+        for concentration_name, concentration_info in conc_info.items():
+            #Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
+            fake_conc_info = defaultdict()
+            fake_concentration_info = defaultdict()
+            fake_concentration_info["ODEs"] = list()
+            fake_concentration_info["ODEs"].append(concentration_info["root_expression"])
+            fake_conc_info["fake"] = fake_concentration_info
+
+            fake_conc_info = cls.ode_toolbox_processing(neuron, fake_conc_info)
+
+            conc_info[concentration_name]["ODEs"] = conc_info[concentration_name]["ODEs"] | fake_conc_info["fake"]["ODEs"]
+
+        return conc_info
+
+    @classmethod
+    def check_if_key_zero_var_for_expression(cls, rhs_expression_str, var_str):
+        if not re.search("1/.*", rhs_expression_str):
+            sympy_expression = sympy.parsing.sympy_parser.parse_expr(rhs_expression_str, evaluate=False)
+            if isinstance(sympy_expression, sympy.core.add.Add) and \
+                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) and \
+                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str):
+                return True
+            elif isinstance(sympy_expression, sympy.core.mul.Mul) and \
+                    (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or \
+                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
+                return True
+            elif rhs_expression_str == var_str:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    @classmethod
+    def search_for_key_zero_parameters_for_expression(cls, rhs_expression_str, parameters):
+        key_zero_parameters = list()
+        for parameter_name, parameter_info in parameters.items():
+            if cls.check_if_key_zero_var_for_expression(rhs_expression_str, parameter_name):
+                key_zero_parameters.append(parameter_name)
+
+        return key_zero_parameters
+
+    @classmethod
+    def write_key_zero_parameters_for_root_odes(cls, conc_info):
+        for concentration_name, concentration_info in conc_info.items():
+            root_inline_rhs = cls._ode_toolbox_printer.print(concentration_info["root_expression"].get_rhs())
+            conc_info[concentration_name]["RootOdeKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(root_inline_rhs, concentration_info["Parameters"])
+
+        return conc_info
