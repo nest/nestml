@@ -885,7 +885,15 @@ class NESTCodeGenerator(CodeGenerator):
                 factor_expr.accept(ASTSymbolTableVisitor())
                 assignment_str += "(" + self._printer_no_origin.print_expression(factor_expr) + ") * "
 
+            if "_is_post_port" in dir(inport) and inport._is_post_port:
+                orig_port_name = inport[:inport.index("__for_")]
+                buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+            else:
+                buffer_type = neuron.get_scope().resolve_to_symbol(inport.get_name(), SymbolKind.VARIABLE).get_type_symbol()
+
             assignment_str += str(inport)
+            if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
             ast_assignment = ModelParser.parse_assignment(assignment_str)
             ast_assignment.update_scope(neuron.get_scope())
             ast_assignment.accept(ASTSymbolTableVisitor())

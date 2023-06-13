@@ -43,4 +43,4 @@ neuron input_ports:
         I_stim pA <- continuous
 
     update:
-        bar = foo[1]
+        bar = foo[1] * s
