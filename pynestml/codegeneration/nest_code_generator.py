@@ -22,6 +22,7 @@
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
+import re
 
 import odetoolbox
 import pynestml
@@ -442,6 +443,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace["PredefinedFunctions"] = pynestml.symbols.predefined_functions.PredefinedFunctions
+
+        namespace["remove_vector_index"] = lambda s: re.sub(r"\[\d+\]$", "", s)
 
         return namespace
 

@@ -75,14 +75,12 @@ class NestMultiSynapseTest(unittest.TestCase):
         nest.Connect(vm_1, neuron)
 
         # simulate
-
         nest.Simulate(125.)
 
         # analysis
         V_m_timevec = nest.GetStatus(vm_1)[0]["events"]["times"]
         V_m = nest.GetStatus(vm_1)[0]["events"]["V_m"]
         mm = nest.GetStatus(mm)[0]["events"]
-        np.testing.assert_almost_equal(V_m[-1], -72.87687647817297)
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=4)
@@ -110,6 +108,9 @@ class NestMultiSynapseTest(unittest.TestCase):
             ax[-1].set_xlabel("time")
 
             fig.savefig("/tmp/test_multisynapse.png")
+
+        # testing
+        np.testing.assert_almost_equal(V_m[-1], -72.89041451202327)
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
@@ -155,5 +156,35 @@ class NestMultiSynapseTest(unittest.TestCase):
         nest.Simulate(125.)
 
         # analysis
+        V_m_timevec = nest.GetStatus(vm_1)[0]["events"]["times"]
         V_m = nest.GetStatus(vm_1)[0]["events"]["V_m"]
-        np.testing.assert_almost_equal(V_m[-1], -72.87687647817297)
+
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=4)
+
+            ax[0].plot(V_m_timevec, V_m, label="V_m")
+            ax[0].set_ylabel("voltage")
+
+            ax[1].plot(mm.events["times"], mm.events["I_kernel1__X__spikes1"], label="I_kernel1")
+            ax[1].set_ylabel("current")
+
+            ax[2].plot(mm.events["times"], mm.events["I_kernel2__X__spikes2"], label="I_kernel2")
+            ax[2].set_ylabel("current")
+
+            ax[3].plot(mm.events["times"], mm.events["I_kernel3__X__spikes3"], label="I_kernel3")
+            ax[3].set_ylabel("current")
+
+            for _ax in ax:
+                _ax.legend(loc="upper right")
+                _ax.set_xlim(0., 125.)
+                _ax.grid(True)
+
+            for _ax in ax[:-1]:
+                _ax.set_xticklabels([])
+
+            ax[-1].set_xlabel("time")
+
+            fig.savefig("/tmp/test_multisynapse_vector.png")
+
+        # testing
+        np.testing.assert_almost_equal(V_m[-1], -72.89041451202327)

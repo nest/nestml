@@ -30,20 +30,21 @@ B_.{{ input_port_name }}_grid_sum_ = get_{{ input_port_name }}().get_value(lag);
 {%- if spiking_port_names | length > 0 %}
 // process inputs from spiking-type input ports
 {%-     for port_name, spike_updates_for_port in spike_updates.items() %}
-{%-         if port_name in spiking_port_names %}
+{%-         if remove_vector_index(port_name) in spiking_port_names %} {# remove trailing "[123]" from vector spike ports #}
+
 {%-             for ast in spike_updates_for_port -%}
 {%-                 if analytic_state_variables_from_convolutions | length > 0 %}
 
 // first, integrate variables related to convolutions with this port
 {%-                     for variable_name in analytic_state_variables_from_convolutions %}
-{%-                         if port_name in variable_name %}
+{%-                         if port_name.replace("[", "").replace("]", "") in variable_name %}
 {%-                             set update_expr = update_expressions[variable_name] %}
 const double {{variable_name}}__tmp = {{printer.print_expression(update_expr)}};
 {%-                         endif %}
 {%-                     endfor %}
 
 {%-                    for variable_name in analytic_state_variables_from_convolutions %}
-{%-                        if port_name in variable_name %}
+{%-                        if port_name.replace("[", "").replace("]", "") in variable_name %}
 {%-                            set variable_symbol = variable_symbols[variable_name] %}
 {%-                            set update_expr = update_expressions[variable_name] %}
 {{ printer.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} = {{ variable_name }}__tmp;

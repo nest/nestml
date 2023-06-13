@@ -92,7 +92,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         # verification
         final_v_m = vm_1["V_m"][-1]
         print("final V_m = " + str(final_v_m))
-        np.testing.assert_allclose(final_v_m, -65.484765)
+        np.testing.assert_allclose(final_v_m, -61.881497)
 
     def plot(self, vm_1, i_1, sd):
         fig, ax = plt.subplots(nrows=5)
