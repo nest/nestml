@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_synapses_model.py
+# co_co_concentrations_model.py
 #
 # This file is part of NEST.
 #
