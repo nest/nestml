@@ -332,7 +332,7 @@ def get_parsed_models():
         return models, False
 
 
-def transform_models(transformers):
+def transform_models(transformers, models):
     for transformer in transformers:
         models = transformer.transform(models)
     return models
