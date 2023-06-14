@@ -590,15 +590,23 @@ public:
   void
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
   {
-    const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+    const double __t_spike = e.get_stamp().get_ms();
+
+    double __resolution;    // do not remove, this is necessary for the resolution() function
+    if (t_lastspike_ < 0.)
+    {
+        __resolution = __t_spike;
+    }
+    else
+    {
+        __resolution = __t_spike - t_lastspike_;
+    }
 
     auto get_thread = [tid]()
     {
         return tid;
     };
 
-    // synapse STDP depressing/facilitation dynamics
-    const double __t_spike = e.get_stamp().get_ms();
 #ifdef DEBUG
     std::cout << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
 #endif
