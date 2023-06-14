@@ -329,19 +329,19 @@ def get_parsed_models():
                                    log_level=LoggingLevel.WARNING)
                 return [model], True
 
-     
         return models, False
-    
+
+
 def transform_models(transformers):
     for transformer in transformers:
-            models = transformer.transform(models)
+        models = transformer.transform(models)
     return models
+
 
 def generate_code(code_generators, models):
     code_generators.generate_code(models)
-                                                     
 
-    
+
 def process():
     r"""
     The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
@@ -354,25 +354,23 @@ def process():
 
     # initialize and set options for transformers, code generator and builder
     codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
-    
+
     transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
                                                                            options=codegen_and_builder_opts)
-    
+
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
     codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
-    
+
     _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
 
     if len(codegen_and_builder_opts) > 0:
         raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
-
 
     models, errors_occurred = get_parsed_models()
 
     if not errors_occurred:
         models = transform_models(transformers, models)
         generate_code(code_generator, models)
-        
 
         # perform build
         if _builder is not None:
@@ -381,7 +379,6 @@ def process():
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    # Everything is fine, return false, i.e., no errors have occurred.
     return errors_occurred
 
 
