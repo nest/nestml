@@ -2,7 +2,6 @@
 target/
 .idea/
 .mypy_cache/
-.eggs/
 build/
 buildNest/
 venv/
@@ -27,14 +26,3 @@ venv
 *.gdf
 *~
 *.iml
-/generated/
-/NESTML.egg-info/
-.pydevproject
-linkingModel.py
-
-
-/generated_aeif_cond_alpha/
-/generated_goal/
-/generated_snapshot/
-/generated_RingBufferStar/
-/generated_cout/

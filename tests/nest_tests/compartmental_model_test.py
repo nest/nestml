@@ -103,7 +103,7 @@ class CMTest(unittest.TestCase):
 
         generate_nest_compartmental_target(
             input_path=input_path,
-            target_path=os.path.join(target_path, "compartmental_model/"),
+            target_path="/home/levie/Desktop/HiWi/tests/tmp/nestml-component/",
             module_name="cm_defaultmodule",
             suffix="_nestml",
             logging_level="INFO"
