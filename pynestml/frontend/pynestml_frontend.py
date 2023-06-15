@@ -154,6 +154,17 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+
+    configure_front_end(input_path, target_platform, target_path, install_path, logging_level,
+                        module_name, store_log, suffix, dev, codegen_opts)
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
+
+
+def configure_front_end(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
+                        install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                        dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
+
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -194,9 +205,6 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
     if codegen_opts:
         FrontendConfiguration.set_codegen_opts(codegen_opts)
-
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
 
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
