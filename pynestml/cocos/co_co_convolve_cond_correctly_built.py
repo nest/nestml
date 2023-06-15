@@ -38,13 +38,13 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param node: a single neuron instance.
+        :type node: ast_neuron
         """
-        neuron.accept(ConvolveCheckerVisitor())
+        node.accept(ConvolveCheckerVisitor())
 
 
 class ConvolveCheckerVisitor(ASTVisitor):

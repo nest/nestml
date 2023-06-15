@@ -44,16 +44,16 @@ class CoCoNoKernelsExceptInConvolve(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param node: a single neuron instance.
+        :type node: ast_neuron
         """
         kernel_collector_visitor = KernelCollectingVisitor()
-        kernel_names = kernel_collector_visitor.collect_kernels(neuron=neuron)
+        kernel_names = kernel_collector_visitor.collect_kernels(neuron=node)
         kernel_usage_visitor = KernelUsageVisitor(_kernels=kernel_names)
-        kernel_usage_visitor.work_on(neuron)
+        kernel_usage_visitor.work_on(node)
 
 
 class KernelUsageVisitor(ASTVisitor):

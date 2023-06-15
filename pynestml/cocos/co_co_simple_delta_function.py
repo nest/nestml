@@ -33,18 +33,18 @@ class CoCoSimpleDeltaFunction(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node):
         """
         Checks if this coco applies for the handed over neuron.
 
-        :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
 
         def check_simple_delta(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "delta":
                 deltafunc = _expr.get_function_call()
-                parent = neuron.get_parent(_expr)
+                parent = node.get_parent(_expr)
 
                 # check the argument
                 if not (len(deltafunc.get_args()) == 1
@@ -63,4 +63,4 @@ class CoCoSimpleDeltaFunction(CoCo):
         def func(x):
             return check_simple_delta(x) if isinstance(x, ASTSimpleExpression) else True
 
-        neuron.accept(ASTHigherOrderVisitor(func))
+        node.accept(ASTHigherOrderVisitor(func))

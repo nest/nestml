@@ -44,13 +44,13 @@ class CoCoNoNestNameSpaceCollision(CoCo):
                        'set_status', 'init_state_', 'init_buffers_']
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param node: a single neuron instance.
+        :type node: ast_neuron
         """
-        for func in neuron.get_functions():
+        for func in node.get_functions():
             if func.get_name() in cls.nest_name_space:
                 code, message = Messages.get_nest_collision(func.get_name())
                 Logger.log_message(error_position=func.get_source_position(),
