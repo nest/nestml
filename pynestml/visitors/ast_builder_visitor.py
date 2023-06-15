@@ -19,15 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 import ntpath
 import re
 
-from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
-from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
 from pynestml.utils.port_signal_type import PortSignalType
@@ -256,10 +257,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitVariable(self, ctx):
         vector_parameter = None
         if ctx.vectorParameter is not None:
-            if ctx.vectorParameter.sizeStr is not None:
-                vector_parameter = ctx.vectorParameter.sizeStr.text
-            elif ctx.vectorParameter.sizeInt is not None:
-                vector_parameter = ctx.vectorParameter.sizeInt.text
+            vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
@@ -486,9 +484,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_node(neuron)
-        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=neuron)
-        Logger.set_current_node(neuron)
-        # now the meta_model seems to be correct, return it
+
         return neuron
 
     def visitNamespaceDecoratorNamespace(self, ctx):
@@ -512,8 +508,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitSynapse(self, ctx):
-        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.synapseBody()) if ctx.synapseBody() is not None else None
 
@@ -531,10 +525,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # update the comments
         update_node_comments(synapse, self.__comments.visit(ctx))
 
-        # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.set_current_node(synapse)
-        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(node=synapse)
-        # now the meta_model seems to be correct, return it
+        # in order to enable the logger to print correct messages set as the source the corresponding synapse
         Logger.set_current_node(synapse)
 
         return synapse
@@ -612,9 +603,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
     def visitBlockWithVariables(self, ctx):
         declarations = list()
-        if ctx.declaration() is not None:
-            for child in ctx.declaration():
-                declarations.append(self.visit(child))
+        if ctx.declaration_newline() is not None:
+            for child in ctx.declaration_newline():
+                declarations.append(self.visit(child.declaration()))
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
         if block_type == 'state':
@@ -670,7 +661,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#inputPort.
     def visitInputPort(self, ctx):
         name = str(ctx.name.text) if ctx.name is not None else None
-        size_parameter = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
+        size_parameter = None
+        if ctx.sizeParameter is not None:
+            size_parameter = self.visit(ctx.sizeParameter)
         input_qualifiers = []
         if ctx.inputQualifier() is not None:
             for qual in ctx.inputQualifier():
@@ -713,7 +706,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        parameters = list()
+        parameters: List[ASTParameter] = []
         if type(ctx.parameter()) is list:
             for par in ctx.parameter():
                 parameters.append(self.visit(par))
@@ -754,7 +747,6 @@ def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]
-    node.post_comments = comments[3]
 
 
 def get_next(_elements=list()):

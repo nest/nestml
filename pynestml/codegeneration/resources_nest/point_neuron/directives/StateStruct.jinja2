@@ -1,17 +1,25 @@
- 
- 
- struct State_
+
+struct State_
   {
-{%- if not useGSL %}
+{%- if not uses_numeric_solver %}
 {%-   if has_state_vectors %}
 {%      include "directives/StateVariablesEnum.jinja2" %}
 {%-   endif %}
 {%-   filter indent(4,True) %}
-{%-   for variable in neuron.get_state_symbols() %}
+{%-   for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
+
+    // non-ODE state variables
+{%-   for variable_name in non_equations_state_variables %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfor %}
+
 {%-   if has_state_vectors %}
 {%-     include "directives/VectorVariablesEnum.jinja2" %}
 {%-   endif %}
@@ -23,25 +31,22 @@
 {%-     for variable_name in numeric_state_variables %}
       {{variable_name}},
 {%-     endfor %}
-      // moved state variables from synapse
+      // moved state variables from synapse (numeric)
 {%-     for variable_name in purely_numeric_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
+      // moved state variables from synapse (analytic)
 {%-     for variable_name in analytic_state_variables_moved|sort %}
-      {{variable_name}},
-{%-     endfor %}
-{%-     for variable_name in non_equations_state_variables: %}
       {{variable_name}},
 {%-     endfor %}
 {%-   else %}
 {#-     analytic solver only #}
-{%-     for variable_name in analytic_state_variables: %}
-      {{variable_name}},
-{%-     endfor %}
-{%-     for variable_name in non_equations_state_variables: %}
+      // analytic state variables
+{%-     for variable_name in analytic_state_variables %}
       {{variable_name}},
 {%-     endfor %}
 {%-   endif %}
+      // final entry to easily get the vector size
       STATE_VEC_SIZE
     };
 

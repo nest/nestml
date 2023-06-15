@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_node import ASTNode
@@ -74,7 +75,6 @@ class ASTNestMLCompilationUnit(ASTNode):
                                        comment=self.comment,
                                        pre_comments=[s for s in self.pre_comments],
                                        in_comment=self.in_comment,
-                                       post_comments=[s for s in self.post_comments],
                                        implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -142,6 +142,20 @@ class ASTNestMLCompilationUnit(ASTNode):
         :rtype: list(ASTsynapse)
         """
         return self.synapse_list
+
+    def get_neuron_by_name(self, name: str) -> Optional[ASTNeuron]:
+        for neuron in self.get_neuron_list():
+            if neuron.get_name() == name:
+                return neuron
+
+        return None
+
+    def get_synapse_by_name(self, name: str) -> Optional[ASTSynapse]:
+        for synapse in self.get_synapse_list():
+            if synapse.get_name() == name:
+                return synapse
+
+        return None
 
     def get_parent(self, ast):
         """

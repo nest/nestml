@@ -30,15 +30,12 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 synapse CoCoPrioritiesCorrectlySpecified:
-  input:
-    pre_spikes real <- spike
-    post_spikes real <- spike
-  end
+    input:
+        pre_spikes real <- spike
+        post_spikes real <- spike
 
-  onReceive(pre_spikes, priority=1):
-  end
+    onReceive(pre_spikes, priority=1):
+        print("onReceive pre_spikes")
 
-  onReceive(post_spikes, priority=1):
-  end
-
-end
+    onReceive(post_spikes, priority=1):
+        print("onReceive post_spikes")

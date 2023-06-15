@@ -18,11 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
+import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
 
 
@@ -31,6 +34,8 @@ class NestCustomTemplatesTest(unittest.TestCase):
     Tests the code generation and installation with custom NESTML templates for NEST
     """
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
@@ -41,10 +46,10 @@ class NestCustomTemplatesTest(unittest.TestCase):
         suffix = "_nestml"
 
         codegen_opts = {"templates": {"path": "point_neuron",
-                                      "model_templates": {"neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-                                                          "synapse": ["SynapseHeader.h.jinja2"]},
+                                      "model_templates": {"neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                                                          "synapse": ["@SYNAPSE_NAME@.h.jinja2"]},
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                                           "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]}}
+                                                           "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]}}
 
         generate_target(input_path, target_platform, target_path,
                         logging_level=logging_level,
@@ -64,6 +69,8 @@ class NestCustomTemplatesTest(unittest.TestCase):
 
         nest.Simulate(5.0)
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_custom_templates_with_synapse(self):
         models = ["neurons/iaf_psc_delta.nestml", "synapses/stdp_triplet_naive.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -83,16 +90,13 @@ class NestCustomTemplatesTest(unittest.TestCase):
             "templates": {
                 "path": "point_neuron",
                 "model_templates": {
-                    "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-                    "synapse": ["SynapseHeader.h.jinja2"]
+                    "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                    "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
                 },
                 "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                     "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]
+                                     "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
             }
         }
-
-        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
-        synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
 
         generate_target(input_paths, target_platform, target_path,
                         logging_level=logging_level,

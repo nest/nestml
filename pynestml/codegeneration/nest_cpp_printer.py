@@ -21,7 +21,7 @@
 
 from typing import Any, List, Mapping, Optional, Sequence
 import pynestml
-from pynestml.codegeneration.ast_transformers import ASTTransformers
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function import ASTFunction
@@ -53,8 +53,8 @@ class NestCppPrinter:
             self.namespace = code_generator._get_synapse_model_namespace(node)
             self.namespace["neuron"] = self.namespace["synapse"]
             self.namespace["parameter_syms_with_iv"] = [sym for sym in node.get_parameter_symbols()
-                                               if sym.has_declaring_expression()
-                                               and (not node.get_kernel_by_name(sym.name))]
+                                                        if sym.has_declaring_expression()
+                                                        and (not node.get_kernel_by_name(sym.name))]
 
         else:
             raise TypeError(
@@ -68,7 +68,7 @@ class NestCppPrinter:
         self.env = Environment(loader=loader)
         self.env.loader.searchpath.append(directives)
 
-        self.env.globals["is_delta_kernel"] = ASTTransformers.is_delta_kernel
+        self.env.globals["is_delta_kernel"] = ASTUtils.is_delta_kernel
 
     def get_template(self, template_name):
         template = self.env.get_template(f"{template_name}.jinja2")

@@ -1,0 +1,20 @@
+{%- macro RportToBufferIndexEntry(ports, rport, index=0) -%}
+{%- if index > 0 -%}
+{%- set name = "{}_" ~ index|string %}
+{%- else -%}
+{%- set name = "{}" %}
+{%- endif -%}
+
+{%- if ports|length > 1 -%}
+{%-   if ports[0].is_excitatory() %}
+{%-     set exc_port = ports[0] %}
+{%-     set inh_port = ports[1] %}
+{%-   else %}
+{%-     set exc_port = ports[1] %}
+{%-     set inh_port = ports[0] %}
+{%-   endif %}
+  { {{neuronName}}::{{ name.format(exc_port.get_symbol_name().upper()) }}, {{neuronName}}::{{ name.format(inh_port.get_symbol_name().upper()) }} },
+{%- else -%}
+  { {{neuronName}}::{{ name.format(ports[0].get_symbol_name().upper()) }}, {{neuronName}}::PORT_NOT_AVAILABLE },
+{%- endif -%}
+{%- endmacro -%}

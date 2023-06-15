@@ -19,8 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -81,7 +79,6 @@ class ASTInlineExpression(ASTNode):
                                   comment=self.comment,
                                   pre_comments=[s for s in self.pre_comments],
                                   in_comment=self.in_comment,
-                                  post_comments=[s for s in self.post_comments],
                                   implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup

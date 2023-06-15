@@ -18,10 +18,6 @@ NESTML can then be installed into your local user directory via:
 
    pip install --pre nestml
 
-.. admonition:: **NESTML pre-release**
-
-   Currently, NESTML 5.0 is in pre-release or "release candidate" version status. This requires the flag ``--pre`` to be added when running pip (see `pip documentation <https://pip.pypa.io/en/stable/cli/pip_install/#install-pre>`_).
-
 
 Installing the latest development version from GitHub
 -----------------------------------------------------
@@ -84,6 +80,8 @@ Edit ``nest-config`` and correct the entry under ``--compiler`` with the output 
 .. code-block:: bash
 
    nano /home/graber/miniconda3/envs/wnestml/bin/nest-config
+
+macOS users must in addition replace the ``-fopenmp=libomp`` entries with ``-Xclang -fopenmp`` under both ``--cflags`` and ``--libs`` in the ``nest-config``.
 
 Now set the correct paths and start ``ipython``:
 

@@ -21,8 +21,6 @@
 
 from typing import Optional
 
-from copy import copy
-
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
@@ -58,7 +56,6 @@ class ASTExternalVariable(ASTVariable):
                                    comment=self.comment,
                                    pre_comments=[s for s in self.pre_comments],
                                    in_comment=self.in_comment,
-                                   post_comments=[s for s in self.post_comments],
                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
     def update_alt_scope(self, scope):

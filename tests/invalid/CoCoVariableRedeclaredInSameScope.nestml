@@ -35,9 +35,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoVariableRedeclaredInSameScope:
     state:
         test1 integer = 10
-    end
 
     parameters:
         test1 void = 11
-    end
-end

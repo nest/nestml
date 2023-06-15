@@ -21,13 +21,11 @@
 
 from typing import Optional, List
 
-import copy
-
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTDeclaration(ASTNode):
@@ -110,7 +108,7 @@ class ASTDeclaration(ASTNode):
             invariant_dup = self.invariant.clone()
         decorators_dup = None
         if self.decorators:
-            decorators_dup = [dec.clone() for dec in self.decorators]
+            decorators_dup = [dec.clone() if isinstance(dec, ASTNamespaceDecorator) else str(dec) for dec in self.decorators]
         dup = ASTDeclaration(is_recordable=self.is_recordable,
                              is_inline_expression=self.is_inline_expression,
                              _variables=variables_dup,
@@ -125,7 +123,6 @@ class ASTDeclaration(ASTNode):
                              comment=self.comment,
                              pre_comments=[s for s in self.pre_comments],
                              in_comment=self.in_comment,
-                             post_comments=[s for s in self.post_comments],
                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup

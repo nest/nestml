@@ -30,20 +30,15 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 synapse CoCoResolutionLegallyUsed:
-  state:
-    x real = 0.
-  end
+    state:
+        x real = 0.
 
-  equations:
-    x' = -x / tau + (resolution() / ms**2)
-  end
+    equations:
+        x' = -x / tau + (resolution() / ms**2)
 
-  function test(tau ms) real:
-    w ms = resolution()
-    return w
-  end
+    function test(tau ms) real:
+        w ms = resolution()
+        return w
 
-  parameters:
-    tau ms = 10 ms
-  end
-end
+    parameters:
+        tau ms = 10 ms

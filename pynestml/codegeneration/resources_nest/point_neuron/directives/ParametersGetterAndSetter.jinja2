@@ -1,8 +1,7 @@
-
 {% filter indent(2, True) -%}
-{%- for parameter in neuron.get_parameter_symbols() %}
-{%- with variable = parameter %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberVariableGetterSetter.jinja2" %}
+
+{% endfor %}
 {%- endfilter %}

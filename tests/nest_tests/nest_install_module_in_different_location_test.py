@@ -49,11 +49,11 @@ class NestInstallExistingModule(unittest.TestCase):
         codegen_opts = {"templates": {
             "path": "point_neuron",
             "model_templates": {
-                "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-                "synapse": ["SynapseHeader.h.jinja2"]
+                "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
+                "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
             },
             "module_templates": ["setup/CMakeLists.txt.jinja2",
-                                 "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]
+                                 "setup/@MODULE_NAME@.h.jinja2", "setup/@MODULE_NAME@.cpp.jinja2"]
         }}
 
         generate_nest_target(input_path,

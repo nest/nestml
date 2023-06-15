@@ -1,0 +1,50 @@
+"""
+synapse.py
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+Generated from NESTML at time: {{now}}
+"""
+
+from typing import List
+
+from abc import ABCMeta, abstractmethod
+
+
+class Synapse(metaclass=ABCMeta):
+    def __init__(self):
+        self._emitted_spikes: List[float] = []
+
+    @abstractmethod
+    def get_model(self) -> str:
+        r"""Get a string uniquely representing the model type, such as "stdp" or "bernoulli"."""
+        pass
+
+    @abstractmethod
+    def handle(self, t_spike: float, port_name: str) -> None:
+        r"""Handle a spike at time ``t_spike`` on port ``port_name``."""
+        pass
+
+    def deliver_spike(self, t: float) -> None:
+        r"""Called by the synapse to pass on the spike to its postsynaptic partner."""
+        self._emitted_spikes.append(t)
+
+    def pop_emitted_spikes(self) -> List[float]:
+        spikes = self._emitted_spikes.copy()
+        self._emitted_spikes = []
+        return spikes

@@ -141,7 +141,8 @@ class UnitTypeSymbol(TypeSymbol):
             code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
             Logger.log_message(code=code, message=message,
                                error_position=self.referenced_object.get_source_position(),
-                               log_level=LoggingLevel.WARNING)
+                               log_level=LoggingLevel.INFO)
+
             return self
         else:
             return self.binary_operation_not_defined_error('+/-', other)

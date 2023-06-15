@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Any, List, Mapping, Optional, Sequence, TextIO
+from typing import Any, List, Mapping, Optional, Sequence, TextIO, Union
 
 import os
 import platform
@@ -81,17 +81,17 @@ class NESTBuilder(Builder):
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
 
+        # auto-detect NEST Simulator install path
         if not self.option_exists("nest_path") or not self.get_option("nest_path"):
             try:
                 import nest
             except ModuleNotFoundError:
-                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths.", None, LoggingLevel.ERROR)
+                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths, or specify ``nest_path`` manually in the code generator options.", None, LoggingLevel.ERROR)
                 sys.exit(1)
 
             nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
             self.set_options({"nest_path": nest_path})
-            Logger.log_message(None, -1, "The NEST installation was automatically detected as: " +
-                               nest_path, None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, "The NEST Simulator installation path was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
 
     def build(self, stdout: TextIO = None, stderr: TextIO = None) -> None:
         r"""
@@ -104,12 +104,7 @@ class NESTBuilder(Builder):
         InvalidPathException
             If a failure occurs while trying to access the target path or the NEST installation path.
         """
-        error_location = ""
-        if stderr is None:
-            stderr = subprocess.STDOUT
-            error_location = "stdout"
-        else:
-            error_location = os.path.abspath(stderr.name)
+        error_location = self._options["error_location"]
 
         cmake_cmd = ["cmake"]
         target_path = FrontendConfiguration.get_target_path()
@@ -130,9 +125,15 @@ class NESTBuilder(Builder):
                 install_path = os.path.abspath(install_path)
             install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
 
+        # compile multithreaded -- how many threads?
+        try:
+            n_cpu = len(os.sched_getaffinity(0))  # only available on Linux
+        except AttributeError:
+            n_cpu = os.cpu_count()
+
         nest_config_path = f"-Dwith-nest={os.path.join(nest_path, 'bin', 'nest-config')}"
         cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
-        make_all_cmd = ['make', 'all']
+        make_all_cmd = ['make', f'-j{n_cpu}', 'all']
         make_install_cmd = ['make', 'install']
 
         # remove CMakeCache.txt if exists
@@ -146,26 +147,41 @@ class NESTBuilder(Builder):
         else:
             shell = False
 
-        # first call cmake with all the arguments
-        try:
-            result = subprocess.check_call(cmake_cmd, stderr=stderr, shell=shell, stdout=stdout,
-                                           cwd=str(os.path.join(target_path)))
-        except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException(
-                'Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')
+        stages_exception = {"cmake": f"Error occurred during cmake! More detailed error messages can be found in {error_location}.", "build": f"Error occurred during 'make all'! More detailed error messages can be found in {error_location}.",
+                            "install":  f"Error occurred during 'make install'! More detailed error messages can be found in {error_location}."}
+        current_stage = ""
 
-        # now execute make all
-        try:
-            subprocess.check_call(make_all_cmd, stderr=stderr, shell=shell, stdout=stdout,
-                                  cwd=str(os.path.join(target_path)))
-        except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException(
-                'Error occurred during \'make all\'! More detailed error messages can be found in stdout.')
+        stdout = self._options["stdout"]
+        stderr = self._options["stderr"]
 
-        # finally execute make install
+        if self._options["redirect"]:
+            try:
+                stdout = open(stdout, "w")
+            except IOError as e:
+                raise GeneratedCodeBuildException(f"Failed to open file for stdout: {e}")
+
+            try:
+                stderr = open(stderr, "w")
+            except IOError as e:
+                stdout.close()
+                raise GeneratedCodeBuildException(f"Failed to open file for stderr: {e}")
+
         try:
-            subprocess.check_call(make_install_cmd, stderr=stderr, shell=shell, stdout=stdout,
+
+            current_stage = "cmake"
+            subprocess.check_call(cmake_cmd, stderr=stderr, stdout=stdout, shell=shell,
                                   cwd=str(os.path.join(target_path)))
+            current_stage = "build"
+            subprocess.check_call(make_all_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+            current_stage = "install"
+            subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+
         except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException(
-                'Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
+            raise GeneratedCodeBuildException(stages_exception[current_stage])
+
+        finally:
+            if self._options["redirect"]:
+                stderr.close()
+                stdout.close()
