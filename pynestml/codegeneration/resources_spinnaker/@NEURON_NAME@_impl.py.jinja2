@@ -157,8 +157,14 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     def get_recordable_units(self, variable):
     # TODO: Find way to print units not datatypes
 {%- for sym in neuron.get_state_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{sym.get_type_symbol().print_symbol()}}"
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+        	return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+			return ""
+{%- endif%}
+{%- endwith%}
 {%- endfor %}
         raise ValueError("Unknown variable {}".format(variable))
 
@@ -202,23 +208,47 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     def get_units(self, variable):
         # state:
 {%- for sym in neuron.get_state_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{sym.get_type_symbol().print_symbol()}}"
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+			return ""
+{%- endif%}
+{%- endwith%}
 {%- endfor %}
         # parameters:
 {%- for sym in neuron.get_parameter_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{sym.get_type_symbol().print_symbol()}}"
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+			return ""
+{%- endif%}
+{%- endwith%}
 {%- endfor %}
         # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
+{%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{sym.get_type_symbol().print_symbol()}}"
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+			return ""
+{%- endif%}
+{%- endwith%}
 {%- endfor %}
         # internal parameters:
 {%- for sym in neuron.get_internal_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
-            return "{{sym.get_type_symbol().print_symbol()}}"
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+			return ""
+{%- endif%}
+{%- endwith%}
 {%- endfor %}
 
         raise ValueError("Unknown variable {}".format(variable))
