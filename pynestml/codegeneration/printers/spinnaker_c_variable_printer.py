@@ -160,10 +160,6 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
             return "inputs[" + var_name + " - MIN_SPIKE_RECEPTOR]"
 
-<<<<<<< Updated upstream:pynestml/codegeneration/printers/spinnaker_c_variable_printer.py
-=======
-
->>>>>>> Stashed changes:pynestml/codegeneration/printers/spinnaker_variable_printer.py
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
