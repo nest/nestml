@@ -1,3 +1,0 @@
-Vertex: input
-    Partition: SPIKE, Routing Info: KeyAndMask:0x0:0xffffffe0
-    Machine Vertex: input(0:0), Slice: (0:0), Routing Info: KeyAndMask:0x0:0xffffffe0

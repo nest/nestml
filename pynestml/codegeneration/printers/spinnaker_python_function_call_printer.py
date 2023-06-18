@@ -143,7 +143,7 @@ class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
             return "timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
-            return "emit_spike(origin)"
+            return "emit_spike()"
 
         s = function_call.get_name()
 

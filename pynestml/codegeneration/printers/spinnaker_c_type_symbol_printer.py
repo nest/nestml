@@ -49,11 +49,14 @@ class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
         if isinstance(type_symbol, IntegerTypeSymbol):
             return "unsigned int"
 
+        if isinstance(type_symbol, BooleanTypeSymbol):
+            return "unsigned int"
+
         # if isinstance(type_symbol, StringTypeSymbol):
         #     return "std::string"
 
-        # if isinstance(type_symbol, VoidTypeSymbol):
-        #     return "void"
+        if isinstance(type_symbol, VoidTypeSymbol):
+            return "void"
 
         if isinstance(type_symbol, UnitTypeSymbol):
             return "REAL"

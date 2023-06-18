@@ -26,13 +26,12 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
-
 class SpinnakerCFunctionCallPrinter(CppFunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in LaTeX syntax.
     """
 
-    def _print_function_call(self, node: ASTFunctionCall) -> str:
+    def print_function_call(self, node: ASTFunctionCall) -> str:
         r"""
         Converts a single handed over function call to C++ NEST API syntax.
 
@@ -67,7 +66,7 @@ class SpinnakerCFunctionCallPrinter(CppFunctionCallPrinter):
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
             raise Exception("deliver_spike() function not yet implemented")
 
-        return super()._print_function_call(node)
+        return super().print_function_call(node)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
         r"""
