@@ -160,9 +160,9 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
-        	return "{{sym.get_type_symbol().astropy_unit}}"
+            return "{{sym.get_type_symbol().astropy_unit}}"
 {%- else %}
-			return ""
+            return ""
 {%- endif%}
 {%- endwith%}
 {%- endfor %}
@@ -213,7 +213,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
             return "{{sym.get_type_symbol().astropy_unit}}"
 {%- else %}
-			return ""
+            return ""
 {%- endif%}
 {%- endwith%}
 {%- endfor %}
@@ -224,7 +224,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
             return "{{sym.get_type_symbol().astropy_unit}}"
 {%- else %}
-			return ""
+            return ""
 {%- endif%}
 {%- endwith%}
 {%- endfor %}
@@ -235,7 +235,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
             return "{{sym.get_type_symbol().astropy_unit}}"
 {%- else %}
-			return ""
+            return ""
 {%- endif%}
 {%- endwith%}
 {%- endfor %}
@@ -246,7 +246,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
             return "{{sym.get_type_symbol().astropy_unit}}"
 {%- else %}
-			return ""
+            return ""
 {%- endif%}
 {%- endwith%}
 {%- endfor %}
