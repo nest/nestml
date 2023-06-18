@@ -87,6 +87,10 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- for sym in neuron.get_spike_input_ports() | sort(attribute="name") %}
             (DataType.S1615,   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() | sort(attribute="name") %}
+            (DataType.S1615,   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
                  # state:
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
             (DataType.S1615,   "{{sym.get_symbol_name()}}"),
