@@ -48,6 +48,10 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- for sym in neuron.get_spike_input_ports() %}
                  {{sym.get_symbol_name()}},
 {%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+                 {{sym.get_symbol_name()}},
+{%- endfor %}
                  # internals:
 {%- for sym in neuron.get_internal_symbols() %}
                  {{ sym.get_symbol_name() }},
@@ -64,6 +68,10 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
         # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+        # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
         self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
 {%- endfor %}
         # internals:
@@ -200,10 +208,15 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- for sym in neuron.get_spike_input_ports() %}
         state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
                  # internals:
 {%- for sym in neuron.get_internal_symbols() %}
         state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
 {%- endfor %}
+
     @overrides(AbstractNeuronImpl.get_units)
     def get_units(self, variable):
         # state:
@@ -230,6 +243,17 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
         # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+        # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
 {%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
 {%- if type_symbol.is_instance_of(UnitTypeSymbol)%}

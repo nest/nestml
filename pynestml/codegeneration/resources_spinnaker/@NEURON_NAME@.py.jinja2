@@ -70,6 +70,14 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
         {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
 {%- endif %}
 {%- endfor %}
+
+{%- for variable_symbol in neuron.get_continuous_input_ports() %}
+{%- if variable_symbol.get_initial_value() == None %}
+        {{variable_symbol.get_symbol_name()}} = 0.0, 
+{%- else %}
+        {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
+{%- endif %}
+{%- endfor %}
         timestep = (SpynnakerDataView.get_simulation_time_step_ms())
 
         # compute propagators and other internal parameters
@@ -96,7 +104,10 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 {%- for sym in neuron.get_spike_input_ports() %}
                 {{sym.get_symbol_name()}},
 {%- endfor %}
-
+                 # continuous ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+                {{sym.get_symbol_name()}},
+{%- endfor %}
                  # internal variables:
 {%- for sym in neuron.get_internal_symbols() %}
                 {{sym.get_symbol_name()}},
