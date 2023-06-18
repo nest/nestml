@@ -1310,8 +1310,8 @@ class ASTUtils:
             and type(expr.get_rhs()) is ASTSimpleExpression \
             and expr.get_rhs().is_function_call() \
             and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
-            expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function[
-            "delta"]
+            expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION).equals(PredefinedFunctions.name2function[
+            "delta"])
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod

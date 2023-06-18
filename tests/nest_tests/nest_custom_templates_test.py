@@ -25,6 +25,8 @@ import pytest
 
 import nest
 
+import matplotlib.pyplot as plt
+
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_target
 
@@ -68,6 +70,24 @@ class NestCustomTemplatesTest(unittest.TestCase):
         nest.Connect(mm, nrn)
 
         nest.Simulate(5.0)
+
+        fig, ax = plt.subplots(nrows=2)
+        ax1, ax2 = ax
+
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        V_m = nest.GetStatus(mm, "events")[0]["V_m"]
+        # ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="post_tr nestml")
+        ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
+
+        ax1.set_ylabel("V_m")
+
+        for _ax in ax:
+            _ax.grid(which="major", axis="both")
+            _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+            # _ax.minorticks_on()
+            _ax.set_xlim(0., 5)
+            _ax.legend()
+        fig.savefig("/tmp/custom_template_test" + "_V_m.png", dpi=300)
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
