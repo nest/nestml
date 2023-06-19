@@ -69,7 +69,7 @@ class ASTNeuronOrSynapseBody(ASTNode):
         dup = ASTNeuronOrSynapseBody(body_elements=body_elements_dup,
                                      # ASTNode common attriutes:
                                      source_position=self.source_position,
-                                     scope=self.scope.clone(),
+                                     scope=self.scope,
                                      comment=self.comment,
                                      pre_comments=[s for s in self.pre_comments],
                                      in_comment=self.in_comment,
