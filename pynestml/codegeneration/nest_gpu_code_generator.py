@@ -18,10 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import glob
 import os
 import re
 import shutil
 from typing import Sequence, Optional, Mapping, Any
+
+from pynestml.utils.logger import LoggingLevel, Logger
+
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -46,13 +50,24 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             },
             "module_templates": [""]
         },
-        "solver": "analytic"
+        "solver": "analytic",
+        "nest_gpu_path": None
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(NESTCodeGenerator, self).__init__("nest_gpu",
-                                                NESTGPUCodeGenerator._default_options.update(options if options else {}))
+                                                NESTGPUCodeGenerator._default_options.update(
+                                                    options if options else {}))
         self._target = "NEST_GPU"
+        if not self.option_exists("nest_gpu_path") or not self.get_option("nest_gpu_path"):
+            if "NEST_GPU" in os.environ:
+                self.nest_gpu_path = os.environ["NEST_GPU"]
+            else:
+                self.nest_gpu_path = os.getcwd()
+            self.set_options({"nest_gpu_path": self.nest_gpu_path})
+            Logger.log_message(None, -1, "The NEST-GPU path was automatically detected as: " + self.nest_gpu_path, None,
+                               LoggingLevel.INFO)
+
         self.analytic_solver = {}
         self.numeric_solver = {}
         self.non_equations_state_variables = {}
@@ -61,42 +76,28 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         self.setup_printers()
         # TODO: setup the printers and reference converters
 
-    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
-        """
-        Overrides the function to generate model files for GPU target
-        :param neuron:
-        :return:
-        """
-        if not os.path.isdir(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-
-        for _model_templ in self._model_templates["neuron"]:
-            file_extension = _model_templ.filename.split(".")[-2]
-            _file = _model_templ.render(self._get_neuron_model_namespace(neuron))
-            suffix = ""
-            if "kernel" in _model_templ.filename:
-                suffix = "_kernel"
-            elif "rk5" in _model_templ.filename:
-                suffix = "_rk5"
-            filename = str(os.path.join(FrontendConfiguration.get_target_path(),
-                                        neuron.get_name())) + suffix + "." + file_extension
-            with open(filename, "w+") as f:
-                f.write(str(_file))
-
     def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
         for neuron in neurons:
+            self.copy_models_from_target_path(neuron)
             self.add_model_name_to_neuron_header(neuron)
             self.add_model_to_neuron_class(neuron)
             self.add_files_to_makefile(neuron)
+
+    def copy_models_from_target_path(self, neuron: ASTNeuron):
+        """Copies all the files related to the neuron model to the NEST GPU src directory"""
+        file_match_str = f"*{neuron.get_name()}*"
+        dst_path = os.path.join(self.nest_gpu_path, "src")
+        for file in glob.glob(os.path.join(FrontendConfiguration.get_target_path(), file_match_str)):
+            shutil.copy(file, dst_path)
 
     def add_model_name_to_neuron_header(self, neuron: ASTNeuron):
         """
         Modifies the ``neuron_models.h`` file to add the newly generated model's header files
         """
-        neuron_models_h_path = str(os.path.join(FrontendConfiguration.get_target_path(), "neuron_models.h"))
+        neuron_models_h_path = str(os.path.join(self.nest_gpu_path, "src", "neuron_models.h"))
         shutil.copy(neuron_models_h_path, neuron_models_h_path + ".bak")
         with open(neuron_models_h_path, "r") as f:
             file_str = f.read()
@@ -114,7 +115,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         """
         Modifies the ``neuron_models.cu`` file to add the newly generated model's .cu file
         """
-        neuron_models_cu_path = str(os.path.join(FrontendConfiguration.get_target_path(), "neuron_models.cu"))
+        neuron_models_cu_path = str(os.path.join(self.nest_gpu_path, "src", "neuron_models.cu"))
         shutil.copy(neuron_models_cu_path, neuron_models_cu_path + ".bak")
 
         with open(neuron_models_cu_path, "r") as f:
@@ -141,7 +142,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         """
         Modifies the Makefile in NEST GPU repository to compile the newly generated models.
         """
-        makefile_path = str(os.path.join(os.path.dirname(FrontendConfiguration.get_target_path()), "Makefile.am"))
+        makefile_path = str(os.path.join(self.nest_gpu_path, "Makefile.am"))
         shutil.copy(makefile_path, makefile_path + ".bak")
 
         with open(makefile_path, "r") as f:

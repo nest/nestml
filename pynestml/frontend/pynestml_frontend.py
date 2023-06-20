@@ -115,9 +115,8 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Mapping[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
-    from pynestml.frontend.pynestml_frontend import get_known_targets
 
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
@@ -126,7 +125,11 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
         nest_builder = NESTBuilder(options)
         remaining_options = nest_builder.set_options(options)
         return nest_builder, remaining_options
-
+    if target_name.upper() == "NEST_GPU":
+        from pynestml.codegeneration.nest_gpu_builder import NESTGPUBuilder
+        nest_gpu_builder = NESTGPUBuilder(options)
+        remaining_options = nest_gpu_builder.set_options(options)
+        return nest_gpu_builder, remaining_options
     return None, options  # no builder requested or available
 
 

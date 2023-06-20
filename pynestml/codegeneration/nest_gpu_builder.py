@@ -79,34 +79,30 @@ class NESTGPUBuilder(Builder):
         make_cmd = ['make']
         make_install_cmd = ['make', 'install']
 
-        # a workaround for now
-        # TODO: obtain this path automatically
-        working_dir = str(os.path.join(nest_gpu_path, "repo"))
-
         # first call autoreconf command
         try:
-            subprocess.check_call(autoreconf_cmd, stderr=subprocess.STDOUT, cwd=working_dir)
+            subprocess.check_call(autoreconf_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
                 'Error occurred during \'autoreconf\'! More detailed error messages can be found in stdout.')
 
         # execute config command
         try:
-            subprocess.check_call(config_cmd, stderr=subprocess.STDOUT, cwd=working_dir)
+            subprocess.check_call(config_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
                 'Error occurred during \'configure\'! More detailed error messages can be found in stdout.')
 
         # now execute make
         try:
-            subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, cwd=working_dir)
+            subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
                 'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
 
         # finally execute make install
         try:
-            subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, cwd=working_dir)
+            subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
                 'Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
