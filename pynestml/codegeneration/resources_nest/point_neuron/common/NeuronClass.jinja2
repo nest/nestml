@@ -678,7 +678,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endif %}
 
 
-
+{%- if use_gap_junctions %}
     if ( called_from_wfr_update )
     {
       // check if deviation from last iteration exceeds wfr_tol
@@ -713,22 +713,12 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-     else %}
 {#          solved using an analytic solver #}
 
+            const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
 
-
-
-
-
-  const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
-
-    double __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
-
-
-
-
-
+            double __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+              + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+              + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+              + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
 
 {#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
 {%-         with analytic_state_variables_ = analytic_state_variables %}
@@ -754,6 +744,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
       // voltage logging
       B_.logger_.record_data(origin.get_steps() + lag);
     }
+{%-     else %}
+    // voltage logging
+    B_.logger_.record_data(origin.get_steps() + lag);
+{%-     endif %}
   }
 
 {%- if use_gap_junctions %}
@@ -1239,15 +1233,4 @@ void {{neuronName}}::handle( nest::GapJunctionEvent& e )
 }
 {%- endif %}
 
-
-
-
-
-
-
-
-
 {# leave this comment here to ensure newline is generated at end of file -#}
-
-
-
