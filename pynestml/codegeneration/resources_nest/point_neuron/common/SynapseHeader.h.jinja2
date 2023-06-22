@@ -528,7 +528,7 @@ public:
 {%- endif %}    }
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
     size_t
-    handles_test_event( CurrentEvent&, size_t ) overri
+    handles_test_event( CurrentEvent&, size_t ) override
 {%- else %}
     port
     handles_test_event( CurrentEvent&, rport ) override
@@ -541,7 +541,7 @@ public:
 {%- endif %}    }
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
     size_t
-    handles_test_event( ConductanceEvent&, size_t ) overrid
+    handles_test_event( ConductanceEvent&, size_t ) override
 {%- else %}
     port
     handles_test_event( ConductanceEvent&, rport ) override
