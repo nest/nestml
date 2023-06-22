@@ -36,7 +36,9 @@ class NESTGPUBuilder(Builder):
     """
 
     _default_options = {
-        "nest_gpu_path": None
+        "nest_gpu_path": None,
+        "nest_gpu_build_path": None,
+        "nest_gpu_install_path": None
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -51,6 +53,10 @@ class NESTGPUBuilder(Builder):
             Logger.log_message(None, -1, "The NEST-GPU path was automatically detected as: " + nest_gpu_path, None,
                                LoggingLevel.INFO)
 
+            build_path = os.path.join(os.path.dirname(nest_gpu_path), "nest-gpu-build")
+            install_path = os.path.join(os.path.dirname(nest_gpu_path), "nest-gpu-install")
+            self.set_options({"nest_gpu_build_path": build_path, "nest_gpu_install_path": install_path})
+
     def build(self) -> None:
         """
         Method to build the generated code for NEST GPU target.
@@ -64,6 +70,8 @@ class NESTGPUBuilder(Builder):
         """
         target_path = FrontendConfiguration.get_target_path()
         nest_gpu_path = self.get_option("nest_gpu_path")
+        nest_gpu_build_path = self.get_option("nest_gpu_build_path")
+        nest_gpu_install_path = self.get_option("nest_gpu_install_path")
 
         if not os.path.isdir(target_path):
             raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
@@ -72,37 +80,35 @@ class NESTGPUBuilder(Builder):
             raise InvalidPathException('NEST-GPU path (' + str(nest_gpu_path) + ') is not a directory!')
 
         # Construct the build commands
-        autoreconf_cmd = ["autoreconf",  "-i"]
-        config_args = [f"--prefix={nest_gpu_path}", f"--exec-prefix={nest_gpu_path}", "--with-gpu-arch=sm_80"]
-        config_cmd = ["./configure"]
-        config_cmd.extend(config_args)
+        install_prefix = f"-DCMAKE_INSTALL_PREFIX={nest_gpu_install_path}"
+        cmake_cmd = ["cmake", install_prefix, nest_gpu_path]
         make_cmd = ['make']
         make_install_cmd = ['make', 'install']
 
-        # first call autoreconf command
+        # Make build directory
         try:
-            subprocess.check_call(autoreconf_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
-        except subprocess.CalledProcessError as e:
+            os.makedirs(nest_gpu_build_path, exist_ok=True)
+        except (FileExistsError, FileNotFoundError):
             raise GeneratedCodeBuildException(
-                'Error occurred during \'autoreconf\'! More detailed error messages can be found in stdout.')
+                'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
 
-        # execute config command
+        # cmake
         try:
-            subprocess.check_call(config_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
+            subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
-                'Error occurred during \'configure\'! More detailed error messages can be found in stdout.')
+                'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
 
         # now execute make
         try:
-            subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
+            subprocess.check_call(make_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
                 'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
 
         # finally execute make install
         try:
-            subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_path)
+            subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, cwd=nest_gpu_build_path)
         except subprocess.CalledProcessError as e:
             raise GeneratedCodeBuildException(
                 'Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
