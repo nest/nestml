@@ -1,5 +1,5 @@
 /*
- *  aeif_psc_exp.h
+ *  {{ neuronName }}.h
  *
  *  This file is part of NEST GPU.
  *
@@ -42,7 +42,7 @@ Current-based exponential integrate-and-fire neuron model
 Description
 +++++++++++
 
-aeif_psc_exp is the adaptive exponential integrate and fire neuron
+{{ neuronName }} is the adaptive exponential integrate and fire neuron
 according to [1]_, with postsynaptic currents in the form of
 truncated exponentials.
 
@@ -145,18 +145,18 @@ EndUserDocs */
 
 #define MAX_PORT_NUM 20
 
-struct aeif_psc_exp_rk5
+struct {{ neuronName }}_rk5
 {
   int i_node_0_;
 };
 
-class aeif_psc_exp : public BaseNeuron
+class {{ neuronName }} : public BaseNeuron
 {
  public:
-  RungeKutta5<aeif_psc_exp_rk5> rk5_;
+  RungeKutta5<{{ neuronName }}_rk5> rk5_;
   float h_min_;
   float h_;
-  aeif_psc_exp_rk5 rk5_data_struct_;
+  {{ neuronName }}_rk5 rk5_data_struct_;
 
   int Init(int i_node_0, int n_neuron, int n_port, int i_group,
 	   unsigned long long *seed);

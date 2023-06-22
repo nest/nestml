@@ -1,5 +1,5 @@
 /*
- *  aeif_psc_exp_kernel.h
+ *  {{ neuronName }}_kernel.h
  *
  *  This file is part of NEST GPU.
  *
@@ -31,13 +31,13 @@
 #include <cmath>
 #include "spike_buffer.h"
 #include "node_group.h"
-#include "aeif_psc_exp.h"
+#include "{{ neuronName }}.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 extern __constant__ float NESTGPUTimeResolution;
 
-namespace aeif_psc_exp_ns
+namespace {{ neuronName }}_ns
 {
 enum ScalVarIndexes {
   i_I_syn_ex = 0,
@@ -73,14 +73,14 @@ enum GroupParamIndexes {
   N_GROUP_PARAM
 };
 
-const std::string aeif_psc_exp_scal_var_name[N_SCAL_VAR] = {
+const std::string {{ neuronName }}_scal_var_name[N_SCAL_VAR] = {
   "I_syn_ex",
   "I_syn_in",
   "V_m",
   "w"
 };
 
-const std::string aeif_psc_exp_scal_param_name[N_SCAL_PARAM] = {
+const std::string {{ neuronName }}_scal_param_name[N_SCAL_PARAM] = {
   "tau_syn_ex",
   "tau_syn_in",
   "V_th",
@@ -99,7 +99,7 @@ const std::string aeif_psc_exp_scal_param_name[N_SCAL_PARAM] = {
   "den_delay"
 };
 
-const std::string aeif_psc_exp_group_param_name[N_GROUP_PARAM] = {
+const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
   "h_min_rel",
   "h0_rel"
 };
@@ -143,7 +143,7 @@ const std::string aeif_psc_exp_group_param_name[N_GROUP_PARAM] = {
  template<int NVAR, int NPARAM> //, class DataStruct>
 __device__
     void Derivatives(double x, float *y, float *dydx, float *param,
-		     aeif_psc_exp_rk5 data_struct)
+		     {{ neuronName }}_rk5 data_struct)
 {
   float I_syn_tot = 0.0;
   I_syn_tot += I_syn_ex - I_syn_in;
@@ -164,7 +164,7 @@ __device__
 __device__
     void ExternalUpdate
     (double x, float *y, float *param, bool end_time_step,
-			aeif_psc_exp_rk5 data_struct)
+			{{ neuronName }}_rk5 data_struct)
 {
   if ( V_m < -1.0e3) { // numerical instability
     printf("V_m out of lower bound\n");
@@ -207,18 +207,18 @@ int Update(long long it, double t1);
 template<int NVAR, int NPARAM>
 __device__
 void Derivatives(double x, float *y, float *dydx, float *param,
-		 aeif_psc_exp_rk5 data_struct)
+		 {{ neuronName }}_rk5 data_struct)
 {
-    aeif_psc_exp_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
+    {{ neuronName }}_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
 						 data_struct);
 }
 
 template<int NVAR, int NPARAM>
 __device__
 void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
-		    aeif_psc_exp_rk5 data_struct)
+		    {{ neuronName }}_rk5 data_struct)
 {
-    aeif_psc_exp_ns::ExternalUpdate<NVAR, NPARAM>(x, y, param,
+    {{ neuronName }}_ns::ExternalUpdate<NVAR, NPARAM>(x, y, param,
 						    end_time_step,
 						    data_struct);
 }
