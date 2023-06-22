@@ -6,6 +6,81 @@
 #include <spin1_api.h>
 #include <debug.h>
 
+{%- if norm_rng %}
+
+// Includes for random number generator
+{%- if nest_version.startswith("v2") %}
+#include "normal_randomdev.h"
+#include "uniform_randomdev.h"
+{%- else %}
+#include <random>
+{%- endif %}
+{%- endif %}
+
+{%- if uses_numeric_solver %}
+
+#ifndef HAVE_GSL
+#error "The GSL library is required for neurons that require a numerical solver."
+#endif
+
+// External includes:
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv.h>
+{%- endif %}
+
+//TODO: Spinnaker specific includes
+#include <neuron/neuron_recording.h>
+//#include <neuron/current_sources/current_source_impl.h>
+//#include <neuron/current_sources/current_source.h>
+
+
+{% if uses_numeric_solver %}
+//TODO: Check if we can generate this because we are using C
+/**
+ * Function computing right-hand side of ODE for GSL solver.
+ * @note Must be declared here so we can befriend it in class.
+ * @note Must have C-linkage for passing to GSL. Internally, it is
+ *       a first-class C++ function, but cannot be a member function
+ *       because of the C-linkage.
+ * @note No point in declaring it inline, since it is called
+ *       through a function pointer.
+ * @param void* Pointer to model neuron instance.
+**/
+extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
+{% endif %}
+
+// Missing paired_synapse stuff here
+
+/* BeginDocumentation
+  Name: {{neuronName}}
+
+  Description:
+{% filter indent(2) %}
+  {{neuron.print_comment()}}
+{%- endfilter %}
+
+  Parameters:
+  The following parameters can be set in the status dictionary.
+{% for parameter in neuron.get_parameter_symbols() -%}
+{% if parameter.has_comment() -%}
+    {{parameter.get_symbol_name()}} [{{parameter.get_type_symbol().print_symbol()}}] {{parameter.print_comment()}}
+{% endif -%}
+{% endfor %}
+
+  Dynamic state variables:
+{% for state in neuron.get_state_symbols() -%}
+{% if state.has_comment() -%}
+    {{state.get_symbol_name()}} [{{state.get_type_symbol().print_symbol()}}] {{state.print_comment()}}
+{% endif -%}
+{% endfor %}
+
+  Sends: {{ output_event.OutputEvent() }}
+
+  Receives: {% if has_spike_input %}Spike, {% endif %}{% if has_continuous_input %}Current,{% endif %} DataLoggingRequest
+*/
+
+
 {%- set ns = namespace(count=0) %}
 {%- for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
 {% if variable.is_recordable -%}
@@ -21,8 +96,8 @@
 
 #include <neuron/neuron_recording.h>
 
-//#include <neuron/current_sources/current_source_impl.h>
-//#include <neuron/current_sources/current_source.h>
+
+
 
 {% if has_multiple_synapses -%}
   /**
@@ -68,7 +143,10 @@ typedef struct neuron_impl_t {
 {%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
+{%- if uses_numeric_solver %}
 
+{%- endif %}
+    REAL __gsl_error_tol;
     // Internal variables of the neuron
 {%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};

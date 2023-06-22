@@ -423,7 +423,8 @@ class PredefinedFunctions:
         Registers the integrate-odes function.
         """
         params = list()
-        symbol = FunctionSymbol(name=cls.INTEGRATE_ODES, param_types=params,
+        symbol = Funct
+        ionSymbol(name=cls.INTEGRATE_ODES, param_types=params,
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.INTEGRATE_ODES] = symbol

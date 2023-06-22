@@ -32,7 +32,7 @@ from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
     """
-    Returns a Spinnaker C++ syntax version of the handed over type.
+    Returns a Spinnaker C syntax version of the handed over type.
     """
 
     def print(self, type_symbol: TypeSymbol) -> str:
@@ -47,13 +47,13 @@ class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
             return "REAL"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
-            return "unsigned int"
+            return "accum"
 
         if isinstance(type_symbol, BooleanTypeSymbol):
             return "unsigned int"
 
         # if isinstance(type_symbol, StringTypeSymbol):
-        #     return "std::string"
+        #     return ""
 
         if isinstance(type_symbol, VoidTypeSymbol):
             return "void"

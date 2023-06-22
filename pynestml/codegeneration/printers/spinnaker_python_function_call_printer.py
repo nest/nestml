@@ -143,7 +143,7 @@ class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
             return "timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
-            return "emit_spike()"
+            return "send_spike(time, timer_count, neuron_index)"
 
         s = function_call.get_name()
 
