@@ -516,11 +516,11 @@ public:
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
     size_t
     handles_test_event( DataLoggingRequest&, size_t ) override
-    {
 {%- else %}
     port
     handles_test_event( DataLoggingRequest&, rport ) override
 {%- endif %}
+    {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
@@ -528,12 +528,12 @@ public:
 {%- endif %}    }
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
     size_t
-    handles_test_event( CurrentEvent&, size_t ) override
-    {
+    handles_test_event( CurrentEvent&, size_t ) overri
 {%- else %}
     port
     handles_test_event( CurrentEvent&, rport ) override
 {%- endif %}
+    {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
@@ -541,12 +541,12 @@ public:
 {%- endif %}    }
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
     size_t
-    handles_test_event( ConductanceEvent&, size_t ) override
-    {
+    handles_test_event( ConductanceEvent&, size_t ) overrid
 {%- else %}
     port
     handles_test_event( ConductanceEvent&, rport ) override
 {%- endif %}
+    {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
       return invalid_port_;
 {%- else %}
