@@ -48,11 +48,13 @@ import sys
 try:
     import nest
 
-    vt = nest.Create("volume_transmitter")
-
-    nest_version = "v" + nest.__version__
-    if "post0.dev0" in nest_version:
-        nest_version = "master"
+    try:
+        if "DataConnect" in dir(nest):
+            nest_version = "v2.20.2"
+        else:
+            nest_version = "v" + nest.__version__
+    except:
+        pass
 
 except ModuleNotFoundError:
     nest_version = ""
