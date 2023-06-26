@@ -64,8 +64,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         "templates": {
             "path": os.path.join(os.path.dirname(__file__), "resources_nest_gpu"),
             "model_templates": {
-                "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2",
-                           "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
+                "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2"]
+                # "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
             },
             "module_templates": [""]
         },
