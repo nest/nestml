@@ -567,7 +567,7 @@ e.g.
    else:
        return b
 
-Printing output to the console
+Print function
 ^^^^^^^^^^^^^^
 
 The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on the ``update`` block.

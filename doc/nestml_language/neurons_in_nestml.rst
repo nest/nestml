@@ -187,6 +187,7 @@ Multiple input ports with vectors
 The input ports can also be defined as vectors. For example,
 
 .. code-block:: nestml
+
    neuron multi_synapse_vectors:
        input:
            AMPA_spikes pA <- excitatory spike
