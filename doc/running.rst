@@ -287,6 +287,21 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
 
+
+Setting and retrieving model properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
+-  Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable.
+-  Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
+
+
+Recording values with devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
+
+
 Compatibility with different versions of NEST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

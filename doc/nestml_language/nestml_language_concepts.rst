@@ -831,6 +831,129 @@ When using ``resolution()``, it is recommended to use the function call directly
        x *= exp(-resolution() / tau)   # let x' = -x / tau
                                        # evolve the state of x one timestep
 
+                                       
+
+The following text is based on [2]_.
+                                       
+Consider a linear, time-invariant system
+
+.. math::
+
+   \dot{\mathbf{x}} = \mathbf{Ax} + \mathbf{y}
+
+
+Here, x(t) is the time-dependent state of the system, and y(t) is the time-dependent input to the system. Both x and y are n-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear dierential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A fundamental system of solutions to the homoge-
+neous (zero-input) equation _y à Ay is given by the col-
+umns of the matrix exponential eAt. 
+
+The unique solution of the full equation with initial value :math:`x(t_0)` is
+
+.. math::
+   :label: eq_b
+
+   x(t) = \exp{\mathbf{A}(t - t_0)}\mathbf{x}(t_0) + \int_{t_0^+}^t \exp{\mathbf{A}(t - \tau)} y(\tau) d\tau
+
+The first part of the sum is the result of passive propagation of the initial state, wheras the second part represents the input-driven response of the system.  Correspondingly, for a system with no input,
+the matrix eAt is termed ``time-evolution operator'' or
+``propagator''. In contrast, for a system with input but
+zero initial conditions, the same matrix is called the
+``impulse response'' of the system.
+
+Digital simulation means to compute the response :math:`\mathbf{x}(t)` of the syetem to a prescribed input :math:`\mathbf{y}(t)`  on an evenly sampled grid :math:`t_k = k\cdot h` where :math:`h` is a fixed step size and :math:`k` takes only integer values. The function :math:`x(t)` then corresponds to the sequence :math:`x(t_k)` of its samples on the grid. For a special type of input functions, the simulation can be performed in an exact way, avoiding potentially inaccurate and unstable integration methods. To this end, we consider (generalized) functions xÖtÜ of the form
+
+.. math::
+
+   \mathbf{y}(t) = \sum_k \mathbf{y}(t_k) \delta(t - t_k)
+   
+where :math:`\mathbf{y}` is an :math:`n`\ -dimensional vector for each :math:`k`, and :math:`\delta(t)` is the scalar Dirac delta function. 
+
+For pulse train inputs which are restricted to the grid,
+the temporal evolution of the continuous system (2)
+collapses to a discrete matrix equation. Namely, if we let :math:`t_0 = t_k` and :math:`t = t_{k+1}` be two successive points on the grid, the solution to :eq:`eq_b` is 
+
+.. math::
+
+   x(t_{k+1}) = \exp{\mathbf{A}h} \mathbf{x}(t_k) + \mathbf{y}(t_{k+1})
+   
+which can be interpreted as an iteration
+
+
+::
+
+         y_1   y_2   y_3
+          ↓     ↓     ↓
+   x_0 → x_1 → x_2 → x_3
+
+
+Starting with an initial state :math:`y_0` and assuming non-zero input only at :math:`t_k` for :math:`k = 1,2,3,\ldots`, it propagates the exact solution on the grid, step by step. The diagram depicts the dependency of the current output of the
+system on its previous output and the current input. We
+refer to the iteration (5) as the method of ``Exact
+Integration''. For a time-invariant system, it is based on
+the fixed numerical matrix :math:`\exp\{\mathbf{A}h}`, which has to be
+computed only once by using appropriate standard
+numerical algorithms. During code generation, this step is performed by ODE-toolbox.
+
+Example: exponential decay
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a scalar value :math:`x` and no external input:
+
+.. math::
+
+   \dot{x} = -a\x
+
+with initial condition :math:`x(0) = x_0`, the solution of this initial value problem is given by
+
+.. math::
+
+   x(t) = x_0\exp{-at}
+
+The iteration yields the sequence
+
+.. math::
+
+   x(t_{k+1}) = \exp{-ah} x(t_k)
+
+Consider now the same system with input:
+
+.. math::
+
+   \dot{x} = -a\x + I
+   
+As input, we take a pulse train on the grid. The response :math:`x(t)` is then
+
+.. math
+
+   x(t) = \int_0^t \exp{-a(t - \tau)} I d\tau
+   
+The result of a discrete iteration according to (5) is
+illustrated in Fig. 4 and describes a scalar system which
+relaxes from its previous state according to its autono-
+mous dynamics, and which then updates its initial
+conditions to satisfy the input.
+
+
+Example: integrate-and fire
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. math::
+
+   \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} = \left[\begin{aligned}\tau_\text{syn} & 0\\ 
+   \frac{1}{C_m} & -\frac{1}{\tau_m} \end{aligned}\right]
+
+where the initial conditions are defined at the time that an incoming spike is handled, that is that the variable 
+
+.. math::
+   
+   \mathbf{x}(0) = \left[\begin{aligned}\Delta I_\text{PSP}\\ V_{m,0}\end{aligned}\right]
+   
+In a grid-constrained simulation, only
+delays that are an integer multiple of h can be considered because incoming
+spikes can be handled only at grid points.
+
+If a neuron emits a spike at time t that has a delay of d, the simulation algorithm waits until all neurons have completed their updates for the integration step (t − h, t] and then delivers the event to its target(s). 
+
+                                       
 Equations
 ---------
 
@@ -996,30 +1119,39 @@ In the case that the model is solved with the GSL integrator, desired absolute e
 Dynamics and time evolution
 ---------------------------
 
-Inside the ``update`` block, the current time can be accessed via the variable ``t``.
+Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model from the "current" time ``t`` to the next timestep ``t + resolution()``.
 
-``integrate_odes()``: this function can be used to integrate the differential equations defined in the ``equations`` block. Integration from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``.
+Integrating the ODEs and processing incoming spike events need to be triggered explicitly in NESTML by using the ``integrate_odes()`` and ``process_input()`` functions in the NESTML ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulses to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. This allows a wider range of model behaviour to be reproduced from the literature.
 
-Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. See also :ref:`Integrating spiking input`.
+The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``.
 
-``emit_spike()``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables that correspond to spiking input port convolutions are updated when the ``process_spikes()`` function is called for that input port. See also :ref:`Integrating spiking input`. 
 
 
 Integration order
 ~~~~~~~~~~~~~~~~~
-
-Integrating the ODEs and processing incoming spike events need to be triggered explicitly in NESTML by using the ``integrate_odes()`` and ``process_input()`` functions in the NESTML ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. In addition, this allows a wider range of models to be reproduced from the literature.
 
 The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called) and only afterwards, incoming spikes are processed (by calling ``process_input()``).
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
    :alt: Integration order. Modified after [1]_, their Fig. 10.2.
 
+The numeric results of a typical are shown below. When the neuron is being updated from ``t`` to ``t + resolution()``, the subthreshold dynamics step is performed first, and then the neuron state is modified to include the spikes. The effect of the spike at time ``t`` only become visible at ``t + resolution()``. This is illustrated in the figure below, which shows a comparison between the "true" solution in blue (middle and bottom panels) to a spike arriving at 2 ms (top panel) for an integrate-and-fire neuron with an exponentially decaying postsynaptic kernel. The spike increments the value of the postsynaptic current (middle panel), which appears as a term in the membrane potential ODE (bottom panel). The effect of the spike becomes visible at the end of the timestep because ``process_spikes()`` has incremented the postsynaptic current, but the effect of the spike on the membrane potential only becomes visible one timestep later (at 3 ms) because the new value of the postsynaptic current is only taken into account in the subthreshold dynamics at the next timestep.
+   
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_numeric.png
+   :alt: Numerical results from a typical simulation run.
 
+
+Emitting spikes
+~~~~~~~~~~~~~~~
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
+
+   
 Implementing refractoriness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (``T_ref``) is introduced that defines the duration of the refractory period. A new state variable (``ref_count``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory period in number of simulation timesteps every time the refractoriness condition holds. Else, the refractory offset is decremented. Using an integer counter helps avoid issues with floating point comparisons.
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (``T_ref``) can be introduced that defines the duration of the refractory period. A new state variable (``ref_count``) then specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory period in number of simulation timesteps every time the refractoriness condition holds. Else, the refractory offset is decremented. Using an integer counter helps avoid issues with floating point comparisons.
 
 .. code-block:: nestml
 
@@ -1037,19 +1169,9 @@ In order to model an absolute refractory state, in which the neuron cannot fire 
            if <spiking_condition>:
                ref_count = steps(T_ref) # make neuron refractory for 5 ms
 
+Recording values
+----------------
 
-Setting and retrieving model properties
----------------------------------------
-
--  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
--  Values can be set using ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>`` is the name of the corresponding NESTML variable.
--  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This call will return the value of the corresponding NESTML variable.
-
-
-Recording values with devices
------------------------------
-
--  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 -  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
 
 .. code-block:: nestml
@@ -1061,7 +1183,7 @@ Recording values with devices
 Guards
 ------
 
-Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
+Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through guards. These guards are checked when the variable is assigned a value.
 
 ::
 
@@ -1080,3 +1202,5 @@ References
 ----------
 
 .. [1] Morrison A, Diesmann M (2008). Maintaining causality in discrete time neuronal network simulations. Lectures in Supercomputational Neurosciences: Dynamics in Complex Brain Networks, 267-278.
+
+.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381±402 (1999)
