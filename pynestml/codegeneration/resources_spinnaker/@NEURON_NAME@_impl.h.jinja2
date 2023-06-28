@@ -7,13 +7,13 @@
 #include <spin1_api.h>
 #include <debug.h>
 
-{%- set ns = namespace(count=0) %}
-{%- for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
+{% set ns = namespace(count=0) %}
+{%-  for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
 {%-   if variable.is_recordable %}
 #define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
 {%-     set ns.count = ns.count + 1 %}
-{%-   endif %}
-{%- endfor %}
+{%-    endif %}
+{%-  endfor %}
 //! Number of recorded state variables
 #define N_RECORDED_VARS {{ns.count}}
 
