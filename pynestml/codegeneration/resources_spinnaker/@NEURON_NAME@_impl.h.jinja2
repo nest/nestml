@@ -2,16 +2,17 @@
 #define _{{neuronName.upper()}}_IMPL_
 
 #include <math.h>
+#include <stdbool.h>
 #include <neuron/implementations/neuron_impl.h>
 #include <spin1_api.h>
 #include <debug.h>
 
 {%- set ns = namespace(count=0) %}
 {%- for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
-{% if variable.is_recordable -%}
+{%-   if variable.is_recordable -%}
 #define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
-{%- set ns.count = ns.count + 1 -%}
-{%- endif -%}
+{%-     set ns.count = ns.count + 1 -%}
+{%-   endif -%}
 {%- endfor %}
 //! Number of recorded state variables
 #define N_RECORDED_VARS {{ns.count}}
@@ -42,11 +43,11 @@ enum input_indices
 {%- set ns = namespace(count=0) %}
 {%- for variable in neuron.get_spike_input_ports() | sort(attribute="name") %}
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
-{%- set ns.count = ns.count + 1 -%}
+{%-   set ns.count = ns.count + 1 -%}
 {%- endfor %}
 {%- for variable in neuron.get_continuous_input_ports() | sort(attribute="name") %}
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
-{%- set ns.count = ns.count + 1 -%}
+{%-   set ns.count = ns.count + 1 -%}
 {%- endfor %}
 {# Not resetting count here to use for input generation #}
 };
@@ -158,18 +159,11 @@ static void neuron_impl_do_timestep_update(
         neuron_impl_t *neuron = &neuron_array[neuron_index];
 
         // Store the recorded membrane voltage
-        {%- for variable in neuron.get_state_symbols() %}
-        {% if variable.is_recordable -%}
+{%- for variable in neuron.get_state_symbols() %}
+{%-   if variable.is_recordable -%}
         neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, neuron->{{ variable.get_symbol_name() }});
-        {%- endif -%}
-        {%- endfor %}
-
-        /*
-        // Do something to update the state
-        neuron->v += neuron->inputs[0] - neuron->inputs[1];
-        neuron->inputs[0] = 0;
-        neuron->inputs[1] = 0;
-        */
+{%-   endif -%}
+{%- endfor %}
 
 {%- if neuron.get_update_blocks() %}
 {%-   filter indent(8) %}
@@ -188,6 +182,9 @@ static void neuron_impl_do_timestep_update(
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
     
 {%- for variable in neuron.get_spike_input_ports() %}
+        neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+{%- endfor %}
+{%- for variable in neuron.get_continuous_input_ports() %}
         neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
 {%- endfor %}
     }
