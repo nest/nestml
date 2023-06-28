@@ -80,6 +80,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 {%- endfor %}
 
 
+# TODO: Generate Datatype, wrong for everything else than REAL and accum in c
 # INFO: Has to be same order as the neuron struct (I guess for value assignment)
         self._struct = Struct([
                  
