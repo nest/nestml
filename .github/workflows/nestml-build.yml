@@ -47,6 +47,73 @@ jobs:
         run: |
           python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
 
+  build_and_test_py_standalone:
+    needs: [static_checks]
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v3
+
+      # Setup Python version
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libgsl0-dev libncurses5-dev pkg-config
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
+          python -m pip install -r requirements.txt
+
+      # Install Java
+      - name: Install Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11.0.x'
+          java-package: jre
+
+      # Install Antlr4
+      - name: Install Antlr4
+        run: |
+          wget http://www.antlr.org/download/antlr-4.10-complete.jar
+          echo \#\!/bin/bash > antlr4
+          echo java -cp \"`pwd`/antlr-4.10-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo >> antlr4
+          chmod +x antlr4
+          echo PATH=$PATH:`pwd` >> $GITHUB_ENV
+
+      # Install NESTML
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
+          #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
+      - name: Generate Lexer and Parser using Antlr4
+        run: |
+          cd pynestml/grammars
+          ./generate_lexer_parser
+
+      # Run integration tests
+      - name: Run integration tests
+        run: |
+          rc=0
+          for fn in $GITHUB_WORKSPACE/tests/python_standalone_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+          done;
+          exit $rc
+
   build_and_test:
     needs: [static_checks]
     runs-on: ubuntu-latest
@@ -75,7 +142,7 @@ jobs:
       # Install Python dependencies
       - name: Python dependencies
         run: |
-          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy pandas
           python -m pip install -r requirements.txt
 
       # Install Java
