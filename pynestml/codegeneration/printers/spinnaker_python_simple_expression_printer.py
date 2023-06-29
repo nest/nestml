@@ -54,10 +54,12 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
             return str(node.get_string())
 
         if node.is_boolean_true:
-            return 'True'
+            # Spinnaker supports no bool datatype
+            return '1'
 
         if node.is_boolean_false:
-            return 'False'
+            # Spinnaker supports no bool datatype
+            return '0'
 
         if node.is_variable() or node.is_delay_variable():
             return self._variable_printer.print(node.get_variable())
