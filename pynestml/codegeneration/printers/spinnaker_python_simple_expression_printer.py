@@ -48,7 +48,7 @@ class SpinnakerPythonSimpleExpressionPrinter(SimpleExpressionPrinter):
             return str(node.get_numeric_literal())
 
         if node.is_inf_literal:
-            return str(DataType().S1615.max) # Max value of s1615 datatype
+            return str(DataType.S1615.max) # Max value of s1615 datatype
 
         if node.is_string():
             return str(node.get_string())
