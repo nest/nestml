@@ -51,6 +51,6 @@ class CVariablePrinter(VariablePrinter):
         assert isinstance(node, ASTVariable)
 
         if node.get_name() == PredefinedVariables.E_CONSTANT:
-            return "numerics::e"
+            return "REAL_CONST(2.718282)"
 
-        return CppVariablePrinter._print_cpp_name(node.get_complete_name())
+        return CVariablePrinter._print_cpp_name(node.get_complete_name())

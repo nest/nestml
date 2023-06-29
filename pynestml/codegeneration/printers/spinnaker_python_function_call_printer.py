@@ -137,7 +137,7 @@ class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
             The function call string in Python syntax.
         """
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
-            return "steps({!s}, timestep)"
+            return " SpynnakerDataView.get_simulation_time_step_per_ms() * {!s}"
 
         if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
             return "timestep"

@@ -85,46 +85,53 @@ class CFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
-            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
+            return 'MIN({2!s}, MAX({1!s}, {0!s}))'
 
         if function_name == PredefinedFunctions.MAX:
-            return 'std::max({!s}, {!s})'
+            return 'MAX({!s}, {!s})'
 
         if function_name == PredefinedFunctions.MIN:
-            return 'std::min({!s}, {!s})'
+            return 'MIN({!s}, {!s})'
 
         if function_name == PredefinedFunctions.EXP:
-            return 'std::exp({!s})'
+            return 'expk({!s})'
 
         if function_name == PredefinedFunctions.LN:
-            return 'std::log({!s})'
+            return 'logk({!s})'
 
         if function_name == PredefinedFunctions.LOG10:
-            return 'std::log10({!s})'
+            #return 'std::log10({!s})'
+            raise Exception("Log10 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.COSH:
-            return 'std::cosh({!s})'
+            #return 'std::cosh({!s})'
+            raise Exception("Cosh not defined for spinnaker")
 
         if function_name == PredefinedFunctions.SINH:
-            return 'std::sinh({!s})'
+            #return 'std::sinh({!s})'
+            raise Exception("Sinh not defined for spinnaker")
 
         if function_name == PredefinedFunctions.TANH:
-            return 'std::tanh({!s})'
+            #return 'std::tanh({!s})'
+            raise Exception("Tanh not defined for spinnaker")
 
         if function_name == PredefinedFunctions.ERF:
-            return 'std::erf({!s})'
+            #return 'std::erf({!s})'
+            raise Exception("Erf not defined for spinnaker")
 
         if function_name == PredefinedFunctions.ERFC:
-            return 'std::erfc({!s})'
+           #return 'std::erfc({!s})'
+            raise Exception("Erfc not defined for spinnaker")
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1({!s})'
+           #return 'numerics::expm1({!s})'
+            raise Exception("Expm1 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.PRINT:
-            return 'std::cout << {!s}'
+            return 'printf("%s", {!s})'
 
         if function_name == PredefinedFunctions.PRINTLN:
-            return 'std::cout << {!s} << std::endl'
+            return 'printf("%s\n",{!s})'
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())

@@ -40,7 +40,7 @@ from pynestml.utils.messages import Messages
 
 class SpinnakerCVariablePrinter(CppVariablePrinter):
     r"""
-    Variable printer for C syntax and the SPINNAKER API.
+    Variable printer for C syntax and the Spinnaker API.
     """
 
     def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
@@ -51,9 +51,9 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
-        Converts a single variable to SPINNAKER processable format.
+        Converts a single variable to Spinnaker processable format.
         :param variable: a single variable.
-        :return: a SPINNAKER processable format.
+        :return: a Spinnaker processable format.
         """
         assert isinstance(variable, ASTVariable)
 
@@ -66,7 +66,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             return "((POST_NEURON_TYPE*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
-            return "numerics::e"
+            return "REAL_CONST(2.718282)"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
