@@ -1305,7 +1305,7 @@ class ASTUtils:
         rhs_is_delta_kernel = type(expr) is ASTSimpleExpression \
             and expr.is_function_call() \
             and expr.get_function_call().get_scope().resolve_to_symbol(
-                expr.get_function_call().get_name(), SymbolKind.FUNCTION)== PredefinedFunctions.name2function["delta"]
+                expr.get_function_call().get_name(), SymbolKind.FUNCTION).equals(PredefinedFunctions.name2function["delta"])
         rhs_is_multiplied_delta_kernel = type(expr) is ASTExpression \
             and type(expr.get_rhs()) is ASTSimpleExpression \
             and expr.get_rhs().is_function_call() \
