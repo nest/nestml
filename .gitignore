@@ -3,7 +3,6 @@ target/
 .idea/
 .vscode
 .mypy_cache/
-.github/
 .pytest_cache/
 build/
 buildNest/
@@ -36,5 +35,3 @@ venv
 *.gdf
 *~
 *.iml
-pynestml/codegeneration/resources_spinnaker/common/iaf_psc_exp_template.c
-pynestml/codegeneration/resources_spinnaker/common/iaf_psc_exp_template.h

@@ -97,10 +97,16 @@ enum input_indices
 //! neuron_impl_t struct
 typedef struct neuron_impl_t {
 {# Make shure count is |spike_input_ports| + |continous_input_ports| #}
+
+// 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     accum inputs[{{ ns.count }}];
 {%- endif %}
     
+    // input ports of the neuron
+{%- for sym in neuron.get_spike_input_ports() %}
+    accum {{sym.get_symbol_name()}};
+{%- endfor %}
 
     // State variables of the neuron
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}

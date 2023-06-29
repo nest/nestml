@@ -31,7 +31,7 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",  "aeif_cond_alpha.nestml"))),
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp.nestml"))),
         target_path = "spinnaker-target"
         install_path = "spinnaker-install"
         logging_level = "INFO"

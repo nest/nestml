@@ -83,7 +83,6 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 # TODO: Generate Datatype, wrong for everything else than REAL and accum in c
 # INFO: Has to be same order as the neuron struct (I guess for value assignment)
         self._struct = Struct([
-                 
                  # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() | sort(attribute="name") %}
             (DataType.S1615,   "{{sym.get_symbol_name()}}"),

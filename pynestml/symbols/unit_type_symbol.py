@@ -48,7 +48,7 @@ class UnitTypeSymbol(TypeSymbol):
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
         if basic_equals is True:
-            return self.unit.equals(other.unit)
+            return self.unit == other.unit
 
         return False
 

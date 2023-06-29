@@ -30,7 +30,6 @@ from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronNa
 
 class {{neuronName}}(AbstractPyNNNeuronModel):
 
-
     @default_parameters({
 {%- for sym in neuron.get_parameter_symbols() %}
         "{{sym.get_symbol_name()}}", \
@@ -79,7 +78,6 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 {%-   include "directives_py/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
-
 
         super().__init__({{neuronName}}Impl(
                  # state:

@@ -137,10 +137,10 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             The function call string in Python syntax.
         """
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
-            return "steps({!s}, self.timestep)"
+            return "steps({!s}, self._timestep)"
 
         if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
-            return "self.timestep"
+            return "self._timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
             return "self.emit_spike(origin)"
