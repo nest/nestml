@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# python_function_call_printer.py
+# spinnaker_python_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -32,7 +32,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class PythonFunctionCallPrinter(FunctionCallPrinter):
+class SpinnakerPythonFunctionCallPrinter(FunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in Python syntax.
     """
@@ -137,13 +137,13 @@ class PythonFunctionCallPrinter(FunctionCallPrinter):
             The function call string in Python syntax.
         """
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
-            return "steps({!s}, timestep)"
+            return " SpynnakerDataView.get_simulation_time_step_per_ms() * {!s}"
 
         if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
             return "timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:
-            return "emit_spike(origin)"
+            return "send_spike(time, timer_count, neuron_index)"
 
         s = function_call.get_name()
 

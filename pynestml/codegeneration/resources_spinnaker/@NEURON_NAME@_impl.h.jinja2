@@ -2,30 +2,70 @@
 #define _{{neuronName.upper()}}_IMPL_
 
 #include <math.h>
+#include <stdbool.h>
 #include <neuron/implementations/neuron_impl.h>
 #include <spin1_api.h>
 #include <debug.h>
 
-{%- set ns = namespace(count=0) %}
-{%- for variable in neuron.get_state_symbols() %}
-{% if variable.is_recordable -%}
+{%- if norm_rng %}
+
+// Includes for random number generator
+{%- if nest_version.startswith("v2") %}
+#include "normal_randomdev.h"
+#include "uniform_randomdev.h"
+{%- else %}
+#include <random>
+{%- endif %}
+{%- endif %}
+
+{%- if uses_numeric_solver %}
+
+#ifndef HAVE_GSL
+#error "The GSL library is required for neurons that require a numerical solver."
+#endif
+
+// External includes:
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv.h>
+{%- endif %}
+
+
+{% set ns = namespace(count=0) %}
+{%-  for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
+{%-   if variable.is_recordable %}
 #define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
-{%- set ns.count = ns.count + 1 -%}
-{%- endif -%}
-{%- endfor %}
+{%-     set ns.count = ns.count + 1 %}
+{%-    endif %}
+{%-  endfor %}
 //! Number of recorded state variables
 #define N_RECORDED_VARS {{ns.count}}
 
 #define SPIKE_RECORDING_BITFIELD 0
 #define N_BITFIELD_VARS 1
-
-//TODO: change to generating the correct function instead of this define
-#define emit_spike() send_spike(timer_count, time, neuron_index)
-
+//TODO: Spinnaker specific includes
+// Recording defines must be done before this
 #include <neuron/neuron_recording.h>
-
 //#include <neuron/current_sources/current_source_impl.h>
 //#include <neuron/current_sources/current_source.h>
+
+
+{% if uses_numeric_solver %}
+//TODO: Check if we can generate this because we are using C
+/**
+ * Function computing right-hand side of ODE for GSL solver.
+ * @note Must be declared here so we can befriend it in class.
+ * @note Must have C-linkage for passing to GSL. Internally, it is
+ *       a first-class C++ function, but cannot be a member function
+ *       because of the C-linkage.
+ * @note No point in declaring it inline, since it is called
+ *       through a function pointer.
+ * @param void* Pointer to model neuron instance.
+**/
+extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
+{% endif %}
+
+// Missing paired_synapse stuff here
 
 {% if has_multiple_synapses -%}
   /**
@@ -33,23 +73,23 @@
    * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
-  const long MIN_SPIKE_RECEPTOR = 1;
+const long MIN_SPIKE_RECEPTOR = 1;
 {%-   set ns = namespace(count=1) %}
 {%- else %}
-  const long MIN_SPIKE_RECEPTOR = 0;
+const long MIN_SPIKE_RECEPTOR = 0;
 {%-   set ns = namespace(count=0) %}
 {%- endif %}
 
 enum input_indices
 {
 {%- set ns = namespace(count=0) %}
-{%- for variable in neuron.get_spike_input_ports() %}
+{%- for variable in neuron.get_spike_input_ports() | sort(attribute="name") %}
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
-{%- set ns.count = ns.count + 1 -%}
+{%-   set ns.count = ns.count + 1 -%}
 {%- endfor %}
-{%- for variable in neuron.get_continuous_input_ports() %}
+{%- for variable in neuron.get_continuous_input_ports() | sort(attribute="name") %}
     {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
-{%- set ns.count = ns.count + 1 -%}
+{%-   set ns.count = ns.count + 1 -%}
 {%- endfor %}
 {# Not resetting count here to use for input generation #}
 };
@@ -69,22 +109,23 @@ typedef struct neuron_impl_t {
 {%- endfor %}
 
     // State variables of the neuron
-{%- for sym in neuron.get_state_symbols() %}
-    accum {{ sym.get_symbol_name() }};
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
 
     // Parameters of the neuron
-{%- for sym in neuron.get_parameter_symbols() %}
-    accum {{ sym.get_symbol_name() }};
+{%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
+{%- if uses_numeric_solver %}
 
+{%- endif %}
+    REAL __gsl_error_tol;
     // Internal variables of the neuron
-{%- for sym in neuron.get_internal_symbols() %}
-    accum {{sym.get_symbol_name()}};
+{%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
 
-    // Uncomment while neuron->inputs[2] not used
-    accum I_stim_grid_sum_;
 
 {%- if uses_numeric_solver %}
 
@@ -169,22 +210,14 @@ static void neuron_impl_do_timestep_update(
         neuron_impl_t *neuron = &neuron_array[neuron_index];
 
         // Store the recorded membrane voltage
-        {%- for variable in neuron.get_state_symbols() %}
-        {% if variable.is_recordable -%}
+{%- for variable in neuron.get_state_symbols() %}
+{%-   if variable.is_recordable -%}
         neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, neuron->{{ variable.get_symbol_name() }});
-        {%- endif -%}
-        {%- endfor %}
+{%-   endif -%}
+{%- endfor %}
 
-        /*
-        // Do something to update the state
-        neuron->v += neuron->inputs[0] - neuron->inputs[1];
-        neuron->inputs[0] = 0;
-        neuron->inputs[1] = 0;
-        */
-
-// TODO: change I_stim_input_sum to neuron->inputs[2]
 {%- if neuron.get_update_blocks() %}
-{%-   filter indent(2) %}
+{%-   filter indent(8) %}
 {%-     for block in neuron.get_update_blocks() %}
 {%-       set ast = block.get_block() %}
 {%-       if ast.print_comment('*')|length > 1 %}
@@ -198,6 +231,13 @@ static void neuron_impl_do_timestep_update(
 {%- endif %}
 
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
+    
+{%- for variable in neuron.get_spike_input_ports() %}
+        neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+{%- endfor %}
+{%- for variable in neuron.get_continuous_input_ports() %}
+        neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+{%- endfor %}
     }
 }
 

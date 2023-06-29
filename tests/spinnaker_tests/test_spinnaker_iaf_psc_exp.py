@@ -37,7 +37,6 @@ class TestSpiNNakerIafPscExp:
         logging_level = "INFO"
         module_name = "nestmlmodule"
         suffix = "_nestml"
-
         generate_spinnaker_target(input_path,
                                   target_path=target_path,
                                   install_path=install_path,
