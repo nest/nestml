@@ -30,7 +30,21 @@
 #include <gsl/gsl_odeiv.h>
 {%- endif %}
 
+
+{% set ns = namespace(count=0) %}
+{%-  for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
+{%-   if variable.is_recordable %}
+#define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
+{%-     set ns.count = ns.count + 1 %}
+{%-    endif %}
+{%-  endfor %}
+//! Number of recorded state variables
+#define N_RECORDED_VARS {{ns.count}}
+
+#define SPIKE_RECORDING_BITFIELD 0
+#define N_BITFIELD_VARS 1
 //TODO: Spinnaker specific includes
+// Recording defines must be done before this
 #include <neuron/neuron_recording.h>
 //#include <neuron/current_sources/current_source_impl.h>
 //#include <neuron/current_sources/current_source.h>
@@ -52,52 +66,6 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 {% endif %}
 
 // Missing paired_synapse stuff here
-
-/* BeginDocumentation
-  Name: {{neuronName}}
-
-  Description:
-{% filter indent(2) %}
-  {{neuron.print_comment()}}
-{%- endfilter %}
-
-  Parameters:
-  The following parameters can be set in the status dictionary.
-{% for parameter in neuron.get_parameter_symbols() -%}
-{% if parameter.has_comment() -%}
-    {{parameter.get_symbol_name()}} [{{parameter.get_type_symbol().print_symbol()}}] {{parameter.print_comment()}}
-{% endif -%}
-{% endfor %}
-
-  Dynamic state variables:
-{% for state in neuron.get_state_symbols() -%}
-{% if state.has_comment() -%}
-    {{state.get_symbol_name()}} [{{state.get_type_symbol().print_symbol()}}] {{state.print_comment()}}
-{% endif -%}
-{% endfor %}
-
-  Sends: {{ output_event.OutputEvent() }}
-
-  Receives: {% if has_spike_input %}Spike, {% endif %}{% if has_continuous_input %}Current,{% endif %} DataLoggingRequest
-*/
-
-{% set ns = namespace(count=0) %}
-{%-  for variable in neuron.get_state_symbols() | sort(attribute="get_smbol_name()") %}
-{%-   if variable.is_recordable %}
-#define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
-{%-     set ns.count = ns.count + 1 %}
-{%-    endif %}
-{%-  endfor %}
-//! Number of recorded state variables
-#define N_RECORDED_VARS {{ns.count}}
-
-#define SPIKE_RECORDING_BITFIELD 0
-#define N_BITFIELD_VARS 1
-
-#include <neuron/neuron_recording.h>
-
-
-
 
 {% if has_multiple_synapses -%}
   /**
