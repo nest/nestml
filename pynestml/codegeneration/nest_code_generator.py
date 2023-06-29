@@ -408,6 +408,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
 
+        namespace["tracing"] = True
+
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_cpp_type_symbol_printer.py
+# spinnaker_c_type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -30,9 +30,9 @@ from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-class SpinnakerCppTypeSymbolPrinter(TypeSymbolPrinter):
+class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
     """
-    Returns a Spinnaker C++ syntax version of the handed over type.
+    Returns a Spinnaker C API syntax version of the handed over type.
     """
 
     def print(self, type_symbol: TypeSymbol) -> str:
@@ -44,21 +44,24 @@ class SpinnakerCppTypeSymbolPrinter(TypeSymbolPrinter):
         assert isinstance(type_symbol, TypeSymbol)
 
         if isinstance(type_symbol, RealTypeSymbol):
-            return "accum"
+            return "REAL"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
-            return "unsigned int"
+            return "accum"
 
-        # if isinstance(type_symbol, StringTypeSymbol):
-        #     return "std::string"
+        if isinstance(type_symbol, BooleanTypeSymbol):
+            return "bool"
 
-        # if isinstance(type_symbol, VoidTypeSymbol):
-        #     return "void"
+        if isinstance(type_symbol, StringTypeSymbol):
+            raise Exception("String not yet implemented for Spinnaker")
+
+        if isinstance(type_symbol, VoidTypeSymbol):
+            return "void"
 
         if isinstance(type_symbol, UnitTypeSymbol):
-            return "accum"
+            return "REAL"
 
         if isinstance(type_symbol, ErrorTypeSymbol):
             return "ERROR"
 
-        raise Exception("Unknown C++ type")
+        raise Exception("Unknown C type")
