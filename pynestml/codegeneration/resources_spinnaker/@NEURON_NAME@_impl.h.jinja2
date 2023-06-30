@@ -211,7 +211,7 @@ static void neuron_impl_do_timestep_update(
 
         // Store the recorded membrane voltage
 {%- for variable in neuron.get_state_symbols() %}
-{%-   if variable.is_recordable -%}
+{%-   if variable.is_recordable %}
         neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, neuron->{{ variable.get_symbol_name() }});
 {%-   endif -%}
 {%- endfor %}
