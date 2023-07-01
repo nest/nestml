@@ -28,11 +28,6 @@ from spynnaker.pyNN.models.neuron.implementations import (
 
 from spinn_utilities.overrides import overrides
 
-
-# TODO: Find way to generate the variable units
-
-
-
 class {{neuronName}}Impl(AbstractNeuronImpl):
 
     def __init__(self,
@@ -165,7 +160,6 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 
     @overrides(AbstractNeuronImpl.get_recordable_units)
     def get_recordable_units(self, variable):
-    # TODO: Find way to print units not datatypes
 {%- for sym in neuron.get_state_symbols() %}
 {%- with type_symbol = sym.get_type_symbol() %}
         if variable == "{{sym.get_symbol_name()}}":
