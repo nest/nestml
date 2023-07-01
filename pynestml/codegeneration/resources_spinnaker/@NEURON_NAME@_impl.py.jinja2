@@ -79,8 +79,6 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
         self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
 {%- endfor %}
 
-
-# TODO: Generate Datatype, wrong for everything else than REAL and accum in c
 # INFO: Has to be same order as the neuron struct (I guess for value assignment)
         self._struct = Struct([
                  # spike input ports:
