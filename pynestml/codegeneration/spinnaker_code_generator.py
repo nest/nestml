@@ -45,10 +45,10 @@ from pynestml.codegeneration.printers.python_standalone_printer import PythonSta
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
-from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
+from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
@@ -100,7 +100,7 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     def setup_printers(self):
         super().setup_printers()
 
-        self._type_symbol_printer = PythonTypeSymbolPrinter()
+        self._type_symbol_printer = SpinnakerPythonTypeSymbolPrinter()
         self._constant_printer = ConstantPrinter()
 
         # Python/mini simulation environment API printers
