@@ -53,5 +53,5 @@ class TestStringHandling:
 
         nest.Simulate(100.)
 
-        assert nrn.b1
-        assert nrn.b2
+        assert nest.GetStatus(nrn, "b1")
+        assert nest.GetStatus(nrn, "b2")
