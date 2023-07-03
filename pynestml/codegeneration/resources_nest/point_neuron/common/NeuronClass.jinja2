@@ -786,7 +786,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
   assert(e.get_delay_steps() > 0);
-  assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
+  assert( e.get_rport() < B_.spike_inputs_.size() );
 
   double weight = e.get_weight();
   size_t nestml_buffer_idx = 0;
