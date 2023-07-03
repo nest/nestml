@@ -455,7 +455,7 @@ class SynapsePostNeuronTransformer(Transformer):
             decls = ASTUtils.move_decls(param_var,
                                         new_synapse.get_parameters_blocks()[0],
                                         new_neuron.get_parameters_blocks()[0],
-                                        var_name_suffix="", # do not add suffix to parameters
+                                        var_name_suffix="",    # do not add suffix to parameters
                                         block_type=BlockType.PARAMETERS,
                                         mode="copy")
 

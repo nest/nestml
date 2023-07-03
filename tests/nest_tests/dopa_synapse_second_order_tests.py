@@ -105,4 +105,3 @@ class TestDopaSecondOrder:
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
         spikedet_vt = nest.Create("spike_recorder")
-
