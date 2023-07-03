@@ -31,17 +31,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron resolution_test:
     state:
-       test1 integer = 10
-    end
+        test1 integer = 10
 
     parameters:
         test4 mS = 20mV
         test10 string = "test10"
-    end
 
     update:
         test6 boolean = true
-    end
 
     function test1(arg1 mV,arg2 integer):
         test2 integer = arg1 + arg2
@@ -50,6 +47,3 @@ neuron resolution_test:
             return test2
         else:
             return test3
-        end
-    end
-end

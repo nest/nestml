@@ -35,9 +35,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoInitValuesWithoutOde:
     state:
         V_m mV = 10mV
-    end
 
     equations:
         V_m' = 20mV / s # initial values provided with odes, thus everything is correct
-    end
-end

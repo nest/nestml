@@ -30,19 +30,15 @@ class CoCoNeuronNameUnique(CoCo):
     Allowed:
         neuron a:
             ...
-        end
         ...
         neuron b:
             ...
-        end
     Not allowed:
         neuron a:
             ...
-        end
         ...
         neuron a: <- neuron with the same name
             ...
-        end
     """
 
     @classmethod

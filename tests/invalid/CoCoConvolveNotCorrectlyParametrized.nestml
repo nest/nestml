@@ -34,13 +34,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoConvolveNotCorrectlyParametrized:
     state:
         V_m mV = 10mV
-    end
 
     equations:
         inline testB pA = convolve(V_m+V_m, spikeExc)
-    end
 
     input:
         spikeExc integer <- excitatory spike
-    end
-end

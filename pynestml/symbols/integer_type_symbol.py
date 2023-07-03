@@ -32,7 +32,7 @@ class IntegerTypeSymbol(TypeSymbol):
     def __init__(self):
         super(IntegerTypeSymbol, self).__init__(name='integer')
 
-    def print_nestml_type(self):
+    def print_nestml_type(self) -> str:
         return 'integer'
 
     def __mul__(self, other):

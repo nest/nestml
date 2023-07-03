@@ -14,9 +14,9 @@ When NESTML is invoked, several steps are executed in sequence. First, the model
 
 A more detailed description of the internal architecture of NESTML can be found in the following places:
 
-* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) `PDF <extending/Tammo_Ippen_Master_Thesis.pdf>`__
-* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) `PDF <extending/Konstantin_Perun_Master_thesis.pdf>`__
-* Dimitri Plotnikov, "NESTML - die Domänenspezifische Sprache für den NEST-Simulator Neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) `PDF <extending/Dimitri_Plotnikov_Doctoral_Thesis.pdf>`__
+* Tammo Ippen, "NESTML - Creating a Neuron Modeling Language and Generating Efficient Code for the NEST Simulator with MontiCore". Master's thesis, RWTH Aachen University (2013) :download:`PDF <extending/Tammo_Ippen_Master_Thesis.pdf>`
+* Konstantin Perun, "Reengineering of NestML with Python". Master's thesis, RWTH Aachen University (2018) :download:`PDF <extending/Konstantin_Perun_Master_thesis.pdf>`
+* Dimitri Plotnikov, "NESTML - die Domänenspezifische Sprache für den NEST-Simulator Neuronaler Netzwerke im Human Brain Project". Doctoral thesis, RWTH Aachen University (2017) :download:`PDF <extending/Dimitri_Plotnikov_Doctoral_Thesis.pdf>`
 
   * A condensed online English version is available: :doc:`pynestml_toolchain/index`
 
@@ -73,7 +73,7 @@ If a directory is given, the directory is recursively searched for templates (fi
 Adding a new target platform
 ----------------------------
 
-* Add a new set of templates in a new directory under `https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__.
+* Add a new set of templates in a new directory under `pynestml/codegeneration/resources_* <https://github.com/nest/nestml/tree/master/pynestml/codegeneration>`__.
 * Implement a new code generator, for example based on the existing `nest_code_generator.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_code_generator.py>`_.
 * Optionally, implement a new builder, for example based on the existing `nest_builder.py <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/nest_builder.py>`_.
 * Add the new target platform to the frontend in `pynestml_frontend.py <https://github.com/nest/nestml/blob/master/pynestml/frontend/pynestml_frontend.py>`__.

@@ -50,9 +50,9 @@ class NestForbiddenVariableNamesTest(unittest.TestCase):
         nrn = nest.Create("cpp_variable_names_test_nestml")
         mm = nest.Create("multimeter")
 
-        mm.set({"record_from": ["concept_", "static_"]})
+        nest.SetStatus(mm, {"record_from": ["concept_", "static_"]})
         nest.Connect(mm, nrn)
         nest.Simulate(100.0)
-        nrn.set({"using_": 42.})
+        nest.SetStatus(nrn, {"using_": 42.})
 
         # getting here without exceptions means that the test has passed

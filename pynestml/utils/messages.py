@@ -111,6 +111,12 @@ class MessageCode(Enum):
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
     DELAY_VARIABLE = 84
+    NEST_DELAY_DECORATOR_NOT_FOUND = 85
+    INPUT_PORT_SIZE_NOT_INTEGER = 86
+    INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO = 87
+    INSTALL_PATH_INFO = 88
+    CREATING_INSTALL_PATH = 89
+    CREATING_TARGET_PATH = 90
 
 
 class Messages:
@@ -338,7 +344,6 @@ class Messages:
         """
         assert (input_port_name is not None and isinstance(input_port_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(input_port_name)
-        from pynestml.symbols.predefined_types import PredefinedTypes
         message = 'No type declared for spiking input port \'%s\'!' % input_port_name
         return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
@@ -1156,7 +1161,7 @@ class Messages:
 
     @classmethod
     def get_vector_parameter_wrong_type(cls, var):
-        message = "The vector parameter '" + var + "' is of the wrong type." \
+        message = "The vector parameter '" + var + "' is of the wrong type. " \
                   "The vector parameter can be only of type integer."
         return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
 
@@ -1180,3 +1185,38 @@ class Messages:
     def get_function_is_delay_variable(cls, func):
         message = "Function '" + func + "' is not a function but a delay variable."
         return MessageCode.DELAY_VARIABLE, message
+
+    @classmethod
+    def get_nest_delay_decorator_not_found(cls):
+        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
+        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
+
+    @classmethod
+    def get_input_port_size_not_integer(cls, port_name: str):
+        message = "The size of the input port " + port_name + " is not of integer type."
+        return MessageCode.INPUT_PORT_SIZE_NOT_INTEGER, message
+
+    @classmethod
+    def get_input_port_size_not_greater_than_zero(cls, port_name: str):
+        message = "The size of the input port " + port_name + " must be greater than zero."
+        return MessageCode.INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO, message
+
+    @classmethod
+    def get_target_path_info(cls, target_dir: str):
+        message = "Target platform code will be generated in directory: '" + target_dir + "'"
+        return MessageCode.TARGET_PATH_INFO, message
+
+    @classmethod
+    def get_install_path_info(cls, install_path: str):
+        message = "Target platform code will be installed in directory: '" + install_path + "'"
+        return MessageCode.INSTALL_PATH_INFO, message
+
+    @classmethod
+    def get_creating_target_path(cls, target_path: str):
+        message = "Creating target directory: '" + target_path + "'"
+        return MessageCode.CREATING_TARGET_PATH, message
+
+    @classmethod
+    def get_creating_install_path(cls, install_path: str):
+        message = "Creating installation directory: '" + install_path + "'"
+        return MessageCode.CREATING_INSTALL_PATH, message

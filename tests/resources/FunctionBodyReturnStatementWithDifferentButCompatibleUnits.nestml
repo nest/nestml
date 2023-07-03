@@ -26,5 +26,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron BlockTest:
     function foo(bar mV)V:
         return bar
-    end
-end

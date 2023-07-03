@@ -20,9 +20,14 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import nest
 import numpy as np
+import pytest
 import unittest
+
+import nest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+
 
 try:
     import matplotlib
@@ -42,7 +47,7 @@ class NestSplitSimulationTest(unittest.TestCase):
     def run_simulation(self, T_sim: float, split: bool):
         neuron_model_name = "iaf_psc_exp"
 
-        spike_times = np.arange(10, 100, 9).astype(np.float)
+        spike_times = np.arange(10, 100, 9).astype(float)
         np.random.seed(0)
         spike_weights = np.sign(np.random.rand(spike_times.size) - .5)
 
@@ -80,6 +85,8 @@ class NestSplitSimulationTest(unittest.TestCase):
 
         return ts, Vms
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_nest_split_simulation(self):
         ts, Vms = self.run_simulation(T_sim=100., split=False)
         ts_split, Vms_split = self.run_simulation(T_sim=100., split=True)

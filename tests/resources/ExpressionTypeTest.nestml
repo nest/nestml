@@ -42,30 +42,28 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron expressionType_test:
     state:
-       time s = 2 s
-       resist Ohm = 1 Ohm
-       amps A = 0.1 A
-       volts V = -0.5 V
-       charge C = 0.03 C
-       mass kg = 0.15 kg
-       distance m = 0.33 m
-       force N = 1.5 N
-       testint integer = 8
-       testint2 integer = 3
-       timesquared s**2 = 1.44 s**2
-       velocity m/s = 23.5 m/s
-    end
+        time s = 2 s
+        resist Ohm = 1 Ohm
+        amps A = 0.1 A
+        volts V = -0.5 V
+        charge C = 0.03 C
+        mass kg = 0.15 kg
+        distance m = 0.33 m
+        force N = 1.5 N
+        testint integer = 8
+        testint2 integer = 3
+        timesquared s**2 = 1.44 s**2
+        velocity m/s = 23.5 m/s
 
     function foo(_mass kg, _dist m, _time s) N :
-      return _mass*_dist/(_time**2)
-    end
+        return _mass*_dist/(_time**2)
 
     update:
         #time = (charge/amps)
         testint = testint % testint2
         testint = 2
         timesquared = time**2
-        velocity = distance/time 
+        velocity = distance/time
         volts = resist*amps
         volts = volts + volts
         volts = volts - volts
@@ -74,5 +72,3 @@ neuron expressionType_test:
         force = foo(mass,distance,time)
         force = 1 kg * distance/(time**2)
         force = kg*m/(s**2)
-    end
-end
