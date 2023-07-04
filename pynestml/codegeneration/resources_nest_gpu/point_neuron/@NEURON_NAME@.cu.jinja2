@@ -158,30 +158,6 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   scal_var_name_ = {{ neuronName }}_scal_var_name;
   scal_param_name_ = {{ neuronName }}_scal_param_name;
 
-{#  SetScalParam(0, n_node, "tau_m", 10.0 );           // in ms#}
-{#  SetScalParam(0, n_node, "C_m", 250.0 );            // in pF#}
-{#  SetScalParam(0, n_node, "E_L", -70.0 );            // in mV#}
-{#  SetScalParam(0, n_node, "I_e", 0.0 );              // in pA#}
-{#  SetScalParam(0, n_node, "Theta_rel", -55.0 - (-70.0) );   // relative to E_L_#}
-{#  SetScalParam(0, n_node, "V_reset_rel", -70.0 - (-70.0) ); // relative to E_L_#}
-{#  SetScalParam(0, n_node, "tau_ex", 2.0 );           // in ms#}
-{#  SetScalParam(0, n_node, "tau_in", 2.0 );           // in ms#}
-{#  // SetScalParam(0, n_node, "rho", 0.01 );             // in 1/s#}
-{#  // SetScalParam(0, n_node, "delta", 0.0 );            // in mV#}
-{#  SetScalParam(0, n_node, "t_ref",  2.0 );           // in ms#}
-{#  SetScalParam(0, n_node, "den_delay", 0.0);         // in ms#}
-{#  SetScalParam(0, n_node, "P20", 0.0);#}
-{#  SetScalParam(0, n_node, "P11ex", 0.0);#}
-{#  SetScalParam(0, n_node, "P11in", 0.0);#}
-{#  SetScalParam(0, n_node, "P21ex", 0.0);#}
-{#  SetScalParam(0, n_node, "P21in", 0.0);#}
-{#  SetScalParam(0, n_node, "P22", 0.0);#}
-{##}
-{#  SetScalVar(0, n_node, "I_syn_ex", 0.0 );#}
-{#  SetScalVar(0, n_node, "I_syn_in", 0.0 );#}
-{#  SetScalVar(0, n_node, "V_m_rel", -70.0 - (-70.0) ); // in mV, relative to E_L#}
-{#  SetScalVar(0, n_node, "refractory_step", 0 );#}
-
 {%- filter indent(2) %}
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
