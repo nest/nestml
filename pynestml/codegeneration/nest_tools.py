@@ -52,7 +52,7 @@ try:
         if "DataConnect" in dir(nest):
             nest_version = "v2.20.2"
         else:
-            nest_version = "v" + nest.__version__
+            nest_version = "v" + nest.ll_api.sli_func("statusdict/version ::")
             if "post0.dev0" in nest_version:
                 nest_version = "master"
     except:
