@@ -24,6 +24,16 @@ import re
 import shutil
 from typing import Sequence, Optional, Mapping, Any
 
+from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
+
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
+
+from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
+
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.nest_gpu_function_call_printer import NESTGPUFunctionCallPrinter
+from pynestml.codegeneration.printers.nest_gpu_variable_printer import NESTGPUVariablePrinter
+
 from pynestml.utils.logger import LoggingLevel, Logger
 
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -94,6 +104,19 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         self.setup_template_env()
         self.setup_printers()
         # TODO: setup the printers and reference converters
+
+    def setup_printers(self):
+        super().setup_printers()
+
+        self._nest_variable_printer_no_origin = NESTGPUVariablePrinter(None, with_origin=False,
+                                                                       with_vector_parameter=False)
+        self._nest_function_call_printer_no_origin = NESTGPUFunctionCallPrinter(None)
+        self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(
+            variable_printer=self._nest_variable_printer_no_origin,
+            constant_printer=self._constant_printer,
+            function_call_printer=self._nest_function_call_printer_no_origin))
+        self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
+        self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
     def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         """

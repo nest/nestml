@@ -13,7 +13,7 @@
 {%-     with analytic_state_variables_ = analytic_state_variables %}
 {%-         include "directives/AnalyticIntegrationStep_end.jinja2" %}
 {%-     endwith %}
-{%-     include "directives/ApplySpikesFromBuffers.jinja2" %}
+{#{%-     include "directives/ApplySpikesFromBuffers.jinja2" %}#}
 {%- else %}
-{{printer.print(ast)}};
+{{printer_no_origin.print(ast)}};
 {%- endif %}
