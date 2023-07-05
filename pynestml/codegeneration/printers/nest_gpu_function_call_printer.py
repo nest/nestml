@@ -45,9 +45,9 @@ class NESTGPUFunctionCallPrinter(CUDAFunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
-        # if function_name == PredefinedFunctions.TIME_RESOLUTION:
-        #     # context dependent; we assume the template contains the necessary definitions
-        #     return '__resolution'
+        if function_name == PredefinedFunctions.TIME_RESOLUTION:
+            # context dependent; we assume the template contains the necessary definitions
+            return 'NESTGPUTimeResolution'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             return '(int)round({!s}/NESTGPUTimeResolution)'
@@ -61,18 +61,5 @@ class NESTGPUFunctionCallPrinter(CUDAFunctionCallPrinter):
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'PushSpike(i_node_0 + i_neuron, 1.0);'
-
-#         if function_name == PredefinedFunctions.DELIVER_SPIKE:
-#             return '''
-#         set_delay( {1!s} );
-#         const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
-#         set_delay_steps(__delay_steps);
-#         e.set_receiver( *__target );
-#   e.set_weight( {0!s} );
-#   // use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
-#   e.set_delay_steps( get_delay_steps() );
-#   e.set_rport( get_rport() );
-# e();
-# '''
 
         return super()._print_function_call_format_string(function_call)
