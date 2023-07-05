@@ -92,7 +92,7 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += "B_." + self._print_buffer_value(variable)
+            s += self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -123,7 +123,7 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
 
-        return variable_symbol.get_symbol_name() + '_grid_sum_'
+        return variable_symbol.get_symbol_name()
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
