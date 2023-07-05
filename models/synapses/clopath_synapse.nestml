@@ -1,0 +1,54 @@
+"""
+"""
+synapse clopath_synapse:
+    state:
+        w real = 1.    @nest::weight   # Synaptic weight
+        pre_trace real = 0.
+        post_membrane_potential_avg_plus mV = -70 mV
+        post_membrane_potential_avg_minus mV = -70 mV
+        post_membrane_avg_avg mV = -70 mV
+
+    parameters:
+        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        w_max real = 100
+        tau_post_membrane_avg_plus ms = 7 ms
+        tau_post_membrane_avg_minus ms = 10 ms
+        tau_post_membrane_avg_avg ms = 500 ms
+        tau_pre_tr ms = 15 ms
+        theta_minus mV = -70.6 mV
+        theta_plus mV = -45.3 mV   # should be greater than theta_minus
+        A_LTD real = 14.0e-5
+        A_LTP real = 8.0e-5
+
+    equations:
+        pre_trace' = -pre_trace / tau_pre_tr
+        post_membrane_potential_avg_plus' = (-post_membrane_potential_avg_plus + post_membrane_potential) / tau_post_membrane_avg_plus
+        post_membrane_potential_avg_minus' = (-post_membrane_potential_avg_minus + post_membrane_potential) / tau_post_membrane_avg_minus
+        post_membrane_avg_avg' = (-post_membrane_avg_avg + post_membrane_potential_avg_minus) / tau_post_membrane_avg_avg
+
+    input:
+        pre_spikes real <- spike
+        post_spikes real <- spike
+        post_membrane_potential mV <- continuous
+
+    output:
+        spike
+
+    onReceive(post_spikes):
+        if post_membrane_potential > theta_plus and post_membrane_potential_avg_plus > theta_minus:
+            # potentiate synapse
+            # w += A_LTP * pre_trace * (post_membrane_potential - theta_plus) * (post_membrane_potential_avg_plus(t - membrane_potential_delay) - theta_minus)
+            w += A_LTP * pre_trace * (post_membrane_potential - theta_plus) * (post_membrane_potential_avg_plus - theta_minus)
+            w = min(w, w_max)
+
+    onReceive(pre_spikes):
+        pre_trace += 1 / tau_pre_tr
+
+        if post_membrane_potential_avg_minus > theta_minus:
+            # depress synapse
+            #w -= A_LTD * (post_membrane_potential_avg_minus(t - membrane_potential_delay) - theta_minus)
+            w -= A_LTD * (post_membrane_potential_avg_minus - theta_minus)
+            w = max(w, 0)
+
+        # deliver spike to postsynaptic partner
+        deliver_spike(w, d)
