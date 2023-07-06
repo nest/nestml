@@ -37,9 +37,6 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-sim_mdl = True
-sim_ref = True
-
 
 class TestDopaSecondOrder:
     r"""
@@ -49,7 +46,7 @@ class TestDopaSecondOrder:
     neuron_model_name = "iaf_psc_exp_nestml__with_dopa_synapse_second_order_nestml"
     synapse_model_name = "dopa_synapse_second_order_nestml__with_iaf_psc_exp_nestml"
 
-    @pytest.fixture(scope="module", autouse=True)
+    # @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
         files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
@@ -70,15 +67,15 @@ class TestDopaSecondOrder:
                         reason="This test does not support NEST 2")
     def test_nest_stdp_synapse(self):
 
-        resolution = .1   # [ms]
+        resolution = .25   # [ms]
+        delay = 1.    # [ms]
+        t_stop = 250.    # [ms]
 
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
         nest.Install("nestmlmodule")
 
-        # create spike_generators with these times
-        pre_sg = nest.Create("poisson_generator",
-                             params={"rate": 10.})
+        # create spike_generator
         vt_sg = nest.Create("poisson_generator",
                             params={"rate": 20.})
 
@@ -93,15 +90,36 @@ class TestDopaSecondOrder:
 
         # set up custom synapse model
         wr = nest.Create("weight_recorder")
-        wr_ref = nest.Create('weight_recorder')
-        nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+        nest.CopyModel(self.synapse_model_name, "stdp_nestml_rec",
+                       {"weight_recorder": wr[0], "d": delay, "receptor_type": 0,
                         "vt": vt_gid})
 
         # create parrot neurons and connect spike_generators
         pre_neuron = nest.Create("parrot_neuron")
-        post_neuron = nest.Create(neuron_model_name)
+        post_neuron = nest.Create(self.neuron_model_name)
+        nest.Connect(pre_neuron, post_neuron, syn_spec={"synapse_model": "stdp_nestml_rec"})
 
-        spikedet_pre = nest.Create("spike_recorder")
-        spikedet_post = nest.Create("spike_recorder")
-        spikedet_vt = nest.Create("spike_recorder")
+        syn = nest.GetConnections(pre_neuron, post_neuron)
+        syn.tau_dopa = 25.   # [ms]
+
+        log = {"t": [0.],
+               "dopa_rate": [syn.dopa_rate],
+               "dopa_rate_d": [syn.dopa_rate_d]}
+
+        n_timesteps = int(np.ceil(t_stop / resolution))
+        for timestep in range(n_timesteps):
+            nest.Simulate(resolution)
+            log["t"].append(nest.biological_time)
+            log["dopa_rate"].append(syn.dopa_rate)
+            log["dopa_rate_d"].append(syn.dopa_rate_d)
+
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=2, dpi=300)
+            ax[0].plot(log["t"], log["dopa_rate"], label="dopa_rate")
+            ax[1].plot(log["t"], log["dopa_rate_d"], label="dopa_rate_d")
+            for _ax in ax:
+                _ax.legend()
+            fig.savefig("/tmp/dopa_synapse_second_order_tests.png")
+            plt.close(fig)
+
+        np.testing.assert_allclose(log["dopa_rate"][-1], 0.6834882070000989)

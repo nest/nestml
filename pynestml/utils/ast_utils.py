@@ -520,7 +520,7 @@ class ASTUtils:
 
     @classmethod
     def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str, scope=None):
-        """add suffix to state variable by given name recursively throughout astnode"""
+        """add suffix to variable by given name recursively throughout astnode"""
 
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -531,18 +531,19 @@ class ASTUtils:
                 return
 
             if not suffix in var.get_name() \
+               and not var.get_name() == "t" \
                and var.get_name() == var_name:
                 var.set_name(var.get_name() + suffix)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
-    def add_suffix_to_variable_names(cls, model: ASTNeuronOrSynapse, astnode: Union[ASTNode, List], suffix: str):
-        """add suffix to state variable names recursively throughout astnode"""
+    def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str):
+        """add suffix to variable names recursively throughout astnode"""
 
         if not isinstance(astnode, ASTNode):
             for node in astnode:
-                ASTUtils.add_suffix_to_variable_names(model, node, suffix)
+                ASTUtils.add_suffix_to_variable_names(node, suffix)
             return
 
         def replace_var(_expr=None):
@@ -553,7 +554,7 @@ class ASTUtils:
             else:
                 return
 
-            if ASTUtils.get_state_variable_by_name(model, var.get_name()) \
+            if not var.get_name() == "t" \
                and not var.get_name().endswith(suffix):
                 var.set_name(var.get_name() + suffix)
 
@@ -565,6 +566,15 @@ class ASTUtils:
             for inline_expr in equations_block.get_inline_expressions():
                 if name == inline_expr.variable_name:
                     return inline_expr
+
+        return None
+
+    @classmethod
+    def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
+        for equations_block in node.get_equations_blocks():
+            for kernel in equations_block.get_kernels():
+                if name in kernel.get_variable_names():
+                    return kernel
 
         return None
 
@@ -711,7 +721,8 @@ class ASTUtils:
         return variables
 
     @classmethod
-    def move_decls(cls, var_name, from_block, to_block, var_name_suffix: str, block_type: BlockType, mode="move", scope=None) -> List[ASTDeclaration]:
+    def move_decls(cls, var_name, from_block, to_block, var_name_suffix: str, block_type: BlockType, mode="move") -> List[ASTDeclaration]:
+        """Move or copy declarations from ``from_block`` to ``to_block``."""
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         assert mode in ["move", "copy"]
 
@@ -720,7 +731,7 @@ class ASTUtils:
             return []
 
         decls = ASTUtils.get_declarations_from_block(var_name, from_block)
-        if var_name.endswith(var_name_suffix):
+        if var_name_suffix and var_name.endswith(var_name_suffix):
             decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
@@ -741,7 +752,6 @@ class ASTUtils:
                 ast_symbol_table_visitor.block_type_stack.push(block_type)
                 decl.accept(ast_symbol_table_visitor)
                 ast_symbol_table_visitor.block_type_stack.pop()
-#                import pdb;pdb.set_trace()
 
         return decls
 
