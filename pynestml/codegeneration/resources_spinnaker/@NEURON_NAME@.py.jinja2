@@ -51,23 +51,23 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
 {%- endfor %}
-{%- endfilter %}
 
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
 {%-   if variable_symbol.get_initial_value() == None %}
-        {{variable_symbol.get_symbol_name()}} = 0.0, 
+{{variable_symbol.get_symbol_name()}} = 0.0, 
 {%-   else %}
-        {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
+{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
 {%-   endif %}
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}
 {%-   if variable_symbol.get_initial_value() == None %}
-        {{variable_symbol.get_symbol_name()}} = 0.0, 
+{{variable_symbol.get_symbol_name()}} = 0.0, 
 {%-   else %}
-        {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
+{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
 {%-   endif %}
 {%- endfor %}
+{%- endfilter %}
                 ):
         timestep = (SpynnakerDataView.get_simulation_time_step_ms())
 

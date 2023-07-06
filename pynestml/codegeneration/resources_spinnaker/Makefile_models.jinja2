@@ -1,5 +1,5 @@
-MODELS = {% for neuron in neurons %}{{neuron.get_name()}}_impl {% endfor %}
-
+MODELS = {% for neuron in neurons %}{{neuron.get_name()}}_impl  \{% endfor %}
+{% for synapse in synapses %}{{synapse.get_name()}}_impl  \{% endfor %}
 all:
 	for d in $(MODELS); do $(MAKE) -C $$d || exit $$?; done
 

@@ -45,10 +45,10 @@ from pynestml.codegeneration.printers.python_standalone_printer import PythonSta
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.printers.python_variable_printer import PythonVariablePrinter
-from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
+from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
@@ -100,7 +100,7 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
     def setup_printers(self):
         super().setup_printers()
 
-        self._type_symbol_printer = PythonTypeSymbolPrinter()
+        self._type_symbol_printer = SpinnakerPythonTypeSymbolPrinter()
         self._constant_printer = ConstantPrinter()
 
         # Python/mini simulation environment API printers
@@ -149,9 +149,19 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                 "neuron": ["@NEURON_NAME@_impl.h.jinja2",
                            "@NEURON_NAME@.py.jinja2",
                            "@NEURON_NAME@_impl.py.jinja2",
+                           "@NEURON_NAME@_chain_example.py.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
+                "synapse": ["@SYNAPSE_NAME@_impl.h.jinja2",
+                            "@SYNAPSE_NAME@_timing_impl.h.jinja2",
+                            "@SYNAPSE_NAME@_timing_impl.c.jinja2",
+                            "@SYNAPSE_NAME@_weight_impl.h.jinja2",
+                            "@SYNAPSE_NAME@_weight_impl.c.jinja2",
+                            "@SYNAPSE_NAME@.py.jinja2",
+                            "@SYNAPSE_NAME@_timing.py.jinja2",
+                            "@SYNAPSE_NAME@_weight.py.jinja2",
+                            "Makefile_@SYNAPSE_NAME@_impl.jinja2"],
             },
-            "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra.mk.jinja2", "extra_neuron.mk.jinja2"]
+            "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra.mk.jinja2", "extra_neuron.mk.jinja2", "extra_synapse.mk.jinja2"]
         }
     }
 
@@ -159,8 +169,8 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         super().__init__("SpiNNaker", options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
-        options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname and "@NEURON_NAME@" in fname)]
-        options_cpp["templates"]["model_templates"].pop("synapse")
+        options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname)) and "@NEURON_NAME@" in fname)]
+        options_cpp["templates"]["model_templates"]["synapse"] = [fname for fname in self._options["templates"]["model_templates"]["synapse"] if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname)) and "@SYNAPSE_NAME@" in fname)]
         options_cpp["nest_version"] = "<not available>"
         options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
@@ -168,7 +178,9 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_cpp._target = "SpiNNaker"
 
         options_py = copy.deepcopy(PythonStandaloneCodeGenerator._default_options)
-        options_py["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if fname.endswith(".py.jinja2")]
+        options_py["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if (fname.endswith(".py.jinja2")) and "@NEURON_NAME@" in fname]
+        options_py["templates"]["model_templates"]["synapse"] = [fname for fname in self._options["templates"]["model_templates"]["synapse"] if (fname.endswith(".py.jinja2")) and "@SYNAPSE_NAME@" in fname]
+        options_py["nest_version"] = "<not available>"
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)

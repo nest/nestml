@@ -100,13 +100,8 @@ typedef struct neuron_impl_t {
 
 // 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
-    accum inputs[{{ ns.count }}];
-{%- endif %}
-    
-    // input ports of the neuron
-{%- for sym in neuron.get_spike_input_ports() %}
-    accum {{sym.get_symbol_name()}};
-{%- endfor %}
+    REAL inputs[{{ ns.count }}];
+{%- endif %} 
 
     // State variables of the neuron
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
@@ -120,7 +115,6 @@ typedef struct neuron_impl_t {
 {%- if uses_numeric_solver %}
 
 {%- endif %}
-    REAL __gsl_error_tol;
     // Internal variables of the neuron
 {%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
@@ -128,6 +122,8 @@ typedef struct neuron_impl_t {
 
 
 {%- if uses_numeric_solver %}
+    REAL __gsl_error_tol;
+
 
     // -----------------------------------------------------------------------
     //   GSL ODE solver data structures
@@ -211,7 +207,7 @@ static void neuron_impl_do_timestep_update(
 
         // Store the recorded membrane voltage
 {%- for variable in neuron.get_state_symbols() %}
-{%-   if variable.is_recordable -%}
+{%-   if variable.is_recordable %}
         neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, neuron->{{ variable.get_symbol_name() }});
 {%-   endif -%}
 {%- endfor %}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# spinnaker_c_type_symbol_printer.py
+# spinnaker_python_type_symbol_printer.py
 #
 # This file is part of NEST.
 #
@@ -30,38 +30,69 @@ from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
-    """
-    Returns a Spinnaker C API syntax version of the handed over type.
+class SpinnakerPythonTypeSymbolPrinter(TypeSymbolPrinter):
+    r"""
+    Returns a Python syntax version of the handed over type.
     """
 
     def print(self, type_symbol: TypeSymbol) -> str:
-        """
-        Converts the name of the type symbol to a corresponding nest representation.
+        r"""
+        Converts the name of the type symbol to a corresponding Python syntax representation.
         :param type_symbol: a single type symbol
         :return: the corresponding string representation.
         """
         assert isinstance(type_symbol, TypeSymbol)
 
         if isinstance(type_symbol, RealTypeSymbol):
-            return "REAL"
-
-        if isinstance(type_symbol, IntegerTypeSymbol):
-            return "unsigned int"
+            return "float"
 
         if isinstance(type_symbol, BooleanTypeSymbol):
             return "bool"
 
+        if isinstance(type_symbol, IntegerTypeSymbol):
+            return "int"
+
         if isinstance(type_symbol, StringTypeSymbol):
-            raise Exception("String not yet implemented for Spinnaker")
+            return "str"
 
         if isinstance(type_symbol, VoidTypeSymbol):
-            return "void"
+            return ""
 
         if isinstance(type_symbol, UnitTypeSymbol):
-            return "REAL"
+            return "float"
 
         if isinstance(type_symbol, ErrorTypeSymbol):
             return "ERROR"
 
-        raise Exception("Unknown C type")
+        raise Exception("Unknown NESTML type")
+
+    def print_spinnaker_datatype(self, type_symbol: TypeSymbol):
+        r"""
+        Converts the name of the type symbol to a corresponding Spinnaker datatype.
+        :param type_symbol: a single type symbol
+        :return: the corresponding string representation.
+        """
+        assert isinstance(type_symbol, TypeSymbol)
+
+        if isinstance(type_symbol, RealTypeSymbol):
+            return "DataType.S1615"
+
+        if isinstance(type_symbol, BooleanTypeSymbol):
+            return "DataType.UINT8"
+
+        if isinstance(type_symbol, IntegerTypeSymbol):
+            return "DataType.UINT8"
+
+        if isinstance(type_symbol, StringTypeSymbol):
+            raise Exception("String datatype not implemented for use with spinnaker")
+
+        if isinstance(type_symbol, VoidTypeSymbol):
+            raise Exception("Void datatype not implemented for use with spinnaker")
+
+        if isinstance(type_symbol, UnitTypeSymbol):
+            return "DataType.S1615"
+
+        if isinstance(type_symbol, ErrorTypeSymbol):
+            return "ERROR"
+
+        raise Exception("Unknown NESTML type")
