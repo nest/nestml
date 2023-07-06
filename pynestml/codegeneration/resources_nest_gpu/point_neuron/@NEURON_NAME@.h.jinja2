@@ -55,6 +55,7 @@ enum ScalParamIndexes {
 };
 
 
+
 const std::string {{ neuronName }}_scal_var_name[N_SCAL_VAR] = {
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
