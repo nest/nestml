@@ -201,7 +201,7 @@ class SpinnakerCExpressionPrinter(ExpressionPrinter):
             return lhs + " + " + rhs
 
         if op.is_minus_op:
-            return lhs + " - " + rhs
+            return lhs + " + ( -1 * (" + rhs + "))"
 
         if op.is_times_op:
             return lhs + " * " + rhs
