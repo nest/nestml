@@ -46,7 +46,7 @@ extern __constant__ float NESTGPUTimeResolution;
 {%- endfor %}
 
 __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
-				      int n_param, float __h)
+				      int n_param, float h)
 {
   int i_neuron = threadIdx.x + blockIdx.x * blockDim.x;
   if (i_neuron < n_node) {

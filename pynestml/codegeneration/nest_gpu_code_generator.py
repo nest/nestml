@@ -145,7 +145,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         replace_str = "\ni_" + neuron.get_name() + "_model,\n"
         replace_text_between_tags(neuron_models_h_path, replace_str)
 
-        replace_str = ", \n\"" + neuron.get_name() + "\"\n"
+        replace_str = "\n, \"" + neuron.get_name() + "\"\n"
         replace_text_between_tags(neuron_models_h_path, replace_str, rfind=True)
 
     def add_model_to_neuron_class(self, neuron: ASTNeuron):
@@ -160,8 +160,10 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         model_name_index = "i_" + neuron.get_name() + "_model"
         model_name = neuron.get_name()
+        n_ports = len(neuron.get_spike_input_ports())
         code_block = "\n" \
                      f"else if (model_name == neuron_model_name[{model_name_index}]) {{\n" \
+                     f"    n_port = {n_ports};\n" \
                      f"    {model_name} *{model_name}_group = new {model_name};\n" \
                      f"    node_vect_.push_back({model_name}_group);\n" \
                      " }\n"
