@@ -73,6 +73,7 @@ class SpiNNakerBuilder(Builder):
         generated_file_names_neuron_impl_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "impl.py" in fn]
         generated_file_names_makefiles = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "Makefile_*") if not fn == "Makefile"]
         generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
+        generated_file_names_neuron_examples_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "example" in fn]
 
         old_cwd = os.getcwd()
         try:
@@ -153,6 +154,22 @@ class SpiNNakerBuilder(Builder):
             for fn in generated_file_names_neuron_impl_py:
                 try:
                     subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "python_models8", "neuron", "implementations")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                except subprocess.CalledProcessError:
+                    raise GeneratedCodeBuildException(
+                        'Error occurred during install! More detailed error messages can be found in stdout.')
+            
+            # Copy the example files
+            try:
+                os.mkdir(os.path.join(install_path, "examples"))
+            except (FileExistsError, FileNotFoundError):
+                pass
+
+            for fn in generated_file_names_neuron_examples_py:
+                try:
+                    subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "examples")],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)
