@@ -32,7 +32,7 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
-class CExpressionPrinter(ExpressionPrinter):
+class SpinnakerCExpressionPrinter(ExpressionPrinter):
     r"""
     Printer for ``ASTExpression`` nodes in C syntax.
     """

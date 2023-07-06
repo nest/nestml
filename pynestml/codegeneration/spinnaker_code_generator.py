@@ -26,7 +26,7 @@ import os
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-from pynestml.codegeneration.printers.c_expression_printer import CExpressionPrinter
+from pynestml.codegeneration.printers.spinnaker_c_expression_printer import SpinnakerCExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
 from pynestml.codegeneration.printers.unitless_c_simple_expression_printer import UnitlessCSimpleExpressionPrinter
@@ -63,7 +63,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
 
-        self._printer = CExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+        self._printer = SpinnakerCExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
                                                                                                   constant_printer=self._constant_printer,
                                                                                                   function_call_printer=self._nest_function_call_printer))
         self._nest_variable_printer._expression_printer = self._printer
@@ -71,7 +71,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._nest_printer = CPrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = SpinnakerCVariablePrinter(None, with_origin=False, with_vector_parameter=False)
-        self._printer_no_origin = CExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+        self._printer_no_origin = SpinnakerCExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
                                                                                                             constant_printer=self._constant_printer,
                                                                                                             function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
@@ -81,7 +81,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
-        self._gsl_printer = CExpressionPrinter(simple_expression_printer=UnitlessCSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+        self._gsl_printer = SpinnakerCExpressionPrinter(simple_expression_printer=UnitlessCSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                               constant_printer=self._constant_printer,
                                                                                                               function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
