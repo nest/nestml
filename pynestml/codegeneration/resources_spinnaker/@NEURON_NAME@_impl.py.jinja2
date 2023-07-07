@@ -128,7 +128,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 
     @overrides(AbstractNeuronImpl.get_synapse_id_by_target)
     def get_synapse_id_by_target(self, target):
-{%- for sym in neuron.get_spike_input_ports() %}
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name")%}
         if target == "{{sym.get_symbol_name()}}":
             return {{loop.index -1}}
 {%- endfor %}
@@ -137,7 +137,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     @overrides(AbstractNeuronImpl.get_synapse_targets)
     def get_synapse_targets(self):
         return [
-{%- for sym in neuron.get_spike_input_ports() %}
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name")%}
             "{{sym.get_symbol_name()}}",
 {%- endfor %}
                ]
@@ -145,7 +145,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     @overrides(AbstractNeuronImpl.get_recordable_variables)
     def get_recordable_variables(self):
         return [
-{%- for sym in neuron.get_state_symbols() %}
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
             "{{sym.get_symbol_name()}}",
 {%- endfor %} 
         ]
@@ -153,7 +153,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
     @overrides(AbstractNeuronImpl.get_recordable_data_types)
     def get_recordable_data_types(self):
         return {
-{%- for sym in neuron.get_state_symbols() %}
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
             "{{sym.get_symbol_name()}}": DataType.S1615,
 {%- endfor %}
             }
@@ -174,7 +174,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
 
     @overrides(AbstractNeuronImpl.get_recordable_variable_index)
     def get_recordable_variable_index(self, variable):
-{%- for sym in neuron.get_state_symbols() %}
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
         if variable == "{{sym.get_symbol_name()}}":
             return {{loop.index-1}}
 {%- endfor %}
