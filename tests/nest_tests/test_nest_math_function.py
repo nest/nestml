@@ -56,7 +56,10 @@ class TestNestMathFunction:
         log10_state_specifier = "log10_state"
         erf_state_specifier = "erf_state"
         erfc_state_specifier = "erfc_state"
-        nest.SetStatus(mm, {"record_from": ["x", ln_state_specifier, log10_state_specifier, erf_state_specifier, erfc_state_specifier]})
+        ceil_state_specifier = "ceil_state"
+        floor_state_specifier = "floor_state"
+        round_state_specifier = "round_state"
+        nest.SetStatus(mm, {"record_from": ["x", ln_state_specifier, log10_state_specifier, erf_state_specifier, erfc_state_specifier, ceil_state_specifier, floor_state_specifier, round_state_specifier]})
 
         nest.Connect(mm, nrn)
 
@@ -68,19 +71,31 @@ class TestNestMathFunction:
             log10_state_ts = nest.GetStatus(mm, "events")[0][log10_state_specifier]
             erf_state_ts = nest.GetStatus(mm, "events")[0][erf_state_specifier]
             erfc_state_ts = nest.GetStatus(mm, "events")[0][erfc_state_specifier]
+            ceil_state_ts = nest.GetStatus(mm, "events")[0][ceil_state_specifier]
+            floor_state_ts = nest.GetStatus(mm, "events")[0][floor_state_specifier]
+            round_state_ts = nest.GetStatus(mm, "events")[0][round_state_specifier]
         else:
             timevec = mm.get("events")["x"]
             ln_state_ts = mm.get("events")[ln_state_specifier]
             log10_state_ts = mm.get("events")[log10_state_specifier]
             erf_state_ts = mm.get("events")[erf_state_specifier]
             erfc_state_ts = mm.get("events")[erfc_state_specifier]
+            ceil_state_ts = mm.get("events")[ceil_state_specifier]
+            floor_state_ts = mm.get("events")[floor_state_specifier]
+            round_state_ts = mm.get("events")[round_state_specifier]
 
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
         ref_erf_state_ts = sp.special.erf(timevec - 1)
         ref_erfc_state_ts = sp.special.erfc(timevec - 1)
+        ref_ceil_state_ts = np.ceil((timevec - 1) / 10)
+        ref_floor_state_ts = np.floor((timevec - 1) / 10)
+        ref_round_state_ts = np.round((timevec - 1) / 10)
 
         np.testing.assert_allclose(ln_state_ts, ref_ln_state_ts)
         np.testing.assert_allclose(log10_state_ts, ref_log10_state_ts)
         np.testing.assert_allclose(erf_state_ts, ref_erf_state_ts)
         np.testing.assert_allclose(erfc_state_ts, ref_erfc_state_ts)
+        np.testing.assert_allclose(ceil_state_ts, ref_ceil_state_ts)
+        np.testing.assert_allclose(floor_state_ts, ref_floor_state_ts)
+        np.testing.assert_allclose(round_state_ts, ref_round_state_ts)
