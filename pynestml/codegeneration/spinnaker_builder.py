@@ -69,7 +69,7 @@ class SpiNNakerBuilder(Builder):
 
         generated_file_names = os.listdir(target_path)
         generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
-        generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn]
+        generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn and not "example" in fn]
         generated_file_names_neuron_impl_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "impl.py" in fn]
         generated_file_names_makefiles = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "Makefile_*") if not fn == "Makefile"]
         generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
@@ -265,6 +265,16 @@ class SpiNNakerBuilder(Builder):
                 except subprocess.CalledProcessError:
                     raise GeneratedCodeBuildException(
                         'Error occurred during install! More detailed error messages can be found in stdout.')
+
+            # call make clean
+            try:
+                subprocess.check_call(["make", "clean"],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=str(os.path.join(install_path, "c_models")))
+            except subprocess.CalledProcessError:
+                raise GeneratedCodeBuildException(
+                    'Error occurred during \'make clean\'! More detailed error messages can be found in stdout.')
 
             # call make
             try:
