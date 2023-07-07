@@ -55,6 +55,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable.
         :return: a nest processable format.
         """
+        array_index_access = ""
+        if self.print_as_arrays and self.array_index is not None:
+            array_index_access = "[" + str(self.array_index) + "]"
+
         assert isinstance(variable, ASTVariable)
 
         if isinstance(variable, ASTExternalVariable):
@@ -103,14 +107,14 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             # return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
-            return self._print(variable, symbol, with_origin=False) #temporary modification to not enforce getter function
+            return self._print(variable, symbol, with_origin=False) + array_index_access #temporary modification to not enforce getter function
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
 
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """

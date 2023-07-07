@@ -46,50 +46,57 @@ private:
     {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ render_variable_type(variable) }}* {{ variable.name }};
+    std::vector< {{ render_variable_type(variable) }} > {{ variable.name }} = {};
     {%- endfor %}
 
     // parameters
     {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ render_variable_type(variable) }}* {{ variable.name }};
+    std::vector< {{ render_variable_type(variable) }} > {{ variable.name }} = {};
     {%- endfor %}
 
     // ion-channel root-inline value
-    double* i_tot_{{ion_channel_name}} = new double(0);
+    std::vector< double > i_tot_{{ion_channel_name}} = {};
 
-    //size of the datastructure / number of compartments
-    size_t neuron_{{ ion_channel_name }}_channel_count = 0;
+    //number of channels
+    std::size_t neuron_{{ ion_channel_name }}_channel_count = 0;
+
+    std::vector< std::size_t > compartment_association = {};
 
 public:
     // constructor, destructor
     {{ion_channel_name}}{{cm_unique_suffix}}();
-    {{ion_channel_name}}{{cm_unique_suffix}}(const DictionaryDatum& channel_params);
     ~{{ion_channel_name}}{{cm_unique_suffix}}(){};
+
+    std::size_t new_channel(std::size_t comp_ass);
+    std::size_t new_channel(std::size_t comp_ass, const DictionaryDatum& channel_params);
 
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate(size_t comp_id) {
+    void calibrate() {
 {%- else %}
-    void pre_run_hook(size_t comp_id) {
+    void pre_run_hook() {
 {%- endif %}
-    // states
+        for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
+            // states
     {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }}[comp_id] = {{ printer_no_origin.print(rhs_expression) }};
+            {{ variable.name }}[comp_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "channel_id") }};
     {%- endfor %}
 
-    // parameters
+            // parameters
     {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }}[comp_id] = {{ printer_no_origin.print(rhs_expression) }};
+            {{ variable.name }}[comp_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "channel_id") }};
     {%- endfor %}
+        }
     };
+
     void append_recordables(std::map< Name, double* >* recordables,
-                            const long compartment_idx);
+                            const long compartment_idx, std::size_t channel_id);
 
     // numerical integration step
     std::pair< double, double > f_numstep( const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
@@ -103,172 +110,7 @@ public:
 {%- endfor %}
 
     // root_inline getter
-    double get_current_{{ion_channel_name}}();
-
-};
-{% endfor -%}
-{% endwith -%}
-
-
-////////////////////////////////////////////////// synapses
-
-{% macro render_time_resolution_variable(synapse_info) -%}
-{# we assume here that there is only one such variable ! #}
-{%- with %}
-{%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
-{%- if analytic_helper_info["is_time_resolution"] -%}
-    {{ analytic_helper_name }}
-{%- endif -%}
-{%- endfor -%}
-{% endwith %}
-{%- endmacro %}
-
-{%- with %}
-{%- for synapse_name, synapse_info in syns_info.items() %}
-
-class {{synapse_name}}{{cm_unique_suffix}}{
-private:
-  // global synapse index
-  long syn_idx = 0;
-
-  // propagators, initialized via pre_run_hook() or calibrate()
-  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-  double {{state_variable_name}};
-  {%- endfor %}
-  {%- endfor %}
-
-  // kernel state variables, initialized via pre_run_hook() or calibrate()
-  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-  double {{state_variable_name}};
-  {%- endfor %}
-  {%- endfor %}
-
-  // user defined parameters, initialized via pre_run_hook() or calibrate()
-  {%- for param_name, param_declaration in synapse_info["Parameters"].items() %}
-  double {{param_name}};
-  {%- endfor %}
-
-      // states
-    {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-  {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor %}
-    double i_tot_{{synapse_name}} = 0;
-
-  // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
-  {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
-  double {{internal_name}};
-  {%- endfor %}
-
-
-
-  // spike buffer
-  RingBuffer* {{synapse_info["buffer_name"]}}_;
-
-public:
-  // constructor, destructor
-  {{synapse_name}}{{cm_unique_suffix}}( const long syn_index);
-  {{synapse_name}}{{cm_unique_suffix}}( const long syn_index, const DictionaryDatum& receptor_params);
-  ~{{synapse_name}}{{cm_unique_suffix}}(){};
-
-  long
-  get_syn_idx()
-  {
-    return syn_idx;
-  };
-
-  // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
-
-  // calibration
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate();
-{%- else %}
-  void pre_run_hook();
-{%- endif %}
-  void append_recordables(std::map< Name, double* >* recordables);
-  void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
-  {
-    {{synapse_info["buffer_name"]}}_ = &syn_buffers[ syn_idx ];
-  };
-
-  // function declarations
-  {%- for function in synapse_info["Functions"] %}
-  {{ function_declaration.FunctionDeclaration(function, "") -}};
-
-  {% endfor %}
-
-    // root_inline getter
-    double get_current_{{synapse_name}}();
-};
-
-
-{% endfor -%}
-{% endwith -%}
-
-///////////////////////////////////////////// concentrations
-
-{%- with %}
-{%- for concentration_name, concentration_info in conc_info.items() %}
-
-class {{ concentration_name }}{{cm_unique_suffix}}{
-private:
-    // parameters
-    {%- for pure_variable_name, variable_info in concentration_info["Parameters"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor %}
-
-    // states
-    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ render_variable_type(variable) }} {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor %}
-
-    // concentration value (root-ode state)
-    double {{concentration_name}} = 0;
-
-public:
-    // constructor, destructor
-    {{ concentration_name }}{{cm_unique_suffix}}();
-    {{ concentration_name }}{{cm_unique_suffix}}(const DictionaryDatum& concentration_params);
-    ~{{ concentration_name }}{{cm_unique_suffix}}(){};
-
-    // initialization channel
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate() {
-{%- else %}
-    void pre_run_hook() {
-{%- endif %}
-    // states
-    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
-    {%- endfor %}
-    };
-    void append_recordables(std::map< Name, double* >* recordables,
-                            const long compartment_idx);
-
-    // numerical integration step
-    void f_numstep( const double v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %});
-
-    // function declarations
-{%- for function in concentration_info["Functions"] %}
-    {{ function_declaration.FunctionDeclaration(function) }};
-{%- endfor %}
-
-    // root_ode getter
-    double get_concentration_{{concentration_name}}();
+    double get_current_{{ion_channel_name}}(std::size_t channel_id);
 
 };
 {% endfor -%}
@@ -277,9 +119,8 @@ public:
 ///////////////////////////////////////////// currents
 
 {%- set channel_suffix = "_chan_" %}
-{%- set concentration_suffix = "_conc_" %}
 
-class CompartmentCurrents{{cm_unique_suffix}} {
+class NeuronCurrents{{cm_unique_suffix}} {
 private:
   // ion channels
 {% with %}
@@ -288,23 +129,9 @@ private:
   {% endfor -%}
 {% endwith %}
 
-  // synapses
-  {%- with %}
-  {%- for synapse_name, synapse_info in syns_info.items() %}
-  std::vector < {{synapse_name}}{{cm_unique_suffix}} > {{synapse_name}}_syns_;
-  {% endfor -%}
-  {% endwith -%}
-
-    //concentrations
-{% with %}
-  {%- for concentration_name, concentration_info in conc_info.items() %}
-  {{concentration_name}}{{cm_unique_suffix}} {{concentration_name}}{{concentration_suffix}};
-  {% endfor -%}
-{% endwith %}
-
 public:
-  CompartmentCurrents{{cm_unique_suffix}}(){};
-  explicit CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& compartment_params)
+  NeuronCurrents{{cm_unique_suffix}}(){};
+  explicit NeuronCurrents{{cm_unique_suffix}}(const DictionaryDatum& compartment_params)
   {
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
@@ -318,7 +145,7 @@ public:
     {% endfor -%}
   {% endwith -%}
   };
-  ~CompartmentCurrents{{cm_unique_suffix}}(){};
+  ~NeuronCurrents{{cm_unique_suffix}}(){};
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   void calibrate() {
@@ -335,43 +162,15 @@ public:
 {%- endif %}
     {% endfor -%}
   {% endwith -%}
-
-    // initialization of concentrations
-  {%- with %}
-    {%- for concentration_name, concentration_info in conc_info.items() %}
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    {{ concentration_name }}{{concentration_suffix}}.calibrate();
-{%- else %}
-    {{ concentration_name }}{{concentration_suffix}}.pre_run_hook();
-{%- endif %}
-    {% endfor -%}
-  {% endwith -%}
-
-    // initialization of synapses
-  {%- with %}
-  {%- for synapse_name, synapse_info in syns_info.items() %}
-    // initialization of {{synapse_name}} synapses
-    for( auto syn_it = {{synapse_name}}_syns_.begin();
-         syn_it != {{synapse_name}}_syns_.end();
-         ++syn_it )
-    {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-      syn_it->calibrate();
-{%- else %}
-      syn_it->pre_run_hook();
-{%- endif %}
-    }
-  {% endfor -%}
-  {% endwith -%}
   };
 
-  void add_synapse( const std::string& type, const long syn_idx )
+  void add_mechanism( const std::string& type, const std::size_t compartment_id)
   {
   {%- with %}
-  {%- for synapse_name, synapse_info in syns_info.items() %}
-    {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
+  {%- for ion_channel_name, channel_info in chan_info.items() %}
+    {% if not loop.first %}else{% endif %} if ( type == "{{ion_channel_name}}" )
     {
-      {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx ) );
+      {{ion_channel_name}}{{channel_suffix}}.new_channel(compartment_id);
     }
   {% endfor -%}
   {% endwith -%}
@@ -380,13 +179,14 @@ public:
       assert( false );
     }
   };
-  void add_synapse( const std::string& type, const long syn_idx, const DictionaryDatum& receptor_params )
+
+  void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params)
   {
   {%- with %}
-  {%- for synapse_name, synapse_info in syns_info.items() %}
-    {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
+  {%- for ion_channel_name, channel_info in chan_info.items() %}
+    {% if not loop.first %}else{% endif %} if ( type == "{{ion_channel_name}}" )
     {
-      {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx, receptor_params ) );
+      {{ion_channel_name}}{{channel_suffix}}.new_channel(compartment_id, mechanism_params);
     }
   {% endfor -%}
   {% endwith -%}
@@ -435,21 +235,6 @@ public:
     {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.append_recordables( &recordables, compartment_idx );
-    {% endfor -%}
-    {% endwith -%}
-
-    // append concentration state variables to recordables
-    {%- with %}
-    {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{concentration_name}}{{concentration_suffix}}.append_recordables( &recordables, compartment_idx );
-    {% endfor -%}
-    {% endwith -%}
-
-    // append synapse state variables to recordables
-    {%- with %}
-    {%- for synapse_name, synapse_info in syns_info.items() %}
-    for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
-      syn_it->append_recordables( &recordables );
     {% endfor -%}
     {% endwith -%}
 
