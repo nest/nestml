@@ -46,7 +46,7 @@ class TestDopaSecondOrder:
     neuron_model_name = "iaf_psc_exp_nestml__with_dopa_synapse_second_order_nestml"
     synapse_model_name = "dopa_synapse_second_order_nestml__with_iaf_psc_exp_nestml"
 
-    # @pytest.fixture(scope="module", autouse=True)
+    @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
         files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
