@@ -92,8 +92,8 @@ v_receiving_neuron = receiving_neuron.get_data(membranePot)
 i_syn_exc_receiving_neuron = receiving_neuron.get_data(synapticRsp)
 
 combined_spikes = spikes_spiking_neuron.segments[0].spiketrains
-for spike in spikes_receiving_neuron.segment[0].spiketrains:
-    combined_spikes.append(sp)
+for spike in spikes_receiving_neuron.segments[0].spiketrains:
+    combined_spikes.append(spike)
 
 Figure(
     # pylint: disable=no-member

@@ -81,7 +81,7 @@ class SpinnakerPythonTypeSymbolPrinter(TypeSymbolPrinter):
             return "DataType.UINT8"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
-            return "DataType.UINT8"
+            return "DataType.UINT32"
 
         if isinstance(type_symbol, StringTypeSymbol):
             raise Exception("String datatype not implemented for use with spinnaker")

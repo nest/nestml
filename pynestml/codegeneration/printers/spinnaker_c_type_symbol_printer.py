@@ -47,7 +47,7 @@ class SpinnakerCTypeSymbolPrinter(TypeSymbolPrinter):
             return "REAL"
 
         if isinstance(type_symbol, IntegerTypeSymbol):
-            return "unsigned int"
+            return "uint32_t"
 
         if isinstance(type_symbol, BooleanTypeSymbol):
             return "bool"
