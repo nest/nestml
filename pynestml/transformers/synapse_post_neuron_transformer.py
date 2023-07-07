@@ -518,6 +518,7 @@ class SynapsePostNeuronTransformer(Transformer):
         Logger.log_message(None, -1, "Successfully constructed neuron-synapse pair "
                            + new_neuron.name + ", " + new_synapse.name, None, LoggingLevel.INFO)
 
+        import pdb;pdb.set_trace()
         return new_neuron, new_synapse
 
     def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:

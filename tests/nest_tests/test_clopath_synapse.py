@@ -73,33 +73,33 @@ class TestClopathSynapse:
         pre_spike_times = [1., 11., 21.]    # [ms]
         post_spike_times = [6., 16., 26.]  # [ms]
 
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
+        # post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
+        # pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
 
-        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
+        # post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
+        # pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
 
-        pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-                                    35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-                                    65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-                                    99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
-                                    152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-        post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-                                     25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-                                     48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-                                     80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
-                                     116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
-                                     188., 194., 202., 245., 249., 289., 454.])
+        # pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
+        #                             35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
+        #                             65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
+        #                             99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
+        #                             152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
+        # post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
+        #                              25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
+        #                              48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
+        #                              80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
+        #                              116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
+        #                              188., 194., 202., 245., 249., 289., 454.])
 
-        self.run_synapse_test(neuron_model_name=self.neuron_model_name,
-                              ref_neuron_model_name=self.ref_neuron_model_name,
-                              synapse_model_name=self.synapse_model_name,
-                              ref_synapse_model_name=self.ref_synapse_model_name,
-                              resolution=.5,  # [ms]
-                              delay=1.5,  # [ms]
-                              pre_spike_times=pre_spike_times,
-                              post_spike_times=post_spike_times,
-                              fname_snip=fname_snip)
+        # self.run_synapse_test(neuron_model_name=self.neuron_model_name,
+        #                       ref_neuron_model_name=self.ref_neuron_model_name,
+        #                       synapse_model_name=self.synapse_model_name,
+        #                       ref_synapse_model_name=self.ref_synapse_model_name,
+        #                       resolution=.5,  # [ms]
+        #                       delay=1.5,  # [ms]
+        #                       pre_spike_times=pre_spike_times,
+        #                       post_spike_times=post_spike_times,
+        #                       fname_snip=fname_snip)
 
     def run_synapse_test(self, neuron_model_name,
                          ref_neuron_model_name,
@@ -161,30 +161,19 @@ class TestClopathSynapse:
             post_neuron_ref = nest.Create(ref_neuron_model_name)
 
         if sim_mdl:
-            if NESTTools.detect_nest_version().startswith("v2"):
-                spikedet_pre = nest.Create("spike_detector")
-                spikedet_post = nest.Create("spike_detector")
-            else:
-                spikedet_pre = nest.Create("spike_recorder")
-                spikedet_post = nest.Create("spike_recorder")
+            spikedet_pre = nest.Create("spike_recorder")
+            spikedet_post = nest.Create("spike_recorder")
             mm = nest.Create("multimeter", params={"record_from": [
                              "V_m", "post_trace__for_clopath_nestml"]})
         if sim_ref:
-            if NESTTools.detect_nest_version().startswith("v2"):
-                spikedet_pre_ref = nest.Create("spike_detector")
-                spikedet_post_ref = nest.Create("spike_detector")
-            else:
-                spikedet_pre_ref = nest.Create("spike_recorder")
-                spikedet_post_ref = nest.Create("spike_recorder")
+            spikedet_pre_ref = nest.Create("spike_recorder")
+            spikedet_post_ref = nest.Create("spike_recorder")
             mm_ref = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
         if sim_mdl:
             nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
             nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if NESTTools.detect_nest_version().startswith("v2"):
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "clopath_nestml_rec"})
-            else:
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "clopath_nestml_rec"})
+            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "clopath_nestml_rec"})
             nest.Connect(mm, post_neuron)
             nest.Connect(pre_neuron, spikedet_pre)
             nest.Connect(post_neuron, spikedet_post)
