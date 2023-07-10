@@ -538,6 +538,29 @@ class ASTUtils:
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
+    def replace_post_moved_variable_names(cls, astnode, post_connected_continuous_input_ports, post_variable_names):
+        if not isinstance(astnode, ASTNode):
+            for node in astnode:
+                ASTUtils.replace_post_moved_variable_names(node, post_connected_continuous_input_ports, post_variable_names)
+            return
+
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if var.get_name() in post_connected_continuous_input_ports:
+                idx = post_connected_continuous_input_ports.index(var.get_name())
+                var.set_name(post_variable_names[idx])
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+
+
+
+    @classmethod
     def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str):
         """add suffix to variable names recursively throughout astnode"""
 
@@ -555,7 +578,8 @@ class ASTUtils:
                 return
 
             if not var.get_name() == "t" \
-               and not var.get_name().endswith(suffix):
+               and not var.get_name().endswith(suffix) \
+               and not isinstance(var, ASTExternalVariable):
                 var.set_name(var.get_name() + suffix)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
@@ -598,6 +622,7 @@ class ASTUtils:
             ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
                                               differential_order=var.get_differential_order(),
                                               source_position=var.get_source_position())
+
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
@@ -606,7 +631,7 @@ class ASTUtils:
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                Logger.log_message(None, -1, "ASTSimpleExpression replacement made (var = " + str(
+                Logger.log_message(None, -1, "\t  -> ASTSimpleExpression replacement made (var = " + str(
                     ast_ext_var.get_name()) + ") in expression: " + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
                 _expr.set_variable(ast_ext_var)
                 return
@@ -614,7 +639,7 @@ class ASTUtils:
             if isinstance(_expr, ASTVariable):
                 if isinstance(node.get_parent(_expr), ASTAssignment):
                     node.get_parent(_expr).lhs = ast_ext_var
-                    Logger.log_message(None, -1, "ASTVariable replacement made in expression: "
+                    Logger.log_message(None, -1, "\t  -> ASTVariable replacement made in expression: "
                                        + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
                 elif isinstance(node.get_parent(_expr), ASTSimpleExpression) and node.get_parent(_expr).is_variable():
                     node.get_parent(_expr).set_variable(ast_ext_var)

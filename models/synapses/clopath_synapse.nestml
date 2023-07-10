@@ -10,7 +10,7 @@ synapse clopath_synapse:
 
     parameters:
         d ms = 1 ms  @nest::delay   # Synaptic transmission delay
-        w_max real = 100
+        w_max real = 100.
         tau_post_membrane_avg_plus ms = 7 ms
         tau_post_membrane_avg_minus ms = 10 ms
         tau_post_membrane_avg_avg ms = 500 ms
@@ -35,20 +35,24 @@ synapse clopath_synapse:
         spike
 
     onReceive(post_spikes):
+        print("Post spike received")
         if post_membrane_potential > theta_plus and post_membrane_potential_avg_plus > theta_minus:
             # potentiate synapse
-            # w += A_LTP * pre_trace * (post_membrane_potential - theta_plus) * (post_membrane_potential_avg_plus(t - membrane_potential_delay) - theta_minus)
+            print("\tPotentiating synapse")
+            # w += A_LTP * pre_trace * (post_membrane_potential - theta_plus) * (post_membrane_potential_avg_plus) - theta_minus)
             w += A_LTP * pre_trace * (post_membrane_potential - theta_plus) * (post_membrane_potential_avg_plus - theta_minus)
             w = min(w, w_max)
 
     onReceive(pre_spikes):
+        print("Pre spike received")
         pre_trace += 1 / tau_pre_tr
 
         if post_membrane_potential_avg_minus > theta_minus:
             # depress synapse
-            #w -= A_LTD * (post_membrane_potential_avg_minus(t - membrane_potential_delay) - theta_minus)
+            print("\tDepressing synapse")
+            #w -= A_LTD * (post_membrane_potential_avg_minus - theta_minus)
             w -= A_LTD * (post_membrane_potential_avg_minus - theta_minus)
-            w = max(w, 0)
+            w = max(w, 0.)
 
         # deliver spike to postsynaptic partner
         deliver_spike(w, d)

@@ -318,6 +318,20 @@ class SynapsePostNeuronTransformer(Transformer):
 
         # XXX: TODO
 
+
+        #
+        #   collect all ``continuous`` type input ports that are connected to postsynaptic neuron
+        #
+
+        post_connected_continuous_input_ports = []
+        post_variable_names = []
+        for input_block in synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_post_port(port.get_name(), neuron.name, synapse.name) and self.is_continuous_port(port.get_name(), synapse):
+                    post_connected_continuous_input_ports.append(port.get_name())
+                    post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(port.get_name(), neuron.name, synapse.name))
+
+
         #
         #   move state variable declarations from synapse to neuron
         #
@@ -348,7 +362,9 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            new_neuron.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
+
             ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
+            ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
 
         #
         #    move initial values for equations
@@ -430,14 +446,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
         Logger.log_message(
             None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with suffixed external variable references", None, LoggingLevel.INFO)
-        post_connected_continuous_input_ports = []
-        post_variable_names = []
-        for input_block in synapse.get_input_blocks():
-            for port in input_block.get_input_ports():
-                if self.is_post_port(port.get_name(), neuron.name, synapse.name) and self.is_continuous_port(port.get_name(), synapse):
-                    post_connected_continuous_input_ports.append(port.get_name())
-                    post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(
-                        port.get_name(), neuron.name, synapse.name))
 
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
@@ -518,7 +526,6 @@ class SynapsePostNeuronTransformer(Transformer):
         Logger.log_message(None, -1, "Successfully constructed neuron-synapse pair "
                            + new_neuron.name + ", " + new_synapse.name, None, LoggingLevel.INFO)
 
-        import pdb;pdb.set_trace()
         return new_neuron, new_synapse
 
     def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:

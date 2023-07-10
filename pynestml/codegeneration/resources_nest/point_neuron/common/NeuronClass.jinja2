@@ -885,9 +885,9 @@ double
 {%- endwith %}
 
 {%- if purely_numeric_state_variables_moved|length > 0 %}
-double ode_state_tmp[STATE_VEC_SIZE];
+double ode_state_tmp[State_::STATE_VEC_SIZE];
 
-for (int i = 0; i < STATE_VEC_SIZE; ++i) {
+for (int i = 0; i < State_::STATE_VEC_SIZE; ++i) {
   ode_state_tmp[i] = S_.ode_state[i];
 }
 
@@ -967,9 +967,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endwith %}
 
 {%- if purely_numeric_state_variables_moved|length > 0 %}
-double ode_state_tmp[STATE_VEC_SIZE];
+double ode_state_tmp[State_::STATE_VEC_SIZE];
 
-for (int i = 0; i < STATE_VEC_SIZE; ++i) {
+for (int i = 0; i < State_::STATE_VEC_SIZE; ++i) {
     ode_state_tmp[i] = S_.ode_state[i];
 }
 
