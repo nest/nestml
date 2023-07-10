@@ -52,6 +52,8 @@ from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer impor
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
+from pynestml.codegeneration.spinnaker_code_generator_utils import SPINNAKERCodeGeneratorUtils
+
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
     def setup_printers(self):
@@ -187,7 +189,11 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py._target = "SpiNNaker"
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        _models = copy.deepcopy(models)
+        import logging
+        #logging.debug(models[0].get_scope().print_scope())
+        _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
+        #logging.debug(_models[0].get_scope().print_scope())
         self.codegen_cpp.generate_code(_models)
-        _models = copy.deepcopy(models)
+        _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
+        #logging.debug(_models[0].get_scope().print_scope())
         self.codegen_py.generate_code(_models)
