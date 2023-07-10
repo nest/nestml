@@ -77,9 +77,10 @@ class ASTNeuron(ASTNeuronOrSynapse):
                         in_comment=self.in_comment,
                         implicit_conversion_factor=self.implicit_conversion_factor)
 
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        symtable_vistor = ASTSymbolTableVisitor()
-        dup.accept(symtable_vistor)
+        # TODO: must find a way to handle this
+        # from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        # symtable_vistor = ASTSymbolTableVisitor()
+        # dup.accept(symtable_vistor)
         return dup
 
     def get_input_ports(self) -> List[VariableSymbol]:
