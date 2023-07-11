@@ -1086,8 +1086,8 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
 
   // check invariants
 {% for invariant in synapse.get_parameter_invariants() %}
-  if ( !({{printer.print_expression(invariant)}}) ) {
-    throw nest::BadProperty("The constraint '{{nestml_printer.print_expression(invariant)}}' is violated!");
+  if ( !({{printer.print(invariant)}}) ) {
+    throw nest::BadProperty("The constraint '{{nestml_printer.print(invariant)}}' is violated!");
   }
 {%- endfor %}
 {% if uses_numeric_solver %}
