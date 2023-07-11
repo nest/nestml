@@ -135,8 +135,9 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   port_weight_arr_step_ = 0;
   port_weight_port_step_ = 0;
 
-  // input spike signal is stored in I_syn_ex, I_syn_in
-  port_input_arr_ = GetVarArr() + GetScalVarIdx("I_kernel_exc__X__exc_spikes");
+  // input spike signal stored for spike inputs
+{%- set var = spike_updates[neuron.get_spike_input_ports()[0].get_symbol_name()][0].get_variable().get_name() %}
+  port_input_arr_ = GetVarArr() + GetScalVarIdx("{{ var }}");
   port_input_arr_step_ = n_var_;
   port_input_port_step_ = 1;
 
@@ -169,4 +170,3 @@ int {{ neuronName }}::Calibrate(double, float time_resolution)
 
   return 0;
 }
-
