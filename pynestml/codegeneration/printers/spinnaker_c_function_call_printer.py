@@ -65,7 +65,7 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
                     'send_spike(timer_count, time, neuron_index)'
 
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            raise Exception("deliver_spike() function not yet implemented")
+            return "// Probably dont need to actively deliver spike"
 
         return super().print_function_call(node)
 
