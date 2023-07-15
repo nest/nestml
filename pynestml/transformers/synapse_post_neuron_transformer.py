@@ -240,7 +240,11 @@ class SynapsePostNeuronTransformer(Transformer):
         #   determine which variables and dynamics in synapse can be transferred to neuron
         #
 
-        all_state_vars = ASTUtils.all_variables_defined_in_block(synapse.get_state_blocks()[0])
+        if synapse.get_state_blocks():
+            all_state_vars = ASTUtils.all_variables_defined_in_block(synapse.get_state_blocks()[0])
+        else:
+            all_state_vars = []
+
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
         # add names of convolutions
