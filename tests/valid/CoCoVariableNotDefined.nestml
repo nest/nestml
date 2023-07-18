@@ -34,9 +34,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoVariableNotDefined:
     state:
         test1 integer = 0
-    end
 
     update:
         test1 = 1 # everything is defined previously, thus everything correct
-    end
-end

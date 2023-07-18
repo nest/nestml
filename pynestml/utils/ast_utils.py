@@ -24,6 +24,8 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 import re
 import sympy
 
+import odetoolbox
+
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -1798,9 +1800,9 @@ class ASTUtils:
                 if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
                     inport = conv_call.args[1].get_variable()
                     expr_str = str(expr)
-                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.Shape._sympy_globals)
                     sympy_expr = sympy.expand(sympy_expr)
-                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call))
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.Shape._sympy_globals)
                     factor_str = []
                     for term in sympy.Add.make_args(sympy_expr):
                         if term.find(sympy_conv_expr):
@@ -2119,3 +2121,38 @@ class ASTUtils:
                     rport_to_port_map[rport] = [port]
 
         return rport_to_port_map
+
+    @classmethod
+    def assign_numeric_non_numeric_state_variables(cls, neuron, numeric_state_variable_names, numeric_update_expressions, update_expressions):
+        r"""For each ASTVariable, set the ``node._is_numeric`` member to True or False based on whether this variable will be solved with the analytic or numeric solver.
+
+        Ideally, this would not be a property of the ASTVariable as it is an implementation detail (that only emerges during code generation) and not an intrinsic part of the model itself. However, this approach is preferred over setting it as a property of the variable printers as it would have to make each printer aware of all models and variables therein."""
+        class ASTVariableOriginSetterVisitor(ASTVisitor):
+            def visit_variable(self, node):
+                assert isinstance(node, ASTVariable)
+                if node.get_complete_name() in self._numeric_state_variables:
+                    node._is_numeric = True
+                else:
+                    node._is_numeric = False
+
+        visitor = ASTVariableOriginSetterVisitor()
+        visitor._numeric_state_variables = numeric_state_variable_names
+        neuron.accept(visitor)
+
+        if update_expressions:
+            for expr in update_expressions.values():
+                expr.accept(visitor)
+
+        if numeric_update_expressions:
+            for expr in numeric_update_expressions.values():
+                expr.accept(visitor)
+
+        for update_expr_list in neuron.spike_updates.values():
+            for update_expr in update_expr_list:
+                update_expr.accept(visitor)
+
+        for update_expr in neuron.post_spike_updates.values():
+            update_expr.accept(visitor)
+
+        for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
+            node.accept(visitor)

@@ -34,5 +34,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoSpikeInputPortWithoutType:
     input:
         spikeAll <- spike # type not specified
-    end
-end

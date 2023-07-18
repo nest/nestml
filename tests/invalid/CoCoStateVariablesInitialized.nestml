@@ -35,5 +35,3 @@ neuron CoCoStateVariablesInitialized:
         V_m mV
         V_abs mV = 10 mV
         r integer
-    end
-end

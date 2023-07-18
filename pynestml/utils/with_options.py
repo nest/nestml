@@ -43,6 +43,14 @@ class WithOptions:
         r"""Test whether an option exists."""
         return k in self._options.keys()
 
+    def add_options(self, options: Mapping[str, Any]) -> None:
+        r"""Extend the current options dictionary with extra options."""
+        for key in options:
+            if not key in self._options:
+                self._options[key] = options[key]
+            else:
+                raise Exception(f"The key '{key}' already exists in  the options list!")
+
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
         unhandled_options = {}

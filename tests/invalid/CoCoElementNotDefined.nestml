@@ -35,5 +35,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoElementNotDefined:
     state:
         test1 integer = test2 # case 1: variable set to a not defined value
-    end
-end

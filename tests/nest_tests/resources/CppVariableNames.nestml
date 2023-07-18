@@ -27,21 +27,16 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 neuron cpp_variable_names_test:
-  state:
-    static real = 0.
-    concept real = 0.
-  end
+    state:
+        static real = 0.
+        concept real = 0.
 
-  parameters:
-    using real = 0.
-  end
+    parameters:
+        using real = 0.
 
-  equations:
-    concept' = 1. / s
-  end
+    equations:
+        concept' = 1. / s
 
-  update:
-    static = concept + using
-    integrate_odes()
-  end
-end
+    update:
+        static = concept + using
+        integrate_odes()

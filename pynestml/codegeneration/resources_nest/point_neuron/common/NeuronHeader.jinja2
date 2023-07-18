@@ -54,6 +54,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #error "NEST was compiled without support for dynamic loading. Please install libltdl and recompile NEST."
 #endif
 
+// C++ includes:
+#include <cmath>
+
 #include "config.h"
 {%- if norm_rng %}
 
@@ -228,7 +231,11 @@ public:
   /**
    * Used to validate that we can send {{ output_event.OutputEvent() }} to desired target:port.
   **/
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  size_t send_test_event(nest::Node& target, size_t receptor_type, nest::synindex, bool) override;
+{%- else %}
   nest::port send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool) override;
+{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Functions handling incoming events.
@@ -245,12 +252,24 @@ public:
   void handle(nest::DataLoggingRequest &) override;//! allow recording with multimeter
 
 {%- if has_spike_input %}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  size_t handles_test_event(nest::SpikeEvent&, size_t) override;
+{%- else %}
   nest::port handles_test_event(nest::SpikeEvent&, nest::port) override;
 {%- endif %}
+{%- endif %}
 {%- if has_continuous_input %}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  size_t handles_test_event(nest::CurrentEvent&, size_t) override;
+{%- else %}
   nest::port handles_test_event(nest::CurrentEvent&, nest::port) override;
 {%- endif %}
+{%- endif %}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  size_t handles_test_event(nest::DataLoggingRequest&, size_t) override;
+{%- else %}
   nest::port handles_test_event(nest::DataLoggingRequest&, nest::port) override;
+{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Functions for getting/setting parameters and state values.
@@ -389,13 +408,25 @@ private:
    * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  static const size_t MIN_SPIKE_RECEPTOR = 1;
+{%- else %}
   static const nest::port MIN_SPIKE_RECEPTOR = 1;
+{%- endif %}
 {%-   set ns = namespace(count=1) %}
 {%- else %}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  static const size_t MIN_SPIKE_RECEPTOR = 0;
+{%- else %}
   static const nest::port MIN_SPIKE_RECEPTOR = 0;
+{%- endif %}
 {%-   set ns = namespace(count=0) %}
 {%- endif %}
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  static const size_t PORT_NOT_AVAILABLE = -1;
+{%- else %}
   static const nest::port PORT_NOT_AVAILABLE = -1;
+{%- endif %}
 
   enum SynapseTypes
   {
@@ -769,7 +800,11 @@ private:
 
 }; /* neuron {{neuronName}} */
 
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+inline size_t {{neuronName}}::send_test_event(nest::Node& target, size_t receptor_type, nest::synindex, bool)
+{%- else %}
 inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
+{%- endif %}
 {
   // You should usually not change the code in this function.
   // It confirms that the target of connection @c c accepts @c {{ output_event.OutputEvent() }} on
@@ -780,7 +815,11 @@ inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rpor
 }
 {%- if has_spike_input %}
 
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+inline size_t {{neuronName}}::handles_test_event(nest::SpikeEvent&, size_t receptor_type)
+{%- else %}
 inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
+{%- endif %}
 {
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
     assert( B_.spike_inputs_.size() == NUM_SPIKE_RECEPTORS );
@@ -804,7 +843,11 @@ inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::po
 {%- endif %}
 {%- if has_continuous_input %}
 
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+inline size_t {{neuronName}}::handles_test_event(nest::CurrentEvent&, size_t receptor_type)
+{%- else %}
 inline nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type)
+{%- endif %}
 {
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
@@ -818,7 +861,11 @@ inline nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::
 }
 {%- endif %}
 
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+inline size_t {{neuronName}}::handles_test_event(nest::DataLoggingRequest& dlr, size_t receptor_type)
+{%- else %}
 inline nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& dlr, nest::port receptor_type)
+{%- endif %}
 {
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
@@ -923,9 +970,9 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 {%- endfor %}
 
 {% for invariant in neuron.get_parameter_invariants() %}
-  if ( !({{printer.print_expression(invariant)}}) )
+  if ( !({{ printer.print(invariant) }}) )
   {
-    throw nest::BadProperty("The constraint '{{nestml_printer.print_expression(invariant)}}' is violated!");
+    throw nest::BadProperty("The constraint '{{ nestml_printer.print(invariant) }}' is violated!");
   }
 {%- endfor %}
 

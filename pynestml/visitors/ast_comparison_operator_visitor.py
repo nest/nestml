@@ -19,17 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-rhs : left=rhs comparisonOperator right=rhs
-"""
+from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.string_type_symbol import StringTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.error_strings import ErrorStrings
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode
 from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
-from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
 class ASTComparisonOperatorVisitor(ASTVisitor):
@@ -49,6 +47,11 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
         lhs_type.referenced_object = expr.get_lhs()
         rhs_type.referenced_object = expr.get_rhs()
 
+        # both are string types
+        if lhs_type.is_primitive() and rhs_type.is_primitive() and isinstance(lhs_type, StringTypeSymbol) and isinstance(rhs_type, StringTypeSymbol):
+            expr.type = PredefinedTypes.get_boolean_type()
+            return
+
         if (lhs_type.is_numeric_primitive() and rhs_type.is_numeric_primitive()) \
                 or (lhs_type.equals(rhs_type) and lhs_type.is_numeric()) or (
                 isinstance(lhs_type, BooleanTypeSymbol) and isinstance(rhs_type, BooleanTypeSymbol)):
@@ -65,11 +68,10 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
                                error_position=expr.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return
-        else:
-            # hard incompatibility, cannot recover in c++, ERROR
-            error_msg = ErrorStrings.message_comparison(self, expr.get_source_position())
-            expr.type = ErrorTypeSymbol()
-            Logger.log_message(code=MessageCode.HARD_INCOMPATIBILITY,
-                               error_position=expr.get_source_position(),
-                               message=error_msg, log_level=LoggingLevel.ERROR)
-            return
+
+        # hard incompatibility, cannot recover in c++, ERROR
+        error_msg = ErrorStrings.message_comparison(self, expr.get_source_position())
+        expr.type = ErrorTypeSymbol()
+        Logger.log_message(code=MessageCode.HARD_INCOMPATIBILITY,
+                           error_position=expr.get_source_position(),
+                           message=error_msg, log_level=LoggingLevel.ERROR)

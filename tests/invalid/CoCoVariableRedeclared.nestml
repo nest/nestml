@@ -34,10 +34,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoVariableRedeclared:
     state:
         test1 mV = 20mV # should not be detected as redeclared, since in global scope
-    end
-    
+
     update:
         test1 mV = 10mV
         test1 boolean = True
-    end
-end

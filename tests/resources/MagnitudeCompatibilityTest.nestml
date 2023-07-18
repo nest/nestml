@@ -31,11 +31,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron expressionType_test:
     state:
-       volts V = 2 V
-       milliVolts mV = -70 mV
-       bigComplexUnit V/C = -0.1 V/C
-       smallComplelxUnit mV/C = -22 mV/C
-    end
+        volts V = 2 V
+        milliVolts mV = -70 mV
+        bigComplexUnit V/C = -0.1 V/C
+        smallComplelxUnit mV/C = -22 mV/C
 
     update:
         volts = volts + milliVolts                          #implicitly convert rhs mV to V.
@@ -50,5 +49,3 @@ neuron expressionType_test:
 
         #multi-layered casts:
         volts = milliVolts + (volts + milliVolts)
-    end
-end

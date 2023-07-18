@@ -63,27 +63,22 @@ Source code
 .. code-block:: nestml
 
    neuron lorenz_attractor:
-     state:
-       x real = 1
-       y real = 1
-       z real = 1
-     end
-     equations:
-       x'=sigma * (y - x) / s
-       y'=(x * (rho - z) - y) / s
-       z'=(x * y - beta * z) / s
-     end
+       state:
+           x real = 1
+           y real = 1
+           z real = 1
+       equations:
+           x'=sigma * (y - x) / s
+           y'=(x * (rho - z) - y) / s
+           z'=(x * y - beta * z) / s
 
-     update:
-       integrate_odes()
-     end
+       update:
+           integrate_odes()
 
-     parameters:
-       sigma real = 10
-       beta real = 8 / 3
-       rho real = 28
-     end
-   end
+       parameters:
+           sigma real = 10
+           beta real = 8 / 3
+           rho real = 28
 
 
 
