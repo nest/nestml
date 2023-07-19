@@ -329,7 +329,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
         # XXX: TODO
 
-
         #
         #   collect all ``continuous`` type input ports that are connected to postsynaptic neuron
         #
@@ -341,7 +340,6 @@ class SynapsePostNeuronTransformer(Transformer):
                 if self.is_post_port(port.get_name(), neuron.name, synapse.name) and self.is_continuous_port(port.get_name(), synapse):
                     post_connected_continuous_input_ports.append(port.get_name())
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(port.get_name(), neuron.name, synapse.name))
-
 
         #
         #   move state variable declarations from synapse to neuron

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# clopath_synapse_test.py
+# test_clopath_synapse.py
 #
 # This file is part of NEST.
 #
