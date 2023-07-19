@@ -28,11 +28,13 @@ from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -230,6 +232,15 @@ class SynapsePostNeuronTransformer(Transformer):
         assert len(new_neuron.get_update_blocks()) <= 1, "Only one update block supported per neuron for now."
         assert len(new_synapse.get_update_blocks()) <= 1, "Only one update block supported per synapse for now."
 
+        if not new_synapse.get_equations_blocks():
+            ASTUtils.create_equations_block(new_synapse)
+
+        if not new_neuron.get_equations_blocks():
+            ASTUtils.create_equations_block(new_neuron)
+
+        new_neuron.accept(ASTSymbolTableVisitor())
+        new_synapse.accept(ASTSymbolTableVisitor())
+
         #
         #   suffix for variables that will be transferred to neuron
         #
@@ -347,12 +358,6 @@ class SynapsePostNeuronTransformer(Transformer):
         #
         #   move defining equations for variables from synapse to neuron
         #
-
-        if not new_synapse.get_equations_blocks():
-            ASTUtils.create_equations_block(new_synapse)
-
-        if not new_neuron.get_equations_blocks():
-            ASTUtils.create_equations_block(new_neuron)
 
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),

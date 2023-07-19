@@ -559,7 +559,6 @@ class ASTUtils:
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
 
-
     @classmethod
     def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str):
         """add suffix to variable names recursively throughout astnode"""
