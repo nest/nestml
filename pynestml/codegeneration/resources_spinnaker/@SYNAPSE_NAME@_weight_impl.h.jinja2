@@ -18,6 +18,10 @@ typedef struct {
 
     int32_t my_parameter;
 
+{# {%- for sym in synapse.get_parameter_symbols() %}
+    {{sym.get_symbol_name()}},
+{%- endfor %} #}
+
     // TODO: Put in all required parameters
 
 } plasticity_weight_region_data_t;

@@ -161,6 +161,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                             "@SYNAPSE_NAME@.py.jinja2",
                             "@SYNAPSE_NAME@_timing.py.jinja2",
                             "@SYNAPSE_NAME@_weight.py.jinja2",
+                            "@SYNAPSE_NAME@_impl.h.jinja2",
                             "Makefile_@SYNAPSE_NAME@_impl.jinja2"],
             },
             "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra.mk.jinja2", "extra_neuron.mk.jinja2", "extra_synapse.mk.jinja2"]
@@ -190,10 +191,9 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         import logging
-        #logging.debug(models[0].get_scope().print_scope())
         _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
-        #logging.debug(_models[0].get_scope().print_scope())
+        #_models = copy.deepcopy(models)
         self.codegen_cpp.generate_code(_models)
         _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
-        #logging.debug(_models[0].get_scope().print_scope())
+        #_models = copy.deepcopy(models)
         self.codegen_py.generate_code(_models)
