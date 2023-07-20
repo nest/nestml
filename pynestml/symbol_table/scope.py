@@ -65,6 +65,24 @@ class Scope:
         self.enclosing_scope = enclosing_scope
         self.source_location = source_position
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this scope.
+
+        :return: new Scope instance
+        :rtype: Scope
+        """
+
+        enclosing_scope = None if self.enclosing_scope == None else self.enclosing_scope.clone()  
+
+        dup = Scope(scope_type=self.scope_type,
+                        enclosing_scope=enclosing_scope,
+                        source_position=self.source_location)
+
+        dup.declared_elements = self.declared_elements.copy()
+
+        return dup
+
     def add_symbol(self, symbol: Symbol) -> None:
         r"""
         Adds the handed over symbol to the current scope.

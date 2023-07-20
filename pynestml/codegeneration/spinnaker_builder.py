@@ -68,11 +68,11 @@ class SpiNNakerBuilder(Builder):
             raise InvalidPathException('Installation path (' + str(install_path) + ') is not a directory!')
 
         generated_file_names = os.listdir(target_path)
-        generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
         generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn and not "example" in fn]
         generated_file_names_neuron_impl_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "impl.py" in fn]
         generated_file_names_makefiles = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "Makefile_*") if not fn == "Makefile"]
-        generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
+        generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.c")]
+        generated_file_names_neuron_h = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
         generated_file_names_neuron_examples_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "example" in fn]
 
         old_cwd = os.getcwd()
@@ -109,6 +109,16 @@ class SpiNNakerBuilder(Builder):
                 pass
 
             for fn in generated_file_names_neuron_c:
+                try:
+                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=str(os.path.join(target_path)))
+                except subprocess.CalledProcessError:
+                    raise GeneratedCodeBuildException(
+                        'Error occurred during install! More detailed error messages can be found in stdout.')
+            
+            for fn in generated_file_names_neuron_h:
                 try:
                     subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")],
                                           stderr=subprocess.STDOUT,

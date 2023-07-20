@@ -52,6 +52,8 @@ from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer impor
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
+from pynestml.codegeneration.spinnaker_code_generator_utils import SPINNAKERCodeGeneratorUtils
+
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
     def setup_printers(self):
@@ -151,7 +153,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "@NEURON_NAME@_impl.py.jinja2",
                            "@NEURON_NAME@_chain_example.py.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
-                "synapse": ["@SYNAPSE_NAME@_impl.h.jinja2",
+                "synapse": ["@SYNAPSE_NAME@_impl.c.jinja2",
                             "@SYNAPSE_NAME@_timing_impl.h.jinja2",
                             "@SYNAPSE_NAME@_timing_impl.c.jinja2",
                             "@SYNAPSE_NAME@_weight_impl.h.jinja2",
@@ -159,6 +161,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                             "@SYNAPSE_NAME@.py.jinja2",
                             "@SYNAPSE_NAME@_timing.py.jinja2",
                             "@SYNAPSE_NAME@_weight.py.jinja2",
+                            "@SYNAPSE_NAME@_impl.py.jinja2",
                             "Makefile_@SYNAPSE_NAME@_impl.jinja2"],
             },
             "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra.mk.jinja2", "extra_neuron.mk.jinja2", "extra_synapse.mk.jinja2"]
@@ -187,7 +190,10 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py._target = "SpiNNaker"
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        _models = copy.deepcopy(models)
+        import logging
+        _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
+        #_models = copy.deepcopy(models)
         self.codegen_cpp.generate_code(_models)
-        _models = copy.deepcopy(models)
+        _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
+        #_models = copy.deepcopy(models)
         self.codegen_py.generate_code(_models)
