@@ -7,50 +7,6 @@
 #include <neuron/synapses.h>
 #include <neuron/plasticity/synapse_dynamics.h>
 
-#ifndef SYNAPSE_AXONAL_DELAY_BITS
-#define SYNAPSE_AXONAL_DELAY_BITS 3
-#endif
-
-#define SYNAPSE_AXONAL_DELAY_MASK \
-    ((1 << SYNAPSE_AXONAL_DELAY_BITS) - 1)
-
-typedef struct {
-    //! The event time
-} pre_event_history_t;
-
-typedef struct stdp_params {
-    //! The back-propagation delay, in basic simulation timesteps
-    uint32_t backprop_delay;
-} stdp_params;
-
-typedef struct fixed_stdp_synapse {
-    uint32_t delay_dendritic;
-    uint32_t delay_axonal;
-    uint32_t type;
-    uint32_t index;
-    uint32_t type_index;
-    uint32_t ring_buffer_index;
-} fixed_stdp_synapse;
-
-//! Configuration parameters
-static stdp_params params;
-
-//! \brief The history data of post-events
-// static post_event_history_t *post_event_history;
-
-//! Count of pre-synaptic events relevant to plastic processing
-static uint32_t num_plastic_pre_synaptic_events = 0;
-
-//! Count of times that the plastic math became saturated
-static uint32_t plastic_saturation_count = 0;
-
-/* PRIVATE FUNCTIONS */
-
-// Mark a value as possibly unused while not using any instructions, guaranteed
-#ifndef __use
-#define __use(x)    do { (void) (x); } while (0)
-#endif
-
 /*** SYNAPTIC DYNAMICS ***/
 // => Entrypoint for system calls
 
