@@ -15,9 +15,6 @@
 
 typedef struct {
     //! The event time
-    uint32_t prev_time;
-    //! The event trace
-    pre_trace_t prev_trace;
 } pre_event_history_t;
 
 typedef struct stdp_params {
@@ -38,7 +35,7 @@ typedef struct fixed_stdp_synapse {
 static stdp_params params;
 
 //! \brief The history data of post-events
-static post_event_history_t *post_event_history;
+// static post_event_history_t *post_event_history;
 
 //! Count of pre-synaptic events relevant to plastic processing
 static uint32_t num_plastic_pre_synaptic_events = 0;
