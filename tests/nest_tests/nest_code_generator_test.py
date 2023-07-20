@@ -51,24 +51,24 @@ class CodeGeneratorTest(unittest.TestCase):
         self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, 'target'))))
 
-    # def test_iaf_psc_alpha(self):
-    #     input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-    #         os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
+    def test_iaf_psc_alpha(self):
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
-    #     params = list()
-    #     params.append('--input_path')
-    #     params.append(input_path)
-    #     params.append('--logging_level')
-    #     params.append('INFO')
-    #     params.append('--target_path')
-    #     params.append(self.target_path)
-    #     params.append('--dev')
-    #     FrontendConfiguration.parse_config(params)
+        params = list()
+        params.append('--input_path')
+        params.append(input_path)
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append(self.target_path)
+        params.append('--dev')
+        FrontendConfiguration.parse_config(params)
 
-    #     compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_model(input_path)
 
-    #     nestCodeGenerator = NESTCodeGenerator()
-    #     nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
+        nestCodeGenerator = NESTCodeGenerator()
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -89,63 +89,63 @@ class CodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
 
-    # def test_iaf_cond_alpha_functional(self):
-    #     input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-    #         os.pardir, os.pardir, 'models', 'neurons', 'iaf_cond_alpha.nestml'))))
+    def test_iaf_cond_alpha_functional(self):
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_cond_alpha.nestml'))))
 
-    #     params = list()
-    #     params.append('--input_path')
-    #     params.append(input_path)
-    #     params.append('--logging_level')
-    #     params.append('INFO')
-    #     params.append('--target_path')
-    #     params.append(self.target_path)
-    #     params.append('--dev')
-    #     FrontendConfiguration.parse_config(params)
+        params = list()
+        params.append('--input_path')
+        params.append(input_path)
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append(self.target_path)
+        params.append('--dev')
+        FrontendConfiguration.parse_config(params)
 
-    #     compilation_unit = ModelParser.parse_model(input_path)
-    #     iaf_cond_alpha_functional = list()
-    #     iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
+        compilation_unit = ModelParser.parse_model(input_path)
+        iaf_cond_alpha_functional = list()
+        iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
 
-    #     nestCodeGenerator = NESTCodeGenerator()
-    #     nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
+        nestCodeGenerator = NESTCodeGenerator()
+        nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
 
-    # def test_iaf_psc_alpha_with_codegen_opts(self):
-    #     input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-    #         os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
+    def test_iaf_psc_alpha_with_codegen_opts(self):
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
-    #     code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-    #                                                        os.path.join('resources', 'code_options.json'))))
-    #     codegen_opts = {"templates": {
-    #         "path": "resources_nest/point_neuron",
-    #         "model_templates": {
-    #             "neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2'],
-    #             "synapse": []
-    #         },
-    #         "module_templates": ['setup/CMakeLists.txt.jinja2',
-    #                              'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
-    #     }}
+        code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                           os.path.join('resources', 'code_options.json'))))
+        codegen_opts = {"templates": {
+            "path": "resources_nest/point_neuron",
+            "model_templates": {
+                "neuron": ['@NEURON_NAME@.cpp.jinja2', '@NEURON_NAME@.h.jinja2'],
+                "synapse": []
+            },
+            "module_templates": ['setup/CMakeLists.txt.jinja2',
+                                 'setup/@MODULE_NAME@.h.jinja2', 'setup/@MODULE_NAME@.cpp.jinja2']
+        }}
 
-    #     with open(code_opts_path, 'w+') as f:
-    #         json.dump(codegen_opts, f)
+        with open(code_opts_path, 'w+') as f:
+            json.dump(codegen_opts, f)
 
-    #     params = list()
-    #     params.append('--input_path')
-    #     params.append(input_path)
-    #     params.append('--logging_level')
-    #     params.append('INFO')
-    #     params.append('--target_path')
-    #     params.append(self.target_path)
-    #     params.append('--dev')
-    #     params.append('--codegen_opts')
-    #     params.append(code_opts_path)
-    #     FrontendConfiguration.parse_config(params)
+        params = list()
+        params.append('--input_path')
+        params.append(input_path)
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append(self.target_path)
+        params.append('--dev')
+        params.append('--codegen_opts')
+        params.append(code_opts_path)
+        FrontendConfiguration.parse_config(params)
 
-    #     compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_model(input_path)
 
-    #     nestCodeGenerator = NESTCodeGenerator(codegen_opts)
-    #     nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator = NESTCodeGenerator(codegen_opts)
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
 
     def tearDown(self):
         import shutil
-        # shutil.rmtree(self.target_path)
+        shutil.rmtree(self.target_path)
