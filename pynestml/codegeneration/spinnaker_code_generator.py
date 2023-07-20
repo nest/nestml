@@ -153,7 +153,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "@NEURON_NAME@_impl.py.jinja2",
                            "@NEURON_NAME@_chain_example.py.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
-                "synapse": ["@SYNAPSE_NAME@_impl.h.jinja2",
+                "synapse": ["@SYNAPSE_NAME@_impl.c.jinja2",
                             "@SYNAPSE_NAME@_timing_impl.h.jinja2",
                             "@SYNAPSE_NAME@_timing_impl.c.jinja2",
                             "@SYNAPSE_NAME@_weight_impl.h.jinja2",
@@ -161,7 +161,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                             "@SYNAPSE_NAME@.py.jinja2",
                             "@SYNAPSE_NAME@_timing.py.jinja2",
                             "@SYNAPSE_NAME@_weight.py.jinja2",
-                            "@SYNAPSE_NAME@_impl.h.jinja2",
+                            "@SYNAPSE_NAME@_impl.py.jinja2",
                             "Makefile_@SYNAPSE_NAME@_impl.jinja2"],
             },
             "module_templates": ["Makefile_root.jinja2", "Makefile_models.jinja2", "extra.mk.jinja2", "extra_neuron.mk.jinja2", "extra_synapse.mk.jinja2"]
