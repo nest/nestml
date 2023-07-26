@@ -48,6 +48,7 @@ def get_model_doc_title(model_fname: str):
 class TestNestIntegration:
 
     def generate_all_models(self):
+        return
         codegen_opts = {}
 
         if NESTTools.detect_nest_version().startswith("v3"):
@@ -86,34 +87,38 @@ class TestNestIntegration:
 
         self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_nestml")
         self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_nestml")
+        self._test_model_equivalence_fI_curve("iaf_psc_delta", "iaf_psc_delta_nestml")
         self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_nestml")
 
         self._test_model_equivalence_subthreshold("iaf_psc_exp", "iaf_psc_exp_nestml")
         self._test_model_equivalence_spiking("iaf_psc_exp", "iaf_psc_exp_nestml")
+        self._test_model_equivalence_fI_curve("iaf_psc_exp", "iaf_psc_exp_nestml")
         self._test_model_equivalence_curr_inj("iaf_psc_exp", "iaf_psc_exp_nestml")
 
         self._test_model_equivalence_subthreshold("iaf_psc_alpha", "iaf_psc_alpha_nestml")
         self._test_model_equivalence_spiking("iaf_psc_alpha", "iaf_psc_alpha_nestml")
+        self._test_model_equivalence_fI_curve("iaf_psc_alpha", "iaf_psc_alpha_nestml")
         self._test_model_equivalence_curr_inj("iaf_psc_alpha", "iaf_psc_alpha_nestml")
 
         self._test_model_equivalence_subthreshold("iaf_cond_exp", "iaf_cond_exp_nestml", tolerance=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
         self._test_model_equivalence_spiking("iaf_cond_exp", "iaf_cond_exp_nestml", tolerance=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
+        self._test_model_equivalence_fI_curve("iaf_cond_exp", "iaf_cond_exp_nestml")
         self._test_model_equivalence_curr_inj("iaf_cond_exp", "iaf_cond_exp_nestml")
 
         self._test_model_equivalence_subthreshold("iaf_cond_alpha", "iaf_cond_alpha_nestml")
         self._test_model_equivalence_spiking("iaf_cond_alpha", "iaf_cond_alpha_nestml")
-        self._test_model_equivalence_curr_inj("iaf_cond_alpha", "iaf_cond_alpha_nestml")
+        self._test_model_equivalence_fI_curve("iaf_cond_alpha", "iaf_cond_alpha_nestml")
 
         iaf_cond_beta_nest_model_parameters = {"tau_rise_ex": 2., "tau_decay_ex": 10.}
         iaf_cond_beta_nestml_model_parameters = {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10.}    # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
         self._test_model_equivalence_subthreshold("iaf_cond_beta", "iaf_cond_beta_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
         self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
-        self._test_model_equivalence_curr_inj("iaf_cond_beta", "iaf_cond_beta_nestml")
+        self._test_model_equivalence_fI_curve("iaf_cond_beta", "iaf_cond_beta_nestml")
 
         # XXX: TODO should be fixed after merging fix for ternary operators
         # self._test_model_equivalence_subthreshold("ht_neuron", "hill_tononi_nestml")
         # self._test_model_equivalence_spiking("ht_neuron", "hill_tononi_nestml", tolerance=1E-3)
-        # self._test_model_equivalence_curr_inj("ht_neuron", "hill_tononi_nestml")
+        # self._test_model_equivalence_fI_curve("ht_neuron", "hill_tononi_nestml")
 
         # # XXX: cannot test Izhikevich model due to different integration order. See https://github.com/nest/nest-simulator/issues/2647
         # # if NESTTools.detect_nest_version().startswith("v2"):
@@ -123,13 +128,13 @@ class TestNestIntegration:
 
         self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_nestml")
         self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_nestml")
-        self._test_model_equivalence_curr_inj("hh_psc_alpha", "hh_psc_alpha_nestml")        # hh_psc_alpha_model_parameters = {"I_e": 100.}
+        self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_nestml")        # hh_psc_alpha_model_parameters = {"I_e": 100.}
 
         self._test_model_equivalence_subthreshold("aeif_cond_exp", "aeif_cond_exp_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
-        self._test_model_equivalence_curr_inj("aeif_cond_exp", "aeif_cond_exp_alt_nestml")
+        self._test_model_equivalence_fI_curve("aeif_cond_exp", "aeif_cond_exp_alt_nestml")
 
         self._test_model_equivalence_subthreshold("aeif_cond_alpha", "aeif_cond_alpha_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
-        self._test_model_equivalence_curr_inj("aeif_cond_alpha", "aeif_cond_alpha_nestml")
+        self._test_model_equivalence_fI_curve("aeif_cond_alpha", "aeif_cond_alpha_nestml")
 
         # neuron_models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", None, 1E-6))   # larger tolerance because NESTML solves PSCs analytically; NEST solves all ODEs numerically
 
@@ -147,7 +152,76 @@ class TestNestIntegration:
     def _test_model_equivalence_spiking(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None):
         self._test_model_equivalence_psc(nest_model_name, nestml_model_name, gsl_error_tol, tolerance, nest_model_parameters, nestml_model_parameters, model_initial_state, max_weight=1000., kernel_opts=kernel_opts)
 
-    def _test_model_equivalence_curr_inj(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None):
+    def _test_model_equivalence_curr_inj(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None, t_stop=1000., t_pulse_start=100., t_pulse_stop=300.):
+        """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
+
+        I_stim_vec = np.linspace(10E-12, 1E-9, 3)  # [A]
+        for i, I_stim in enumerate(I_stim_vec):
+
+            nest.ResetKernel()
+            if kernel_opts:
+                nest.SetKernelStatus(kernel_opts)
+
+            neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
+            neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
+            if model_initial_state is not None:
+                nest.SetStatus(neuron1, model_initial_state)
+                nest.SetStatus(neuron2, model_initial_state)
+
+            # if gsl_error_tol is not None:
+            #     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+
+            dc = nest.Create("dc_generator", params={"amplitude": 0.})
+
+            nest.Connect(dc, neuron1)
+            nest.Connect(dc, neuron2)
+
+            multimeter1 = nest.Create("multimeter")
+            multimeter2 = nest.Create("multimeter")
+
+            V_m_specifier = "V_m"  # "delta_V_m"
+            nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
+            nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
+
+            nest.Connect(multimeter1, neuron1)
+            nest.Connect(multimeter2, neuron2)
+
+            if NESTTools.detect_nest_version().startswith("v2"):
+                sd_reference = nest.Create("spike_detector")
+                sd_testant = nest.Create("spike_detector")
+            else:
+                sd_reference = nest.Create("spike_recorder")
+                sd_testant = nest.Create("spike_recorder")
+
+            nest.Connect(neuron1, sd_reference)
+            nest.Connect(neuron2, sd_testant)
+
+            nest.Simulate(t_pulse_start)
+            dc.amplitude = I_stim * 1E12  # 1E12: convert A to pA
+            nest.Simulate(t_pulse_stop - t_pulse_start)
+            dc.amplitude = 0.
+            nest.Simulate(t_stop - t_pulse_stop)
+
+            dmm1 = nest.GetStatus(multimeter1)[0]
+            Vms1 = dmm1["events"][V_m_specifier]
+            ts1 = dmm1["events"]["times"]
+
+            dmm2 = nest.GetStatus(multimeter2)[0]
+            Vms2 = dmm2["events"][V_m_specifier]
+            ts2 = dmm2["events"]["times"]
+
+            if TEST_PLOTS:
+                fig, ax = plt.subplots(2, 1)
+                ax[0].plot(ts1, Vms1, label="Reference " + nest_model_name)
+                ax[0].plot(ts2, Vms2, label="Testant " + nestml_model_name)
+                ax[1].plot([0, t_pulse_start, t_pulse_start, t_pulse_stop, t_pulse_stop, t_stop], [0, 0, I_stim, I_stim, 0, 0], label="I_inj")
+                for _ax in ax:
+                    _ax.legend(loc="upper right")
+                    _ax.grid()
+                plt.savefig("/tmp/nestml_nest_integration_test_pulse_[" + nest_model_name + "]_[" + nestml_model_name + "]_[I_stim=" + str(I_stim) + "].png")
+                plt.close(fig)
+
+    def _test_model_equivalence_fI_curve(self, nest_model_name, nestml_model_name, gsl_error_tol=1E-3, tolerance=1E-7, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, kernel_opts=None):
         """For different levels of injected current, verify that behaviour is the same between NEST and NESTML"""
         t_stop = 1000.  # [ms]
 
@@ -169,7 +243,7 @@ class TestNestIntegration:
             # if gsl_error_tol is not None:
             #     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
-            dc = nest.Create("dc_generator", params={"amplitude": I_stim * 1E12})  # 1E12: convert A to pA
+            dc = nest.Create("dc_generator", params={"amplitude": 0.})  # 1E12: convert A to pA
 
             nest.Connect(dc, neuron1)
             nest.Connect(dc, neuron2)

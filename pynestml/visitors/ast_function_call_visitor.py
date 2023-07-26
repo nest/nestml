@@ -89,26 +89,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
         return_type.referenced_object = node
 
-        # convolve symbol does not have a return type set.
-        # returns whatever type the second parameter is.
-        if function_name == PredefinedFunctions.CONVOLVE:
-            # Deviations from the assumptions made here are handled in the convolveCoco
-            buffer_parameter = node.get_function_call().get_args()[1]
-
-            if buffer_parameter.get_variable() is not None:
-                buffer_name = buffer_parameter.get_variable().get_name()
-                buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
-                if buffer_symbol_resolve is not None:
-                    node.type = buffer_symbol_resolve.get_type_symbol()
-                    return
-
-            # getting here means there is an error with the parameters to convolve
-            code, message = Messages.get_convolve_needs_buffer_parameter()
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-            node.type = ErrorTypeSymbol()
-            return
-
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
             # todo: the error message is not used here, fix this
             # error_msg = ErrorStrings.message_void_function_on_rhs(self, function_name, node.get_source_position())

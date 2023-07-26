@@ -74,9 +74,9 @@ class SymbolTableBuilderTest(unittest.TestCase):
             # update the corresponding symbol tables
             SymbolTable.initialize_symbol_table(ast.get_source_position())
             symbol_table_visitor = ASTSymbolTableVisitor()
-            for neuron in ast.get_neuron_list():
-                neuron.accept(symbol_table_visitor)
-                SymbolTable.add_neuron_scope(name=neuron.get_name(), scope=neuron.get_scope())
+            for model in ast.get_model_list():
+                model.accept(symbol_table_visitor)
+                SymbolTable.add_neuron_scope(name=model.get_name(), scope=model.get_scope())
             self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 

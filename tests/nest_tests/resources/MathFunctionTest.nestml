@@ -1,4 +1,4 @@
-""" 
+"""
 MathFunctionTest.nestml
 #######################
 
@@ -23,7 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron math_function_test:
+model math_function_test:
     state:
         x real = 0.
         ln_state real = 0.

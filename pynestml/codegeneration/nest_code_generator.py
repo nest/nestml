@@ -52,13 +52,9 @@ from pynestml.codegeneration.printers.unitless_sympy_simple_expression_printer i
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -210,15 +206,15 @@ class NESTCodeGenerator(CodeGenerator):
 
         return ret
 
-    def run_nest_target_specific_cocos(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
+    def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for synapse in synapses:
             CoCoNESTDelayDecoratorSpecified.check_co_co(synapse)
             if Logger.has_errors(synapse):
                 raise Exception("Error(s) occurred during code generation")
 
-    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        neurons = [model for model in models if isinstance(model, ASTNeuron)]
-        synapses = [model for model in models if isinstance(model, ASTSynapse)]
+    def generate_code(self, models: Sequence[ASTModel]) -> None:
+        neurons = [model for model in models if not "synapse" in model.name]
+        synapses = [model for model in models if "synapse" in model.name]
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
@@ -230,7 +226,7 @@ class NESTCodeGenerator(CodeGenerator):
             if Logger.has_errors(astnode):
                 raise Exception("Error(s) occurred during code generation")
 
-    def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
+    def _get_module_namespace(self, neurons: List[ASTModel], synapses: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
@@ -242,13 +238,13 @@ class NESTCodeGenerator(CodeGenerator):
                      "now": datetime.datetime.utcnow()}
         return namespace
 
-    def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
+    def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            code, message = Messages.get_analysing_transforming_neuron(neuron.get_name())
+            code, message = Messages.get_analysing_transforming_model(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
@@ -256,7 +252,7 @@ class NESTCodeGenerator(CodeGenerator):
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
 
-    def analyse_transform_synapses(self, synapses: List[ASTSynapse]) -> None:
+    def analyse_transform_synapses(self, synapses: List[ASTModel]) -> None:
         """
         Analyse and transform a list of synapses.
         :param synapses: a list of synapses.
@@ -266,12 +262,10 @@ class NESTCodeGenerator(CodeGenerator):
             spike_updates = self.analyse_synapse(synapse)
             synapse.spike_updates = spike_updates
 
-    def analyse_neuron(self, neuron: ASTNeuron) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
-        :return: see documentation for get_spike_update_expressions() for more information.
-        :return: post_spike_updates: list of post-synaptic spike update expressions
         :return: equations_with_delay_vars: list of equations containing delay variables
         :return: equations_with_vector_vars: list of equations containing delay variables
         """
@@ -292,8 +286,6 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
-        kernel_buffers = ASTUtils.generate_kernel_buffers_(neuron, equations_block)
-        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTUtils.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
@@ -308,7 +300,7 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(eqns_with_vector_vars_visitor)
         equations_with_vector_vars = eqns_with_vector_vars_visitor.equations
 
-        analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
+        analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron)
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
 
@@ -322,22 +314,13 @@ class NESTCodeGenerator(CodeGenerator):
                             if ode_eq.get_lhs().get_name() == var.get_name():
                                 used_in_eq = True
                                 break
-                        for kern in equations_block.get_kernels():
-                            for kern_var in kern.get_variables():
-                                if kern_var.get_name() == var.get_name():
-                                    used_in_eq = True
-                                    break
 
                     if not used_in_eq:
                         self.non_equations_state_variables[neuron.get_name()].append(var)
 
-        ASTUtils.remove_initial_values_for_kernels(neuron)
-        kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
         ASTUtils.remove_ode_definitions_from_equations_block(neuron)
-        ASTUtils.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
-        ASTUtils.replace_convolution_aliasing_inlines(neuron)
         ASTUtils.add_timestep_symbol(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
@@ -350,12 +333,9 @@ class NESTCodeGenerator(CodeGenerator):
         # Update the delay parameter parameters after symbol table update
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
-        spike_updates, post_spike_updates = self.get_spike_update_expressions(
-            neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+        return equations_with_delay_vars, equations_with_vector_vars
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
-
-    def analyse_synapse(self, synapse: ASTSynapse) -> Dict[str, ASTAssignment]:
+    def analyse_synapse(self, synapse: ASTModel) -> Dict[str, ASTAssignment]:
         """
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
@@ -363,7 +343,6 @@ class NESTCodeGenerator(CodeGenerator):
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
-        spike_updates = {}
         if synapse.get_equations_blocks():
             if len(synapse.get_equations_blocks()) > 1:
                 raise Exception("Only one equations block per model supported for now")
@@ -371,21 +350,16 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
-            kernel_buffers = ASTUtils.generate_kernel_buffers_(synapse, equations_block)
-            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
             ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
             ASTUtils.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
 
-            analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
+            analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse)
             self.analytic_solver[synapse.get_name()] = analytic_solver
             self.numeric_solver[synapse.get_name()] = numeric_solver
 
-            ASTUtils.remove_initial_values_for_kernels(synapse)
-            kernels = ASTUtils.remove_kernel_definitions_from_equations_block(synapse)
             ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
             ASTUtils.remove_ode_definitions_from_equations_block(synapse)
-            ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
@@ -395,16 +369,12 @@ class NESTCodeGenerator(CodeGenerator):
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
             self.update_symbol_table(synapse)
-            spike_updates, _ = self.get_spike_update_expressions(
-                synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
         else:
             ASTUtils.add_timestep_symbol(synapse)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
 
-        return spike_updates
-
-    def _get_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
 
         namespace = {}
 
@@ -448,7 +418,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def _get_synapse_model_namespace(self, synapse: ASTSynapse) -> Dict:
+    def _get_synapse_model_namespace(self, synapse: ASTModel) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
@@ -527,12 +497,8 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
             namespace["analytic_state_variables_except_convolutions"] = []
-            namespace["analytic_state_variables_from_convolutions"] = []
             for sym in namespace["analytic_state_variables"]:
-                if "__X__" in sym:
-                    namespace["analytic_state_variables_from_convolutions"].append(sym)
-                else:
-                    namespace["analytic_state_variables_except_convolutions"].append(sym)
+                namespace["analytic_state_variables_except_convolutions"].append(sym)
             namespace["propagators"] = self.analytic_solver[synapse.get_name()]["propagators"]
 
         namespace["uses_numeric_solver"] = synapse.get_name() in self.numeric_solver.keys() \
@@ -559,7 +525,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
@@ -627,12 +593,8 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
 
             namespace["analytic_state_variables_except_convolutions"] = []
-            namespace["analytic_state_variables_from_convolutions"] = []
             for sym in namespace["analytic_state_variables"]:
-                if "__X__" in sym:
-                    namespace["analytic_state_variables_from_convolutions"].append(sym)
-                else:
-                    namespace["analytic_state_variables_except_convolutions"].append(sym)
+                namespace["analytic_state_variables_except_convolutions"].append(sym)
 
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace["initial_values"][sym] = expr
@@ -745,8 +707,7 @@ class NESTCodeGenerator(CodeGenerator):
                     sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
                     if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol)) \
-                       and sym.is_recordable \
-                       and not ASTUtils.is_delta_kernel(neuron.get_kernel_by_name(sym.name)):
+                       and sym.is_recordable:
                         namespace["recordable_state_variables"].append(var)
 
         namespace["parameter_vars_with_iv"] = []
@@ -755,7 +716,7 @@ class NESTCodeGenerator(CodeGenerator):
                 for var in decl.get_variables():
                     sym = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
-                    if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name)):
+                    if sym.has_declaring_expression():
                         namespace["parameter_vars_with_iv"].append(var)
 
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
@@ -764,7 +725,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def ode_toolbox_analysis(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+    def ode_toolbox_analysis(self, neuron: ASTModel):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
@@ -773,11 +734,11 @@ class NESTCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_blocks()[0]
 
-        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
+        if len(equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
 
-        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
+        odetoolbox_indict = ASTUtils.transform_odes_to_json(neuron, neuron.get_parameters_blocks(), printer=self._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         disable_analytic_solver = self.get_option("solver") != "analytic"
@@ -821,98 +782,3 @@ class NESTCodeGenerator(CodeGenerator):
         symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
         SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
-
-    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
-        r"""
-        Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ODE-toolbox.
-
-        For example, a resulting ``assignment_str`` could be "I_kernel_in += (inh_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
-
-        Note that for kernels, ``initial_values`` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
-
-        ``spike_updates`` is a mapping from input port name (as a string) to update expressions.
-
-        ``post_spike_updates`` is a mapping from kernel name (as a string) to update expressions.
-        """
-        spike_updates = {}
-        post_spike_updates = {}
-
-        for kernel, spike_input_port in kernel_buffers:
-            if ASTUtils.is_delta_kernel(kernel):
-                continue
-
-            spike_input_port_name = spike_input_port.get_variable().get_name()
-
-            if not spike_input_port_name in spike_updates.keys():
-                spike_updates[str(spike_input_port)] = []
-
-            if "_is_post_port" in dir(spike_input_port.get_variable()) \
-               and spike_input_port.get_variable()._is_post_port:
-                # it's a port in the neuron that receives post spikes
-                orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
-                buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
-            else:
-                buffer_type = neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE).get_type_symbol()
-
-            assert not buffer_type is None
-
-            for kernel_var in kernel.get_variables():
-                for var_order in range(ASTUtils.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
-                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(
-                        kernel_var.get_name(), spike_input_port, var_order)
-                    expr = ASTUtils.get_initial_value_from_ode_toolbox_result(
-                        kernel_spike_buf_name, solver_dicts)
-                    assert expr is not None, "Initial value not found for kernel " + kernel_var
-                    expr = str(expr)
-                    if expr in ["0", "0.", "0.0"]:
-                        continue    # skip adding the statement if we are only adding zero
-
-                    assignment_str = kernel_spike_buf_name + " += "
-                    if "_is_post_port" in dir(spike_input_port.get_variable()) \
-                       and spike_input_port.get_variable()._is_post_port:
-                        assignment_str += "1."
-                    else:
-                        assignment_str += "(" + str(spike_input_port) + ")"
-                    if not expr in ["1.", "1.0", "1"]:
-                        assignment_str += " * (" + expr + ")"
-
-                    if not buffer_type.print_nestml_type() in ["1.", "1.0", "1", "real", "integer"]:
-                        assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
-
-                    ast_assignment = ModelParser.parse_assignment(assignment_str)
-                    ast_assignment.update_scope(neuron.get_scope())
-                    ast_assignment.accept(ASTSymbolTableVisitor())
-
-                    if neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE) is None:
-                        # this case covers variables that were moved from synapse to the neuron
-                        post_spike_updates[kernel_var.get_name()] = ast_assignment
-                    elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
-                        Logger.log_message(None, None, "Adding post assignment string: " + str(ast_assignment), None, LoggingLevel.INFO)
-                        spike_updates[str(spike_input_port)].append(ast_assignment)
-                    else:
-                        spike_updates[str(spike_input_port)].append(ast_assignment)
-
-        for k, factor in delta_factors.items():
-            var = k[0]
-            inport = k[1]
-            assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
-            if not factor in ["1.", "1.0", "1"]:
-                factor_expr = ModelParser.parse_expression(factor)
-                factor_expr.update_scope(neuron.get_scope())
-                factor_expr.accept(ASTSymbolTableVisitor())
-                assignment_str += "(" + self._printer_no_origin.print_expression(factor_expr) + ") * "
-
-            assignment_str += str(inport)
-            ast_assignment = ModelParser.parse_assignment(assignment_str)
-            ast_assignment.update_scope(neuron.get_scope())
-            ast_assignment.accept(ASTSymbolTableVisitor())
-
-            inport_name = inport.get_name()
-            if inport.has_vector_parameter():
-                inport_name += "_" + str(ASTUtils.get_numeric_vector_size(inport))
-            if not inport_name in spike_updates.keys():
-                spike_updates[inport_name] = []
-
-            spike_updates[inport_name].append(ast_assignment)
-
-        return spike_updates, post_spike_updates

@@ -36,7 +36,7 @@ References
     Stable Hebbian learning from spike timing-dependent
     plasticity, Journal of Neuroscience, 20:23,8812--8821
 """
-synapse third_factor_stdp:
+model third_factor_stdp_synapse:
     state:
         w real = 1.   # Synaptic weight
 

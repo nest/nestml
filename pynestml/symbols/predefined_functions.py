@@ -49,14 +49,12 @@ class PredefinedFunctions:
     RANDOM_NORMAL = "random_normal"
     RANDOM_UNIFORM = "random_uniform"
     EXPM1 = "expm1"
-    DELTA = "delta"
     CLIP = "clip"
     POW = "pow"
     MAX = "max"
     MIN = "min"
     ABS = "abs"
     INTEGRATE_ODES = "integrate_odes"
-    CONVOLVE = "convolve"
     DELIVER_SPIKE = "deliver_spike"
     PROCESS_INPUT = "process_input"
     name2function = {}   # type: Mapping[str, FunctionSymbol]
@@ -85,14 +83,12 @@ class PredefinedFunctions:
         cls.__register_random_normal_function()
         cls.__register_random_uniform_function()
         cls.__register_exp1_function()
-        cls.__register_delta_function()
         cls.__register_clip_function()
         cls.__register_pow_function()
         cls.__register_max_function()
         cls.__register_min_function()
         cls.__register_abs_function()
         cls.__register_integrate_odes_function()
-        cls.__register_convolve()
         cls.__register_deliver_spike()
         cls.__register_process_input_function()
 
@@ -312,18 +308,6 @@ class PredefinedFunctions:
         cls.name2function[cls.EXPM1] = symbol
 
     @classmethod
-    def __register_delta_function(cls):
-        """
-        Registers the delta function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_type("ms"))
-        symbol = FunctionSymbol(name=cls.DELTA, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.DELTA] = symbol
-
-    @classmethod
     def __register_clip_function(cls):
         """
         Registers the clip function (bound a number between a minimum and a
@@ -427,19 +411,6 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.DELIVER_SPIKE] = symbol
-
-    @classmethod
-    def __register_convolve(cls):
-        """
-        Registers the convolve function into the system.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.CONVOLVE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.CONVOLVE] = symbol
 
     @classmethod
     def get_function_symbols(cls):

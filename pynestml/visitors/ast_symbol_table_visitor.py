@@ -20,6 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_stmt import ASTStmt
@@ -52,13 +54,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.block_type_stack = Stack()
         self.after_ast_rewrite_ = False
 
-    def visit_neuron(self, node):
+    def visit_model(self, node: ASTModel) -> None:
         """
-        Private method: Used to visit a single neuron and create the corresponding global as well as local scopes.
-        :return: a single neuron.
-        :rtype: ast_neuron
+        Used to visit a single model and create the corresponding global as well as local scopes.
         """
-        # set current processed neuron
         Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
@@ -77,7 +76,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for symbol in types.keys():
             node.get_scope().add_symbol(types[symbol])
 
-    def endvisit_neuron(self, node):
+    def endvisit_model(self, node: ASTModel):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
 
@@ -87,61 +86,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         Logger.set_current_node(None)
 
-    def visit_neuron_or_synapse_body(self, node):
+    def visit_model_body(self, node: ASTModelBody):
         """
-        Private method: Used to visit a single neuron body and create the corresponding scope.
+        Private method: Used to visit a single model body and create the corresponding scope.
         :param node: a single body element.
-        :type node: ast_body
         """
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
-
-    def visit_synapse(self, node):
-        """
-        Private method: Used to visit a single synapse and create the corresponding global as well as local scopes.
-        :return: a single synapse.
-        :rtype: ast_synapse
-        """
-        # set current processed synapse
-        # Logger.set_current_synapse(node)
-        Logger.set_current_node(node)
-        code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.DEBUG)
-        # before starting the work on the synapse, make everything which was implicit explicit
-        # but if we have a model without an equations block, just skip this step
-        scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
-
-        node.update_scope(scope)
-        node.get_body().update_scope(scope)
-        # now first, we add all predefined elements to the scope
-        variables = PredefinedVariables.get_variables()
-        functions = PredefinedFunctions.get_function_symbols()
-        types = PredefinedTypes.get_types()
-        for symbol in variables.keys():
-            node.get_scope().add_symbol(variables[symbol])
-        for symbol in functions.keys():
-            node.get_scope().add_symbol(functions[symbol])
-        for symbol in types.keys():
-            node.get_scope().add_symbol(types[symbol])
-
-    def endvisit_synapse(self, node):
-        # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node)
-        Logger.set_current_node(None)
-
-    def endvisit_synapse_body(self, node):
-        return
-
-    def visit_synapse_body(self, node):
-        """
-        Private method: Used to visit a single synapse body and create the corresponding scope.
-        :param node: a single body element.
-        :type node: ast_body
-        """
-        for synapseBodyElement in node.get_body_elements():
-            synapseBodyElement.update_scope(node.get_scope())
-        return
 
     def visit_function(self, node):
         """
@@ -520,29 +471,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_scope().add_symbol(symbol)
         node.get_data_type().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
-
-    def visit_kernel(self, node):
-        """
-        Private method: Used to visit a single kernel, create the corresponding symbol and update the scope.
-        :param node: a kernel.
-        :type node: ASTKernel
-        """
-        for var, expr in zip(node.get_variables(), node.get_expressions()):
-            if var.get_differential_order() == 0 and \
-                    node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
-                symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
-                                        name=var.get_name(),
-                                        block_type=BlockType.EQUATION,
-                                        declaring_expression=expr,
-                                        is_predefined=False,
-                                        is_inline_expression=False,
-                                        is_recordable=True,
-                                        type_symbol=PredefinedTypes.get_real_type(),
-                                        variable_type=VariableType.KERNEL)
-                symbol.set_comment(node.get_comment())
-                node.get_scope().add_symbol(symbol)
-            var.update_scope(node.get_scope())
-            expr.update_scope(node.get_scope())
 
     def visit_ode_equation(self, node):
         """

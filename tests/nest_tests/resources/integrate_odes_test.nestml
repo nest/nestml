@@ -1,7 +1,7 @@
 """
 Model for testing the integrate_odes() function.
 """
-neuron integrate_odes_test:
+model integrate_odes_test:
     state:
         test_1 real = 0.
         test_2 real = 0.

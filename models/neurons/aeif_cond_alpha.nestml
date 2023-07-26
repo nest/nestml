@@ -106,8 +106,6 @@ neuron aeif_cond_alpha:
         spike
 
     update:
-        process_input(I_stim)
-
         integrate_odes(w)
 
         if r > 0:
@@ -118,8 +116,8 @@ neuron aeif_cond_alpha:
 
         process_input(exc_spikes, inh_spikes)
 
-        if V_m >= V_th:
-            r = RefractoryCounts
-            V_m = V_reset # clamp potential
-            w += b
-            emit_spike()
+    onCondition(V_m >= V_th):
+        r = RefractoryCounts
+        V_m = V_reset # clamp potential
+        w += b
+        emit_spike()

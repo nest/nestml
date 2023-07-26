@@ -108,7 +108,7 @@ class LatexExpressionPrinter(ExpressionPrinter):
         result = function_call.get_name()
 
         symbols = {
-            "convolve": r"\\text{convolve}"
+            "integrate_odes": r"\\text{\texttt{integrate\_odes}}"
         }
 
         for symbol_find, symbol_replace in symbols.items():

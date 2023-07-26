@@ -218,10 +218,8 @@ class Neuron_{{neuronName}}(Neuron):
   # -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
 {%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberVariableGetterSetter.jinja2" %}
-{%-   endif %}
 {%- endfor %}
 {%- endfilter %}
 

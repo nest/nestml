@@ -24,7 +24,6 @@ from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbol_table.scope import Scope
@@ -41,7 +40,6 @@ class VariableType(Enum):
     """
     Indicates to which type of variable this is.
     """
-    KERNEL = 0
     VARIABLE = 1
     BUFFER = 2
     EQUATION = 3
@@ -79,7 +77,7 @@ class VariableSymbol(Symbol):
         ode_declaration       Used to store the corresponding ode declaration.
         is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value         Indicates the initial value if such is declared.
-        variable_type         The type of the variable, either a kernel, or buffer or function. Type: VariableType
+        variable_type         The type of the variable, either a buffer or function. Type: VariableType
     """
 
     def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
@@ -118,7 +116,7 @@ class VariableSymbol(Symbol):
         self.type_symbol = type_symbol
         self.initial_value = initial_value
         self.variable_type = variable_type
-        self.ode_or_kernel = None
+        self.ode = None
         if decorators is None:
             decorators = []
         if namespace_decorators is None:
@@ -295,13 +293,6 @@ class VariableSymbol(Symbol):
         """
         return self.block_type == BlockType.OUTPUT
 
-    def is_kernel(self) -> bool:
-        """
-        Returns whether this variable belongs to the definition of a kernel.
-        :return: True if part of a kernel definition, otherwise False.
-        """
-        return self.variable_type == VariableType.KERNEL
-
     def print_symbol(self):
         if self.get_referenced_object() is not None:
             source_position = str(self.get_referenced_object().get_source_position())
@@ -338,26 +329,25 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.ode_or_kernel is not None and (isinstance(self.ode_or_kernel, ASTExpression)
-                                                   or isinstance(self.ode_or_kernel, ASTSimpleExpression)
-                                                   or isinstance(self.ode_or_kernel, ASTKernel)
-                                                   or isinstance(self.ode_or_kernel, ASTOdeEquation))
+        return self.ode is not None and (isinstance(self.ode, ASTExpression)
+                                                   or isinstance(self.ode, ASTSimpleExpression)
+                                                   or isinstance(self.ode, ASTOdeEquation))
 
-    def get_ode_or_kernel(self):
+    def get_ode(self):
         """
-        Returns the ODE or kernel defining the value of this variable symbol.
+        Returns the ODE defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression or ASTSimpleExpression or ASTKernel
+        :rtype: ASTExpression or ASTSimpleExpression
         """
-        return self.ode_or_kernel
+        return self.ode
 
-    def set_ode_or_kernel(self, expression):
+    def set_ode(self, expression):
         """
         Updates the currently stored ode-definition to the handed-over one.
         :param expression: a single rhs object.
         :type expression: ASTExpression
         """
-        self.ode_or_kernel = expression
+        self.ode = expression
 
     def is_conductance_based(self) -> bool:
         """

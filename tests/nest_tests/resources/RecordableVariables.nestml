@@ -28,15 +28,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron recordable_variables:
+model recordable_variables:
     state:
         V_ex mV = -5 mV
         V_rel mV = 0 mV  # Membrane potential relative to the reset potential
+        I_syn pA = 0 pA
 
     equations:
-        kernel I_kernel = exp(-1/tau_syn*t)
-        inline I_syn pA = convolve(I_kernel, spikes)
         recordable inline V_m mV = V_rel + V_reset
+        I_syn' = -I_syn / tau_syn
         V_rel' = -V_rel / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
@@ -50,6 +50,9 @@ neuron recordable_variables:
     input:
         spikes pA <- spike
         I_stim pA <- continuous
+
+    onReceive(spikes):
+        I_syn += spikes
 
     update:
         integrate_odes()

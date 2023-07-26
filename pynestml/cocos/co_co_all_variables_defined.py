@@ -21,7 +21,7 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
@@ -41,7 +41,7 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron, after_ast_rewrite: bool = False):
+    def check_co_co(cls, node: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
@@ -62,32 +62,6 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # test if the symbol has been defined at least
                 if symbol is None:
-                    if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
-                        symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                        if symbol2 is not None:
-                            # an inline expression defining this variable name (ignoring differential order) exists
-                            if "__X__" in str(symbol2):     # if this variable was the result of a convolution...
-                                continue
-                    else:
-                        # for kernels, also allow derivatives of that kernel to appear
-
-                        inline_expr_names = []
-                        inline_exprs = []
-                        for equations_block in node.get_equations_blocks():
-                            inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
-                            inline_exprs.extend(equations_block.get_inline_expressions())
-
-                        if var.get_name() in inline_expr_names:
-                            inline_expr_idx = inline_expr_names.index(var.get_name())
-                            inline_expr = inline_exprs[inline_expr_idx]
-                            from pynestml.utils.ast_utils import ASTUtils
-                            if ASTUtils.inline_aliases_convolution(inline_expr):
-                                symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                                if symbol2 is not None:
-                                    # actually, no problem detected, skip error
-                                    # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                    continue
-
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
                     if symbol2 is not None:

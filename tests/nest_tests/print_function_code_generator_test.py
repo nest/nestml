@@ -62,10 +62,10 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'simple_print_test.cpp')))), 'r') as reader:
@@ -84,10 +84,10 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_variables.cpp')))), 'r') as reader:
@@ -106,10 +106,10 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_variable.cpp')))), 'r') as reader:
@@ -128,10 +128,10 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_function.cpp')))), 'r') as reader:

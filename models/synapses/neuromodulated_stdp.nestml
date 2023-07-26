@@ -23,7 +23,7 @@ References
        of STDP and dopamine signaling. Cerebral Cortex, 17(10):2443-2452.
        DOI: https://doi.org/10.1093/cercor/bhl152
 """
-synapse neuromodulated_stdp:
+model neuromodulated_stdp_synapse:
     state:
         w real = 1.
         n real = 0.   # Neuromodulator concentration
@@ -84,3 +84,5 @@ synapse neuromodulated_stdp:
                  - b * tau_c * expm1( -resolution() / tau_c ))
         c = c * exp(-resolution() / tau_c)
         n = n * exp(-resolution() / tau_n)
+
+        integrate_odes(pre_tr, post_tr)

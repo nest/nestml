@@ -45,12 +45,12 @@ from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
@@ -58,7 +58,6 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -76,7 +75,7 @@ class NESTMLPrinter(ModelPrinter):
     def __init__(self):
         self.indent = 0
 
-    def print_neuron(self, node: ASTNeuron) -> str:
+    def print_neuron(self, node: ASTModel) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         self.inc_indent()
         ret += "neuron " + node.get_name() + ":" + print_sl_comment(node.in_comment)
@@ -84,7 +83,7 @@ class NESTMLPrinter(ModelPrinter):
         self.dec_indent()
         return ret
 
-    def print_synapse(self, node: ASTSynapse) -> str:
+    def print_synapse(self, node: ASTModel) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         self.inc_indent()
         ret += "synapse " + node.get_name() + ":" + print_sl_comment(node.in_comment)
@@ -177,7 +176,7 @@ class NESTMLPrinter(ModelPrinter):
         self.dec_indent()
         return ret
 
-    def print_neuron_or_synapse_body(self, node: ASTNeuronOrSynapseBody) -> str:
+    def print_model_body(self, node: ASTModelBody) -> str:
         ret = ""
         for elem in node.body_elements:
             ret += self.print(elem)
@@ -400,13 +399,9 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
         ret = ""
-        if node.get_neuron_list() is not None:
-            for neuron in node.get_neuron_list():
-                ret += self.print(neuron)
-
-        if node.get_synapse_list() is not None:
-            for synapse in node.get_synapse_list():
-                ret += self.print(synapse)
+        if node.get_model_list() is not None:
+            for model in node.get_model_list():
+                ret += self.print(model)
 
         return ret
 
@@ -425,19 +420,6 @@ class NESTMLPrinter(ModelPrinter):
         ret += ("inline "
                 + str(node.get_variable_name()) + " " + self.print(node.get_data_type())
                 + " = " + self.print(node.get_expression()) + print_sl_comment(node.in_comment) + "\n")
-        return ret
-
-    def print_kernel(self, node: ASTKernel) -> str:
-        ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent)
-        ret += "kernel "
-        for var, expr in zip(node.get_variables(), node.get_expressions()):
-            ret += self.print(var)
-            ret += " = "
-            ret += self.print(expr)
-            ret += ", "
-        ret = ret[:-2]
-        ret += print_sl_comment(node.in_comment) + "\n"
         return ret
 
     def print_output_block(self, node: ASTOutputBlock) -> str:

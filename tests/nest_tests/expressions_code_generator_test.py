@@ -63,10 +63,10 @@ class ExpressionsCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
     def tearDown(self):
         import shutil

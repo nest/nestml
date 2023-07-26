@@ -65,10 +65,10 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list() + compilation_unit.get_model_list())
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -84,10 +84,10 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list() + compilation_unit.get_synapse_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list() + compilation_unit.get_model_list())
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -103,9 +103,9 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
         iaf_cond_alpha_functional = list()
-        iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
+        iaf_cond_alpha_functional.append(compilation_unit.get_model_list()[0])
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
@@ -141,10 +141,10 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append(code_opts_path)
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator(codegen_opts)
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
     def tearDown(self):
         import shutil

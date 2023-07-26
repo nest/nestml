@@ -41,12 +41,13 @@ neuron iaf_psc_exp_dend:
         r integer = 0             # Counts number of ticks during the refractory period
         V_m mV = E_L              # Membrane potential
         I_dend pA = 0 pA          # Third factor, to be read out by synapse during weight update
+        I_syn_exc pA = 0 pA
+        I_syn_inh pA = 0 pA
 
     equations:
-        kernel I_kernel_inh = exp(-t/tau_syn_inh)
-        kernel I_kernel_exc = exp(-t/tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)
-        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+        I_syn_exc' = -I_syn_exc / tau_syn_exc
+        I_syn_inh' = -I_syn_inh / tau_syn_inh
+        V_m' = -(V_m - E_L) / tau_m + (I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
 
     parameters:
         C_m pF = 250 pF           # Capacity of the membrane
@@ -68,6 +69,12 @@ neuron iaf_psc_exp_dend:
         exc_spikes pA <- excitatory spike
         inh_spikes pA <- inhibitory spike
         I_stim pA <- continuous
+
+    onReceive(exc_spikes):
+        I_syn_exc += exc_spikes
+
+    onReceive(inh_spikes):
+        I_syn_inh += inh_spikes
 
     output:
         spike

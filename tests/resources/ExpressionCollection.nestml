@@ -6,23 +6,9 @@ ExpressionCollection.nestml
 Description
 +++++++++++
 
-This test neuron is used to test if parsing of expression works as required.
+This test model is used to test if parsing of expression works as required.
 
-For more details see ExpressionParserTest.py. It is used to test the following part of the grammar:
-
-expression : leftParentheses='(' term=expression rightParentheses=')'
-         | <assoc=right> left=expression powOp='**' right=expression
-         | unaryOperator term=expression
-         | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
-         | left=expression (plusOp='+'  | minusOp='-') right=expression
-         | left=expression bitOperator right=expression
-         | left=expression comparisonOperator right=expression
-         | logicalNot='not' term=expression
-         | left=expression logicalOperator right=expression
-         | condition=expression '?' ifTrue=expression ':' ifNot=expression
-         | simpleExpression
-         ;
-and the respective sub-rules.
+For more details see ExpressionParserTest.py.
 
 
 Copyright statement
@@ -45,7 +31,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron ExpressionCollection:
+model ExpressionCollection:
     state:
         r integer = 2 # counts number of tick during the refractory period
         I_syn_ex pA = -0.5 pA # inputs from the exc spikes

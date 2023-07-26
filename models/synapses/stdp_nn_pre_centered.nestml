@@ -50,7 +50,7 @@ References
        models of synaptic plasticity based on spike timing,
        Biol. Cybern. 98, 459--478
 """
-synapse stdp_nn_pre_centered:
+model stdp_nn_pre_centered_synapse:
     state:
         w real = 1   # Synaptic weight
         pre_trace real = 0.

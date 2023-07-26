@@ -22,7 +22,7 @@
 from typing import Dict
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
@@ -33,14 +33,11 @@ class CoCoPrioritiesCorrectlySpecified(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTSynapse):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks the context condition.
         :param node: a single synapse
         """
-        if not isinstance(node, ASTSynapse):
-            # only synapses have event handlers
-            return
 
         priorities = {}   # type: Dict[str, int]
         for on_receive_block in node.get_on_receive_blocks():

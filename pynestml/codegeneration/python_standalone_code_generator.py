@@ -28,9 +28,7 @@ from pynestml.codegeneration.printers.python_expression_printer import PythonExp
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
 from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
@@ -115,7 +113,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
-    def _get_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
         namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
         namespace["gsl_printer"] = self._gsl_printer

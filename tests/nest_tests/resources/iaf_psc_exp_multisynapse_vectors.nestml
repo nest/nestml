@@ -11,7 +11,7 @@ For more information about the model, see iaf_psc_exp in the ``models`` director
 
 For more information about "multisynapse" models, please refer to the NESTML documentation.
 """
-neuron iaf_psc_exp_multisynapse_vectors_neuron:
+model iaf_psc_exp_multisynapse_vectors_neuron:
     state:
         r integer = 0                # counts number of tick during the refractory period
         V_m mV = E_L                 # membrane potential
