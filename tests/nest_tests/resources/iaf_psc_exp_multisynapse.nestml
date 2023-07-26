@@ -15,14 +15,15 @@ model iaf_psc_exp_multisynapse_neuron:
     state:
         r integer = 0                # counts number of tick during the refractory period
         V_m mV = E_L  # membrane potential
+        I_syn1 pA = 0 pA
+        I_syn2 pA = 0 pA
+        I_syn3 pA = 0 pA
 
     equations:
-        kernel I_kernel1 = exp(-1/tau_syn1*t)
-        kernel I_kernel2 = exp(-1/tau_syn2*t)
-        kernel I_kernel3 = -exp(-1/tau_syn3*t)
-
-        inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
-
+        inline I_syn pA = I_syn1 + I_syn2 + I_syn3
+        I_syn1' = -I_syn1 / tau_syn1
+        I_syn2' = -I_syn2 / tau_syn2
+        I_syn3' = -I_syn3 / tau_syn3
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
@@ -46,6 +47,15 @@ model iaf_psc_exp_multisynapse_neuron:
         spikes2 pA <- spike
         spikes3 pA <- spike
         I_stim pA <- continuous
+
+    onReceive(spikes1):
+        I_syn1 += spikes1
+
+    onReceive(spikes2):
+        I_syn2 += spikes2
+
+    onReceive(spikes3):
+        I_syn3 += spikes3
 
     output:
         spike

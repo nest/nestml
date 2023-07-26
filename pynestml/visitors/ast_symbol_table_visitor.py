@@ -184,6 +184,21 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
 
+    def visit_on_condition_block(self, node):
+        """
+        Private method: Used to visit a single onCondition block and create the corresponding scope.
+        :param node: an onCondition block object.
+        :type node: ASTOnConditionBlock
+        """
+        self.block_type_stack.push(BlockType.LOCAL)
+        scope = Scope(scope_type=ScopeType.ON_CONDITION, enclosing_scope=node.get_scope(),
+                      source_position=node.get_source_position())
+        node.get_scope().add_scope(scope)
+        node.get_block().update_scope(scope)
+
+    def endvisit_on_condition_block(self, node=None):
+        self.block_type_stack.pop()
+
     def visit_block(self, node):
         """
         Private method: Used to visit a single block of statements, create and update the corresponding scope.

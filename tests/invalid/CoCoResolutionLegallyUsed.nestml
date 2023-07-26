@@ -42,3 +42,6 @@ model resolution_legally_used_synapse:
 
     parameters:
         tau ms = 10 ms
+
+    update:
+        integrate_odes()

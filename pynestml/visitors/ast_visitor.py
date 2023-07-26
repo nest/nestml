@@ -46,6 +46,7 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -118,6 +119,13 @@ class ASTVisitor:
         """
         Used to visit a single onReceive block.
         :type node: ASTOnReceiveBlock
+        """
+        return
+
+    def visit_on_condition_block(self, node):
+        """
+        Used to visit a single onCondition block.
+        :type node: ASTOnConditionBlock
         """
         return
 
@@ -420,6 +428,12 @@ class ASTVisitor:
     def endvisit_on_receive_block(self, node):
         """
         Used to endvisit a onReceive block.
+        """
+        return
+
+    def endvisit_on_condition_block(self, node):
+        """
+        Used to endvisit a onCondition block.
         """
         return
 
@@ -813,6 +827,9 @@ class ASTVisitor:
         if isinstance(node, ASTOnReceiveBlock):
             self.visit_on_receive_block(node)
             return
+        if isinstance(node, ASTOnConditionBlock):
+            self.visit_on_condition_block(node)
+            return
         if isinstance(node, ASTVariable):
             self.visit_variable(node)
             return
@@ -938,6 +955,9 @@ class ASTVisitor:
         if isinstance(node, ASTOnReceiveBlock):
             self.traverse_on_receive_block(node)
             return
+        if isinstance(node, ASTOnConditionBlock):
+            self.traverse_on_condition_block(node)
+            return
         if isinstance(node, ASTVariable):
             self.traverse_variable(node)
             return
@@ -1062,6 +1082,9 @@ class ASTVisitor:
             return
         if isinstance(node, ASTOnReceiveBlock):
             self.endvisit_on_receive_block(node)
+            return
+        if isinstance(node, ASTOnConditionBlock):
+            self.endvisit_on_condition_block(node)
             return
         if isinstance(node, ASTVariable):
             self.endvisit_variable(node)

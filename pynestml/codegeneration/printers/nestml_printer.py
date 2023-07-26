@@ -51,6 +51,7 @@ from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
@@ -75,19 +76,11 @@ class NESTMLPrinter(ModelPrinter):
     def __init__(self):
         self.indent = 0
 
-    def print_neuron(self, node: ASTModel) -> str:
+    def print_model(self, node: ASTModel) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         self.inc_indent()
-        ret += "neuron " + node.get_name() + ":" + print_sl_comment(node.in_comment)
+        ret += "model " + node.get_name() + ":" + print_sl_comment(node.in_comment)
         ret += "\n" + self.print(node.get_body())
-        self.dec_indent()
-        return ret
-
-    def print_synapse(self, node: ASTModel) -> str:
-        ret = print_ml_comments(node.pre_comments, self.indent, False)
-        self.inc_indent()
-        ret += "synapse " + node.get_name() + ":" + print_sl_comment(node.in_comment)
-        ret += "\n" + self.print(node.get_body()) + "\n"
         self.dec_indent()
         return ret
 
@@ -517,6 +510,12 @@ class NESTMLPrinter(ModelPrinter):
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + "\n")
+        return ret
+
+    def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent) + "onCondition(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
         ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + "\n")
         return ret
 

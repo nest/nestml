@@ -662,10 +662,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
+    def visitOnCondition(self, ctx):
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        cond_expr = ctx.condition.text
+        const_parameters = {}
+        for el in ctx.constParameter():
+            const_parameters[el.name.text] = el.value.text
+        ret = ASTNodeFactory.create_ast_on_condition_block(block=block, cond_expr=cond_expr, const_parameters=const_parameters, source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
+        return ret
+
+
 def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]
+
 
 def get_next(_elements=list()):
     """

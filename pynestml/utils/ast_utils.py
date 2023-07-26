@@ -1292,15 +1292,15 @@ class ASTUtils:
                         iv_decl.set_expression(iv_expr)
 
     @classmethod
-    def transform_odes_to_json(cls, neuron: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
-                                          printer: ASTPrinter) -> Dict:
+    def transform_odes_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
+                               printer: ASTPrinter) -> Dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
         """
         odetoolbox_indict = {}
 
         odetoolbox_indict["dynamics"] = []
-        for equations_block in neuron.get_equations_blocks():
+        for equations_block in model.get_equations_blocks():
             for equation in equations_block.get_ode_equations():
                 # n.b. includes single quotation marks to indicate differential order
                 lhs = cls.to_ode_toolbox_name(equation.get_lhs().get_complete_name())
@@ -1313,7 +1313,7 @@ class ASTUtils:
                 symbol_order = equation.get_lhs().get_differential_order()
                 for order in range(symbol_order):
                     iv_symbol_name = symbol_name + "'" * order
-                    initial_value_expr = neuron.get_initial_value(iv_symbol_name)
+                    initial_value_expr = model.get_initial_value(iv_symbol_name)
                     if initial_value_expr:
                         expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr

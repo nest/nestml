@@ -162,6 +162,5 @@ class TestIntegrateODEs:
         PredefinedVariables.register_variables()
         PredefinedFunctions.register_functions()
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_file(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                      os.path.join("resources", "integrate_odes_test_params.nestml"))))
+        model = ModelParser.parse_file(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params.nestml"))))
         assert len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)) == 6

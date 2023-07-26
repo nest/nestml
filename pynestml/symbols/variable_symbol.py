@@ -330,8 +330,8 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         return self.ode is not None and (isinstance(self.ode, ASTExpression)
-                                                   or isinstance(self.ode, ASTSimpleExpression)
-                                                   or isinstance(self.ode, ASTOdeEquation))
+                                         or isinstance(self.ode, ASTSimpleExpression)
+                                         or isinstance(self.ode, ASTOdeEquation))
 
     def get_ode(self):
         """

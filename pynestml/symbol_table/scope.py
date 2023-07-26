@@ -40,6 +40,7 @@ class ScopeType(Enum):
     UPDATE = 2
     FUNCTION = 3
     ON_RECEIVE = 4
+    ON_CONDITION = 5
 
 
 class Scope:

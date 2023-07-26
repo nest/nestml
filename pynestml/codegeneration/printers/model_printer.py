@@ -43,6 +43,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -144,6 +145,9 @@ class ModelPrinter(ASTPrinter):
         raise Exception("Printer does not support printing this node type")
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
+        raise Exception("Printer does not support printing this node type")
+
+    def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_parameter(self, node: ASTParameter) -> str:
@@ -262,6 +266,9 @@ class ModelPrinter(ASTPrinter):
             return self.print_ode_equation(node)
 
         if isinstance(node, ASTOnReceiveBlock):
+            return self.print_on_receive_block(node)
+
+        if isinstance(node, ASTOnConditionBlock):
             return self.print_on_receive_block(node)
 
         if isinstance(node, ASTOutputBlock):

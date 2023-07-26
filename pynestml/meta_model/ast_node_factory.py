@@ -49,6 +49,7 @@ from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilation
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -116,6 +117,10 @@ class ASTNodeFactory:
     @classmethod
     def create_ast_on_receive_block(cls, block=None, port_name=None, const_parameters=None, source_position=None):
         return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
+
+    @classmethod
+    def create_ast_on_condition_block(cls, block=None, cond_expr=None, const_parameters=None, source_position=None):
+        return ASTOnConditionBlock(block, cond_expr, const_parameters, source_position=source_position)
 
     @classmethod
     def create_ast_model_body(cls, body_elements, source_position):

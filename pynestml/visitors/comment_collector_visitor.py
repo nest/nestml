@@ -96,6 +96,10 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
                 get_in_comment(ctx, self.__tokens))
 
+    def visitOnConditionBlock(self, ctx):
+        return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
+                get_in_comment(ctx, self.__tokens))
+
     def visitEquationsBlock(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
