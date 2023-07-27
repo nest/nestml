@@ -1,79 +1,426 @@
-#ifndef _{{synapseName.upper()}}_H_
-#define _{{synapseName.upper()}}_H_
+/*** includes synapse_dynamics_stdp_mad_impl.c ***/
+#include <neuron/plasticity/stdp/post_events.h>
+// #include <neuron/plasticity/stdp/synapse_dynamics_stdp_common.h>
 
+/*** includes synapse_dynamics_stdp_common ***/
+// Spinn_common includes
+#include <static-assert.h>
 
+// sPyNNaker neural modelling includes
+#include <neuron/synapses.h>
+
+// Plasticity includes
+#include <neuron/plasticity/stdp/maths.h>
+// #include <neuron/plasticity/stdp/post_events.h>
+
+#include <neuron/plasticity/stdp/weight_dependence/weight.h>
+#include <neuron/plasticity/stdp/timing_dependence/timing.h>
 #include <debug.h>
 #include <utils.h>
-#include <neuron/synapses.h>
 #include <neuron/plasticity/synapse_dynamics.h>
+#include <stddef.h>
 
-/*** SYNAPTIC DYNAMICS ***/
-// => Entrypoint for system calls
 
-//System called (c_main_synapse_common.h)
+/*** synapse_dynamics_stdp_common.h ***/
+#ifndef SYNAPSE_AXONAL_DELAY_BITS
+#define SYNAPSE_AXONAL_DELAY_BITS 3
+#endif
+
+#define SYNAPSE_AXONAL_DELAY_MASK \
+    ((1 << SYNAPSE_AXONAL_DELAY_BITS) - 1)
+
+//---------------------------------------
+// Structures
+//---------------------------------------
+//! \brief The type of history data of pre-events
+//!
+//! This data is stored in SDRAM in the plastic part of the synaptic matrix
+typedef struct {
+    //! The event time
+    uint32_t prev_time;
+    //! The event trace
+    pre_trace_t prev_trace;
+} pre_event_history_t;
+
+//! The type of configuration parameters in SDRAM (written by host)
+typedef struct stdp_params {
+    //! The back-propagation delay, in basic simulation timesteps
+    uint32_t backprop_delay;
+} stdp_params;
+
+typedef struct fixed_stdp_synapse {
+    uint32_t delay_dendritic;
+    uint32_t delay_axonal;
+    uint32_t type;
+    uint32_t index;
+    uint32_t type_index;
+    uint32_t ring_buffer_index;
+} fixed_stdp_synapse;
+
+//! Configuration parameters
+static stdp_params params;
+
+//! \brief The history data of post-events
+static post_event_history_t *post_event_history;
+
+//! Count of pre-synaptic events relevant to plastic processing
+static uint32_t num_plastic_pre_synaptic_events = 0;
+
+//! Count of times that the plastic math became saturated
+static uint32_t plastic_saturation_count = 0;
+
+/* PRIVATE FUNCTIONS */
+
+// Mark a value as possibly unused while not using any instructions, guaranteed
+#ifndef __use
+#define __use(x)    do { (void) (x); } while (0)
+#endif
+
+static inline bool synapse_dynamics_stdp_init(
+        address_t *address, stdp_params *params, uint32_t n_synapse_types,
+        uint32_t *ring_buffer_to_input_buffer_left_shifts) {
+
+    // Load parameters
+    stdp_params *sdram_params = (stdp_params *) *address;
+    spin1_memcpy(params, sdram_params, sizeof(stdp_params));
+
+    // Load timing dependence data
+    address_t weight_region_address = timing_initialise(
+            (address_t) &sdram_params[1]);
+    if (weight_region_address == NULL) {
+        return false;
+    }
+
+    // Load weight dependence data
+    address_t weight_result = weight_initialise(
+            weight_region_address, n_synapse_types,
+            ring_buffer_to_input_buffer_left_shifts);
+    if (weight_result == NULL) {
+        return false;
+    }
+
+    // Update address to after the region just read
+    *address = weight_result;
+    return true;
+}
+
+input_t synapse_dynamics_get_intrinsic_bias(
+        UNUSED uint32_t time, UNUSED index_t neuron_index) {
+    return ZERO;
+}
+
+uint32_t synapse_dynamics_get_plastic_pre_synaptic_events(void) {
+    return num_plastic_pre_synaptic_events;
+}
+
+uint32_t synapse_dynamics_get_plastic_saturation_count(void) {
+    return plastic_saturation_count;
+}
+
+static inline fixed_stdp_synapse synapse_dynamics_stdp_get_fixed(
+        uint32_t control_word, uint32_t time, uint32_t colour_delay) {
+    // Extract control-word components
+    // **NOTE** cunningly, control word is just the same as lower
+    // 16-bits of 32-bit fixed synapse so same functions can be used
+    uint32_t delay_dendritic = synapse_row_sparse_delay(control_word,
+            synapse_type_index_bits, synapse_delay_mask);
+    uint32_t delay_axonal = 0;  //sparse_axonal_delay(control_word);
+    uint32_t type_index = synapse_row_sparse_type_index(control_word,
+            synapse_type_index_mask);
+    return (fixed_stdp_synapse) {
+       .delay_dendritic = delay_dendritic,
+       .delay_axonal = delay_axonal,
+       .type = synapse_row_sparse_type(
+                control_word, synapse_index_bits, synapse_type_mask),
+       .index = synapse_row_sparse_index(
+                control_word, synapse_index_mask),
+       .type_index = type_index,
+       .ring_buffer_index = synapse_row_get_ring_buffer_index_combined(
+                (delay_axonal + delay_dendritic + time) - colour_delay, type_index,
+                synapse_type_index_bits, synapse_delay_mask)
+    };
+}
+
+static inline void synapse_dynamics_stdp_update_ring_buffers(
+        weight_t *ring_buffers, fixed_stdp_synapse s, int32_t weight) {
+    uint32_t accumulation = ring_buffers[s.ring_buffer_index] + weight;
+
+    uint32_t sat_test = accumulation & 0x10000;
+    if (sat_test) {
+        accumulation = sat_test - 1;
+        plastic_saturation_count++;
+    }
+
+    ring_buffers[s.ring_buffer_index] = accumulation;
+}
+
+//! packing all of the information into the required plastic control word
+static inline control_t control_conversion(
+        uint32_t id, uint32_t delay, uint32_t type) {
+    control_t new_control =
+            (delay & ((1 << synapse_delay_bits) - 1)) << synapse_type_index_bits;
+    new_control |= (type & ((1 << synapse_type_index_bits) - 1)) << synapse_index_bits;
+    new_control |= id & ((1 << synapse_index_bits) - 1);
+    return new_control;
+}
+
+uint32_t synapse_dynamics_n_connections_in_row(synapse_row_fixed_part_t *fixed) {
+    return synapse_row_num_plastic_controls(fixed);
+}
+
+/*** synapse_dynamics_mad_impl.h ***/
+
+//! The format of the plastic data region of a synaptic row
+struct synapse_row_plastic_data_t {
+    //! The pre-event history
+    pre_event_history_t history;
+    //! The per-synapse information
+    plastic_synapse_t synapses[];
+};
+
+extern uint32_t skipped_synapses;
+
+//---------------------------------------
+//! \brief Synapse update loop core
+//! \param[in] time: The current time
+//! \param[in] last_pre_time: The time of the last previous pre-event
+//! \param[in] last_pre_trace: The last previous pre-trace
+//! \param[in] new_pre_trace: The new pre-trace
+//! \param[in] delay_dendritic: The dendritic delay for the synapse
+//! \param[in] delay_axonal: The axonal delay for the synapse
+//! \param[in] current_state: The current state
+//! \param[in] post_event_history: The history
+//! \return The new basic state of the synapse
+static inline final_state_t plasticity_update_synapse(
+        const uint32_t time,
+        const uint32_t last_pre_time, const pre_trace_t last_pre_trace,
+        const pre_trace_t new_pre_trace, const uint32_t delay_dendritic,
+        const uint32_t delay_axonal, update_state_t current_state,
+        const post_event_history_t *post_event_history) {
+    // Apply axonal delay to time of last presynaptic spike
+    const uint32_t delayed_last_pre_time = last_pre_time + delay_axonal;
+
+    // Get the post-synaptic window of events to be processed
+    const uint32_t window_begin_time =
+            (delayed_last_pre_time >= delay_dendritic)
+            ? (delayed_last_pre_time - delay_dendritic) : 0;
+    const uint32_t delayed_pre_time = time + delay_axonal;
+    const uint32_t window_end_time =
+            (delayed_pre_time >= delay_dendritic)
+            ? (delayed_pre_time - delay_dendritic) : 0;
+    post_event_window_t post_window = post_events_get_window_delayed(
+            post_event_history, window_begin_time, window_end_time);
+
+
+#if LOG_LEVEL >= LOG_DEBUG
+    print_event_history(post_event_history);
+    print_delayed_window_events(post_event_history, window_begin_time,
+            window_end_time, delay_dendritic);
+#endif
+
+    // Process events in post-synaptic window
+    while (post_window.num_events > 0) {
+        const uint32_t delayed_post_time = *post_window.next_time + delay_dendritic;
+
+        // Apply spike to state
+        current_state = timing_apply_post_spike(
+                delayed_post_time, *post_window.next_trace, delayed_last_pre_time,
+                last_pre_trace, post_window.prev_time, post_window.prev_trace,
+                current_state);
+
+        // Go onto next event
+        post_window = post_events_next(post_window);
+    }
+
+    // Apply spike to state only if there has been a post spike ever
+    if (post_window.prev_time_valid) {
+        const uint32_t delayed_last_post = post_window.prev_time + delay_dendritic;
+        current_state = timing_apply_pre_spike(
+                delayed_pre_time, new_pre_trace, delayed_last_pre_time, last_pre_trace,
+                delayed_last_post, post_window.prev_trace, current_state);
+    }
+
+    // Return final synaptic word and weight
+    return synapse_structure_get_final_state(current_state);
+}
+
 bool synapse_dynamics_initialise(
         address_t address, uint32_t n_neurons, uint32_t n_synapse_types,
-        uint32_t *ring_buffer_to_input_buffer_left_shifts){
-	return true;			
+        uint32_t *ring_buffer_to_input_buffer_left_shifts) {
+
+    if (!synapse_dynamics_stdp_init(&address, &params, n_synapse_types,
+                ring_buffer_to_input_buffer_left_shifts)) {
+        return false;
+    }
+
+    post_event_history = post_events_init_buffers(n_neurons);
+    if (post_event_history == NULL) {
+        return false;
+    }
+
+    return true;
 }
 
-//System called (synapses.c)
-bool synapse_dynamics_process_plastic_synapses(
-        synapse_row_plastic_data_t *plastic_region_data,
-        synapse_row_fixed_part_t *fixed_region,
-        weight_t *ring_buffers, uint32_t time, uint32_t colour_delay,
-        bool *write_back){
-    *write_back = false;
-    return false;
-}
-
-//System called (send_spike.h)
-void synapse_dynamics_process_post_synaptic_event(
-        uint32_t time, index_t neuron_index){
-	return;
-}
-
-
-//System called (synapses.c)
+//---------------------------------------
+// Synaptic row plastic-region implementation
+//---------------------------------------
 void synapse_dynamics_print_plastic_synapses(
         synapse_row_plastic_data_t *plastic_region_data,
         synapse_row_fixed_part_t *fixed_region,
-        uint32_t *ring_buffer_to_input_buffer_left_shifts){
+        uint32_t *ring_buffer_to_input_buffer_left_shifts) {
+    __use(plastic_region_data);
+    __use(fixed_region);
+    __use(ring_buffer_to_input_buffer_left_shifts);
 
-}
+#if LOG_LEVEL >= LOG_DEBUG
+    // Extract separate arrays of weights (from plastic region),
+    // Control words (from fixed region) and number of plastic synapses
+    const plastic_synapse_t *plastic_words = plastic_region_data->synapses;
+    const control_t *control_words = synapse_row_plastic_controls(fixed_region);
+    size_t plastic_synapse = synapse_row_num_plastic_controls(fixed_region);
 
-//System called (synapses.c)
-uint32_t synapse_dynamics_get_plastic_pre_synaptic_events(void){
-	return 0;
-}
-
-//System called (c_main_synapse_common.h)
-uint32_t synapse_dynamics_get_plastic_saturation_count(void){
-	return 0;
-}
-
-//Border zone (topographic_map_impl.c) -> neuromodulation only
-bool synapse_dynamics_find_neuron(
-        uint32_t id, synaptic_row_t row, weight_t *weight, uint16_t *delay,
-        uint32_t *offset, uint32_t *synapse_type){
-    synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
-    int32_t fixed_synapse = synapse_row_num_fixed_synapses(fixed_region);
-    uint32_t *synaptic_words = synapse_row_fixed_weight_controls(fixed_region);
 
     // Loop through plastic synapses
-    for (; fixed_synapse > 0; fixed_synapse--) {
+    for (uint32_t i = 0; i < plastic_synapse; i++) {
+        // Get next control word (auto incrementing control word)
+        uint32_t control_word = *control_words++;
+        uint32_t synapse_type = synapse_row_sparse_type(
+                control_word, synapse_index_bits, synapse_type_mask);
 
+        // Get weight
+        update_state_t update_state = synapse_structure_get_update_state(
+                *plastic_words++, synapse_type);
+        final_state_t final_state = synapse_structure_get_final_state(
+                update_state);
+        weight_t weight = synapse_structure_get_final_weight(final_state);
+
+        synapses_print_weight(
+                weight, ring_buffer_to_input_buffer_left_shifts[synapse_type]);
+    }
+#endif // LOG_LEVEL >= LOG_DEBUG
+}
+
+//---------------------------------------
+//! \brief Get the axonal delay
+//! \param[in] x: The packed plastic synapse control word
+//! \return the axonal delay
+static inline index_t sparse_axonal_delay(uint32_t x) {
+#if 1
+    // No axonal delay, ever
+    __use(x);
+    return 0;
+#else
+    return (x >> synapse_delay_index_type_bits) & SYNAPSE_AXONAL_DELAY_MASK;
+#endif
+}
+
+//---------------------------------------
+void synapse_dynamics_process_post_synaptic_event(
+        uint32_t time, index_t neuron_index) {
+
+    // Add post-event
+    post_event_history_t *history = &post_event_history[neuron_index];
+    const uint32_t last_post_time = history->times[history->count_minus_one];
+    const post_trace_t last_post_trace =
+            history->traces[history->count_minus_one];
+    post_events_add(time, history,
+            timing_add_post_spike(time, last_post_time, last_post_trace));
+}
+
+//---------------------------------------
+static inline plastic_synapse_t process_plastic_synapse(
+        uint32_t control_word, uint32_t last_pre_time, pre_trace_t last_pre_trace,
+		pre_trace_t new_pre_trace, weight_t *ring_buffers, uint32_t time,
+		uint32_t colour_delay, plastic_synapse_t synapse) {
+    fixed_stdp_synapse s = synapse_dynamics_stdp_get_fixed(control_word, time,
+            colour_delay);
+
+	// Create update state from the plastic synaptic word
+	update_state_t current_state = synapse_structure_get_update_state(
+	        synapse, s.type);
+
+	// Update the synapse state
+	uint32_t post_delay = s.delay_dendritic;
+	if (!params.backprop_delay) {
+		post_delay = 0;
+	}
+	final_state_t final_state = plasticity_update_synapse(
+			time - colour_delay, last_pre_time, last_pre_trace, new_pre_trace,
+			post_delay, s.delay_axonal, current_state,
+			&post_event_history[s.index]);
+
+	// Add weight to ring-buffer entry, but only if not too late
+	if (s.delay_axonal + s.delay_dendritic > colour_delay) {
+	    int32_t weight = synapse_structure_get_final_weight(final_state);
+	    synapse_dynamics_stdp_update_ring_buffers(ring_buffers, s, weight);
+    } else {
+        skipped_synapses++;
+    }
+
+	return synapse_structure_get_final_synaptic_word(final_state);
+}
+
+bool synapse_dynamics_process_plastic_synapses(
+        synapse_row_plastic_data_t *plastic_region_address,
+        synapse_row_fixed_part_t *fixed_region,
+        weight_t *ring_buffers, uint32_t time, uint32_t colour_delay,
+        bool *write_back) {
+    // Extract separate arrays of plastic synapses (from plastic region),
+    // Control words (from fixed region) and number of plastic synapses
+    plastic_synapse_t *plastic_words = plastic_region_address->synapses;
+    const control_t *control_words = synapse_row_plastic_controls(fixed_region);
+    size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
+
+    num_plastic_pre_synaptic_events += n_plastic_synapses;
+
+    // Get last pre-synaptic event from event history
+    const uint32_t last_pre_time = plastic_region_address->history.prev_time;
+    const pre_trace_t last_pre_trace = plastic_region_address->history.prev_trace;
+
+    // Update pre-synaptic trace
+    plastic_region_address->history.prev_time = time - colour_delay;
+    plastic_region_address->history.prev_trace =
+            timing_add_pre_spike(time - colour_delay, last_pre_time, last_pre_trace);
+
+    // Loop through plastic synapses
+    for (; n_plastic_synapses > 0; n_plastic_synapses--) {
         // Get next control word (auto incrementing)
+        uint32_t control_word = *control_words++;
+
+        plastic_words[0] = process_plastic_synapse(
+                control_word, last_pre_time, last_pre_trace,
+                plastic_region_address->history.prev_trace, ring_buffers, time,
+                colour_delay, plastic_words[0]);
+        plastic_words++;
+    }
+    *write_back = true;
+    return true;
+}
+
+bool synapse_dynamics_find_neuron(
+        uint32_t id, synaptic_row_t row, weight_t *weight, uint16_t *delay,
+        uint32_t *offset, uint32_t *synapse_type) {
+   synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
+    const synapse_row_plastic_data_t *plastic_data = (void *)
+            synapse_row_plastic_region(row);
+    const plastic_synapse_t *plastic_words = plastic_data->synapses;
+    const control_t *control_words = synapse_row_plastic_controls(fixed_region);
+    const size_t n_plastic_synapses = synapse_row_num_plastic_controls(fixed_region);
+
+    // Loop through plastic synapses
+    for (size_t plastic_synapse = n_plastic_synapses; plastic_synapse > 0;
+            plastic_synapse--) {
+        // Take the weight anyway as this updates the plastic words
+        *weight = synapse_structure_get_weight(*plastic_words++);
+
         // Check if index is the one I'm looking for
-        uint32_t synaptic_word = *synaptic_words++;
-        if (synapse_row_sparse_index(synaptic_word, synapse_index_mask) == id) {
-            *offset = synapse_row_num_fixed_synapses(fixed_region) -
-                    fixed_synapse;
-            *weight = synapse_row_sparse_weight(synaptic_word);
-            *delay = synapse_row_sparse_delay(synaptic_word,
+        uint32_t control_word = *control_words++;
+        if (synapse_row_sparse_index(control_word, synapse_index_mask) == id) {
+            *offset = n_plastic_synapses - plastic_synapse;
+            *delay = synapse_row_sparse_delay(control_word,
                     synapse_type_index_bits, synapse_delay_mask);
             *synapse_type = synapse_row_sparse_type(
-                    synaptic_word, synapse_index_bits, synapse_type_mask);
+                    control_word, synapse_index_bits, synapse_type_mask);
             return true;
         }
     }
@@ -81,52 +428,50 @@ bool synapse_dynamics_find_neuron(
     return false;
 }
 
-//Border zone (sp_structs.h) -> neuromodulation only
-bool synapse_dynamics_remove_neuron(uint32_t offset, synaptic_row_t row){
+bool synapse_dynamics_remove_neuron(uint32_t offset, synaptic_row_t row) {
     synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
-    int32_t fixed_synapse = synapse_row_num_fixed_synapses(fixed_region);
-    uint32_t *synaptic_words = synapse_row_fixed_weight_controls(fixed_region);
+    synapse_row_plastic_data_t *plastic_data = (void *)
+            synapse_row_plastic_region(row);
+    plastic_synapse_t *plastic_words = plastic_data->synapses;
 
-    // Delete control word at offset (contains weight)
-    synaptic_words[offset] = synaptic_words[fixed_synapse - 1];
+    control_t *control_words = synapse_row_plastic_controls(fixed_region);
+    int32_t plastic_synapse = synapse_row_num_plastic_controls(fixed_region);
 
-    // Decrement FF
-    fixed_region->num_fixed--;
+    // Delete weight at offset
+    plastic_words[offset] =  plastic_words[plastic_synapse - 1];
+
+    // Delete control word at offset
+    control_words[offset] = control_words[plastic_synapse - 1];
+    control_words[plastic_synapse - 1] = 0;
+
+    // Decrement FP
+    fixed_region->num_plastic--;
     return true;
 }
 
-//TODO: Remove, not from API only for testing
-//! packing all of the information into the required static control word
-static inline uint32_t _fixed_synapse_convert(
-        uint32_t id, weight_t weight, uint32_t delay, uint32_t type) {
-    uint32_t new_synapse = weight << (32 - SYNAPSE_WEIGHT_BITS);
-    new_synapse |= ((delay & ((1 << synapse_delay_bits) - 1)) <<
-            synapse_type_index_bits);
-    new_synapse |= ((type & ((1 << synapse_type_bits) - 1)) <<
-            synapse_index_bits);
-    new_synapse |= (id & ((1 << synapse_type_index_bits) - 1));
-    return new_synapse;
-}
-
-//Border zone (sp_structs.h) -> neuromodulation only
-bool synapse_dynamics_add_neuron(
-        uint32_t id, synaptic_row_t row, weight_t weight,
-        uint32_t delay, uint32_t type){
+bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
+        weight_t weight, uint32_t delay, uint32_t type) {
     synapse_row_fixed_part_t *fixed_region = synapse_row_fixed_region(row);
-    int32_t fixed_synapse = synapse_row_num_fixed_synapses(fixed_region);
-    uint32_t *synaptic_words = synapse_row_fixed_weight_controls(fixed_region);
-    uint32_t new_synapse = _fixed_synapse_convert(id, weight, delay, type);
-	    // Add control word at offset
-    synaptic_words[fixed_synapse] = new_synapse;
+    synapse_row_plastic_data_t *plastic_data = synapse_row_plastic_region(row);
+    plastic_synapse_t *plastic_words = plastic_data->synapses;
+    plastic_synapse_t new_weight = synapse_structure_create_synapse(weight);
+    control_t new_control = control_conversion(id, delay, type);
 
-    // Increment FF
-    fixed_region->num_fixed++;
+    control_t *control_words = synapse_row_plastic_controls(fixed_region);
+    int32_t plastic_synapse = synapse_row_num_plastic_controls(fixed_region);
+
+    // Add weight at offset
+    plastic_words[plastic_synapse] = new_weight;
+
+    // Add control word at offset
+    control_words[plastic_synapse] = new_control;
+
+    // Increment FP
+    fixed_region->num_plastic++;
     return true;
 }
 
-//Border zone (topographic_map_impl.c) -> neuromodulation only
-uint32_t synapse_dynamics_n_connections_in_row(synapse_row_fixed_part_t *fixed){
-	return synapse_row_num_fixed_synapses(fixed);;
-}
 
-#endif // _{{synapseName.upper()}}_H_
+
+
+
