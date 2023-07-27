@@ -34,7 +34,7 @@ class TestSpiNNakerIafPscExp:
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp.nestml"))),
         target_path = "spinnaker-target"
         install_path = "spinnaker-install"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
         generate_spinnaker_target(input_path,
