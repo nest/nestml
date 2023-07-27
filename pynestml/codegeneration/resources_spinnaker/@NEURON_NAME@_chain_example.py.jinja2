@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
 
+#TODO: Move to spinnaker test  
+
 # import spynnaker and plotting stuff
 import pyNN.spiNNaker as p
 from pyNN.utility.plotting import Figure, Panel
@@ -132,5 +134,8 @@ Figure(
     annotations="Simulated with {}".format(p.name())
 )
 plt.show()
+
+# TODO: Add something like  v_receiving_neuron[-1] == -70.0033958958
+# mind floating point problems with numpy.testing.assert_almost_equal
 
 p.end()
