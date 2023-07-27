@@ -46,6 +46,7 @@ from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
@@ -1261,6 +1262,29 @@ class ASTUtils:
         return list(set(vars_checked))
 
     @classmethod
+    def depends_only_on_vars(cls, expr, vars):
+        r"""Returns True if and only if all variables that occur in ``expr`` are in ``vars``"""
+
+        class VariableFinderVisitor(ASTVisitor):
+            def __init__(self):
+                super(VariableFinderVisitor, self).__init__()
+                self.vars = []
+
+            def visit_variable(self, node: ASTNode):
+                if not node.get_name() in self.vars:
+                    self.vars.append(node.get_name())
+
+        visitor = VariableFinderVisitor()
+        expr.accept(visitor)
+
+        for var in visitor.vars:
+            if not var in vars:
+                return False
+
+        return True
+
+
+    @classmethod
     def update_initial_values_for_odes(cls, neuron: ASTModel, solver_dicts: List[dict]) -> None:
         """
         Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model
@@ -1290,6 +1314,22 @@ class ASTUtils:
                         iv_expr = ModelParser.parse_expression(iv_expr)
                         iv_expr.update_scope(state_block.get_scope())
                         iv_decl.set_expression(iv_expr)
+
+    @classmethod
+    def get_on_receive_blocks_by_input_port_name(cls, model: ASTModel, port_name: str) -> List[ASTOnReceiveBlock]:
+        """
+        Get the input port given the port name
+        :param input_block: block to be searched
+        :param port_name: name of the input port
+        :return: input port object
+        """
+        blks = []
+        for blk in model.get_on_receive_blocks():
+            if blk.get_port_name() == port_name:
+                blks.append(blk)
+
+        return blks
+
 
     @classmethod
     def transform_odes_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
@@ -1599,13 +1639,6 @@ class ASTUtils:
         if numeric_update_expressions:
             for expr in numeric_update_expressions.values():
                 expr.accept(visitor)
-
-        for update_expr_list in neuron.spike_updates.values():
-            for update_expr in update_expr_list:
-                update_expr.accept(visitor)
-
-        for update_expr in neuron.post_spike_updates.values():
-            update_expr.accept(visitor)
 
         for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
             node.accept(visitor)

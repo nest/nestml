@@ -198,9 +198,6 @@ class SynapsePostNeuronTransformer(Transformer):
         all_state_vars = ASTUtils.all_variables_defined_in_block(synapse.get_state_blocks()[0])
         all_state_vars = [var.get_complete_name() for var in all_state_vars]
 
-        # add names of convolutions
-        all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(synapse.get_equations_blocks(), synapse)
-
         # if any variable is assigned to in any block that is not connected to a postsynaptic port
         strictly_synaptic_vars = []
         for input_block in new_synapse.get_input_blocks():
@@ -331,34 +328,30 @@ class SynapsePostNeuronTransformer(Transformer):
         mark_post_ports(new_neuron, new_synapse, new_neuron)
 
         #
-        #    move statements in post receive block from synapse to ``new_neuron.moved_spike_updates``
+        #    move statements in post receive block from synapse to new_neuron
         #
 
-        vars_used = []
+        # find all statements in post receive block
+        collected_on_post_stmts = []
 
-        new_neuron.moved_spike_updates = []
+        for input_block in new_synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_post_port(port.name, new_neuron.name, new_synapse.name):
+                    post_receive_blocks = ASTUtils.get_on_receive_blocks_by_input_port_name(new_synapse, port.name)
+                    for post_receive_block in post_receive_blocks:
+                        stmts = post_receive_block.get_block().get_stmts()
+                        for stmt in stmts:
+                            if stmt.is_small_stmt() \
+                               and stmt.small_stmt.is_assignment() \
+                               and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params):
+                                Logger.log_message(None, -1, "\t• Moving statement " + str(stmt), None, LoggingLevel.INFO)
 
-        spiking_post_port_names = self.get_spiking_post_port_names(synapse, neuron.name, synapse.name)
-        assert len(spiking_post_port_names) <= 1, "Can only handle one spiking \"post\" port"
-        if len(spiking_post_port_names) > 0:
-            post_port_name = spiking_post_port_names[0]
-            post_receive_block = new_synapse.get_on_receive_block(post_port_name)
-            assert post_receive_block is not None
-            for state_var in syn_to_neuron_state_vars:
-                Logger.log_message(None, -1, "Moving onPost updates for " + str(state_var), None, LoggingLevel.INFO)
+                                collected_on_post_stmts.append(stmt)
+                                stmts.pop(stmts.index(stmt))
 
-                stmts = ASTUtils.get_statements_from_block(state_var, post_receive_block)
-                if stmts:
-                    Logger.log_message(None, -1, "Moving state var updates for " + state_var
-                                       + " from synapse to neuron", None, LoggingLevel.INFO)
-                    for stmt in stmts:
-                        vars_used.extend(ASTUtils.collect_variable_names_in_expression(stmt))
-                        post_receive_block.block.stmts.remove(stmt)
-                        ASTUtils.add_suffix_to_decl_lhs(stmt, suffix=var_name_suffix)
-                        ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix)
-                        stmt.update_scope(new_neuron.get_update_blocks()[0].get_scope())
-                        stmt.accept(ASTSymbolTableVisitor())
-                        new_neuron.moved_spike_updates.append(stmt)
+        new_neuron.extra_on_emit_spike_stmts_from_synapse = collected_on_post_stmts
+
+        # XXX: TODO: add parameters used in stmts to parameters to be copied
 
         vars_used = list(set([v.name for v in vars_used]))
         syn_to_neuron_params.extend([v for v in vars_used if v in [p + var_name_suffix for p in all_declared_params]])
@@ -399,16 +392,13 @@ class SynapsePostNeuronTransformer(Transformer):
                                         mode="copy")
 
         #
-        #   add suffix to variables in spike updates
+        #   add suffix to variables in moved update statements
         #
 
         Logger.log_message(
             None, -1, "Adding suffix to variables in spike updates", None, LoggingLevel.INFO)
 
-        for stmt in new_neuron.moved_spike_updates:
-            for param_var in syn_to_neuron_params:
-                param_var = str(param_var)
-                ASTUtils.add_suffix_to_variable_name(param_var, stmt, var_name_suffix, scope=new_neuron.get_update_blocks()[0].get_scope())
+        print("XXXXXXXXXXXXX")
 
         #
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters

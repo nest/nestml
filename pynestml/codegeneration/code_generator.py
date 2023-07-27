@@ -195,7 +195,6 @@ class CodeGenerator(WithOptions):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-
         for _model_templ in model_templates:
             templ_file_name = os.path.basename(_model_templ.filename)
             if len(templ_file_name.split(".")) < 2:

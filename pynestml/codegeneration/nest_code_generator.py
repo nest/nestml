@@ -213,8 +213,8 @@ class NESTCodeGenerator(CodeGenerator):
                 raise Exception("Error(s) occurred during code generation")
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons = [model for model in models if not "synapse" in model.name]
-        synapses = [model for model in models if "synapse" in model.name]
+        neurons = [model for model in models if not "synapse" in model.name.split("_with_")[0]]
+        synapses = [model for model in models if "synapse" in model.name.split("_with_")[0]]
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
@@ -246,9 +246,7 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_model(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
-            neuron.spike_updates = spike_updates
-            neuron.post_spike_updates = post_spike_updates
+            equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
 
@@ -259,10 +257,9 @@ class NESTCodeGenerator(CodeGenerator):
         """
         for synapse in synapses:
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
-            spike_updates = self.analyse_synapse(synapse)
-            synapse.spike_updates = spike_updates
+            self.analyse_synapse(synapse)
 
-    def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    def analyse_neuron(self, neuron: ASTModel) -> Tuple[List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -278,14 +275,13 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
-            return {}, {}, [], []
+            return [], []
 
         if len(neuron.get_equations_blocks()) > 1:
             raise Exception("Only one equations block per model supported for now")
 
         equations_block = neuron.get_equations_blocks()[0]
 
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTUtils.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
@@ -349,7 +345,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             equations_block = synapse.get_equations_blocks()[0]
 
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
             ASTUtils.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
@@ -521,8 +516,6 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
-        namespace["spike_updates"] = synapse.spike_updates
-
         return namespace
 
     def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
@@ -534,12 +527,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = self._get_model_namespace(neuron)
 
         if "paired_synapse" in dir(neuron):
+            namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
             namespace["paired_synapse"] = neuron.paired_synapse.get_name()
-            namespace["post_spike_updates"] = neuron.post_spike_updates
-            if "moved_spike_updates" in dir(neuron):
-                namespace["spike_update_stmts"] = neuron.moved_spike_updates
-            else:
-                namespace["spike_update_stmts"] = []
             namespace["transferred_variables"] = neuron._transferred_variables
             namespace["transferred_variables_syms"] = {var_name: neuron.scope.resolve_to_symbol(
                 var_name, SymbolKind.VARIABLE) for var_name in namespace["transferred_variables"]}
@@ -698,8 +687,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["numerical_state_symbols"] = numeric_state_variable_names
             ASTUtils.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
 
-        namespace["spike_updates"] = neuron.spike_updates
-
         namespace["recordable_state_variables"] = []
         for state_block in neuron.get_state_blocks():
             for decl in state_block.get_declarations():
@@ -777,8 +764,8 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Update symbol table and scope.
         """
-        SymbolTable.delete_neuron_scope(neuron.get_name())
+        SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
-        SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())

@@ -8,6 +8,8 @@
 {%-     include "directives/PredefinedFunction_integrate_odes.jinja2" %}
 {%- elif ast.get_name() == PredefinedFunctions.PROCESS_INPUT %}
 {%-     include "directives/PredefinedFunction_process_input.jinja2" %}
+{%- elif ast.get_name() == PredefinedFunctions.EMIT_SPIKE %}
+{%-     include "directives/PredefinedFunction_emit_spike.jinja2" %}
 {%- else %}
 {#      call to a non-predefined function #}
 {{ printer.print(ast) }};

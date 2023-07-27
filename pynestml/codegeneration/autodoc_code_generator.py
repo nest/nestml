@@ -64,8 +64,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        neurons = [model for model in models if "neuron" in model.name]
-        synapses = [model for model in models if "synapse" in model.name]
+        neurons = [model for model in models if not "synapse" in model.name.split("_with_")[0]]
+        synapses = [model for model in models if "synapse" in model.name.split("_with_")[0]]
         self.generate_index(neurons, synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)

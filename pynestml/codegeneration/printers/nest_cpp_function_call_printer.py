@@ -58,11 +58,6 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
 
-        if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
-                   'nest::SpikeEvent se;\n' \
-                   'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
             return '''
         set_delay( {1!s} );

@@ -562,6 +562,26 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-     endfilter %}
 {%- endif %}
 
+    // NESTML generated code for the postsynaptic onReceive blocks
+
+    // ???????????
+
+    // NESTML generated code for the onCondition blocks
+
+{%- if neuron.get_on_condition_blocks() %}
+{%-     filter indent(2) %}
+{%-         for block in neuron.get_on_condition_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*') | length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
   }
@@ -780,16 +800,10 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
       }
 
         /**
-         * apply spike updates
+         * print on pre spike event handler
         **/
 
-{%- for stmt in spike_update_stmts %}
-        {{printer.print(stmt)}};
-{%- endfor %}
-
-{%- for _, spike_update in post_spike_updates.items() %}
-        {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
-{%- endfor %}
+        // XXX: TODO
 
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_
