@@ -41,6 +41,7 @@ class SpiNNakerBuilder(Builder):
     r"""Compiles and build the SpiNNaker generated C code."""
 
     _default_options = {
+        "neuron_synapse_pairs": [],
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
