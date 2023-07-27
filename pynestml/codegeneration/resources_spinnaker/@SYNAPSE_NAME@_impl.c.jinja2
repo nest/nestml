@@ -1,61 +1,10 @@
-/*** includes synapse_dynamics_stdp_mad_impl.c ***/
-#include <neuron/plasticity/stdp/post_events.h>
-// #include <neuron/plasticity/stdp/synapse_dynamics_stdp_common.h>
-
-/*** includes synapse_dynamics_stdp_common ***/
-// Spinn_common includes
-#include <static-assert.h>
-
-// sPyNNaker neural modelling includes
-#include <neuron/synapses.h>
-
-// Plasticity includes
-#include <neuron/plasticity/stdp/maths.h>
-// #include <neuron/plasticity/stdp/post_events.h>
-
-#include <neuron/plasticity/stdp/weight_dependence/weight.h>
-#include <neuron/plasticity/stdp/timing_dependence/timing.h>
-#include <debug.h>
-#include <utils.h>
-#include <neuron/plasticity/synapse_dynamics.h>
-#include <stddef.h>
+#inlcude "{{synapseName}}_impl.h"
 
 
-/*** synapse_dynamics_stdp_common.h ***/
-#ifndef SYNAPSE_AXONAL_DELAY_BITS
-#define SYNAPSE_AXONAL_DELAY_BITS 3
-#endif
-
-#define SYNAPSE_AXONAL_DELAY_MASK \
-    ((1 << SYNAPSE_AXONAL_DELAY_BITS) - 1)
 
 //---------------------------------------
 // Structures
 //---------------------------------------
-//! \brief The type of history data of pre-events
-//!
-//! This data is stored in SDRAM in the plastic part of the synaptic matrix
-typedef struct {
-    //! The event time
-    uint32_t prev_time;
-    //! The event trace
-    pre_trace_t prev_trace;
-} pre_event_history_t;
-
-//! The type of configuration parameters in SDRAM (written by host)
-typedef struct stdp_params {
-    //! The back-propagation delay, in basic simulation timesteps
-    uint32_t backprop_delay;
-} stdp_params;
-
-typedef struct fixed_stdp_synapse {
-    uint32_t delay_dendritic;
-    uint32_t delay_axonal;
-    uint32_t type;
-    uint32_t index;
-    uint32_t type_index;
-    uint32_t ring_buffer_index;
-} fixed_stdp_synapse;
 
 //! Configuration parameters
 static stdp_params params;
@@ -70,11 +19,6 @@ static uint32_t num_plastic_pre_synaptic_events = 0;
 static uint32_t plastic_saturation_count = 0;
 
 /* PRIVATE FUNCTIONS */
-
-// Mark a value as possibly unused while not using any instructions, guaranteed
-#ifndef __use
-#define __use(x)    do { (void) (x); } while (0)
-#endif
 
 static inline bool synapse_dynamics_stdp_init(
         address_t *address, stdp_params *params, uint32_t n_synapse_types,
@@ -471,7 +415,87 @@ bool synapse_dynamics_add_neuron(uint32_t id, synaptic_row_t row,
     return true;
 }
 
+// The external variables of the weight rule
+extern plasticity_weight_region_data_t *plasticity_weight_region_data;
 
+//---------------------------------------
+// STDP weight dependence functions
+//---------------------------------------
+static inline weight_state_t weight_get_initial(
+        weight_t weight, index_t synapse_type) {
 
+    // TODO: Store the data in the intermediate data structure
+    return (weight_state_t ) {
+        .initial_weight = (int32_t) weight,
+        .potentiation = 0,
+        .depression = 0,
+        .weight_region = &plasticity_weight_region_data[synapse_type]
+    };
+}
+
+//---------------------------------------
+static inline weight_state_t weight_one_term_apply_depression(
+        weight_state_t state, int32_t depression) {
+
+    // TODO: Perform intermediate operations in relation to depression
+    // Note: Can save up to perform complex operations until the end
+    state.depression += depression;
+    return state;
+}
+
+//---------------------------------------
+static inline weight_state_t weight_one_term_apply_potentiation(
+        weight_state_t state, int32_t potentiation) {
+
+    // TODO: Perform intermediate operations in relation to potentiation
+    // Note: Can save up to perform complex operations until the end
+    state.potentiation += potentiation;
+    return state;
+}
+
+//---------------------------------------
+static inline weight_t weight_get_final(weight_state_t new_state) {
+
+    // TODO: Perform operations to get the final weight from the intermediate
+    // state, taking into account all potentiation and depression
+    // Note: it is recommended to do a single complex operation here rather
+    // than one for each potentiation or depression if possible
+
+    int32_t potentiation =
+            new_state.potentiation * new_state.weight_region->my_parameter;
+    int32_t depression =
+            new_state.depression * new_state.weight_region->my_parameter;
+
+    int32_t new_weight = new_state.initial_weight + potentiation - depression;
+
+    // Clamp new weight
+    new_weight = MIN(
+            new_state.weight_region->max_weight,
+            MAX(new_weight, new_state.weight_region->min_weight));
+
+    log_debug("old_weight:%u, potentiation:%d, depression:%d, "
+            "scaled potentiation:%d, scaled depression:%d, new_weight:%d",
+            new_state.initial_weight, new_state.potentiation,
+            new_state.depression, potentiation, depression, new_weight);
+
+    return (weight_t) new_weight;
+}
+
+//---------------------------------------
+__attribute__((unused)) // Marked unused as only used sometimes
+static void weight_decay(weight_state_t *state, int32_t decay) {
+    use(&state);
+    use(decay);
+
+    // TODO: Decay the weight inside the state
+}
+
+//---------------------------------------
+__attribute__((unused)) // Marked unused as only used sometimes
+static accum weight_get_update(weight_state_t state) {
+    use(&state);
+    // TODO: Return the weight inside the state
+    return 0;
+}
 
 
