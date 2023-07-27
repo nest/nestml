@@ -39,6 +39,7 @@ from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import
 from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
 from pynestml.codegeneration.printers.python_simple_expression_printer import PythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
@@ -191,9 +192,19 @@ class SpiNNakerCodeGenerator(CodeGenerator):
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
         import logging
-        _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
-        #_models = copy.deepcopy(models)
-        self.codegen_cpp.generate_code(_models)
-        _models = SPINNAKERCodeGeneratorUtils.ast_list_clone(models)
-        #_models = copy.deepcopy(models)
-        self.codegen_py.generate_code(_models)
+
+        cloned_models = []
+        for model in models:
+            cloned_model = model.clone()
+            cloned_model.accept(ASTSymbolTableVisitor())
+            cloned_models.append(cloned_model)
+
+        self.codegen_cpp.generate_code(cloned_models)
+
+        cloned_models = []
+        for model in models:
+            cloned_model = model.clone()
+            cloned_model.accept(ASTSymbolTableVisitor())
+            cloned_models.append(cloned_model)
+
+        self.codegen_py.generate_code(cloned_models)

@@ -31,10 +31,16 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp.nestml"))),
+
+        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                      "synapse": "static",
+                                                      "post_ports": ["post_spikes"]}]}
+
+        # input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp.nestml"))),
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "synapses",  "static_synapse.nestml"))),
         target_path = "spinnaker-target"
         install_path = "spinnaker-install"
-        logging_level = "DEBUG"
+        logging_level = "INFO"
         module_name = "nestmlmodule"
         suffix = "_nestml"
         generate_spinnaker_target(input_path,
@@ -42,7 +48,8 @@ class TestSpiNNakerIafPscExp:
                                   install_path=install_path,
                                   logging_level=logging_level,
                                   module_name=module_name,
-                                  suffix=suffix)
+                                  suffix=suffix,
+                                  codegen_opts=jit_codegen_opts)
 
-    def test_iaf_psc_exp(self):
+    def test_logarithmic_function(self):
         pass    # XXX: TODO
