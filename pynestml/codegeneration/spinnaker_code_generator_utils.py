@@ -54,10 +54,4 @@ class SPINNAKERCodeGeneratorUtils:
             return 'neuron->%s'
 
         return ''
-
-    @classmethod
-    def ast_list_clone(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> Sequence[Union[ASTNeuron, ASTSynapse]]:
-        dup = []
-        for model in models:
-            dup.append(model.clone())
-        return dup
+        
