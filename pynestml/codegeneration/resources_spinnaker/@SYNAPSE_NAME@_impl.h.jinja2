@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <debug.h>
 #include <utils.h>
 #include <static-assert.h>
@@ -40,7 +41,6 @@ typedef struct post_trace_t {
 typedef struct pre_trace_t {
 } pre_trace_t;
 
-#include <neuron/plasticity/stdp/post_events.h>
 
 typedef struct {
     int32_t min_weight;
@@ -63,22 +63,6 @@ typedef struct {
     // TODO: Put in any variables required in the intermediate state
 } weight_state_t;
 
-#include <neuron/plasticity/stdp/weight_dependence/weight.h>
-#include <neuron/plasticity/stdp/timing_dependence/timing.h>
-
-// TODO: Ensure this includes and implements the correct interface
-#include <neuron/plasticity/stdp/weight_dependence/weight_one_term.h>
-
-// TODO: Choose the required synapse structure
-#include <neuron/plasticity/stdp/synapse_structure/synapse_structure_weight_impl.h>
-
-typedef struct {
-    //! The event time
-    uint32_t prev_time;
-    //! The event trace
-    pre_trace_t prev_trace;
-} pre_event_history_t;
-
 typedef struct {
     //! The event time
     uint32_t prev_time;
@@ -100,3 +84,8 @@ typedef struct fixed_stdp_synapse {
     uint32_t type_index;
     uint32_t ring_buffer_index;
 } fixed_stdp_synapse;
+
+typedef struct my_timing_config {
+    accum my_potentiation_parameter;
+    accum my_depression_parameter;
+} my_timing_config_t;
