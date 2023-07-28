@@ -1,10 +1,14 @@
-#inlcude "{{synapseName}}_impl.h"
+#include "{{synapseName}}_impl.h"
 
 
 
 //---------------------------------------
 // Structures
 //---------------------------------------
+
+// Note the parameters will be external
+extern accum my_potentiation_parameter;
+extern accum my_depression_parameter;
 
 //! Configuration parameters
 static stdp_params params;
@@ -19,6 +23,58 @@ static uint32_t num_plastic_pre_synaptic_events = 0;
 static uint32_t plastic_saturation_count = 0;
 
 /* PRIVATE FUNCTIONS */
+
+plasticity_weight_region_data_t *plasticity_weight_region_data;
+
+address_t weight_initialise(
+        address_t address, uint32_t n_synapse_types,
+        uint32_t *ring_buffer_to_input_buffer_left_shifts) {
+
+    // This can be used to indicate the scaling used on the weights
+    use(ring_buffer_to_input_buffer_left_shifts);
+
+    log_info("weight_initialise: starting");
+    log_info("\tSTDP my weight dependence");
+
+    // Copy plasticity parameter data from address; same format in both
+    plasticity_weight_region_data = (plasticity_weight_region_data_t *)
+            spin1_malloc(n_synapse_types * sizeof(plasticity_weight_region_data_t));
+    if (plasticity_weight_region_data == NULL) {
+        log_error("Error allocating plasticity weight data");
+        return NULL;
+    }
+    plasticity_weight_region_data_t *config =
+            (plasticity_weight_region_data_t *) address;
+    for (uint32_t s = 0; s < n_synapse_types; s++) {
+        plasticity_weight_region_data[s].min_weight = config[s].min_weight;
+        plasticity_weight_region_data[s].max_weight = config[s].max_weight;
+        plasticity_weight_region_data[s].my_parameter = config[s].my_parameter;
+
+        // TODO: Copy any other data
+    }
+    log_info("weight_initialise: completed successfully");
+
+    // Return end address of region
+    return (address_t) &config[n_synapse_types];
+}
+
+address_t timing_initialise(address_t address) {
+
+    log_info("timing_initialise: starting");
+    log_info("\tSTDP my timing rule");
+
+    // TODO: copy parameters from memory
+    my_timing_config_t *config = (my_timing_config_t *) address;
+    my_potentiation_parameter = config->my_potentiation_parameter;
+    my_depression_parameter = config->my_depression_parameter;
+
+    log_info("my potentiation parameter = %k", my_potentiation_parameter);
+    log_info("my depression parameter = %k", my_depression_parameter);
+    log_info("timing_initialise: completed successfully");
+
+    // Return the address after the configuration (word aligned)
+    return (address_t) (config + 1);
+}
 
 static inline bool synapse_dynamics_stdp_init(
         address_t *address, stdp_params *params, uint32_t n_synapse_types,
@@ -498,4 +554,104 @@ static accum weight_get_update(weight_state_t state) {
     return 0;
 }
 
+//---------------------------------------
+// Timing dependence inline functions
+//---------------------------------------
+static inline post_trace_t timing_get_initial_post_trace(void) {
 
+    // TODO: Return the values required
+    return (post_trace_t) {};
+}
+
+//---------------------------------------
+static inline post_trace_t timing_add_post_spike(
+        uint32_t time, uint32_t last_time, post_trace_t last_trace) {
+    use(&last_time);
+    use(&last_trace);
+
+    log_debug("\tdelta_time=%u\n", time - last_time);
+
+    // TODO: Perform operations when a new post-spike occurs
+
+    // Return new pre- synaptic event with decayed trace values with energy
+    // for new spike added
+    return (post_trace_t) {};
+}
+
+//---------------------------------------
+static inline pre_trace_t timing_add_pre_spike(
+        uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
+    use(&last_time);
+    use(&last_trace);
+
+    log_debug("\tdelta_time=%u\n", time - last_time);
+
+    // TODO: Perform operations when a new pre-spike occurs
+
+    return (pre_trace_t ) {};
+}
+
+//---------------------------------------
+static inline update_state_t timing_apply_pre_spike(
+        uint32_t time, pre_trace_t trace, uint32_t last_pre_time,
+        pre_trace_t last_pre_trace, uint32_t last_post_time,
+        post_trace_t last_post_trace, update_state_t previous_state) {
+    use(&trace);
+    use(&last_pre_time);
+    use(&last_pre_trace);
+    use(&last_post_trace);
+
+    // TODO: Perform depression on pre spikes that occur after the
+    // current spike
+    accum time_since_last_post = (accum) (time - last_post_time);
+    if (time_since_last_post > 0) {
+        int32_t decayed_o1 = (int32_t)
+                (time_since_last_post * my_depression_parameter);
+
+        log_debug("\t\t\ttime_since_last_post=%k, decayed_o1=%d\n",
+                time_since_last_post, decayed_o1);
+
+        // Apply depression to state (which is a weight_state)
+        return weight_one_term_apply_depression(previous_state, decayed_o1);
+    } else {
+        return previous_state;
+    }
+}
+
+//---------------------------------------
+static inline update_state_t timing_apply_post_spike(
+        uint32_t time, post_trace_t trace, uint32_t last_pre_time,
+        pre_trace_t last_pre_trace, uint32_t last_post_time,
+        post_trace_t last_post_trace, update_state_t previous_state) {
+    use(&trace);
+    use(&last_pre_trace);
+    use(&last_post_time);
+    use(&last_post_trace);
+
+    // TODO: Perform potentiation on post spikes that occur after the
+    // current spike
+    accum time_since_last_pre = (accum) (time - last_pre_time);
+    if (time_since_last_pre > 0) {
+        int32_t decayed_r1 = (int32_t)
+                (time_since_last_pre * my_potentiation_parameter);
+
+        log_debug("\t\t\ttime_since_last_pre=%k, decayed_r1=%d\n",
+                time_since_last_pre, decayed_r1);
+
+        // Apply potentiation to state (which is a weight_state)
+        return weight_one_term_apply_potentiation(previous_state, decayed_r1);
+    } else {
+        return previous_state;
+    }
+}
+
+//---------------------------------------
+__attribute__((unused)) // Marked unused as only used sometimes
+static post_trace_t timing_decay_post(
+        uint32_t time, uint32_t last_time, post_trace_t last_trace) {
+    use(time);
+    use(last_time);
+
+    // TODO: Evolve the post trace without adding a spike
+    return last_trace;
+}

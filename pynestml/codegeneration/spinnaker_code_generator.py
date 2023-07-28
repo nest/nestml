@@ -155,6 +155,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "@NEURON_NAME@_chain_example.py.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@_impl.c.jinja2",
+                            "@SYNAPSE_NAME@_impl.h.jinja2",
                             "@SYNAPSE_NAME@_timing_impl.h.jinja2",
                             "@SYNAPSE_NAME@_timing_impl.c.jinja2",
                             "@SYNAPSE_NAME@_weight_impl.h.jinja2",
