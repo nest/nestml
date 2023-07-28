@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Sequence, Union
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.variable_symbol import BlockType
 
