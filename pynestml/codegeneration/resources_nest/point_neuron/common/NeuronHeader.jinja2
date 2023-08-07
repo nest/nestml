@@ -69,15 +69,17 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- endif %}
 {%- endif %}
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
 #ifndef HAVE_GSL
-#error "The GSL library is required for neurons that require a numerical solver."
+#error "The GSL library is required for the Runge-Kutta solver."
 #endif
 
 // External includes:
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
+{%-     endif %}
 {%- endif %}
 
 // Includes from nestkernel:
@@ -518,8 +520,10 @@ private:
 {%- endfor %}
 {%- endfilter %}
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
     double __gsl_error_tol;
+{%-     endif %}
 {%- endif %}
 
     /**
@@ -685,6 +689,7 @@ private:
 {%- endfor %}
 
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
     // -----------------------------------------------------------------------
     //   GSL ODE solver data structures
@@ -701,6 +706,7 @@ private:
     // it is safe to place both here.
     double __step;             //!< step size in ms
     double __integration_step; //!< current integration time step, updated by GSL
+{%-     endif %}
 {%- endif %}
 
   };
@@ -919,10 +925,12 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
   def< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. ){
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
   }
+{%-     endif %}
 {%- endif %}
 }
 
@@ -977,11 +985,13 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 {%- endfor %}
 
 {% if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
   }
+{%-     endif %}
 {%- endif %}
 
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
