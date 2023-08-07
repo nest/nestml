@@ -146,6 +146,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     codegen_cpp: Optional[NESTCodeGenerator] = None
 
     _default_options = {
+        "neuron_synapse_pairs": [],
         "templates": {
             "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker"))),
             "model_templates": {
@@ -174,6 +175,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         super().__init__("SpiNNaker", options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
+        options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname)) and "@NEURON_NAME@" in fname)]
         options_cpp["templates"]["model_templates"]["synapse"] = [fname for fname in self._options["templates"]["model_templates"]["synapse"] if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname)) and "@SYNAPSE_NAME@" in fname)]
         options_cpp["nest_version"] = "<not available>"
@@ -192,20 +194,20 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py._target = "SpiNNaker"
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        import logging
+        self.codegen_cpp.generate_code(models)
 
-        cloned_models = []
-        for model in models:
-            cloned_model = model.clone()
-            cloned_model.accept(ASTSymbolTableVisitor())
-            cloned_models.append(cloned_model)
+        # cloned_models = []
+        # for model in models:
+        #     cloned_model = model.clone()
+        #     cloned_model.accept(ASTSymbolTableVisitor())
+        #     cloned_models.append(cloned_model)
 
-        self.codegen_cpp.generate_code(cloned_models)
+        # self.codegen_cpp.generate_code(cloned_models)
 
-        cloned_models = []
-        for model in models:
-            cloned_model = model.clone()
-            cloned_model.accept(ASTSymbolTableVisitor())
-            cloned_models.append(cloned_model)
+        # cloned_models = []
+        # for model in models:
+        #     cloned_model = model.clone()
+        #     cloned_model.accept(ASTSymbolTableVisitor())
+        #     cloned_models.append(cloned_model)
 
-        self.codegen_py.generate_code(cloned_models)
+        # self.codegen_py.generate_code(cloned_models)

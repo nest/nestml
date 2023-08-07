@@ -33,11 +33,13 @@ class TestSpiNNakerIafPscExp:
     def generate_code(self):
 
         jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                      "synapse": "static",
+                                                      "synapse": "stdp",
                                                       "post_ports": ["post_spikes"]}]}
 
-        # input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp.nestml"))),
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "synapses",  "static_synapse.nestml"))),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+                 os.path.join("models", "synapses", "stdp_synapse.nestml")]
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
         target_path = "spinnaker-target"
         install_path = "spinnaker-install"
         logging_level = "INFO"
