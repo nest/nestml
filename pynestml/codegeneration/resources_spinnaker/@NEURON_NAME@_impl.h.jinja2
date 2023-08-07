@@ -94,21 +94,23 @@ enum input_indices
 {# Not resetting count here to use for input generation #}
 };
 
-//! neuron_impl_t struct
-typedef struct neuron_impl_t {
+typedef struct {
 {# Make shure count is |spike_input_ports| + |continous_input_ports| #}
-
 // 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     REAL inputs[{{ ns.count }}];
 {%- endif %} 
+}neuron_input_t;
 
-    // State variables of the neuron
+typedef struct {
+// State variables of the neuron
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
+}neuron_state_t;
 
-    // Parameters of the neuron
+typedef struct {
+// Parameters of the neuron
 {%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
@@ -119,8 +121,17 @@ typedef struct neuron_impl_t {
 {%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
+}neuron_parameter_t;
 
+//! neuron_impl_t struct
+typedef struct neuron_impl_t {
+    neuron_input_t input;
+    neuron_state_t state;
+    neuron_parameter_t parameter;
+} neuron_impl_t;
 
+// TODO: implement gsl solver support and find out where to put gsl
+/***
 {%- if uses_numeric_solver %}
     REAL __gsl_error_tol;
 
@@ -141,8 +152,9 @@ typedef struct neuron_impl_t {
     double __step;             //!< step size in ms
     double __integration_step; //!< current integration time step, updated by GSL
 {%- endif %}
+***/
 
-} neuron_impl_t;
+
 
 //! Array of neuron states
 static neuron_impl_t *neuron_array;
@@ -192,10 +204,14 @@ static void neuron_impl_add_inputs(
         index_t synapse_type_index, index_t neuron_index,
         input_t weights_this_timestep) {
     // Get the neuron itself
+
     neuron_impl_t *neuron = &neuron_array[neuron_index];
+    neuron_state_t state = neuron->state;
+    neuron_input_t input = neuron->input;
+    neuron_parameter_t parameter = neuron->parameter;
 
     // Do something to store the inputs for the next state update
-    neuron->inputs[synapse_type_index] += weights_this_timestep;
+    input.inputs[synapse_type_index] += weights_this_timestep;
 }
 
 __attribute__((unused)) // Marked unused as only used sometimes
@@ -204,11 +220,14 @@ static void neuron_impl_do_timestep_update(
     for (uint32_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
         // Get the neuron itself
         neuron_impl_t *neuron = &neuron_array[neuron_index];
+        neuron_state_t state = neuron->state;
+        neuron_input_t input = neuron->input;
+        neuron_parameter_t parameter = neuron->parameter;
 
         // Store the recorded membrane voltage
 {%- for variable in neuron.get_state_symbols() %}
 {%-   if variable.is_recordable %}
-        neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, neuron->{{ variable.get_symbol_name() }});
+        neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, state.{{ variable.get_symbol_name() }});
 {%-   endif -%}
 {%- endfor %}
 
@@ -229,10 +248,10 @@ static void neuron_impl_do_timestep_update(
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
     
 {%- for variable in neuron.get_spike_input_ports() %}
-        neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+        input.inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
 {%- endfor %}
 {%- for variable in neuron.get_continuous_input_ports() %}
-        neuron->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+        input.inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
 {%- endfor %}
     }
 }
@@ -242,7 +261,9 @@ void neuron_impl_print_inputs(uint32_t n_neurons) {
     log_debug("-------------------------------------\n");
     for (index_t i = 0; i < n_neurons; i++) {
         neuron_impl_t *neuron = &neuron_array[i];
-        log_debug("inputs: %k %k", neuron->inputs[0], neuron->inputs[1]);
+        neuron_input_t input = neuron.input;
+
+        log_debug("inputs: %k %k", input.inputs[0], input.inputs[1]);
     }
     log_debug("-------------------------------------\n");
 }
