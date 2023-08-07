@@ -69,7 +69,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
                          artifact_name=self.artifact_name,
                          # ASTNode common attributes:
                          source_position=self.source_position,
-                         scope=self.scope.clone(),
+                         scope=self.scope,
                          comment=self.comment,
                          pre_comments=[s for s in self.pre_comments],
                          in_comment=self.in_comment,
