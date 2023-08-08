@@ -2149,6 +2149,10 @@ class ASTUtils:
         visitor._numeric_state_variables = numeric_state_variable_names
         neuron.accept(visitor)
 
+        if "moved_spike_updates" in dir(neuron):
+            for expr in neuron.moved_spike_updates:
+                expr.accept(visitor)
+
         if update_expressions:
             for expr in update_expressions.values():
                 expr.accept(visitor)
