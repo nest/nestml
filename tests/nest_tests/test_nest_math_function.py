@@ -52,14 +52,7 @@ class TestNestMathFunction:
         nrn = nest.Create("math_function_test_nestml")
         mm = nest.Create("multimeter")
 
-        ln_state_specifier = "ln_state"
-        log10_state_specifier = "log10_state"
-        erf_state_specifier = "erf_state"
-        erfc_state_specifier = "erfc_state"
-        ceil_state_specifier = "ceil_state"
-        floor_state_specifier = "floor_state"
-        round_state_specifier = "round_state"
-        nest.SetStatus(mm, {"record_from": ["x", ln_state_specifier, log10_state_specifier, erf_state_specifier, erfc_state_specifier, ceil_state_specifier, floor_state_specifier, round_state_specifier]})
+        nest.SetStatus(mm, {"record_from": ["x", "ln_state", "log10_state", "erf_state", "erfc_state", "ceil_state", "floor_state", "round_state"]})
 
         nest.Connect(mm, nrn)
 
@@ -67,22 +60,22 @@ class TestNestMathFunction:
 
         if nest_version.startswith("v2"):
             timevec = nest.GetStatus(mm, "events")[0]["x"]
-            ln_state_ts = nest.GetStatus(mm, "events")[0][ln_state_specifier]
-            log10_state_ts = nest.GetStatus(mm, "events")[0][log10_state_specifier]
-            erf_state_ts = nest.GetStatus(mm, "events")[0][erf_state_specifier]
-            erfc_state_ts = nest.GetStatus(mm, "events")[0][erfc_state_specifier]
-            ceil_state_ts = nest.GetStatus(mm, "events")[0][ceil_state_specifier]
-            floor_state_ts = nest.GetStatus(mm, "events")[0][floor_state_specifier]
-            round_state_ts = nest.GetStatus(mm, "events")[0][round_state_specifier]
+            ln_state_ts = nest.GetStatus(mm, "events")[0]["ln_state"]
+            log10_state_ts = nest.GetStatus(mm, "events")[0]["log10_state"]
+            erf_state_ts = nest.GetStatus(mm, "events")[0]["erf_state"]
+            erfc_state_ts = nest.GetStatus(mm, "events")[0]["erfc_state"]
+            ceil_state_ts = nest.GetStatus(mm, "events")[0]["ceil_state"]
+            floor_state_ts = nest.GetStatus(mm, "events")[0]["floor_state"]
+            round_state_ts = nest.GetStatus(mm, "events")[0]["round_state"]
         else:
             timevec = mm.get("events")["x"]
-            ln_state_ts = mm.get("events")[ln_state_specifier]
-            log10_state_ts = mm.get("events")[log10_state_specifier]
-            erf_state_ts = mm.get("events")[erf_state_specifier]
-            erfc_state_ts = mm.get("events")[erfc_state_specifier]
-            ceil_state_ts = mm.get("events")[ceil_state_specifier]
-            floor_state_ts = mm.get("events")[floor_state_specifier]
-            round_state_ts = mm.get("events")[round_state_specifier]
+            ln_state_ts = mm.get("events")["ln_state"]
+            log10_state_ts = mm.get("events")["log10_state"]
+            erf_state_ts = mm.get("events")["erf_state"]
+            erfc_state_ts = mm.get("events")["erfc_state"]
+            ceil_state_ts = mm.get("events")["ceil_state"]
+            floor_state_ts = mm.get("events")["floor_state"]
+            round_state_ts = mm.get("events")["round_state"]
 
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
