@@ -71,7 +71,7 @@ class TestStaticSynapse:
         pre_neuron = nest.Create(self.neuron_model_name)
         post_neuron = nest.Create(self.neuron_model_name)
 
-        pre_neuron.I_e = 999.
+        nest.SetStatus(pre_neuron, {"I_e": 999.})
 
         mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
         nest.Connect(mm, post_neuron)
