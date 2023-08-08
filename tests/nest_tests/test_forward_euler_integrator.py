@@ -42,13 +42,12 @@ class TestForwardEulerIntegrator:
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                            logging_level="DEBUG",
-                            suffix="_" + numeric_solver.replace("-", "_") + "_nestml",
-                            module_name="nestml" + numeric_solver.replace("-", "_") + "module",
-                            codegen_opts={"numeric_solver": numeric_solver})
+                             logging_level="DEBUG",
+                             suffix="_" + numeric_solver.replace("-", "_") + "_nestml",
+                             module_name="nestml" + numeric_solver.replace("-", "_") + "module",
+                             codegen_opts={"numeric_solver": numeric_solver})
 
         nest.Install("nestml" + numeric_solver.replace("-", "_") + "module")
-
 
     def test_forward_euler_integrator(self):
         self.generate_target("forward-Euler")
