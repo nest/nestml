@@ -60,9 +60,8 @@ class TestIgnoreAndFire:
                              codegen_opts=codegen_opts)
 
     def test_ignore_and_fire_with_stdp(self):
-        pre_spike_times = [10., 40., 50.]
         resolution = 1.    # [ms]
-        sim_time = 100.   # [ms]
+        sim_time = 1001.   # [ms]
 
         nest.set_verbosity("M_ALL")
         nest.Install("nestmlmodule")
@@ -71,7 +70,19 @@ class TestIgnoreAndFire:
 
         pre_neuron = nest.Create(self.neuron_model_name)
         post_neuron = nest.Create(self.neuron_model_name)
+        pre_neuron.firing_rate = 10.
+        post_neuron.firing_rate = 100.
+        pre_sr = nest.Create("spike_recorder")
+        post_sr = nest.Create("spike_recorder")
+        nest.Connect(pre_neuron, pre_sr)
+        nest.Connect(post_neuron, post_sr)
 
         nest.Connect(pre_neuron, post_neuron, syn_spec={"synapse_model": self.synapse_model_name})
 
         nest.Simulate(sim_time)
+
+        n_ev_pre = len(pre_sr.get("events")["times"])
+        n_ev_post = len(post_sr.get("events")["times"])
+
+        assert n_ev_pre == 10
+        assert n_ev_post == 100

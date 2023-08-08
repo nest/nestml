@@ -1,6 +1,8 @@
-"""
-ignore_and_fire - Neuron generating spikes at fixed intervals irrespective of inputs
-######################################################################################  
+ignore_and_fire
+###############
+
+
+ignore_and_fire - Neuron generating spikes at fixed intervals irrespective of inputs  
 
 Description
 +++++++++++
@@ -16,33 +18,51 @@ Authors
 
 Tetzlaff (February 2021; January 2022)
 
-"""
 
-neuron ignore_and_fire:
 
-  state:
-    phase real = 1.                ## relative time to next spike (in (0,1])
 
-  parameters:
-    firing_rate Bq = 10. Bq        ## firing rate
-  
-  internals:    
-    firing_period_steps integer = steps( 1. / firing_rate )    ## firing period in steps
-    phase_steps integer = steps( max(0.,phase) / firing_rate ) ## firing phase in steps
+Parameters
+++++++++++
+.. csv-table::
+    :header: "Name", "Physical unit", "Default value", "Description"
+    :widths: auto
 
-  input:
-    spikes Bq <- spike   ## the neuron receives spikes, but is not processing them
+    
+    "firing_rate", "Bq", "10.0Bq", "# firing rate"
 
-  output:
-    spike
 
-  update:
-   integrate_odes()
-   if phase_steps == 0:
-       emit_spike()
-       phase_steps = firing_period_steps - 1
-       #println("spike")
-    else:
-       phase_steps -= 1
 
-    phase = 1. * phase_steps / firing_period_steps
+State variables
++++++++++++++++
+
+.. csv-table::
+    :header: "Name", "Physical unit", "Default value", "Description"
+    :widths: auto
+
+    
+    "phase", "real", "1.0", "# relative time to next spike (in (0,1])"
+
+
+
+
+Equations
++++++++++
+
+
+
+
+
+Source code
++++++++++++
+
+The model source code can be found in the NESTML models repository here: `ignore_and_fire <https://github.com/nest/nestml/tree/master/models/neurons/ignore_and_fire.nestml>`_.
+
+Characterisation
+++++++++++++++++
+
+.. include:: ignore_and_fire_characterisation.rst
+
+
+.. footer::
+
+   Generated at 2023-08-08 15:01:40.284515
