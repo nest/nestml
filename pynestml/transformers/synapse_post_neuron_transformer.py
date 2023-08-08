@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Any, Sequence, Mapping, Optional, Union
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
@@ -531,10 +532,15 @@ class SynapsePostNeuronTransformer(Transformer):
                 raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
 
             new_neuron, new_synapse = self.transform_neuron_synapse_pair_(neuron, synapse)
-
-            # Replace the original synapse model with the co-generated one
-            model_idx = models.index(synapse)
-            models[model_idx] = new_synapse
             models.append(new_neuron)
+            models.append(new_synapse)
+
+        # remove the synapses used in neuron-synapse pairs, as they can potentially not be generated independently of a neuron and would otherwise result in an error
+        for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
+            synapse_name = neuron_synapse_pair["synapse"]
+            synapse = ASTUtils.find_model_by_name(synapse_name + FrontendConfiguration.suffix, models)
+            if synapse:
+                model_idx = models.index(synapse)
+                models.pop(model_idx)
 
         return models
