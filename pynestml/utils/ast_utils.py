@@ -1197,7 +1197,7 @@ class ASTUtils:
         """
         Get the expression using the kernel variable
         """
-        assert type(var_name) == str
+        assert isinstance(var_name, str)
         for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
             if var.get_complete_name() == var_name:
                 return expr
