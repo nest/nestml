@@ -80,7 +80,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 def find_spiking_post_port(synapse, namespace):
     if "paired_neuron" in dir(synapse):
         for post_port_name in namespace["post_ports"]:
-            if ASTUtils.get_input_port_by_name(synapse.get_input_blocks(), post_port_name).is_spike():
+            if ASTUtils.get_input_port_by_name(synapse, post_port_name).is_spike():
                 return post_port_name
     return None
 

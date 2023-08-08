@@ -32,13 +32,13 @@ class TestSpiNNakerIafPscExp:
                     scope="module")
     def generate_code(self):
 
-        #jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-        #                                              "synapse": "stdp",
-        #                                              "post_ports": ["post_spikes"]}]}
+        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                      "synapse": "stdp",
+                                                      "post_ports": ["post_spikes"]}]}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-            #os.path.join("models", "synapses", "stdp_synapse.nestml")
+            os.path.join("models", "synapses", "stdp_synapse.nestml")
             ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -53,7 +53,7 @@ class TestSpiNNakerIafPscExp:
                                   logging_level=logging_level,
                                   module_name=module_name,
                                   suffix=suffix,
-                                  #codegen_opts=jit_codegen_opts
+                                  codegen_opts=jit_codegen_opts
                                   )
 
     def test_logarithmic_function(self):

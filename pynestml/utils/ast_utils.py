@@ -691,7 +691,7 @@ class ASTUtils:
                     symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
                                                                        SymbolKind.VARIABLE)
                     input_port = ASTUtils.get_input_port_by_name(
-                        self.parent_node.get_input_blocks(), symbol_buffer.name)
+                        self.parent_node, symbol_buffer.name)
                     if input_port:
                         found_parent_assignment = False
                         node_ = node
@@ -1315,14 +1315,14 @@ class ASTUtils:
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
-    def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> ASTInputPort:
+    def get_input_port_by_name(cls, node: ASTNeuronOrSynapse, port_name: str) -> ASTInputPort:
         """
         Get the input port given the port name
         :param input_block: block to be searched
         :param port_name: name of the input port
         :return: input port object
         """
-        for input_block in input_blocks:
+        for input_block in node.get_input_blocks():
             for input_port in input_block.get_input_ports():
                 if input_port.name == port_name:
                     return input_port
@@ -1411,6 +1411,9 @@ class ASTUtils:
                 assert len(node.get_equations_blocks()) == 1, "Only one equations block supported for now"
                 var.scope = node.get_equations_blocks()[0].scope
 
+        if not var:
+            var = ASTUtils.get_input_port_by_name(node, var_name)
+
         return var
 
     @classmethod
@@ -1442,6 +1445,27 @@ class ASTUtils:
                     if var.get_name() == var_name:
                         return decl
         return None
+
+    @classmethod 
+    def get_datatype_by_name(cls, node: ASTNeuronOrSynapse, var_name: str) -> Optional[str]:
+        var = ASTUtils.get_state_variable_by_name(node, var_name)
+        if var :
+            return var.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE).type_symbol
+
+        var = ASTUtils.get_parameter_variable_by_name(node, var_name)
+
+        var = ASTUtils.get_internal_variable_by_name(node, var_name)
+
+        expr = ASTUtils.get_inline_expression_by_name(node, var_name)
+        if expr:
+            var = ASTNodeFactory.create_ast_variable(var_name, differential_order=0)
+            assert len(node.get_equations_blocks()) == 1, "Only one equations block supported for now"
+            var.scope = node.get_equations_blocks()[0].scope
+
+
+        var = ASTUtils.get_input_port_by_name(node, var_name)
+
+        return var
 
     @classmethod
     def collect_variable_names_in_expression(cls, expr: ASTNode) -> List[ASTVariable]:

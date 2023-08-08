@@ -15,18 +15,6 @@
 #include <neuron/plasticity/stdp/synapse_structure/synapse_structure_weight_impl.h>
 #include <neuron/plasticity/stdp/timing_dependence/timing.h>
 
-
-/*** Defined in post_events.h
-typedef struct {
-    //! Number of events stored (minus one)
-    uint32_t count_minus_one;
-    //! Event times
-    uint32_t times[MAX_POST_SYNAPTIC_EVENTS];
-    //! Event traces
-    post_trace_t traces[MAX_POST_SYNAPTIC_EVENTS];
-} post_event_history_t;
-
-***/
 #include <neuron/plasticity/stdp/post_events.h>
 
 
@@ -91,8 +79,6 @@ bool synapse_dynamics_initialise (
 
     // Initialise created space with read parameters
     for (uint32_t s = 0; s < n_synapse_types; s++, config++) {
-        dtcm_copy[s].min_weight = config->min_weight;
-        dtcm_copy[s].max_weight = config->max_weight;
         /***
 
 {%- for sym in synapse.get_parameter_symbols() | sort(attribute="name") %}
@@ -364,6 +350,7 @@ static inline post_trace_t timing_decay_post(
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
 /***
+{# 
 {%- filter indent(6, True) %}
 {%- with analytic_state_variables_ = post_ports|sort %}
 {%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
@@ -373,6 +360,7 @@ static inline post_trace_t timing_add_post_spike(
 {%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
+#}
 ***/
 
     // Decay previous o1 and o2 traces
@@ -459,6 +447,18 @@ static inline plastic_synapse_t process_plastic_synapse(
 static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
     extern int16_lut *tau_plus_lookup;
+/***
+{%- filter indent(2, True) %}
+{%- with analytic_state_variables_ = analytic_state_variables %}
+{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
+{%- endwith %}
+{%- with analytic_state_variables_ = analytic_state_variables %}
+{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
+{%- endwith %}
+{%- endfilter %}
+***/
+
+
     // Get time since last spike
     uint32_t delta_time = time - last_time;
 
