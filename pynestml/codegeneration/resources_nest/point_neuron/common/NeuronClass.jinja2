@@ -188,7 +188,9 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
   , __s( nullptr ), __c( nullptr ), __e( nullptr )
+{%-     endif %}
 {%- endif %}
 {
   // Initialization of the remaining members is deferred to init_buffers_().
@@ -201,7 +203,9 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
   , __s( nullptr ), __c( nullptr ), __e( nullptr )
+{%-     endif %}
 {%- endif %}
 {
   // Initialization of the remaining members is deferred to init_buffers_().
@@ -221,9 +225,11 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- endif %}
 
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
+{%-     endif %}
 {%- endif %}
 
 {%- if parameter_vars_with_iv|length > 0 %}
@@ -325,6 +331,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {{neuronName}}::~{{neuronName}}()
 {
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
   // GSL structs may not have been allocated, so we need to protect destruction
 
   if (B_.__s)
@@ -341,6 +348,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   {
     gsl_odeiv_evolve_free( B_.__e );
   }
+{%-     endif %}
 {%- endif %}
 }
 
@@ -389,6 +397,7 @@ void {{neuronName}}::init_buffers_()
   clear_history();
 {%- endif %}
 {%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
   if ( not B_.__s )
   {
@@ -423,6 +432,7 @@ void {{neuronName}}::init_buffers_()
   B_.__sys.params = reinterpret_cast< void* >( this );
   B_.__step = nest::Time::get_resolution().get_ms();
   B_.__integration_step = nest::Time::get_resolution().get_ms();
+{%-     endif %}
 {%- endif %}
 }
 
