@@ -25,6 +25,7 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -59,6 +60,8 @@ class TestIgnoreAndFire:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_ignore_and_fire_with_stdp(self):
         resolution = 1.    # [ms]
         sim_time = 1001.   # [ms]
