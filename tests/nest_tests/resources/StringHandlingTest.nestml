@@ -1,6 +1,6 @@
 """ 
-MathFunctionTest.nestml
-#######################
+StringHandlingTest.nestml
+#########################
 
 
 Copyright statement
@@ -23,23 +23,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron math_function_test:
+neuron string_handling_test:
     state:
-        x real = 0.
-        ln_state real = 0.
-        log10_state real = 0.
-        erf_state real = 0.
-        erfc_state real = 0.
-        ceil_state real = 0.
-        floor_state real = 0.
-        round_state real = 0.
+        s1 string = "abc"
+        s2 string = "def"
+        b1 boolean = false
+        b2 boolean = false
+
+    parameters:
+        s3 string = "ghi"
+        s4 string = "klm"
+
+    internals:
+        s5 string = "ghi"
 
     update:
-        ln_state = ln(x)
-        log10_state = log10(x)
-        erf_state = erf(x)
-        erfc_state = erfc(x)
-        ceil_state = ceil(x / 10.)
-        floor_state = floor(x / 10.)
-        round_state = round(x / 10.)
-        x = x + 1.
+        s7 string = s1 + s2
+        if s7 == "abcdef":
+            b1 = true
+
+        if s3 + s4 == s5 + "klm":
+            b2 = true

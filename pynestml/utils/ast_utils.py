@@ -1197,7 +1197,7 @@ class ASTUtils:
         """
         Get the expression using the kernel variable
         """
-        assert type(var_name) == str
+        assert isinstance(var_name, str)
         for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
             if var.get_complete_name() == var_name:
                 return expr
@@ -1304,14 +1304,11 @@ class ASTUtils:
 
         rhs_is_delta_kernel = type(expr) is ASTSimpleExpression \
             and expr.is_function_call() \
-            and expr.get_function_call().get_scope().resolve_to_symbol(
-            expr.get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
+            and expr.get_function_call().get_scope().resolve_to_symbol(expr.get_function_call().get_name(), SymbolKind.FUNCTION).equals(PredefinedFunctions.name2function["delta"])
         rhs_is_multiplied_delta_kernel = type(expr) is ASTExpression \
             and type(expr.get_rhs()) is ASTSimpleExpression \
             and expr.get_rhs().is_function_call() \
-            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
-            expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function[
-            "delta"]
+            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION).equals(PredefinedFunctions.name2function["delta"])
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
@@ -2141,6 +2138,10 @@ class ASTUtils:
         visitor = ASTVariableOriginSetterVisitor()
         visitor._numeric_state_variables = numeric_state_variable_names
         neuron.accept(visitor)
+
+        if "moved_spike_updates" in dir(neuron):
+            for expr in neuron.moved_spike_updates:
+                expr.accept(visitor)
 
         if update_expressions:
             for expr in update_expressions.values():

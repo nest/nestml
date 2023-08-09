@@ -115,6 +115,15 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.ERFC:
             return 'std::erfc({!s})'
 
+        if function_name == PredefinedFunctions.CEIL:
+            return 'std::ceil({!s})'
+
+        if function_name == PredefinedFunctions.FLOOR:
+            return 'std::floor({!s})'
+
+        if function_name == PredefinedFunctions.ROUND:
+            return 'std::round({!s})'
+
         if function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1({!s})'
 
