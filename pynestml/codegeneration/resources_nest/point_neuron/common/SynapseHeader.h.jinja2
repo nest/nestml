@@ -340,7 +340,9 @@ private:
 {%- endfilter %}
 
 {% if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
     double __gsl_error_tol;
+{%     endif %}
 {% endif %}
 
     /** Initialize parameters to their default values. */
@@ -1091,11 +1093,13 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
   }
 {%- endfor %}
 {% if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. ){
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
   }
+{%     endif %}
 {% endif %}
 
   // special treatment of NEST delay

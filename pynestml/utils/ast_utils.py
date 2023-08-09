@@ -1910,7 +1910,8 @@ class ASTUtils:
             for decl in equation_block.get_declarations():
                 if isinstance(decl, ASTInlineExpression) \
                    and isinstance(decl.get_expression(), ASTSimpleExpression) \
-                   and '__X__' in str(decl.get_expression()):
+                   and '__X__' in str(decl.get_expression()) \
+                   and decl.get_expression().get_variable():
                     replace_with_var_name = decl.get_expression().get_variable().get_name()
                     neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
                         x, decl.get_variable_name(), replace_with_var_name)))
