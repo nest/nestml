@@ -371,14 +371,14 @@ class NESTMLPrinter(ModelPrinter):
             ret += " " + self.print(node.get_datatype()) + " "
         if node.has_size_parameter():
             ret += "[" + node.get_size_parameter() + "]"
-        ret += "<-"
+        ret += "<- "
         if node.has_input_qualifiers():
             for qual in node.get_input_qualifiers():
                 ret += self.print(qual) + " "
         if node.is_spike():
             ret += "spike"
         else:
-            ret += "current"
+            ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
 
@@ -442,7 +442,9 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_output_block(self, node: ASTOutputBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "output: " + ("spike" if node.is_spike() else "current")
+        ret += print_n_spaces(self.indent) + "output:\n"
+        ret += print_n_spaces(self.indent + 4)
+        ret += "spike" if node.is_spike() else "continuous"
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
         return ret
