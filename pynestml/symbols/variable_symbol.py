@@ -160,7 +160,7 @@ class VariableSymbol(Symbol):
         Returns whether this variable has a delay value associated with it.
         :return: bool
         """
-        return self.delay_parameter is not None and type(self.delay_parameter) == str
+        return self.delay_parameter is not None and isinstance(self.delay_parameter, str)
 
     def get_block_type(self):
         """
@@ -425,7 +425,7 @@ class VariableSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return (type(self) != type(other)
+        return (isinstance(other, type(self))
                 and self.get_referenced_object() == other.get_referenced_object()
                 and self.get_symbol_name() == other.get_symbol_name()
                 and self.get_corresponding_scope() == other.get_corresponding_scope()
