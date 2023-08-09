@@ -1629,6 +1629,9 @@ class ASTUtils:
                     spike_in_port = ASTUtils.get_input_port_by_name(neuron.get_input_blocks(), spike_in_port_name)
                     if spike_in_port:
                         type_str = NESTMLPrinter().print_data_type(spike_in_port.data_type)
+                        differential_order: int = len(re.findall("__d", var_name))
+                        if differential_order:
+                            type_str += "*s**-" + str(differential_order)
                     else:
                         type_str = "real"
                     expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
