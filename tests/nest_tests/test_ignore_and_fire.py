@@ -87,5 +87,5 @@ class TestIgnoreAndFire:
         n_ev_pre = len(pre_sr.get("events")["times"])
         n_ev_post = len(post_sr.get("events")["times"])
 
-        assert n_ev_pre == 10
-        assert n_ev_post == 100
+        assert n_ev_pre == pre_neuron.firing_rate
+        assert n_ev_post == post_neuron.firing_rate
