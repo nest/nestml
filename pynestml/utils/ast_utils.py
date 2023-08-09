@@ -554,8 +554,8 @@ class ASTUtils:
             else:
                 return
 
-            if not suffix in var.get_name() \
-               and not var.get_name() == "t":
+            if not var.get_name() == "t" \
+               and not var.get_name().endswith(suffix):
                 var.set_name(var.get_name() + suffix)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
@@ -566,6 +566,15 @@ class ASTUtils:
             for inline_expr in equations_block.get_inline_expressions():
                 if name == inline_expr.variable_name:
                     return inline_expr
+
+        return None
+
+    @classmethod
+    def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
+        for equations_block in node.get_equations_blocks():
+            for kernel in equations_block.get_kernels():
+                if name in kernel.get_variable_names():
+                    return kernel
 
         return None
 
@@ -712,7 +721,8 @@ class ASTUtils:
         return variables
 
     @classmethod
-    def move_decls(cls, var_name, from_block, to_block, var_name_suffix, block_type: BlockType, mode="move", scope=None) -> List[ASTDeclaration]:
+    def move_decls(cls, var_name, from_block, to_block, var_name_suffix: str, block_type: BlockType, mode="move") -> List[ASTDeclaration]:
+        """Move or copy declarations from ``from_block`` to ``to_block``."""
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         assert mode in ["move", "copy"]
 
@@ -721,11 +731,11 @@ class ASTUtils:
             return []
 
         decls = ASTUtils.get_declarations_from_block(var_name, from_block)
-        if var_name.endswith(var_name_suffix):
+        if var_name_suffix and var_name.endswith(var_name_suffix):
             decls.extend(ASTUtils.get_declarations_from_block(removesuffix(var_name, var_name_suffix), from_block))
 
         if decls:
-            Logger.log_message(None, -1, "Moving definition of " + var_name + " from synapse to neuron",
+            Logger.log_message(None, -1, ("Moving" if mode == "move" else "Copying") + " definition of " + var_name + " from synapse to neuron",
                                None, LoggingLevel.INFO)
             for decl in decls:
                 if mode == "move":
@@ -733,7 +743,7 @@ class ASTUtils:
                 if mode == "copy":
                     decl = decl.clone()
                 assert len(decl.get_variables()) <= 1
-                if not decl.get_variables()[0].name.endswith(var_name_suffix):
+                if not decl.get_variables()[0].name.endswith(var_name_suffix) and var_name_suffix:
                     ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
                 to_block.get_declarations().append(decl)
                 decl.update_scope(to_block.get_scope())
@@ -1456,7 +1466,11 @@ class ASTUtils:
             elif isinstance(_expr, ASTVariable):
                 var = _expr
 
-            if var:
+            symbol = None
+            if var and var.get_scope():
+                symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
+
+            if var and symbol:
                 vars_used_.append(var)
 
         expr.accept(ASTHigherOrderVisitor(lambda x: collect_vars(x)))
@@ -1513,6 +1527,7 @@ class ASTUtils:
                 if not _var in vars_checked:
                     var = _var
                     break
+
             if not var:
                 # all variables checked
                 break
