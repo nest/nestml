@@ -48,6 +48,8 @@ class TestForwardEulerIntegrator:
 
         nest.Install("nestml" + numeric_solver.replace("-", "_") + "module")
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_forward_euler_integrator(self):
         self.generate_target("forward-Euler")
         self.generate_target("rk45")
