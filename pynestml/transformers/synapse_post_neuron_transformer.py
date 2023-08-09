@@ -224,6 +224,9 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
 
+        new_neuron.accept(ASTSymbolTableVisitor())
+        new_synapse.accept(ASTSymbolTableVisitor())
+
         assert len(new_neuron.get_equations_blocks()) <= 1, "Only one equations block per neuron supported for now."
         assert len(new_synapse.get_equations_blocks()) <= 1, "Only one equations block per synapse supported for now."
         assert len(new_neuron.get_state_blocks()) <= 1, "Only one state block supported per neuron for now."
