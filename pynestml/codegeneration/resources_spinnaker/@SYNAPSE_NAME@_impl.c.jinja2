@@ -349,30 +349,24 @@ static inline post_trace_t timing_decay_post(
 //! \return the updated post trace
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
-/***
-{# 
-{%- filter indent(6, True) %}
-{%- with analytic_state_variables_ = post_ports|sort %}
+
+    // Update propagator based on deltatime
+    int32_t temp__h = parameter.__h;
+{%- filter indent(4, True) %}
+{%- set analytic_state_variables_ = [] %}
+{%- for item in analytic_state_variables %}
+{%-      if item == "post_trace"%}
+{%-          set _ = analytic_state_variables_.append(item) %}
+{%-     endif %}
+{%- endfor %}
 {%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-
-{%- with analytic_state_variables_ = post_ports|sort %}
 {%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
 {%- endfilter %}
-#}
-***/
+    parameter.__h = temp__h;
 
-    // Decay previous o1 and o2 traces
-    int16_t decayed_o1_trace = timing_decay_post(time, last_time, last_trace);
+    state.post_trace += 1;
 
-    // Add energy caused by new spike to trace
-    // **NOTE** o2 trace is pre-multiplied by a3_plus
-    int16_t new_o1_trace = decayed_o1_trace + STDP_FIXED_POINT_ONE;
-
-    // Return new pre- synaptic event with decayed trace values with energy
-    // for new spike added
-    return (post_trace_t) new_o1_trace;
+    return (post_trace_t) 0;
 }
 
 // init new post_trace_t and ad to post_events
@@ -446,32 +440,34 @@ static inline plastic_synapse_t process_plastic_synapse(
 
 static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
-    extern int16_lut *tau_plus_lookup;
-/***
-{%- filter indent(2, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-{%- with analytic_state_variables_ = analytic_state_variables %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
+
+    // update propagator based on deltatime
+    int32_t temp__h = parameter.__h;
+    parameter.__h = time - last_time;
+{% filter indent(2) %}
+{%- for variable_symbol in synapse.get_internal_symbols() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not variable_symbol.get_symbol_name() == "__h" %}
+{%-         include "directives_cpp/MemberInitialization.jinja2" %}
+{%-     endif %}
+{%- endfor %}
 {%- endfilter %}
-***/
+    parameter.__h = temp_h;
 
+{%- filter indent(4, True) %}
+{%- set analytic_state_variables_ = [] %}
+{%- for item in analytic_state_variables %}
+{%-      if item == "pre_trace"%}
+{%-          set _ = analytic_state_variables_.append(item) %}
+{%-     endif %}
+{%- endfor %}
+{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
+{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
+{%- endfilter %}
 
-    // Get time since last spike
-    uint32_t delta_time = time - last_time;
+    state.pre_trace += 1;
 
-    // Decay previous r1 and r2 traces
-    int32_t decayed_r1_trace = STDP_FIXED_MUL_16X16(last_trace,
-        maths_lut_exponential_decay(delta_time, tau_plus_lookup));
-
-    // Add energy caused by new spike to trace
-    int32_t new_r1_trace = decayed_r1_trace + STDP_FIXED_POINT_ONE;
-
-    // Return new pre-synaptic event with decayed trace values with energy
-    // for new spike added
-    return (pre_trace_t) new_r1_trace;
+    return 0;
 }
 
 
