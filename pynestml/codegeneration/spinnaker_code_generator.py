@@ -154,6 +154,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
                            "@NEURON_NAME@.py.jinja2",
                            "@NEURON_NAME@_impl.py.jinja2",
                            "@NEURON_NAME@_chain_example.py.jinja2",
+                           "__init__.py.jinja2",
                            "Makefile_@NEURON_NAME@_impl.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@_impl.c.jinja2",
                             "@SYNAPSE_NAME@_impl.h.jinja2",
@@ -185,7 +186,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_cpp._target = "SpiNNaker"
 
         options_py = copy.deepcopy(PythonStandaloneCodeGenerator._default_options)
-        options_py["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if (fname.endswith(".py.jinja2")) and "@NEURON_NAME@" in fname]
+        options_py["templates"]["model_templates"]["neuron"] = [fname for fname in self._options["templates"]["model_templates"]["neuron"] if (fname.endswith(".py.jinja2")) and ("@NEURON_NAME@" in fname or fname == "__init__.py.jinja2")]
         options_py["templates"]["model_templates"]["synapse"] = [fname for fname in self._options["templates"]["model_templates"]["synapse"] if (fname.endswith(".py.jinja2")) and "@SYNAPSE_NAME@" in fname]
         options_py["nest_version"] = "<not available>"
         options_py["templates"]["module_templates"] = []

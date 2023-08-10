@@ -139,15 +139,11 @@ class SpiNNakerBuilder(Builder):
                 pass
 
             try:
-                subprocess.check_call("touch", os.path.join(install_path, "python_models8", "__init__.py"))   # XXX: TODO: NEEDS CONTENT 
-                """
-                import os
-from spynnaker.pyNN.data import SpynnakerDataView
-from python_models8 import model_binaries
-
-# This adds the model binaries path to the paths searched by sPyNNaker
-SpynnakerDataView.register_binary_search_path(os.path.dirname(model_binaries.__file__))
-"""
+                to_path = os.path.join(install_path, "python_models8")
+                subprocess.check_call(["cp", "-v", "__init__.py", to_path],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=str(os.path.join(target_path)))
             except Exception:
                 pass
 
@@ -213,7 +209,7 @@ SpynnakerDataView.register_binary_search_path(os.path.dirname(model_binaries.__f
                 pass
 
             try:
-                subprocess.check_call("touch", os.path.join(install_path, "python_models8", "model_binaries", "__init__.py"))
+                subprocess.check_call(["touch", os.path.join(install_path, "python_models8", "model_binaries", "__init__.py")])
             except Exception:
                 pass
 

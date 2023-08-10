@@ -25,7 +25,7 @@ PyNESTML.egg-info/
 *.pyc
 
 !__init__.py
-
+!*.jinja2
 *.jar
 venv
 
