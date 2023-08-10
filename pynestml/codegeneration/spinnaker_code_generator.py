@@ -194,20 +194,20 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py._target = "SpiNNaker"
 
     def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
-        self.codegen_cpp.generate_code(models)
+        # self.codegen_cpp.generate_code(models)
 
-        # cloned_models = []
-        # for model in models:
-        #     cloned_model = model.clone()
-        #     cloned_model.accept(ASTSymbolTableVisitor())
-        #     cloned_models.append(cloned_model)
+        cloned_models = []
+        for model in models:
+            cloned_model = model.clone()
+            cloned_model.accept(ASTSymbolTableVisitor())
+            cloned_models.append(cloned_model)
 
-        # self.codegen_cpp.generate_code(cloned_models)
+        self.codegen_cpp.generate_code(cloned_models)
 
-        # cloned_models = []
-        # for model in models:
-        #     cloned_model = model.clone()
-        #     cloned_model.accept(ASTSymbolTableVisitor())
-        #     cloned_models.append(cloned_model)
+        cloned_models = []
+        for model in models:
+            cloned_model = model.clone()
+            cloned_model.accept(ASTSymbolTableVisitor())
+            cloned_models.append(cloned_model)
 
-        # self.codegen_py.generate_code(cloned_models)
+        self.codegen_py.generate_code(cloned_models)
