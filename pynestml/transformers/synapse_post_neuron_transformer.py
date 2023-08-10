@@ -163,7 +163,7 @@ class SynapsePostNeuronTransformer(Transformer):
                     symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
                                                                        SymbolKind.VARIABLE)
                     input_port = ASTUtils.get_input_port_by_name(
-                        self.parent_node, symbol_buffer.name)
+                        self.parent_node.get_input_blocks(), symbol_buffer.name)
                     if input_port and not self.codegen_class.is_post_port(input_port.name, neuron_name, synapse_name):
                         kernel_name = node.get_args()[0].get_variable().name
                         self._variables.append(kernel_name)
