@@ -303,7 +303,7 @@ parser grammar PyNestMLParser;
     @attribute inputPort: A list of input ports.
   */
   inputBlock: INPUT_KEYWORD COLON
-              NEWLINE INDENT inputPort+ DEDENT;
+              NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
       spike_in[3] <- excitatory spike
@@ -315,12 +315,18 @@ parser grammar PyNestMLParser;
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous-time input.
   */
-  inputPort:
+  spikeInputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
-    dataType
     LEFT_ANGLE_MINUS inputQualifier*
-    (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) NEWLINE;
+    SPIKE_KEYWORD NEWLINE;
+
+  continuousInputPort:
+    name = NAME
+    (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
+    dataType
+    LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD NEWLINE;
+
 
   /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
     @attribute isInhibitory: Indicates that this spiking input port is inhibitory.

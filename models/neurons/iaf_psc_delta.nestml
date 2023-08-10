@@ -57,7 +57,7 @@ neuron iaf_psc_delta:
 
     equations:
         kernel G = delta(t)
-        V_m' = -(V_m - E_L) / tau_m + convolve(G, spikes) / ms + (I_e + I_stim) / C_m
+        V_m' = -(V_m - E_L) / tau_m + (mV / ms) * convolve(G, spikes) + (I_e + I_stim) / C_m
 
     parameters:
         tau_m   ms = 10 ms              # Membrane time constant
@@ -78,7 +78,7 @@ neuron iaf_psc_delta:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
-        spikes mV/s <- spike
+        spikes <- spike
         I_stim pA <- continuous
 
     output:
@@ -102,7 +102,7 @@ neuron iaf_psc_delta:
             # for decay until end of refractory period
             # the buffer is clear automatically
             if with_refr_input:
-                refr_spikes_buffer += spikes * s * exp(-r * h / tau_m)
+                refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV
             r -= 1
 
         if V_m >= V_th: # threshold crossing
