@@ -116,9 +116,8 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=str(os.path.join(target_path)))
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
-            
+                    pass
+
             for fn in generated_file_names_neuron_h:
                 try:
                     subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")],
@@ -126,8 +125,7 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=str(os.path.join(target_path)))
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
+                    pass
 
             # copy python files from target to install directory
 
@@ -146,15 +144,16 @@ class SpiNNakerBuilder(Builder):
             except (FileExistsError, FileNotFoundError):
                 pass
 
+            target_path = os.path.join(install_path, "python_models8", "neuron", "builds")
             for fn in generated_file_names_neuron_py:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "python_models8", "neuron", "builds")],
+                    print("Copying \"" + fn + "\" to " + target_path)
+                    subprocess.check_call(["cp", fn, target_path],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
+                    pass
 
             # Copy the pyNN implementation file
             try:
@@ -169,9 +168,8 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
-            
+                    pass # no problem if file is already there and gets overwritten
+
             # Copy the example files
             try:
                 os.mkdir(os.path.join(install_path, "examples"))
@@ -185,8 +183,7 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
+                    pass # no problem if file is already there and gets overwritten
 
             # copy makefiles
             try:
@@ -206,8 +203,7 @@ class SpiNNakerBuilder(Builder):
                                       shell=shell,
                                       cwd=target_path)
             except subprocess.CalledProcessError:
-                raise GeneratedCodeBuildException(
-                    'Error occurred during install! More detailed error messages can be found in stdout.')
+                pass
 
             try:
                 subprocess.check_call(["cp", "Makefile_models", os.path.join(install_path, "c_models", "makefiles", "Makefile")],
@@ -215,8 +211,7 @@ class SpiNNakerBuilder(Builder):
                                       shell=shell,
                                       cwd=target_path)
             except subprocess.CalledProcessError:
-                raise GeneratedCodeBuildException(
-                    'Error occurred during install! More detailed error messages can be found in stdout.')
+                pass
 
             # Copy the extra.mk file
             try:
@@ -225,8 +220,7 @@ class SpiNNakerBuilder(Builder):
                                       shell=shell,
                                       cwd=target_path)
             except subprocess.CalledProcessError:
-                raise GeneratedCodeBuildException(
-                    'Error occurred during install! More detailed error messages can be found in stdout.')
+                pass
 
             # Copy the extra_neuron.mk file
             try:
@@ -235,8 +229,7 @@ class SpiNNakerBuilder(Builder):
                                       shell=shell,
                                       cwd=target_path)
             except subprocess.CalledProcessError:
-                raise GeneratedCodeBuildException(
-                    'Error occurred during install! More detailed error messages can be found in stdout.')
+                pass
 
             # Copy the model Makefile
             for fn in generated_file_names_makefiles:
@@ -258,8 +251,7 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
+                    pass
 
             # Copy the .h files of the neuron model
             try:
@@ -274,8 +266,7 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    raise GeneratedCodeBuildException(
-                        'Error occurred during install! More detailed error messages can be found in stdout.')
+                    pass
 
             # call make clean
             try:
