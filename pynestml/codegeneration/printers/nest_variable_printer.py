@@ -47,7 +47,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
-        self._state_symbols = []
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -159,8 +158,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
-        assert all([type(s) == str for s in self._state_symbols])
-
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
 
         if symbol.is_local():

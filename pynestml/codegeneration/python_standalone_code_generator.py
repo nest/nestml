@@ -64,7 +64,9 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
                 "neuron": ["@NEURON_NAME@.py.jinja2"]
             },
             "module_templates": ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2"]
-        }
+        },
+        "solver": "analytic",
+        "numeric_solver": "rk45"
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):

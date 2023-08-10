@@ -163,7 +163,7 @@ class NestIntegrationTest(unittest.TestCase):
         s += "Synapse models\n~~~~~~~~~~~~~~\n\n"
 
         synapse_models = []
-        synapse_models.append(("static", "static_synapse.nestml"))
+        synapse_models.append(("static_synapse", "static_synapse.nestml"))
         synapse_models.append(("noisy_synapse", "noisy_synapse.nestml"))
         synapse_models.append(("stdp", "stdp_synapse.nestml"))
         synapse_models.append(("stdp_nn_pre_centered", "stdp_nn_pre_centered.nestml"))
