@@ -35,8 +35,8 @@
 #endif
 
 // post_trace / pre_trace from nestml
-typedef s1615 post_trace_t;
-typedef s1615 pre_trace_t;
+typedef REAL post_trace_t;
+typedef REAL pre_trace_t;
 
 
 /*****
@@ -89,7 +89,15 @@ typedef struct {
 
 //TODO: switch to fixed point
 typedef struct {
-    REAL {{synapse.get_weight_variable()}};
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+    // special case for variable marked with @nest::weight decorator
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         if nest_namespace_name == "weight" %}
+    {{type_symbol_printer.print(variable_symbol.type_symbol) }} {{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
     
     REAL potentiation; // Intermediate to apply combined potentiation -> one heavy computation 
     REAL depression; // Intermediate to apply combined depression -> one heavy computation 

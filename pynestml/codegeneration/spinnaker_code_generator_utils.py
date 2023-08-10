@@ -36,19 +36,19 @@ class SPINNAKERCodeGeneratorUtils:
             if numerical_state_symbols and variable_symbol.get_symbol_name() in numerical_state_symbols:
                 return 'S_.ode_state[State_::%s]'
 
-            return 'neuron->%s'
+            return 'state.%s'
 
         if variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'neuron->%s'
+            return 'parameter.%s'
 
         if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
-            return 'neuron->%s'
+            return 'parameter.%s'
 
         if variable_symbol.block_type == BlockType.INTERNALS:
-            return 'neuron->%s'
+            return 'parameter.%s'
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return 'neuron->%s'
+            return 'input.%s'
 
         return ''
         
