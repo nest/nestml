@@ -139,7 +139,15 @@ class SpiNNakerBuilder(Builder):
                 pass
 
             try:
-                subprocess.check_call("touch", os.path.join(install_path, "python_models8", "__init__.py"))
+                subprocess.check_call("touch", os.path.join(install_path, "python_models8", "__init__.py"))   # XXX: TODO: NEEDS CONTENT 
+                """
+                import os
+from spynnaker.pyNN.data import SpynnakerDataView
+from python_models8 import model_binaries
+
+# This adds the model binaries path to the paths searched by sPyNNaker
+SpynnakerDataView.register_binary_search_path(os.path.dirname(model_binaries.__file__))
+"""
             except Exception:
                 pass
 
@@ -198,10 +206,15 @@ class SpiNNakerBuilder(Builder):
                 except subprocess.CalledProcessError:
                     pass # no problem if file is already there and gets overwritten
 
-            # copy makefiles
+            # create python_models8 module directory
             try:
                 os.makedirs(os.path.join(install_path, "python_models8", "model_binaries"))
             except (FileExistsError, FileNotFoundError):
+                pass
+
+            try:
+                subprocess.check_call("touch", os.path.join(install_path, "python_models8", "model_binaries", "__init__.py"))
+            except Exception:
                 pass
 
             # Copy the root Makefile
