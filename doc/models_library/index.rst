@@ -292,6 +292,15 @@ Wang-Buzsaki model with multiple synapses
 
 Source file: `wb_cond_multisyn.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_multisyn.nestml>`_
 
+
+:doc:`ignore_and_fire <ignore_and_fire>`
+------------------------------------
+
+Neuron generating spikes at fixed intervals irrespective of inputs
+
+Source file: `ignore_and_fire.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/ignore_and_fire.nestml>`_
+
+
 Synapse models
 ~~~~~~~~~~~~~~
 
