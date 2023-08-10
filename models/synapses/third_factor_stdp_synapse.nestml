@@ -60,8 +60,8 @@ synapse third_factor_stdp:
         inline post_trace real = convolve(post_trace_kernel, post_spikes)
 
     input:
-        pre_spikes 1/s <- spike
-        post_spikes 1/s <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
         I_post_dend pA <- continuous
 
     output:

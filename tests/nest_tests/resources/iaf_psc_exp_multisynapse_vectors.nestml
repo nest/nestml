@@ -21,7 +21,7 @@ neuron iaf_psc_exp_multisynapse_vectors_neuron:
         kernel I_kernel2 = exp(-1/tau_syn2*t)
         kernel I_kernel3 = -exp(-1/tau_syn3*t)
 
-        inline I_syn pA = (convolve(I_kernel1, spikes[1]) - convolve(I_kernel2, spikes[2]) + convolve(I_kernel3, spikes[3]))
+        inline I_syn pA = (convolve(I_kernel1, spikes[1]) - convolve(I_kernel2, spikes[2]) + convolve(I_kernel3, spikes[3])) * pA
 
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
@@ -42,7 +42,7 @@ neuron iaf_psc_exp_multisynapse_vectors_neuron:
         RefractoryCounts integer = steps(t_ref)
 
     input:
-        spikes[3] pA/s <- spike
+        spikes[3] <- spike
         I_stim pA <- continuous
 
     output:

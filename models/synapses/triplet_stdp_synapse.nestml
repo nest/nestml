@@ -48,8 +48,8 @@ synapse stdp_triplet_nn:
         tr_o2' = -tr_o2 / tau_y
 
     input:
-        pre_spikes 1/s <- spike
-        post_spikes 1/s <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
 
     output:
         spike

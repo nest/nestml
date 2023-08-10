@@ -37,7 +37,7 @@ neuron CoCoConvolveNotCorrectlyProvided:
         inline testB pA = convolve(test, spikeExc) # convolve provided with a kernel and a spike input port, thus correct
 
     input:
-        spikeExc pA/s <- excitatory spike
+        spikeExc <- excitatory spike
 
     update:
         integrate_odes()

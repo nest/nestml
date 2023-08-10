@@ -33,7 +33,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoValueAssignedToInputPort:
     input:
-        spikeInh 1/s <- inhibitory spike
+        spikeInh <- inhibitory spike
 
     update:
         spikeInh = 10 / s

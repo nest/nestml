@@ -57,7 +57,7 @@ neuron izhikevich:
         I_e pA = 0 pA
 
     input:
-        spikes mV/s <- spike
+        spikes <- spike
         I_stim pA <- continuous
 
     output:
@@ -66,7 +66,7 @@ neuron izhikevich:
     update:
         integrate_odes()
         # Add synaptic current
-        V_m += spikes * s
+        V_m += spikes * mV
 
         # lower bound of membrane potential
         V_m = (V_m < V_min)? V_min : V_m

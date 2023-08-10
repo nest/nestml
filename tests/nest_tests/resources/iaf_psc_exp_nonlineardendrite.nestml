@@ -45,7 +45,7 @@ neuron iaf_psc_exp_nonlineardendrite:
 
         recordable inline I_dend pA = convolve(I_kernel2, I_2)
 
-        inline I_syn pA = convolve(I_kernel1, I_1) + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) + I_e
+        inline I_syn pA = convolve(I_kernel1, I_1) * pA + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) * pA + I_e
 
         V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
@@ -66,9 +66,9 @@ neuron iaf_psc_exp_nonlineardendrite:
         T_dend_ap ms = 10 ms     # time window over which the dendritic current clamp is active
 
     input:
-        I_1 pA/s <- spike
-        I_2 pA/s <- spike
-        I_3 pA/s <- spike
+        I_1 <- spike
+        I_2 <- spike
+        I_3 <- spike
 
     output:
         spike

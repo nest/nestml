@@ -35,8 +35,8 @@ neuron test_random:
         r' = random_uniform(42, 123) / s
 
     input:
-        exc_spikes 1/s <- excitatory spike
-        inh_spikes 1/s <- inhibitory spike
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         currents pA <- continuous
 
     update:

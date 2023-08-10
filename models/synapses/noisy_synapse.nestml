@@ -14,7 +14,7 @@ synapse noisy_synapse:
         A_noise real = .4
 
     input:
-        pre_spikes 1/s <- spike
+        pre_spikes <- spike
 
     output:
         spike
