@@ -28,6 +28,7 @@ import odetoolbox
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -994,7 +995,7 @@ class ASTUtils:
         return neuron
 
     @classmethod
-    def add_declaration_to_state_block(cls, neuron: ASTNeuron, variable: str, initial_value: str) -> ASTNeuron:
+    def add_declaration_to_state_block(cls, neuron: ASTNeuron, variable: str, initial_value: str, type_str: str = "real") -> ASTNeuron:
         """
         Adds a single declaration to an arbitrary state block of the neuron. The declared variable is of type real.
         :param neuron: a neuron
@@ -1007,7 +1008,7 @@ class ASTUtils:
 
         tmp = ModelParser.parse_expression(initial_value)
         vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
-        declaration_string = variable + ' real' + (
+        declaration_string = variable + " " + type_str + (
             '[' + vector_variable.get_vector_parameter() + ']'
             if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + initial_value
         ast_declaration = ModelParser.parse_declaration(declaration_string)
@@ -1619,12 +1620,13 @@ class ASTUtils:
 
     @classmethod
     def create_initial_values_for_kernels(cls, neuron: ASTNeuron, solver_dicts: List[dict], kernels: List[ASTKernel]) -> None:
-        """
+        r"""
         Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST
         """
         for solver_dict in solver_dicts:
             if solver_dict is None:
                 continue
+
             for var_name in solver_dict["initial_values"].keys():
                 if cls.variable_in_kernels(var_name, kernels):
                     # original initial value expressions should have been removed to make place for ode-toolbox results
@@ -1637,9 +1639,19 @@ class ASTUtils:
             for var_name, expr in solver_dict["initial_values"].items():
                 # overwrite is allowed because initial values might be repeated between numeric and analytic solver
                 if cls.variable_in_kernels(var_name, kernels):
-                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    spike_in_port_name = var_name.split("__X__")[1]
+                    spike_in_port_name = spike_in_port_name.split("__d")[0]
+                    spike_in_port = ASTUtils.get_input_port_by_name(neuron.get_input_blocks(), spike_in_port_name)
+                    if spike_in_port:
+                        type_str = NESTMLPrinter().print_data_type(spike_in_port.data_type)
+                        differential_order: int = len(re.findall("__d", var_name))
+                        if differential_order:
+                            type_str += "*s**-" + str(differential_order)
+                    else:
+                        type_str = "real"
+                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
                     if not cls.declaration_in_state_block(neuron, var_name):
-                        cls.add_declaration_to_state_block(neuron, var_name, expr)
+                        cls.add_declaration_to_state_block(neuron, var_name, expr, type_str)
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, neuron: ASTNeuron, parameters_blocks: Sequence[ASTBlockWithVariables],
