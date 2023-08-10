@@ -302,4 +302,3 @@ class SpiNNakerBuilder(Builder):
                     'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
         finally:
             os.chdir(old_cwd)
-        import pdb;pdb.set_trace()
