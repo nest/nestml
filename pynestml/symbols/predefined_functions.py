@@ -29,6 +29,9 @@ class PredefinedFunctions:
     This class is used to represent all predefined functions of NESTML.
         ERF                   The callee name of the error function
         ERFC                  The callee name of the complementary error function
+        CEIL                  The callee name of the ceil function.
+        FLOOR                 The callee name of the floor function.
+        ROUND                 The callee name of the round function.
     """
 
     TIME_RESOLUTION = "resolution"
@@ -54,9 +57,9 @@ class PredefinedFunctions:
     MAX = "max"
     MIN = "min"
     ABS = "abs"
-    INTEGRATE_ODES = "integrate_odes"
-    DELIVER_SPIKE = "deliver_spike"
-    PROCESS_INPUT = "process_input"
+    CEIL = 'ceil'
+    FLOOR = 'floor'
+    ROUND = 'round'
     name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
@@ -89,6 +92,11 @@ class PredefinedFunctions:
         cls.__register_min_function()
         cls.__register_abs_function()
         cls.__register_integrate_odes_function()
+        cls.__register_ceil_function()
+        cls.__register_floor_function()
+        cls.__register_round_function()
+        cls.__register_integrated_odes_function()
+        cls.__register_convolve()
         cls.__register_deliver_spike()
         cls.__register_process_input_function()
 
@@ -374,6 +382,42 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.ABS] = symbol
+
+    @classmethod
+    def __register_ceil_function(cls):
+        """
+        Registers the ceil function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.CEIL, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.CEIL] = symbol
+
+    @classmethod
+    def __register_floor_function(cls):
+        """
+        Registers the floor function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.FLOOR, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.FLOOR] = symbol
+
+    @classmethod
+    def __register_round_function(cls):
+        """
+        Registers the round function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.ROUND, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ROUND] = symbol
 
     @classmethod
     def __register_integrate_odes_function(cls):

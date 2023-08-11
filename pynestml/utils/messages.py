@@ -911,7 +911,7 @@ class Messages:
         """
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
             str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
-            ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+            ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which has/have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod

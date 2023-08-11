@@ -44,5 +44,9 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
   }
 {%- endfor %}
 
+{%- if numeric_solver == "rk45" %}
   return GSL_SUCCESS;
+{%- else %}
+  return 0;
+{%- endif %}
 }

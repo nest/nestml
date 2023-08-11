@@ -1,6 +1,13 @@
 """
-MathFunctionTest.nestml
-#######################
+dopa_synapse_second_order
+#########################
+
+
+Description
++++++++++++
+
+This model is used to test second-order integration of dopamine spikes.
+
 
 
 Copyright statement
@@ -23,23 +30,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model math_function_test:
+synapse dopa_synapse_second_order:
     state:
-        x real = 0.
-        ln_state real = 0.
-        log10_state real = 0.
-        erf_state real = 0.
-        erfc_state real = 0.
-        ceil_state real = 0.
-        floor_state real = 0.
-        round_state real = 0.
+        dopa_rate real = 0.
+        dopa_rate_d real = 0.
 
-    update:
-        ln_state = ln(x)
-        log10_state = log10(x)
-        erf_state = erf(x)
-        erfc_state = erfc(x)
-        ceil_state = ceil(x / 10.)
-        floor_state = floor(x / 10.)
-        round_state = round(x / 10.)
-        x = x + 1.
+    parameters:
+        tau_dopa ms = 100 ms
+        d ms = 1 ms    @nest::delay
+
+    equations:
+        dopa_rate' = dopa_rate_d / ms
+        dopa_rate_d' = -dopa_rate / tau_dopa**2 * ms - 2 * dopa_rate_d / tau_dopa
+     
+    input:
+        pre_spikes real <- spike
+        dopa_spikes real <- spike
+
+    output:
+        spike
+
+    onReceive(dopa_spikes):
+        dopa_rate_d += 1. / tau_dopa
+        
+    onReceive(pre_spikes):
+        deliver_spike(1., 1 ms)
