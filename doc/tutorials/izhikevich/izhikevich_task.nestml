@@ -25,7 +25,7 @@ neuron izhikevich_tutorial:
         integrate_odes()
 
         # add synaptic current
-        v += spikes * mV
+        v += spikes * mV * s
 
         # TODO: implement threshold crossing check
 
