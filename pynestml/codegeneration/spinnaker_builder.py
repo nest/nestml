@@ -111,7 +111,9 @@ class SpiNNakerBuilder(Builder):
 
             for fn in generated_file_names_neuron_c:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")],
+                    to_path = os.path.join(install_path, "c_models", "src", "my_models", "implementations")
+                    print("Copying \"" + fn + "\" to " + to_path)
+                    subprocess.check_call(["cp", "-v", fn, to_path],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=str(os.path.join(target_path)))
@@ -120,7 +122,9 @@ class SpiNNakerBuilder(Builder):
 
             for fn in generated_file_names_neuron_h:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations")],
+                    to_path = os.path.join(install_path, "c_models", "src", "my_models", "implementations")
+                    print("Copying \"" + fn + "\" to " + to_path)
+                    subprocess.check_call(["cp", "-v", fn, to_path],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=str(os.path.join(target_path)))
@@ -135,6 +139,15 @@ class SpiNNakerBuilder(Builder):
                 pass
 
             try:
+                to_path = os.path.join(install_path, "python_models8")
+                subprocess.check_call(["cp", "-v", "__init__.py", to_path],
+                                      stderr=subprocess.STDOUT,
+                                      shell=shell,
+                                      cwd=str(os.path.join(target_path)))
+            except Exception:
+                pass
+
+            try:
                 os.mkdir(os.path.join(install_path, "python_models8", "neuron"))
             except (FileExistsError, FileNotFoundError):
                 pass
@@ -144,11 +157,11 @@ class SpiNNakerBuilder(Builder):
             except (FileExistsError, FileNotFoundError):
                 pass
 
-            target_path = os.path.join(install_path, "python_models8", "neuron", "builds")
+            to_path = os.path.join(install_path, "python_models8", "neuron", "builds")
             for fn in generated_file_names_neuron_py:
                 try:
-                    print("Copying \"" + fn + "\" to " + target_path)
-                    subprocess.check_call(["cp", fn, target_path],
+                    print("Copying \"" + fn + "\" to " + to_path)
+                    subprocess.check_call(["cp", "-v", fn, to_path],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)
@@ -163,7 +176,9 @@ class SpiNNakerBuilder(Builder):
 
             for fn in generated_file_names_neuron_impl_py:
                 try:
-                    subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "python_models8", "neuron", "implementations")],
+                    to_path = os.path.join(install_path, "python_models8", "neuron", "implementations")
+                    print("Copying \"" + fn + "\" to " + to_path)
+                    subprocess.check_call(["cp", "-v", os.path.join(target_path, fn), to_path],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)
@@ -178,17 +193,24 @@ class SpiNNakerBuilder(Builder):
 
             for fn in generated_file_names_neuron_examples_py:
                 try:
-                    subprocess.check_call(["cp", os.path.join(target_path, fn), os.path.join(install_path, "examples")],
+                    to_path = os.path.join(install_path, "examples")
+                    print("Copying \"" + fn + "\" to " + to_path)
+                    subprocess.check_call(["cp", "-v", os.path.join(target_path, fn), to_path],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
                     pass # no problem if file is already there and gets overwritten
 
-            # copy makefiles
+            # create python_models8 module directory
             try:
                 os.makedirs(os.path.join(install_path, "python_models8", "model_binaries"))
             except (FileExistsError, FileNotFoundError):
+                pass
+
+            try:
+                subprocess.check_call(["touch", os.path.join(install_path, "python_models8", "model_binaries", "__init__.py")])
+            except Exception:
                 pass
 
             # Copy the root Makefile
@@ -198,7 +220,7 @@ class SpiNNakerBuilder(Builder):
                 pass
 
             try:
-                subprocess.check_call(["cp", "Makefile_root", os.path.join(install_path, "c_models", "Makefile")],
+                subprocess.check_call(["cp", "-v", "Makefile_root", os.path.join(install_path, "c_models", "Makefile")],
                                       stderr=subprocess.STDOUT,
                                       shell=shell,
                                       cwd=target_path)
@@ -206,7 +228,7 @@ class SpiNNakerBuilder(Builder):
                 pass
 
             try:
-                subprocess.check_call(["cp", "Makefile_models", os.path.join(install_path, "c_models", "makefiles", "Makefile")],
+                subprocess.check_call(["cp", "-v", "Makefile_models", os.path.join(install_path, "c_models", "makefiles", "Makefile")],
                                       stderr=subprocess.STDOUT,
                                       shell=shell,
                                       cwd=target_path)
@@ -215,7 +237,7 @@ class SpiNNakerBuilder(Builder):
 
             # Copy the extra.mk file
             try:
-                subprocess.check_call(["cp", "extra.mk", os.path.join(install_path, "c_models", "makefiles")],
+                subprocess.check_call(["cp", "-v", "extra.mk", os.path.join(install_path, "c_models", "makefiles")],
                                       stderr=subprocess.STDOUT,
                                       shell=shell,
                                       cwd=target_path)
@@ -224,7 +246,7 @@ class SpiNNakerBuilder(Builder):
 
             # Copy the extra_neuron.mk file
             try:
-                subprocess.check_call(["cp", "extra_neuron.mk", os.path.join(install_path, "c_models", "makefiles")],
+                subprocess.check_call(["cp", "-v", "extra_neuron.mk", os.path.join(install_path, "c_models", "makefiles")],
                                       stderr=subprocess.STDOUT,
                                       shell=shell,
                                       cwd=target_path)
@@ -246,7 +268,7 @@ class SpiNNakerBuilder(Builder):
                     except (FileExistsError, FileNotFoundError):
                         pass
 
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "makefiles", neuron_subdir, "Makefile")],
+                    subprocess.check_call(["cp", "-v", fn, os.path.join(install_path, "c_models", "makefiles", neuron_subdir, "Makefile")],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)
@@ -261,7 +283,7 @@ class SpiNNakerBuilder(Builder):
 
             for fn in generated_file_names_neuron_c:
                 try:
-                    subprocess.check_call(["cp", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations", fn)],
+                    subprocess.check_call(["cp", "-v", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations", fn)],
                                           stderr=subprocess.STDOUT,
                                           shell=shell,
                                           cwd=target_path)

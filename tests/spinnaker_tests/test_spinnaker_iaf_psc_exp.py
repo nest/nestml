@@ -158,6 +158,6 @@ class TestSpiNNakerIafPscExp:
             title="Generated: Two chained neurons",
             annotations="Simulated with {}".format(p.name())
         )
-        plt.show()
+        plt.savefig("spinnaker.png")
 
         p.end()
