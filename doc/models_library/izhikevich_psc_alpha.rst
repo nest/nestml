@@ -48,7 +48,7 @@ Parameters
 
     
     "C_m", "pF", "200pF", "Membrane capacitance"    
-    "k", "pF / (ms mV)", "8pF / mV / ms", "Spiking slope"    
+    "k", "pF / (mV ms)", "8pF / mV / ms", "Spiking slope"    
     "V_r", "mV", "-65mV", "Resting potential"    
     "V_t", "mV", "-45mV", "Threshold potential"    
     "a", "1 / ms", "0.01 / ms", "Time scale of recovery variable"    
@@ -104,4 +104,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.680240
+   Generated at 2023-08-16 15:49:59.060793
