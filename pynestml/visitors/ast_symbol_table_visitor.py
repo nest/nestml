@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 
 from pynestml.symbols.type_symbol import TypeSymbol
@@ -608,7 +610,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             qual.update_scope(node.get_scope())
 
     def endvisit_input_port(self, node):
-        type_symbol = RealTypeSymbol()
+        type_symbol = PredefinedTypes.get_type("s")**-1
         if node.is_continuous() and node.has_datatype():
             type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer

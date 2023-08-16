@@ -886,7 +886,7 @@ class NESTCodeGenerator(CodeGenerator):
                 factor_expr = ModelParser.parse_expression(factor)
                 factor_expr.update_scope(neuron.get_scope())
                 factor_expr.accept(ASTSymbolTableVisitor())
-                assignment_str += "(" + self._printer_no_origin.print_expression(factor_expr) + ") * "
+                assignment_str += "(" + self._printer_no_origin.print(factor_expr) + ") * "
 
             if "_is_post_port" in dir(inport) and inport._is_post_port:
                 orig_port_name = inport[:inport.index("__for_")]

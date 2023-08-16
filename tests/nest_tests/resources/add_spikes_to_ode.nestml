@@ -34,7 +34,7 @@ neuron add_spikes_to_ode:
     y' = -y**2 + 123 * spikes / s   # nonlinear eq
 
   input:
-    spikes real <- spike
+    spikes <- spike
 
   output:
     spike

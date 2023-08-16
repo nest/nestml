@@ -33,4 +33,4 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoSpikeInputPortWithoutType:
     input: # port is provided with a type, thus everything is correct
-        spikeAll 1/s <- spike
+        spikeAll <- spike
