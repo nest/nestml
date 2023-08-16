@@ -47,7 +47,7 @@ neuron fir_filter:
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in
+        x[i] = spike_in * s
 
         # compute the new value of y
         j integer = 0
