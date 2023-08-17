@@ -42,6 +42,7 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
@@ -413,6 +414,19 @@ class NESTMLPrinter(ModelPrinter):
         ret += ("inline "
                 + str(node.get_variable_name()) + " " + self.print(node.get_data_type())
                 + " = " + self.print(node.get_expression()) + print_sl_comment(node.in_comment) + "\n")
+        return ret
+
+    def print_kernel(self, node: ASTKernel) -> str:
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent)
+        ret += "kernel "
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            ret += self.print(var)
+            ret += " = "
+            ret += self.print(expr)
+            ret += ", "
+        ret = ret[:-2]
+        ret += print_sl_comment(node.in_comment) + "\n"
         return ret
 
     def print_output_block(self, node: ASTOutputBlock) -> str:

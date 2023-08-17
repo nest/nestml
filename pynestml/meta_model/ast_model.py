@@ -22,6 +22,7 @@
 from typing import List, Optional
 
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -318,6 +319,36 @@ class ASTModel(ASTNode):
                         error_position=port.get_source_position(),
                         log_level=LoggingLevel.ERROR)
         return ret
+
+    def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
+        assert type(kernel_name) is str
+        kernel_name = kernel_name.split("__X__")[0]
+
+        if not self.get_equations_blocks():
+            return None
+
+        # check if defined as a direct function of time
+        for equations_block in self.get_equations_blocks():
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
+                    return decl
+
+            # check if defined for a higher order of differentiation
+        for equations_block in self.get_equations_blocks():
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                    return decl
+
+        return None
+
+    def get_all_kernels(self):
+        kernels = []
+        for equations_block in self.get_equations_blocks():
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel:
+                    kernels.append(decl)
+
+        return kernels
 
     def get_non_inline_state_symbols(self) -> List[VariableSymbol]:
         """

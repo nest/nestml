@@ -24,6 +24,7 @@ from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbol_table.scope import Scope
@@ -116,7 +117,7 @@ class VariableSymbol(Symbol):
         self.type_symbol = type_symbol
         self.initial_value = initial_value
         self.variable_type = variable_type
-        self.ode = None
+        self.ode_or_kernel = None
         if decorators is None:
             decorators = []
         if namespace_decorators is None:
@@ -293,6 +294,13 @@ class VariableSymbol(Symbol):
         """
         return self.block_type == BlockType.OUTPUT
 
+    def is_kernel(self) -> bool:
+        """
+        Returns whether this variable belongs to the definition of a kernel.
+        :return: True if part of a kernel definition, otherwise False.
+        """
+        return self.variable_type == VariableType.KERNEL
+
     def print_symbol(self):
         if self.get_referenced_object() is not None:
             source_position = str(self.get_referenced_object().get_source_position())
@@ -329,17 +337,18 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.ode is not None and (isinstance(self.ode, ASTExpression)
-                                         or isinstance(self.ode, ASTSimpleExpression)
-                                         or isinstance(self.ode, ASTOdeEquation))
+        return self.ode_or_kernel is not None and (isinstance(self.ode_or_kernel, ASTExpression)
+                                                   or isinstance(self.ode_or_kernel, ASTSimpleExpression)
+                                                   or isinstance(self.ode_or_kernel, ASTKernel)
+                                                   or isinstance(self.ode_or_kernel, ASTOdeEquation))
 
-    def get_ode(self):
+    def get_ode_or_kernel(self):
         """
         Returns the ODE defining the value of this variable symbol.
         :return: the rhs defining the value.
         :rtype: ASTExpression or ASTSimpleExpression
         """
-        return self.ode
+        return self.ode_or_kernel
 
     def set_ode_or_kernel(self, expression):
         """
@@ -347,7 +356,7 @@ class VariableSymbol(Symbol):
         :param expression: a single rhs object.
         :type expression: ASTExpression
         """
-        self.ode = expression
+        self.ode_or_kernel = expression
 
     def is_conductance_based(self) -> bool:
         """

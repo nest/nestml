@@ -57,9 +57,11 @@ class PredefinedFunctions:
     MAX = "max"
     MIN = "min"
     ABS = "abs"
-    CEIL = 'ceil'
-    FLOOR = 'floor'
-    ROUND = 'round'
+    CEIL = "ceil"
+    FLOOR = "floor"
+    ROUND = "round"
+    DELTA = "delta"
+    CONVOLVE = "convolve"
     name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
@@ -86,6 +88,7 @@ class PredefinedFunctions:
         cls.__register_random_normal_function()
         cls.__register_random_uniform_function()
         cls.__register_exp1_function()
+        cls.__register_delta_function()
         cls.__register_clip_function()
         cls.__register_pow_function()
         cls.__register_max_function()
@@ -95,7 +98,6 @@ class PredefinedFunctions:
         cls.__register_ceil_function()
         cls.__register_floor_function()
         cls.__register_round_function()
-        cls.__register_integrated_odes_function()
         cls.__register_convolve()
         cls.__register_deliver_spike()
         cls.__register_process_input_function()
@@ -314,6 +316,18 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXPM1] = symbol
+
+    @classmethod
+    def __register_delta_function(cls):
+        """
+        Registers the delta function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_type('ms'))
+        symbol = FunctionSymbol(name=cls.DELTA, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.DELTA] = symbol
 
     @classmethod
     def __register_clip_function(cls):

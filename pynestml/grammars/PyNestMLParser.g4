@@ -125,6 +125,8 @@ parser grammar PyNestMLParser;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)? NEWLINE;
 
+  kernel : KERNEL_KEYWORD variable EQUALS expression (KERNEL_JOINING variable EQUALS expression)* SEMICOLON? NEWLINE;
+
   /*********************************************************************************************************************
   * Procedural-Language
   *********************************************************************************************************************/
@@ -273,7 +275,7 @@ parser grammar PyNestMLParser;
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   NEWLINE INDENT ( inlineExpression | odeEquation )+ DEDENT;
+                   NEWLINE INDENT ( inlineExpression | odeEquation | kernel )+ DEDENT;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:

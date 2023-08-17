@@ -311,8 +311,10 @@ public:
 
 {% filter indent(2, True) -%}
 {%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
 {%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-         include "directives/MemberVariableGetterSetter.jinja2" %}
+{%     endif %}
 {% endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -898,9 +900,11 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
   // initial values for state variables in ODE or kernel
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
 {%-     filter indent(2) %}
 {%-         include "directives/WriteInDictionary.jinja2" %}
 {%-     endfilter %}
+{%-     endif -%}
 {%- endfor %}
 
   {{neuron_parent_class}}::get_status( __d );
@@ -944,9 +948,11 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
   // initial values for state variables in ODE or kernel
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
 {%-         filter indent(2) %}
 {%-             include "directives/ReadFromDictionaryToTmp.jinja2" %}
 {%-         endfilter %}
+{%-     endif %}
 {%- endfor %}
 
   // We now know that (ptmp, stmp) are consistent. We do not
@@ -965,9 +971,11 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 
 {%- for variable_symbol in neuron.get_state_symbols() -%}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
 {%-         filter indent(2) %}
 {%-             include "directives/AssignTmpDictionaryValue.jinja2" %}
 {%-         endfilter %}
+{%-     endif %}
 {%- endfor %}
 
 {% for invariant in neuron.get_parameter_invariants() %}

@@ -981,6 +981,7 @@ void
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-         include "directives/WriteInDictionary.jinja2" %}
 {%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
 // special treatment for variable marked with @nest::name decorator
@@ -989,6 +990,7 @@ void
 def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer_no_origin.print(variable)}}());
 {%-             endif %}
 {%-         endif %}
+{%-     endif %}
 {%- endfor %}
 {%- endfilter %}
 }
@@ -1014,6 +1016,7 @@ void
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
 {%-         include "directives/ReadFromDictionaryToTmp.jinja2" %}
 {%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
 // special treatment for variables marked with @nest::name decorator
@@ -1030,6 +1033,7 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
 {%-             endif %}
 {#- -------------------------------------------------------------------------------------------------------------------------------- #}
 {%-         endif %}
+{%-      endif %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -1057,9 +1061,11 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
   // set state
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
 {%-         filter indent(2,True) %}
 {%-             include "directives/AssignTmpDictionaryValue.jinja2" %}
 {%-         endfilter %}
+{%-     endif %}
 {%- endfor %}
 
   // check invariants

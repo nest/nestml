@@ -296,8 +296,10 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
   // copy state struct S_
 {%- for init in neuron.get_state_symbols() %}
+{%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
   {{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }};
+{%-   endif %}
 {%- endfor %}
 
   // copy internals V_
@@ -814,6 +816,19 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
         **/
 
         // XXX: TODO
+
+        /**
+         * print updates due to convolutions
+        **/
+
+        {%- for stmt in spike_update_stmts %}
+                {{printer.print(stmt)}};
+        {%- endfor %}
+
+        {%- for _, spike_update in post_spike_updates.items() %}
+                {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+        {%- endfor %}
+
 
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_

@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
-
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
+from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
@@ -36,6 +36,7 @@ from pynestml.cocos.co_co_inline_expressions_have_rhs import CoCoInlineExpressio
 from pynestml.cocos.co_co_inline_max_one_lhs import CoCoInlineMaxOneLhs
 from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCoIntegrateOdesCalledIfEquationsDefined
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
+from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
@@ -46,6 +47,7 @@ from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
+from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
@@ -178,6 +180,13 @@ class CoCosManager:
         CoCoInputPortQualifierUnique.check_co_co(model)
 
     @classmethod
+    def check_kernel_type(cls, model: ASTModel) -> None:
+        """
+        Checks that all defined kernels have type real.
+        """
+        CoCoKernelType.check_co_co(model)
+
+    @classmethod
     def check_parameters_not_assigned_outside_parameters_block(cls, model: ASTModel):
         """
         Checks that parameters are not assigned outside the parameters block.
@@ -251,6 +260,14 @@ class CoCosManager:
         CoCoEquationsOnlyForInitValues.check_co_co(model)
 
     @classmethod
+    def check_convolve_cond_curr_is_correct(cls, model: ASTModel):
+        """
+        Checks if all convolve rhs are correctly provided with arguments.
+        :param model: a single model object.
+        """
+        CoCoConvolveCondCorrectlyBuilt.check_co_co(model)
+
+    @classmethod
     def check_integrate_odes_params_correct(cls, model: ASTModel):
         """
         Checks if all integrate_odes() calls have correct parameters.
@@ -284,12 +301,24 @@ class CoCosManager:
         CoCoVectorVariableInNonVectorDeclaration.check_co_co(model)
 
     @classmethod
+    def check_convolve_has_correct_parameter(cls, model: ASTModel):
+        """
+        Checks that all convolve function calls have variables as arguments.
+        :param model: a single model object.
+        """
+        CoCoConvolveHasCorrectParameter.check_co_co(model)
+
+    @classmethod
     def check_expression_correct(cls, model: ASTModel):
         """
         Checks that all rhs in the model are correctly constructed, e.g. type(lhs)==type(rhs).
         :param model: a single model
         """
         CoCoIllegalExpression.check_co_co(model)
+
+    @classmethod
+    def check_simple_delta_function(cls, model: ASTModel) -> None:
+        CoCoSimpleDeltaFunction.check_co_co(model)
 
     @classmethod
     def check_function_argument_template_types_consistent(cls, model: ASTModel):
@@ -359,6 +388,8 @@ class CoCosManager:
         cls.check_input_port_data_type(model)
         cls.check_user_defined_function_correctly_built(model)
         cls.check_initial_ode_initial_values(model)
+        cls.check_kernel_type(model)
+        cls.check_convolve_cond_curr_is_correct(model)
         cls.check_integrate_odes_params_correct(model)
         cls.check_output_port_defined_if_emit_call(model)
         if not after_ast_rewrite:
@@ -366,10 +397,13 @@ class CoCosManager:
             cls.check_function_declared_and_correctly_typed(model)
             cls.check_odes_have_consistent_units(model)
             cls.check_ode_functions_have_consistent_units(model)        # ODE functions have been removed at this point
+            cls.check_correct_usage_of_kernels(model)
             cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
+        cls.check_convolve_has_correct_parameter(model)
         cls.check_expression_correct(model)
+        cls.check_simple_delta_function(model)
         cls.check_function_argument_template_types_consistent(model)
         cls.check_vector_parameter_declaration(model)
         cls.check_vector_declaration_size(model)
