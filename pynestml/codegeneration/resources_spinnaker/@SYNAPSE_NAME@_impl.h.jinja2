@@ -71,8 +71,6 @@ MODEL STRUCTS
 // TODO: switch to fixed point
 // Add synapse paramters here
 typedef struct {
-/***
-
 {%- for sym in synapse.get_parameter_symbols() | sort(attribute="name") %}
     {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
 {%- endfor %}
@@ -81,8 +79,6 @@ typedef struct {
     {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
 {%- endfor %}
 
-
-***/
     // TODO: Put in all required parameters
 
 } plasticity_weight_region_data_t;
@@ -90,19 +86,11 @@ typedef struct {
 //TODO: switch to fixed point
 typedef struct {
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-    // special case for variable marked with @nest::weight decorator
-{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-         if nest_namespace_name == "weight" %}
     {{type_symbol_printer.print(variable_symbol.type_symbol) }} {{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
-{%-         endif %}
-{%-     endif %}
 {%- endfor %}
-    
-    REAL potentiation; // Intermediate to apply combined potentiation -> one heavy computation 
-    REAL depression; // Intermediate to apply combined depression -> one heavy computation 
 
-    const plasticity_weight_region_data_t *weight_region;
+    const uint32_t weight_shift;
+    const plasticity_weight_region_data_t *parameter;
 
     // TODO: Put in any variables required in the intermediate state
 } weight_state_t;

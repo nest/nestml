@@ -1,7 +1,5 @@
 #include "{{synapseName}}_impl.h"
 
-
-
 #include <neuron/plasticity/stdp/weight_dependence/weight.h>
 
 // Only adds prototypes for weight depression and potentiation -> maybe remove 
@@ -79,13 +77,9 @@ bool synapse_dynamics_initialise (
 
     // Initialise created space with read parameters
     for (uint32_t s = 0; s < n_synapse_types; s++, config++) {
-        /***
-
 {%- for sym in synapse.get_parameter_symbols() | sort(attribute="name") %}
         dtcm_copy[s].{{ sym.get_symbol_name()}} = config->{{ sym.get_symbol_name()}};
 {%- endfor %}
-
-        ***/
 
         // Copy weight shift
         weight_shift[s] = ring_buffer_to_input_buffer_left_shifts[s];
@@ -179,7 +173,14 @@ static inline update_state_t timing_apply_post_spike(
         pre_trace_t last_pre_trace, uint32_t last_post_time,
         post_trace_t last_post_trace, update_state_t previous_state) {
 
-/***
+    // update_state_t == weight_state_t 
+    update_state_t *state = &previous_state;
+    const plasticity_weight_region_data_t* parameter = state->parameter;
+    
+
+    uint32_t time_since_last_pre = time - last_pre_time;
+    if (time_since_last_pre > 0) {
+        // TODO: decay
 {%- filter indent(8, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in post_ports %}
@@ -194,18 +195,9 @@ static inline update_state_t timing_apply_post_spike(
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
-***/
-
-
-    uint32_t time_since_last_pre = time - last_pre_time;
-    if (time_since_last_pre > 0) {
-        int32_t decayed_r1 = STDP_FIXED_MUL_16X16(last_pre_trace,
-            maths_lut_exponential_decay(time_since_last_pre, tau_plus_lookup));
-
-        log_mini_debug("%u%u%d", 911, time_since_last_pre,  decayed_r1);
 
         // Apply potentiation to state (which is a weight_state)
-        return weight_one_term_apply_potentiation(previous_state, decayed_r1);
+        return previous_state;
     } else {
         return previous_state;
     }
@@ -218,8 +210,14 @@ static inline update_state_t timing_apply_pre_spike(
         uint32_t time, pre_trace_t trace, uint32_t last_pre_time,
         pre_trace_t last_pre_trace, uint32_t last_post_time,
         post_trace_t last_post_trace, update_state_t previous_state) {
-/***
-{%- filter indent(8, True) %}
+    
+    update_state_t *state = &previous_state;
+    const plasticity_weight_region_data_t* parameter = state->parameter;
+    // Get time of event relative to last post-synaptic event
+    uint32_t time_since_last_post = time - last_post_time;
+    // TODO: decay
+
+{%- filter indent(4, True) %}
 {%- for pre_port in pre_ports %}
 //
 //  NESTML generated onReceive code block for presynaptic port "{{pre_port}}" begins here!
@@ -231,18 +229,10 @@ static inline update_state_t timing_apply_pre_spike(
 {%-     endwith %}
 {%- endfor %}
 {%- endfilter %}
-***/
 
-    // Get time of event relative to last post-synaptic event
-    uint32_t time_since_last_post = time - last_post_time;
-    int32_t decayed_o1 = STDP_FIXED_MUL_16X16(last_post_trace,
-        maths_lut_exponential_decay(time_since_last_post, tau_minus_lookup));
-
-    log_mini_debug("%u%u%d", 910, time_since_last_post,  decayed_o1);
-    /* log_debug("\t\t\ttime_since_last_post_event=%u, decayed_o1=%d\n",time_since_last_post, decayed_o1);*/
 
     // Apply depression to state (which is a weight_state)
-    return weight_one_term_apply_depression(previous_state, decayed_o1);
+    return previous_state;
 }
 
 /*** synapse_dynamics_mad_impl.h ***/
@@ -349,9 +339,21 @@ static inline post_trace_t timing_decay_post(
 //! \return the updated post trace
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
-
+    plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
     // Update propagator based on deltatime
-    int32_t temp__h = parameter.__h;
+    int32_t temp__h = parameter->__h;
+    parameter->__h = time - last_time;
+
+{% filter indent(2) %}
+{%- for variable_symbol in synapse.get_internal_symbols() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not variable_symbol.get_symbol_name() == "__h" %}
+{%-         include "directives_cpp/MemberInitialization.jinja2" %}
+{%-     endif %}
+{%- endfor %}
+{%- endfilter %}
+    parameter->__h = temp__h;
+
 {%- filter indent(4, True) %}
 {%- set analytic_state_variables_ = [] %}
 {%- for item in analytic_state_variables %}
@@ -362,7 +364,6 @@ static inline post_trace_t timing_add_post_spike(
 {%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
 {%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
 {%- endfilter %}
-    parameter.__h = temp__h;
 
     state.post_trace += 1;
 
@@ -380,23 +381,6 @@ void synapse_dynamics_process_post_synaptic_event(
             history->traces[history->count_minus_one];
     post_events_add(time, history,
             timing_add_post_spike(time, last_post_time, last_post_trace)); // Create post_trace_t and add to buffers
-
-/***
-{%- filter indent(6, True) %}
-{%- if post_ports is defined %}
-{%-     for post_port in spiking_post_ports %}
-//
-//  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
-//
-
-{%-         set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-         with ast = dynamics.get_block() %}
-{%-             include "directives_cpp/Block.jinja2" %}
-{%-         endwith %}
-{%-     endfor %}
-{%- endif %}
-{%- endfilter %}
-***/
 }
 
 // TAG: PRE
@@ -414,10 +398,9 @@ static inline plastic_synapse_t process_plastic_synapse(
 	        synapse, s.type);
 
 	// Update the synapse state
+    // TODO: delay or no delay on backpropagation
 	uint32_t post_delay = s.delay_dendritic;
-	if (!params.backprop_delay) {
-		post_delay = 0;
-	}
+
     // final_stat_t = weight_t
 	final_state_t final_state = plasticity_update_synapse(
 			time - colour_delay, last_pre_time, last_pre_trace, new_pre_trace,
@@ -441,9 +424,14 @@ static inline plastic_synapse_t process_plastic_synapse(
 static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
 
+    struct {
+        pre_trace_t pre_trace;
+    } state;
+
+    plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
     // update propagator based on deltatime
-    int32_t temp__h = parameter.__h;
-    parameter.__h = time - last_time;
+    int32_t temp__h = parameter->__h;
+    parameter->__h = time - last_time;
 {% filter indent(2) %}
 {%- for variable_symbol in synapse.get_internal_symbols() %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -452,7 +440,7 @@ static inline pre_trace_t timing_add_pre_spike(
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
-    parameter.__h = temp_h;
+    parameter->__h = temp__h;
 
 {%- filter indent(4, True) %}
 {%- set analytic_state_variables_ = [] %}
@@ -533,9 +521,17 @@ static inline weight_state_t weight_get_initial(
 
     s1615 s1615_weight = kbits(weight << weight_shift[synapse_type]);
     return (weight_state_t) {
-        .weight = s1615_weight,
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+    // special case for variable marked with @nest::weight decorator
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         if nest_namespace_name == "weight" %}
+        .{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}} = s1615_weight,
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
         .weight_shift = weight_shift[synapse_type],
-        .weight_region = &plasticity_weight_region_data[synapse_type]
+        .parameter = &plasticity_weight_region_data[synapse_type]
     };
 }
 
@@ -560,28 +556,27 @@ static inline weight_state_t weight_one_term_apply_potentiation(
 }
 
 //---------------------------------------
-static inline weight_t weight_get_final(weight_state_t new_state) {
+static inline weight_t weight_get_final(weight_state_t state) {
 
     // TODO: Perform operations to get the final weight from the intermediate
     // state, taking into account all potentiation and depression
     // Note: it is recommended to do a single complex operation here rather
     // than one for each potentiation or depression if possible
-
-    /*
-    int32_t potentiation =
-            new_state.potentiation * new_state.weight_region->my_parameter;
-    int32_t depression =
-            new_state.depression * new_state.weight_region->my_parameter;
-
-    int32_t new_weight = new_state.initial_weight + potentiation - depression;
-    */
-    return (weight_t) (bitsk(state.weight) >> state.weight_shift);
+    {%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+    // special case for variable marked with @nest::weight decorator
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         if nest_namespace_name == "weight" %}
+    return (weight_t)(bitsk(state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}) >> state.weight_shift);
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
 }
 
 //---------------------------------------
 __attribute__((unused)) // Marked unused as only used sometimes
 static void weight_decay(weight_state_t *state, int32_t decay) {
-    state->weight = mul_accum_fixed(state->weight, decay);
+    // state->weight = mul_accum_fixed(state->weight, decay);
 
     // TODO: Decay the weight inside the state
 }
@@ -589,7 +584,15 @@ static void weight_decay(weight_state_t *state, int32_t decay) {
 //---------------------------------------
 __attribute__((unused)) // Marked unused as only used sometimes
 static accum weight_get_update(weight_state_t state) {
-    return state.weight;
+{%- for variable_symbol in synapse.get_state_symbols() %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+    // special case for variable marked with @nest::weight decorator
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         if nest_namespace_name == "weight" %}
+    return state.{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
 }
 
 static inline post_trace_t timing_get_initial_post_trace(void) {
