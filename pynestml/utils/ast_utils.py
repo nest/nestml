@@ -1912,6 +1912,8 @@ class ASTUtils:
         """
         Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
         variable name (e.g. `g_ex__DOLLAR__d__d`).
+
+        Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -1932,6 +1934,42 @@ class ASTUtils:
             return replace_var(x)
 
         model.accept(ASTHigherOrderVisitor(func))
+
+    @classmethod
+    def replace_convolve_calls_with_buffers_(cls, model: ASTModel, equations_block: ASTEquationsBlock) -> None:
+        r"""
+        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
+        """
+
+        def replace_function_call_through_var(_expr=None):
+            if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
+                convolve = _expr.get_function_call()
+                el = (convolve.get_args()[0], convolve.get_args()[1])
+                sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
+                    convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
+                if sym.block_type == BlockType.INPUT:
+                    # swap elements
+                    el = (el[1], el[0])
+                var = el[0].get_variable()
+                spike_input_port = el[1].get_variable()
+                kernel = model.get_kernel_by_name(var.get_name())
+
+                _expr.set_function_call(None)
+                buffer_var = cls.construct_kernel_X_spike_buf_name(
+                    var.get_name(), spike_input_port, var.get_differential_order() - 1)
+                if cls.is_delta_kernel(kernel):
+                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
+                    _expr.set_variable(None)
+                    _expr.set_numeric_literal(0)
+                else:
+                    ast_variable = ASTVariable(buffer_var)
+                    ast_variable.set_source_position(_expr.get_source_position())
+                    _expr.set_variable(ast_variable)
+
+        def func(x):
+            return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
+
+        equations_block.accept(ASTHigherOrderVisitor(func))
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
