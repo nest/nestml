@@ -1567,6 +1567,11 @@ class ASTUtils:
                             if var.get_name() == symbol_name:
                                 decl.variables.remove(var)
 
+        for decl in decl_to_remove:
+            for state_block in neuron.get_state_blocks():
+                if decl in state_block.get_declarations():
+                    state_block.get_declarations().remove(decl)
+
     @classmethod
     def depends_only_on_vars(cls, expr, vars):
         r"""Returns True if and only if all variables that occur in ``expr`` are in ``vars``"""
