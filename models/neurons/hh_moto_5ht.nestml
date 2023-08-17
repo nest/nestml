@@ -49,7 +49,7 @@ neuron hh_moto_5ht:
         inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes)
         inline I_syn_inh pA = convolve(I_syn_in, inh_spikes)
 
-        inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in)
+        inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in) * mV
 
         inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K pA = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
