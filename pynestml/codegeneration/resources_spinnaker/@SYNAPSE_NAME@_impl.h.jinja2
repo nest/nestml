@@ -86,13 +86,7 @@ typedef struct {
 //TODO: switch to fixed point
 typedef struct {
 {%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-    // special case for variable marked with @nest::weight decorator
-{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-         if nest_namespace_name == "weight" %}
     {{type_symbol_printer.print(variable_symbol.type_symbol) }} {{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
-{%-         endif %}
-{%-     endif %}
 {%- endfor %}
 
     const uint32_t weight_shift;
