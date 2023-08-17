@@ -1542,12 +1542,12 @@ class ASTUtils:
         return list(set(vars_checked))
 
     @classmethod
-    def remove_initial_values_for_kernels(cls, neuron: ASTNeuron) -> None:
+    def remove_initial_values_for_kernels(cls, model: ASTModel) -> None:
         """
         Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ODE-toolbox.
         """
         symbols_to_remove = set()
-        for equations_block in neuron.get_equations_blocks():
+        for equations_block in model.get_equations_blocks():
             for kernel in equations_block.get_kernels():
                 for kernel_var in kernel.get_variables():
                     kernel_var_order = kernel_var.get_differential_order()
@@ -1557,7 +1557,7 @@ class ASTUtils:
 
         decl_to_remove = set()
         for symbol_name in symbols_to_remove:
-            for state_block in neuron.get_state_blocks():
+            for state_block in model.get_state_blocks():
                 for decl in state_block.get_declarations():
                     if len(decl.get_variables()) == 1:
                         if decl.get_variables()[0].get_name() == symbol_name:
@@ -1568,27 +1568,27 @@ class ASTUtils:
                                 decl.variables.remove(var)
 
         for decl in decl_to_remove:
-            for state_block in neuron.get_state_blocks():
+            for state_block in model.get_state_blocks():
                 if decl in state_block.get_declarations():
                     state_block.get_declarations().remove(decl)
 
     @classmethod
-    def update_initial_values_for_odes(cls, neuron: ASTModel, solver_dicts: List[dict]) -> None:
+    def update_initial_values_for_odes(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
         """
         Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         from pynestml.utils.model_parser import ModelParser
-        assert len(neuron.get_equations_blocks()) == 1, "Only one equation block should be present"
+        assert len(model.get_equations_blocks()) == 1, "Only one equation block should be present"
 
-        if not neuron.get_state_blocks():
+        if not model.get_state_blocks():
             return
 
-        for state_block in neuron.get_state_blocks():
+        for state_block in model.get_state_blocks():
             for iv_decl in state_block.get_declarations():
                 for var in iv_decl.get_variables():
                     var_name = var.get_complete_name()
-                    if cls.is_ode_variable(var.get_name(), neuron):
+                    if cls.is_ode_variable(var.get_name(), model):
                         assert cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
 
                         # replace the left-hand side variable name by the ode-toolbox format
@@ -1604,7 +1604,7 @@ class ASTUtils:
                         iv_decl.set_expression(iv_expr)
 
     def create_initial_values_for_kernels(cls, model: ASTModel, solver_dicts: List[Dict], kernels: List[ASTKernel]) -> None:
-        """
+        r"""
         Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST
         """
         for solver_dict in solver_dicts:
@@ -1615,6 +1615,10 @@ class ASTUtils:
                 if cls.variable_in_kernels(var_name, kernels):
                     # original initial value expressions should have been removed to make place for ode-toolbox results
                     assert not cls.declaration_in_state_block(model, var_name)
+
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
 
             for var_name, expr in solver_dict["initial_values"].items():
                 # overwrite is allowed because initial values might be repeated between numeric and analytic solver
@@ -1634,10 +1638,19 @@ class ASTUtils:
                         cls.add_declaration_to_state_block(model, var_name, expr, type_str)
 
     @classmethod
-    def transform_odes_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
-                               printer: ASTPrinter) -> Dict:
+    def transform_ode_and_kernels_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
+                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> Dict:
         """
         Converts AST node to a JSON representation suitable for passing to ode-toolbox.
+
+        Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
+
+         .. code-block::
+
+           convolve(G, exc_spikes)
+           convolve(G, inh_spikes)
+
+        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
         """
         odetoolbox_indict = {}
 
@@ -1659,6 +1672,37 @@ class ASTUtils:
                     if initial_value_expr:
                         expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
+                odetoolbox_indict["dynamics"].append(entry)
+
+        # write a copy for each (kernel, spike buffer) combination
+        for kernel, spike_input_port in kernel_buffers:
+
+            if cls.is_delta_kernel(kernel):
+                # delta function -- skip passing this to ode-toolbox
+                continue
+
+            for kernel_var in kernel.get_variables():
+                expr = cls.get_expr_from_kernel_var(kernel, kernel_var.get_complete_name())
+                kernel_order = kernel_var.get_differential_order()
+                kernel_X_spike_buf_name_ticks = cls.construct_kernel_X_spike_buf_name(
+                    kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'")
+
+                cls.replace_rhs_variables(expr, kernel_buffers)
+
+                entry = {"expression": kernel_X_spike_buf_name_ticks + " = " + str(expr), "initial_values": {}}
+
+                # initial values need to be declared for order 1 up to kernel order (e.g. none for kernel function
+                # f(t) = ...; 1 for kernel ODE f'(t) = ...; 2 for f''(t) = ... and so on)
+                for order in range(kernel_order):
+                    iv_sym_name_ode_toolbox = cls.construct_kernel_X_spike_buf_name(
+                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
+                    symbol_name_ = kernel_var.get_name() + "'" * order
+                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
+                    assert symbol is not None, "Could not find initial value for variable " + symbol_name_
+                    initial_value_expr = symbol.get_declaring_expression()
+                    assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print(initial_value_expr)
+
                 odetoolbox_indict["dynamics"].append(entry)
 
         odetoolbox_indict["parameters"] = {}
@@ -1746,16 +1790,61 @@ class ASTUtils:
         return definitions
 
     @classmethod
-    def add_timestep_symbol(cls, neuron: ASTModel) -> None:
+    def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:
+        r"""
+        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
+        """
+        delta_factors = {}
+        for ode_eq in equations_block.get_ode_equations():
+            var = ode_eq.get_lhs()
+            expr = ode_eq.get_rhs()
+            conv_calls = ASTUtils.get_convolve_function_calls(expr)
+            for conv_call in conv_calls:
+                assert len(
+                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
+                kernel = conv_call.args[0]
+                if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
+                    inport = conv_call.args[1].get_variable()
+                    expr_str = str(expr)
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.Shape._sympy_globals)
+                    sympy_expr = sympy.expand(sympy_expr)
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.Shape._sympy_globals)
+                    factor_str = []
+                    for term in sympy.Add.make_args(sympy_expr):
+                        if term.find(sympy_conv_expr):
+                            factor_str.append(str(term.replace(sympy_conv_expr, 1)))
+                    factor_str = " + ".join(factor_str)
+                    delta_factors[(var, inport)] = factor_str
+
+        return delta_factors
+
+    @classmethod
+    def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> ASTDeclaration:
+        r"""
+        Removes all kernels in equations blocks.
+        """
+        for equations_block in model.get_equations_blocks():
+            decl_to_remove = set()
+            for decl in equations_block.get_declarations():
+                if type(decl) is ASTKernel:
+                    decl_to_remove.add(decl)
+
+            for decl in decl_to_remove:
+                equations_block.get_declarations().remove(decl)
+
+        return decl_to_remove
+
+    @classmethod
+    def add_timestep_symbol(cls, model: ASTModel) -> None:
         """
         Add timestep variable to the internals block
         """
         from pynestml.utils.model_parser import ModelParser
-        assert neuron.get_initial_value(
+        assert model.get_initial_value(
             "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        assert not "__h" in [sym.name for sym in neuron.get_internal_symbols(
+        assert not "__h" in [sym.name for sym in model.get_internal_symbols(
         )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        neuron.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
+        model.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
     def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:
@@ -1789,32 +1878,6 @@ class ASTUtils:
         return kernel_buffers
 
     @classmethod
-    def replace_convolutions_aliasing_inlines(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
-        """
-        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
-        variable name (e.g. `g_ex__DOLLAR__d__d`).
-        """
-        def replace_var(_expr=None):
-            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                var = _expr.get_variable()
-                if cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var.get_complete_name()), solver_dicts):
-                    ast_variable = ASTVariable(cls.to_ode_toolbox_processed_name(
-                        var.get_complete_name()), differential_order=0)
-                    ast_variable.set_source_position(var.get_source_position())
-                    _expr.set_variable(ast_variable)
-
-            elif isinstance(_expr, ASTVariable):
-                var = _expr
-                if cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var.get_complete_name()), solver_dicts):
-                    var.set_name(cls.to_ode_toolbox_processed_name(var.get_complete_name()))
-                    var.set_differential_order(0)
-
-        def func(x):
-            return replace_var(x)
-
-        model.accept(ASTHigherOrderVisitor(func))
-
-    @classmethod
     def replace_convolution_aliasing_inlines(cls, neuron: ASTModel) -> None:
         """
         Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
@@ -1843,6 +1906,32 @@ class ASTUtils:
                     replace_with_var_name = decl.get_expression().get_variable().get_name()
                     neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
                         x, decl.get_variable_name(), replace_with_var_name)))
+
+    @classmethod
+    def replace_variable_names_in_expressions(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
+        """
+        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
+        variable name (e.g. `g_ex__DOLLAR__d__d`).
+        """
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+                if cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var.get_complete_name()), solver_dicts):
+                    ast_variable = ASTVariable(cls.to_ode_toolbox_processed_name(
+                        var.get_complete_name()), differential_order=0)
+                    ast_variable.set_source_position(var.get_source_position())
+                    _expr.set_variable(ast_variable)
+
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+                if cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var.get_complete_name()), solver_dicts):
+                    var.set_name(cls.to_ode_toolbox_processed_name(var.get_complete_name()))
+                    var.set_differential_order(0)
+
+        def func(x):
+            return replace_var(x)
+
+        model.accept(ASTHigherOrderVisitor(func))
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
