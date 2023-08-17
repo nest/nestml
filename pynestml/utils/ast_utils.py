@@ -1117,6 +1117,23 @@ class ASTUtils:
         return False
 
     @classmethod
+    def variable_in_kernels(cls, var_name: str, kernels: List[ASTKernel]) -> bool:
+        """
+        Check if a variable by this name (in ode-toolbox style) is defined in the ode-toolbox solver results
+        """
+
+        var_name_base = var_name.split("__X__")[0]
+        var_name_base = var_name_base.split("__d")[0]
+        var_name_base = var_name_base.replace("__DOLLAR", "$")
+
+        for kernel in kernels:
+            for kernel_var in kernel.get_variables():
+                if var_name_base == kernel_var.get_name():
+                    return True
+
+        return False
+
+    @classmethod
     def get_initial_value_from_ode_toolbox_result(cls, var_name: str, solver_dicts: List[dict]) -> str:
         """
         Get the initial value of the variable with the given name from the ode-toolbox results JSON.
@@ -1132,6 +1149,30 @@ class ASTUtils:
                 return solver_dict["initial_values"][var_name]
 
         assert False, "Initial value not found for ODE with name \"" + var_name + "\""
+
+    @classmethod
+    def get_kernel_var_order_from_ode_toolbox_result(cls, kernel_var: str, solver_dicts: List[dict]) -> int:
+        """
+        Get the differential order of the variable with the given name from the ode-toolbox results JSON.
+
+        N.B. the variable name is given in NESTML notation, e.g. "g_in$"; convert to ode-toolbox export format notation (e.g. "g_in__DOLLAR").
+        """
+
+        kernel_var = kernel_var.replace("$", "__DOLLAR")
+
+        order = -1
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
+
+            for var_name in solver_dict["state_variables"]:
+                var_name_base = var_name.split("__X__")[0]
+                var_name_base = var_name_base.split("__d")[0]
+                if var_name_base == kernel_var:
+                    order = max(order, var_name.count("__d") + 1)
+
+        assert order >= 0, "Variable of name \"" + kernel_var + "\" not found in ode-toolbox result"
+        return order
 
     @classmethod
     def to_ode_toolbox_processed_name(cls, name: str) -> str:
@@ -1488,6 +1529,9 @@ class ASTUtils:
                         vars_used.extend(cls.collect_variable_names_in_expression(decl.get_expression()))
                     elif type(decl) is ASTOdeEquation:
                         vars_used.extend(cls.collect_variable_names_in_expression(decl.get_rhs()))
+                    elif type(decl) is ASTKernel:
+                        for expr in decl.get_expressions():
+                            vars_used.extend(cls.collect_variable_names_in_expression(expr))
                     else:
                         raise Exception("Unknown type " + str(type(decl)))
                     vars_used = [str(var) for var in vars_used]
@@ -1496,6 +1540,32 @@ class ASTUtils:
             vars_checked.add(var)
 
         return list(set(vars_checked))
+
+    @classmethod
+    def remove_initial_values_for_kernels(cls, neuron: ASTNeuron) -> None:
+        """
+        Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ODE-toolbox.
+        """
+        symbols_to_remove = set()
+        for equations_block in neuron.get_equations_blocks():
+            for kernel in equations_block.get_kernels():
+                for kernel_var in kernel.get_variables():
+                    kernel_var_order = kernel_var.get_differential_order()
+                    for order in range(kernel_var_order):
+                        symbol_name = kernel_var.get_name() + "'" * order
+                        symbols_to_remove.add(symbol_name)
+
+        decl_to_remove = set()
+        for symbol_name in symbols_to_remove:
+            for state_block in neuron.get_state_blocks():
+                for decl in state_block.get_declarations():
+                    if len(decl.get_variables()) == 1:
+                        if decl.get_variables()[0].get_name() == symbol_name:
+                            decl_to_remove.add(decl)
+                    else:
+                        for var in decl.get_variables():
+                            if var.get_name() == symbol_name:
+                                decl.variables.remove(var)
 
     @classmethod
     def depends_only_on_vars(cls, expr, vars):
