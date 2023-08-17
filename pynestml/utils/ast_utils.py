@@ -1239,7 +1239,7 @@ class ASTUtils:
 
         spike_input_port_name = spike_input_port.get_name()
         if spike_input_port.has_vector_parameter():
-            spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
+            spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
         return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
@@ -1332,6 +1332,13 @@ class ASTUtils:
         """
         for input_block in input_blocks:
             for input_port in input_block.get_input_ports():
+                if input_port.has_size_parameter():
+                    size_parameter = input_port.get_size_parameter()
+                    if isinstance(size_parameter, ASTSimpleExpression):
+                        size_parameter = size_parameter.get_numeric_literal()
+                    port_name, port_index = port_name.split("_")
+                    assert int(port_index) > 0
+                    assert int(port_index) <= size_parameter
                 if input_port.name == port_name:
                     return input_port
         return None

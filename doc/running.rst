@@ -199,14 +199,16 @@ After generating and building the model code, a ``receptor_type`` entry is avail
 
    neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
+   receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+
    sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+   nest.Connect(sg, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_1"], "weight": 1000.})
 
    sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_2"], "weight": 1000.})
 
    sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_3"], "weight": 500.})
 
 Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
@@ -214,9 +216,9 @@ We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2``
 
 .. code-block:: python
 
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
-                                                          'I_kernel2__X__spikes2',
-                                                          'I_kernel3__X__spikes3'],
+   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes_1',
+                                                          'I_kernel2__X__spikes_2',
+                                                          'I_kernel3__X__spikes_3'],
                                           'interval': .1})
    nest.Connect(mm, neuron)
 
