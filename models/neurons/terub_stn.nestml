@@ -81,8 +81,8 @@ neuron terub_stn:
         inline k_Ca real = 22.5
         inline k1 real = 15.0
 
-        inline I_exc_mod pA = -convolve(g_exc, exc_spikes) * pA * V_m
-        inline I_inh_mod pA = convolve(g_inh, inh_spikes) * pA * (V_m - E_gs)
+        inline I_exc_mod pA = -convolve(g_exc, exc_spikes) * nS * V_m
+        inline I_inh_mod pA = convolve(g_inh, inh_spikes) * nS * (V_m - E_gs)
 
         inline tau_n ms = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
         inline tau_h ms = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
