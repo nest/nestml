@@ -44,7 +44,7 @@ class NESTMLLexer(RegexLexer):
         ],
         'keywords': [
             (words((
-                "recordable", 			"model", 		"onCondition", 		"state", 		"parameters", 		"internals", 		"update", 		"equations", 		"input",
+                "recordable", "kernel", "model", 		"onCondition", 		"state", 		"parameters", 		"internals", 		"update", 		"equations", 		"input",
                 "output", 		"continuous", 		"spike", "inhibitory", "excitatory", "inline", "onReceive", "function", "return", "if", "elif", "else", "for", "while", "in", "step", "and", "or", "not"), suffix=r'\b'),
              Keyword),
         ],
@@ -53,7 +53,7 @@ class NESTMLLexer(RegexLexer):
              Keyword.Type),
         ],
         'builtins': [
-            (words(("resolution", "steps", "emit_spike", "print", "println", "exp", "ln", "log10", "cosh", "sinh", "tanh", "info", "warning", "random", "randomInt", "expm1", "clip", "max", "min", "integrate_odes", "true", "True", "false", "False"),
+            (words(("resolution", "steps", "emit_spike", "print", "println", "exp", "ln", "log10", "cosh", "sinh", "tanh", "info", "warning", "random", "randomInt", "expm1", "delta", "clip", "max", "min", "integrate_odes", "convolve", "true", "True", "false", "False"),
                 prefix=r'(?<!\.)', suffix=r'\b'),
              Name.Builtin),
         ],

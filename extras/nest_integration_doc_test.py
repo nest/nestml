@@ -37,12 +37,13 @@ class TestNESTIntegration:
 
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
-        input_path = os.path.join("models", "neurons", "iaf_psc_exp.nestml")
+        # input_path = os.path.join("models", "neurons", "iaf_psc_exp.nestml")
+        input_path = os.path.join("nestml_convolve_numerics.nestml")
         logging_level = "INFO"
         self._module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        if 0:
+        if 1:
          generate_nest_target(input_path,
                              logging_level=logging_level,
                              module_name=self._module_name,
@@ -58,7 +59,7 @@ class TestNESTIntegration:
         sg = nest.Create("spike_generator", params={"spike_times": [1.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": syn_delay})
 
-        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_kernel_exc__X__exc_spikes"], "interval": nest.resolution})
+        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_syn_exc"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
         # simulate
@@ -80,7 +81,7 @@ class TestNESTIntegration:
         sg = nest.Create("spike_generator", params={"spike_times": [1.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": syn_delay})
 
-        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_kernel_exc__X__exc_spikes"], "interval": nest.resolution})
+        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_syn_exc"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
         # simulate
