@@ -245,8 +245,7 @@ class CorrectExpressionVisitor(ASTVisitor):
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not (from_type.equals(PredefinedTypes.get_integer_type())
-                  or from_type.equals(
-                    PredefinedTypes.get_real_type())):
+                  or from_type.equals(PredefinedTypes.get_real_type())):
             code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_integer_type(),
                                                                       from_type)
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),
