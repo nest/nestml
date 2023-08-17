@@ -288,7 +288,7 @@ def main() -> int:
 
 def get_parsed_models():
     r"""
-   Handle the parsing, validation and transformation of the NESTML files
+   Handle the parsing and validation of the NESTML files
 
     Returns
     -------
