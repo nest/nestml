@@ -340,10 +340,17 @@ static inline post_trace_t timing_decay_post(
 static inline post_trace_t timing_add_post_spike(
         uint32_t time, uint32_t last_time, post_trace_t last_trace) {
     plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
+
+    struct tmp_struct  {
+        post_trace_t post_trace
+    } tmp = {.post_trace = last_trace};
+    struct tmp_struct *state = &tmp;
+
     // Update propagator based on deltatime
     int32_t temp__h = parameter->__h;
     parameter->__h = time - last_time;
 
+// TODO: move to update internal variables
 {% filter indent(2) %}
 {%- for variable_symbol in synapse.get_internal_symbols() %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -365,7 +372,7 @@ static inline post_trace_t timing_add_post_spike(
 {%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
 {%- endfilter %}
 
-    state.post_trace += 1;
+    state->post_trace += 1;
 
     return (post_trace_t) 0;
 }
@@ -424,9 +431,10 @@ static inline plastic_synapse_t process_plastic_synapse(
 static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
 
-    struct {
-        pre_trace_t pre_trace;
-    } state;
+    struct tmp_struct  {
+        pre_trace_t pre_trace
+    } tmp = {.pre_trace = last_trace};
+    struct tmp_struct *state = &tmp;
 
     plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
     // update propagator based on deltatime
@@ -453,7 +461,7 @@ static inline pre_trace_t timing_add_pre_spike(
 {%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
 {%- endfilter %}
 
-    state.pre_trace += 1;
+    state->pre_trace += 1;
 
     return 0;
 }
@@ -538,20 +546,12 @@ static inline weight_state_t weight_get_initial(
 // TAG: GENERATE
 static inline weight_state_t weight_one_term_apply_depression(
         weight_state_t state, int32_t depression) {
-
-    // TODO: Perform intermediate operations in relation to depression
-    // Note: Can save up to perform complex operations until the end
-    state.depression += depression;
     return state;
 }
 
 // TAG: GENERATE
 static inline weight_state_t weight_one_term_apply_potentiation(
         weight_state_t state, int32_t potentiation) {
-
-    // TODO: Perform intermediate operations in relation to potentiation
-    // Note: Can save up to perform complex operations until the end
-    state.potentiation += potentiation;
     return state;
 }
 

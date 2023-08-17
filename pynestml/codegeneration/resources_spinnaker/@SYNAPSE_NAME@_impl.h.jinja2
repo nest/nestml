@@ -89,8 +89,8 @@ typedef struct {
     {{type_symbol_printer.print(variable_symbol.type_symbol) }} {{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
 {%- endfor %}
 
-    const uint32_t weight_shift;
-    const plasticity_weight_region_data_t *parameter;
+    uint32_t weight_shift;
+    plasticity_weight_region_data_t *parameter;
 
     // TODO: Put in any variables required in the intermediate state
 } weight_state_t;
