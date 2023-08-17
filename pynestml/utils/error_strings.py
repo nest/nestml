@@ -330,6 +330,19 @@ class ErrorStrings:
         return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
+    def message_cannot_calculate_convolve_type(cls, origin, source_position):
+        """
+        construct an error message indicating that the type of a convolve() call is ill-defined
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
+        :return: the error message
+        :rtype: str
+        """
+        error_msg_format = "Cannot calculate return type of convolve()."
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
+
+    @classmethod
     def message_void_function_on_rhs(cls, origin, function_name, source_position):
         """
         construct an error message indicating that a void function cannot be used on a RHS

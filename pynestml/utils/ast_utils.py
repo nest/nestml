@@ -41,7 +41,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_node import ASTNode
@@ -454,6 +454,20 @@ class ASTUtils:
         return neuron
 
     @classmethod
+    def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
+        """
+        Indicates whether the declaring rhs of this variable symbol has a convolve() in it.
+        :return: True if contained, otherwise False.
+        """
+        if not variable.get_declaring_expression():
+            return False
+        else:
+            for func in variable.get_declaring_expression().get_function_calls():
+                if func.get_name() == PredefinedFunctions.CONVOLVE:
+                    return True
+        return False
+
+    @classmethod
     def get_declaration_by_name(cls, blocks: Union[ASTBlock, List[ASTBlock]], var_name: str) -> Optional[ASTDeclaration]:
         """
         Get a declaration by variable name.
@@ -480,6 +494,17 @@ class ASTUtils:
                 for var in decl.get_variables():
                     vars.append(var)
         return vars
+
+    @classmethod
+    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
+        """
+        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
+        """
+        if isinstance(inline_expr.get_expression(), ASTSimpleExpression) \
+           and inline_expr.get_expression().is_function_call() \
+           and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+            return True
+        return False
 
     @classmethod
     def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str, scope=None):
@@ -640,6 +665,50 @@ class ASTUtils:
         return all_variables
 
     @classmethod
+    def get_all_variables_used_in_convolutions(cls, nodes: Union[ASTEquationsBlock, List[ASTEquationsBlock]], parent_node: ASTNode) -> List[str]:
+        """Make a list of all variable symbol names that are in one of the equation blocks in ``nodes`` and used in a convolution"""
+        if not nodes:
+            return []
+
+        if isinstance(nodes, ASTNode):
+            nodes = [nodes]
+
+        class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
+            _variables = []
+            parent_node = None
+
+            def __init__(self, node, parent_node):
+                super(ASTAllVariablesUsedInConvolutionVisitor, self).__init__()
+                self.node = node
+                self.parent_node = parent_node
+
+            def visit_function_call(self, node):
+                func_name = node.get_name()
+                if func_name == 'convolve':
+                    symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
+                                                                       SymbolKind.VARIABLE)
+                    input_port = ASTUtils.get_input_port_by_name(
+                        self.parent_node.get_input_blocks(), symbol_buffer.name)
+                    if input_port:
+                        found_parent_assignment = False
+                        node_ = node
+                        while not found_parent_assignment:
+                            node_ = self.parent_node.get_parent(node_)
+                            # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                            if isinstance(node_, ASTInlineExpression):
+                                found_parent_assignment = True
+                        var_name = node_.get_variable_name()
+                        self._variables.append(var_name)
+
+        variables = []
+        for node in nodes:
+            visitor = ASTAllVariablesUsedInConvolutionVisitor(node, parent_node)
+            node.accept(visitor)
+            variables.extend(visitor._variables)
+
+        return variables
+
+    @classmethod
     def move_decls(cls, var_name, from_block, to_block, var_name_suffix: str, block_type: BlockType, mode="move") -> List[ASTDeclaration]:
         """Move or copy declarations from ``from_block`` to ``to_block``."""
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -707,10 +776,39 @@ class ASTUtils:
                         ASTUtils.collect_variable_names_in_expression(decl.get_expression()))
                 elif type(decl) is ASTOdeEquation:
                     vars_used.extend(ASTUtils.collect_variable_names_in_expression(decl.get_rhs()))
+                elif type(decl) is ASTKernel:
+                    for expr in decl.get_expressions():
+                        vars_used.extend(ASTUtils.collect_variable_names_in_expression(expr))
                 else:
                     raise Exception("Tried to move unknown type " + str(type(decl)))
 
         return vars_used
+
+    @classmethod
+    def add_kernel_to_variable(cls, kernel: ASTKernel):
+        r"""
+        Adds the kernel as the defining equation.
+        If the definition of the kernel is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
+        :param kernel: a single kernel object.
+        """
+        if len(kernel.get_variables()) == 1 \
+                and kernel.get_variables()[0].get_differential_order() == 0:
+            # we only update those which define an ODE; skip "direct function of time" specifications
+            return
+
+        for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
+            for diff_order in range(var.get_differential_order()):
+                var_name = var.get_name() + "'" * diff_order
+                existing_symbol = kernel.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+
+                if existing_symbol is None:
+                    code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
+                    Logger.log_message(code=code, message=message, error_position=kernel.get_source_position(), log_level=LoggingLevel.ERROR)
+                    return
+
+                existing_symbol.set_ode_or_kernel(expr)
+                existing_symbol.set_variable_type(VariableType.KERNEL)
+                kernel.get_scope().update_variable_symbol(existing_symbol)
 
     @classmethod
     def assign_ode_to_variables(cls, ode_block: ASTEquationsBlock):
@@ -720,9 +818,12 @@ class ASTUtils:
         :param ode_block: a single block of ode declarations.
         """
         from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+        from pynestml.meta_model.ast_kernel import ASTKernel
         for decl in ode_block.get_declarations():
             if isinstance(decl, ASTOdeEquation):
                 ASTUtils.add_ode_to_variable(decl)
+            elif isinstance(decl, ASTKernel):
+                ASTUtils.add_kernel_to_variable(decl)
 
     @classmethod
     def add_ode_to_variable(cls, ode_equation: ASTOdeEquation):
@@ -741,7 +842,7 @@ class ASTUtils:
                                    log_level=LoggingLevel.ERROR)
                 return
 
-            existing_symbol.set_ode(ode_equation)
+            existing_symbol.set_ode_or_kernel(ode_equation)
 
             ode_equation.get_scope().update_variable_symbol(existing_symbol)
 

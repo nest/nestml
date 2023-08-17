@@ -95,6 +95,8 @@ class MessageCode(Enum):
     DELTA_FUNCTION_CANNOT_BE_MIXED = 69
     UNKNOWN_TYPE = 70
     ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
+    KERNEL_WRONG_TYPE = 72
+    KERNEL_IV_WRONG_TYPE = 73
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 74
     NO_FILES_IN_INPUT_PATH = 75
     STATE_VARIABLES_NOT_INITIALZED = 76
@@ -183,6 +185,11 @@ class Messages:
     def get_unary_operation_not_defined(cls, operator, term):
         message = 'Operation %s%s is not defined!' % (operator, term)
         return MessageCode.OPERATION_NOT_DEFINED, message
+
+    @classmethod
+    def get_convolve_needs_buffer_parameter(cls):
+        message = 'Convolve requires a buffer variable as second parameter!'
+        return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
 
     @classmethod
     def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor):

@@ -401,6 +401,22 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
 
+    def test_invalid_convolve_correctly_defined(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                        'CoCoConvolveNotCorrectlyProvided.nestml'))
+        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0],
+                                                                        LoggingLevel.ERROR)), 2)
+
+    def test_valid_convolve_correctly_defined(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                        'CoCoConvolveNotCorrectlyProvided.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+
     def test_invalid_vector_in_non_vector_declaration_detected(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
@@ -464,6 +480,22 @@ class CoCosTest(unittest.TestCase):
                          'CoCoVectorDeclarationSize.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_convolve_correctly_parameterized(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoConvolveNotCorrectlyParametrized.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 1)
+
+    def test_valid_convolve_correctly_parameterized(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoConvolveNotCorrectlyParametrized.nestml'))
+        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0],
+                                                                          LoggingLevel.ERROR)), 0)
 
     def test_invalid_invariant_correctly_typed(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -555,6 +587,39 @@ class CoCosTest(unittest.TestCase):
                          'CoCoOutputPortDefinedIfEmitCall.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_valid_coco_kernel_type(self):
+        """
+        Test the functionality of CoCoKernelType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoKernelType.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_coco_kernel_type(self):
+        """
+        Test the functionality of CoCoKernelType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoKernelType.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 1)
+
+    def test_invalid_coco_kernel_type_initial_values(self):
+        """
+        Test the functionality of CoCoKernelType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_file(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoKernelTypeInitialValues.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 4)
 
     def test_valid_coco_state_variables_initialized(self):
         """

@@ -265,7 +265,7 @@ Given the fact that context conditions have the commonality of checking the cont
 
 -  *CoCoParametersAssignedOnlyInParameterBlock*: Checks that values are assigned to parameters only in the *parameter* block.
 
--  *CoCoSumHasCorrectParameter*: Checks that *convolve* calls are not provided with complex expressions, but only variables.
+-  *CoCoConvolveHasCorrectParameter*: Checks that *convolve* calls are not provided with complex expressions, but only variables.
 
 -  *CoCoTypeOfBufferUnique*: Checks that no keyword is stated twice in an input buffer declaration, e.g., *inhibitory inhibitory spike*.
 

@@ -341,7 +341,7 @@ class VariableSymbol(Symbol):
         """
         return self.ode
 
-    def set_ode(self, expression):
+    def set_ode_or_kernel(self, expression):
         """
         Updates the currently stored ode-definition to the handed-over one.
         :param expression: a single rhs object.
