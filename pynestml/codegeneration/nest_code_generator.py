@@ -52,6 +52,7 @@ from pynestml.codegeneration.printers.unitless_sympy_simple_expression_printer i
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -348,7 +349,7 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
         spike_updates, post_spike_updates = self.get_spike_update_expressions(
-            neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors
+            neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
@@ -816,7 +817,7 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(symbol_table_visitor)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
-    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
+    def get_spike_update_expressions(self, neuron: ASTModel, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         r"""
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after
         ode-toolbox.

@@ -514,20 +514,6 @@ class ASTModel(ASTNode):
 
         return ret
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.get_body() is ast:
-            return self
-        if self.get_body().get_parent(ast) is not None:
-            return self.get_body().get_parent(ast)
-        return None
-
     def equals(self, other: ASTNode) -> bool:
         """
         The equals method.
@@ -666,20 +652,6 @@ class ASTModel(ASTNode):
 
         return False
 
-    def get_parameter_invariants(self):
-        """
-        Returns a list of all invariants of all parameters.
-        :return: a list of rhs representing invariants
-        :rtype: list(ASTExpression)
-        """
-        ret = list()
-        for block in self.get_parameters_blocks():
-            for decl in block.get_declarations():
-                if decl.has_invariant():
-                    ret.append(decl.get_invariant())
-
-        return ret
-
     def get_parent(self, ast) -> Optional[ASTNode]:
         """
         Indicates whether a this node contains the handed over node.
@@ -692,16 +664,6 @@ class ASTModel(ASTNode):
         if self.get_body().get_parent(ast) is not None:
             return self.get_body().get_parent(ast)
         return None
-
-    def equals(self, other: ASTNode) -> bool:
-        """
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
-        """
-        if not isinstance(other, ASTModel):
-            return False
-        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
 
     def set_default_delay(self, var, expr, dtype):
         self._default_delay_variable = var

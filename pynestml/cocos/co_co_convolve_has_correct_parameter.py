@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -40,23 +41,20 @@ class CoCoConvolveHasCorrectParameter(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, model):
         """
-        Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
-        """
-        cls.neuronName = neuron.get_name()
+        Ensures the coco for the handed over model.
+        :param model: a single model instance.
+=        """
         visitor = ConvolveParametersCorrectVisitor()
-        neuron.accept(visitor)
+        model.accept(visitor)
 
 
 class ConvolveParametersCorrectVisitor(ASTVisitor):
-    def visit_function_call(self, node):
+    def visit_function_call(self, node: ASTFunctionCall):
         """
         Checks the coco on the current function call.
         :param node: a single function call.
-        :type node: ASTFunctionCall
         """
         f_name = node.get_name()
         if f_name == PredefinedFunctions.CONVOLVE:
