@@ -146,7 +146,7 @@ class NestMultiSynapseTest(unittest.TestCase):
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_3"], "weight": 500., "delay": 0.1})
 
         mm = nest.Create("multimeter", params={"record_from": [
-            "I_kernel1__X__spikes1", "I_kernel2__X__spikes2", "I_kernel3__X__spikes3"], "interval": 0.1})
+            "I_kernel1__X__spikes_1", "I_kernel2__X__spikes_2", "I_kernel3__X__spikes_3"], "interval": 0.1})
         nest.Connect(mm, neuron)
 
         vm_1 = nest.Create("voltmeter")
