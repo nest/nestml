@@ -54,7 +54,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
 
         # network construction
 
-        neuron = nest.Create("biexp_postsynaptic_response_nestml", params={"V_th": 999.})
+        neuron = nest.Create("biexp_postsynaptic_response_neuron_nestml", params={"V_th": 999.})
 
         sd = nest.Create("spike_recorder")
         nest.Connect(neuron, sd)

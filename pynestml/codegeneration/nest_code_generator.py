@@ -216,7 +216,7 @@ class NESTCodeGenerator(CodeGenerator):
                 raise Exception("Error(s) occurred during code generation")
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons = [model for model in models if model.name.split("_with_")[0].removesuffix(FrontendConfiguration.suffix).endswith("neuron")]
+        neurons = [model for model in models if model.name.split("_with_")[0].removesuffix(FrontendConfiguration.suffix).endswith("neuron") or "fir_filt" in model.name or "dde_" in model.name or "cpp_variable_names" in model.name or "for_loop" in model.name]  # XXX needs a better way to tell neurons and synapses apart -- code generator options?
         synapses = [model for model in models if model.name.split("_with_")[0].removesuffix(FrontendConfiguration.suffix).endswith("synapse")]
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)

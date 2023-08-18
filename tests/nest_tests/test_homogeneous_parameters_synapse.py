@@ -61,7 +61,7 @@ class TestHomogeneousParametersSynapse:
 
         sim_time = 50.
         synapse_model_name = "static_synapse_nestml"
-        neuron_model_name = "iaf_psc_exp_nestml"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")

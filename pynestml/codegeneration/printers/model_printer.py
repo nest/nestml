@@ -37,6 +37,7 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
@@ -139,6 +140,9 @@ class ModelPrinter(ASTPrinter):
         raise Exception("Printer does not support printing this node type")
 
     def print_inline_expression(self, node: ASTInlineExpression) -> str:
+        raise Exception("Printer does not support printing this node type")
+
+    def print_kernel(self, node: ASTKernel) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_output_block(self, node: ASTOutputBlock) -> str:
@@ -249,6 +253,9 @@ class ModelPrinter(ASTPrinter):
 
         if isinstance(node, ASTInputQualifier):
             return self.print_input_qualifier(node)
+
+        if isinstance(node, ASTKernel):
+            return self.print_kernel(node)
 
         if isinstance(node, ASTLogicalOperator):
             return self.print_logical_operator(node)

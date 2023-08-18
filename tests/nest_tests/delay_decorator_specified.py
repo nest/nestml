@@ -27,10 +27,10 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 class TestDelayDecoratorSpecified:
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
+    synapse_model_name = "stdp_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_synapse"
 
     @pytest.mark.xfail(strict=True)

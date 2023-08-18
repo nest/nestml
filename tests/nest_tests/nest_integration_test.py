@@ -90,10 +90,10 @@ class TestNestIntegration:
         self._test_model_equivalence_fI_curve("iaf_psc_delta", "iaf_psc_delta_nestml")
         self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_psc_exp", "iaf_psc_exp_nestml")
-        self._test_model_equivalence_spiking("iaf_psc_exp", "iaf_psc_exp_nestml")
-        self._test_model_equivalence_fI_curve("iaf_psc_exp", "iaf_psc_exp_nestml")
-        self._test_model_equivalence_curr_inj("iaf_psc_exp", "iaf_psc_exp_nestml")
+        self._test_model_equivalence_subthreshold("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
+        self._test_model_equivalence_spiking("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
+        self._test_model_equivalence_fI_curve("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
+        self._test_model_equivalence_curr_inj("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
 
         self._test_model_equivalence_subthreshold("iaf_psc_alpha", "iaf_psc_alpha_nestml")
         self._test_model_equivalence_spiking("iaf_psc_alpha", "iaf_psc_alpha_nestml")

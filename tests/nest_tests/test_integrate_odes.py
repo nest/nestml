@@ -78,7 +78,7 @@ class TestIntegrateODEs:
                          params={"spike_times": spike_interval * (1 + np.arange(sim_time / spike_interval))})
 
         spikedet = nest.Create("spike_recorder")
-        neuron = nest.Create("iaf_psc_exp_nestml", params={"t_ref": 20.})  # long refractory period
+        neuron = nest.Create("iaf_psc_exp_neuron_nestml", params={"t_ref": 20.})  # long refractory period
         mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_kernel_exc__X__exc_spikes"]})
         nest.Connect(sg, neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
         nest.Connect(mm, neuron)

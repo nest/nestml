@@ -29,7 +29,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model biexp_postsynaptic_response:
+model biexp_postsynaptic_response_neuron:
     state:
         r integer = 0         # counts number of tick during the refractory period
 

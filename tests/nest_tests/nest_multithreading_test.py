@@ -32,13 +32,12 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 @pytest.mark.parametrize("number_of_threads", [1, 2, 4])
 class TestNestMultithreading:
     neuron_synapse_module = "nestml_stdp_module"
-    neuron_synapse_target = "/tmp/nestml-stdp"
-    neuron_synapse_neuron_model = "iaf_psc_exp_nestml__with_stdp_nestml"
-    neuron_synapse_synapse_model = "stdp_nestml__with_iaf_psc_exp_nestml"
+    neuron_synapse_neuron_model = "iaf_psc_exp_neuron_nestml__with_stdp_nestml"
+    neuron_synapse_synapse_model = "stdp_nestml__with_iaf_psc_exp_neuron_nestml"
 
     neuron_module = "nestml_module"
     neuron_target = "/tmp/nestml-iaf-psc"
-    neuron_model = "iaf_psc_exp__nestml"
+    neuron_model = "iaf_psc_exp_neuron__nestml"
 
     @pytest.fixture(autouse=True,
                     scope="session")
@@ -53,19 +52,17 @@ class TestNestMultithreading:
             os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models",
                                           "synapses", "stdp_synapse.nestml")))
         generate_nest_target(input_path=[neuron_path, synapse_path],
-                             target_path=self.neuron_synapse_target,
                              logging_level="INFO",
                              module_name=self.neuron_synapse_module,
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "stdp_synapse",
                                                                      "post_ports": ["post_spikes"]}]})
 
         # Neuron model
         generate_nest_target(input_path=neuron_path,
-                             target_path=self.neuron_target,
                              logging_level="INFO",
                              module_name=self.neuron_module,
                              suffix="__nestml",

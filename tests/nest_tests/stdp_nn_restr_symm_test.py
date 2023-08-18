@@ -44,10 +44,10 @@ sim_ref = True
 
 class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nn_restr_symm_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_restr_symm_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nn_restr_symm_nestml__with_iaf_psc_exp_nestml"
+    synapse_model_name = "stdp_nn_restr_symm_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_nn_restr_synapse"
 
     def setUp(self):

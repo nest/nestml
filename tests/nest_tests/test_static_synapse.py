@@ -40,8 +40,8 @@ except Exception:
 
 class TestStaticSynapse:
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_static_synapse_nestml"
-    synapse_model_name = "static_synapse_nestml__with_iaf_psc_exp_nestml"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_static_synapse_nestml"
+    synapse_model_name = "static_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):

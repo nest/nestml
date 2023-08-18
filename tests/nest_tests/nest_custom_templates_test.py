@@ -61,7 +61,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        nrn = nest.Create("iaf_psc_exp_nestml")
+        nrn = nest.Create("iaf_psc_exp_neuron_nestml")
         mm = nest.Create("multimeter")
         mm.set({"record_from": ["V_m"]})
 

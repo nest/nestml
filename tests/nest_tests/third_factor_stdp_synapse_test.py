@@ -43,7 +43,7 @@ sim_ref = False
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
     neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
     synapse_model_name = "third_factor_stdp__with_iaf_psc_exp_dend"
     ref_synapse_model_name = "third_factor_stdp_synapse"

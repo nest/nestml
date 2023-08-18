@@ -50,7 +50,7 @@ class TestStaticSynapse:
     def test_static_synapse(self, synapse_model_name: str):
 
         sim_time = 50.
-        neuron_model_name = "iaf_psc_exp_nestml"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
