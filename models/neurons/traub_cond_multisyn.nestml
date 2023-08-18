@@ -25,7 +25,7 @@ See also
 
 hh_cond_exp_traub
 """
-neuron traub_cond_multisyn:
+model traub_cond_multisyn_neuron:
     state:
         r integer = 0 # number of steps in the current refractory phase
 

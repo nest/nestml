@@ -38,6 +38,7 @@ from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCo
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
+from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
@@ -274,6 +275,14 @@ class CoCosManager:
         :param model: a single model object.
         """
         CoCoIntegrateODEsParamsCorrect.check_co_co(model)
+
+    @classmethod
+    def check_correct_usage_of_kernels(cls, model: ASTModel):
+        """
+        Checks if all kernels are only used in convolve.
+        :param model: a single model object.
+        """
+        CoCoNoKernelsExceptInConvolve.check_co_co(model)
 
     @classmethod
     def check_no_duplicate_compilation_unit_names(cls, compilation_units):

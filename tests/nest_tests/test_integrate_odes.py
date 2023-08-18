@@ -54,7 +54,7 @@ class TestIntegrateODEs:
         r"""Generate the model code"""
 
         generate_nest_target(input_path=[os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp.nestml"))),
+                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp_neuron.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "integrate_odes_test.nestml")))],
                              logging_level="INFO",

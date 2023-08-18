@@ -25,7 +25,7 @@ References
 .. [2] Rubin, J.E. and Terman, D. High Frequency Stimulation of the Subthalamic Nucleus Eliminates
        Pathological Thalamic Rhythmicity in a Computational Model Journal of Computational Neuroscience, 16, 211-235 (2004)
 """
-neuron terub_stn:
+model terub_stn_neuron:
     state:
         r integer = 0 # counts number of tick during the refractory period
 

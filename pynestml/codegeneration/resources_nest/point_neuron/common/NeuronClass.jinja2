@@ -558,7 +558,9 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     update_delay_variables();
 {%- endif %}
 
-    // NESTML generated code for the update block
+    /**
+     * Begin NESTML generated code for the update block
+    **/
 
 {%- if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
@@ -574,9 +576,19 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-     endfilter %}
 {%- endif %}
 
-    // NESTML generated code for the postsynaptic onReceive blocks
+    /**
+     * End NESTML generated code for the update block
+    **/
+
+    /**
+     * Begin NESTML generated code for the postsynaptic onReceive blocks
+    **/
 
     // ???????????
+
+    /**
+     * End NESTML generated code for the postsynaptic onReceive blocks
+    **/
 
     // NESTML generated code for the onCondition blocks
 
@@ -593,6 +605,13 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
+
+    /**
+     * print updates due to convolutions
+    **/
+
+{%- include "directives/ApplySpikesFromBuffers.jinja2" %}
+
 
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);

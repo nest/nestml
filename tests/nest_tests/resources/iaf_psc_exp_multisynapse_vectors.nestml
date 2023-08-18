@@ -54,9 +54,7 @@ model iaf_psc_exp_multisynapse_vectors_neuron:
         else:
             r = r - 1 # neuron is absolute refractory
 
-        process_input(spikes)
-
-        if V_m >= V_th: # threshold crossing
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(V_m >= V_th): # threshold crossing
+        r = RefractoryCounts
+        V_m = V_reset
+        emit_spike()

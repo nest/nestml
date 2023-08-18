@@ -43,6 +43,7 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
@@ -288,6 +289,10 @@ class ASTNodeFactory:
         # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
         return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
                                    is_recordable=is_recordable, source_position=source_position)
+
+    @classmethod
+    def create_ast_kernel(cls, variables=None, expressions=None, source_position=None) -> ASTKernel:
+        return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
     def create_ast_output_block(cls, s_type, source_position):

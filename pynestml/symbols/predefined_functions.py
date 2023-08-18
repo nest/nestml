@@ -27,11 +27,37 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions:
     r"""
     This class is used to represent all predefined functions of NESTML.
+
+    Attributes:
+        TIME_RESOLUTION       The callee name of the resolution function.
+        TIME_STEPS            The callee name of the time-steps function.
+        EMIT_SPIKE            The callee name of the emit-spike function.
+        PRINT                 The callee name of the print function.
+        PRINTLN               The callee name of the println function.
+        EXP                   The callee name of the exponent function.
+        LN                    The callee name of the natural logarithm function, i.e. the logarithm function of base :math:`e`.
+        LOG10                 The callee name of the logarithm function of base 10.
+        COSH                  The callee name of the hyperbolic cosine.
+        SINH                  The callee name of the hyperbolic sine.
+        TANH                  The callee name of the hyperbolic tangent.
         ERF                   The callee name of the error function
         ERFC                  The callee name of the complementary error function
+        LOGGER_INFO           The callee name of the logger-info function.
+        LOGGER_WARNING        The callee name of the logger-warning function.
+        RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
+        EXPM1                 The callee name of the exponent (alternative) function.
+        DELTA                 The callee name of the delta function.
+        CLIP                  The callee name of the clip function.
+        POW                   The callee name of the pow function.
+        MAX                   The callee name of the max function.
+        MIN                   The callee name of the min function.
+        ABS                   The callee name of the abs function.
         CEIL                  The callee name of the ceil function.
         FLOOR                 The callee name of the floor function.
         ROUND                 The callee name of the round function.
+        INTEGRATE_ODES        The callee name of the integrate_odes function.
+        CONVOLVE              The callee name of the convolve function.
     """
 
     TIME_RESOLUTION = "resolution"
@@ -61,7 +87,9 @@ class PredefinedFunctions:
     FLOOR = "floor"
     ROUND = "round"
     DELTA = "delta"
+    INTEGRATE_ODES = "integrate_odes"
     CONVOLVE = "convolve"
+    DELIVER_SPIKE = "deliver_spike"
     name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
@@ -100,7 +128,6 @@ class PredefinedFunctions:
         cls.__register_round_function()
         cls.__register_convolve()
         cls.__register_deliver_spike()
-        cls.__register_process_input_function()
 
     @classmethod
     def register_function(cls, name, params, return_type, element_reference):
@@ -446,16 +473,17 @@ class PredefinedFunctions:
         cls.name2function[cls.INTEGRATE_ODES] = symbol
 
     @classmethod
-    def __register_process_input_function(cls):
+    def __register_convolve(cls):
         """
-        Registers the process_input() function.
+        Registers the convolve function into the system.
         """
         params = list()
-        params.append(PredefinedTypes.get_variadic_type())
-        symbol = FunctionSymbol(name=cls.PROCESS_INPUT, param_types=params,
-                                return_type=PredefinedTypes.get_void_type(),
+        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_real_type())
+        symbol = FunctionSymbol(name=cls.CONVOLVE, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.PROCESS_INPUT] = symbol
+        cls.name2function[cls.CONVOLVE] = symbol
 
     @classmethod
     def __register_deliver_spike(cls):

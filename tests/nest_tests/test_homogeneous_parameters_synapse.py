@@ -46,7 +46,7 @@ class TestHomogeneousParametersSynapse:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("tests", "nest_tests", "resources", "homogeneous_parameters_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]

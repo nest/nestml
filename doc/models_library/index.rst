@@ -26,7 +26,7 @@ Source file: `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 Leaky integrate-and-fire neuron model with exponential PSCs
 
-Source file: `iaf_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp.nestml>`_
+Source file: `iaf_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_neuron.nestml>`_
 
 .. list-table::
 

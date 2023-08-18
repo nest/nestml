@@ -33,7 +33,7 @@ See also
 
 aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
 """
-neuron iaf_cond_exp_sfa_rr:
+model iaf_cond_exp_sfa_rr_neuron:
 
     state:
         r integer = 0   # counts number of tick during the refractory period

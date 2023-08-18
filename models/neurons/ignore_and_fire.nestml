@@ -1,11 +1,11 @@
 """
 ignore_and_fire - Neuron generating spikes at fixed intervals irrespective of inputs
-######################################################################################  
+######################################################################################
 
 Description
 +++++++++++
 
-The ``ignore_and_fire`` neuron is a neuron model generating spikes at a predefined ``firing_rate`` with a constant inter-spike interval ("fire"), irrespective of its inputs ("ignore"). In this simplest version of the ``ignore_and_fire`` neuron, the inputs from other neurons or devices are not processed at all (*). The ``ignore_and_fire`` neuron is primarily used for neuronal-network model verification and validation purposes, in particular, to evaluate the correctness and performance of connectivity generation and inter-neuron communication. It permits an easy scaling of the network size and/or connectivity without affecting the output spike statistics. The amount of network traffic is predefined by the user, and therefore fully controllable and predictable, irrespective of the network size and structure. 
+The ``ignore_and_fire`` neuron is a neuron model generating spikes at a predefined ``firing_rate`` with a constant inter-spike interval ("fire"), irrespective of its inputs ("ignore"). In this simplest version of the ``ignore_and_fire`` neuron, the inputs from other neurons or devices are not processed at all (*). The ``ignore_and_fire`` neuron is primarily used for neuronal-network model verification and validation purposes, in particular, to evaluate the correctness and performance of connectivity generation and inter-neuron communication. It permits an easy scaling of the network size and/or connectivity without affecting the output spike statistics. The amount of network traffic is predefined by the user, and therefore fully controllable and predictable, irrespective of the network size and structure.
 
 To create asynchronous activity for a population of ``ignore_and_fire`` neurons, the firing ``phase``s can be randomly initialised. Note that the firing ``phase`` is a real number, defined as the time to the next spike relative to the firing period.
 
@@ -18,15 +18,15 @@ Tetzlaff (February 2021; January 2022)
 
 """
 
-neuron ignore_and_fire:
+model ignore_and_fire_neuron:
 
   state:
     phase real = 1.                ## relative time to next spike (in (0,1])
 
   parameters:
     firing_rate Bq = 10. Bq        ## firing rate
-  
-  internals:    
+
+  internals:
     firing_period_steps integer = steps( 1. / firing_rate )    ## firing period in steps
     phase_steps integer = steps( max(0.,phase) / firing_rate ) ## firing phase in steps
 

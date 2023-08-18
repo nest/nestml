@@ -36,7 +36,7 @@ References
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 """
-neuron izhikevich:
+model izhikevich_neuron:
     state:
         V_m mV = V_m_init         # Membrane potential
         U_m real = b * V_m_init   # Membrane potential recovery variable

@@ -55,7 +55,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "neuromodulated_stdp.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -72,7 +72,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                                                                      "vt_ports": ["mod_spikes"]}]})
 
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",

@@ -26,7 +26,7 @@ See also
 
 wb_cond_multisyn
 """
-neuron wb_cond_multisyn:
+model wb_cond_multisyn_neuron:
     state:
         r integer = 0 # number of steps in the current refractory phase
 

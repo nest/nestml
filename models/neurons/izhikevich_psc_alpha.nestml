@@ -36,7 +36,7 @@ References
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 """
-neuron izhikevich_psc_alpha:
+model izhikevich_psc_alpha_neuron:
     state:
         r integer = 0   # Number of steps in the current refractory phase
         V_m mV = -65 mV # Membrane potential

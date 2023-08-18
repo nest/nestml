@@ -38,7 +38,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         reason="This test does not support NEST 2")
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"

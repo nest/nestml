@@ -40,7 +40,7 @@ See also
 
 iaf_cond_exp, aeif_cond_alpha
 """
-neuron aeif_cond_exp:
+model aeif_cond_exp_neuron:
 
     state:
         V_m mV = E_L   # Membrane potential

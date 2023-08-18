@@ -30,7 +30,7 @@ See also
 
 hh_cond_exp_traub
 """
-neuron hh_cond_exp_destexhe:
+model hh_cond_exp_destexhe_neuron:
 
     state:
         r integer = 0 # counts number of tick during the refractory period

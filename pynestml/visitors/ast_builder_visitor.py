@@ -294,6 +294,21 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 
+    # Visit a parse tree produced by PyNESTMLParser#kernel.
+    def visitKernel(self, ctx):
+        var_nodes = []
+        expr_nodes = []
+        for var, expr in zip(ctx.variable(), ctx.expression()):
+            var_node = self.visit(var)
+            expr_node = self.visit(expr)
+            var_nodes.append(var_node)
+            expr_nodes.append(expr_node)
+        kernel = ASTNodeFactory.create_ast_kernel(variables=var_nodes,
+                                                  expressions=expr_nodes,
+                                                  source_position=create_source_pos(ctx))
+        update_node_comments(kernel, self.__comments.visit(ctx))
+        return kernel
+
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
         stmts = list()
@@ -554,6 +569,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.odeEquation() is not None:
             for eq in ctx.odeEquation():
                 elements.append(eq)
+        if ctx.kernel() is not None:
+            for kernel in ctx.kernel():
+                elements.append(kernel)
         if ctx.inlineExpression() is not None:
             for fun in ctx.inlineExpression():
                 elements.append(fun)

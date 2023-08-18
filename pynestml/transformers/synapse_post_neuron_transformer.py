@@ -255,7 +255,7 @@ class SynapsePostNeuronTransformer(Transformer):
         all_state_vars += ASTUtils.get_all_variables_used_in_convolutions(synapse.get_equations_blocks(), synapse)
 
         # add names of kernels
-        kernel_buffers = ASTUtils.generate_kernel_buffers_(synapse, synapse.get_equations_blocks())
+        kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, synapse.get_equations_blocks())
         all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
 
         # if any variable is assigned to in any block that is not connected to a postsynaptic port

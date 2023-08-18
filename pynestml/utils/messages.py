@@ -60,6 +60,7 @@ class MessageCode(Enum):
     NO_INIT_VALUE = 32
     MODEL_REDECLARED = 33
     NEST_COLLISION = 34
+    KERNEL_OUTSIDE_CONVOLVE = 35
     NAME_COLLISION = 36
     TYPE_NOT_SPECIFIED = 37
     NO_TYPE_ALLOWED = 38
@@ -453,6 +454,32 @@ class Messages:
         return MessageCode.VALUE_ASSIGNED_TO_BUFFER, message
 
     @classmethod
+    def get_first_arg_not_kernel_or_equation(cls, func_name):
+        """
+        Indicates that the first argument of an rhs is not an equation or kernel.
+        :param func_name: the name of the function
+        :type func_name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (func_name is not None and isinstance(func_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
+        message = 'First argument of \'%s\' not a kernel or equation!' % func_name
+        return MessageCode.ARG_NOT_KERNEL_OR_EQUATION, message
+
+    @classmethod
+    def get_second_arg_not_a_spike_port(cls, func_name: str) -> Tuple[MessageCode, str]:
+        """
+        Indicates that the second argument of the NESTML convolve() call is not a spiking input port.
+        :param func_name: the name of the function
+        :return: a message
+        """
+        assert (func_name is not None and isinstance(func_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
+        message = 'Second argument of \'%s\' not a spiking input port!' % func_name
+        return MessageCode.ARG_NOT_SPIKE_INPUT, message
+
+    @classmethod
     def get_wrong_numerator(cls, unit):
         """
         Indicates that the numerator of a unit is not 1.
@@ -656,6 +683,20 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'Function \'%s\' collides with NEST namespace!' % name
         return MessageCode.NEST_COLLISION, message
+
+    @classmethod
+    def get_kernel_outside_convolve(cls, name):
+        """
+        Indicates that a kernel variable has been used outside a convolve call.
+        :param name: the name of the kernel
+        :type name: str
+        :return: message
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Kernel \'%s\' used outside convolve!' % name
+        return MessageCode.KERNEL_OUTSIDE_CONVOLVE, message
 
     @classmethod
     def get_compilation_unit_name_collision(cls, name, art1, art2):
@@ -969,6 +1010,36 @@ class Messages:
         """
         message = 'emit_spike() function was called, but no spiking output port has been defined!'
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
+
+    @classmethod
+    def get_kernel_wrong_type(cls, kernel_name: str, differential_order: int, actual_type: str) -> Tuple[MessageCode, str]:
+        """
+        Returns a message indicating that the type of a kernel is wrong.
+        :param kernel_name: the name of the kernel
+        :param differential_order: differential order of the kernel left-hand side, e.g. 2 if the kernel is g''
+        :param actual_type: the name of the actual type that was found in the model
+        """
+        assert (kernel_name is not None and isinstance(kernel_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(kernel_name)
+        if differential_order == 0:
+            expected_type_str = "real or int"
+        else:
+            assert differential_order > 0
+            expected_type_str = "s**-%d" % differential_order
+        message = 'Kernel \'%s\' was found to be of type \'%s\' (should be %s)!' % (
+            kernel_name, actual_type, expected_type_str)
+        return MessageCode.KERNEL_WRONG_TYPE, message
+
+    @classmethod
+    def get_kernel_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
+        """
+        Returns a message indicating that the type of a kernel initial value is wrong.
+        :param iv_name: the name of the state variable with an initial value
+        :param actual_type: the name of the actual type that was found in the model
+        :param expected_type: the name of the type that was expected
+        """
+        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
+        return MessageCode.KERNEL_IV_WRONG_TYPE, message
 
     @classmethod
     def get_no_files_in_input_path(cls, path: str):

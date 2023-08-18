@@ -405,15 +405,15 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                        'CoCoConvolveNotCorrectlyProvided.nestml'))
+                         'CoCoConvolveNotCorrectlyProvided.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0],
-                                                                        LoggingLevel.ERROR)), 2)
+                                                                          LoggingLevel.ERROR)), 2)
 
     def test_valid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                        'CoCoConvolveNotCorrectlyProvided.nestml'))
+                         'CoCoConvolveNotCorrectlyProvided.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
 

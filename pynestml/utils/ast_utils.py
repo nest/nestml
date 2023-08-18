@@ -1603,6 +1603,7 @@ class ASTUtils:
                         iv_expr.update_scope(state_block.get_scope())
                         iv_decl.set_expression(iv_expr)
 
+    @classmethod
     def create_initial_values_for_kernels(cls, model: ASTModel, solver_dicts: List[Dict], kernels: List[ASTKernel]) -> None:
         r"""
         Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST

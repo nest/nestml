@@ -42,7 +42,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
     def test_codegeneration_autodoc(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join(os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+                                                 os.path.join(os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         params = list()
         params.append("nestml")
         params.append("--input_path")

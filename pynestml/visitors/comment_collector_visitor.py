@@ -64,6 +64,10 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
+    def visitKernel(self, ctx):
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim))
+
     def visitStmt(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))

@@ -41,7 +41,7 @@ class TestDelayDecoratorSpecified:
                                                       "synapse": "stdp",
                                                       "post_ports": ["post_spikes"]}]}
 
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("tests", "invalid", "stdp_synapse_missing_delay_decorator.nestml")]
         # remove ``@nest::delay`` decorator from the file
         with open(os.path.join("models", "synapses", "stdp_synapse.nestml"), "r") as syn_file:

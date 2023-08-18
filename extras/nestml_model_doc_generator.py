@@ -78,31 +78,31 @@ class NESTMLModelDocGenerator:
 
         neuron_models = []
 
-        self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_nestml")
-        self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_nestml")
-        self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_nestml")
+        self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_psc_exp", "iaf_psc_exp_nestml")
-        self._test_model_equivalence_spiking("iaf_psc_exp", "iaf_psc_exp_nestml")
-        self._test_model_equivalence_curr_inj("iaf_psc_exp", "iaf_psc_exp_nestml")
+        self._test_model_equivalence_subthreshold("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
+        self._test_model_equivalence_spiking("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
+        self._test_model_equivalence_curr_inj("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_psc_alpha", "iaf_psc_alpha_nestml")
-        self._test_model_equivalence_spiking("iaf_psc_alpha", "iaf_psc_alpha_nestml")
-        self._test_model_equivalence_curr_inj("iaf_psc_alpha", "iaf_psc_alpha_nestml")
+        self._test_model_equivalence_subthreshold("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
+        self._test_model_equivalence_spiking("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
+        self._test_model_equivalence_curr_inj("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_cond_exp", "iaf_cond_exp_nestml", tol=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
-        self._test_model_equivalence_spiking("iaf_cond_exp", "iaf_cond_exp_nestml", tol=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
-        self._test_model_equivalence_curr_inj("iaf_cond_exp", "iaf_cond_exp_nestml")
+        self._test_model_equivalence_subthreshold("iaf_cond_exp", "iaf_cond_exp_neuron_nestml", tol=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
+        self._test_model_equivalence_spiking("iaf_cond_exp", "iaf_cond_exp_neuron_nestml", tol=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
+        self._test_model_equivalence_curr_inj("iaf_cond_exp", "iaf_cond_exp_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_cond_alpha", "iaf_cond_alpha_nestml")
-        self._test_model_equivalence_spiking("iaf_cond_alpha", "iaf_cond_alpha_nestml")
-        self._test_model_equivalence_curr_inj("iaf_cond_alpha", "iaf_cond_alpha_nestml")
+        self._test_model_equivalence_subthreshold("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
+        self._test_model_equivalence_spiking("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
+        self._test_model_equivalence_curr_inj("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
 
         iaf_cond_beta_nest_model_parameters = {"tau_rise_ex": 2., "tau_decay_ex": 10.}
         iaf_cond_beta_nestml_model_parameters = {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10.}    # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
-        self._test_model_equivalence_subthreshold("iaf_cond_beta", "iaf_cond_beta_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
-        self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
-        self._test_model_equivalence_curr_inj("iaf_cond_beta", "iaf_cond_beta_nestml")
+        self._test_model_equivalence_subthreshold("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
+        self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
+        self._test_model_equivalence_curr_inj("iaf_cond_beta", "iaf_cond_beta_neuron_nestml")
 
         # XXX: TODO should be fixed after merging fix for ternary operators
         # self._test_model_equivalence_subthreshold("ht_neuron", "hill_tononi_nestml")
@@ -115,9 +115,9 @@ class NESTMLModelDocGenerator:
         # # else:
         # neuron_models.append(("izhikevich", "izhikevich_nestml", None, 1E-6))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
 
-        self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_nestml")
-        self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_nestml")
-        self._test_model_equivalence_curr_inj("hh_psc_alpha", "hh_psc_alpha_nestml")        # hh_psc_alpha_model_parameters = {"I_e": 100.}
+        self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
+        self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
+        self._test_model_equivalence_curr_inj("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")        # hh_psc_alpha_model_parameters = {"I_e": 100.}
 
         neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_alt_nestml", None, default_tolerance, None, None, None,["test_subthreshold_only"])) # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
         # neuron_models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", None, default_tolerance))"""
@@ -145,16 +145,16 @@ class NESTMLModelDocGenerator:
         s += "Synapse models\n~~~~~~~~~~~~~~\n\n"
 
         synapse_models = []
-        synapse_models.append(("static", "static_synapse.nestml"))
+        synapse_models.append(("static_synapse", "static_synapse.nestml"))
         synapse_models.append(("noisy_synapse", "noisy_synapse.nestml"))
-        synapse_models.append(("stdp", "stdp_synapse.nestml"))
-        synapse_models.append(("stdp_nn_pre_centered", "stdp_nn_pre_centered.nestml"))
-        synapse_models.append(("stdp_nn_restr_symm", "stdp_nn_restr_symm.nestml"))
-        synapse_models.append(("stdp_nn_symm", "stdp_nn_symm.nestml"))
-        synapse_models.append(("stdp_triplet_nn", "triplet_stdp_synapse.nestml"))
-        synapse_models.append(("stdp_triplet", "stdp_triplet_naive.nestml"))
-        synapse_models.append(("third_factor_stdp", "third_factor_stdp_synapse.nestml"))
-        synapse_models.append(("neuromodulated_stdp", "neuromodulated_stdp.nestml"))
+        synapse_models.append(("stdp_synapse", "stdp_synapse.nestml"))
+        synapse_models.append(("stdp_nn_pre_centered_synapse", "stdp_nn_pre_centered.nestml"))
+        synapse_models.append(("stdp_nn_restr_symm_synapse", "stdp_nn_restr_symm.nestml"))
+        synapse_models.append(("stdp_nn_symm_synapse", "stdp_nn_symm.nestml"))
+        synapse_models.append(("stdp_triplet_nn_synapse", "triplet_stdp_synapse.nestml"))
+        synapse_models.append(("stdp_triplet_synapse", "stdp_triplet_naive.nestml"))
+        synapse_models.append(("third_factor_stdp_synapse", "third_factor_stdp_synapse.nestml"))
+        synapse_models.append(("neuromodulated_stdp_synapse", "neuromodulated_stdp.nestml"))
 
         all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
         s += self.generate_synapse_models_documentation(synapse_models, all_synapse_models)

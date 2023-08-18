@@ -33,7 +33,7 @@ See also
 
 iaf_cond_alpha
 """
-neuron iaf_chxk_2008:
+model iaf_chxk_2008_neuron:
 
     state:
         V_m mV = E_L   # membrane potential

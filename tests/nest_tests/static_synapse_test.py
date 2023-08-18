@@ -35,7 +35,7 @@ class TestStaticSynapse:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "noisy_synapse.nestml"),
                  os.path.join("models", "synapses", "static_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(

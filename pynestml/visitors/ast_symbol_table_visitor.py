@@ -487,6 +487,29 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
 
+    def visit_kernel(self, node):
+        """
+        Private method: Used to visit a single kernel, create the corresponding symbol and update the scope.
+        :param node: a kernel.
+        :type node: ASTKernel
+        """
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            if var.get_differential_order() == 0 and \
+                    node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
+                symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
+                                        name=var.get_name(),
+                                        block_type=BlockType.EQUATION,
+                                        declaring_expression=expr,
+                                        is_predefined=False,
+                                        is_inline_expression=False,
+                                        is_recordable=True,
+                                        type_symbol=PredefinedTypes.get_real_type(),
+                                        variable_type=VariableType.KERNEL)
+                symbol.set_comment(node.get_comment())
+                node.get_scope().add_symbol(symbol)
+            var.update_scope(node.get_scope())
+            expr.update_scope(node.get_scope())
+
     def visit_ode_equation(self, node):
         """
         Private method: Used to visit a single ode-equation and update the corresponding scope.

@@ -41,6 +41,7 @@ class VariableType(Enum):
     """
     Indicates to which type of variable this is.
     """
+    KERNEL = 0
     VARIABLE = 1
     BUFFER = 2
     EQUATION = 3

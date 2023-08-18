@@ -30,7 +30,7 @@ See also
 
 hh_psc_alpha
 """
-neuron hh_moto_5ht:
+model hh_moto_5ht_neuron:
     state:
         r integer = 0    # number of steps in the current refractory phase
         V_m mV = V_m_init    # Membrane potential
@@ -96,7 +96,7 @@ neuron hh_moto_5ht:
         tau_syn_ex ms = 0.2 ms           # Rise time of the excitatory synaptic alpha function
         tau_syn_in ms = 2.0 ms           # Rise time of the inhibitory synaptic alpha function
         I_e pA = 0 pA                    # Constant current
-        
+
         V_m_init mV = -65. mV
 
         hc_tau ms = 50.0 ms
@@ -125,28 +125,28 @@ neuron hh_moto_5ht:
         elif V_m > 0 mV and U_old > V_m: # threshold && maximum
             r = RefractoryCounts
             emit_spike()
-    
+
     function h_inf(V_m mV) real:
         return 1. / (1. + exp((V_m + 65.) / 7.))
-    
+
     function h_tau(V_m mV) ms:
         return (30. * ms) / (exp((V_m + 60.) / 15.) + exp(-(V_m + 60.) / 16.))
-    
+
     function p_inf(V_m mV) real:
         return 1. / (1. + exp(-(V_m + 55.8) / 3.7))
-    
+
     function mc_inf(V_m mV) real:
         return 1. / (1. + exp(-(V_m + 32.) / 5.))
-    
+
     function hc_inf(V_m mV) real:
         return 1. / (1. + exp((V_m + 50.) / 5.))
-    
+
     function n_inf(V_m mV) real:
         return 1. / (1. + exp(-(V_m + 38.) / 15.))
-    
+
     function n_tau(V_m mV) ms:
         return (5. * ms) / (exp((V_m + 50.) / 40.) + exp(-(V_m + 50.) / 50.))
-    
+
     function alpha_m(V_m mV) 1/ms:
         return (0.4 * (V_m + 66.)) / mV / (1. - exp(-(V_m + 66.) / (5. mV))) / ms
 

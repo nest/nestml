@@ -35,7 +35,7 @@ See also
 
 iaf_cond_exp
 """
-neuron iaf_psc_exp_dend:
+model iaf_psc_exp_dend_neuron:
 
     state:
         r integer = 0             # Counts number of ticks during the refractory period

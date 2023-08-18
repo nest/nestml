@@ -1136,7 +1136,7 @@ Dynamics and time evolution
 
 Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model from the "current" time ``t`` to the next timestep ``t + resolution()``.
 
-Integrating the ODEs and processing incoming spike events need to be triggered explicitly in NESTML by using the ``integrate_odes()`` and ``process_input()`` functions in the NESTML ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulses to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. This allows a wider range of model behaviour to be reproduced from the literature.
+Integrating the ODEs needs to be triggered explicitly in NESTML by using the ``integrate_odes()`` in the ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulses to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. This allows a wider range of model behaviour to be reproduced from the literature.
 
 The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
 
@@ -1168,9 +1168,8 @@ The numeric results of a typical are shown below. When the neuron is being updat
        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_stim) / C_m
 
    update:
-       process_input(I_stim)
        integrate_odes()
-       process_input(spikes)  # synaptic currents are always processed, regardless of refractory state
+       process_input(spikes)  # synaptic currents are always processed, regardless of refractory state XXXXXXXXXXXXXX REWRITE THIS
 
        if V_m >= V_th: # threshold crossing
            V_m = V_reset

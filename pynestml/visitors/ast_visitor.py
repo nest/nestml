@@ -40,6 +40,7 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
@@ -310,6 +311,14 @@ class ASTVisitor:
         Used to visit a single inline expression.
         :param node: a single inline expression.
         :type node: ASTInlineExpression
+        """
+        return
+
+    def visit_kernel(self, node):
+        """
+        Used to visit a single kernel.
+        :param node: a single kernel.
+        :type node: ASTKernel
         """
         return
 
@@ -621,6 +630,14 @@ class ASTVisitor:
         """
         return
 
+    def endvisit_kernel(self, node):
+        """
+        Used to endvisit a single kernel.
+        :param node: a single kernel.
+        :type node: ASTKernel
+        """
+        return
+
     def endvisit_ode_equation(self, node):
         """
         Used to endvisit a single ode-equation.
@@ -800,6 +817,9 @@ class ASTVisitor:
         if isinstance(node, ASTInlineExpression):
             self.visit_inline_expression(node)
             return
+        if isinstance(node, ASTKernel):
+            self.visit_kernel(node)
+            return
         if isinstance(node, ASTOutputBlock):
             self.visit_output_block(node)
             return
@@ -928,6 +948,9 @@ class ASTVisitor:
         if isinstance(node, ASTInlineExpression):
             self.traverse_inline_expression(node)
             return
+        if isinstance(node, ASTKernel):
+            self.traverse_kernel(node)
+            return
         if isinstance(node, ASTOutputBlock):
             self.traverse_output_block(node)
             return
@@ -1055,6 +1078,9 @@ class ASTVisitor:
             return
         if isinstance(node, ASTInlineExpression):
             self.endvisit_inline_expression(node)
+            return
+        if isinstance(node, ASTKernel):
+            self.endvisit_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.endvisit_output_block(node)
@@ -1253,6 +1279,11 @@ class ASTVisitor:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
+
+    def traverse_kernel(self, node):
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            var.accept(self.get_real_self())
+            expr.accept(self.get_real_self())
 
     def traverse_output_block(self, node):
         return

@@ -49,7 +49,7 @@ See also
 
 iaf_psc_alpha, iaf_psc_exp
 """
-neuron iaf_psc_delta:
+model iaf_psc_delta_neuron:
     state:
         r integer = 0    # Counts number of tick during the refractory period
         V_m mV = E_L     # Membrane potential

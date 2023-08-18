@@ -74,6 +74,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#kernel.
+    def visitKernel(self, ctx:PyNestMLParser.KernelContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#block.
     def visitBlock(self, ctx:PyNestMLParser.BlockContext):
         return self.visitChildren(ctx)

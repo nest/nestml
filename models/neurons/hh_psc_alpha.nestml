@@ -1,4 +1,4 @@
-"
+"""
 hh_psc_alpha - Hodgkin-Huxley neuron model
 ##########################################
 
@@ -43,7 +43,7 @@ See also
 
 hh_cond_exp_traub
 """
-neuron hh_psc_alpha:
+model hh_psc_alpha_neuron:
     state:
         r integer = 0 # number of steps in the current refractory phase
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# dopa_synapse_second_order_tests.py
+# test_dopa_second_order_synapse.py
 #
 # This file is part of NEST.
 #
@@ -43,14 +43,14 @@ class TestDopaSecondOrder:
     Test second-order integration in a neuromodulated synapse.
     """
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_dopa_synapse_second_order_nestml"
-    synapse_model_name = "dopa_synapse_second_order_nestml__with_iaf_psc_exp_nestml"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_dopa_second_order_synapse_nestml"
+    synapse_model_name = "dopa_second_order_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-                 os.path.join("tests", "nest_tests", "resources", "dopa_synapse_second_order.nestml")]
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+                 os.path.join("tests", "nest_tests", "resources", "dopa_second_order_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -59,8 +59,8 @@ class TestDopaSecondOrder:
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "dopa_synapse_second_order",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "dopa_second_order_synapse",
                                                                      "vt_ports": ["dopa_spikes"]}]})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -118,7 +118,7 @@ class TestDopaSecondOrder:
             ax[1].plot(log["t"], log["dopa_rate_d"], label="dopa_rate_d")
             for _ax in ax:
                 _ax.legend()
-            fig.savefig("/tmp/dopa_synapse_second_order_tests.png")
+            fig.savefig("/tmp/test_dopa_second_order_synapse.png")
             plt.close(fig)
 
         np.testing.assert_allclose(log["dopa_rate"][-1], 0.6834882070000989)

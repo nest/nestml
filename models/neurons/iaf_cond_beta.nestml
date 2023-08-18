@@ -43,7 +43,7 @@ See also
 
 iaf_cond_exp, iaf_cond_alpha
 """
-neuron iaf_cond_beta:
+model iaf_cond_beta_neuron:
     state:
         r integer = 0             # counts number of tick during the refractory period
         V_m mV = E_L              # membrane potential

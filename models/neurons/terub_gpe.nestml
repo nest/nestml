@@ -28,7 +28,7 @@ References
        Pathological Thalamic Rhythmicity in a Computational Model
        Journal of Computational Neuroscience, 16, 211-235 (2004)
 """
-neuron terub_gpe:
+model terub_gpe_neuron:
     state:
         r integer = 0 # counts number of ticks during the refractory period
 

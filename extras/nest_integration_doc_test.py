@@ -37,7 +37,7 @@ class TestNESTIntegration:
 
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
-        # input_path = os.path.join("models", "neurons", "iaf_psc_exp.nestml")
+        # input_path = os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml")
         input_path = os.path.join("nestml_convolve_numerics.nestml")
         logging_level = "INFO"
         self._module_name = "nestmlmodule"

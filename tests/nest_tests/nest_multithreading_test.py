@@ -48,7 +48,7 @@ class TestNestMultithreading:
         # Neuron-Synapse model
         neuron_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models",
-                                          "neurons", "iaf_psc_exp.nestml")))
+                                          "neurons", "iaf_psc_exp_neuron.nestml")))
         synapse_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models",
                                           "synapses", "stdp_synapse.nestml")))

@@ -360,6 +360,14 @@ class ModelParser:
         return ret
 
     @classmethod
+    def parse_kernel(cls, string):
+        # type: (str) -> ASTKernel
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.kernel())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
     def parse_output_block(cls, string):
         # type: (str) -> ASTOutputBlock
         (builder, parser) = tokenize(string)

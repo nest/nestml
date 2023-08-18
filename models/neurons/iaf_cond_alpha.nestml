@@ -35,7 +35,7 @@ See also
 
 iaf_cond_exp
 """
-neuron iaf_cond_alpha:
+model iaf_cond_alpha_neuron:
     state:
         r integer = 0      # counts number of tick during the refractory period
         V_m mV = E_L   # membrane potential
@@ -84,7 +84,7 @@ neuron iaf_cond_alpha:
             r =  r - 1
         else:
             integrate_odes()
-    
+
         process_input(exc_spikes, inh_spikes)
 
         if V_m >= V_th:

@@ -47,7 +47,7 @@ See also
 
 hh_psc_alpha
 """
-neuron hh_cond_exp_traub:
+model hh_cond_exp_traub_neuron:
 
     state:
         r integer = 0    # counts number of tick during the refractory period
