@@ -89,16 +89,12 @@ model mat2_psc_exp_neuron:
         spike
 
     update:
-        process_input(I_stim)
-
         # evolve membrane potential
         integrate_odes()
 
         # evolve adaptive threshold
         V_th_alpha_1 = V_th_alpha_1 * P11th
         V_th_alpha_2 = V_th_alpha_2 * P22th
-
-        process_input(exc_spikes, inh_spikes)
 
         if r == 0: # not refractory
             if V_m >= E_L + omega + V_th_alpha_1 + V_th_alpha_2: # threshold crossing

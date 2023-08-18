@@ -139,11 +139,7 @@ model wb_cond_multisyn_neuron:
     update:
         U_old mV = V_m
 
-        process_input(I_stim)
-
         integrate_odes()
-
-        process_input(AMPA, NMDA, GABA_A, GABA_B)
 
         if r > 0: # is refractory?
             r -= 1

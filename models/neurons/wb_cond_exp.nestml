@@ -88,11 +88,7 @@ model wb_cond_exp_neuron:
     update:
         U_old mV = V_m
 
-        process_input(I_stim)
-
         integrate_odes()
-
-        process_input(exc_spikes, inh_spikes)
 
         if r > 0: # is refractory?
             r -= 1

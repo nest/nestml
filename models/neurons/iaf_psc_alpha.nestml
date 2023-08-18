@@ -93,15 +93,11 @@ model iaf_psc_alpha_neuron:
         spike
 
     update:
-        process_input(I_stim)
-
         if r > 0:
             # neuron is absolute refractory
             r = r - 1
         else:
             integrate_odes()
-
-        process_input(exc_spikes, inh_spikes)
 
         if V_m >= V_th: # threshold crossing
             r = RefractoryCounts

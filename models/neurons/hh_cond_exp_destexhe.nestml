@@ -135,14 +135,10 @@ model hh_cond_exp_destexhe_neuron:
     update:
         U_old mV = V_m
 
-        process_input(I_stim)
-
         integrate_odes()
 
         g_noise_exc = g_noise_exc0 + (g_noise_exc - g_noise_exc0) * exp(-resolution() / tau_syn_exc) + A_exc * random_normal(0, 1)
         g_noise_inh = g_noise_inh0 + (g_noise_inh - g_noise_inh0) * exp(-resolution() / tau_syn_inh) + A_inh * random_normal(0, 1)
-
-        process_input(exc_spikes, inh_spikes)
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if r > 0:

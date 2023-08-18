@@ -154,11 +154,7 @@ model terub_stn_neuron:
     update:
         U_old mV = V_m
 
-        process_input(I_stim)
-
         integrate_odes()
-
-        process_input(exc_spikes, inh_spikes)
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if r > 0:

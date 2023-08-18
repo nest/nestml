@@ -78,5 +78,3 @@ model izhikevich_neuron:
             V_m = c
             U_m += d
             emit_spike()
-
-        process_input(I_stim)

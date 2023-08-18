@@ -114,8 +114,6 @@ model aeif_cond_alpha_neuron:
         else:
             integrate_odes(V_m)
 
-        process_input(exc_spikes, inh_spikes)
-
     onCondition(V_m >= V_th):
         r = RefractoryCounts
         V_m = V_reset # clamp potential

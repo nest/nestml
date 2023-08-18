@@ -101,8 +101,6 @@ model aeif_cond_exp_neuron:
         spike
 
     update:
-        process_input(I_stim)
-
         if r > 0:
             # neuron is absolute refractory
             r -= 1 # decrement refractory ticks count
@@ -110,8 +108,6 @@ model aeif_cond_exp_neuron:
             integrate_odes(w)    # do not integrate V_m
         else:
             integrate_odes()    # integrate all ODEs
-
-        process_input(exc_spikes, inh_spikes)
 
         if V_m >= V_peak: # threshold crossing detection
             r = RefractoryCounts + 1

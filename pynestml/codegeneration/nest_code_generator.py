@@ -216,8 +216,8 @@ class NESTCodeGenerator(CodeGenerator):
                 raise Exception("Error(s) occurred during code generation")
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons = [model for model in models if not "synapse" in model.name.split("_with_")[0]]
-        synapses = [model for model in models if "synapse" in model.name.split("_with_")[0]]
+        neurons = [model for model in models if model.name.split("_with_")[0].removesuffix(FrontendConfiguration.suffix).endswith("neuron")]
+        synapses = [model for model in models if model.name.split("_with_")[0].removesuffix(FrontendConfiguration.suffix).endswith("synapse")]
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)

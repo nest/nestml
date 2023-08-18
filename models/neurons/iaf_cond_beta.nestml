@@ -113,11 +113,7 @@ model iaf_cond_beta_neuron:
         else:
             integrate_odes()
 
-        process_input(exc_spikes, inh_spikes)
-
         if V_m >= V_th:
             r = RefractoryCounts
             V_m = V_reset   # clamp potential
             emit_spike()
-
-        process_input(I_stim)

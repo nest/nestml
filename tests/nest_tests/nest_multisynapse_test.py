@@ -165,13 +165,13 @@ class NestMultiSynapseTest(unittest.TestCase):
             ax[0].plot(V_m_timevec, V_m, label="V_m")
             ax[0].set_ylabel("voltage")
 
-            ax[1].plot(mm.events["times"], mm.events["I_kernel1__X__spikes1"], label="I_kernel1")
+            ax[1].plot(mm.events["times"], mm.events["I_kernel1__X__spikes_1"], label="I_kernel1")
             ax[1].set_ylabel("current")
 
-            ax[2].plot(mm.events["times"], mm.events["I_kernel2__X__spikes2"], label="I_kernel2")
+            ax[2].plot(mm.events["times"], mm.events["I_kernel2__X__spikes_2"], label="I_kernel2")
             ax[2].set_ylabel("current")
 
-            ax[3].plot(mm.events["times"], mm.events["I_kernel3__X__spikes3"], label="I_kernel3")
+            ax[3].plot(mm.events["times"], mm.events["I_kernel3__X__spikes_3"], label="I_kernel3")
             ax[3].set_ylabel("current")
 
             for _ax in ax:

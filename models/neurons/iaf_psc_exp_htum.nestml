@@ -102,14 +102,10 @@ model iaf_psc_exp_htum_neuron:
         spike
 
     update:
-        process_input(I_stim)
-
         if r_abs == 0: # neuron not absolute refractory, so evolve membrane potential
             integrate_odes(V_m)
         else:
             r_abs -= 1 # neuron is absolute refractory
-
-        process_input(exc_spikes, inh_spikes)
 
         if r_tot == 0 and V_m >= V_th:
             r_abs = RefractoryCountsAbs

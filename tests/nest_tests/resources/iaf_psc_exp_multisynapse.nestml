@@ -20,10 +20,12 @@ model iaf_psc_exp_multisynapse_neuron:
         I_syn3 pA = 0 pA
 
     equations:
-        inline I_syn pA = I_syn1 + I_syn2 + I_syn3
-        I_syn1' = -I_syn1 / tau_syn1
-        I_syn2' = -I_syn2 / tau_syn2
-        I_syn3' = -I_syn3 / tau_syn3
+        kernel I_kernel1 = exp(-1/tau_syn1*t)
+        kernel I_kernel2 = exp(-1/tau_syn2*t)
+        kernel I_kernel3 = -exp(-1/tau_syn3*t)
+
+        inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
@@ -48,15 +50,6 @@ model iaf_psc_exp_multisynapse_neuron:
         spikes3 pA <- spike
         I_stim pA <- continuous
 
-    onReceive(spikes1):
-        I_syn1 += spikes1
-
-    onReceive(spikes2):
-        I_syn2 += spikes2
-
-    onReceive(spikes3):
-        I_syn3 += spikes3
-
     output:
         spike
 
@@ -65,8 +58,6 @@ model iaf_psc_exp_multisynapse_neuron:
             integrate_odes()
         else:
             r = r - 1 # neuron is absolute refractory
-
-        process_input(spikes1, spikes2, spikes3)
 
         if V_m >= V_th: # threshold crossing
             r = RefractoryCounts

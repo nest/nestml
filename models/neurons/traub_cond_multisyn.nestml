@@ -152,11 +152,7 @@ model traub_cond_multisyn_neuron:
     update:
         U_old mV = V_m
 
-        process_input(I_stim)
-
         integrate_odes()
-
-        process_input(AMPA, NMDA, GABA_A, GABA_B)
 
         # sending spikes:
         if r > 0: # is refractory?

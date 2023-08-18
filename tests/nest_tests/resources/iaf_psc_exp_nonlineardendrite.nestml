@@ -86,8 +86,6 @@ model iaf_psc_exp_nonlineardendrite:
                 I_dend' = 0 pA/ms
                 I_dend_ap = 0 pA
 
-        process_input(I_1, I_2, I_3)
-
         if I_dend > i_th:
             # current-threshold, emit a dendritic action potential
             dend_curr_enabled = 0.

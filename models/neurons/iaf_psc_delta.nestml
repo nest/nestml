@@ -84,8 +84,6 @@ model iaf_psc_delta_neuron:
         spike
 
     update:
-        process_input(I_stim)
-
         if r == 0: # neuron not refractory
             integrate_odes()
 
@@ -93,8 +91,6 @@ model iaf_psc_delta_neuron:
             V_m = V_m < V_min ? V_min : V_m
         else: # neuron is absolute refractory
             r -= 1
-
-        process_input(spikes)
 
         if V_m >= V_th: # threshold crossing
             r = RefractoryCounts

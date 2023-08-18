@@ -1146,7 +1146,7 @@ Note that the dynamical equations that correspond to convolutions are always upd
 Integration order
 ~~~~~~~~~~~~~~~~~
 
-The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed (by calling ``process_input()``).
+The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
    :alt: Integration order. Modified after [1]_, their Fig. 10.2.
@@ -1169,7 +1169,6 @@ The numeric results of a typical are shown below. When the neuron is being updat
 
    update:
        integrate_odes()
-       process_input(spikes)  # synaptic currents are always processed, regardless of refractory state XXXXXXXXXXXXXX REWRITE THIS
 
        if V_m >= V_th: # threshold crossing
            V_m = V_reset

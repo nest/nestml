@@ -87,10 +87,8 @@ model iaf_chxk_2008_neuron:
         spike
 
     update:
-        process_input(I_stim)
         vm_prev mV = V_m
         integrate_odes()
-        process_input(exc_spikes, inh_spikes)
         if vm_prev < V_th and V_m >= V_th:
             # Neuron is not absolute refractory
 
