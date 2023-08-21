@@ -590,9 +590,9 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
-  if (B_.spike_input_received[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
+  if (B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
   {
-    B_.spike_input_received[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
+    B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
     on_receive_block_{{ blk.get_port_name() }}();
   }
 {%- endfor %}
@@ -679,20 +679,27 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
 }
 {%- endif %}
 
-  // -------------------------------------------------------------------------
-  //   Methods corresponding to event handlers
-  // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+//   Methods corresponding to event handlers
+// -------------------------------------------------------------------------
 
 {% filter indent(2, True) -%}
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_block() %}
-{%-     include "directives/Block.jinja2" %}
-{%- endfor %}
+void
+{{neuronName}}::on_receive_block_{{ blk.get_port_name() }}()
+{
+{%-     filter indent(2, True) -%}
+{%-         include "directives/Block.jinja2" %}
+{%-     endfilter %}
+}
+
+{% endfor %}
 {%- endfilter %}
 
-  // -------------------------------------------------------------------------
-  //   Methods for neuron/synapse co-generation
-  // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+//   Methods for neuron/synapse co-generation
+// -------------------------------------------------------------------------
 
 {%- if paired_synapse is defined %}
 

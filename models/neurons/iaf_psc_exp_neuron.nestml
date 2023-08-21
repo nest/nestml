@@ -39,7 +39,8 @@ model iaf_psc_exp_neuron:
 
     state:
         V_m mV = E_L    # Membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        refr_t ms = 0 ms    # Refractory period timer -- negative values mean "is not refractory"
+        is_refractory boolean = false
         I_syn_exc pA = 0 pA
         I_syn_inh pA = 0 pA
 
@@ -70,7 +71,7 @@ model iaf_psc_exp_neuron:
         spike
 
     update:
-        if refr_t > 0:
+        if is_refractory:
             # neuron is absolute refractory, do not evolve V_m
             refr_t -= resolution()
             integrate_odes(I_syn_exc, I_syn_inh)
@@ -87,9 +88,10 @@ model iaf_psc_exp_neuron:
     onCondition(V_m >= V_th):
         # threshold crossing
         refr_t += refr_T
+        is_refractory = true
         V_m = V_reset
         emit_spike()
 
-    onCondition(refr_t < 0 ms):
+    onCondition(refr_t <= 0 ms):
         # end of refractory period
-        refr_t = 0 ms
+        is_refractory = false

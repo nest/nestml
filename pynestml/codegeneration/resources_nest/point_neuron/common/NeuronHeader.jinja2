@@ -687,14 +687,8 @@ private:
     //   Spike buffers and sums of incoming spikes/currents per timestep
     // -----------------------------------------------------------------------
 
-    // Buffer containing the incoming spikes
 {%- filter indent(4, True) -%}
-{{ buffer_getter.SpikeBufferGetter(false, true) }}
-{%- endfilter %}
-
-    // Buffer containing the sum of all the incoming spikes
-{%- filter indent(4, True) -%}
-{{ buffer_getter.SpikeBufferGetter(true, true) }}
+{{ buffer_getter.SpikeBufferGetter(true) }}
 {%- endfilter %}
 
     // -----------------------------------------------------------------------
@@ -750,13 +744,12 @@ private:
   //   Getters/setters for input buffers
   // -------------------------------------------------------------------------
 
-  // Buffer containing the incoming spikes
-  {{ buffer_getter.SpikeBufferGetter(false, false) }}
-
-  {{ buffer_getter.SpikeBufferGetter(true, false) }}
+{%- filter indent(2, True) %}
+{{ buffer_getter.SpikeBufferGetter(false) }}
+{%- endfilter %}
 
 {%- for inputPort in neuron.get_continuous_input_ports() %}
-  {{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, false) }}
+{{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, false) }}
 {%- endfor %}
 
 {%- if neuron.get_functions()|length > 0 %}
