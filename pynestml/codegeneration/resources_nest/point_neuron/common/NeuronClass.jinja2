@@ -186,7 +186,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if neuron.get_spike_input_ports()|length > 0 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
-  , spike_input_received_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -202,7 +203,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if neuron.get_spike_input_ports()|length > 0 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
-  , spike_input_received_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -377,6 +379,7 @@ void {{neuronName}}::init_buffers_()
   get_spike_inputs_().clear();
   get_spike_inputs_grid_sum_().clear();
   get_spike_input_received_().clear();
+  get_spike_input_received_grid_sum_().clear();
 {% endif %}
 {%- if neuron.get_continuous_input_ports() | length > 0 %}
 
@@ -488,6 +491,7 @@ void {{neuronName}}::pre_run_hook() {
   B_.spike_inputs_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_input_received_.resize(NUM_SPIKE_RECEPTORS);
+  B_.spike_input_received_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
 {%-   endif %}
 }
 {%- if neuron.get_functions()|length > 0 %}
@@ -554,6 +558,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
       get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
+      get_spike_input_received_grid_sum_()[i] = get_spike_input_received_()[i].get_value(lag);
     }
 
 {%- if has_delay_variables %}
@@ -590,9 +595,9 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
-  if (B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
+  if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
   {
-    B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
+    // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
     on_receive_block_{{ blk.get_port_name() }}();
   }
 {%- endfor %}
@@ -658,7 +663,9 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     weight * e.get_multiplicity() );
-  B_.spike_input_received_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ] = true;
+  B_.spike_input_received_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
+    e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+    1. );
 }
 {%- endif %}
 
@@ -683,7 +690,6 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
 //   Methods corresponding to event handlers
 // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_block() %}
 void
@@ -695,14 +701,11 @@ void
 }
 
 {% endfor %}
-{%- endfilter %}
 
+{%- if paired_synapse is defined %}
 // -------------------------------------------------------------------------
 //   Methods for neuron/synapse co-generation
 // -------------------------------------------------------------------------
-
-{%- if paired_synapse is defined %}
-
 
 inline double
 {{neuronName}}::get_spiketime_ms() const

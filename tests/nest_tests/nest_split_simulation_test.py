@@ -21,11 +21,13 @@
 
 
 import numpy as np
+import os
 import pytest
 import unittest
 
 import nest
 
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
 
 
@@ -44,8 +46,19 @@ class NestSplitSimulationTest(unittest.TestCase):
     N.B. simulation resolution is not allowed to be changed by NEST between the two calls in the split condition.
     """
 
+    def setUp(self):
+        """Generate the model code"""
+        input_files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml")]
+        if 1:
+         generate_nest_target(input_path=input_files,
+                             target_path="target",
+                             logging_level="DEBUG",
+                             module_name="nestmlmodule",
+                             suffix="_nestml")
+        nest.Install("nestmlmodule")
+
     def run_simulation(self, T_sim: float, split: bool):
-        neuron_model_name = "iaf_psc_exp"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         spike_times = np.arange(10, 100, 9).astype(float)
         np.random.seed(0)
