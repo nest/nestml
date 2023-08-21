@@ -356,6 +356,17 @@ public:
 {%- endfor %}
 {%- endif %}
 
+  // -------------------------------------------------------------------------
+  //   Methods corresponding to event handlers
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for blk in neuron.get_on_receive_blocks() %}
+    void on_receive_block_{{ blk.get_port_name() }}();
+{%- endfor %}
+{%- endfilter %}
+
+
 protected:
 {%- if paired_synapse is defined %}
   // support for spike archiving
@@ -673,21 +684,30 @@ private:
 {%- endif %}
 
     // -----------------------------------------------------------------------
-    //   Buffers and sums of incoming spikes/currents per timestep
+    //   Spike buffers and sums of incoming spikes/currents per timestep
     // -----------------------------------------------------------------------
+
     // Buffer containing the incoming spikes
-    {{ buffer_getter.SpikeBufferGetter(false, true) }}
+{%- filter indent(4, True) -%}
+{{ buffer_getter.SpikeBufferGetter(false, true) }}
+{%- endfilter %}
 
     // Buffer containing the sum of all the incoming spikes
-    {{ buffer_getter.SpikeBufferGetter(true, true) }}
+{%- filter indent(4, True) -%}
+{{ buffer_getter.SpikeBufferGetter(true, true) }}
+{%- endfilter %}
 
-{%- for inputPort in neuron.get_continuous_input_ports() %}
+    // -----------------------------------------------------------------------
+    //   Continuous-input buffers
+    // -----------------------------------------------------------------------
+
+{% filter indent(4, True) %}
+{%-     for inputPort in neuron.get_continuous_input_ports() %}
 {{ buffer_declaration.BufferDeclaration(inputPort) }}
-{%-     filter indent(4, True) -%}
 {{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, true) }}
-{%-     endfilter %}
 {{ buffer_declaration_value.BufferDeclarationValue(inputPort) }}
-{%- endfor %}
+{%-     endfor %}
+{%- endfilter %}
 
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}

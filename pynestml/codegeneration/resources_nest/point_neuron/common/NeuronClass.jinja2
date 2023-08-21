@@ -186,6 +186,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if neuron.get_spike_input_ports()|length > 0 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -201,6 +202,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if neuron.get_spike_input_ports()|length > 0 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -374,6 +376,7 @@ void {{neuronName}}::init_buffers_()
   // spike input buffers
   get_spike_inputs_().clear();
   get_spike_inputs_grid_sum_().clear();
+  get_spike_input_received_().clear();
 {% endif %}
 {%- if neuron.get_continuous_input_ports() | length > 0 %}
 
@@ -484,6 +487,7 @@ void {{neuronName}}::pre_run_hook() {
 {%- if ((neuron.get_spike_input_ports())|length > 0) %}
   B_.spike_inputs_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
+  B_.spike_input_received_.resize(NUM_SPIKE_RECEPTORS);
 {%-   endif %}
 }
 {%- if neuron.get_functions()|length > 0 %}
@@ -559,7 +563,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endif %}
 
     /**
-     * Begin NESTML generated code for the update block
+     * Begin NESTML generated code for the update block(s)
     **/
 
 {%- if neuron.get_update_blocks() %}
@@ -577,17 +581,25 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endif %}
 
     /**
-     * End NESTML generated code for the update block
+     * End NESTML generated code for the update block(s)
     **/
 
     /**
-     * Begin NESTML generated code for the postsynaptic onReceive blocks
+     * Begin NESTML generated code for the onReceive blocks
     **/
 
-    // ???????????
+{%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = blk.get_port_name() %}
+  if (B_.spike_input_received[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
+  {
+    B_.spike_input_received[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
+    on_receive_block_{{ blk.get_port_name() }}();
+  }
+{%- endfor %}
+
 
     /**
-     * End NESTML generated code for the postsynaptic onReceive blocks
+     * End NESTML generated code for the onReceive blocks
     **/
 
     // NESTML generated code for the onCondition blocks
@@ -646,6 +658,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     weight * e.get_multiplicity() );
+  B_.spike_input_received_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ] = true;
 }
 {%- endif %}
 
@@ -666,7 +679,20 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
 }
 {%- endif %}
 
+  // -------------------------------------------------------------------------
+  //   Methods corresponding to event handlers
+  // -------------------------------------------------------------------------
 
+{% filter indent(2, True) -%}
+{%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set ast = blk.get_block() %}
+{%-     include "directives/Block.jinja2" %}
+{%- endfor %}
+{%- endfilter %}
+
+  // -------------------------------------------------------------------------
+  //   Methods for neuron/synapse co-generation
+  // -------------------------------------------------------------------------
 
 {%- if paired_synapse is defined %}
 
