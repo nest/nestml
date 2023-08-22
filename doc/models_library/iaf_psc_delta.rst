@@ -94,7 +94,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \text{convolve}(G, spikes) \cdot \mathrm{mV} + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \text{convolve}(G, spikes) \cdot (\frac{ \mathrm{mV} } { \mathrm{ms} }) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
 
 
 
@@ -111,4 +111,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-16 15:49:59.222944
+   Generated at 2023-08-22 14:29:44.459765

@@ -28,7 +28,7 @@ A neuron model written in NESTML can be configured to receive two distinct types
 .. code-block:: nestml
 
    input:
-       I_stim pA <- continuous
+       I_stim <- continuous
        AMPA_spikes <- spike
 
 The general syntax is:
@@ -74,6 +74,23 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
 
+The incoming spikes at the spiking input port are modelled as Dirac delta function. The unit of the Dirac delta function follows from its definition
+
+.. math::
+
+   f(0) = \int dx \delta(x) f(x)
+
+Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both LHS and RHS, the unit of :math:`dx \delta(x)` must be equal to 1.
+Therefore, the unit of :math:`[\delta(x)]` must be equal to the inverse of the unit of :math:`[x]`, which is equal to :math:`1/[x]`.
+
+
+In the context of neuroscience, where spikes are represented as events in time, :math:`x` is a measure of time with a unit of :math:`s`, and consequently, :math:`[\delta(x)]` will have a unit of inverse of time, :math:`1/s`. Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`1/s`.
+
+Physical units such as millivolts (:math:`mV`) and nanoamperes (:math:`nA`) can be directly combined with the Dirac delta function to model an impulse in a physical quantity such as voltage or current.
+In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`mV` or :math:`nA`, to obtain a quantity with units of volts or amperes, respectively.
+For example, the product of a Dirac delta function and a millivolt (:math:`mV`) unit can be written as :math:`\delta(t) \text{mV}`, where :math:`\delta(t)` is the Dirac delta function and :math:`mV` is the unit of voltage. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
+
+
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -95,15 +112,19 @@ Spikes arriving at the input port of a neuron can be written as a spike train :m
 
 .. math::
 
-   \large s(t) = \sum_{i=1}^N \delta(t - t_i)
+   \large s(t) = \sum_{i=1}^N w_i \cdot \delta(t - t_i)
+
+where :math:`w_i` is the weight of spike :math:`i`.
 
 To model the effect that an arriving spike has on the state of the neuron, a convolution with a kernel can be used. The kernel defines the postsynaptic response kernel, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Kernel functions` for how to define a kernel.) The convolution of the kernel with the spike train is defined as follows:
 
 .. math::
 
-   \large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)
-
-where :math:`w_i` is the weight of spike :math:`i`.
+   \begin{align*}
+   \large (f \ast s)(t) &= \int du s(u) f(t-u) \\
+                        &= \sum_{i=1}^N \int du w_i \cdot \delta(u-t_i) f(t-u) \\
+                        &= \sum_{i=1}^N w_i \cdot f(t - t_i)
+   \end{align*}
 
 For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
 
@@ -113,7 +134,8 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
        kernel G = exp(-t/tau_syn)
        V_m' = -V_m/tau_m + convolve(G, spikes)
 
-The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
+By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., :math:`[G] * [spikes] * [t]`.
+Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, an absolute quantity without a unit.
 
 
 (Re)setting synaptic integration state
