@@ -513,9 +513,12 @@ class ASTUtils:
         """
         Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
         """
-        if isinstance(inline_expr.get_expression(), ASTSimpleExpression) \
-           and inline_expr.get_expression().is_function_call() \
-           and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+        expr = inline_expr.get_expression()
+        if isinstance(expr, ASTExpression):
+            expr = expr.get_lhs()
+        if isinstance(expr, ASTSimpleExpression) \
+           and expr.is_function_call() \
+           and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
             return True
         return False
 
@@ -1926,13 +1929,17 @@ class ASTUtils:
 
         for equation_block in neuron.get_equations_blocks():
             for decl in equation_block.get_declarations():
-                if isinstance(decl, ASTInlineExpression) \
-                   and isinstance(decl.get_expression(), ASTSimpleExpression) \
-                   and '__X__' in str(decl.get_expression()) \
-                   and decl.get_expression().get_variable():
-                    replace_with_var_name = decl.get_expression().get_variable().get_name()
-                    neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
-                        x, decl.get_variable_name(), replace_with_var_name)))
+                if isinstance(decl, ASTInlineExpression):
+                    expr = decl.get_expression()
+                    if isinstance(expr, ASTExpression):
+                        expr = expr.get_lhs()
+
+                    if isinstance(expr, ASTSimpleExpression) \
+                            and '__X__' in str(expr) \
+                            and expr.get_variable():
+                        replace_with_var_name = expr.get_variable().get_name()
+                        neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
+                            x, decl.get_variable_name(), replace_with_var_name)))
 
     @classmethod
     def replace_variable_names_in_expressions(cls, neuron: ASTNeuron, solver_dicts: List[dict]) -> None:
