@@ -1191,27 +1191,6 @@ Emitting spikes
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
 
 
-Implementing refractoriness
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (``T_ref``) can be introduced that defines the duration of the refractory period. A new state variable (``ref_count``) then specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory period in number of simulation timesteps every time the refractoriness condition holds. Else, the refractory offset is decremented. Using an integer counter helps avoid issues with floating point comparisons.
-
-.. code-block:: nestml
-
-   parameters:
-       T_ref ms = 5 ms
-
-   state:
-       ref_count integer = 0
-
-   update:
-       if ref_count > 0:
-           ref_count -= 1 # neuron is refractory
-       else:
-           # neuron is in non-refractory state
-           if <spiking_condition>:
-               ref_count = steps(T_ref) # make neuron refractory for 5 ms
-
 Recording values
 ----------------
 

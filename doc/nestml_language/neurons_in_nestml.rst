@@ -215,11 +215,33 @@ Output
 ``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 
+Implementing refractoriness
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generating code
-###############
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (say, ``refr_T``) can be introduced, that defines the duration of the refractory period. A new state variable, ``refr_t``, then specifies the time of the refractory period that has already passed, and a boolean, ``is_refactory``. In the initial state, the neuron is not refractory and the timer is set to zero. When a spike is emitted, the boolean flag is set to true and the timer is set to ``refr_T``. Using a separate flag allows us to freely formulate a condition on ending the timer without having to worry about special (for instance, negative) values representing a non-refactory condition. This is difficult because of an imprecise floating point representation of real numbers. Integrating the ODE for :math:`V_\text{m}` is disabled while the flag is set to true. When the timer reaches zero, the flag is set to false. In the ``update`` block, the timer is decremented each timestep. An ``onCondition`` is formulated on ending the refractory period, which allows the time at which the condition becomes true to be determined precisely (where it would be aliased to the nearest simulation timestep interval if the condition had been checked in ``update``).
 
-Co-generation of neuron and synapse
------------------------------------
+.. code-block:: nestml
 
-The ``update`` block in a NESTML model is translated into the ``update`` method in NEST.
+   parameters:
+       refr_T ms = 5 ms
+
+   state:
+       refr_t ms = 0 ms    # Refractory period timer
+       is_refractory boolean = false
+
+   equations:
+      I_syn' = ...
+      V_m' = ...
+
+   update:
+       if is_refractory:
+           # neuron is absolute refractory, do not evolve V_m
+           refr_t -= resolution()
+           integrate_odes(I_syn)
+       else:
+           # neuron not refractory, so evolve all ODEs
+           integrate_odes(V_m, I_syn)
+
+   onCondition(refr_t <= 0 ms):
+       # end of refractory period
+       is_refractory = false
