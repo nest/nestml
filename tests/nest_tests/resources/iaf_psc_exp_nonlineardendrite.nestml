@@ -83,7 +83,7 @@ neuron iaf_psc_exp_nonlineardendrite:
                 t_dend_ap = 0 ms
                 dend_curr_enabled = 1.
                 I_dend = 0 pA
-                I_dend' = 0 s**-1
+                I_dend' = 0 * s**-1
                 I_dend_ap = 0 pA
 
         if I_dend > i_th:
