@@ -284,7 +284,7 @@ class ASTMechanismInformationCollectorVisitor(ASTVisitor):
     def visit_ode_equation(self, node):
         self.odes.append(node)
 
-#Helper collectors:
+# Helper collectors:
 class VariableInitializationVisitor(ASTVisitor):
     def __init__(self, channel_info):
         super(VariableInitializationVisitor, self).__init__()

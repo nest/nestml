@@ -43,7 +43,7 @@ class ConcentrationProcessing(MechanismProcessing):
     @classmethod
     def ode_toolbox_processing_for_root_expression(cls, neuron, conc_info):
         for concentration_name, concentration_info in conc_info.items():
-            #Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
+            # Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
             fake_conc_info = defaultdict()
             fake_concentration_info = defaultdict()
             fake_concentration_info["ODEs"] = list()

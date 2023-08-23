@@ -703,6 +703,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         chan_info_string = MechanismProcessing.print_dictionary(namespace["chan_info"], 0)
         syns_info_string = MechanismProcessing.print_dictionary(namespace["syns_info"], 0)
         conc_info_string = MechanismProcessing.print_dictionary(namespace["conc_info"], 0)
+        print("result")
+        print(conc_info_string)
         code, message = Messages.get_mechs_dictionary_info(chan_info_string, syns_info_string, conc_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
 

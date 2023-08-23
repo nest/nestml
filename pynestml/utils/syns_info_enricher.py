@@ -36,8 +36,6 @@ from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 
 class SynsInfoEnricher(MechsInfoEnricher):
-
-
     """
     input: a neuron after ODE-toolbox transformations
 
@@ -72,7 +70,8 @@ class SynsInfoEnricher(MechsInfoEnricher):
                     lambda: defaultdict())
 
                 for variable_name, expression_str in analytic_solution["initial_values"].items():
-                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                              SymbolKind.VARIABLE)
 
                     expression = ModelParser.parse_expression(expression_str)
                     # pretend that update expressions are in "equations" block,
@@ -111,7 +110,8 @@ class SynsInfoEnricher(MechsInfoEnricher):
                     analytic_solution_transformed['propagators'][variable_name] = {
                         "ASTVariable": variable, "init_expression": expression, }
 
-                enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = analytic_solution_transformed
+                enriched_syns_info[synapse_name]["convolutions"][convolution_name][
+                    "analytic_solution"] = analytic_solution_transformed
 
             # only one buffer allowed, so allow direct access
             # to it instead of a list
@@ -272,6 +272,7 @@ class SynsInfoEnricher(MechsInfoEnricher):
 
         return result
 
+
 class SynsInfoEnricherVisitor(ASTVisitor):
     variables_to_internal_declarations = {}
     internal_variable_name_to_variable = {}
@@ -281,6 +282,7 @@ class SynsInfoEnricherVisitor(ASTVisitor):
     # collect declaratins in the order
     # in which they were present in the neuron
     declarations_ordered = []
+
     def __init__(self):
         super(SynsInfoEnricherVisitor, self).__init__()
 

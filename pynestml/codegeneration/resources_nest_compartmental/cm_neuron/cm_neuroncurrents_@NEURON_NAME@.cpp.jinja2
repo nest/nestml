@@ -162,9 +162,9 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
     ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &i_tot_{{ion_channel_name}}[channel_id];    //not gonna work! vector elements can't be safely referenced.
 }
 
-std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
-                        {% for inline in channel_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
-                        {% for inline in channel_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %})
+std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(vector< double >& v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, vector< double >& {{ode.lhs.name}}{% endfor %}
+                        {% for inline in channel_info["Dependencies"]["receptors"] %}, vector< double >& {{inline.variable_name}}{% endfor %}
+                        {% for inline in channel_info["Dependencies"]["channels"] %}, vector< double >& {{inline.variable_name}}{% endfor %})
 {
     std::vector< double > g_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
     std::vector< double > i_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
