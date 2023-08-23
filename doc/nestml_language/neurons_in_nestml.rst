@@ -28,8 +28,8 @@ A neuron model written in NESTML can be configured to receive two distinct types
 .. code-block:: nestml
 
    input:
-       I_stim <- continuous
        AMPA_spikes <- spike
+       I_stim pA <- continuous
 
 The general syntax is:
 
@@ -38,7 +38,7 @@ The general syntax is:
     port_name <- inputQualifier spike
     port_name dataType <- continuous
 
-The spiking input ports are declared without a data type and the continuous input port must have a data type of the continuous input.
+The spiking input ports are declared without a data type, whereas the continuous input ports must have a data type.
 For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
 
 .. code-block:: nestml
@@ -74,21 +74,27 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
 
-The incoming spikes at the spiking input port are modelled as Dirac delta function. The unit of the Dirac delta function follows from its definition
+The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1.
+
+.. math::
+
+   \int \delta(x - u) dx = 1
+
+The unit of the Dirac delta function follows from its definition:
 
 .. math::
 
    f(0) = \int dx \delta(x) f(x)
 
-Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both LHS and RHS, the unit of :math:`dx \delta(x)` must be equal to 1.
-Therefore, the unit of :math:`[\delta(x)]` must be equal to the inverse of the unit of :math:`[x]`, which is equal to :math:`1/[x]`.
+Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
+Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
 
+In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`s`. Consequently, the delta pulses will have a unit of inverse of time, :math:`1/s`.
+Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`1/s`.
 
-In the context of neuroscience, where spikes are represented as events in time, :math:`x` is a measure of time with a unit of :math:`s`, and consequently, :math:`[\delta(x)]` will have a unit of inverse of time, :math:`1/s`. Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`1/s`.
-
-Physical units such as millivolts (:math:`mV`) and nanoamperes (:math:`nA`) can be directly combined with the Dirac delta function to model an impulse in a physical quantity such as voltage or current.
+Physical units such as millivolts (:math:`mV`) and nanoamperes (:math:`nA`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
 In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`mV` or :math:`nA`, to obtain a quantity with units of volts or amperes, respectively.
-For example, the product of a Dirac delta function and a millivolt (:math:`mV`) unit can be written as :math:`\delta(t) \text{mV}`, where :math:`\delta(t)` is the Dirac delta function and :math:`mV` is the unit of voltage. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
+For example, the product of a Dirac delta function and millivolt (:math:`mV`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
 
 
 Integrating current input
@@ -121,8 +127,8 @@ To model the effect that an arriving spike has on the state of the neuron, a con
 .. math::
 
    \begin{align*}
-   \large (f \ast s)(t) &= \int du s(u) f(t-u) \\
-                        &= \sum_{i=1}^N \int du w_i \cdot \delta(u-t_i) f(t-u) \\
+   \large (f \ast s)(t) &= \int s(u) f(t-u) du \\
+                        &= \sum_{i=1}^N \int w_i \cdot \delta(u-t_i) f(t-u) du \\
                         &= \sum_{i=1}^N w_i \cdot f(t - t_i)
    \end{align*}
 
@@ -134,8 +140,8 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
        kernel G = exp(-t/tau_syn)
        V_m' = -V_m/tau_m + convolve(G, spikes)
 
-By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., :math:`[G] * [spikes] * [t]`.
-Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, an absolute quantity without a unit.
+By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``.
+Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, an scalar quantity without a unit.
 
 
 (Re)setting synaptic integration state
