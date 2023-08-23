@@ -342,7 +342,7 @@ static inline post_trace_t timing_add_post_spike(
     plasticity_weight_region_data_t* parameter =  &plasticity_weight_region_data[0];  
 
     struct tmp_struct  {
-        post_trace_t post_trace
+        post_trace_t post_trace;
     } tmp = {.post_trace = last_trace};
     struct tmp_struct *state = &tmp;
 
@@ -432,7 +432,7 @@ static inline pre_trace_t timing_add_pre_spike(
         uint32_t time, uint32_t last_time, pre_trace_t last_trace) {
 
     struct tmp_struct  {
-        pre_trace_t pre_trace
+        pre_trace_t pre_trace;
     } tmp = {.pre_trace = last_trace};
     struct tmp_struct *state = &tmp;
 

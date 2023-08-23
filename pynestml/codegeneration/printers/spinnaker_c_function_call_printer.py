@@ -100,6 +100,10 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
 
         if function_name == PredefinedFunctions.LN:
             return 'logk({!s})'
+        
+        if function_name == PredefinedFunctions.POW:
+            return '(expk({1!s} * logk({0!s})))'
+        
 
         if function_name == PredefinedFunctions.LOG10:
             #return 'std::log10({!s})'
