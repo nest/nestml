@@ -106,20 +106,18 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
         
 
         if function_name == PredefinedFunctions.LOG10:
+            return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
             #return 'std::log10({!s})'
             raise Exception("Log10 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.COSH:
-            #return 'std::cosh({!s})'
-            raise Exception("Cosh not defined for spinnaker")
+            return '(HALF * (expk({!s}) + expk(-{!s})))'
 
         if function_name == PredefinedFunctions.SINH:
-            #return 'std::sinh({!s})'
-            raise Exception("Sinh not defined for spinnaker")
+            return '(HALF * (expk({!s}) - expk(-{!s})))'
 
         if function_name == PredefinedFunctions.TANH:
-            #return 'std::tanh({!s})'
-            raise Exception("Tanh not defined for spinnaker")
+            return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
 
         if function_name == PredefinedFunctions.ERF:
             #return 'std::erf({!s})'
