@@ -53,8 +53,8 @@ class ChannelProcessing(MechanismProcessing):
                     cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str):
                 return True
             elif isinstance(sympy_expression, sympy.core.mul.Mul) and \
-                    (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or \
-                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
+                    (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or
+                     cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
                 return True
             elif rhs_expression_str == var_str:
                 return True
@@ -76,6 +76,7 @@ class ChannelProcessing(MechanismProcessing):
     def write_key_zero_parameters_for_root_inlines(cls, chan_info):
         for channel_name, channel_info in chan_info.items():
             root_inline_rhs = cls._ode_toolbox_printer.print(channel_info["root_expression"].get_expression())
-            chan_info[channel_name]["RootInlineKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(root_inline_rhs, channel_info["Parameters"])
+            chan_info[channel_name]["RootInlineKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(
+                root_inline_rhs, channel_info["Parameters"])
 
         return chan_info

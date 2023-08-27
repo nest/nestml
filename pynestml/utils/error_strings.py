@@ -356,5 +356,3 @@ class ErrorStrings:
         """
         error_msg_format = "Function " + function_name + " with the return-type 'void' cannot be used in expressions."
         return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
-
-

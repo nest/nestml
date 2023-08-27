@@ -136,21 +136,25 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         # C++/NEST API printers
         self._type_symbol_printer = NESTCppTypeSymbolPrinter()
-        self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
+        self._nest_variable_printer = NESTVariablePrinter(expression_printer=None, with_origin=True,
+                                                          with_vector_parameter=True)
         self._nest_function_call_printer = NESTCppFunctionCallPrinter(None)
         self._nest_function_call_printer_no_origin = NESTCppFunctionCallPrinter(None)
 
-        self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
-                                                                                                  constant_printer=self._constant_printer,
-                                                                                                  function_call_printer=self._nest_function_call_printer))
+        self._printer = CppExpressionPrinter(
+            simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
+                                                                 constant_printer=self._constant_printer,
+                                                                 function_call_printer=self._nest_function_call_printer))
         self._nest_variable_printer._expression_printer = self._printer
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
 
-        self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False, with_vector_parameter=False)
-        self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
-                                                                                                            constant_printer=self._constant_printer,
-                                                                                                            function_call_printer=self._nest_function_call_printer_no_origin))
+        self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False,
+                                                                    with_vector_parameter=False)
+        self._printer_no_origin = CppExpressionPrinter(
+            simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
+                                                                 constant_printer=self._constant_printer,
+                                                                 function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
@@ -158,17 +162,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._gsl_variable_printer = GSLVariablePrinter(None)
         self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
 
-        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                                                              constant_printer=self._constant_printer,
-                                                                                                              function_call_printer=self._gsl_function_call_printer))
+        self._gsl_printer = CppExpressionPrinter(
+            simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                                         constant_printer=self._constant_printer,
+                                                                         function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
-        self._ode_toolbox_printer = ODEToolboxExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._ode_toolbox_variable_printer,
-                                                                                                                             constant_printer=self._constant_printer,
-                                                                                                                             function_call_printer=self._ode_toolbox_function_call_printer))
+        self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
+            simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+                variable_printer=self._ode_toolbox_variable_printer,
+                constant_printer=self._constant_printer,
+                function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
@@ -444,7 +451,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # then attempt to solve numerically
         # "update_expressions" key in those solvers contains a mapping
         # {expression1: update_expression1, expression2: update_expression2}
-        
+
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(
             neuron, kernel_buffers)
 
@@ -454,7 +461,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.kernel_name_to_analytic_solver[neuron.get_name(
         )] = self.ode_toolbox_anaysis_cm_syns(neuron, kernel_buffers)
         """
-
 
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
@@ -639,8 +645,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
 
-            namespace["propagators"] = self.analytic_solver[neuron.get_name()
-                                                            ]["propagators"]
+            namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 
         # convert variables from ASTVariable instances to strings
         _names = self.non_equations_state_variables[neuron.get_name()]
@@ -802,8 +807,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
             for kernel_var in kernel.get_variables():
                 for var_order in range(
-                    ASTUtils.get_kernel_var_order_from_ode_toolbox_result(
-                        kernel_var.get_name(), solver_dicts)):
+                        ASTUtils.get_kernel_var_order_from_ode_toolbox_result(
+                            kernel_var.get_name(), solver_dicts)):
                     kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, var_order)
                     expr = ASTUtils.get_initial_value_from_ode_toolbox_result(
@@ -818,10 +823,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     if expr not in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + expr + ")"
 
-                    if not buffer_type.print_nestml_type() in [
-                            "1.", "1.0", "1"]:
-                        assignment_str += " / (" + \
-                            buffer_type.print_nestml_type() + ")"
+                    if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                        assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
 
                     ast_assignment = ModelParser.parse_assignment(
                         assignment_str)
@@ -906,8 +909,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 ASTUtils.replace_rhs_variables(expr, kernel_buffers)
 
                 entry = {}
-                entry["expression"] = kernel_X_spike_buf_name_ticks + \
-                    " = " + str(expr)
+                entry["expression"] = kernel_X_spike_buf_name_ticks + " = " + str(expr)
 
                 # initial values need to be declared for order 1 up to kernel
                 # order (e.g. none for kernel function f(t) = ...; 1 for kernel

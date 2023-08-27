@@ -25,6 +25,7 @@ from collections import defaultdict
 import sympy
 import re
 
+
 class ConcentrationProcessing(MechanismProcessing):
     """The default Processing ignores the root expression when solving the odes which in case of the concentration
     mechanism is a ode that needs to be solved. This is added here."""
@@ -43,7 +44,7 @@ class ConcentrationProcessing(MechanismProcessing):
     @classmethod
     def ode_toolbox_processing_for_root_expression(cls, neuron, conc_info):
         for concentration_name, concentration_info in conc_info.items():
-            #Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
+            # Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
             fake_conc_info = defaultdict()
             fake_concentration_info = defaultdict()
             fake_concentration_info["ODEs"] = list()
@@ -52,7 +53,8 @@ class ConcentrationProcessing(MechanismProcessing):
 
             fake_conc_info = cls.ode_toolbox_processing(neuron, fake_conc_info)
 
-            conc_info[concentration_name]["ODEs"] = conc_info[concentration_name]["ODEs"] | fake_conc_info["fake"]["ODEs"]
+            conc_info[concentration_name]["ODEs"] = conc_info[concentration_name]["ODEs"] | fake_conc_info["fake"][
+                "ODEs"]
 
         return conc_info
 
@@ -65,8 +67,8 @@ class ConcentrationProcessing(MechanismProcessing):
                     cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str):
                 return True
             elif isinstance(sympy_expression, sympy.core.mul.Mul) and \
-                    (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or \
-                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
+                    (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or
+                     cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
                 return True
             elif rhs_expression_str == var_str:
                 return True
@@ -88,6 +90,7 @@ class ConcentrationProcessing(MechanismProcessing):
     def write_key_zero_parameters_for_root_odes(cls, conc_info):
         for concentration_name, concentration_info in conc_info.items():
             root_inline_rhs = cls._ode_toolbox_printer.print(concentration_info["root_expression"].get_rhs())
-            conc_info[concentration_name]["RootOdeKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(root_inline_rhs, concentration_info["Parameters"])
+            conc_info[concentration_name]["RootOdeKeyZeros"] = cls.search_for_key_zero_parameters_for_expression(
+                root_inline_rhs, concentration_info["Parameters"])
 
         return conc_info

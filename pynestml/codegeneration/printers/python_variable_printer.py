@@ -146,7 +146,7 @@ class PythonVariablePrinter(VariablePrinter):
         return self._expression_printer.print(vector_parameter)
 
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
-        assert all([type(s) == str for s in self._state_symbols])
+        assert all([isinstance(s, str) for s in self._state_symbols])
 
         variable_name = PythonVariablePrinter._print_python_name(variable.get_complete_name())
 

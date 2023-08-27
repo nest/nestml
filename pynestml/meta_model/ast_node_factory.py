@@ -283,7 +283,7 @@ class ASTNodeFactory:
         return ASTSynapse(name, body, artifact_name=artifact_name, source_position=source_position)
 
     @classmethod
-    def create_ast_ode_equation(cls, lhs, rhs, source_position, decorators = list):
+    def create_ast_ode_equation(cls, lhs, rhs, source_position, decorators=list):
         # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation,list) -> ASTOdeEquation
         return ASTOdeEquation(lhs, rhs, source_position=source_position, decorators=decorators)
 

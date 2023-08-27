@@ -103,7 +103,8 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             # return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
-            return self._print(variable, symbol, with_origin=False) #temporary modification to not enforce getter function
+            # temporary modification to not enforce getter function:
+            return self._print(variable, symbol, with_origin=False)
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
@@ -160,7 +161,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
-        assert all([type(s) == str for s in self._state_symbols])
+        assert all([isinstance(s, str) for s in self._state_symbols])
 
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
 

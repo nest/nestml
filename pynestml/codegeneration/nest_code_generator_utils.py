@@ -52,4 +52,3 @@ class NESTCodeGeneratorUtils:
             return 'B_.%s'
 
         return ''
-

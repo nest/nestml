@@ -38,6 +38,7 @@ from odetoolbox import analysis
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
+
 class MechanismProcessing(object):
     """Manages the collection of basic information necesary for all types of mechanisms and uses the
     collect_information_for_specific_mech_types interface that needs to be implemented by the specific mechanism type
@@ -65,9 +66,9 @@ class MechanismProcessing(object):
     _ode_toolbox_function_call_printer._expression_printer = _ode_toolbox_printer
 
     def __init__(self, params):
-        '''
+        """
         Constructor
-        '''
+        """
 
     @classmethod
     def prepare_equations_for_ode_toolbox(cls, neuron, mechs_info):
@@ -85,20 +86,20 @@ class MechanismProcessing(object):
 
         for mechanism_name, mechanism_info in mechs_info.items():
             for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
-                #Expression:
-                odetoolbox_indict = {}
-                odetoolbox_indict["dynamics"] = []
+                # Expression:
+                odetoolbox_indict = {"dynamics": []}
                 lhs = ASTUtils.to_ode_toolbox_name(ode_info["ASTOdeEquation"].get_lhs().get_complete_name())
                 rhs = cls._ode_toolbox_printer.print(ode_info["ASTOdeEquation"].get_rhs())
-                entry = {"expression": lhs + " = " + rhs}
+                entry = {"expression": lhs + " = " + rhs, "initial_values": {}}
 
-                #Initial values:
-                entry["initial_values"] = {}
+                # Initial values:
                 symbol_order = ode_info["ASTOdeEquation"].get_lhs().get_differential_order()
                 for order in range(symbol_order):
                     iv_symbol_name = ode_info["ASTOdeEquation"].get_lhs().get_name() + "'" * order
                     initial_value_expr = neuron.get_initial_value(iv_symbol_name)
-                    entry["initial_values"][ASTUtils.to_ode_toolbox_name(iv_symbol_name)] = cls._ode_toolbox_printer.print(initial_value_expr)
+                    entry["initial_values"][
+                        ASTUtils.to_ode_toolbox_name(iv_symbol_name)] = cls._ode_toolbox_printer.print(
+                        initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
                 mechs_info[mechanism_name]["ODEs"][ode_variable_name]["ode_toolbox_input"] = odetoolbox_indict
@@ -121,10 +122,10 @@ class MechanismProcessing(object):
         mechs_info = cls.collect_raw_odetoolbox_output(mechs_info)
         return mechs_info
 
+    @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
-        #to be implemented for specific mechanisms by child class (concentration, synapse, channel)
+        # to be implemented for specific mechanisms by child class (concentration, synapse, channel)
         pass
-
 
     @classmethod
     def determine_dependencies(cls, mechs_info):
@@ -140,8 +141,6 @@ class MechanismProcessing(object):
                         dependencies.append(ode)
             mechs_info[mechanism_name]["dependencies"] = dependencies
         return mechs_info
-
-
 
     @classmethod
     def get_mechs_info(cls, neuron: ASTNeuron):
@@ -167,16 +166,16 @@ class MechanismProcessing(object):
         # subsequent calls will be after AST has been transformed
         # and there would be no kernels or inlines any more
         if cls.first_time_run[neuron][cls.mechType]:
-            #collect root expressions and initialize collector
+            # collect root expressions and initialize collector
             info_collector = ASTMechanismInformationCollector(neuron)
             mechs_info = info_collector.detect_mechs(cls.mechType)
 
-            #collect and process all basic mechanism information
+            # collect and process all basic mechanism information
             mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
             mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
 
-            #collect and process all mechanism type specific information
+            # collect and process all mechanism type specific information
             mechs_info = cls.collect_information_for_specific_mech_types(neuron, mechs_info)
 
             cls.mechs_info[neuron][cls.mechType] = mechs_info

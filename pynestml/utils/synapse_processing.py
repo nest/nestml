@@ -89,8 +89,6 @@ class SynapseProcessing(MechanismProcessing):
     @classmethod
     def collect_and_check_inputs_per_synapse(
             cls,
-            neuron: ASTNeuron,
-            info_collector: ASTSynapseInformationCollector,
             syns_info: dict):
         new_syns_info = copy.copy(syns_info)
 
@@ -181,8 +179,7 @@ class SynapseProcessing(MechanismProcessing):
         :param parameters_block: ASTBlockWithVariables
         :return: Dict
         """
-        odetoolbox_indict = {}
-        odetoolbox_indict["dynamics"] = []
+        odetoolbox_indict = {"dynamics": []}
 
         equations_block = neuron.get_equations_blocks()[0]
 
@@ -200,14 +197,11 @@ class SynapseProcessing(MechanismProcessing):
 
                 ASTUtils.replace_rhs_variables(expr, kernel_buffers)
 
-                entry = {}
-                entry["expression"] = kernel_X_spike_buf_name_ticks + \
-                                      " = " + str(expr)
+                entry = {"expression": kernel_X_spike_buf_name_ticks + " = " + str(expr), "initial_values": {}}
 
                 # initial values need to be declared for order 1 up to kernel
                 # order (e.g. none for kernel function f(t) = ...; 1 for kernel
                 # ODE f'(t) = ...; 2 for f''(t) = ... and so on)
-                entry["initial_values"] = {}
                 for order in range(kernel_order):
                     iv_sym_name_ode_toolbox = ASTUtils.construct_kernel_X_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")

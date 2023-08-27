@@ -38,11 +38,11 @@ class ChanInfoEnricher(MechsInfoEnricher):
 
     @classmethod
     def enrich_mechanism_specific(cls, neuron, mechs_info):
-        mechs_info = cls.computeExpressionDerivative(mechs_info)
+        mechs_info = cls.compute_expression_derivative(mechs_info)
         return mechs_info
 
     @classmethod
-    def computeExpressionDerivative(cls, chan_info):
+    def compute_expression_derivative(cls, chan_info):
         for ion_channel_name, ion_channel_info in chan_info.items():
             inline_expression = chan_info[ion_channel_name]["root_expression"]
             expr_str = str(inline_expression.get_expression())

@@ -1197,7 +1197,7 @@ class ASTUtils:
         """
         Get the expression using the kernel variable
         """
-        assert type(var_name) == str
+        assert isinstance(var_name, str)
         for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
             if var.get_complete_name() == var_name:
                 return expr
@@ -1234,10 +1234,8 @@ class ASTUtils:
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
                 spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
-        
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
-        #return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -1778,10 +1776,9 @@ class ASTUtils:
         for m in inline_expressions:
             if "mechanism" not in [e.namespace for e in m.get_decorators()]:
                 """
-                exclude compartmental mechanism definitions in order to have the 
+                exclude compartmental mechanism definitions in order to have the
                 inline as a barrier inbetween odes that are meant to be solved independently
                 """
-
                 source_position = m.get_source_position()
                 for target in definitions:
                     matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))

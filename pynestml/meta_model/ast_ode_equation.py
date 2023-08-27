@@ -73,7 +73,7 @@ class ASTOdeEquation(ASTNode):
 
         dup = ASTOdeEquation(lhs=self.lhs.clone(),
                              rhs=self.rhs.clone(),
-                             decorators = decorators_dup,
+                             decorators=decorators_dup,
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,

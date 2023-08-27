@@ -305,7 +305,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         for kw in ctx.anyDecorator():
             decorators.append(self.visit(kw))
 
-        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx), decorators = decorators)
+        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx),
+                                                              decorators=decorators)
         update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 
