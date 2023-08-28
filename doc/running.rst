@@ -79,6 +79,8 @@ The following default values are used, corresponding to the command line default
      - Optional[Mapping[str, Any]]
      - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. A list of available options can be found under the section "Code generation options" for your intended target platform on the page :ref:`Running NESTML`.
 
+For a detailed description of all the arguments of ``generate_target()``, see :func:`pynestml.frontend.pynestml_frontend.generate_target`.
+
 A typical script for the NEST Simulator target could look like the following. First, import the function:
 
 .. code-block:: python
@@ -186,8 +188,8 @@ Custom templates
 See :ref:`Running NESTML with custom templates`.
 
 
-Multiple input ports
-~~~~~~~~~~~~~~~~~~~~
+Multiple input ports in NEST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
 
@@ -197,14 +199,16 @@ After generating and building the model code, a ``receptor_type`` entry is avail
 
    neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
+   receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+
    sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+   nest.Connect(sg, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_1"], "weight": 1000.})
 
    sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_2"], "weight": 1000.})
 
    sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_3"], "weight": 500.})
 
 Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
@@ -212,9 +216,9 @@ We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2``
 
 .. code-block:: python
 
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
-                                                          'I_kernel2__X__spikes2',
-                                                          'I_kernel3__X__spikes3'],
+   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes_1',
+                                                          'I_kernel2__X__spikes_2',
+                                                          'I_kernel3__X__spikes_3'],
                                           'interval': .1})
    nest.Connect(mm, neuron)
 
@@ -226,8 +230,8 @@ The output shows the currents for each synapse (three bottom rows) and the net e
 For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and ``test_multisynapse`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
 
 
-Multiple input ports with vectors
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Multiple input ports with vectors in NEST
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 

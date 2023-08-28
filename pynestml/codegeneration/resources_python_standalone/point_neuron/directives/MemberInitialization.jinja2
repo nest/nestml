@@ -7,7 +7,7 @@
 {%-   if variable_symbol.has_vector_parameter() %}
 {{ printer.print_vector_declaration(variable_symbol) }}
 {%-   else %}
-{{ printer.print(variable) }} = {{ printer.print_expression(variable_symbol.get_declaring_expression()) }}  # type: {{variable_symbol.get_type_symbol().print_symbol()}}
+{{ printer.print(variable) }} = {{ printer.print(variable_symbol.get_declaring_expression()) }}  # type: {{variable_symbol.get_type_symbol().print_symbol()}}
 {%-   endif %}
 {%- else %}
 {%-   if variable_symbol.has_vector_parameter() %}

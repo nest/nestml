@@ -176,10 +176,10 @@ class Messages:
         message = 'Error occurred during lexing: abort'
         return MessageCode.LEXER_ERROR, message
 
-    # @classmethod
-    # def get_could_not_determine_cond_based(cls, type_str, name):
-    #     message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
-    #     return MessageCode.LEXER_ERROR, message
+    @classmethod
+    def get_could_not_determine_cond_based(cls, type_str, name):
+        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
+        return MessageCode.LEXER_ERROR, message
 
     @classmethod
     def get_parser_error(cls):
@@ -1098,7 +1098,7 @@ class Messages:
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
             str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
             ', '.join([str(_ + 1) for _ in other_args_idx]) + \
-            ', which have type \'' + other_type_str + '\''
+            ', which has/have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod
@@ -1213,8 +1213,8 @@ class Messages:
 
     @classmethod
     def get_vector_parameter_wrong_block(cls, var, block):
-        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + \
-            "'. " "The vector parameter can only be declared in parameters or internals block."
+        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
+                  "The vector parameter can only be declared in parameters or internals block."
         return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
 
     @classmethod
@@ -1225,15 +1225,13 @@ class Messages:
 
     @classmethod
     def get_vector_parameter_wrong_size(cls, var, value):
-        message = "The vector parameter '" + var + "' has value '" + \
-            value + "' " "which is less than or equal to 0."
+        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+                  "which is less than or equal to 0."
         return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
 
     @classmethod
-    def get_priority_defined_for_only_one_receive_block(
-            cls, event_handler_port_name: str):
-        message = "Priority defined for only one event handler (" + \
-            event_handler_port_name + ")"
+    def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
+        message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
         return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message
 
     @classmethod

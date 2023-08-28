@@ -512,6 +512,21 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``tanh``
      - x
      - Returns the hyperbolic tangent of x. The type of x and the return type are Real.
+   * - ``erf``
+     - x
+     - Returns the error function of x. The type of x and the return type are Real.
+   * - ``erfc``
+     - x
+     - Returns the complementary error function of x. The type of x and the return type are Real.
+   * - ``ceil``
+     - x
+     - Returns the ceil of x. The type of x and the return type are Real.
+   * - ``floor``
+     - x
+     - Returns the floor of x. The type of x and the return type are Real.
+   * - ``round``
+     - x
+     - Returns the rounded value of x. The type of x and the return type are Real.
    * - ``random_normal``
      - mean, std
      - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
@@ -567,7 +582,7 @@ e.g.
    else:
        return b
 
-Printing output to the console
+Print function
 ^^^^^^^^^^^^^^
 
 The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on the ``update`` block.

@@ -425,7 +425,7 @@ class VariableSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return (not isinstance(self, type(other))
+        return (isinstance(other, type(self))
                 and self.get_referenced_object() == other.get_referenced_object()
                 and self.get_symbol_name() == other.get_symbol_name()
                 and self.get_corresponding_scope() == other.get_corresponding_scope()

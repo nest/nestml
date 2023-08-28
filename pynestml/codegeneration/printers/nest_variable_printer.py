@@ -47,7 +47,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
-        self._state_symbols = []
 
     def print_variable(self, variable: ASTVariable) -> str:
         """

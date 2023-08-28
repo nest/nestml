@@ -46,7 +46,8 @@ class NestAssignmentsHelper:
         if symbol is not None:
             return symbol
 
-        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+        Logger.log_message(message="No symbol could be resolved for assignment \"" + str(assignment) + "\"!", log_level=LoggingLevel.ERROR)
+
         return None
 
     @classmethod
@@ -63,7 +64,8 @@ class NestAssignmentsHelper:
         if symbol is not None:
             return symbol
 
-        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.WARNING)
+        Logger.log_message(message="No symbol could be resolved for assignment \"" + str(assignment) + "\"!", log_level=LoggingLevel.WARNING)
+
         return None
 
     @classmethod
@@ -115,7 +117,8 @@ class NestAssignmentsHelper:
 
             return False
 
-        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.ERROR)
+        Logger.log_message(message="No symbol could be resolved for assignment \"" + str(assignment) + "\"!", log_level=LoggingLevel.ERROR)
+
         return False
 
     @classmethod
