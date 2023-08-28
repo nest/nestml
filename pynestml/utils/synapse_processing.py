@@ -48,8 +48,7 @@ class SynapseProcessing(MechanismProcessing):
         if len(mechs_info) > 0:
             # only do this if any synapses found
             # otherwise tests may fail
-            mechs_info = cls.collect_and_check_inputs_per_synapse(
-                neuron, add_info_collector, mechs_info)
+            mechs_info = cls.collect_and_check_inputs_per_synapse(mechs_info)
 
         mechs_info = cls.convolution_ode_toolbox_processing(neuron, mechs_info)
 

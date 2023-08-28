@@ -1237,9 +1237,14 @@ class ASTUtils:
         if isinstance(spike_input_port, ASTSimpleExpression):
             spike_input_port = spike_input_port.get_variable()
 
-        spike_input_port_name = spike_input_port.get_name()
-        if spike_input_port.has_vector_parameter():
-            spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
+        if not isinstance(spike_input_port, str):
+            spike_input_port_name = spike_input_port.get_name()
+        else:
+            spike_input_port_name = spike_input_port
+
+        if isinstance(spike_input_port, ASTVariable):
+            if spike_input_port.has_vector_parameter():
+                spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
 
         return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 

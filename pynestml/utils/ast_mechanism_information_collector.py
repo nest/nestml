@@ -186,8 +186,7 @@ class ASTMechanismInformationCollector(object):
                                 if isinstance(inline.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                         is_dependency = True
-                                        if not isinstance(mechanism_info["root_expression"], ASTInlineExpression) and \
-                                                inline.variable_name == mechanism_info["root_expression"].variable_name:
+                                        if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
                                             if "channel" in [e.name for e in inline.get_decorators()]:
                                                 if not inline.variable_name in [i.variable_name for i in
                                                                                 mechanism_dependencies["channels"]]:
