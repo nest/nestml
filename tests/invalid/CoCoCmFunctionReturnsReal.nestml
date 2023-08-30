@@ -35,48 +35,34 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 neuron cm_model_three_invalid:
 
-  state:
-    # indicate that we have a compartmental model
-    # by declaring an unused variable with the name "v_comp"
-    v_comp real = 0.0
+    state:
+        # compartmental voltage variable,
+        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
+        v_comp real = 0.0
     
-    m_Na real = 0.0
-    h_Na real = 0.0
-    
-  end
+        m_Na real = 0.0
+        h_Na real = 0.0
 
     #sodium
     function m_inf_Na(v_comp real) boolean:
         return true
-    end
     
     function tau_m_Na(v_comp real) integer:
         return 1111111111
-    end
     
     function h_inf_Na(v_comp real) string:
         return "hello"
-    end
     
     function tau_h_Na(v_comp real) void: 
         v_comp+=1.0
         return
-    end
     
     function some_random_function_to_ignore(v_comp real, something_else real) string: 
         return "ignore"
-    end
 
-  equations: 
-    inline Na real = m_Na**3 * h_Na**1 
-    
-  end
+    equations:
+        inline Na real = m_Na**3 * h_Na**1
 
-  parameters:
-    e_Na real = 50.0
-    gbar_Na real = 0.0
-    
-  end
-
-
-end
+    parameters:
+        e_Na real = 50.0
+        gbar_Na real = 0.0

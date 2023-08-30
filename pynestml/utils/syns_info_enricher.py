@@ -36,13 +36,11 @@ from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 
 class SynsInfoEnricher(MechsInfoEnricher):
-
     """
     input: a neuron after ODE-toolbox transformations
 
     the kernel analysis solves all kernels at the same time
     this splits the variables on per kernel basis
-
     """
 
     def __init__(self, params):
@@ -135,16 +133,15 @@ class SynsInfoEnricher(MechsInfoEnricher):
 
         return enriched_syns_info
 
-    # orders user defined internals
-    # back to the order they were originally defined
-    # this is important if one such variable uses another
-    # user needs to have control over the order
     @classmethod
     def restore_order_internals(cls, neuron: ASTNeuron, cm_syns_info: dict):
-
-        # assign each variable a rank
-        # that corresponds to the order in
-        # SynsInfoEnricher.declarations_ordered
+        """orders user defined internals
+        back to the order they were originally defined
+        this is important if one such variable uses another
+        user needs to have control over the order
+        assign each variable a rank
+        that corresponds to the order in
+        SynsInfoEnricher.declarations_ordered"""
         variable_name_to_order = {}
         for index, declaration in enumerate(
                 SynsInfoEnricherVisitor.declarations_ordered):
@@ -179,11 +176,12 @@ class SynsInfoEnricher(MechsInfoEnricher):
         variable_names_extractor = ASTUsedVariableNamesExtractor(node)
         return variable_names_extractor.variable_names
 
-    # returns all variable names referenced by the synapse inline
-    # and by the analytical solution
-    # assumes that the model has already been transformed
     @classmethod
     def get_all_synapse_variables(cls, single_synapse_info):
+        """returns all variable names referenced by the synapse inline
+        and by the analytical solution
+        assumes that the model has already been transformed"""
+
         # get all variables from transformed inline
         inline_variables = cls.get_variable_names_used(
             single_synapse_info["root_expression"])
@@ -226,12 +224,13 @@ class SynsInfoEnricher(MechsInfoEnricher):
         return cls.get_all_synapse_variables(single_synapse_info).difference(
             single_synapse_info["total_used_declared"])
 
-    # get new variables that only occur on the right hand side of analytic solution Expressions
-    # but for wich analytic solution does not offer any values
-    # this can isolate out additional variables that suddenly appear such as __h
-    # whose initial values are not inlcuded in the output of analytic solver
     @classmethod
     def get_analytic_helper_variable_names(cls, single_synapse_info):
+        """get new variables that only occur on the right hand side of analytic solution Expressions
+        but for wich analytic solution does not offer any values
+        this can isolate out additional variables that suddenly appear such as __h
+        whose initial values are not inlcuded in the output of analytic solver"""
+
         analytic_lhs_vars = set()
 
         for convolution_name, convolution_info in single_synapse_info["convolutions"].items(

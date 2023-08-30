@@ -65,11 +65,6 @@ class MechanismProcessing(object):
     _ode_toolbox_variable_printer._expression_printer = _ode_toolbox_printer
     _ode_toolbox_function_call_printer._expression_printer = _ode_toolbox_printer
 
-    def __init__(self, params):
-        """
-        Constructor
-        """
-
     @classmethod
     def prepare_equations_for_ode_toolbox(cls, neuron, mechs_info):
         """Transforms the collected ode equations to the required input format of ode-toolbox and adds it to the

@@ -78,7 +78,7 @@ class FrontendConfiguration:
     suffix = ""
     is_dev = False
     codegen_opts = {}  # type: Mapping[str, Any]
-    codegen_opts_fn = ''
+    codegen_opts_fn = ""
     compartmental_variable_name = "v_comp"
 
     @classmethod

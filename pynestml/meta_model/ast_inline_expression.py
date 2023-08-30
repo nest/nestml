@@ -110,11 +110,6 @@ class ASTInlineExpression(ASTNode):
         """
         self.variable_name = variable_name
 
-    """
-    def get_decorators(self):
-        return self.decorators
-    """
-
     def get_data_type(self):
         """
         Returns the data type as an object of ASTDatatype.

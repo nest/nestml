@@ -35,25 +35,17 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 neuron cm_model_one_invalid:
 
-  state:
-    # indicate that we have a compartmental model
-    # by declaring an unused variable with the name "v_comp"
-    v_comp real = 0.0
+    state:
+        # compartmental voltage variable,
+        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
+        v_comp real = 0.0
     
-    m_Na real = 0.0
-    
-  end
+        m_Na real = 0.0
 
-  equations: 
-    inline Na real = m_Na**3
-    
-  end
+    equations:
+        inline Na real = m_Na**3
 
-  parameters:
-    e_Na real = 50.0
-    gbar_Na real = 0.0
-    
-  end
+    parameters:
+        e_Na real = 50.0
+        gbar_Na real = 0.0
 
-
-end

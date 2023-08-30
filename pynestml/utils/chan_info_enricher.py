@@ -28,7 +28,7 @@ from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 class ChanInfoEnricher(MechsInfoEnricher):
     """
-    Class extends MechanismInfoEnricher by the computation of the inline derivative. This hasn't been done in the
+    Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
     channel processing because it would cause a circular dependency through the coco checks used by the ModelParser
     which we need to use.
     """

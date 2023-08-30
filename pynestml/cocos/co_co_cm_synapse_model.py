@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_synapses_model.py
+# co_co_cm_synapse_model.py
 #
 # This file is part of NEST.
 #
@@ -24,7 +24,7 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.synapse_processing import SynapseProcessing
 
 
-class CoCoSynapsesModel(CoCo):
+class CoCoCmSynapseModel(CoCo):
 
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):

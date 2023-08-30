@@ -82,6 +82,7 @@ except ModuleNotFoundError:
 
 print(nest_version, file=sys.stderr)
 """
+
         with tempfile.NamedTemporaryFile() as f:
             f.write(bytes(script, encoding="UTF-8"))
             f.seek(0)

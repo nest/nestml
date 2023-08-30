@@ -4,25 +4,12 @@ Example compartmental model for NESTML
 Description
 +++++++++++
 Corresponds to standard compartmental model implemented in NEST.
-
-References
-++++++++++
-
-
-See also
-++++++++
-
-
-Author
-++++++
-Willem Wybo
 """
 neuron cm_default:
 
     state:
-
-        # the presence of the state variable [v_comp]
-        # triggers compartment model context
+        # compartmental voltage variable,
+        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
         v_comp real = 0
 
         ### ion channels ###
@@ -91,18 +78,16 @@ neuron cm_default:
         #   g_val = d(i_X)/d(v_comp) / 2.
         #   i_val = i_X - d(i_X)/d(v_comp) / 2.
 
-        ### ion channels, recognized by lack of convolutions ###
+        ### ion channels ###
         h_Na'= (h_inf_Na(v_comp) - h_Na) / (tau_h_Na(v_comp) * 1 s)
         m_Na'= (m_inf_Na(v_comp) - m_Na) / (tau_m_Na(v_comp) * 1 s)
 
         n_K'= (n_inf_K(v_comp) - n_K) / (tau_n_K(v_comp) * 1 s)
 
-        ### ion channels, recognized by lack of convolutions ###
-
         inline Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp) @mechanism::channel
         inline K real = gbar_K * n_K * (e_K - v_comp) @mechanism::channel
 
-        ### synapses, characterized by convolution(s) with spike input ###
+        ### synapses, must contain convolution(s) with spike input ###
         kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
         inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
 
@@ -116,26 +101,6 @@ neuron cm_default:
         kernel g_AN_NMDA = g_norm_AN_NMDA * ( - exp(-t / tau_r_AN_NMDA) + exp(-t / tau_d_AN_NMDA) )
         inline AMPA_NMDA real = convolve(g_AN_AMPA, spikes_AN) * (e_AN_AMPA - v_comp) + NMDA_ratio * \
                                 convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
-
-  # #sodium
-  # function m_inf_Na(v_comp real) real:
-  #   return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
-
-  # function tau_m_Na(v_comp real) real:
-  #   return 0.3115264797507788/((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp)))
-
-  # function h_inf_Na(v_comp real) real:
-  #   return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
-
-  # function tau_h_Na(v_comp real) real:
-  #   return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
-
-  # #potassium
-  # function n_inf_K(v_comp real) real:
-  #   return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
-
-  # function tau_n_K(v_comp real) real:
-  #   return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
 
     # functions K
     function n_inf_K (v_comp real) real:

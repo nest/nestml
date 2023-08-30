@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_concentrations_model.py
+# co_co_cm_channel_model.py
 #
 # This file is part of NEST.
 #
@@ -21,11 +21,10 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.utils.concentration_processing import ConcentrationProcessing
+from pynestml.utils.channel_processing import ChannelProcessing
 
 
-class CoCoConcentrationsModel(CoCo):
-
+class CoCoCmChannelModel(CoCo):
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
@@ -34,4 +33,4 @@ class CoCoConcentrationsModel(CoCo):
         :param neuron: a single neuron instance.
         :type neuron: ast_neuron
         """
-        return ConcentrationProcessing.check_co_co(neuron)
+        return ChannelProcessing.check_co_co(neuron)

@@ -36,16 +36,16 @@ class ChannelProcessing(MechanismProcessing):
 
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
-        """
-        Searching for parameters in the root-expression that if zero lead to the expression always being zero so that
-        the computation may be skipped.
-        """
         mechs_info = cls.write_key_zero_parameters_for_root_inlines(mechs_info)
 
         return mechs_info
 
     @classmethod
     def check_if_key_zero_var_for_expression(cls, rhs_expression_str, var_str):
+        """
+        check if var being zero leads to the expression always being zero so that
+        the computation may be skipped if this is determined to be the case during simulation.
+        """
         if not re.search("1/.*", rhs_expression_str):
             sympy_expression = sympy.parsing.sympy_parser.parse_expr(rhs_expression_str, evaluate=False)
             if isinstance(sympy_expression, sympy.core.add.Add) and \
@@ -65,6 +65,10 @@ class ChannelProcessing(MechanismProcessing):
 
     @classmethod
     def search_for_key_zero_parameters_for_expression(cls, rhs_expression_str, parameters):
+        """
+        Searching for parameters in the root-expression that if zero lead to the expression always being zero so that
+        the computation may be skipped.
+        """
         key_zero_parameters = list()
         for parameter_name, parameter_info in parameters.items():
             if cls.check_if_key_zero_var_for_expression(rhs_expression_str, parameter_name):

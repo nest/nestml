@@ -23,7 +23,7 @@ from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
-from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
+from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
@@ -52,8 +52,8 @@ from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
-from pynestml.cocos.co_co_synapses_model import CoCoSynapsesModel
-from pynestml.cocos.co_co_concentrations_model import CoCoConcentrationsModel
+from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
+from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
@@ -66,6 +66,10 @@ from pynestml.cocos.co_co_function_argument_template_types_consistent import CoC
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
+
+
+# compartmental mode differentiation
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class CoCosManager:
@@ -122,52 +126,24 @@ class CoCosManager:
         CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
 
     @classmethod
-    def check_synapses_model(cls, neuron: ASTNeuron) -> None:
-        """
-        similar to check_compartmental_model, but checks for synapses
-        synapses are defined by inlines that use kernels
-        """
-        CoCoSynapsesModel.check_co_co(neuron)
-
-    @classmethod
-    def check_concentrations_model(cls, neuron: ASTNeuron) -> None:
-        CoCoConcentrationsModel.check_co_co(neuron)
-
-    @classmethod
-    def check_v_comp_requirement(cls, neuron: ASTNeuron, after_ast_rewrite: bool):
+    def check_v_comp_requirement(cls, neuron: ASTNeuron):
         """
         In compartmental case, checks if v_comp variable was defined
         :param neuron: a single neuron object
         """
-        CoCoVCompDefined.check_co_co(neuron, after_ast_rewrite)
+        CoCoVCompDefined.check_co_co(neuron)
 
     @classmethod
-    def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
+    def check_compartmental_model(cls, neuron: ASTNeuron) -> None:
         """
-        searches ASTEquationsBlock for inline expressions without kernels
+        collects all relevant information for the different compartmental mechanism classes for later code-generation
 
-        If such inline expression is found
-        -finds all gatomg variables x_{channel_name} used in that expression
-        -makes sure following functions are defined:
-
-        x_inf_{channelType}(somevariable real) real
-        tau_x_{channelType}(somevariable real) real
-
-        -makes sure that all such functions have exactly one argument and that
-        they return real
-
-        -makes sure that all Variables x are defined in state block
-        -makes sure that state block contains
-
-        gbar_{channelType}
-        e_{channelType}
-
-        -makes sure that in the key inline expression every variable is used only once
-        -makes sure there is at least one gating variable per cm inline expression
-        :param neuron: a single neuron.
-        :type neuron: ast_neuron
+        searches for inlines or odes with decorator @mechanism::<type> and performs a base and, depending on type,
+        specific information collection process. See nestml documentation on compartmental code generation.
         """
-        CoCoCompartmentalModel.check_co_co(neuron)
+        CoCoCmChannelModel.check_co_co(neuron)
+        CoCoCmConcentrationModel.check_co_co(neuron)
+        CoCoCmSynapseModel.check_co_co(neuron)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, neuron: ASTNeuron):
@@ -432,10 +408,9 @@ class CoCosManager:
         cls.check_variables_unique_in_scope(neuron)
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
-        cls.check_v_comp_requirement(neuron, after_ast_rewrite)
-        cls.check_compartmental_model(neuron, after_ast_rewrite)
-        cls.check_synapses_model(neuron)
-        cls.check_concentrations_model(neuron)
+        if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+            cls.check_v_comp_requirement(neuron)
+            cls.check_compartmental_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
         cls.check_inline_has_max_one_lhs(neuron)
         cls.check_input_ports_not_assigned_to(neuron)

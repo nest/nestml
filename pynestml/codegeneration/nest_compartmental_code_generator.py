@@ -125,10 +125,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.non_equations_state_variables = {}
 
         self.setup_template_env()
+
         self.setup_printers()
 
         # maps kernel names to their analytic solutions separately
-        # this is needed needed for the cm_syns case
+        # this is needed for the cm_syns case
         self.kernel_name_to_analytic_solver = {}
 
     def setup_printers(self):
@@ -150,7 +151,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._nest_printer = CppPrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False,
-                                                                    with_vector_parameter=False)
+                                                                    with_vector_parameter=False,
+                                                                    enforce_getter=False)
         self._printer_no_origin = CppExpressionPrinter(
             simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
                                                                  constant_printer=self._constant_printer,

@@ -68,7 +68,6 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages

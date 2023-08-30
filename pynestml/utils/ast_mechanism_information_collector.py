@@ -41,7 +41,7 @@ class ASTMechanismInformationCollector(object):
         """Detects the root expressions (either ode or inline) of the given type and returns the initial
         info dictionary"""
         mechs_info = defaultdict()
-        if not FrontendConfiguration.target_is_compartmental():
+        if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             return mechs_info
 
         mechanism_expressions = cls.collector_visitor.inlinesInEquationsBlock
@@ -64,6 +64,8 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def extend_variable_list_name_based_restricted(cls, extended_list, appending_list, restrictor_list):
+        """go through appending_list and append every variable that is not in restrictor_list to extended_list for the
+         purpose of not re-searching the same variable"""
         for app_item in appending_list:
             appendable = True
             for rest_item in restrictor_list:
@@ -77,6 +79,8 @@ class ASTMechanismInformationCollector(object):
 
     @classmethod
     def extend_function_call_list_name_based_restricted(cls, extended_list, appending_list, restrictor_list):
+        """go through appending_list and append every variable that is not in restrictor_list to extended_list for the
+        purpose of not re-searching the same function"""
         for app_item in appending_list:
             appendable = True
             for rest_item in restrictor_list:

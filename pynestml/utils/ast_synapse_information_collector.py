@@ -94,13 +94,12 @@ class ASTSynapseInformationCollector(ASTVisitor):
     def get_inline_function_calls(self, inline: ASTInlineExpression):
         return self.inline_expression_to_function_calls[inline]
 
-    # extracts all variables specific to a single synapse
-    # (which is defined by the inline expression containing kernels)
-    # independently from what block they are declared in
-    # it also cascades over all right hand side variables until all
-    # variables are included
-
     def get_variable_names_of_synapse(self, synapse_inline: ASTInlineExpression, exclude_names: set = set(), exclude_ignorable=True) -> set:
+        """extracts all variables specific to a single synapse
+        (which is defined by the inline expression containing kernels)
+        independently of what block they are declared in
+        it also cascades over all right hand side variables until all
+        variables are included"""
         if exclude_ignorable:
             exclude_names.update(self.get_variable_names_to_ignore())
 
@@ -190,18 +189,16 @@ class ASTSynapseInformationCollector(ASTVisitor):
     def get_extracted_kernel_args(self, inline_expression: ASTInlineExpression) -> set:
         return self.inline_expression_to_kernel_args[inline_expression]
 
-    """
-    for every occurence of convolve(port, spikes) generate "port__X__spikes" variable
-    gather those variables for this synapse inline and return their list
-
-    note that those variables will occur as substring in other kernel variables
-    i.e  "port__X__spikes__d" or "__P__port__X__spikes__port__X__spikes"
-
-    so we can use the result to identify all the other kernel variables related to the
-    specific synapse inline declaration
-    """
-
     def get_basic_kernel_variable_names(self, synapse_inline):
+        """
+        for every occurence of convolve(port, spikes) generate "port__X__spikes" variable
+        gather those variables for this synapse inline and return their list
+
+        note that those variables will occur as substring in other kernel variables            i.e  "port__X__spikes__d" or "__P__port__X__spikes__port__X__spikes"
+
+        so we can use the result to identify all the other kernel variables related to the
+        specific synapse inline declaration
+        """
         order = 0
         results = []
         for syn_inline, args in self.inline_expression_to_kernel_args.items():

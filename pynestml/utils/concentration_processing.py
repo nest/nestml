@@ -43,6 +43,8 @@ class ConcentrationProcessing(MechanismProcessing):
 
     @classmethod
     def ode_toolbox_processing_for_root_expression(cls, neuron, conc_info):
+        """applies the ode_toolbox_processing to the root_expression since that was never appended to the list of ODEs
+        in the base processing and thereby also never went through the ode_toolbox processing"""
         for concentration_name, concentration_info in conc_info.items():
             # Create fake mechs_info such that it can be processed by the existing ode_toolbox_processing function.
             fake_conc_info = defaultdict()
@@ -60,6 +62,10 @@ class ConcentrationProcessing(MechanismProcessing):
 
     @classmethod
     def check_if_key_zero_var_for_expression(cls, rhs_expression_str, var_str):
+        """
+        check if var being zero leads to the expression always being zero so that
+        the computation may be skipped if this is determined to be the case during simulation.
+        """
         if not re.search("1/.*", rhs_expression_str):
             sympy_expression = sympy.parsing.sympy_parser.parse_expr(rhs_expression_str, evaluate=False)
             if isinstance(sympy_expression, sympy.core.add.Add) and \

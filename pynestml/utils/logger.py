@@ -145,11 +145,8 @@ class Logger:
         if cls.no_print:
             return
         if cls.logging_level.value <= log_level.value:
-            node_name = ''
             if isinstance(node, ASTInlineExpression):
                 node_name = node.variable_name
-            # elif isinstance (node, ASTInputPort):
-            #     node_name = ""
             elif node is None:
                 node_name = "unknown node"
             else:
