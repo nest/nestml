@@ -87,7 +87,7 @@ class SpinnakerPythonTypeSymbolPrinter(TypeSymbolPrinter):
             raise Exception("String datatype not implemented for use with spinnaker")
 
         if isinstance(type_symbol, VoidTypeSymbol):
-            raise Exception("Void datatype not implemented for use with spinnaker")
+            raise ""
 
         if isinstance(type_symbol, UnitTypeSymbol):
             return "DataType.S1615"
