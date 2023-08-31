@@ -602,6 +602,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
     {
       nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
     }
+    weight = -weight;
   }
 {%- endif %}
   B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(

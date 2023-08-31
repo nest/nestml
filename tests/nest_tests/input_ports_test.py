@@ -20,6 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import nest
+import pytest
+from pynestml.codegeneration.nest_tools import NESTTools
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
@@ -28,6 +30,9 @@ class TestInputPorts:
     """
     Tests the different kind of input ports supported in NESTML.
     """
+
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     def test_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "InputPorts.nestml")))
@@ -81,16 +86,16 @@ class TestInputPorts:
         events = mm.get("events")
         connections = nest.GetConnections(target=neuron)
 
-        # corresponds to ``bar += NMDA_spikes + 2 * AMPA_spikes + 3 * GABA_spikes`` in the update block
-        assert events["bar"][-1] == len(spike_times[0]) * connections.get("weight")[0] \
-               + 2 * len(spike_times[1]) * connections.get("weight")[1] \
-               + 3 * len(spike_times[2]) * connections.get("weight")[2]
+        # corresponds to ``bar += NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes`` in the update block
+        assert events["bar"][-1] == len(spike_times[0]) * abs(connections.get("weight")[0]) \
+               + 2 * len(spike_times[1]) * abs(connections.get("weight")[1]) \
+               - 3 * len(spike_times[2]) * abs(connections.get("weight")[2])
 
-        # corresponds to ``foo_spikes += foo[1] - foo[2]`` in the update block
-        assert events["foo_spikes"][-1] == len(spike_times[3]) * connections.get("weight")[3] \
-               - len(spike_times[4]) * connections.get("weight")[4]
+        # corresponds to ``foo_spikes += foo[1] + 5.5 * foo[2]`` in the update block
+        assert events["foo_spikes"][-1] == len(spike_times[3]) * abs(connections.get("weight")[3]) \
+               + 5.5 * len(spike_times[4]) * abs(connections.get("weight")[4])
 
-        # corresponds to ``my_spikes_ip += my_spikes[1] - 2 * my_spikes[2] - 3 * my_spikes2[2]`` in the update block
-        assert events["my_spikes_ip"][-1] == len(spike_times[5]) * connections.get("weight")[5] \
-               - len(spike_times[6]) * connections.get("weight")[6] \
-               - len(spike_times[7]) * connections.get("weight")[7]
+        # corresponds to ``my_spikes_ip += my_spikes[1] + my_spikes[2] - my_spikes2[2]`` in the update block
+        assert events["my_spikes_ip"][-1] == len(spike_times[5]) * abs(connections.get("weight")[5]) \
+               + len(spike_times[6]) * abs(connections.get("weight")[6]) \
+               - len(spike_times[7]) * abs(connections.get("weight")[7])

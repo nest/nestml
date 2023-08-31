@@ -44,6 +44,6 @@ neuron input_ports:
         my_spikes2[3] pA <- inhibitory spike
 
     update:
-        bar += NMDA_spikes + 2 * AMPA_spikes + 3 * GABA_spikes
-        foo_spikes += foo[1] - foo[2]
-        my_spikes_ip += my_spikes[1] - my_spikes[2] - my_spikes2[2]
+        bar += NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes
+        foo_spikes += foo[1] + 5.5 * foo[2]
+        my_spikes_ip += my_spikes[1] + my_spikes[2] - my_spikes2[2]
