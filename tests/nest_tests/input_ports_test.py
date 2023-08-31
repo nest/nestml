@@ -24,7 +24,6 @@ import nest
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-
 class TestInputPorts:
     """
     Tests the different kind of input ports supported in NESTML.
@@ -95,4 +94,3 @@ class TestInputPorts:
         assert events["my_spikes_ip"][-1] == len(spike_times[5]) * connections.get("weight")[5] \
                - len(spike_times[6]) * connections.get("weight")[6] \
                - len(spike_times[7]) * connections.get("weight")[7]
-
