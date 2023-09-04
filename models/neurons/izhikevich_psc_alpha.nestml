@@ -47,8 +47,8 @@ neuron izhikevich_psc_alpha:
         kernel K_syn_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
         kernel K_syn_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes)
-        inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes)
+        inline I_syn_exc pA = convolve(K_syn_exc, exc_spikes) * pA
+        inline I_syn_inh pA = convolve(K_syn_inh, inh_spikes) * pA
 
         V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
         U_m' = a * ( b*(V_m - V_r) - U_m )
@@ -74,8 +74,8 @@ neuron izhikevich_psc_alpha:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
-        inh_spikes pA <- inhibitory spike
-        exc_spikes pA <- excitatory spike
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
     output:

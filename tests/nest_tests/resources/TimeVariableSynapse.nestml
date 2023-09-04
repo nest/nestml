@@ -35,7 +35,7 @@ synapse time_variable_synapse:
     d ms = 1 ms @nest::delay
 
   input:
-    pre_spikes real <- spike
+    pre_spikes <- spike
 
   update:
     x = t
