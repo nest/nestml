@@ -37,6 +37,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 namespace nest
 {
 
+///////////////////////////////////// channels
+
 {%- with %}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
 
@@ -59,11 +61,6 @@ private:
     // ion-channel root-inline value
     std::vector< double > i_tot_{{ion_channel_name}} = {};
 
-    //number of channels
-    std::size_t neuron_{{ ion_channel_name }}_channel_count = 0;
-
-    std::vector< std::size_t > compartment_association = {};
-
 public:
     // constructor, destructor
     {{ion_channel_name}}{{cm_unique_suffix}}();
@@ -72,13 +69,18 @@ public:
     std::size_t new_channel(std::size_t comp_ass);
     std::size_t new_channel(std::size_t comp_ass, const DictionaryDatum& channel_params);
 
+    //number of channels
+    std::size_t neuron_{{ ion_channel_name }}_channel_count = 0;
+
+    std::vector< std::size_t > compartment_association = {};
+
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
     void calibrate() {
 {%- else %}
     void pre_run_hook() {
 {%- endif %}
-        for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
+        for(std::size_t channel_id = 0; channel_id < neuron_{{ ion_channel_name }}_channel_count; channel_id++){
             // states
     {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -92,14 +94,14 @@ public:
         {%- set rhs_expression = variable_info["rhs_expression"] %}
             {{ variable.name }}[comp_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "channel_id") }};
     {%- endfor %}
-        }
+        };
     };
 
     void append_recordables(std::map< Name, double* >* recordables,
                             const long compartment_idx, std::size_t channel_id);
 
     // numerical integration step
-    std::pair< double, double > f_numstep( vector< double >& v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, vector< double >& {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+    std::pair< vector< double >, vector< double > > f_numstep( vector< double >& v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, vector< double >& {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, vector< double >& {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, vector< double >& {{inline.variable_name}}{% endfor %});
 
@@ -110,11 +112,196 @@ public:
 {%- endfor %}
 
     // root_inline getter
-    double get_current_{{ion_channel_name}}(std::size_t channel_id);
+    void get_currents_per_compartment_{{ion_channel_name}}(std::vector< double >& compartment_to_current);
+
+    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
 
 };
 {% endfor -%}
 {% endwith -%}
+
+
+///////////////////////////////////////////// concentrations
+
+{%- with %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+
+class {{ concentration_name }}{{cm_unique_suffix}}{
+private:
+    // parameters
+    {%- for pure_variable_name, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    std::vector< {{ render_variable_type(variable) }} > {{ variable.name }} = {};
+    {%- endfor %}
+
+    // states
+    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    std::vector< {{ render_variable_type(variable) }} > {{ variable.name }} = {};
+    {%- endfor %}
+
+    // concentration value (root-ode state)
+    std::vector< double > {{concentration_name}} = {};
+
+public:
+    // constructor, destructor
+    {{ concentration_name }}{{cm_unique_suffix}}();
+    ~{{ concentration_name }}{{cm_unique_suffix}}(){};
+
+    std::size_t new_concentration(std::size_t comp_ass);
+    std::size_t new_concentration(std::size_t comp_ass, const DictionaryDatum& concentration_params);
+
+    //number of channels
+    std::size_t neuron_{{ ion_channel_name }}_concentration_count = 0;
+
+    std::vector< std::size_t > compartment_association = {};
+
+    // initialization concentration
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+    void calibrate() {
+{%- else %}
+    void pre_run_hook() {
+{%- endif %}
+    for(std::size_t concentration_id = 0; concentration_id < neuron_{{ concentration_name }}_channel_count; concentration_id++){
+    // states
+    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name }}[comp_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "concentration_id") }};
+    {%- endfor %}
+    }
+    };
+    void append_recordables(std::map< Name, double* >* recordables,
+                            const long compartment_idx, std::size_t concentration_id);
+
+    // numerical integration step
+    std::pair< vector< double >, vector< double > > f_numstep( vector< double >& v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, vector< double >& {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, vector< double >& {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, vector< double >& {{inline.variable_name}}{% endfor %});
+
+    // function declarations
+{%- for function in concentration_info["Functions"] %}
+    {{ function_declaration.FunctionDeclaration(function) }};
+{%- endfor %}
+
+    // root_ode getter
+    void get_concentrations_per_compartment_{{concentration_name}}(std::vector< double >& compartment_to_concentration);
+
+    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+
+};
+{% endfor -%}
+{% endwith -%}
+
+
+////////////////////////////////////////////////// synapses
+
+{% macro render_time_resolution_variable(synapse_info) -%}
+{# we assume here that there is only one such variable ! #}
+{%- with %}
+{%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
+{%- if analytic_helper_info["is_time_resolution"] -%}
+    {{ analytic_helper_name }}
+{%- endif -%}
+{%- endfor -%}
+{% endwith %}
+{%- endmacro %}
+
+{%- with %}
+{%- for synapse_name, synapse_info in syns_info.items() %}
+
+class {{synapse_name}}{{cm_unique_suffix}}{
+private:
+  // global synapse index
+  long syn_idx = 0;
+
+  // propagators, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
+  // kernel state variables, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
+  // user defined parameters, initialized via pre_run_hook() or calibrate()
+  {%- for param_name, param_declaration in synapse_info["Parameters"].items() %}
+  std::vector< double > {{param_name}};
+  {%- endfor %}
+
+      // states
+    {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {}
+        };
+    {%- endfor %}
+
+  std::vector< double > i_tot_{{synapse_name}} = {};
+
+  // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
+  {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
+  std::vector< double > {{internal_name}};
+  {%- endfor %}
+
+
+
+  // spike buffer
+  std::vector< RingBuffer* > {{synapse_info["buffer_name"]}}_;
+
+public:
+  // constructor, destructor
+  {{synapse_name}}{{cm_unique_suffix}}();
+  ~{{synapse_name}}{{cm_unique_suffix}}(){};
+
+  std::size_t new_synapse(std::size_t comp_ass);
+  std::size_t new_synapse(std::size_t comp_ass, const DictionaryDatum& synapse_params);
+
+  //number of synapses
+  std::size_t neuron_{{ synapse_name }}_synapse_count = 0;
+
+  std::vector< std::size_t > compartment_association = {};
+
+  // numerical integration step
+  std::pair< vector< double >, vector< double > > f_numstep( vector< double >& v_comp{% for ode in synapse_info["Dependencies"]["concentrations"] %}, vector< double >& {{ode.lhs.name}}{% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, vector< double >& {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, vector< double >& {{inline.variable_name}}{% endfor %});
+
+  // calibration
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  void calibrate();
+{%- else %}
+  void pre_run_hook();
+{%- endif %}
+  void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx, std::size_t synapse_id);
+  void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers, std::size_t synapse_id )
+  {
+    {{synapse_info["buffer_name"]}}_[synapse_id] = &syn_buffers[ synapse_id ];
+  };
+
+  // function declarations
+  {%- for function in synapse_info["Functions"] %}
+  {{ function_declaration.FunctionDeclaration(function, "") -}};
+
+  {% endfor %}
+
+    // root_inline getter
+    void get_currents_per_compartment_{{synapse_name}}(std::vector< double >& compartment_to_current);
+
+    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+
+};
+
+{% endfor -%}
+{% endwith -%}
+
 
 ///////////////////////////////////////////// currents
 
@@ -143,6 +330,9 @@ private:
   {{synapse_name}}{{cm_unique_suffix}} {{synapse_name}}{{synapse_suffix}};
   {% endfor -%}
 {% endwith %}
+
+  //number of compartments
+  std::size_t compartment_number = 0;
 
   //interdependency shared reference vectors
   // ion channels
@@ -259,7 +449,7 @@ public:
   {%- for ion_channel_name, channel_info in chan_info.items() %}
     if ( type == "{{ion_channel_name}}" )
     {
-      {{ion_channel_name}}{{channel_suffix}}.new_channel(compartment_id);
+      {{ion_channel_name}}{{channel_suffix}}.new_channel(compartment_id, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}
@@ -267,7 +457,7 @@ public:
   {%- for concentration_name, concentration_info in conc_info.items() %}
     if ( type == "{{concentration_name}}" )
     {
-      {{concentration_name}}{{channel_suffix}}.new_concentration(compartment_id);
+      {{concentration_name}}{{channel_suffix}}.new_concentration(compartment_id, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}
@@ -275,7 +465,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{channel_suffix}}.new_synapse(compartment_id);
+      {{synapse_name}}{{channel_suffix}}.new_synapse(compartment_id, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}
@@ -286,16 +476,40 @@ public:
     }
   };
 
+  void add_compartment(){
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    this->add_mechanism("{{ ion_channel_name }}", compartment_number);
+    }
+    {% endfor -%}
+
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    this->add_mechanism("{{ concentration_name }}", compartment_number);
+    {% endfor -%}
+    compartment_number++;
+  };
+
+  void add_compartment(const DictionaryDatum& compartment_params){
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    this->add_mechanism("{{ ion_channel_name }}", compartment_number, compartment_params);
+    }
+    {% endfor -%}
+
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    this->add_mechanism("{{ concentration_name }}", compartment_number, compartment_params);
+    {% endfor -%}
+    compartment_number++;
+  };
+
   void
   add_receptor_info( ArrayDatum& ad, const long compartment_index )
   {
 
     {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
-    for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
+    for( auto syn_it = 0; syn_it != {{synapse_name}}{{synapse_suffix}}.neuron_{{synapse_name}}_synapse_count; syn_it++)
     {
       DictionaryDatum dd = DictionaryDatum( new Dictionary );
-      def< long >( dd, names::receptor_idx, syn_it->get_syn_idx() );
+      def< long >( dd, names::receptor_idx, syn_it );
       def< long >( dd, names::comp_idx, compartment_index );
       def< std::string >( dd, names::receptor_type, "{{synapse_name}}" );
       ad.push_back( dd );
@@ -345,61 +559,66 @@ public:
     return recordables;
   };
 
-  std::pair< double, double >
+  calculate_interdependence_values(){
+
+ };
+
+  std::vector< std::pair< double, double > >
   f_numstep( vector< double > v_comp, const long lag )
   {
-    std::pair< double, double > gi(0., 0.);
+    std::vector< pair< double, double > comp_to_gi(compartment_number, (0., 0.));
 {%- for synapse_name, synapse_info in syns_info.items() %}
-    double {{synapse_name}}{{channel_suffix}}current_sum = 0;
-    for( auto syn_it = {{synapse_name}}_syns_.begin();
-         syn_it != {{synapse_name}}_syns_.end();
-         ++syn_it )
-    {
-        {{synapse_name}}{{channel_suffix}}current_sum += syn_it->get_current_{{synapse_name}}();
-    }
+    {{synapse_name}}{{synapse_suffix}}.get_currents_per_compartment({{synapse_name}}{{synapse_suffix}}_shared_current)
 {% endfor %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+    {{ concentration_name }}{{concentration_suffix}}.get_concentrations_per_compartment({{concentration_name}}{{concentration_suffix}}_shared_concentration);
+{% endfor -%}
+{%- for ion_channel_name, channel_info in chan_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}}.get_currents_per_compartment({{ion_channel_name}}{{channel_suffix}}_shared_current)
+{% endfor -%}
+
 
   {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     // computation of {{ concentration_name }} concentration
-    {{ concentration_name }}{{concentration_suffix}}.f_numstep( v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_current_sum{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current_{{inline.variable_name}}(){% endfor %});
+    {{ concentration_name }}{{concentration_suffix}}.f_numstep( v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
 
     {% endfor -%}
   {% endwith -%}
+
+    std::pair< std::vector< double >, std::vector< double > > gi_mech;
 
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
-    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_current_sum{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current_{{inline.variable_name}}(){% endfor %});
+    gi_mech = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
 
-    g_val += gi.first;
-    i_val += gi.second;
-
+    for(std::size_t chan_id = 0; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
+        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].first += gi_mech.first[chan_id];
+        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].second += gi_mech.second[chan_id];
+    }
     {% endfor -%}
   {% endwith -%}
 
   {%- with %}
-  {%- for synapse_name, synapse_info in syns_info.items() %}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
     // contribution of {{synapse_name}} synapses
-    for( auto syn_it = {{synapse_name}}_syns_.begin();
-         syn_it != {{synapse_name}}_syns_.end();
-         ++syn_it )
-    {
-      gi = syn_it->f_numstep( v_comp, lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, {{inline.variable_name}}{{channel_suffix}}_current_sum{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current{{inline.variable_name}}(){% endfor %});
+    gi_mech = {{synapse_name}}{{synapse_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
 
-      g_val += gi.first;
-      i_val += gi.second;
+    for(std::size_t chan_id = 0; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
+        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].first += gi_mech.first[chan_id];
+        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].second += gi_mech.second[chan_id];
     }
-  {% endfor -%}
+    {% endfor -%}
   {% endwith -%}
 
-    return std::make_pair(g_val, i_val);
+    return comp_to_gi;
   };
 };
 

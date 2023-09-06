@@ -44,12 +44,9 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
   v_comp = el;
-
-  compartment_currents = CompartmentCurrents{{cm_unique_suffix}}();
 }
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
-  const long parent_index,
-  const DictionaryDatum& compartment_params )
+  const long parent_index)
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
@@ -77,8 +74,6 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   updateValue< double >( compartment_params, names::e_L, el );
 
   v_comp = el;
-
-  compartment_currents = CompartmentCurrents{{cm_unique_suffix}}( compartment_params );
 }
 
 void
@@ -88,11 +83,6 @@ nest::Compartment{{cm_unique_suffix}}::calibrate()
 nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  compartment_currents.calibrate();
-{%- else %}
-  compartment_currents.pre_run_hook();
-{%- endif %}
 
   const double dt = Time::get_resolution().get_ms();
   ca__div__dt = ca / dt;
@@ -108,7 +98,7 @@ nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
 std::map< Name, double* >
 nest::Compartment{{cm_unique_suffix}}::get_recordables()
 {
-  std::map< Name, double* > recordables = compartment_currents.get_recordables( comp_index );
+  std::map< Name, double* > recordables;
 
   recordables.insert( recordables.begin(), recordables.end() );
   recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = &v_comp;
@@ -118,7 +108,7 @@ nest::Compartment{{cm_unique_suffix}}::get_recordables()
 
 // for matrix construction
 void
-nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( const long lag )
+nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( std::pair< double, double > comp_gi, const long lag )
 {
   // matrix diagonal element
   gg = gg0;
@@ -149,9 +139,8 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( const long lag 
   }
 
   // add all currents to compartment
-  std::pair< double, double > gi = compartment_currents.f_numstep( v_comp, lag );
-  gg += gi.first;
-  ff += gi.second;
+  gg += comp_gi.first;
+  ff += comp_gi.second;
 
   // add input current
   ff += currents.get_value( lag );
@@ -175,6 +164,7 @@ void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index )
 {
   Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}( size_, parent_index );
+  neuron_currents.add_compartment();
   add_compartment( compartment, parent_index );
 }
 
@@ -182,6 +172,7 @@ void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
 {
   Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}( size_, parent_index, compartment_params );
+  neuron_currents.add_compartment(compartment_params);
   add_compartment( compartment, parent_index );
 }
 
@@ -354,7 +345,7 @@ nest::CompTree{{cm_unique_suffix}}::set_syn_buffers( std::vector< RingBuffer >& 
 std::map< Name, double* >
 nest::CompTree{{cm_unique_suffix}}::get_recordables()
 {
-  std::map< Name, double* > recordables;
+  std::map< Name, double* > recordables = neuron_currents.get_recordables( comp_index )
 
   /**
    * add recordables for all compartments, suffixed by compartment_idx,
@@ -388,9 +379,9 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    ( *compartment_it )->calibrate();
+    neuron_currents.calibrate();
 {%- else %}
-    ( *compartment_it )->pre_run_hook();
+    neuron_currents.pre_run_hook();
 {%- endif %}
   }
 }
@@ -424,9 +415,15 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartm
 void
 nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
+  std::map< size_t, double > v_comps;
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
-    ( *compartment_it )->construct_matrix_element( lag );
+    v_comps[( *compartment_it )->comp_index] = ( *compartment_it )->v_comp;
+  }
+  std::vector< std::pair< double, double > > comps_gi = neuron_currents.f_numstep( v_comps, lag );
+  for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
+  {
+    ( *compartment_it )->construct_matrix_element( comps_gi[( *compartment_it )->comp_index], lag );
   }
 }
 

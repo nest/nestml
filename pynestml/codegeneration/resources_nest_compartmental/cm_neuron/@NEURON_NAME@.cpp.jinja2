@@ -90,7 +90,7 @@ void
     compartment_ad.push_back( dd );
 
     // add receptor info
-    compartment->compartment_currents.add_receptor_info( receptor_ad, compartment->comp_index );
+    c_tree_.neuron_currents.add_receptor_info( receptor_ad, compartment->comp_index );
   }
   // add compartment info and receptor info to the status dictionary
   def< ArrayDatum >( statusdict, names::compartments, compartment_ad );
@@ -227,12 +227,12 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( compartment_idx );
   if ( dd->known( names::params ) )
   {
-    compartment->compartment_currents.add_synapse(
-      receptor_type, syn_idx, getValue< DictionaryDatum >( dd, names::params ) );
+    c_tree_.neuron_currents.add_mechanism(
+      receptor_type, compartment_idx, getValue< DictionaryDatum >( dd, names::params ) );
   }
   else
   {
-    compartment->compartment_currents.add_synapse( receptor_type, syn_idx );
+    c_tree_.neuron_currents.add_synapse( receptor_type, compartment_idx );
   }
 }
 
