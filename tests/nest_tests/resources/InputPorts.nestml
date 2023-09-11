@@ -36,12 +36,13 @@ neuron input_ports:
         my_spikes_ip pA = 0 pA
 
     input:
-        AMPA_spikes pA <- excitatory spike
-        GABA_spikes pA <- inhibitory spike
-        NMDA_spikes pA <- spike
-        foo[2] pA <- spike
-        my_spikes[3] pA <- excitatory spike
-        my_spikes2[3] pA <- inhibitory spike
+        AMPA_spikes <- excitatory spike
+        GABA_spikes <- inhibitory spike
+        NMDA_spikes <- spike
+        foo[2] <- spike
+        my_spikes[3] <- excitatory spike
+        my_spikes2[3] <- inhibitory spike
+        I_stim pA <- continuous
 
     update:
         bar += NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes

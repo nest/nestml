@@ -31,7 +31,7 @@ neuron ignore_and_fire:
     phase_steps integer = steps( max(0.,phase) / firing_rate ) ## firing phase in steps
 
   input:
-    spikes Bq <- spike   ## the neuron receives spikes, but is not processing them
+    spikes <- spike   ## the neuron receives spikes, but is not processing them
 
   output:
     spike

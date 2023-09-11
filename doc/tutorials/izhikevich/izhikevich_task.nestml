@@ -15,7 +15,7 @@ neuron izhikevich_tutorial:
         # TODO: add remaining variables
 
     input:
-        spikes mV <- spike
+        spikes <- spike
         I_e pA <- continuous
 
     output:
@@ -25,7 +25,7 @@ neuron izhikevich_tutorial:
         integrate_odes()
 
         # add synaptic current
-        v += spikes
+        v += spikes * mV * s
 
         # TODO: implement threshold crossing check
 

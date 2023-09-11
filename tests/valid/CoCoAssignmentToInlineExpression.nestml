@@ -38,7 +38,7 @@ neuron CoCoAssignmentToInlineExpression:
         inline foo real = convolve(alpha_kernel, spikes_in)
 
     input:
-        spikes_in real <- spike
+        spikes_in <- spike
 
     update:
         foo = 42.

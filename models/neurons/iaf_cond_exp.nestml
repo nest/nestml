@@ -35,8 +35,8 @@ neuron iaf_cond_exp:
         kernel g_inh = exp(-t/tau_syn_inh) # inputs from the inh conductance
         kernel g_exc = exp(-t/tau_syn_exc) # inputs from the exc conductance
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * ( V_m - E_inh )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
         inline I_leak pA = g_L * ( V_m - E_L )
         V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
 
@@ -59,8 +59,8 @@ neuron iaf_cond_exp:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
-        inh_spikes nS <- inhibitory spike
-        exc_spikes nS <- excitatory spike
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
     output:
