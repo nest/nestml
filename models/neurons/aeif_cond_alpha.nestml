@@ -44,7 +44,7 @@ neuron aeif_cond_alpha:
     state:
         V_m mV = E_L       # Membrane potential
         w pA = 0 pA        # Spike-adaptation current
-        r integer          # Counts number of tick during the refractory period
+        r integer = 0      # Counts number of tick during the refractory period
 
     equations:
         inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
