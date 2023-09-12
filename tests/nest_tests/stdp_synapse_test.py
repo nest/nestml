@@ -95,7 +95,6 @@ class TestNestSTDPSynapse:
         nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")
 
-
     @pytest.mark.parametrize("delay", [1., 1.5])
     @pytest.mark.parametrize("resolution", [.1, .5, 1.])
     @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
