@@ -496,11 +496,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.get_vector_parameter() is not None:
             node.get_vector_parameter().update_scope(node.get_scope())
 
-        if "_is_numeric" in dir(node):
-            symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
-            if symbol:
-                symbol._is_numeric = node._is_numeric
-
     def visit_inline_expression(self, node):
         """
         Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
