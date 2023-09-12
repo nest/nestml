@@ -29,6 +29,7 @@ import nest
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.utils.string_utils import removeprefix, removesuffix
 
 try:
     import matplotlib
@@ -162,7 +163,7 @@ class NestIntegrationTest(unittest.TestCase):
         s += "Synapse models\n~~~~~~~~~~~~~~\n\n"
 
         synapse_models = []
-        synapse_models.append(("static", "static_synapse.nestml"))
+        synapse_models.append(("static_synapse", "static_synapse.nestml"))
         synapse_models.append(("noisy_synapse", "noisy_synapse.nestml"))
         synapse_models.append(("stdp", "stdp_synapse.nestml"))
         synapse_models.append(("stdp_nn_pre_centered", "stdp_nn_pre_centered.nestml"))
@@ -192,7 +193,7 @@ class NestIntegrationTest(unittest.TestCase):
         untested_models = copy.deepcopy(allmodels)
         for model in models:
             model_fname = model[1]
-            assert model_fname.removesuffix(".nestml") in allmodels
+            assert removesuffix(model_fname, ".nestml") in allmodels
             if model_fname in untested_models:
                 untested_models.remove(model_fname)
         print("untested_models = " + str(untested_models))
@@ -202,7 +203,7 @@ class NestIntegrationTest(unittest.TestCase):
         for model in models:
             model_name = model[0]
             model_fname = model[1]
-            model_fname_stripped = model_fname.removesuffix(".nestml")
+            model_fname_stripped = removesuffix(model_fname, ".nestml")
 
             if model_fname_stripped in untested_models:
                 untested_models.remove(model_fname_stripped)
@@ -213,8 +214,8 @@ class NestIntegrationTest(unittest.TestCase):
 
             model_doc_title = get_model_doc_title(os.path.join("models", "synapses", model_fname))
             if model_doc_title.startswith(model_name):
-                model_doc_title = model_doc_title.removeprefix(model_name)
-                model_doc_title = model_doc_title.removeprefix(" - ")
+                model_doc_title = removeprefix(model_doc_title, model_name)
+                model_doc_title = removeprefix(model_doc_title, " - ")
             s += "\n" + model_doc_title + "\n"
 
             s += "\n"
@@ -232,8 +233,8 @@ class NestIntegrationTest(unittest.TestCase):
 
             model_doc_title = get_model_doc_title(os.path.join("models", "synapses", model_fname))
             if model_doc_title.startswith(model_name):
-                model_doc_title = model_doc_title.removeprefix(model_name)
-                model_doc_title = model_doc_title.removeprefix(" - ")
+                model_doc_title = removeprefix(model_doc_title, model_name)
+                model_doc_title = removeprefix(model_doc_title, " - ")
             s += "\n" + model_doc_title + "\n"
 
             s += "\n"
@@ -291,8 +292,8 @@ class NestIntegrationTest(unittest.TestCase):
 
             model_doc_title = get_model_doc_title(os.path.join("models", "neurons", model_fname))
             if model_doc_title.startswith(model_name):
-                model_doc_title = model_doc_title.removeprefix(model_name)
-                model_doc_title = model_doc_title.removeprefix(" - ")
+                model_doc_title = removeprefix(model_doc_title, model_name)
+                model_doc_title = removeprefix(model_doc_title, " - ")
             s += "\n" + model_doc_title + "\n"
 
             s += "\n"
@@ -337,8 +338,8 @@ class NestIntegrationTest(unittest.TestCase):
 
             model_doc_title = get_model_doc_title(os.path.join("models", "neurons", model_fname))
             if model_doc_title.startswith(model_name):
-                model_doc_title = model_doc_title.removeprefix(model_name)
-                model_doc_title = model_doc_title.removeprefix(" - ")
+                model_doc_title = removeprefix(model_doc_title, model_name)
+                model_doc_title = removeprefix(model_doc_title, " - ")
             s += "\n" + model_doc_title + "\n"
 
             s += "\n"

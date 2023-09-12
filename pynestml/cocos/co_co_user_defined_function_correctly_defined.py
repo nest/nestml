@@ -39,11 +39,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
     Allowed:
         function foo(...) bool:
             return True
-        end
     Not allowed:
         function foo(...) bool:
             return
-        end
     Attributes:
         __processedFunction (ast_function): A reference to the currently processed function.
     """

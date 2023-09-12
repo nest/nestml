@@ -45,7 +45,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "autodoc", "none"]
+    targets = ["NEST", "python_standalone", "autodoc", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -73,6 +73,14 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
+    if target_name.upper() in ["PYTHON_STANDALONE"]:
+        from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
+
+        # rewrite all Python keywords
+        # from: ``import keyword; print(keyword.kwlist)``
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']})
+        transformers.append(variable_name_rewriter)
+
     return transformers, options
 
 
@@ -83,6 +91,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
         return NESTCodeGenerator(options)
+
+    if target_name.upper() == "PYTHON_STANDALONE":
+        from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+        return PythonStandaloneCodeGenerator(options)
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
@@ -99,7 +111,7 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     # static checker warnings
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Builder:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
@@ -107,9 +119,11 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
 
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_builder import NESTBuilder
-        return NESTBuilder(options)
+        nest_builder = NESTBuilder(options)
+        remaining_options = nest_builder.set_options(options)
+        return nest_builder, remaining_options
 
-    return None  # no builder requested or available
+    return None, options  # no builder requested or available
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
@@ -140,6 +154,17 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+
+    configure_front_end(input_path, target_platform, target_path, install_path, logging_level,
+                        module_name, store_log, suffix, dev, codegen_opts)
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
+
+
+def configure_front_end(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
+                        install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                        dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
+
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -181,9 +206,6 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     if codegen_opts:
         FrontendConfiguration.set_codegen_opts(codegen_opts)
 
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
-
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                          install_path: Optional[str] = None, logging_level="ERROR",
@@ -217,6 +239,35 @@ def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Opt
                     dev=dev, codegen_opts=codegen_opts)
 
 
+def generate_python_standalone_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                                      logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
+                                      suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
+    r"""Generate and build code for the standalone Python target.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        The name of the generated Python module.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="python_standalone", target_path=target_path,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    codegen_opts=codegen_opts)
+
+
 def main() -> int:
     """
     Entry point for the command-line application.
@@ -235,18 +286,17 @@ def main() -> int:
     return int(process())
 
 
-def process():
+def get_parsed_models():
     r"""
-    The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
+   Handle the parsing and validation of the NESTML files
 
     Returns
     -------
+    models: Sequence[Union[ASTNeuron, ASTSynapse]]
+        List of correctly parsed models
     errors_occurred : bool
         Flag indicating whether errors occurred during processing
     """
-
-    errors_occurred = False
-
     # init log dir
     create_report_dir()
 
@@ -262,22 +312,11 @@ def process():
 
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_model(nestml_file)
-        if parsed_unit is not None:
-            compilation_units.append(parsed_unit)
+        if parsed_unit is None:
+            # Parsing error in the NESTML model, return True
+            return [],  True
 
-    # initialize and set options for transformers, code generator and builder
-    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
-    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                                           options=codegen_and_builder_opts)
-    _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
-    codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
-    _builder = builder_from_target_name(FrontendConfiguration.get_target_platform())
-
-    if _builder is not None:
-        codegen_and_builder_opts = _builder.set_options(codegen_and_builder_opts)
-
-    if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+        compilation_units.append(parsed_unit)
 
     if len(compilation_units) > 0:
         # generate a list of all neurons + synapses
@@ -290,30 +329,60 @@ def process():
         CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev:
-            for model in models:
-                if Logger.has_errors(model):
-                    code, message = Messages.get_model_contains_errors(model.get_name())
-                    Logger.log_message(node=model, code=code, message=message,
-                                       error_position=model.get_source_position(),
-                                       log_level=LoggingLevel.WARNING)
-                    models.remove(model)
-                    errors_occurred = True
-
-        # run transformers
-        for transformer in transformers:
-            models = transformer.transform(models)
-
-        # perform code generation
-        _codeGenerator.generate_code(models)
         for model in models:
             if Logger.has_errors(model):
-                errors_occurred = True
-                break
+                code, message = Messages.get_model_contains_errors(model.get_name())
+                Logger.log_message(node=model, code=code, message=message,
+                                   error_position=model.get_source_position(),
+                                   log_level=LoggingLevel.WARNING)
+                return [model], True
 
-    # perform build
-    if not errors_occurred and _builder is not None:
-        _builder.build()
+        return models, False
+
+
+def transform_models(transformers, models):
+    for transformer in transformers:
+        models = transformer.transform(models)
+    return models
+
+
+def generate_code(code_generators, models):
+    code_generators.generate_code(models)
+
+
+def process():
+    r"""
+    The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
+
+    Returns
+    -------
+    errors_occurred : bool
+        Flag indicating whether errors occurred during processing
+    """
+
+    # initialize and set options for transformers, code generator and builder
+    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+
+    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                           options=codegen_and_builder_opts)
+
+    code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
+    codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
+
+    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
+
+    if len(codegen_and_builder_opts) > 0:
+        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+
+    models, errors_occurred = get_parsed_models()
+
+    if not errors_occurred:
+        models = transform_models(transformers, models)
+        generate_code(code_generator, models)
+
+        # perform build
+        if _builder is not None:
+            _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()

@@ -45,20 +45,20 @@ def nestml_generate_target():
 
     # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
     files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
+             os.path.join("models", "neurons", "izhikevich.nestml"),
              os.path.join("models", "synapses", "stdp_synapse.nestml")]
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
-                         target_path="/tmp/nestml-jit",
-                         logging_level="INFO",
-                         module_name="nestml_jit_module",
+                         logging_level="DEBUG",
                          suffix="_nestml",
-                         codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                                       "neuron_parent_class_include": "structural_plasticity_node.h",
-                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                         codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                                                                 "synapse": "stdp",
+                                                                 "post_ports": ["post_spikes"]},
+                                                                {"neuron": "izhikevich",
                                                                  "synapse": "stdp",
                                                                  "post_ports": ["post_spikes"]}]})
-    nest.Install("nestml_jit_module")
+    nest.Install("nestmlmodule")
 
 
 def run_stdp_network(pre_spike_time, post_spike_time,
@@ -67,7 +67,6 @@ def run_stdp_network(pre_spike_time, post_spike_time,
                      resolution=1.,  # [ms]
                      delay=1.,  # [ms]
                      sim_time=None,  # if None, computed from pre and post spike times
-                     fname_snip="",
                      custom_synapse_properties=None):
 
     print("Pre spike time: " + str(pre_spike_time))
@@ -82,7 +81,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     if "__with" in synapse_model_name:
         weight_variable_name = "w"
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "the_delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+                       {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "d": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
     else:
         weight_variable_name = "weight"
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
@@ -136,12 +135,11 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     return dt, dw
 
 
-@pytest.mark.parametrize("neuron_model_name", ["iaf_psc_delta_nestml__with_stdp_nestml"])
-@pytest.mark.parametrize("synapse_model_name", ["stdp_nestml__with_iaf_psc_delta_nestml"])
+@pytest.mark.parametrize("neuron_model_name,synapse_model_name", [("iaf_psc_delta_nestml__with_stdp_nestml", "stdp_nestml__with_iaf_psc_delta_nestml"),
+                                                                  ("izhikevich_nestml__with_stdp_nestml", "stdp_nestml__with_izhikevich_nestml")])
 def test_nest_stdp_synapse(neuron_model_name: str, synapse_model_name: str, fname_snip: str = ""):
-    fname = "stdp_window_test"
-    if len(fname_snip) > 0:
-        fname += "_" + fname_snip
+    fname_snip += "_[neuron=" + neuron_model_name + "]"
+    fname_snip += "_[synapse=" + synapse_model_name + "]"
 
     sim_time = 1000.  # [ms]
     pre_spike_time = 100.  # sim_time / 2  # [ms]
@@ -153,14 +151,13 @@ def test_nest_stdp_synapse(neuron_model_name: str, synapse_model_name: str, fnam
 
     dt_vec = []
     dw_vec = []
-    for post_spike_time in np.arange(25, 175).astype(float) - delay:
+    for post_spike_time in np.linspace(25, 175, 31) - delay:
         dt, dw = run_stdp_network(pre_spike_time, post_spike_time,
                                   neuron_model_name,
                                   synapse_model_name,
                                   resolution=1.,  # [ms]
                                   delay=delay,  # [ms]
                                   sim_time=sim_time,  # if None, computed from pre and post spike times
-                                  fname_snip=fname_snip,
                                   custom_synapse_properties={"lambda": 1E-6, "alpha": 1.})
 
         dt_vec.append(dt)
@@ -176,4 +173,5 @@ def test_nest_stdp_synapse(neuron_model_name: str, synapse_model_name: str, fnam
             _ax.grid(which="major", axis="both")
             _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
 
+        fig.suptitle("Neuron model: " + str(neuron_model_name.split("__with_")[0]))
         fig.savefig("/tmp/stdp_synapse_test" + fname_snip + "_window.png", dpi=300)

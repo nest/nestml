@@ -603,9 +603,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
     def visitBlockWithVariables(self, ctx):
         declarations = list()
-        if ctx.declaration() is not None:
-            for child in ctx.declaration():
-                declarations.append(self.visit(child))
+        if ctx.declaration_newline() is not None:
+            for child in ctx.declaration_newline():
+                declarations.append(self.visit(child.declaration()))
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
         if block_type == 'state':
@@ -650,8 +650,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
     def visitInputBlock(self, ctx):
         input_ports = []
-        if ctx.inputPort() is not None:
-            for port in ctx.inputPort():
+        if ctx.spikeInputPort() is not None:
+            for port in ctx.spikeInputPort():
+                input_ports.append(self.visit(port))
+        if ctx.continuousInputPort() is not None:
+            for port in ctx.continuousInputPort():
                 input_ports.append(self.visit(port))
         ret = ASTNodeFactory.create_ast_input_block(input_definitions=input_ports,
                                                     source_position=create_source_pos(ctx))
@@ -659,22 +662,31 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#inputPort.
-    def visitInputPort(self, ctx):
+    def visitSpikeInputPort(self, ctx):
         name = str(ctx.name.text) if ctx.name is not None else None
-        size_parameter = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
+        size_parameter = None
+        if ctx.sizeParameter is not None:
+            size_parameter = self.visit(ctx.sizeParameter)
         input_qualifiers = []
         if ctx.inputQualifier() is not None:
             for qual in ctx.inputQualifier():
                 input_qualifiers.append(self.visit(qual))
-        data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
-        if ctx.isContinuous:
-            signal_type = PortSignalType.CONTINUOUS
-        elif ctx.isSpike:
-            signal_type = PortSignalType.SPIKE
-        else:
-            signal_type = None
-        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
+        signal_type = PortSignalType.SPIKE
+        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=None,
                                                    input_qualifiers=input_qualifiers, signal_type=signal_type,
+                                                   source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
+        return ret
+
+    def visitContinuousInputPort(self, ctx):
+        name = str(ctx.name.text) if ctx.name is not None else None
+        size_parameter = None
+        if ctx.sizeParameter is not None:
+            size_parameter = self.visit(ctx.sizeParameter)
+        data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
+        signal_type = PortSignalType.CONTINUOUS
+        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
+                                                   input_qualifiers=None, signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
@@ -745,7 +757,6 @@ def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]
     node.in_comment = comments[2]
-    node.post_comments = comments[3]
 
 
 def get_next(_elements=list()):

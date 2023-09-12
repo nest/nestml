@@ -40,6 +40,8 @@ class PredefinedFunctions:
         COSH                  The callee name of the hyperbolic cosine.
         SINH                  The callee name of the hyperbolic sine.
         TANH                  The callee name of the hyperbolic tangent.
+        ERF                   The callee name of the error function
+        ERFC                  The callee name of the complementary error function
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
@@ -47,9 +49,13 @@ class PredefinedFunctions:
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         CLIP                  The callee name of the clip function.
+        POW                   The callee name of the pow function.
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
         ABS                   The callee name of the abs function.
+        CEIL                  The callee name of the ceil function.
+        FLOOR                 The callee name of the floor function.
+        ROUND                 The callee name of the round function.
         INTEGRATE_ODES        The callee name of the integrate_odes function.
         CONVOLVE              The callee name of the convolve function.
         name2function         A dict of function symbols as currently defined.
@@ -65,6 +71,8 @@ class PredefinedFunctions:
     COSH = 'cosh'
     SINH = 'sinh'
     TANH = 'tanh'
+    ERF = 'erf'
+    ERFC = 'erfc'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
     RANDOM_NORMAL = 'random_normal'
@@ -72,9 +80,13 @@ class PredefinedFunctions:
     EXPM1 = 'expm1'
     DELTA = 'delta'
     CLIP = 'clip'
+    POW = 'pow'
     MAX = 'max'
     MIN = 'min'
     ABS = 'abs'
+    CEIL = 'ceil'
+    FLOOR = 'floor'
+    ROUND = 'round'
     INTEGRATE_ODES = 'integrate_odes'
     CONVOLVE = 'convolve'
     DELIVER_SPIKE = 'deliver_spike'
@@ -97,6 +109,8 @@ class PredefinedFunctions:
         cls.__register_cosh_function()
         cls.__register_sinh_function()
         cls.__register_tanh_function()
+        cls.__register_erf_function()
+        cls.__register_erfc_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_normal_function()
@@ -104,9 +118,13 @@ class PredefinedFunctions:
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_clip_function()
+        cls.__register_pow_function()
         cls.__register_max_function()
         cls.__register_min_function()
         cls.__register_abs_function()
+        cls.__register_ceil_function()
+        cls.__register_floor_function()
+        cls.__register_round_function()
         cls.__register_integrated_odes_function()
         cls.__register_convolve()
         cls.__register_deliver_spike()
@@ -239,6 +257,30 @@ class PredefinedFunctions:
         cls.name2function[cls.TANH] = symbol
 
     @classmethod
+    def __register_erf_function(cls):
+        """
+        Registers the error function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.ERF, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ERF] = symbol
+
+    @classmethod
+    def __register_erfc_function(cls):
+        """
+        Registers the complementary error function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.ERFC, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ERFC] = symbol
+
+    @classmethod
     def __register_logger_info_function(cls):
         """
         Registers the logger info method into the scope.
@@ -347,6 +389,19 @@ class PredefinedFunctions:
         cls.name2function[cls.MAX] = symbol
 
     @classmethod
+    def __register_pow_function(cls):
+        """
+        Registers the power function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))    # base
+        params.append(PredefinedTypes.get_template_type(1))    # exponent
+        symbol = FunctionSymbol(name=cls.POW, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.POW] = symbol
+
+    @classmethod
     def __register_min_function(cls):
         """
         Registers the minimum function.
@@ -370,6 +425,42 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.ABS] = symbol
+
+    @classmethod
+    def __register_ceil_function(cls):
+        """
+        Registers the ceil function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.CEIL, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.CEIL] = symbol
+
+    @classmethod
+    def __register_floor_function(cls):
+        """
+        Registers the floor function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.FLOOR, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.FLOOR] = symbol
+
+    @classmethod
+    def __register_round_function(cls):
+        """
+        Registers the round function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.ROUND, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ROUND] = symbol
 
     @classmethod
     def __register_integrated_odes_function(cls):

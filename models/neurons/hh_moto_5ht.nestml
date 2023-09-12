@@ -1,0 +1,154 @@
+"""
+hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
+#############################################################################
+
+Description
++++++++++++
+
+hh_moto_5ht is an implementation of a spiking motor neuron using the Hodgkin-Huxley formalism according to [2]_. Basically this model is an implementation of the existing NEURON model [1]_.
+
+The parameter that represents 5HT modulation is ``g_K_Ca_5ht``. When it equals 1, no modulation happens. An application of 5HT corresponds to its decrease. The default value for it is 0.6. This value was used in the Neuron simulator model. The range of this parameter is (0, 1] but you are free to play with any value.
+
+Post-synaptic currents and spike detection are the same as in hh_psc_alpha.
+
+
+References
+++++++++++
+
+.. [1] Muscle spindle feedback circuit by Moraud EM and Capogrosso M.
+       https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=189786
+
+.. [2] Compartmental model of vertebrate motoneurons for Ca2+-dependent spiking and plateau potentials under pharmacological treatment.
+       Booth V, Rinzel J, Kiehn O.
+       http://refhub.elsevier.com/S0896-6273(16)00010-6/sref4
+
+.. [3] Repository: https://github.com/research-team/hh-moto-5ht
+
+
+See also
+++++++++
+
+hh_psc_alpha
+"""
+neuron hh_moto_5ht:
+    state:
+        r integer = 0    # number of steps in the current refractory phase
+        V_m mV = V_m_init    # Membrane potential
+        Ca_in mmol = Ca_in_init    # Inside Calcium concentration
+        Act_m real =    alpha_m(V_m_init) / ( alpha_m(V_m_init) + beta_m(V_m_init) )
+        Act_h real = h_inf(V_m_init)
+        Inact_n real = n_inf(V_m_init)
+        Act_p real = p_inf(V_m_init)
+        Act_mc real = mc_inf(V_m_init)
+        Act_hc real = hc_inf(V_m_init)
+
+    equations:
+        # synapses: alpha functions
+        kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+        kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes) * pA
+        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes) * pA
+
+        inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in) * mV
+
+        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+        inline I_K pA = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+        inline I_L pA = g_L * ( V_m - E_L )
+        inline I_Ca_N pA = g_Ca_N *    Act_mc * Act_mc * Act_hc * (V_m - E_Ca)
+        inline I_Ca_L pA = g_Ca_L * Act_p * (V_m - E_Ca)
+        inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in) / (Ca_in * Ca_in + 0.014 * 0.014)) * (V_m - E_K)
+
+        V_m' =( -( I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
+
+        Inact_n' = (n_inf(V_m) - Inact_n) / n_tau(V_m)
+        Act_m' = alpha_m(V_m) * (1. - Act_m) - beta_m(V_m) * Act_m
+        Act_h' = (h_inf(V_m) - Act_h) / h_tau(V_m)
+        Act_p' = (p_inf(V_m) - Act_p) / p_tau
+        Act_mc' = (mc_inf(V_m) - Act_mc) / mc_tau
+        Act_hc' = (hc_inf(V_m) - Act_hc) / hc_tau
+
+        Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
+
+    parameters:
+        t_ref ms = 2.0 ms                # Refractory period
+
+        g_Na nS = 5000.0 nS              # Sodium peak conductance
+        g_L nS = 200.0 nS                # Leak conductance
+        g_K_rect nS = 30000.0 nS         # Delayed Rectifier Potassium peak conductance
+        g_Ca_N nS = 5000.0 nS
+        g_Ca_L nS = 10.0 nS
+        g_K_Ca nS = 30000.0 nS
+        g_K_Ca_5ht real = 0.6            # modulation of K-Ca channels by 5HT. Its value 1.0 == no modulation.
+
+        Ca_in_init mmol = 0.0001 mmol    # Initial inside Calcium concentration
+        Ca_out mmol = 2.0 mmol           # Outside Calcium concentration. Remains constant during simulation.
+
+        C_m pF = 200.0 pF                # Membrane capacitance
+        E_Na mV = 50.0 mV
+        E_K mV = -80.0 mV
+        E_L mV = -70.0 mV
+
+        # Nernst equation constants
+        R_const real = 8.314472
+        F_const real = 96485.34
+        T_current real = 309.15          # 36 Celcius
+
+        tau_syn_ex ms = 0.2 ms           # Rise time of the excitatory synaptic alpha function
+        tau_syn_in ms = 2.0 ms           # Rise time of the inhibitory synaptic alpha function
+        I_e pA = 0 pA                    # Constant current
+        
+        V_m_init mV = -65. mV
+
+        hc_tau ms = 50.0 ms
+        mc_tau ms = 15.0 ms
+        p_tau ms = 400.0 ms
+
+        alpha mmol/pA = 1E-5 mmol/pA
+
+    internals:
+        RefractoryCounts integer = steps(t_ref) # refractory time in steps
+
+    input:
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        U_old mV = V_m
+        integrate_odes()
+        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+        if r > 0: # is refractory?
+            r -= 1
+        elif V_m > 0 mV and U_old > V_m: # threshold && maximum
+            r = RefractoryCounts
+            emit_spike()
+    
+    function h_inf(V_m mV) real:
+        return 1. / (1. + exp((V_m + 65.) / 7.))
+    
+    function h_tau(V_m mV) ms:
+        return (30. * ms) / (exp((V_m + 60.) / 15.) + exp(-(V_m + 60.) / 16.))
+    
+    function p_inf(V_m mV) real:
+        return 1. / (1. + exp(-(V_m + 55.8) / 3.7))
+    
+    function mc_inf(V_m mV) real:
+        return 1. / (1. + exp(-(V_m + 32.) / 5.))
+    
+    function hc_inf(V_m mV) real:
+        return 1. / (1. + exp((V_m + 50.) / 5.))
+    
+    function n_inf(V_m mV) real:
+        return 1. / (1. + exp(-(V_m + 38.) / 15.))
+    
+    function n_tau(V_m mV) ms:
+        return (5. * ms) / (exp((V_m + 50.) / 40.) + exp(-(V_m + 50.) / 50.))
+    
+    function alpha_m(V_m mV) 1/ms:
+        return (0.4 * (V_m + 66.)) / mV / (1. - exp(-(V_m + 66.) / (5. mV))) / ms
+
+    function beta_m(V_m mV) 1/ms:
+        return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.) / (5. mV))) / ms

@@ -1,0 +1,45 @@
+""" 
+MathFunctionTest.nestml
+#######################
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron math_function_test:
+    state:
+        x real = 0.
+        ln_state real = 0.
+        log10_state real = 0.
+        erf_state real = 0.
+        erfc_state real = 0.
+        ceil_state real = 0.
+        floor_state real = 0.
+        round_state real = 0.
+
+    update:
+        ln_state = ln(x)
+        log10_state = log10(x)
+        erf_state = erf(x)
+        erfc_state = erfc(x)
+        ceil_state = ceil(x / 10.)
+        floor_state = floor(x / 10.)
+        round_state = round(x / 10.)
+        x = x + 1.

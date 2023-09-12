@@ -71,7 +71,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
                         comment=self.comment,
                         pre_comments=[s for s in self.pre_comments],
                         in_comment=self.in_comment,
-                        post_comments=[s for s in self.post_comments],
                         implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -137,6 +136,13 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 vector_symbols.append(symbol)
 
         return vector_symbols
+
+    def get_single_receptors(self) -> List[VariableSymbol]:
+        """
+        Returns a list of spike input ports that are defined as either excitatory or inhibitory.
+        :return: a list of spike input port variable symbols
+        """
+        return list(set(self.get_spike_input_ports()) - set(self.get_multiple_receptors()))
 
     def has_vector_port(self) -> bool:
         """

@@ -82,7 +82,6 @@ class ASTVariable(ASTNode):
                            comment=self.comment,
                            pre_comments=[s for s in self.pre_comments],
                            in_comment=self.in_comment,
-                           post_comments=[s for s in self.post_comments],
                            implicit_conversion_factor=self.implicit_conversion_factor)
 
     def resolve_in_own_scope(self):
@@ -150,6 +149,13 @@ class ASTVariable(ASTNode):
         """
         self.type_symbol = type_symbol
 
+    def has_vector_parameter(self) -> bool:
+        r"""
+        Returns the vector parameter of the variable
+        :return: the vector parameter
+        """
+        return self.vector_parameter is not None
+
     def get_vector_parameter(self) -> str:
         r"""
         Returns the vector parameter of the variable
@@ -157,7 +163,7 @@ class ASTVariable(ASTNode):
         """
         return self.vector_parameter
 
-    def set_size_parameter(self, vector_parameter):
+    def set_vector_parameter(self, vector_parameter):
         r"""
         Updates the vector parameter of the variable
         """
@@ -206,3 +212,10 @@ class ASTVariable(ASTNode):
         if not isinstance(other, ASTVariable):
             return False
         return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
+
+    def is_delay_variable(self) -> bool:
+        """
+        Returns whether it is a delay variable or not
+        :return: True if the variable has a delay parameter, False otherwise
+        """
+        return self.get_delay_parameter() is not None

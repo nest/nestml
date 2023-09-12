@@ -41,9 +41,6 @@ iaf_cond_exp
 
 Parameters
 ++++++++++
-
-
-
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
@@ -55,10 +52,9 @@ Parameters
     "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
     "t_ref", "ms", "2ms", "Duration of refractory period"    
     "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70mV - E_L", "reset value of the membrane potential"    
-    "Theta", "mV", "-55mV - E_L", "Threshold, RELATIVE TO RESTING POTENTIAL (!)."    
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
+    "V_th", "mV", "-55mV", "Spike threshold potential"    
     "I_e", "pA", "0pA", "constant external input current"
-
 
 
 
@@ -70,9 +66,9 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_abs", "mV", "0mV", ""    
-    "I_dend", "pA", "0pA", "third factor, to be read out by synapse during weight update"
+    "r", "integer", "0", "Counts number of ticks during the refractory period"    
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "I_dend", "pA", "0pA", "Third factor, to be read out by synapse during weight update"
 
 
 
@@ -82,75 +78,15 @@ Equations
 
 
 
-
 .. math::
-   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
-
-
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
 
 
 
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-   neuron iaf_psc_exp_dend:
-     state:
-       r integer = 0 # counts number of tick during the refractory period
-       V_abs mV = 0mV
-       I_dend pA = 0pA # third factor, to be read out by synapse during weight update
-     end
-     equations:
-       kernel I_kernel_inh = exp(-t / tau_syn_inh)
-       kernel I_kernel_exc = exp(-t / tau_syn_exc)
-   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
-       inline I_syn pA = convolve(I_kernel_exc,exc_spikes) - convolve(I_kernel_inh,inh_spikes)
-       V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
-     end
-
-     parameters:
-       C_m pF = 250pF # Capacity of the membrane
-       tau_m ms = 10ms # Membrane time constant
-       tau_syn_inh ms = 2ms # Time constant of inhibitory synaptic current
-       tau_syn_exc ms = 2ms # Time constant of excitatory synaptic current
-       t_ref ms = 2ms # Duration of refractory period
-       E_L mV = -70mV # Resting potential
-       V_reset mV = -70mV - E_L # reset value of the membrane potential
-       Theta mV = -55mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL (!).
-       # I.e. the real threshold is (E_L_+V_th_)
-
-       # constant external input current
-       I_e pA = 0pA
-     end
-     internals:
-       RefractoryCounts integer = steps(t_ref) # refractory time in steps
-     end
-     input:
-       exc_spikes pA <-excitatory spike
-       inh_spikes pA <-inhibitory spike
-       I_stim pA <-current
-     end
-
-     output: spike
-
-     update:
-       I_dend *= 0.95
-       if r == 0: # neuron not refractory, so evolve V
-         integrate_odes()
-       else:
-         r = r - 1 # neuron is absolute refractory
-       end
-       if V_abs >= Theta: # threshold crossing
-         r = RefractoryCounts
-         V_abs = V_reset
-         emit_spike()
-       end
-     end
-
-   end
-
-
+The model source code can be found in the NESTML models repository here: `iaf_psc_exp_dend <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_dend.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -160,4 +96,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2022-03-28 19:04:29.801538
+   Generated at 2023-08-22 14:29:44.501436

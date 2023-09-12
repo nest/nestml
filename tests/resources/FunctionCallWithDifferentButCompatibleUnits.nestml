@@ -26,8 +26,5 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron BlockTest:
     function foo(bar mV):
         return
-    end
     update:
-      foo(10V)
-    end
-end
+        foo(10V)

@@ -54,7 +54,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
         target_path = "target"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
 

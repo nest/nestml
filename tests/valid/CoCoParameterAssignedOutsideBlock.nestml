@@ -35,5 +35,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoParameterAssignedOutsideBlock:
     parameters: # parameter is not assigned outside the block, thus everything is correct
         test mV = 10mV
-    end
-end
