@@ -23,11 +23,9 @@
 rhs : <assoc=right> left=rhs powOp='**' right=rhs
 """
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
-
-from pynestml.symbols.predefined_units import PredefinedUnits
-
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.either import Either
@@ -75,7 +73,6 @@ class ASTPowerVisitor(ASTVisitor):
         :return: an Either object
         :rtype: Either
         """
-        # TODO write tests for this by PTraeder
         if isinstance(expr, ASTExpression):
             if expr.is_encapsulated:
                 return self.calculate_numeric_value(expr.get_expression())
