@@ -218,6 +218,19 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
+{%- if nest_version.startswith("v2") %}
+  init_state_({{neuronName}}());
+{%- else %}
+  init_state_();
+{%- endif %}
+
+{%- if has_state_vectors %}
+  recordablesMap_.create(*this);
+{%- else %}
+  recordablesMap_.create();
+{%- endif %}
+
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
   calibrate();
 {%- else %}
@@ -345,13 +358,6 @@ void {{neuronName}}::init_state_()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
-
-{%- if has_state_vectors %}
-  recordablesMap_.create(*this);
-{%- else %}
-  recordablesMap_.create();
-{%- endif %}
-
 
 {%- if paired_synapse is defined %}
   // state variables for archiving state for paired synapse
