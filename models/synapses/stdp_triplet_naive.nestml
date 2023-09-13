@@ -21,10 +21,10 @@ References
 """
 synapse stdp_triplet:
     state:
-        w nS = 1 nS   # Synaptic weight
+        w real = 1.    @nest::weight    # Synaptic weight
 
     parameters:
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        d ms = 1 ms    @nest::delay    # Synaptic transmission delay
 
         tau_plus ms = 16.8 ms  # time constant for tr_r1
         tau_x ms = 101 ms  # time constant for tr_r2

@@ -117,6 +117,7 @@ class MessageCode(Enum):
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
+    NEST_WEIGHT_DECORATOR_NOT_FOUND = 91
 
 
 class Messages:
@@ -1188,8 +1189,13 @@ class Messages:
 
     @classmethod
     def get_nest_delay_decorator_not_found(cls):
-        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
+        message = "To generate code for NEST Simulator, at least one variable in the model should be decorated with the ``@nest::delay`` keyword."
         return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
+
+    @classmethod
+    def get_nest_weight_decorator_not_found(cls):
+        message = "To generate code for NEST Simulator, at least one variable in the model should be decorated with the ``@nest::weight`` keyword."
+        return MessageCode.NEST_WEIGHT_DECORATOR_NOT_FOUND, message
 
     @classmethod
     def get_input_port_size_not_integer(cls, port_name: str):

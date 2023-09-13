@@ -88,17 +88,13 @@ namespace {{names_namespace}}
 {%- if synapse.get_state_symbols()|length > 0 %}
 {%- for sym in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_variable_by_name(synapse, sym.get_symbol_name()) %}
-{%-     if not (sym.namespace_decorators and sym.namespace_decorators | length > 0) %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%-     endif %}
 {%- endfor %}
 {%- endif %}
 {%- if synapse.get_parameter_symbols()|length > 0 %}
 {%- for sym in synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_variable_by_name(synapse, sym.get_symbol_name()) %}
-{%-     if not (sym.namespace_decorators and sym.namespace_decorators | length > 0) %}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
-{%-     endif %}
 {%- endfor %}
 {%- endif %}
 }
@@ -337,7 +333,7 @@ private:
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not isHomogeneous and not (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0) %}
+{%-     if not isHomogeneous and not (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0 and variable_symbol.namespace_decorators[0] == "delay") %}
 {%-         include 'directives/MemberDeclaration.jinja2' %}
 {%-     else %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
@@ -384,8 +380,24 @@ private:
 {% filter indent(2, True) -%}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives/MemberVariableGetterSetter.jinja2" %}
 
+{%-     set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
+{%-     if namespaceName | length > 0 and namespaceName == 'delay' %}
+  // special case because of ``@nest::delay`` decorator: delay is stored in syn_id_delay_ (type SynIdDelay) of class Connection
+
+inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no_origin.print(variable) }}() const
+{
+  return get_{{namespaceName}}();
+}
+
+inline void set_{{ printer_no_origin.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
+{
+  set_{{namespaceName}}(__v);
+}
+
+{%-     else %}
+{%-         include "directives/MemberVariableGetterSetter.jinja2" %}
+{%-     endif %}
 {% endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -400,7 +412,25 @@ private:
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous %}
 {%-         set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
+{%-     if namespaceName | length > 0 and namespaceName == 'delay' %}
+  // special case because of ``@nest::...`` decorator
+
+inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no_origin.print(variable) }}() const
+{
+  return get_{{namespaceName}}();
+}
+
+inline void set_{{ printer_no_origin.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
+{
+  set_{{namespaceName}}(__v);
+}
+
+
+
+{%-     else %}
 {%-         include "directives/MemberVariableGetterSetter.jinja2" %}
+{%-     endif %}
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -606,13 +636,32 @@ public:
   **/
   inline void set_weight(double w)
   {
-{%- for variable_symbol in synapse.get_state_symbols() %}
+{%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
 {%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
     // special case for variable marked with @nest::weight decorator
 {%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {%-         if nest_namespace_name == "weight" %}
-    set_{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
+    set_{{ printer_no_origin.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
     return;
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
+
+    // no variable was decorated by @nest::weight, so no "weight" defined from the NEST perspective
+    assert(0);
+  }
+
+  /**
+   *  special case for weights in NEST: only in case a NESTML state variable was decorated by @nest::weight
+  **/
+  inline double get_weight() const
+  {
+{%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+    // special case for variable marked with @nest::weight decorator
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         if nest_namespace_name == "weight" %}
+    return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
@@ -991,28 +1040,25 @@ void
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous %}
 {%-         set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
-{%-         if namespaceName | length == 0 %}
-{%-             filter indent(2,True) %}
-{%-                 include "directives/WriteInDictionary.jinja2" %}
-{%-             endfilter %}
-{%-         else %}
+{%-         if namespaceName | length > 0 %}
   def< {{ declarations.print_variable_type(variable_symbol) }} >( __d, names::{{ namespaceName }}, get_{{namespaceName}}() );  // special case: use nest::names name because of ``@nest::...`` decorator
+{%-         else %}
+{%-             include "directives/WriteInDictionary.jinja2" %}
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or kernel
+  // state variables
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
-{%-         include "directives/WriteInDictionary.jinja2" %}
+{%-     if (not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.get_symbol_name()))) and (not variable_symbol.is_internals()) %}
 {%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
 // special treatment for variable marked with @nest::name decorator
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-             if not variable_symbol.is_internals() %}
 def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer_no_origin.print(variable)}}());
-{%-             endif %}
+{%-         else %}
+{%-             include "directives/WriteInDictionary.jinja2" %}
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
@@ -1027,8 +1073,16 @@ void
   // call parent class method
   ConnectionBase::set_status( __d, cm );
 
-  double tmp_delay; // special case for NEST synapse delay property
-  double tmp_weight; // special case for NEST synapse weight property
+{%- for variable_symbol in synapse.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
+{%-         if namespaceName | length > 0 %}
+double tmp_{{ namespaceName }}; // special case for NEST synapse {{ namespaceName }} property
+{%-         endif %}
+{%-     endif %}
+{%- endfor %}
 
   // parameters
 {%- filter indent(2,True) %}
@@ -1045,7 +1099,7 @@ void
 
 if ( __d->known("{{ printer_no_origin.print(variable) }}") )
 {
-  throw std::invalid_argument("When marking a parameter with the NEST namespace decorator ``@nest::...``, please use the namespace name to set or get the value.");
+  throw BadProperty("When marking a parameter with the NEST namespace decorator ``@nest::...``, please use the namespace name to set or get the value.");
 }
 
 {% if namespaceName | length > 0 %}
@@ -1072,21 +1126,17 @@ if ( __d->known(nest::names::{{ namespaceName }}) )
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
-{%-         include "directives/ReadFromDictionaryToTmp.jinja2" %}
-{%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+{%-           if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
 // special treatment for variables marked with @nest::name decorator
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{#- -------- XXX: TODO: this is almost the content of directives/ReadFromDictionaryToTmp.jinja2 verbatim, refactor this ----------  #}
-{%-             if not variable_symbol.is_inline_expression and not variable_symbol.is_state() %}
-tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
-updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer_no_origin.print(variable) }});
-{%-             elif not variable_symbol.is_inline_expression and variable_symbol.is_state() %}
-tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
-updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer_no_origin.print(variable) }});
+double tmp_{{ printer_no_origin.print(variable) }} = get_{{ nest_namespace_name }}();
+updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, nest::names::{{ nest_namespace_name }}, tmp_{{ printer_no_origin.print(variable) }});
+{%-         else %}
+{%-             if not variable_symbol.is_inline_expression %}
+{%-                 include "directives/ReadFromDictionaryToTmp.jinja2" %}
 {%-             else %}
   // ignores '{{ printer_no_origin.print(variable) }}' {{ declarations.print_variable_type(variable_symbol) }}' since it is an function and setter isn't defined
 {%-             endif %}
-{#- -------------------------------------------------------------------------------------------------------------------------------- #}
 {%-         endif %}
 {%-      endif %}
 {%- endfor %}

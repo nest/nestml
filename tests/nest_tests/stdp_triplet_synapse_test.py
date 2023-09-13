@@ -29,7 +29,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
     import matplotlib.ticker
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
@@ -196,8 +196,8 @@ def run_nest_simulation(neuron_model_name,
     except Exception:
         pass  # will fail when run in a loop ("module is already loaded")
 
-    nest.SetKernelStatus({'print_time': False, 'local_num_threads': 1})
-    nest.SetKernelStatus({'resolution': resolution})
+    nest.SetKernelStatus({"print_time": False, "local_num_threads": 1})
+    nest.SetKernelStatus({"resolution": resolution})
 
     nest.SetDefaults(neuron_model_name, neuron_opts)
 
@@ -211,42 +211,42 @@ def run_nest_simulation(neuron_model_name,
     # one more pre spike to obtain updated values at end of simulation
     pre_spike_times_req = np.hstack((pre_spike_times_req, [sim_time - syn_opts["delay"]]))
 
-    external_input = nest.Create('spike_generator', params={'spike_times': pre_spike_times_req})
-    external_input1 = nest.Create('spike_generator', params={'spike_times': post_spike_times_req})
+    external_input = nest.Create("spike_generator", params={"spike_times": pre_spike_times_req})
+    external_input1 = nest.Create("spike_generator", params={"spike_times": post_spike_times_req})
 
     if NESTTools.detect_nest_version().startswith("v2"):
-        spikes = nest.Create('spike_detector')
+        spikes = nest.Create("spike_detector")
     else:
-        spikes = nest.Create('spike_recorder')
-    weight_recorder_E = nest.Create('weight_recorder')
+        spikes = nest.Create("spike_recorder")
+    weight_recorder_E = nest.Create("weight_recorder")
 
     # Set models default -------------------------------------------
 
-    nest.CopyModel('static_synapse',
-                   'excitatory_noise',
-                   {'weight': J_ext,
-                    'delay': syn_opts["delay"]})
+    nest.CopyModel("static_synapse",
+                   "excitatory_noise",
+                   {"weight": J_ext,
+                    "delay": syn_opts["delay"]})
 
     _syn_opts = syn_opts.copy()
-    _syn_opts['Wmax'] = _syn_opts.pop('w_max')
-    _syn_opts['Wmin'] = _syn_opts.pop('w_min')
-    _syn_opts['w'] = _syn_opts.pop('w_init')
-    _syn_opts.pop('delay')
+    _syn_opts["Wmax"] = _syn_opts.pop("w_max")
+    _syn_opts["Wmin"] = _syn_opts.pop("w_min")
+    _syn_opts["weight"] = _syn_opts.pop("w_init")
+    _syn_opts.pop("delay")
     nest.CopyModel(synapse_model_name,
                    synapse_model_name + "_rec",
-                   {'weight_recorder': weight_recorder_E[0]})
+                   {"weight_recorder": weight_recorder_E[0]})
     nest.SetDefaults(synapse_model_name + "_rec", _syn_opts)
 
     # Connect nodes ------------------------------------------------
 
     if NESTTools.detect_nest_version().startswith("v2"):
-        nest.Connect([neurons[0]], [neurons[1]], syn_spec={'model': synapse_model_name + "_rec"})
-        nest.Connect(external_input, [neurons[0]], syn_spec='excitatory_noise')
-        nest.Connect(external_input1, [neurons[1]], syn_spec='excitatory_noise')
+        nest.Connect([neurons[0]], [neurons[1]], syn_spec={"model": synapse_model_name + "_rec"})
+        nest.Connect(external_input, [neurons[0]], syn_spec="excitatory_noise")
+        nest.Connect(external_input1, [neurons[1]], syn_spec="excitatory_noise")
     else:
-        nest.Connect(neurons[0], neurons[1], syn_spec={'synapse_model': synapse_model_name + "_rec"})
-        nest.Connect(external_input, neurons[0], syn_spec='excitatory_noise')
-        nest.Connect(external_input1, neurons[1], syn_spec='excitatory_noise')
+        nest.Connect(neurons[0], neurons[1], syn_spec={"synapse_model": synapse_model_name + "_rec"})
+        nest.Connect(external_input, neurons[0], syn_spec="excitatory_noise")
+        nest.Connect(external_input1, neurons[1], syn_spec="excitatory_noise")
     # spike_recorder ignores connection delay; recorded times are times of spike creation rather than spike arrival
     nest.Connect(neurons, spikes)
 
@@ -255,16 +255,16 @@ def run_nest_simulation(neuron_model_name,
     nest.Simulate(sim_time)
 
     connections = nest.GetConnections(neurons, neurons)
-    gid_pre = nest.GetStatus(connections, 'source')[0]
-    gid_post = nest.GetStatus(connections, 'target')[0]
+    gid_pre = nest.GetStatus(connections, "source")[0]
+    gid_post = nest.GetStatus(connections, "target")[0]
 
-    events = nest.GetStatus(spikes, 'events')[0]
-    times_spikes = np.array(events['times'])
-    senders_spikes = events['senders']
+    events = nest.GetStatus(spikes, "events")[0]
+    times_spikes = np.array(events["times"])
+    senders_spikes = events["senders"]
 
-    events = nest.GetStatus(weight_recorder_E, 'events')[0]
-    times_weights = events['times']
-    weight_simulation = events['weights']
+    events = nest.GetStatus(weight_recorder_E, "events")[0]
+    times_weights = events["times"]
+    weight_simulation = events["weights"]
     return times_weights, weight_simulation, gid_pre, gid_post, times_spikes, senders_spikes, sim_time
 
 
@@ -354,9 +354,9 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
 
     plt.savefig("/tmp/stdp_triplets_[delay=" + "%.3f" % syn_opts["delay"] + "].png", dpi=150.)
 
-# @pytest.mark.parametrize('delay', [1., 5., 14.3])
-# @pytest.mark.parametrize('spike_times_len', [1, 10, 100])
-# @pytest.mark.parametrize('spike_times_len', [10])
+# @pytest.mark.parametrize("delay", [1., 5., 14.3])
+# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
+# @pytest.mark.parametrize("spike_times_len", [10])
 
 
 def _test_stdp_triplet_synapse(delay, spike_times_len):
@@ -364,32 +364,32 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
 
     experiment = "test_nestml_pair_synapse"
     syn_opts = {
-        'delay': delay,
-        'tau_minus': 33.7,
-        'tau_plus': 16.8,
-        'tau_x': 101.,
-        'tau_y': 125.,
-        'A2_plus': 7.5e-10,
-        'A3_plus': 9.3e-3,
-        'A2_minus': 7e-3,
-        'A3_minus': 2.3e-4,
-        'w_max':  50.,
-        'w_min': 0.,
-        'w_init': 1.
+        "delay": delay,
+        "tau_minus": 33.7,
+        "tau_plus": 16.8,
+        "tau_x": 101.,
+        "tau_y": 125.,
+        "A2_plus": 7.5e-10,
+        "A3_plus": 9.3e-3,
+        "A2_minus": 7e-3,
+        "A3_minus": 2.3e-4,
+        "w_max":  50.,
+        "w_min": 0.,
+        "w_init": 1.
     }
 
     if experiment == "test_nestml_pair_synapse":
         nest_modules_to_load = ["nestml_triplet_pair_module"]
 
         neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
-        neuron_opts = {'tau_minus__for_stdp_triplet_nestml': syn_opts['tau_minus'],
-                       'tau_y__for_stdp_triplet_nestml': syn_opts['tau_y']}
+        neuron_opts = {"tau_minus__for_stdp_triplet_nestml": syn_opts["tau_minus"],
+                       "tau_y__for_stdp_triplet_nestml": syn_opts["tau_y"]}
 
         synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
-        nest_syn_opts = {'d': delay}
+        nest_syn_opts = {"delay": delay}
         nest_syn_opts.update(syn_opts)
-        nest_syn_opts.pop('tau_minus')  # these have been moved to the neuron
-        nest_syn_opts.pop('tau_y')
+        nest_syn_opts.pop("tau_minus")  # these have been moved to the neuron
+        nest_syn_opts.pop("tau_y")
     elif experiment == "test_nest_triplet_synapse":
         nest_modules_to_load = None
 
@@ -400,7 +400,7 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
         E_L = 0.0       # Resting membrane potential (mV)
         V_reset = 10.0      # Reset potential after spike (mV)
 
-        neuron_model_name = 'iaf_psc_delta'
+        neuron_model_name = "iaf_psc_delta"
         neuron_opts = {"tau_m": tau_m,
                        "t_ref": t_ref,
                        "C_m": C_m,
@@ -408,19 +408,19 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
                        "E_L": E_L,
                        "V_m": E_L,
                        "V_th": V_th,
-                       "tau_minus": syn_opts['tau_minus'],
-                       "tau_minus_triplet": syn_opts['tau_y']}
+                       "tau_minus": syn_opts["tau_minus"],
+                       "tau_minus_triplet": syn_opts["tau_y"]}
 
         synapse_model_name = "stdp_triplet"
-        nest_syn_opts = {'delay': delay,
-                         'tau_plus': syn_opts['tau_plus'],
-                         'tau_plus_triplet': syn_opts['tau_x'],
-                         'Aplus': syn_opts['A2_plus'],
-                         'Aplus_triplet': syn_opts['A3_plus'],
-                         'Aminus': syn_opts['A2_minus'],
-                         'Aminus_triplet': syn_opts['A3_minus'],
-                         'Wmax': syn_opts["w_max"],
-                         'weight': syn_opts["w_init"]}
+        nest_syn_opts = {"delay": delay,
+                         "tau_plus": syn_opts["tau_plus"],
+                         "tau_plus_triplet": syn_opts["tau_x"],
+                         "Aplus": syn_opts["A2_plus"],
+                         "Aplus_triplet": syn_opts["A3_plus"],
+                         "Aminus": syn_opts["A2_minus"],
+                         "Aminus_triplet": syn_opts["A3_minus"],
+                         "Wmax": syn_opts["w_max"],
+                         "weight": syn_opts["w_init"]}
 
     fname_snip = "_experiment=[" + experiment + "]"
 
@@ -489,28 +489,28 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     compare_results(ref_timevec, ref_w, nestml_timevec, nestml_w)
 
 
-# @pytest.mark.parametrize('spike_times_len', [1, 10, 100])
-@pytest.mark.parametrize('spike_times_len', [10])
+# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
+@pytest.mark.parametrize("spike_times_len", [10])
 def test_stdp_triplet_synapse_delay_1(spike_times_len):
     delay = 1.
     _test_stdp_triplet_synapse(delay, spike_times_len)
 
 # import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
 # @pytest.mark.xfail(strict=True, raises=Exception)
-# @pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
 
 
-@pytest.mark.parametrize('spike_times_len', [10])
+@pytest.mark.parametrize("spike_times_len", [10])
 def test_stdp_triplet_synapse_delay_5(spike_times_len):
     delay = 5.
     _test_stdp_triplet_synapse(delay, spike_times_len)
 
 # import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
 # @pytest.mark.xfail(strict=True, raises=Exception)
-# @pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
 
 
-@pytest.mark.parametrize('spike_times_len', [10])
+@pytest.mark.parametrize("spike_times_len", [10])
 def test_stdp_triplet_synapse_delay_10(spike_times_len):
     delay = 10.
     _test_stdp_triplet_synapse(delay, spike_times_len)

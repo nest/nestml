@@ -26,7 +26,7 @@ import datetime
 import odetoolbox
 import pynestml
 
-from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
+from pynestml.cocos.co_co_nest_decorators_specified import CoCoNESTDecoratorsSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
@@ -212,7 +212,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         for synapse in synapses:
-            CoCoNESTDelayDecoratorSpecified.check_co_co(synapse)
+            CoCoNESTDecoratorsSpecified.check_co_co(synapse)
             if Logger.has_errors(synapse):
                 raise Exception("Error(s) occurred during code generation")
 

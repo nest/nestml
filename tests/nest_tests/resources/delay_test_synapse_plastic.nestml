@@ -1,12 +1,10 @@
 """
-delay_test_synapse
-##################
+delay_test_synapse_plastic
+##########################
 """
-synapse delay_test_synapse:
+synapse delay_test_synapse_plastic:
   state:
     x ms = 0 ms
-
-  parameters:
     w real = 1   @nest::weight   # Synaptic weight
     d ms = 1 ms    @nest::delay   # Synaptic transmission delay
 

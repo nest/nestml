@@ -35,7 +35,8 @@ class TestSynapseDelayGetSet:
     def setUp(self):
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
                       os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "synapses", "stdp_synapse.nestml"))),
-                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "delay_test_synapse.nestml")))]
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "delay_test_synapse.nestml"))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "delay_test_synapse_plastic.nestml")))]
         logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
@@ -67,30 +68,30 @@ class TestSynapseDelayGetSet:
     @pytest.mark.xfail(strict=True, raises=KeyError)
     def test_synapse_delay_creation(self):
         nrn = nest.Create("iaf_psc_exp_nestml__with_stdp_nestml")
-        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml", "delay": 42.})
+        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml"})
         syn = nest.GetConnections(nrn, nrn)
         assert len(syn) == 1
         syn[0].d  # getting should fail
 
     @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.DictError)
-    def test_synapse_delay_creation_alt(self):
+    def test_synapse_delay_creation_alt1(self):
         nrn = nest.Create("iaf_psc_exp_nestml__with_stdp_nestml")
         nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml", "d": 42.})  # setting during construction should fail
 
-    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.CppException)
-    def test_synapse_delay_creation_alt(self):
+    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
+    def test_synapse_delay_creation_alt2(self):
         nrn = nest.Create("iaf_psc_exp_nestml__with_stdp_nestml")
         nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml"})
         syn = nest.GetConnections(nrn, nrn)
         assert len(syn) == 1
         syn.d = 42.  # setting should fail
 
-    def test_synapse_delay(self):
+    @pytest.mark.parametrize("synapse_model_name", ["delay_test_synapse_nestml", "delay_test_synapse_plastic_nestml"])
+    def test_synapse_delay(self, synapse_model_name: str):
         """Check that the synapse can itself access the set delay value properly"""
         nrn = nest.Create("iaf_psc_exp")
         nrn.I_e = 1000.   # [pA] -- assure there are pre spikes to trigger synapse update
-        # nest.Connect(nrn, nrn, syn_spec={"synapse_model": "delay_test_synapse_nestml", "delay": 42.})  # XXX: TODO: this segfaults!
-        nest.Connect(nrn, nrn, syn_spec={"synapse_model": "delay_test_synapse_nestml"})
+        nest.Connect(nrn, nrn, syn_spec={"synapse_model": synapse_model_name})
         syn = nest.GetConnections(nrn, nrn)
         syn[0].delay = 42.
         syn = nest.GetConnections(nrn, nrn)

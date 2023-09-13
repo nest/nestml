@@ -30,13 +30,13 @@ class PrintStatementTest(unittest.TestCase):
 
     def test_print_statement(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'print_variable_script.py'))))
+            "resources", "print_variable_script.py"))))
         self.output_path = "output.txt"
 
-        with open(self.output_path, 'w') as outfile:
-            subprocess.run(['python', input_path], stdout=outfile)
+        with open(self.output_path, "w") as outfile:
+            subprocess.run(["python", input_path], stdout=outfile)
 
-        with open(self.output_path, 'r') as reader:
+        with open(self.output_path, "r") as reader:
             lines = list(reader.readlines())
             reader.close()
 
