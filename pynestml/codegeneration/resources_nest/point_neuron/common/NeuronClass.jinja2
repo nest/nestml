@@ -223,58 +223,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- else %}
   pre_run_hook();
 {%- endif %}
-
-{%- if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-
-  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
-  P_.__gsl_error_tol = 1e-3;
-{%-     endif %}
-{%- endif %}
-
-{%- if parameter_vars_with_iv|length > 0 %}
-  // initial values for parameters
-{%- filter indent(2) %}
-{%- for variable in parameter_vars_with_iv %}
-{%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%-     include "directives/MemberInitialization.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-{%- endif %}
-
-{%- if neuron.get_state_symbols()|length > 0 %}
-  // initial values for state variables
-{%- filter indent(2) %}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives/MemberInitialization.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-{%- endif %}
-
-{%- if has_state_vectors %}
-  recordablesMap_.create(*this);
-{%- else %}
-  recordablesMap_.create();
-{%- endif %}
-
-
-{%- if paired_synapse is defined %}
-  // state variables for archiving state for paired synapse
-  n_incoming_ = 0;
-  max_delay_ = 0;
-  last_spike_ = -1.;
-
-  // cache initial values
-{%- for var_name in transferred_variables %}
-{%-     set var = utils.get_variable_by_name(astnode, var_name) %}
-{%-     set variable_symbol = transferred_variables_syms[var_name] %}
-{%-     if not var_name == variable_symbol.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%-     endif %}
-  {{var_name}}__iv = {{printer.print(var)}};
-{%- endfor %}
-{%- endif %}
 }
 
 // ---------------------------------------------------------------------------
@@ -358,14 +306,76 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
 {%- if nest_version.startswith("v2") %}
 void {{neuronName}}::init_state_(const Node& proto)
+{%- else %}
+void {{neuronName}}::init_state_()
+{%- endif %}
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::init_state_()" << std::endl;
+#endif
+{%- if nest_version.startswith("v2") %}
   const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
-}
 {%- endif %}
+
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+
+  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
+  P_.__gsl_error_tol = 1e-3;
+{%-     endif %}
+{%- endif %}
+
+{%- if parameter_vars_with_iv|length > 0 %}
+  // initial values for parameters
+{%- filter indent(2) %}
+{%- for variable in parameter_vars_with_iv %}
+{%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+{%- endfilter %}
+{%- endif %}
+
+{%- if neuron.get_state_symbols()|length > 0 %}
+  // initial values for state variables
+{%- filter indent(2) %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+{%- endfilter %}
+{%- endif %}
+
+{%- if has_state_vectors %}
+  recordablesMap_.create(*this);
+{%- else %}
+  recordablesMap_.create();
+{%- endif %}
+
+
+{%- if paired_synapse is defined %}
+  // state variables for archiving state for paired synapse
+  n_incoming_ = 0;
+  max_delay_ = 0;
+  last_spike_ = -1.;
+
+  // cache initial values
+{%- for var_name in transferred_variables %}
+{%-     set var = utils.get_variable_by_name(astnode, var_name) %}
+{%-     set variable_symbol = transferred_variables_syms[var_name] %}
+{%-     if not var_name == variable_symbol.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%-     endif %}
+  {{var_name}}__iv = {{printer.print(var)}};
+{%- endfor %}
+{%- endif %}
+}
 
 void {{neuronName}}::init_buffers_()
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::init_buffers_()" << std::endl;
+#endif
 {%- if neuron.get_spike_input_ports() | length > 0 %}
   // spike input buffers
   get_spike_inputs_().clear();
@@ -922,7 +932,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
       }
 
 #ifdef DEBUG
-      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << get_{{ printer.print(utils.get_variable_by_name(astnode, var)) }}() << std::endl;
+      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
       return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
     }
@@ -940,7 +950,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << get_{{printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }}() << std::endl;
+    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
 #endif
     return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
   }

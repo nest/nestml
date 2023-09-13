@@ -453,11 +453,13 @@ private:
   static std::vector< std::tuple< int, int > > rport_to_nestml_buffer_idx;
 {%- endif %}
 
-{%- if nest_version.startswith("v2") %}
   /**
    * Reset state of neuron.
   **/
+{%- if nest_version.startswith("v2") %}
   void init_state_(const Node& proto) override;
+{%- else %}
+  void init_state_() override;
 {%- endif %}
 
   /**

@@ -59,15 +59,15 @@ class TestIgnoreAndFire:
                              logging_level="DEBUG",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
+        nest.Install("nestmlmodule")
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
-    def test_ignore_and_fire_with_stdp(self):
-        resolution = 1.    # [ms]
+    @pytest.mark.parametrize("resolution", [1., .1])
+    def test_ignore_and_fire_with_stdp(self, resolution: float):
         sim_time = 1001.   # [ms]
 
         nest.set_verbosity("M_ALL")
-        nest.Install("nestmlmodule")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
 
@@ -82,7 +82,8 @@ class TestIgnoreAndFire:
 
         nest.Connect(pre_neuron, post_neuron, syn_spec={"synapse_model": self.synapse_model_name})
 
-        nest.Simulate(sim_time)
+        nest.Simulate(sim_time // 2)
+        nest.Simulate(sim_time - (sim_time // 2))
 
         n_ev_pre = len(pre_sr.get("events")["times"])
         n_ev_post = len(post_sr.get("events")["times"])
