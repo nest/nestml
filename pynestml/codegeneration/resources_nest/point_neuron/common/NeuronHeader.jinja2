@@ -356,6 +356,12 @@ public:
 {%- endfor %}
 {%- endif %}
 
+  // -------------------------------------------------------------------------
+  //   Initialization functions
+  // -------------------------------------------------------------------------
+
+  void calibrate_time( const nest::TimeConverter& tc ) override;
+
 protected:
 {%- if paired_synapse is defined %}
   // support for spike archiving
@@ -458,9 +464,9 @@ private:
   **/
 {%- if nest_version.startswith("v2") %}
   void init_state_(const Node& proto) override;
-{%- else %}
-  void init_state_() override;
 {%- endif %}
+
+  void init_state_internal_();
 
   /**
    * Reset internal buffers of neuron.

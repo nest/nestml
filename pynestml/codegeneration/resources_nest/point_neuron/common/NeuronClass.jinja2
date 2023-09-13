@@ -219,11 +219,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-{%- if nest_version.startswith("v2") %}
-  init_state_({{neuronName}}());
-{%- else %}
-  init_state_();
-{%- endif %}
+  init_state_internal_();
 
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
@@ -319,17 +315,27 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
 {%- if nest_version.startswith("v2") %}
 void {{neuronName}}::init_state_(const Node& proto)
-{%- else %}
-void {{neuronName}}::init_state_()
-{%- endif %}
 {
-#ifdef DEBUG
-  std::cout << "{{neuronName}}::init_state_()" << std::endl;
-#endif
-{%- if nest_version.startswith("v2") %}
   const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
+}
 {%- endif %}
+
+void {{neuronName}}::calibrate_time( const nest::TimeConverter& tc )
+{
+  LOG( nest::M_WARNING,
+    "{{neuronName}}",
+    "Simulation resolution has changed. Internal state and parameters of the"
+    "model have been reset!" );
+
+  init_state_internal_();
+}
+
+void {{neuronName}}::init_state_internal_()
+{
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::init_state_internal_()" << std::endl;
+#endif
 
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
