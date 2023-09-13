@@ -305,6 +305,14 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
+    def test_invalid_inline_expressions_assigned_only_in_declaration(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoAssignmentToInlineExpression.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+
     def test_invalid_internals_assigned_only_in_internals_block(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
