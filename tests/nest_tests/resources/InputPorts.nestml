@@ -31,7 +31,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron input_ports:
     state:
-        bar pA = 1.5 pA
+        bar pA = 0 pA
+        foo_spikes pA = 0 pA
+        my_spikes_ip pA = 0 pA
 
     input:
         AMPA_spikes <- excitatory spike
@@ -43,4 +45,6 @@ neuron input_ports:
         I_stim pA <- continuous
 
     update:
-        bar = foo[1] * pA * s
+        bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)
+        foo_spikes += (foo[1] + 5.5 * foo[2]) * (pA * s)
+        my_spikes_ip += (my_spikes[1] + my_spikes[2] - my_spikes2[2]) * (pA * s)

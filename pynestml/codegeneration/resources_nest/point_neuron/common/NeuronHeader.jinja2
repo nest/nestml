@@ -910,16 +910,19 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
   DictionaryDatum __receptor_type = new Dictionary();
-{%- for port in neuron.get_spike_input_ports() %}
-{%-   if not port.has_vector_parameter() %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
-{%-   else %}
-{%      set size = utils.get_numeric_vector_size(port) | int %}
-{%-     for i in range(size) %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i + 1}}" ] = {{port.get_symbol_name().upper()}}_{{i + 1}},
+{%-   for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
+{%-   set ns = namespace(rport=key) %}
+{%-     for port in ports  %}
+{%-       if not port.has_vector_parameter() %}
+    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{ns.rport + 1}};
+{%-       else %}
+{%-       set size = utils.get_numeric_vector_size(port) %}
+{%-         for i in range(size)  %}
+    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i + 1}}" ] = {{ns.rport + i + 1}},
+{%-         endfor %}
+{%-       endif %}
 {%-     endfor %}
-{%-   endif %}
-{%- endfor %}
+{%-   endfor %}
     ( *__d )[ "receptor_types" ] = __receptor_type;
 {%- endif %}
 
