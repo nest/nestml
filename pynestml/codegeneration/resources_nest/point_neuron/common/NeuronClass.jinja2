@@ -614,6 +614,10 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   else
   {
     nestml_buffer_idx = std::get<1>(rport_to_nestml_buffer_idx[e.get_rport()]);
+    if ( nestml_buffer_idx == {{neuronName}}::PORT_NOT_AVAILABLE )
+    {
+      nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
+    }
     weight = -weight;
   }
 {%- endif %}

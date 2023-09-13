@@ -2176,6 +2176,11 @@ class ASTUtils:
                 else:
                     node._is_numeric = False
 
+                # Set the `_is_numeric` flag in its corresponding symbol
+                symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+                if symbol:
+                    symbol._is_numeric = node._is_numeric
+
         visitor = ASTVariableOriginSetterVisitor()
         visitor._numeric_state_variables = numeric_state_variable_names
         neuron.accept(visitor)
