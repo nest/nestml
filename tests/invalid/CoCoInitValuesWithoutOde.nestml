@@ -35,5 +35,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoInitValuesWithoutOde:
     state:
         V_m mV = 10 mV
-    end
-end

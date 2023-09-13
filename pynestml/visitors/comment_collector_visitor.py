@@ -84,7 +84,11 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
-    def visitInputPort(self, ctx):
+    def visitSpikeInputPort(self, ctx):
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim))
+
+    def visitContinuousInputPort(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
@@ -159,7 +163,15 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
 
 
 def is_newline(tok):
-    return tok.text in ['\n', '\r\n']
+    return tok.type == 9  # NEWLINE token
+
+
+def is_indent(tok):
+    return tok.type == 1  # INDENT token
+
+
+def is_dedent(tok):
+    return tok.type == 2  # DEDENT token
 
 
 def get_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
@@ -194,27 +206,34 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     comments = list()
     empty_before = __no_definitions_before(ctx, tokens)
     temp = None
+    lastToken = None
     for possibleCommentToken in reversed(tokens[0:tokens.index(ctx.start)]):
-        # skip whitespaces
-        if possibleCommentToken.channel == 1:
-            continue
         # if we hit a normal token (i.e. not whitespace and not newline) then stop
-        if possibleCommentToken.channel == 0 and (not is_newline(possibleCommentToken)):
+        if possibleCommentToken.channel == 0 \
+                and not (is_newline(possibleCommentToken)
+                         or is_indent(possibleCommentToken) or is_dedent(possibleCommentToken)):
+            # This is to omit the inline comments that are parsed
+            if is_newline(lastToken) and temp is not None:
+                comments.append(temp)
             break
-        # a newline by itself separates elements
-        if possibleCommentToken.channel == 0 and is_newline(possibleCommentToken):
+
+        # a newline on comment channel (2) by itself separates elements
+        if possibleCommentToken.channel == 2 and is_newline(possibleCommentToken) and is_newline(lastToken):
             if temp is not None:
                 comments.append(temp)
             break
+
         # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
         # in the same line, since in this case, the comments does not belong to us
-        if possibleCommentToken.channel == 2:
+        if possibleCommentToken.channel == 2 and not is_newline(possibleCommentToken):
             if temp is not None:
                 comments.append(temp)
             if strip_delim:
                 temp = replace_delimiters(possibleCommentToken.text)
             else:
                 temp = possibleCommentToken.text
+        lastToken = possibleCommentToken
+
     # this last part is required in the case, that the very first token is a comment
     if empty_before and temp is not None and temp not in comments:
         comments.append(temp)
@@ -246,7 +265,7 @@ def __no_definitions_before(ctx, tokens):
     :rtype: bool
     """
     for token in tokens[0:tokens.index(ctx.start)]:
-        if token.channel == 0 and (not is_newline(token)):
+        if token.channel == 0 and not is_newline(token) and not is_indent(token):
             return False
     return True
 
@@ -260,8 +279,11 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
     :type tokens: list(Tokens)
     :return: a comment
     """
+    prevToken = None
     for possibleComment in tokens[tokens.index(ctx.start):]:
         if possibleComment.channel == 2:
+            if is_newline(possibleComment):  # new line, thus the one line comment ends here
+                break
             if strip_delim:
                 comment = replace_delimiters(possibleComment.text)
             else:
@@ -271,8 +293,11 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
             if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
                 comment = comment[:-2]
             return comment
-        if is_newline(possibleComment):  # new line, thus the one line comment ends here
+        # While parsing blocks separately, there can be cases where the ctx.start (possibleComment) can begin with a new line.
+        # In this case, the parsing should not be stopped. Hence, prevToken checks if possibleComment is the first new line.
+        if possibleComment.channel == 0 and prevToken is not None and is_newline(possibleComment):
             break
+        prevToken = possibleComment
     return None
 
 

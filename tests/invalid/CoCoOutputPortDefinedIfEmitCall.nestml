@@ -32,9 +32,5 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron spiking_output_port_is_defined:
-
-  update:
-      emit_spike()
-  end
-
-end
+    update:
+        emit_spike()

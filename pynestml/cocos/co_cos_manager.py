@@ -26,7 +26,6 @@ from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssi
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
-from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -45,7 +44,6 @@ from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
@@ -198,14 +196,6 @@ class CoCosManager:
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(neuron)
 
     @classmethod
-    def check_continuous_input_ports_not_qualified(cls, neuron: ASTNeuron):
-        """
-        Checks that continuous time input ports have not been specified with keywords, e.g., inhibitory.
-        :param neuron: a single neuron object.
-        """
-        CoCoContinuousInputPortNotQualified.check_co_co(neuron)
-
-    @classmethod
     def check_output_port_defined_if_emit_call(cls, neuron: ASTNeuron):
         """
         Checks that if emit_spike() function is called, an spiking output port is defined.
@@ -229,14 +219,6 @@ class CoCosManager:
         :param neuron: a single neuron object.
         """
         CoCoOdeFunctionsHaveConsistentUnits.check_co_co(neuron)
-
-    @classmethod
-    def check_input_port_data_type(cls, neuron: ASTNeuron):
-        """
-        Checks that input ports have specified the data type if required and no data type if not allowed.
-        :param neuron: a single neuron object.
-        """
-        CoCoInputPortDataType.check_co_co(neuron)
 
     @classmethod
     def check_integrate_odes_called_if_equations_defined(cls, neuron: ASTNeuron):
@@ -388,8 +370,6 @@ class CoCosManager:
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_input_port_qualifier_unique(neuron)
         cls.check_parameters_not_assigned_outside_parameters_block(neuron)
-        cls.check_continuous_input_ports_not_qualified(neuron)
-        cls.check_input_port_data_type(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)

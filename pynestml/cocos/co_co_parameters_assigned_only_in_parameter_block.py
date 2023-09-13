@@ -36,15 +36,12 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
     Allowed:
         parameters:
             par mV = 10mV
-        end
     Not allowed:
         parameters:
             par mV = 10mV
-        end
         ...
         update:
            par = 20mV
-        end
     """
 
     @classmethod

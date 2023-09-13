@@ -34,5 +34,3 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoInlineExpressionHasNoRhs:
     equations:
         inline V_rest mV  = 10mV # a rhs is defined, thus everything is correct
-    end
-end

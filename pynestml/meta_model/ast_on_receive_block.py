@@ -34,8 +34,7 @@ class ASTOnReceiveBlock(ASTNode):
     .. code-block:: nestml
 
        onReceive(pre_spikes):
-         pre_tr += 1
-       end
+           pre_tr += 1
 
     """
 

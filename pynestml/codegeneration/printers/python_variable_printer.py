@@ -44,7 +44,6 @@ class PythonVariablePrinter(VariablePrinter):
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
-        self._state_symbols = []
 
     @classmethod
     def _print_python_name(cls, variable_name: str) -> str:
@@ -145,8 +144,6 @@ class PythonVariablePrinter(VariablePrinter):
         return self._expression_printer.print(vector_parameter)
 
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
-        assert all([type(s) == str for s in self._state_symbols])
-
         variable_name = PythonVariablePrinter._print_python_name(variable.get_complete_name())
 
         if symbol.is_local():
@@ -156,6 +153,6 @@ class PythonVariablePrinter(VariablePrinter):
             return self._print_delay_variable(variable)
 
         if with_origin:
-            return PythonCodeGeneratorUtils.print_symbol_origin(symbol, numerical_state_symbols=self._state_symbols) % variable_name
+            return PythonCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name

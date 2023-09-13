@@ -38,7 +38,6 @@ class CoCoAllVariablesDefined(CoCo):
         state:
             V_m mV = V_m + 10mV # <- recursive definition
             V_m mV = V_n # <- not defined reference
-        end
     """
 
     @classmethod

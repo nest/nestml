@@ -109,6 +109,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#declaration_newline.
+    def visitDeclaration_newline(self, ctx:PyNestMLParser.Declaration_newlineContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#anyDecorator.
     def visitAnyDecorator(self, ctx:PyNestMLParser.AnyDecoratorContext):
         return self.visitChildren(ctx)
@@ -209,8 +214,13 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#inputPort.
-    def visitInputPort(self, ctx:PyNestMLParser.InputPortContext):
+    # Visit a parse tree produced by PyNestMLParser#spikeInputPort.
+    def visitSpikeInputPort(self, ctx:PyNestMLParser.SpikeInputPortContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#continuousInputPort.
+    def visitContinuousInputPort(self, ctx:PyNestMLParser.ContinuousInputPortContext):
         return self.visitChildren(ctx)
 
 

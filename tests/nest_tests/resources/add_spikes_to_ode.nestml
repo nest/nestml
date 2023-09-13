@@ -1,7 +1,8 @@
 """
-LogarithmicFunctionTest_invalid.nestml
-######################################
+add_spikes_to_ode.nestml
+########################
 
+Test that spikes from an input port can be directly added to a linear (propagator-solved) and nonlinear (numeric solver) ODE.
 
 Copyright statement
 +++++++++++++++++++
@@ -23,22 +24,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron logarithm_function_test_invalid:
+neuron add_spikes_to_ode:
   state:
-    x real = 0.
-    ln_state real = 0.
-    log10_state real = 0.
-  end
+    x real = 0
+    y real = 0
+
+  equations:
+    x' = -x + 42 * spikes      # linear eq
+    y' = -y**2 + 123 * spikes   # nonlinear eq
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents pA <- continuous
-  end
+    spikes <- spike
+
+  output:
+    spike
 
   update:
-    ln_state = log10(x)
-    log10_state = ln(x)
-    x = x + 1.
-  end
-end
+    integrate_odes()
+
+    x += spikes / 5
+    y += spikes / 42

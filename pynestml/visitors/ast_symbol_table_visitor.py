@@ -456,8 +456,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_expression
         """
         from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+
         if isinstance(node, ASTSimpleExpression):
             return self.visit_simple_expression(node)
+
         if node.is_logical_not:
             node.get_expression().update_scope(node.get_scope())
         elif node.is_encapsulated:
@@ -469,10 +471,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_lhs().update_scope(node.get_scope())
             node.get_binary_operator().update_scope(node.get_scope())
             node.get_rhs().update_scope(node.get_scope())
-        if node.is_ternary_operator():
+        elif node.is_ternary_operator():
             node.get_condition().update_scope(node.get_scope())
             node.get_if_true().update_scope(node.get_scope())
             node.get_if_not().update_scope(node.get_scope())
+        elif node.is_expression():
+            node.get_expression().update_scope(node.get_scope())
 
     def visit_simple_expression(self, node):
         """
@@ -589,20 +593,21 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input port.
         :type node: ASTInputPort
         """
-        if not node.has_datatype():
-            code, message = Messages.get_input_port_type_not_defined(node.get_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        else:
-            node.get_datatype().update_scope(node.get_scope())
+        if node.is_continuous():
+            if not node.has_datatype():
+                code, message = Messages.get_input_port_type_not_defined(node.get_name())
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
+            else:
+                node.get_datatype().update_scope(node.get_scope())
 
         for qual in node.get_input_qualifiers():
             qual.update_scope(node.get_scope())
 
     def endvisit_input_port(self, node):
-        if not node.has_datatype():
-            return
-        type_symbol = node.get_datatype().get_type_symbol()
+        type_symbol = PredefinedTypes.get_type("s")**-1
+        if node.is_continuous() and node.has_datatype():
+            type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),

@@ -36,14 +36,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoKernelCorrectlyTyped:
     parameters:
         tau ms = 10 ms
-    end
 
     state: # variable is now defined in the initial block, thus everything is correct.
         g real = 1
         g' real = 1
-    end
 
     equations:
         kernel g'' = (-1/tau**2 * g - 2/tau * g') * pA  # wrong type
-    end
-end

@@ -37,60 +37,49 @@ References
     plasticity, Journal of Neuroscience, 20:23,8812--8821
 """
 synapse third_factor_stdp:
+    state:
+        w real = 1.   # Synaptic weight
 
-  state:
-    w real = 1.   # Synaptic weight
-  end
+    parameters:
+        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        lambda real = .01
+        tau_tr_pre ms = 20 ms
+        tau_tr_post ms = 20 ms
+        alpha real = 1.
+        mu_plus real = 1.
+        mu_minus real = 1.
+        Wmax real = 100.
+        Wmin real = 0.
 
-  parameters:
-    d ms = 1 ms  @nest::delay   # Synaptic transmission delay
-    lambda real = .01
-    tau_tr_pre ms = 20 ms
-    tau_tr_post ms = 20 ms
-    alpha real = 1.
-    mu_plus real = 1.
-    mu_minus real = 1.
-    Wmax real = 100.
-    Wmin real = 0.
-  end
+    equations:
+        kernel pre_trace_kernel = exp(-t / tau_tr_pre)
+        inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
 
-  equations:
-    kernel pre_trace_kernel = exp(-t / tau_tr_pre)
-    inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
+        # all-to-all trace of postsynaptic neuron
+        kernel post_trace_kernel = exp(-t / tau_tr_post)
+        inline post_trace real = convolve(post_trace_kernel, post_spikes)
 
-    # all-to-all trace of postsynaptic neuron
-    kernel post_trace_kernel = exp(-t / tau_tr_post)
-    inline post_trace real = convolve(post_trace_kernel, post_spikes)
-  end
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+        I_post_dend pA <- continuous
 
-  input:
-    pre_spikes real <- spike
-    post_spikes real <- spike
-    I_post_dend pA <- continuous
-  end
+    output:
+        spike
 
-  output: spike
+    onReceive(post_spikes):
+        # potentiate synapse
+        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        if I_post_dend <= 1 pA:
+            w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+        w = min(Wmax, w_)
 
-  onReceive(post_spikes):
-    # potentiate synapse
-    w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-    if I_post_dend <= 1 pA:
-      w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
-    end
-    w = min(Wmax, w_)
-  end
+    onReceive(pre_spikes):
+        # depress synapse
+        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        if I_post_dend <= 1 pA:
+            w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+        w = max(Wmin, w_)
 
-  onReceive(pre_spikes):
-    # depress synapse
-    w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
-    if I_post_dend <= 1 pA:
-      w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
-    end
-    w = max(Wmin, w_)
-
-    # deliver spike to postsynaptic partner
-    deliver_spike(w, d)
-  end
-
-end
-
+        # deliver spike to postsynaptic partner
+        deliver_spike(w, d)

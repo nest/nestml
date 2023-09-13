@@ -1,6 +1,6 @@
 """ 
-LogarithmicFunctionTest.nestml
-##############################
+TimeVariableSynapse.nestml
+##########################
 
 
 Copyright statement
@@ -23,22 +23,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron logarithm_function_test:
+synapse time_variable_synapse:
   state:
-    x real = 0.
-    ln_state real = 0.
-    log10_state real = 0.
-  end
+    x ms = 0. ms
+    y ms = 0. ms
+
+  onReceive(pre_spikes):
+    y = t
+
+  parameters:
+    d ms = 1 ms @nest::delay
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents pA <- continuous
-  end
+    pre_spikes <- spike
 
   update:
-    ln_state = ln(x)
-    log10_state = log10(x)
-    x = x + 1.
-  end
-end
+    x = t

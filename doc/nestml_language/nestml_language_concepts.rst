@@ -1,6 +1,40 @@
 NESTML language concepts
 ========================
 
+
+Structure and indentation
+-------------------------
+
+NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent (i.e. post block) statements must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
+
+.. code-block:: nestml
+
+   neuron test:
+       state:
+           tau ms = 42 ms
+           foo s = 0 s
+
+       update:
+           if tau > 0:
+               foo += 1
+           else:
+               foo -= 1
+
+Similar to Python, a single line can be split into multiple lines by using a backslash (``\``). For example, the expression in the ``update`` block of the model below is split into multiple lines using this technique.
+
+.. code-block:: nestml
+
+   neuron test:
+       state:
+           tau ms = 42 ms
+           foo s = 0 s
+
+       update:
+           foo = tau > 0 \
+               ? foo + 1 \
+               : foo - 1
+
+
 Data types and physical units
 -----------------------------
 
@@ -272,16 +306,13 @@ For example, the following model will result in one warning and one error:
 .. code-block:: nestml
 
    neuron test:
-     state:
-       ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
-       foo s = 0 s     # foo has units of time (seconds)
-     end
+       state:
+           ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
+           foo s = 0 s     # foo has units of time (seconds)
 
-     update:
-       ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
-       foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
-     end
-   end
+       update:
+           ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
+           foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
 Documentation string
@@ -306,8 +337,7 @@ Each neuron model may be documented by a block of text in reStructuredText forma
    
    """
    neuron iaf_psc_custom:
-     # [...]
-   end
+       # [...]
 
 This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
 
@@ -379,8 +409,7 @@ The declaration of a vector variable consists of the name of the variable follow
 .. code-block:: nestml
 
    parameters:
-     g_ex [20] mV = 10mV
-   end
+       g_ex [20] mV = 10mV
 
 Here, ``g_ex`` is a vector of size 20 and all the elements of the vector are initialized to 10mV. Note that the vector index always starts from 0.
 Size of the vector can be a positive integer or an integer variable previously declared in either ``parameters`` or ``internals`` block. For example, an integer variable named ``ten`` declared in the ``parameters`` block can be used to specify the size of the vector variable ``g_ex`` as:
@@ -388,13 +417,11 @@ Size of the vector can be a positive integer or an integer variable previously d
 .. code-block:: nestml
 
    state:
-     g_ex [ten] mV = 10mV
-     x [12] real = 0.
-   end
+       g_ex [ten] mV = 10mV
+       x [12] real = 0.
 
    parameters:
-     ten integer = 10
-   end
+       ten integer = 10
 
 If the size of a vector is a variable (as ``ten`` in the above example), the vector will be resized if the value of size variable changes during the simulation. On the other hand, the vector cannot be resized if the size is a fixed integer value.
 Vector variables can be used in expressions as an array with an index. For example,
@@ -402,39 +429,34 @@ Vector variables can be used in expressions as an array with an index. For examp
 .. code-block:: nestml
 
    state:
-     g_ex [ten] mV = 10mV
-     x[15] real = 0.
-   end
+       g_ex [ten] mV = 10mV
+       x[15] real = 0.
 
    parameters:
-     ten integer = 10
-   end
+       ten integer = 10
 
    update:
-     integer j = 0
-     g_ex[2] = -55. mV
-     x[j] = g_ex[2]
-     j += 1
-   end
+       integer j = 0
+       g_ex[2] = -55. mV
+       x[j] = g_ex[2]
+       j += 1
 
 Functions
 ~~~~~~~~~
 
-Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword ``end``.
+Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller.
 
 ::
 
     function <name>(<list_of_arguments>) <return_type>?:
-      <statements>
-    end
+        <statements>
 
 e.g.:
 
 .. code-block:: nestml
 
    function divide(a real, b real) real:
-     return a/b
-   end
+       return a/b
 
 To use a function, it has to be called. A function call is composed of the function name and the list of required parameters. The returned value (if any) can be directly assigned to a variable of the corresponding type.
 
@@ -490,6 +512,21 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``tanh``
      - x
      - Returns the hyperbolic tangent of x. The type of x and the return type are Real.
+   * - ``erf``
+     - x
+     - Returns the error function of x. The type of x and the return type are Real.
+   * - ``erfc``
+     - x
+     - Returns the complementary error function of x. The type of x and the return type are Real.
+   * - ``ceil``
+     - x
+     - Returns the ceil of x. The type of x and the return type are Real.
+   * - ``floor``
+     - x
+     - Returns the floor of x. The type of x and the return type are Real.
+   * - ``round``
+     - x
+     - Returns the rounded value of x. The type of x and the return type are Real.
    * - ``random_normal``
      - mean, std
      - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
@@ -541,12 +578,11 @@ e.g.
 .. code-block:: nestml
 
    if a > b:
-     return a
+       return a
    else:
-     return b
-   end
+       return b
 
-Printing output to the console
+Print function
 ^^^^^^^^^^^^^^
 
 The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on the ``update`` block.
@@ -559,7 +595,6 @@ Example:
         print("Hello World")
         ...
         println("Another statement")
-    end
 
 Variables defined in the model can be printed by enclosing them in ``{`` and ``}``. For example, variables ``V_m`` and ``V_thr`` used in the model can be printed as:
 
@@ -570,8 +605,6 @@ Variables defined in the model can be printed by enclosing them in ``{`` and ``}
         print("A spike event with membrane voltage: {V_m}")
         ...
         println("Membrane voltage {V_m} is less than the threshold {V_thr}")
-      end
-    end
 
 Control structures
 ~~~~~~~~~~~~~~~~~~
@@ -581,13 +614,12 @@ To control the flow of execution, NESTML supports loops and conditionals.
 Loops
 ^^^^^
 
-The start of the ``while`` loop is composed of the keyword ``while`` followed by a boolean condition and a colon. It is closed with the keyword ``end``. It executes the statements inside the block as long as the given boolean expression evaluates to ``true``.
+The start of the ``while`` loop is composed of the keyword ``while`` followed by a boolean condition and a colon. It executes the statements inside the block as long as the given boolean expression evaluates to ``true``.
 
 ::
 
     while <boolean_expression>:
-      <statements>
-    end
+        <statements>
 
 e.g.:
 
@@ -595,16 +627,14 @@ e.g.:
 
    x integer = 0
    while x <= 10:
-     y = max(3, x)
-   end
+       y = max(3, x)
 
 The ``for`` loop starts with the keyword ``for`` followed by the name of a previously defined variable of type ``integer`` or ``real``. The fist variant uses an ``integer`` stepper variable which iterates over the half-open interval [``lower_bound``, ``upper_bound``) in steps of 1.
 
 ::
 
     for <existing_variable_name> in <lower_bound> ... <upper_bound>:
-      <statements>
-    end
+        <statements>
 
 e.g.:
 
@@ -612,16 +642,14 @@ e.g.:
 
    x integer = 0
    for x in 1 ... 5:
-     # <statements>
-   end
+       # <statements>
 
 The second variant uses an ``integer`` or ``real`` iterator variable and iterates over the half-open interval ``[lower_bound, upper_bound)`` with a positive ``integer`` or ``real`` step of size ``step``. It is advisable to choose the type of the iterator variable and the step size to be the same.
 
 ::
 
     for <existing_variable_name> in <lower_bound> ... <upper_bound> step <step>:
-      <statements>
-    end
+        <statements>
 
 e.g.:
 
@@ -629,13 +657,11 @@ e.g.:
 
    x integer
    for x in 1 ... 5 step 2:
-     # <statements>
-   end
+       # <statements>
 
    x real
    for x in 0.1 ... 0.5 step 0.1:
-     # <statements>
-   end
+       # <statements>
 
 Conditionals
 ^^^^^^^^^^^^
@@ -645,77 +671,76 @@ NESTML supports different variants of the if-else conditional. The first example
 ::
 
     if <boolean_expression>:
-      <statements>
-    end
+        <statements>
 
 e.g.:
 
 .. code-block:: nestml
 
-   if 2 < 3:
-     # <statements>
-   end
+   parameters:
+       foo integer = 2
+       bar integer = 3
+
+   update:
+       if foo < bar:
+           # <statements>
 
 The second example shows an if-else block, which executes the ``if_statements`` in case the boolean expression evaluates to true and the ``else_statements`` else.
 
 ::
 
     if <boolean_expression>:
-      <if_statements>
+        <if_statements>
     else:
-      <else_statements>
-    end
+        <else_statements>
 
 e.g.:
 
 .. code-block:: nestml
 
-   if 2 < 3:
-     # <if_statements>
-   else:
-     # <else_statements>
-   end
+   update:
+       if foo < bar:
+           # <if_statements>
+       else:
+           # <else_statements>
 
-In order to allow grouping a sequence of related ``if`` conditions, NESTML also supports the ``elif``-conditionals. An ``if`` condition can be followed by an arbitrary number of ``elif`` conditions. Optionally, this variant also supports the ``else`` keyword for a catch-all statement. The whole conditional always concludes with an ``end`` keyword.
+In order to allow grouping a sequence of related ``if`` conditions, NESTML also supports the ``elif``-conditionals. An ``if`` condition can be followed by an arbitrary number of ``elif`` conditions. Optionally, this variant also supports the ``else`` keyword for a catch-all statement.
 
 ::
 
     if <boolean_expression>:
-      <if_statements>
+        <if_statements>
     elif <boolean_expression>:
-      <elif_statements>
+        <elif_statements>
     else:
-      <else_statements>
-    end
+        <else_statements>
 
 e.g.:
 
 .. code-block:: nestml
 
-   if 2 < 3:
-     # <if_statements>
-   elif 4 > 6:
-     # <elif_statements>
-   else:
-     # <else_statements>
-   end
+   parameters:
+       foo integer = 2
+       bar integer = 3
+       x integer = 4
+       y integer = 6
 
-   if 2 < 3:
-     # <if_statements>
-   elif 4>6:
-     # <elif_statements>
-   end
+   update:
+       if foo < bar:
+           # <if_statements>
+       elif x > y:
+           # <elif_statements>
+       else:
+           # <else_statements>
 
 Conditionals can also be nested inside of each other.
 
 .. code-block:: nestml
 
-   if 1 < 4:
-     # <statements>
-     if 2 < 3:
+   if foo < bar:
        # <statements>
-     end
-   end
+       if x < y:
+           # <statements>
 
 Expressions and operators
 -------------------------
@@ -759,13 +784,12 @@ For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ 
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. They are closed with the keyword ``end``. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
 
 ::
 
     <block_type> [<args>]:
-      ...
-    end
+        ...
 
 Block types
 ~~~~~~~~~~~
@@ -779,7 +803,7 @@ Within the top-level block, the following blocks may be defined:
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported. No ``end`` is necessary at the end of this block.
+-  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
 -  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language.
 
 Input
@@ -799,8 +823,6 @@ Each model can only send a single type of event. The type of the event has to be
 
    output: spike
 
-Please note that this block is **not** terminated with the ``end`` keyword.
-
 
 Handling of time
 ----------------
@@ -817,15 +839,12 @@ When using ``resolution()``, it is recommended to use the function call directly
 .. code-block:: nestml
 
    parameters:
-     h ms = resolution()   # !! NOT RECOMMENDED.
-   end
+       h ms = resolution()   # !! NOT RECOMMENDED.
 
    update:
-     # update from t to t + resolution()
-     x *= exp(-resolution() / tau)   # let x' = -x / tau
-                                     # evolve the state of x one timestep
-   end
-
+       # update from t to t + resolution()
+       x *= exp(-resolution() / tau)   # let x' = -x / tau
+                                       # evolve the state of x one timestep
 
 Equations
 ---------
@@ -859,23 +878,20 @@ dependent on another state variable ``bar`` at a constant time offset (here, ``d
 .. code-block:: nestml
 
    state:
-     bar real = -70.
-     foo real = 0
-   end
+       bar real = -70.
+       foo real = 0
 
    equations:
-     bar' = -bar / tau
-     foo' = bar(t - delay) / tau
-   end
+       bar' = -bar / tau
+       foo' = bar(t - delay) / tau
 
 Note that the ``delay`` can be a numeric constant or a constant defined in the ``parameters`` block. In the above example, the ``delay`` variable is defined in the ``parameters`` block as:
 
 .. code-block:: nestml
 
    parameters:
-     tau ms = 3.5 ms
-     delay ms = 5.0 ms
-   end
+       tau ms = 3.5 ms
+       delay ms = 5.0 ms
 
 For a full example, please refer to the tests at `tests/nest_tests/nest_delay_based_variables_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_delay_based_variables_test.py>`_.
 
@@ -919,8 +935,7 @@ with time constant, for example, equal to 20 ms:
 .. code-block:: nestml
 
    parameters:
-     tau ms = 20 ms
-   end
+       tau ms = 20 ms
 
 The start at time :math:`t \geq 0` is an implicit assumption for all kernels.
 
@@ -935,8 +950,7 @@ In this case, initial values have to be specified in the ``state`` block up to t
 .. code-block:: nestml
 
    state:
-     g real = 1
-   end
+       g real = 1
 
 Here, the ``1`` defines the peak value of the kernel at :math:`t = 0`.
 
@@ -960,10 +974,9 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
     .. code-block:: nestml
 
        state:
-         g real = 0
-         g$ real = 1
-       end
-       
+           g real = 0
+           g$ real = 1
+
    Note that the types of both differential equations are :math:`\text{ms}^{-1}`.
 
 (3) As a second-order differential equation:
@@ -977,9 +990,8 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
     .. code-block:: nestml
 
        state:
-         g real = 0
-         g' ms**-1 = e / tau
-       end
+           g real = 0
+           g' ms**-1 = e / tau
 
 A Dirac delta impulse kernel can be defined by using the predefined function ``delta``:
 
@@ -1014,22 +1026,17 @@ In order to model refractory and non-refractory states, two variables are necess
 .. code-block:: nestml
 
    parameters:
-     t_ref ms = 5 ms
-   end
+       t_ref ms = 5 ms
 
    internals:
-     ref_counts = 0
-   end
+       ref_counts = 0
 
    update:
-     if ref_count == 0: # neuron is in non-refractory state
-       if <refractoriness_condition>:
-         ref_counts = steps(t_ref) # make neuron refractory for 5 ms
-       end
-     else:
-       ref_counts -= 1 # neuron is refractory
-     end
-   end
+       if ref_count == 0: # neuron is in non-refractory state
+           if <refractoriness_condition>:
+               ref_counts = steps(t_ref) # make neuron refractory for 5 ms
+           else:
+               ref_counts -= 1 # neuron is refractory
 
 
 Setting and retrieving model properties
@@ -1049,10 +1056,8 @@ Recording values with devices
 .. code-block:: nestml
 
    equations:
-     ...
-     recordable inline V_m mV = V_rel + E_L
-   end
-
+       ...
+       recordable inline V_m mV = V_rel + E_L
 
 Guards
 ------
@@ -1062,14 +1067,11 @@ Variables which are defined in the ``state`` and ``parameters`` blocks can optio
 ::
 
    block:
-     <declaration> [[<boolean_expression>]]
-   end
-
+       <declaration> [[<boolean_expression>]]
 
 e.g.:
 
 .. code-block:: nestml
 
    parameters:
-     t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
-   end
+       t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
