@@ -39,3 +39,7 @@ synapse CoCoPrioritiesCorrectlySpecified:
 
     onReceive(post_spikes, priority=1):
         print("onReceive post_spikes")
+
+    parameters:
+        w real = 1.  @nest::weight
+        d ms = 1 ms  @nest::delay

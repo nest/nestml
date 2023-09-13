@@ -41,4 +41,6 @@ synapse CoCoResolutionLegallyUsed:
         return w
 
     parameters:
+        w real = 1.  @nest::weight
+        d ms = 1 ms  @nest::delay
         tau ms = 10 ms

@@ -36,13 +36,14 @@ synapse dopa_synapse_second_order:
         dopa_rate_d real = 0.
 
     parameters:
+        w real = 1.  @nest::weight
+        d ms = 1 ms  @nest::delay
         tau_dopa ms = 100 ms
-        d ms = 1 ms    @nest::delay
 
     equations:
         dopa_rate' = dopa_rate_d / ms
         dopa_rate_d' = -dopa_rate / tau_dopa**2 * ms - 2 * dopa_rate_d / tau_dopa
-     
+
     input:
         pre_spikes <- spike
         dopa_spikes <- spike
@@ -52,6 +53,6 @@ synapse dopa_synapse_second_order:
 
     onReceive(dopa_spikes):
         dopa_rate_d += 1. / tau_dopa
-        
+
     onReceive(pre_spikes):
         deliver_spike(1., 1 ms)

@@ -1,4 +1,4 @@
-""" 
+"""
 TimeVariableSynapse.nestml
 ##########################
 
@@ -32,7 +32,8 @@ synapse time_variable_synapse:
     y = t
 
   parameters:
-    d ms = 1 ms @nest::delay
+    w real = 1.   @nest::weight
+    d ms = 1 ms   @nest::delay
 
   input:
     pre_spikes <- spike
