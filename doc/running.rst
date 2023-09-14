@@ -162,6 +162,8 @@ NEST Simulator target
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
+Parameters, internals and state variables can be set and read by the user using ``nest.SetStatus()`` and ``nest.GetStatus()``.
+
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -47,7 +47,8 @@ class CoCoInlineExpressionNotAssignedTo(CoCo):
 
 class NoInlineExpressionAssignedToVisitor(ASTVisitor):
     def visit_assignment(self, node):
-        if ASTUtils.get_inline_expression_by_name(self.neuron_, node.get_variable().get_name()):
+        inline_expr = ASTUtils.get_inline_expression_by_name(self.neuron_, node.get_variable().get_name())
+        if inline_expr and not inline_expr.is_recordable:
             code, message = Messages.get_assigning_to_inline()
             Logger.log_message(code=code, message=message,
                                error_position=node.get_source_position(),
