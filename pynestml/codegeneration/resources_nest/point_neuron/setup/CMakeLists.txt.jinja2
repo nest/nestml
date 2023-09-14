@@ -246,15 +246,23 @@ if ( BUILD_SHARED_LIBS )
     # When building shared libraries, also create a module for loading at runtime
     # with the `Install` command.
     add_library( ${MODULE_NAME}_module MODULE ${MODULE_SOURCES} )
-    set_target_properties( ${MODULE_NAME}_module
-        PROPERTIES
-        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE"
-        LINK_FLAGS "${NEST_LIBS}"
-        PREFIX ""
-        OUTPUT_NAME ${MODULE_NAME} )
+    if ( APPLE )
+        set_target_properties( ${MODULE_NAME}_module
+            PROPERTIES
+            COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE"
+            LINK_FLAGS "${NEST_LIBS} -undefined dynamic_lookup"
+            PREFIX ""
+            OUTPUT_NAME ${MODULE_NAME} )
+    else ()
+        set_target_properties( ${MODULE_NAME}_module
+            PROPERTIES
+            COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE"
+            LINK_FLAGS "${NEST_LIBS}"
+            PREFIX ""
+            OUTPUT_NAME ${MODULE_NAME} )
+    endif ()
     install( TARGETS ${MODULE_NAME}_module
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        )
+        DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 endif ()
 
 message( "" )
