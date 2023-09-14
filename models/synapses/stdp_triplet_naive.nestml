@@ -61,14 +61,14 @@ synapse stdp_triplet:
 
     onReceive(post_spikes):
         # potentiate synapse
-        #w_ nS = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
-        w_ nS = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
+        #w_ real = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
+        w_ real = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
         w = min(Wmax, w_)
 
     onReceive(pre_spikes):
         # depress synapse
-        #w_ nS = Wmax * ( w / Wmax - tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
-        w_ nS = w - tr_o1 * ( A2_minus + A3_minus * tr_r2 )
+        #w_ real = Wmax * ( w / Wmax - tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
+        w_ real = w - tr_o1 * ( A2_minus + A3_minus * tr_r2 )
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
