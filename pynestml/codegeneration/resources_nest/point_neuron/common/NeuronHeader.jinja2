@@ -360,7 +360,9 @@ public:
   //   Initialization functions
   // -------------------------------------------------------------------------
 
+{%- if not nest_version.startswith("v2") %}
   void calibrate_time( const nest::TimeConverter& tc ) override;
+{%- endif %}
 
 protected:
 {%- if paired_synapse is defined %}

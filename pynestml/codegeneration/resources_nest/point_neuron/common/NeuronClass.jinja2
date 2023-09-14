@@ -1,4 +1,4 @@
-// #define DEBUG 1
+#define DEBUG 1
 {#
 NeuronClass.jinja2
 
@@ -319,16 +319,17 @@ void {{neuronName}}::init_state_(const Node& proto)
 }
 {%- endif %}
 
+{%- if not nest_version.startswith("v2") %}
 void {{neuronName}}::calibrate_time( const nest::TimeConverter& tc )
 {
   LOG( nest::M_WARNING,
     "{{neuronName}}",
-    "Simulation resolution has changed. Internal state and parameters of the"
-    "model have been reset!" );
+    "Simulation resolution has changed. Internal state and parameters of the model have been reset!" );
 
   init_state_internal_();
 }
 
+{%- endif %}
 void {{neuronName}}::init_state_internal_()
 {
 #ifdef DEBUG
@@ -355,6 +356,8 @@ void {{neuronName}}::init_state_internal_()
 {%- endfilter %}
 {%- endif %}
 
+  recompute_internal_variables();
+
 {%- if neuron.get_state_symbols()|length > 0 %}
   // initial values for state variables
 {%- filter indent(2) %}
@@ -364,6 +367,7 @@ void {{neuronName}}::init_state_internal_()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+
 
 {%- if paired_synapse is defined %}
   // state variables for archiving state for paired synapse
@@ -496,6 +500,7 @@ void {{neuronName}}::pre_run_hook() {
 {%- endif %}
   B_.logger_.init();
 
+  // parameters might have changed -- recompute internals
   recompute_internal_variables();
 
   // buffers B_

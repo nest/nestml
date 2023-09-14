@@ -22,7 +22,7 @@ neuron ignore_and_fire:
 
   state:
     phase real = 1.                # relative time to next spike (in (0,1])
-    phase_steps integer = firing_period_steps
+    phase_steps integer = firing_period_steps / 2   # start halfway through the interval by default
 
   parameters:
     firing_rate Bq = 10. Bq        # firing rate
@@ -38,12 +38,16 @@ neuron ignore_and_fire:
 
   update:
    res real = resolution()
+   println("-----")
+   println("resolution: {res}")
+   println("firing_period_steps: {firing_period_steps}")
+   println("phase_steps: {phase_steps}")
    integrate_odes()
-   if phase_steps == 0:
+   if phase_steps >= firing_period_steps - 1:
        emit_spike()
-       phase_steps = firing_period_steps - 1
-       #println("spike")
+       phase_steps = 0
+       println("emited spike")
     else:
-       phase_steps -= 1
+       phase_steps += 1
 
     phase = phase_steps / firing_period_steps

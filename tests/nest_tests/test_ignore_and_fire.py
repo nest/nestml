@@ -74,7 +74,9 @@ class TestIgnoreAndFire:
         pre_neuron = nest.Create(self.neuron_model_name)
         post_neuron = nest.Create(self.neuron_model_name)
         pre_neuron.firing_rate = 10.
+        pre_neuron.phase_steps = 50
         post_neuron.firing_rate = 100.
+        post_neuron.phase_steps = 5
         pre_sr = nest.Create("spike_recorder")
         post_sr = nest.Create("spike_recorder")
         nest.Connect(pre_neuron, pre_sr)
