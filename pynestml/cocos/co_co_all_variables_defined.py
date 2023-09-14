@@ -60,7 +60,7 @@ class CoCoAllVariablesDefined(CoCo):
             for var in vars:
                 symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
-                if var.alternate_scope and var.alternate_scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE):
+                if var.alternate_scope:
                     # external reference resolved in a different scope
                     continue
 

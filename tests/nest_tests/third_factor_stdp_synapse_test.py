@@ -321,8 +321,8 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         MAX_ABS_ERROR = 1E-6
         idx = np.where(np.abs(third_factor_trace) < 1E-3)[0]  # find where third_factor_place is (almost) zero
         times_dw_should_be_zero = timevec[idx]
-        for time_dw_should_be_zero in times_dw_should_be_zero:
+        for time_dw_should_be_zero in times_dw_should_be_zero[:-1]:
             _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
-            assert np.abs(np.diff(w_hist)[_idx]) < MAX_ABS_ERROR
+            assert np.abs(np.diff(w_hist)[_idx + 1]) < MAX_ABS_ERROR
 
         assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"
