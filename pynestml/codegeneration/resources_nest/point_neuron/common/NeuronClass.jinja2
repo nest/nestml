@@ -217,8 +217,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
   init_state_internal_();
 
 {%- if has_state_vectors %}
@@ -336,6 +334,8 @@ void {{neuronName}}::init_state_internal_()
 #ifdef DEBUG
   std::cout << "{{neuronName}}::init_state_internal_()" << std::endl;
 #endif
+
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
