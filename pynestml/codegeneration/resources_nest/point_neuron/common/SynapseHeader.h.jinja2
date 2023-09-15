@@ -217,6 +217,7 @@ public:
     }
 
 {%- endif %}
+
 };
 
 
@@ -333,7 +334,7 @@ private:
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not isHomogeneous and not (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0 and variable_symbol.namespace_decorators[0] == "delay") %}
+{%-     if not isHomogeneous and not (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0 and variable_symbol.namespace_decorators["nest"] == "delay") %}
 {%-         include 'directives/MemberDeclaration.jinja2' %}
 {%-     else %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
@@ -1054,9 +1055,8 @@ void
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if (not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.get_symbol_name()))) and (not variable_symbol.is_internals()) %}
 {%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-// special treatment for variable marked with @nest::name decorator
 {%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer_no_origin.print(variable)}}());
+def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer_no_origin.print(variable)}}());   // special treatment for variable marked with @nest::name decorator
 {%-         else %}
 {%-             include "directives/WriteInDictionary.jinja2" %}
 {%-         endif %}
@@ -1194,6 +1194,8 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, nest::
 {%-     set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
 {%-     if namespaceName | length > 0 %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+    if ( __d->known(nest::names::{{ namespaceName }}) )
+    {
 {%-     if namespaceName == "delay" %}
   // special treatment of NEST delay
   set_delay(tmp_delay);
@@ -1203,6 +1205,7 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, nest::
 {%-     else %}
 {{ raise("Unknown NEST namespace name: " + namespaceName) }}
 {%-     endif %}
+    }
 {%-     endif %}
 {%- endfor %}
 
@@ -1281,20 +1284,8 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     set has_namespace_decorator = (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0) %}
-{%-     if not isHomogeneous %}
-{%-         if not has_namespace_decorator %}
+{%-     if not isHomogeneous and not (variable_symbol.namespace_decorators and variable_symbol.namespace_decorators | length > 0 and variable_symbol.namespace_decorators["nest"] == "delay") %}
     {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
-{%-         else %}
-{%-             set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
-{%-             if namespaceName == "delay" %}
-    set_delay(rhs.get_delay());
-{%-             elif namespaceName == "weight" %}
-    set_weight(rhs.get_weight());
-{%-             else %}
-{{ raise("Unknown NEST namespace name: " + namespaceName) }}
-{%-             endif %}
-{%-         endif %}
 {%-     endif %}
 {%- endfor %}
 
@@ -1304,8 +1295,6 @@ template < typename targetidentifierT >
     {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
 {%- endfor %}
 
-    //weight_ = get_named_parameter<double>(names::weight);
-    //set_weight( *rhs.weight_ );
 {%- if vt_ports is defined and vt_ports|length > 0  %}
     t_last_update_ = rhs.t_last_update_;
 {%- endif %}

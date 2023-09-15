@@ -114,9 +114,6 @@ def run_reference_simulation(syn_opts,
                }
 
     for spk_time in np.unique(times_spikes_syn_persp):
-        import logging
-        logging.warning("XXX: TODO: before_increment values here are all wrong")
-
         if spk_time in times_spikes_post_syn_persp:
             # print("Post spike --> facilitation")
             print("\tgetting pre trace r1")
@@ -132,7 +129,7 @@ def run_reference_simulation(syn_opts,
             weight = np.clip(weight + r1 * (syn_opts["A2_plus"] + syn_opts["A3_plus"]
                              * o2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
             # print("\tnew weight = " + str(weight))
-            print("[NESTML] stdp_connection: facilitating from " + str(old_weight) + " to "
+            print("[REF] stdp_connection: facilitating from " + str(old_weight) + " to "
                   + str(weight) + " with pre tr = " + str(r1) + ", post tr = " + str(o2))
 
         if spk_time in times_spikes_pre:
@@ -150,7 +147,7 @@ def run_reference_simulation(syn_opts,
             weight = np.clip(weight - o1 * (syn_opts["A2_minus"] + syn_opts["A3_minus"]
                              * r2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
             # print("\tnew weight = " + str(weight))
-            print("[NESTML] stdp_connection: depressing from " + str(old_weight) + " to "
+            print("[REF] stdp_connection: depressing from " + str(old_weight) + " to "
                   + str(weight) + " with pre tr = " + str(r2) + ", post tr = " + str(o1))
 
         log[spk_time] = {"weight": weight}
@@ -231,7 +228,6 @@ def run_nest_simulation(neuron_model_name,
     _syn_opts["Wmax"] = _syn_opts.pop("w_max")
     _syn_opts["Wmin"] = _syn_opts.pop("w_min")
     _syn_opts["weight"] = _syn_opts.pop("w_init")
-    _syn_opts.pop("delay")
     nest.CopyModel(synapse_model_name,
                    synapse_model_name + "_rec",
                    {"weight_recorder": weight_recorder_E[0]})
@@ -265,6 +261,7 @@ def run_nest_simulation(neuron_model_name,
     events = nest.GetStatus(weight_recorder_E, "events")[0]
     times_weights = events["times"]
     weight_simulation = events["weights"]
+
     return times_weights, weight_simulation, gid_pre, gid_post, times_spikes, senders_spikes, sim_time
 
 
@@ -287,7 +284,6 @@ def compare_results(timevec, weight_reference, times_weights, weight_simulation)
         w_ref_vec.append(w_ref)
 
     np.testing.assert_allclose(weight_simulation, w_ref_vec, atol=1E-6, rtol=1E-6)
-    print("Test passed!")
 
 
 def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, timevec, weight_reference, times_weights, weight_simulation, sim_time):
