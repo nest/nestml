@@ -920,7 +920,7 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
-An exception is made for inline expressions which are defined as a simple convolution and marked ``recordable'':
+An exception is made for inline expressions which are defined as a simple convolution and marked ``recordable``:
 
 .. code-block:: nestml
 
