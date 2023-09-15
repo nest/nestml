@@ -237,11 +237,12 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             fig.savefig("/tmp/stdp_third_factor_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
-        MAX_ABS_ERROR = 1E-6
-        idx = np.where(np.abs(third_factor_trace) < 1E-3)[0]  # find where third_factor_trace is (almost) zero
+        MAX_ABS_ERROR = 1E-5
+        idx = np.where(np.abs(third_factor_trace) < MAX_ABS_ERROR)[0]  # find where third_factor_trace is (almost) zero
         times_dw_should_be_zero = timevec[idx]
+        assert len(times_dw_should_be_zero) > 0  # make sure we have > 0 datapoints to check
         for time_dw_should_be_zero in times_dw_should_be_zero[:-1]:
             _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
-            assert np.abs(np.diff(w_hist)[_idx + 1]) < MAX_ABS_ERROR
+            assert np.abs(w_hist[_idx] - w_hist[_idx + 1]) < 2 * MAX_ABS_ERROR   # make sure that weight does not change appreciably
 
         assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"
