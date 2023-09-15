@@ -37,11 +37,6 @@ neuron ignore_and_fire:
     spike
 
   update:
-   res real = resolution()
-   println("-----")
-   println("resolution: {res}")
-   println("firing_period_steps: {firing_period_steps}")
-   println("phase_steps: {phase_steps}")
    integrate_odes()
    if phase_steps >= firing_period_steps - 1:
        emit_spike()

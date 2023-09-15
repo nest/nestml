@@ -84,6 +84,7 @@ class TestIgnoreAndFire:
 
         nest.Connect(pre_neuron, post_neuron, syn_spec={"synapse_model": self.synapse_model_name})
 
+        # split the simulation in two to ensure continuity in state between the two halves
         nest.Simulate(sim_time // 2)
         nest.Simulate(sim_time - (sim_time // 2))
 
