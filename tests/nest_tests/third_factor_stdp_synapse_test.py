@@ -167,8 +167,11 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 state = 1
             if t > 2 * sim_time / 6 and state == 1:
                 nest.SetStatus(post_neuron, {"I_dend": 1.})
-            if t > 2 * sim_time / 3. and state == 1:
+            if t > 3 * sim_time / 6. and state == 1:
                 state = 2
+            if t > 5 * sim_time / 6. and state == 2:
+                nest.SetStatus(post_neuron, {"I_dend": 0.})
+                state = 3
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
@@ -237,12 +240,13 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             fig.savefig("/tmp/stdp_third_factor_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
-        MAX_ABS_ERROR = 1E-5
-        idx = np.where(np.abs(third_factor_trace) < MAX_ABS_ERROR)[0]  # find where third_factor_trace is (almost) zero
+        idx = np.where(np.abs(third_factor_trace) < 1E-12)[0]  # find where third_factor_trace is (almost) zero
         times_dw_should_be_zero = timevec[idx]
         assert len(times_dw_should_be_zero) > 0  # make sure we have > 0 datapoints to check
         for time_dw_should_be_zero in times_dw_should_be_zero[:-1]:
             _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
-            assert np.abs(w_hist[_idx] - w_hist[_idx + 1]) < 2 * MAX_ABS_ERROR   # make sure that weight does not change appreciably
+            np.testing.assert_allclose(t_hist[_idx], time_dw_should_be_zero)
+            np.testing.assert_allclose(0., np.abs(w_hist[_idx] - w_hist[_idx + 1]))   # make sure that weight does not change appreciably
 
-        assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"
+        assert np.any(np.abs(np.array(w_hist) - 1) > 0.), "No change in the weight!"
+        0/0
