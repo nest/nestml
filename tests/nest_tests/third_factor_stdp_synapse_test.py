@@ -249,4 +249,3 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             np.testing.assert_allclose(0., np.abs(w_hist[_idx] - w_hist[_idx + 1]))   # make sure that weight does not change appreciably
 
         assert np.any(np.abs(np.array(w_hist) - 1) > 0.), "No change in the weight!"
-        0/0
