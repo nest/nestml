@@ -71,12 +71,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         fname_snip = ""
 
-        pre_spike_times = [1., 11., 21.]    # [ms]
-        post_spike_times = [6., 16., 26.]  # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
         post_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(500))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(500))))))      # [ms]
 
@@ -192,7 +186,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                # _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + "_V_m.png", dpi=300)
@@ -233,8 +226,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             for _ax in ax:
                 if not _ax == ax[-1]:
                     _ax.set_xticklabels([])
-                _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.grid(True)
                 _ax.set_xlim(0., sim_time)
 
             fig.savefig("/tmp/stdp_third_factor_synapse_test" + fname_snip + ".png", dpi=300)
@@ -243,9 +235,9 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         idx = np.where(np.abs(third_factor_trace) < 1E-12)[0]  # find where third_factor_trace is (almost) zero
         times_dw_should_be_zero = timevec[idx]
         assert len(times_dw_should_be_zero) > 0  # make sure we have > 0 datapoints to check
-        for time_dw_should_be_zero in times_dw_should_be_zero[:-1]:
+        for time_dw_should_be_zero in times_dw_should_be_zero[1:]:
             _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
             np.testing.assert_allclose(t_hist[_idx], time_dw_should_be_zero)
-            np.testing.assert_allclose(0., np.abs(w_hist[_idx] - w_hist[_idx + 1]))   # make sure that weight does not change appreciably
+            np.testing.assert_allclose(0., np.abs(w_hist[_idx - 1] - w_hist[_idx]))   # make sure that weight does not change appreciably
 
         assert np.any(np.abs(np.array(w_hist) - 1) > 0.), "No change in the weight!"
