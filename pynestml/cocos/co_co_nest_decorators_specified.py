@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_nest_delay_decorator_specified.py
+# co_co_nest_decorators_specified.py
 #
 # This file is part of NEST.
 #
@@ -25,9 +25,9 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CoCoNESTDelayDecoratorSpecified(CoCo):
+class CoCoNESTDecoratorsSpecified(CoCo):
     """
-    This CoCo ensures that there is precisely one parameter decorated as "@nest::delay".
+    This CoCo ensures that there is precisely one variable decorated as "@nest::delay" and one as "@nest::weight".
     """
 
     @classmethod
@@ -36,14 +36,23 @@ class CoCoNESTDelayDecoratorSpecified(CoCo):
         Checks if the coco applies for the node.
         :param node:
         """
-        decorator_found = False
-        for variable in node.get_parameter_symbols() + node.get_internal_symbols():
+        delay_decorator_found = False
+        weight_decorator_found = False
+        for variable in node.get_state_symbols() + node.get_parameter_symbols() + node.get_internal_symbols():
             if variable.get_namespace_decorator("nest") == "delay":
-                decorator_found = True
-                break
+                delay_decorator_found = True
 
-        if not decorator_found:
+            if variable.get_namespace_decorator("nest") == "weight":
+                weight_decorator_found = True
+
+        if not delay_decorator_found:
             code, message = Messages.get_nest_delay_decorator_not_found()
+            Logger.log_message(node=node, error_position=None,
+                               code=code, message=message,
+                               log_level=LoggingLevel.ERROR)
+
+        if not weight_decorator_found:
+            code, message = Messages.get_nest_weight_decorator_not_found()
             Logger.log_message(node=node, error_position=None,
                                code=code, message=message,
                                log_level=LoggingLevel.ERROR)

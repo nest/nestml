@@ -9,8 +9,8 @@ Each presynaptic spike is passed to the postsynaptic partner with a weight sampl
 """
 synapse noisy_synapse:
     parameters:
-        w real = 1   # Synaptic weight
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        w real = 1.    @nest::weight    # Synaptic weight
+        d ms = 1 ms    @nest::delay    # Synaptic transmission delay
         A_noise real = .4
 
     input:

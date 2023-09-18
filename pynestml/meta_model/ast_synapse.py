@@ -41,7 +41,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
         artifact_name = None
     """
 
-    def __init__(self, name, body, default_weight=None, artifact_name=None, *args, **kwargs):
+    def __init__(self, name, body, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the synapse.
@@ -54,7 +54,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
         :type artifact_name: str
         """
         super(ASTSynapse, self).__init__(name, body, artifact_name, *args, **kwargs)
-        self._default_weight = default_weight
 
     def clone(self):
         """
@@ -65,7 +64,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
         """
         dup = ASTSynapse(name=self.name,
                          body=self.body.clone(),
-                         default_weight=self._default_weight,
                          artifact_name=self.artifact_name,
                          # ASTNode common attributes:
                          source_position=self.source_position,
@@ -76,29 +74,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
-
-    def set_default_weight(self, w):
-        self._default_weight = w
-
-    def set_default_delay(self, var, expr, dtype):
-        self._default_delay_variable = var
-        self._default_delay_expression = expr
-        self._default_delay_dtype = dtype
-
-    def get_default_delay_expression(self):
-        return self._default_delay_expression
-
-    def get_default_delay_variable(self):
-        return self._default_delay_variable
-
-    def get_default_delay_dtype(self):
-        return self._default_delay_dtype
-
-    def get_weight_variable(self):
-        return self._default_weight
-
-    def get_default_weight(self):
-        return self._default_weight
 
     def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
         if not self.get_body():
