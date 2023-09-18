@@ -56,7 +56,7 @@ model iaf_psc_delta_neuron:
 
     equations:
         kernel K_delta = delta(t)
-        V_m' = -(V_m - E_L) / tau_m + convolve(G, spikes) * (mV / ms) + (I_e + I_stim) / C_m
+        V_m' = -(V_m - E_L) / tau_m + convolve(K_delta, spikes) * (mV / ms) + (I_e + I_stim) / C_m
 
     parameters:
         tau_m   ms = 10 ms              # Membrane time constant
@@ -89,7 +89,6 @@ model iaf_psc_delta_neuron:
             # lower bound of membrane potential
             V_m = V_m < V_min ? V_min : V_m
         else: # neuron is absolute refractory
-                refr_spikes_buffer += spikes * s * exp(-r * h / tau_m) * mV
             r -= 1
 
         if V_m >= V_th: # threshold crossing

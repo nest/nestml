@@ -93,9 +93,9 @@ class TestNeuronPriority:
 
         # create spike_generators with these times
         port1_sg = nest.Create("spike_generator",
-                             params={"spike_times": port1_spike_times})
+                               params={"spike_times": port1_spike_times})
         port2_sg = nest.Create("spike_generator",
-                              params={"spike_times": port2_spike_times})
+                               params={"spike_times": port2_spike_times})
 
         # create parrot neurons and connect spike_generators
         neuron = nest.Create(neuron_model_name)

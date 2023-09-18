@@ -7,7 +7,7 @@ Description
 
 Used to test resolution() function.
 """
-neuron iaf_psc_exp_resolution_test:
+model iaf_psc_exp_resolution_test:
     state:
         r integer = 0                          # counts number of tick during the refractory period
         V_m mV = E_L

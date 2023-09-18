@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_synapse_priority.py
+# test_priority_synapse.py
 #
 # This file is part of NEST.
 #

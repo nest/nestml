@@ -49,8 +49,7 @@ class NestSplitSimulationTest(unittest.TestCase):
     def setUp(self):
         """Generate the model code"""
         input_files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml")]
-        if 1:
-         generate_nest_target(input_path=input_files,
+        generate_nest_target(input_path=input_files,
                              target_path="target",
                              logging_level="DEBUG",
                              module_name="nestmlmodule",

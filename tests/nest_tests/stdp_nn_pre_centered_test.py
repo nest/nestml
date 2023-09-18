@@ -72,12 +72,12 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                          os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-                         target_path="/tmp/nestml-non-jit",
-                         logging_level="INFO",
-                         module_name="nestml_non_jit_module",
-                         suffix="_nestml_non_jit",
-                         codegen_opts={"neuron_parent_class": "ArchivingNode",
-                                       "neuron_parent_class_include": "archiving_node.h"})
+                             target_path="/tmp/nestml-non-jit",
+                             logging_level="INFO",
+                             module_name="nestml_non_jit_module",
+                             suffix="_nestml_non_jit",
+                             codegen_opts={"neuron_parent_class": "ArchivingNode",
+                                           "neuron_parent_class_include": "archiving_node.h"})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")

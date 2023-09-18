@@ -15,7 +15,7 @@ model static_synapse:
         b real = 100.  @nest::b @heterogeneous
 
     input:
-        pre_spikes mV <- spike
+        pre_spikes <- spike
 
     onReceive(pre_spikes):
         deliver_spike(3.18E-3 * a * b * w, d)

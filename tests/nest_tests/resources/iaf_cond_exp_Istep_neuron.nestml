@@ -1,12 +1,11 @@
 """
-iaf_cond_exp_Istep - Simple conductance based leaky integrate-and-fire neuron model with step current
-#####################################################################################################
+iaf_cond_exp_Istep_neuron - Simple conductance based leaky integrate-and-fire neuron model with step current
+############################################################################################################
 
 Description
 +++++++++++
 
-iaf_cond_exp_Istep is a variation of iaf_cond_exp [1] that incorporates a stepwise-constant injected current,
-defined according to a vector of times (``t_step``) and a vector of current amplitudes at those times (``I_step``).
+This is a variation of iaf_cond_exp [1] that incorporates a stepwise-constant injected current, defined according to a vector of times (``t_step``) and a vector of current amplitudes at those times (``I_step``).
 
 References
 ++++++++++
@@ -22,7 +21,7 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 """
-neuron iaf_cond_exp_Istep:
+model iaf_cond_exp_Istep_neuron:
     state:
         r integer = 0     # counts number of tick during the refractory period
         V_m mV = E_L     # membrane potential
