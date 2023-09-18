@@ -38,22 +38,22 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "E_L", "mV", "-55mV", "Resting membrane potential"    
-    "g_L", "nS", "0.1nS", "Leak conductance"    
-    "C_m", "pF", "1pF", "Capacitance of the membrane"    
-    "E_Na", "mV", "55mV", "Sodium reversal potential"    
-    "g_Na", "nS", "120nS", "Sodium peak conductance"    
-    "E_K", "mV", "-80.0mV", "Potassium reversal potential"    
-    "g_K", "nS", "30.0nS", "Potassium peak conductance"    
-    "E_Ca", "mV", "120mV", "Calcium reversal potential"    
-    "g_Ca", "nS", "0.15nS", "Calcium peak conductance"    
-    "g_T", "nS", "0.5nS", "T-type Calcium channel peak conductance"    
-    "g_ahp", "nS", "30nS", "Afterpolarization current peak conductance"    
-    "tau_syn_exc", "ms", "1ms", "Rise time of the excitatory synaptic alpha function"    
-    "tau_syn_inh", "ms", "12.5ms", "Rise time of the inhibitory synaptic alpha function"    
-    "E_gg", "mV", "-100mV", "Reversal potential for inhibitory input (from GPe)"    
-    "t_ref", "ms", "2ms", "Refractory time"    
+
+    "E_L", "mV", "-55mV", "Resting membrane potential"
+    "g_L", "nS", "0.1nS", "Leak conductance"
+    "C_m", "pF", "1pF", "Capacitance of the membrane"
+    "E_Na", "mV", "55mV", "Sodium reversal potential"
+    "g_Na", "nS", "120nS", "Sodium peak conductance"
+    "E_K", "mV", "-80.0mV", "Potassium reversal potential"
+    "g_K", "nS", "30.0nS", "Potassium peak conductance"
+    "E_Ca", "mV", "120mV", "Calcium reversal potential"
+    "g_Ca", "nS", "0.15nS", "Calcium peak conductance"
+    "g_T", "nS", "0.5nS", "T-type Calcium channel peak conductance"
+    "g_ahp", "nS", "30nS", "Afterpolarization current peak conductance"
+    "tau_syn_exc", "ms", "1ms", "Rise time of the excitatory synaptic alpha function"
+    "tau_syn_inh", "ms", "12.5ms", "Rise time of the inhibitory synaptic alpha function"
+    "E_gg", "mV", "-100mV", "Reversal potential for inhibitory input (from GPe)"
+    "t_ref", "ms", "2ms", "Refractory time"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -65,12 +65,12 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "r", "integer", "0", "counts number of ticks during the refractory period"    
-    "V_m", "mV", "E_L", "Membrane potential"    
-    "gate_h", "real", "0.0", "gating variable h"    
-    "gate_n", "real", "0.0", "gating variable n"    
-    "gate_r", "real", "0.0", "gating variable r"    
+
+    "r", "integer", "0", "counts number of ticks during the refractory period"
+    "V_m", "mV", "E_L", "Membrane potential"
+    "gate_h", "real", "0.0", "gating variable h"
+    "gate_n", "real", "0.0", "gating variable n"
+    "gate_r", "real", "0.0", "gating variable r"
     "Ca_con", "real", "0.0", "gating variable r"
 
 
@@ -82,16 +82,16 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{exc,mod} \cdot \mathrm{pA} + I_{inh,mod} \cdot \mathrm{pA}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{exc,mod} \cdot \mathrm{pA} + I_{inh,mod} \cdot \mathrm{pA}) } \right)
 
 .. math::
-   \frac{ dgate_{h} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} }) } \right) 
+   \frac{ dgate_{h} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} }) } \right)
 
 .. math::
-   \frac{ dgate_{n} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} }) } \right) 
+   \frac{ dgate_{n} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} }) } \right)
 
 .. math::
-   \frac{ dgate_{r} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} }) } \right) 
+   \frac{ dgate_{r} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} }) } \right)
 
 .. math::
    \frac{ dCa_{con} } { dt }= g_{\epsilon} \cdot (-I_{Ca} - I_{T} - g_{k,Ca} \cdot Ca_{con})
@@ -101,7 +101,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `terub_gpe <https://github.com/nest/nestml/tree/master/models/neurons/terub_gpe.nestml>`_.
+The model source code can be found in the NESTML models repository here: `terub_gpe <https://github.com/nest/nestml/tree/master/models/neurons/terub_gpe_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++

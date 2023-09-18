@@ -47,8 +47,7 @@ model iaf_psc_exp_neuron:
     equations:
         I_syn_exc' = -I_syn_exc / tau_syn_exc
         I_syn_inh' = -I_syn_inh / tau_syn_inh
-        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
-        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+        V_m' = -(V_m - E_L) / tau_m + (I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
@@ -81,10 +80,10 @@ model iaf_psc_exp_neuron:
             integrate_odes()
 
     onReceive(exc_spikes):
-        I_syn_exc += exc_spikes
+        I_syn_exc += exc_spikes * pA * s
 
     onReceive(inh_spikes):
-        I_syn_inh += inh_spikes
+        I_syn_inh += inh_spikes * pA * s
 
     onCondition(V_m >= V_th):
         # threshold crossing

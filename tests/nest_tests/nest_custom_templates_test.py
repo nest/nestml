@@ -72,7 +72,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_custom_templates_with_synapse(self):
-        models = ["neurons/iaf_psc_delta.nestml", "synapses/stdp_triplet_naive.nestml"]
+        models = ["neurons/iaf_psc_delta_neuron.nestml", "synapses/stdp_triplet_naive.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", fn)))) for fn in models]
         target_path = "target"

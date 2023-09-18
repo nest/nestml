@@ -45,15 +45,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "C_m", "pF", "250pF", "Capacity of the membrane"    
-    "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"    
-    "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
-    "t_ref", "ms", "2ms", "Duration of refractory period"    
-    "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
-    "V_th", "mV", "-55mV", "Spike threshold potential"    
+
+    "C_m", "pF", "250pF", "Capacity of the membrane"
+    "tau_m", "ms", "10ms", "Membrane time constant"
+    "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"
+    "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"
+    "t_ref", "ms", "2ms", "Duration of refractory period"
+    "E_L", "mV", "-70mV", "Resting potential"
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"
+    "V_th", "mV", "-55mV", "Spike threshold potential"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -65,9 +65,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "r", "integer", "0", "Counts number of ticks during the refractory period"    
-    "V_m", "mV", "E_L", "Membrane potential"    
+
+    "r", "integer", "0", "Counts number of ticks during the refractory period"
+    "V_m", "mV", "E_L", "Membrane potential"
     "I_dend", "pA", "0pA", "Third factor, to be read out by synapse during weight update"
 
 
@@ -79,14 +79,14 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right)
 
 
 
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_psc_exp_dend <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_dend.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_psc_exp_dend <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_dend_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++

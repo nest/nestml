@@ -46,7 +46,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "wb_cond_exp.nestml")))
+            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "wb_cond_exp_neuron.nestml")))
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"

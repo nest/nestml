@@ -44,8 +44,8 @@ def nestml_generate_target():
     r"""Generate the neuron model code"""
 
     # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-    files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
-             os.path.join("models", "neurons", "izhikevich.nestml"),
+    files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml"),
+             os.path.join("models", "neurons", "izhikevich_neuron.nestml"),
              os.path.join("models", "synapses", "stdp_synapse.nestml")]
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]

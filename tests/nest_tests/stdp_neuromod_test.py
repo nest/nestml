@@ -56,7 +56,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-                 os.path.join("models", "synapses", "neuromodulated_stdp.nestml")]
+                 os.path.join("models", "synapses", "neuromodulated_stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,

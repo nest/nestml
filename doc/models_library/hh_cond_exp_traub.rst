@@ -57,26 +57,26 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "g_Na", "nS", "20000nS", "Na Conductance"    
-    "g_K", "nS", "6000nS", "K Conductance"    
-    "g_L", "nS", "10nS", "Leak Conductance"    
-    "C_m", "pF", "200pF", "Membrane Capacitance"    
-    "E_Na", "mV", "50mV", "Reversal potentials"    
-    "E_K", "mV", "-90mV", "Potassium reversal potential"    
-    "E_L", "mV", "-60mV", "Leak reversal potential (aka resting potential)"    
-    "V_T", "mV", "-63mV", "Voltage offset that controls dynamics. For default"    
-    "tau_syn_exc", "ms", "5ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic time constant of excitatory synapse"    
-    "tau_syn_inh", "ms", "10ms", "Synaptic time constant of inhibitory synapse"    
-    "t_ref", "ms", "2ms", "Refractory period"    
-    "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
-    "E_inh", "mV", "-80mV", "Inhibitory synaptic reversal potential"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)", ""    
-    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - E_L) / 40.0mV)", ""    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)", ""    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40.0mV) / (exp((E_L - 40.0mV) / 5.0mV) - 1.0)", ""    
-    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - E_L) / 18.0mV)", ""    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - E_L) / 5.0mV))) / ms", ""    
+
+    "g_Na", "nS", "20000nS", "Na Conductance"
+    "g_K", "nS", "6000nS", "K Conductance"
+    "g_L", "nS", "10nS", "Leak Conductance"
+    "C_m", "pF", "200pF", "Membrane Capacitance"
+    "E_Na", "mV", "50mV", "Reversal potentials"
+    "E_K", "mV", "-90mV", "Potassium reversal potential"
+    "E_L", "mV", "-60mV", "Leak reversal potential (aka resting potential)"
+    "V_T", "mV", "-63mV", "Voltage offset that controls dynamics. For default"
+    "tau_syn_exc", "ms", "5ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic time constant of excitatory synapse"
+    "tau_syn_inh", "ms", "10ms", "Synaptic time constant of inhibitory synapse"
+    "t_ref", "ms", "2ms", "Refractory period"
+    "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"
+    "E_inh", "mV", "-80mV", "Inhibitory synaptic reversal potential"
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)", ""
+    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - E_L) / 40.0mV)", ""
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)", ""
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40.0mV) / (exp((E_L - 40.0mV) / 5.0mV) - 1.0)", ""
+    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - E_L) / 18.0mV)", ""
+    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - E_L) / 5.0mV))) / ms", ""
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -88,11 +88,11 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_m", "mV", "E_L", "Membrane potential"    
-    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
-    "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
+
+    "r", "integer", "0", "counts number of tick during the refractory period"
+    "V_m", "mV", "E_L", "Membrane potential"
+    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""
+    "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""
     "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""
 
 
@@ -104,7 +104,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right)
 
 .. math::
    \frac{ dAct_{m} } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
@@ -120,7 +120,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hh_cond_exp_traub <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_traub.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hh_cond_exp_traub <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_traub_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++

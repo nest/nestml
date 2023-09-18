@@ -43,7 +43,7 @@ class TestSynapsePriority:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""Generate the model code"""
-        files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml"),
                  os.path.join("tests", "resources", "synapse_event_priority_test.nestml"),
                  os.path.join("tests", "resources", "synapse_event_inv_priority_test.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(

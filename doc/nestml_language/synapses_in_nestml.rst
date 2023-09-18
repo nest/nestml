@@ -162,7 +162,7 @@ In this example, the ``I_dend`` state variable of the neuron will be simply an e
 For a full example, please see the following files:
 
 * ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure)
-* ``models/neurons/iaf_psc_exp_dend.nestml`` (neuron model)
+* ``models/neurons/iaf_psc_exp_dend_neuron.nestml`` (neuron model)
 * ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
 
 

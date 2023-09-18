@@ -53,21 +53,21 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
-    "C_m", "pF", "250pF", "Capacitance of the membrane"    
-    "t_ref", "ms", "2ms", "Refractory period"    
-    "V_th", "mV", "-55mV", "Threshold potential"    
-    "V_reset", "mV", "-60mV", "Reset potential"    
-    "E_ex", "mV", "0mV", "Excitatory reversal potential"    
-    "E_in", "mV", "-85mV", "Inhibitory reversal potential"    
-    "g_L", "nS", "16.6667nS", "Leak conductance"    
-    "tau_syn_rise_I", "ms", "0.2ms", "Synaptic time constant excitatory synapse"    
-    "tau_syn_decay_I", "ms", "2ms", "Synaptic time constant for inhibitory synapse"    
-    "tau_syn_rise_E", "ms", "0.2ms", "Synaptic time constant excitatory synapse"    
-    "tau_syn_decay_E", "ms", "2ms", "Synaptic time constant for inhibitory synapse"    
-    "F_E", "nS", "0nS", "Constant external input conductance (excitatory)."    
-    "F_I", "nS", "0nS", "Constant external input conductance (inhibitory)."    
+
+    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"
+    "C_m", "pF", "250pF", "Capacitance of the membrane"
+    "t_ref", "ms", "2ms", "Refractory period"
+    "V_th", "mV", "-55mV", "Threshold potential"
+    "V_reset", "mV", "-60mV", "Reset potential"
+    "E_ex", "mV", "0mV", "Excitatory reversal potential"
+    "E_in", "mV", "-85mV", "Inhibitory reversal potential"
+    "g_L", "nS", "16.6667nS", "Leak conductance"
+    "tau_syn_rise_I", "ms", "0.2ms", "Synaptic time constant excitatory synapse"
+    "tau_syn_decay_I", "ms", "2ms", "Synaptic time constant for inhibitory synapse"
+    "tau_syn_rise_E", "ms", "0.2ms", "Synaptic time constant excitatory synapse"
+    "tau_syn_decay_E", "ms", "2ms", "Synaptic time constant for inhibitory synapse"
+    "F_E", "nS", "0nS", "Constant external input conductance (excitatory)."
+    "F_I", "nS", "0nS", "Constant external input conductance (inhibitory)."
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -79,12 +79,12 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_m", "mV", "E_L", "membrane potential"    
-    "g_in", "real", "0", "inputs from the inhibitory conductance"    
-    "g_in$", "real", "g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)", ""    
-    "g_ex", "real", "0", "inputs from the excitatory conductance"    
+
+    "r", "integer", "0", "counts number of tick during the refractory period"
+    "V_m", "mV", "E_L", "membrane potential"
+    "g_in", "real", "0", "inputs from the inhibitory conductance"
+    "g_in$", "real", "g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)", ""
+    "g_ex", "real", "0", "inputs from the excitatory conductance"
     "g_ex$", "real", "g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)", ""
 
 
@@ -96,14 +96,14 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right)
 
 
 
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_cond_beta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_beta.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_cond_beta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_beta_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++

@@ -154,7 +154,7 @@ class NESTMLModelDocGenerator:
         synapse_models.append(("stdp_triplet_nn_synapse", "triplet_stdp_synapse.nestml"))
         synapse_models.append(("stdp_triplet_synapse", "stdp_triplet_naive.nestml"))
         synapse_models.append(("third_factor_stdp_synapse", "third_factor_stdp_synapse.nestml"))
-        synapse_models.append(("neuromodulated_stdp_synapse", "neuromodulated_stdp.nestml"))
+        synapse_models.append(("neuromodulated_stdp_synapse", "neuromodulated_stdp_synapse.nestml"))
 
         all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
         s += self.generate_synapse_models_documentation(synapse_models, all_synapse_models)

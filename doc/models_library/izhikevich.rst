@@ -46,13 +46,13 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "a", "real", "0.02", "describes time scale of recovery variable"    
-    "b", "real", "0.2", "sensitivity of recovery variable"    
-    "c", "mV", "-65mV", "after-spike reset value of V_m"    
-    "d", "real", "8.0", "after-spike reset value of U_m"    
-    "V_m_init", "mV", "-65mV", "initial membrane potential"    
-    "V_min", "mV", "-inf * mV", "Absolute lower value for the membrane potential."    
+
+    "a", "real", "0.02", "describes time scale of recovery variable"
+    "b", "real", "0.2", "sensitivity of recovery variable"
+    "c", "mV", "-65mV", "after-spike reset value of V_m"
+    "d", "real", "8.0", "after-spike reset value of U_m"
+    "V_m_init", "mV", "-65mV", "initial membrane potential"
+    "V_min", "mV", "-inf * mV", "Absolute lower value for the membrane potential."
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -64,8 +64,8 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "V_m", "mV", "V_m_init", "Membrane potential"    
+
+    "V_m", "mV", "V_m_init", "Membrane potential"
     "U_m", "real", "b * V_m_init", "Membrane potential recovery variable"
 
 
@@ -77,7 +77,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right)
 
 .. math::
    \frac{ dU_{m} } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
@@ -87,7 +87,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `izhikevich <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich.nestml>`_.
+The model source code can be found in the NESTML models repository here: `izhikevich <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++

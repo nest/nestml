@@ -64,7 +64,7 @@ class TestNestIntegration:
 
         alt_codegen_opts = {**codegen_opts, **{"solver": "numeric"}}
 
-        generate_nest_target(input_path=["models/neurons/aeif_cond_exp.nestml"],
+        generate_nest_target(input_path=["models/neurons/aeif_cond_exp_neuron.nestml"],
                              target_path="/tmp/nestml-allmodels",
                              logging_level="DEBUG",
                              module_name="nestml_alt_allmodels_module",

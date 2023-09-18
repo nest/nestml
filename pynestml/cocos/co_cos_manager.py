@@ -194,14 +194,6 @@ class CoCosManager:
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(model)
 
     @classmethod
-    def check_continuous_input_ports_not_qualified(cls, model: ASTModel):
-        """
-        Checks that continuous time input ports have not been specified with keywords, e.g., inhibitory.
-        :param model: a single model object.
-        """
-        CoCoContinuousInputPortNotQualified.check_co_co(model)
-
-    @classmethod
     def check_output_port_defined_if_emit_call(cls, model: ASTModel):
         """
         Checks that if emit_spike() function is called, an spiking output port is defined.
@@ -383,7 +375,6 @@ class CoCosManager:
         cls.check_no_nest_namespace_collisions(model)
         cls.check_input_port_qualifier_unique(model)
         cls.check_parameters_not_assigned_outside_parameters_block(model)
-        cls.check_continuous_input_ports_not_qualified(model)
         cls.check_user_defined_function_correctly_built(model)
         cls.check_initial_ode_initial_values(model)
         cls.check_kernel_type(model)

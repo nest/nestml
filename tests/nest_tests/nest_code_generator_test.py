@@ -53,7 +53,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha_neuron.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -72,7 +72,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_delta.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_delta_neuron.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -91,7 +91,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_cond_alpha.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_cond_alpha_neuron.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -112,7 +112,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha_with_codegen_opts(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
+            os.pardir, os.pardir, 'models', 'neurons', 'iaf_psc_alpha_neuron.nestml'))))
 
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
