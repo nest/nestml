@@ -19,10 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import nest
 import numpy as np
 import os
 import pytest
+
+import nest
+from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
@@ -73,12 +75,12 @@ class TestSynapseDelayGetSet:
         assert len(syn) == 1
         syn[0].d  # getting should fail
 
-    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.DictError)
+    @pytest.mark.xfail(strict=True, raises=NESTErrors.DictError)
     def test_synapse_delay_creation_alt1(self):
         nrn = nest.Create("iaf_psc_exp_nestml__with_stdp_nestml")
         nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml", "d": 42.})  # setting during construction should fail
 
-    @pytest.mark.xfail(strict=True, raises=nest.NESTErrors.BadProperty)
+    @pytest.mark.xfail(strict=True, raises=NESTErrors.BadProperty)
     def test_synapse_delay_creation_alt2(self):
         nrn = nest.Create("iaf_psc_exp_nestml__with_stdp_nestml")
         nest.Connect(nrn, nrn, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_nestml"})
