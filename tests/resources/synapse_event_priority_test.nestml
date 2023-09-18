@@ -34,6 +34,7 @@ synapse synapse_event_priority_test:
         tr real = 1.
 
     parameters:
+        w real = 1.  @nest::weight
         d ms = 1. ms  @nest::delay
 
     input:

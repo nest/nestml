@@ -117,6 +117,7 @@ class MessageCode(Enum):
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
+    ASSIGNING_TO_INLINE = 91
 
 
 class Messages:
@@ -1038,6 +1039,18 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'Analysing/transforming neuron \'%s\'' % name
         return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+
+    @classmethod
+    def get_assigning_to_inline(cls):
+        """
+        Cannot assign to inline expression
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "Cannot assign to inline expression."
+        return MessageCode.ASSIGNING_TO_INLINE, message
 
     @classmethod
     def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
