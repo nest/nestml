@@ -29,9 +29,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model CoCoAssignmentToInlineExpression:
+neuron CoCoAssignmentToInlineExpression:
+    parameters:
+        tau_syn ms = 10 ms
+
     equations:
-        inline foo real = 42
+        kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
+        inline foo real = convolve(alpha_kernel, spikes_in)
+
+    input:
+        spikes_in <- spike
 
     update:
         foo = 42.

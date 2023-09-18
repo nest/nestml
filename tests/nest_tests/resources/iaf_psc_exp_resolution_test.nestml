@@ -1,24 +1,23 @@
 """
-iaf_psc_exp_resolution_test_neuron
-##################################
+iaf_psc_exp_resolution_test
+###########################
 
 Description
 +++++++++++
 
 Used to test resolution() function.
 """
-model iaf_psc_exp_resolution_test_neuron:
+neuron iaf_psc_exp_resolution_test:
     state:
         r integer = 0                          # counts number of tick during the refractory period
         V_m mV = E_L
         a ms = resolution()
-        I_syn_exc pA = 0 pA
-        I_syn_inh pA = 0 pA
 
     equations:
-        I_syn_exc' = -I_syn_exc / tau_syn_exc
-        I_syn_inh' = -I_syn_inh / tau_syn_inh
-        V_m' = -(V_m - E_L) / tau_m + (I_syn_exc + I_syn_inh + I_e + I_stim) / C_m
+        kernel I_kernel_inh = exp(-t/tau_syn_inh)
+        kernel I_kernel_exc = exp(-t/tau_syn_exc)
+        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) * pA + convolve(I_kernel_exc, exc_spikes) * pA + I_e + I_stim
+        V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
@@ -39,15 +38,9 @@ model iaf_psc_exp_resolution_test_neuron:
         c ms = resolution()
 
     input:
-        exc_spikes pA <- excitatory spike
-        inh_spikes pA <- inhibitory spike
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         I_stim pA <- continuous
-
-    onReceive(exc_spikes):
-        I_syn_exc += exc_spikes
-
-    onReceive(inh_spikes):
-        I_syn_inh += inh_spikes
 
     output:
         spike

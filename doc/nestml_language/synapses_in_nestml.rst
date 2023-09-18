@@ -38,8 +38,8 @@ Depending on whether the plasticity rule depends only on pre-, or on both pre- a
 .. code-block:: nestml
 
    input:
-       pre_spikes nS <- spike
-       post_spikes nS <- spike
+       pre_spikes <- spike
+       post_spikes <- spike
 
    output: spike
 
@@ -101,8 +101,8 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
 .. code-block:: nestml
 
    input:
-       pre_spikes nS <- spike  # (same as before)
-       post_spikes nS <- spike
+       pre_spikes <- spike  # (same as before)
+       post_spikes <- spike
 
    onReceive(post_spikes):
        print("Info: processing a postsynaptic spike at time t = {t}")

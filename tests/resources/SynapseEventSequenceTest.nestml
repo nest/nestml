@@ -34,8 +34,8 @@ model event_sequence_test_synapse:
         tr real = 1.
 
     input:
-        pre_spikes real <- spike
-        post_spikes real <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
 
     onReceive(pre_spikes, priority=1):
         tr += 1.

@@ -22,22 +22,20 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 """
-model iaf_cond_exp_Istep:
+neuron iaf_cond_exp_Istep:
     state:
         r integer = 0     # counts number of tick during the refractory period
         V_m mV = E_L     # membrane potential
         k_step integer = 0       # iterator for step current
         I_step_now pA = 0. pA  # momentaneous value of step current
         now ms = 0. ms  # current time
-        g_ex nS = 0 nS
-        g_in nS = 0 nS
 
     equations:
-        g_ex' = -g_ex / tau_syn_ex
-        g_in' = -g_in / tau_syn_in
+        kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
+        kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
 
-        inline I_syn_ex pA = g_ex * ( V_m - E_ex )
-        inline I_syn_in pA = g_in * ( V_m - E_in )
+        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * nS * ( V_m - E_ex )
+        inline I_syn_in pA = convolve(g_in, inh_spikes) * nS * ( V_m - E_in )
         inline I_leak pA = g_L * ( V_m - E_L )
         V_m' = ( -I_leak - I_syn_ex - I_syn_in + I_e + I_stim + I_step_now ) / C_m
 
@@ -64,15 +62,9 @@ model iaf_cond_exp_Istep:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
-        inh_spikes nS <- inhibitory spike
-        exc_spikes nS <- excitatory spike
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
         I_stim pA <- continuous
-
-    onReceive(exc_spikes):
-        g_ex += exc_spikes
-
-    onReceive(inh_spikes):
-        g_ex += inh_spikes
 
     output:
         spike

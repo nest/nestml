@@ -48,8 +48,8 @@ model stdp_triplet_nn_synapse:
         tr_o2' = -tr_o2 / tau_y
 
     input:
-        pre_spikes real <- spike
-        post_spikes real <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
 
     output:
         spike

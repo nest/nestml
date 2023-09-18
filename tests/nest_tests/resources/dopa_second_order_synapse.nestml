@@ -44,8 +44,8 @@ model dopa_second_order_synapse:
         dopa_rate_d' = -dopa_rate / tau_dopa**2 * ms - 2 * dopa_rate_d / tau_dopa
 
     input:
-        pre_spikes real <- spike
-        dopa_spikes real <- spike
+        pre_spikes <- spike
+        dopa_spikes <- spike
 
     output:
         spike

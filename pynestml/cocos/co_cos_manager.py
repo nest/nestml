@@ -26,7 +26,6 @@ from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssi
 from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
-from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -44,7 +43,6 @@ from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDupli
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
@@ -229,14 +227,6 @@ class CoCosManager:
         CoCoOdeFunctionsHaveConsistentUnits.check_co_co(model)
 
     @classmethod
-    def check_input_port_data_type(cls, model: ASTModel):
-        """
-        Checks that input ports have specified the data type if required and no data type if not allowed.
-        :param model: a single model object.
-        """
-        CoCoInputPortDataType.check_co_co(model)
-
-    @classmethod
     def check_integrate_odes_called_if_equations_defined(cls, model: ASTModel):
         """
         Ensures that integrate_odes() is called if one or more dynamical equations are defined.
@@ -394,7 +384,6 @@ class CoCosManager:
         cls.check_input_port_qualifier_unique(model)
         cls.check_parameters_not_assigned_outside_parameters_block(model)
         cls.check_continuous_input_ports_not_qualified(model)
-        cls.check_input_port_data_type(model)
         cls.check_user_defined_function_correctly_built(model)
         cls.check_initial_ode_initial_values(model)
         cls.check_kernel_type(model)

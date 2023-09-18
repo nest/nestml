@@ -43,11 +43,11 @@ model fir_filter:
         h[N] real = 1.   # filter coefficients
 
     input:
-        spike_in real <- spike
+        spike_in <- spike
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in
+        x[i] = spike_in * s
 
         # compute the new value of y
         j integer = 0

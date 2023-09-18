@@ -54,7 +54,7 @@ model commentTest:  #model in comment ok
 
     #input comment ok
     input:
-        NMDA pA <- spike
+        NMDA <- spike
 
     #output comment ok
     output:

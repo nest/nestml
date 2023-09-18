@@ -37,5 +37,5 @@ model CoCoVectorInputPortSizeAndType:
         TWO integer = 2
 
     input:
-        foo[TWO] pA <- spike
-        bar[-3] pA <- spike
+        foo[TWO] <- spike
+        bar[-3] <- spike

@@ -42,7 +42,7 @@ model CoCoConvolveNotCorrectlyProvided:
         V_m' = 20 mV/ms
 
     input:
-        spikeExc integer  <- excitatory spike
+        spikeExc <- excitatory spike
 
     update:
         integrate_odes()

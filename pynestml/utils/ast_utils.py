@@ -500,9 +500,12 @@ class ASTUtils:
         """
         Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
         """
-        if isinstance(inline_expr.get_expression(), ASTSimpleExpression) \
-           and inline_expr.get_expression().is_function_call() \
-           and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+        expr = inline_expr.get_expression()
+        if isinstance(expr, ASTExpression):
+            expr = expr.get_lhs()
+        if isinstance(expr, ASTSimpleExpression) \
+           and expr.is_function_call() \
+           and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
             return True
         return False
 
@@ -1634,13 +1637,12 @@ class ASTUtils:
                     spike_in_port_name = var_name.split("__X__")[1]
                     spike_in_port_name = spike_in_port_name.split("__d")[0]
                     spike_in_port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), spike_in_port_name)
+                    type_str = "real"
                     if spike_in_port:
-                        type_str = NESTMLPrinter().print_data_type(spike_in_port.data_type)
                         differential_order: int = len(re.findall("__d", var_name))
                         if differential_order:
-                            type_str += "*s**-" + str(differential_order)
-                    else:
-                        type_str = "real"
+                            type_str = "*s**-" + str(differential_order)
+
                     expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
                     if not cls.declaration_in_state_block(model, var_name):
                         cls.add_declaration_to_state_block(model, var_name, expr, type_str)
@@ -1907,13 +1909,17 @@ class ASTUtils:
 
         for equation_block in neuron.get_equations_blocks():
             for decl in equation_block.get_declarations():
-                if isinstance(decl, ASTInlineExpression) \
-                   and isinstance(decl.get_expression(), ASTSimpleExpression) \
-                   and '__X__' in str(decl.get_expression()) \
-                   and decl.get_expression().get_variable():
-                    replace_with_var_name = decl.get_expression().get_variable().get_name()
-                    neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
-                        x, decl.get_variable_name(), replace_with_var_name)))
+                if isinstance(decl, ASTInlineExpression):
+                    expr = decl.get_expression()
+                    if isinstance(expr, ASTExpression):
+                        expr = expr.get_lhs()
+
+                    if isinstance(expr, ASTSimpleExpression) \
+                            and '__X__' in str(expr) \
+                            and expr.get_variable():
+                        replace_with_var_name = expr.get_variable().get_name()
+                        neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
+                            x, decl.get_variable_name(), replace_with_var_name)))
 
     @classmethod
     def replace_variable_names_in_expressions(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
@@ -2149,6 +2155,11 @@ class ASTUtils:
                     node._is_numeric = True
                 else:
                     node._is_numeric = False
+
+                # Set the `_is_numeric` flag in its corresponding symbol
+                symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+                if symbol:
+                    symbol._is_numeric = node._is_numeric
 
         visitor = ASTVariableOriginSetterVisitor()
         visitor._numeric_state_variables = numeric_state_variable_names
