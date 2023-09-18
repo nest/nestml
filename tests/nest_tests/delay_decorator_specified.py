@@ -37,8 +37,8 @@ class TestDelayDecoratorSpecified:
     def test_delay_decorator_not_specified_results_in_failure(self):
         r"""Generate the model code"""
 
-        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                      "synapse": "stdp",
+        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                      "synapse": "stdp_synapse",
                                                       "post_ports": ["post_spikes"]}]}
 
         files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),

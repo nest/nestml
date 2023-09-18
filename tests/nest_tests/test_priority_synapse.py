@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# synapse_priority_test.py
+# test_synapse_priority.py
 #
 # This file is part of NEST.
 #
@@ -22,7 +22,6 @@
 import numpy as np
 import os
 import pytest
-import unittest
 
 import nest
 
@@ -39,8 +38,9 @@ except Exception:
     TEST_PLOTS = False
 
 
-class NestSynapsePriorityTest(unittest.TestCase):
+class TestSynapsePriority:
 
+    @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""Generate the model code"""
         files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
@@ -49,17 +49,16 @@ class NestSynapsePriorityTest(unittest.TestCase):
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             target_path="/tmp/nestml-synapse-event-priority-test",
                              logging_level="INFO",
                              module_name="nestml_module",
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                                     "synapse": "synapse_event_priority_test",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                                                     "synapse": "event_priority_test_synapse",
                                                                      "post_ports": ["post_spikes"]},
-                                                                    {"neuron": "iaf_psc_delta",
-                                                                     "synapse": "synapse_event_inv_priority_test",
+                                                                    {"neuron": "iaf_psc_delta_neuron",
+                                                                     "synapse": "event_inv_priority_test_synapse",
                                                                      "post_ports": ["post_spikes"]}]})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
@@ -150,8 +149,8 @@ class NestSynapsePriorityTest(unittest.TestCase):
                          post_spike_times=None,
                          fname_snip=""):
 
-        neuron_model_name = "iaf_psc_delta_nestml__with_synapse_event_priority_test_nestml"
-        synapse_model_name = "synapse_event_priority_test_nestml__with_iaf_psc_delta_nestml"
+        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_event_priority_test_synapse_nestml"
+        synapse_model_name = "event_priority_test_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
         tr = self.run_nest_simulation(neuron_model_name=neuron_model_name,
                                       synapse_model_name=synapse_model_name,
                                       resolution=resolution,
@@ -161,8 +160,8 @@ class NestSynapsePriorityTest(unittest.TestCase):
                                       post_spike_times=post_spike_times,
                                       fname_snip=fname_snip)
 
-        neuron_model_name = "iaf_psc_delta_nestml__with_synapse_event_inv_priority_test_nestml"
-        synapse_model_name = "synapse_event_inv_priority_test_nestml__with_iaf_psc_delta_nestml"
+        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_event_inv_priority_test_synapse_nestml"
+        synapse_model_name = "event_inv_priority_test_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
         tr_inv = self.run_nest_simulation(neuron_model_name=neuron_model_name,
                                           synapse_model_name=synapse_model_name,
                                           resolution=resolution,

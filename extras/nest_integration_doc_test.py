@@ -54,7 +54,7 @@ class TestNESTIntegration:
     def _run_simulation(self, T_sim, syn_delay):
         # network construction
 
-        neuron = nest.Create("iaf_psc_exp_nestml")
+        neuron = nest.Create("iaf_psc_exp_neuron_nestml")
 
         sg = nest.Create("spike_generator", params={"spike_times": [1.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": syn_delay})
@@ -76,7 +76,7 @@ class TestNESTIntegration:
     """def _run_simulation(self, T_sim, syn_delay, t_pulse_start, t_pulse_stop, I_stim):
         # network construction
 
-        neuron = nest.Create("iaf_psc_exp_nestml")
+        neuron = nest.Create("iaf_psc_exp_neuron_nestml")
 
         sg = nest.Create("spike_generator", params={"spike_times": [1.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": syn_delay})

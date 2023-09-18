@@ -334,7 +334,7 @@ Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/maste
 
 Synapse type for spike-timing dependent plasticity, with nearest-neighbour spike pairing
 
-Source file: `stdp_nn_pre_centered.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_pre_centered.nestml>`_
+Source file: `stdp_nn_pre_centered_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_
 
 
 :doc:`stdp_nn_restr_symm <stdp_nn_restr_symm>`
@@ -342,7 +342,7 @@ Source file: `stdp_nn_pre_centered.nestml <https://www.github.com/nest/nestml/bl
 
 Synapse type for spike-timing dependent plasticity with restricted symmetric nearest-neighbour spike pairing scheme
 
-Source file: `stdp_nn_restr_symm.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_restr_symm.nestml>`_
+Source file: `stdp_nn_restr_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_
 
 
 :doc:`stdp_nn_symm <stdp_nn_symm>`
@@ -350,7 +350,7 @@ Source file: `stdp_nn_restr_symm.nestml <https://www.github.com/nest/nestml/blob
 
 Synapse type for spike-timing dependent plasticity with symmetric nearest-neighbour spike pairing scheme
 
-Source file: `stdp_nn_symm.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_symm.nestml>`_
+Source file: `stdp_nn_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_symm_synapse.nestml>`_
 
 
 :doc:`stdp_triplet_nn <stdp_triplet_nn>`

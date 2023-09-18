@@ -328,7 +328,7 @@ Resetting to 1 can then be done by assignment in the pre- and post-event handler
 
 The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
 
-The full model can be downloaded here: `stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm_synapse.nestml>`_.
 
 
 Presynaptic centered
@@ -352,7 +352,7 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
 
 The remainder of the model is the same as the all-to-all STDP synapse.
 
-The full model can be downloaded here: `stdp_nn_pre_centered.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered.nestml>`_.
+The full model can be downloaded here: `stdp_nn_pre_centered_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
 Restricted symmetric
@@ -387,7 +387,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
 
 The remainder of the model is the same as the :ref:`Presynaptic centered` variant.
 
-The full model can be downloaded here: `stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_restr_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
 
 
 Triplet-rule STDP synapse
