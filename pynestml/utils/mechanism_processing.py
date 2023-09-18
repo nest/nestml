@@ -173,19 +173,11 @@ class MechanismProcessing(object):
 
             # collect and process all basic mechanism information
             mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info)
-            print("1")
-            print(cls.print_dictionary(mechs_info, 0))
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
-            print("2")
-            print(cls.print_dictionary(mechs_info, 0))
             mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
-            print("3")
-            print(cls.print_dictionary(mechs_info, 0))
 
             # collect and process all mechanism type specific information
             mechs_info = cls.collect_information_for_specific_mech_types(neuron, mechs_info)
-            print("4")
-            print(cls.print_dictionary(mechs_info, 0))
 
             cls.mechs_info[neuron][cls.mechType] = mechs_info
             cls.first_time_run[neuron][cls.mechType] = False

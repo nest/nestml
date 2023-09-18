@@ -89,8 +89,6 @@ public:
   // tree structure indices
   Compartment{{cm_unique_suffix}}* parent;
   std::vector< Compartment{{cm_unique_suffix}} > children;
-  // vector for synapses
-  CompartmentCurrents{{cm_unique_suffix}} compartment_currents;
 
   // buffer for currents
   RingBuffer currents;
@@ -128,7 +126,7 @@ public:
   std::map< Name, double* > get_recordables();
 
   // matrix construction
-  void construct_matrix_element( const long lag );
+  void construct_matrix_element( std::pair< double, double > comp_gi, const long lag );
   void execute_mechanism_stepfunctions( const long lag );
 
   // maxtrix inversion

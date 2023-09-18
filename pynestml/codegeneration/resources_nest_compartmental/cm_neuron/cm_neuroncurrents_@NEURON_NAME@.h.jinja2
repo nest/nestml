@@ -389,20 +389,20 @@ public:
     {{ion_channel_name}}{{channel_suffix}}.calibrate();
     {% endfor -%}
     {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.calibrate();
+    {{concentration_name}}{{concentration_suffix}}.calibrate();
     {% endfor -%}
     {%- for synapse_name, synapse_info in syns_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.calibrate();
+    {{synapse_name}}{{synapse_suffix}}.calibrate();
     {% endfor -%}
 {%- else %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
     {% endfor -%}
     {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
+    {{concentration_name}}{{concentration_suffix}}.pre_run_hook();
     {% endfor -%}
     {%- for synapse_name, synapse_info in syns_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
+    {{synapse_name}}{{synapse_suffix}}.pre_run_hook();
     {% endfor -%}
 {%- endif %}
   {% endwith -%}
@@ -423,7 +423,7 @@ public:
   {%- for concentration_name, concentration_info in conc_info.items() %}
     if ( type == "{{concentration_name}}" )
     {
-      {{concentration_name}}{{channel_suffix}}.new_concentration(compartment_id);
+      {{concentration_name}}{{concentration_suffix}}.new_concentration(compartment_id);
       mech_found = true;
     }
   {% endfor -%}
@@ -431,7 +431,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{channel_suffix}}.new_synapse(compartment_id);
+      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id);
       mech_found = true;
     }
   {% endfor -%}
@@ -457,7 +457,7 @@ public:
   {%- for concentration_name, concentration_info in conc_info.items() %}
     if ( type == "{{concentration_name}}" )
     {
-      {{concentration_name}}{{channel_suffix}}.new_concentration(compartment_id, mechanism_params);
+      {{concentration_name}}{{concentration_suffix}}.new_concentration(compartment_id, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}
@@ -465,7 +465,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{channel_suffix}}.new_synapse(compartment_id, mechanism_params);
+      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}
@@ -479,7 +479,6 @@ public:
   void add_compartment(){
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     this->add_mechanism("{{ ion_channel_name }}", compartment_number);
-    }
     {% endfor -%}
 
     {%- for concentration_name, concentration_info in conc_info.items() %}
@@ -491,7 +490,6 @@ public:
   void add_compartment(const DictionaryDatum& compartment_params){
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     this->add_mechanism("{{ ion_channel_name }}", compartment_number, compartment_params);
-    }
     {% endfor -%}
 
     {%- for concentration_name, concentration_info in conc_info.items() %}
@@ -500,8 +498,7 @@ public:
     compartment_number++;
   };
 
-  void
-  add_receptor_info( ArrayDatum& ad, const long compartment_index )
+  void add_receptor_info( ArrayDatum& ad, const long compartment_index )
   {
 
     {%- with %}
@@ -518,20 +515,19 @@ public:
     {% endwith -%}
   };
 
-  void
-  set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
+  void set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
   {
     // spike buffers for synapses
+
     {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
-    for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
-      syn_it->set_buffer_ptr( syn_buffers );
+      {{synapse_name}}{{ synapse_suffix }}.set_buffer_ptr( syn_buffers );
     {% endfor -%}
-    {% endwith -%}
+    {% endwith %}
+
   };
 
-  std::map< Name, double* >
-  get_recordables( const long compartment_idx )
+  std::map< Name, double* > get_recordables( const long compartment_idx )
   {
     std::map< Name, double* > recordables;
 
@@ -559,12 +555,7 @@ public:
     return recordables;
   };
 
-  calculate_interdependence_values(){
-
- };
-
-  std::vector< std::pair< double, double > >
-  f_numstep( vector< double > v_comp, const long lag )
+  std::vector< std::pair< double, double > > f_numstep( vector< double > v_comp, const long lag )
   {
     std::vector< pair< double, double > comp_to_gi(compartment_number, (0., 0.));
 {%- for synapse_name, synapse_info in syns_info.items() %}
@@ -607,13 +598,13 @@ public:
   {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     // contribution of {{synapse_name}} synapses
-    gi_mech = {{synapse_name}}{{synapse_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
+    gi_mech = {{synapse_name}}{{synapse_suffix}}.f_numstep( v_comp{% for ode in synapse_info["Dependencies"]["concentrations"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
 
-    for(std::size_t chan_id = 0; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
-        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].first += gi_mech.first[chan_id];
-        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].second += gi_mech.second[chan_id];
+    for(std::size_t syn_id = 0; syn_id < {{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count; syn_id++){
+        comp_to_gi[{{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]].first += gi_mech.first[syn_id];
+        comp_to_gi[{{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]].second += gi_mech.second[syn_id];
     }
     {% endfor -%}
   {% endwith -%}

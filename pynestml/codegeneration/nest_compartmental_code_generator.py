@@ -97,8 +97,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "path": "cm_neuron",
             "model_templates": {
                 "neuron": [
-                    "cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
-                    "cm_compartmentcurrents_@NEURON_NAME@.h.jinja2",
+                    "cm_neuroncurrents_@NEURON_NAME@.cpp.jinja2",
+                    "cm_neuroncurrents_@NEURON_NAME@.h.jinja2",
                     "@NEURON_NAME@.cpp.jinja2",
                     "@NEURON_NAME@.h.jinja2",
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
@@ -239,7 +239,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron_name_to_filename = dict()
         for neuron in neurons:
             neuron_name_to_filename[neuron.get_name()] = {
-                "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
+                "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),
                 "tree": self.get_cm_syns_tree_file_prefix(neuron)
             }
@@ -254,6 +254,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def get_cm_syns_compartmentcurrents_file_prefix(self, neuron):
         return "cm_compartmentcurrents_" + neuron.get_name()
+
+    def get_cm_syns_neuroncurrents_file_prefix(self, neuron):
+        return "cm_neuroncurrents_" + neuron.get_name()
 
     def get_cm_syns_main_file_prefix(self, neuron):
         return neuron.get_name()
@@ -709,7 +712,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
 
         neuron_specific_filenames = {
-            "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
+            "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
             "tree": self.get_cm_syns_tree_file_prefix(neuron)}
 

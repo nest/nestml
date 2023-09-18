@@ -59,7 +59,7 @@ set( MODULE_NAME ${SHORT_NAME} )
 set( MODULE_SOURCES
     {{moduleName}}.h {{moduleName}}.cpp
     {%- for neuron in neurons %}
-    {{perNeuronFileNamesCm[neuron.get_name()]["compartmentcurrents"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["compartmentcurrents"]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["neuroncurrents"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["neuroncurrents"]}}.h
     {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h
     {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.h
     {% endfor -%}
