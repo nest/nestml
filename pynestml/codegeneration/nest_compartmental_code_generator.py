@@ -90,7 +90,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
-        "preserve_expressions": True,
+        "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "cm_neuron",
@@ -104,8 +104,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     "cm_tree_@NEURON_NAME@.h.jinja2"]},
             "module_templates": ["setup"]},
         "nest_version": "",
-        "compartmental_variable_name": "v_comp"
-        }
+        "compartmental_variable_name": "v_comp"}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()

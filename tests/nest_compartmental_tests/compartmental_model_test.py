@@ -249,24 +249,6 @@ class CMTest(unittest.TestCase):
         recordables_nestml = self.get_rec_list()
         res_act_nestml, res_pas_nestml = self.run_model()
 
-        # check if voltages, ion channels state variables are equal
-        for var_nest, var_nestml in zip(
-                recordables_nest[:8], recordables_nestml[:8]):
-            self.assertTrue(np.allclose(
-                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=5e-1))
-
-        # check if synaptic conductances are equal
-        self.assertTrue(
-            np.allclose(
-                res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
-                res_act_nestml['g_AN_AMPA1'],
-                5e-3))
-        self.assertTrue(
-            np.allclose(
-                res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
-                res_act_nestml['g_AN_NMDA1'],
-                5e-3))
-
         if TEST_PLOTS:
             w_legends = False
 
@@ -334,6 +316,7 @@ class CMTest(unittest.TestCase):
             ax_dend.set_ylim((-90., 40.))
             if w_legends:
                 ax_dend.legend(loc=0)
+            plt.savefig("compartmental_model_test - voltage.png")
 
             plt.figure('channel state variables', figsize=(6, 6))
             # NEST
@@ -455,6 +438,7 @@ class CMTest(unittest.TestCase):
             ax_dend.set_ylim((0., 1.))
             if w_legends:
                 ax_dend.legend(loc=0)
+            plt.savefig("compartmental_model_test - channel state variables.png")
 
             plt.figure('dendritic synapse conductances', figsize=(3, 6))
             # NEST
@@ -513,7 +497,25 @@ class CMTest(unittest.TestCase):
                 ax_dend.legend(loc=0)
 
             plt.tight_layout()
-            plt.savefig("compartmental_model_test.png")
+            plt.savefig("compartmental_model_test - dendritic synapse conductances.png")
+
+        # check if voltages, ion channels state variables are equal
+        for var_nest, var_nestml in zip(
+                recordables_nest[:8], recordables_nestml[:8]):
+            self.assertTrue(np.allclose(
+                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=5e-1))
+
+        # check if synaptic conductances are equal
+        self.assertTrue(
+            np.allclose(
+                res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
+                res_act_nestml['g_AN_AMPA1'],
+                5e-3))
+        self.assertTrue(
+            np.allclose(
+                res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
+                res_act_nestml['g_AN_NMDA1'],
+                5e-3))
 
 
 if __name__ == "__main__":
