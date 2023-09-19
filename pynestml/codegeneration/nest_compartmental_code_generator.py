@@ -69,7 +69,6 @@ from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from odetoolbox import analysis
-import json
 
 
 class NESTCompartmentalCodeGenerator(CodeGenerator):

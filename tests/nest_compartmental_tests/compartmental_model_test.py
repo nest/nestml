@@ -30,7 +30,7 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 # set to `True` to plot simulation traces
-TEST_PLOTS = False
+TEST_PLOTS = True
 try:
     import matplotlib
     import matplotlib.pyplot as plt
@@ -106,7 +106,7 @@ class CMTest(unittest.TestCase):
             target_path="/tmp/nestml-component/",
             module_name="cm_defaultmodule",
             suffix="_nestml",
-            logging_level="INFO"
+            logging_level="DEBUG"
         )
 
     def get_model(self, reinstall_flag=True):
@@ -513,7 +513,7 @@ class CMTest(unittest.TestCase):
                 ax_dend.legend(loc=0)
 
             plt.tight_layout()
-            plt.show()
+            plt.savefig("compartmental_model_test.png")
 
 
 if __name__ == "__main__":

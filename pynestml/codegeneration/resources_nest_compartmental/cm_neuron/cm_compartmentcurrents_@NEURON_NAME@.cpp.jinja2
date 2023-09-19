@@ -384,7 +384,6 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
   {%- set variable = variable_info["ASTVariable"] %}
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
-  {% endwith %}
     ( *recordables )[ Name( "{{concentration_name}}" + std::to_string(compartment_idx) )] = &{{concentration_name}};
 }
 

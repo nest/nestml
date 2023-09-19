@@ -24,7 +24,6 @@ from typing import List, Optional
 import re
 import uuid
 
-from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
@@ -75,6 +74,8 @@ class NESTCodeGeneratorUtils:
         -------
         If a synapse is specified, returns a tuple (module_name, mangled_neuron_name, mangled_synapse_name) containing the names that can be used in ``nest.Install()``, ``nest.Create()`` and ``nest.Connect()`` calls. If no synapse is specified, returns a tuple (module_name, mangled_neuron_name).
         """
+
+        from pynestml.frontend.pynestml_frontend import generate_nest_target
 
         # generate unique ID
         if uniq_id is None:
