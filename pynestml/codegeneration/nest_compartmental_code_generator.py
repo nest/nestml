@@ -90,7 +90,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
-        "preserve_expressions": False,
+        "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": "cm_neuron",

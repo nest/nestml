@@ -80,30 +80,29 @@ neuron cm_default:
         #   i_val = i_X - d(i_X)/d(v_comp) / 2.
 
         ### ion channels ###
-        h_Na'= (h_inf_Na(v_comp) - h_Na) / (tau_h_Na(v_comp) * 1 s)
-        m_Na'= (m_inf_Na(v_comp) - m_Na) / (tau_m_Na(v_comp) * 1 s)
-
-        n_K'= (n_inf_K(v_comp) - n_K) / (tau_n_K(v_comp) * 1 s)
+        h_Na' = (h_inf_Na(v_comp) - h_Na) / (tau_h_Na(v_comp) * 1 s)
+        m_Na' = (m_inf_Na(v_comp) - m_Na) / (tau_m_Na(v_comp) * 1 s)
+        n_K' = (n_inf_K(v_comp) - n_K) / (tau_n_K(v_comp) * 1 s)
 
         ### synapses, must contain convolution(s) with spike input ###
 
-        inline Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp) @mechanism::channel
+        inline Na real = gbar_Na * m_Na**3 * h_Na * (e_Na - v_comp) @mechanism::channel
         inline K real = gbar_K * n_K * (e_K - v_comp) @mechanism::channel
 
         ### synapses, characterized by convolution(s) with spike input ###
         kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
-        inline AMPA real = uS * convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
+        inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
 
         kernel g_GABA = g_norm_GABA * ( - exp(-t / tau_r_GABA) + exp(-t / tau_d_GABA) )
-        inline GABA real = uS * convolve(g_GABA, spikes_GABA) * (e_GABA - v_comp ) @mechanism::receptor
+        inline GABA real = convolve(g_GABA, spikes_GABA) * (e_GABA - v_comp ) @mechanism::receptor
 
         kernel g_NMDA = g_norm_NMDA * ( - exp(-t / tau_r_NMDA) + exp(-t / tau_d_NMDA) )
-        inline NMDA real = uS * convolve(g_NMDA, spikes_NMDA) * (e_NMDA - v_comp ) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
+        inline NMDA real = convolve(g_NMDA, spikes_NMDA) * (e_NMDA - v_comp ) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
 
         kernel g_AN_AMPA = g_norm_AN_AMPA * ( - exp(-t / tau_r_AN_AMPA) + exp(-t / tau_d_AN_AMPA) )
         kernel g_AN_NMDA = g_norm_AN_NMDA * ( - exp(-t / tau_r_AN_NMDA) + exp(-t / tau_d_AN_NMDA) )
-        inline AMPA_NMDA real = uS * convolve(g_AN_AMPA, spikes_AN) * (e_AN_AMPA - v_comp) + NMDA_ratio * \
-                                uS * convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
+        inline AMPA_NMDA real = convolve(g_AN_AMPA, spikes_AN) * (e_AN_AMPA - v_comp) + NMDA_ratio * \
+                                convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp( -.1 * v_comp )) @mechanism::receptor
 
     # functions K
     function n_inf_K (v_comp real) real:
