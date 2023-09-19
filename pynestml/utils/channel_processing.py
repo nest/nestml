@@ -48,13 +48,13 @@ class ChannelProcessing(MechanismProcessing):
         """
         if not re.search("1/.*", rhs_expression_str):
             sympy_expression = sympy.parsing.sympy_parser.parse_expr(rhs_expression_str, evaluate=False)
-            if isinstance(sympy_expression, sympy.core.add.Add) and \
-                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) and \
-                    cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str):
+            if isinstance(sympy_expression, sympy.core.add.Add) \
+                    and cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) \
+                    and cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str):
                 return True
-            elif isinstance(sympy_expression, sympy.core.mul.Mul) and \
-                    (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str) or
-                     cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
+            elif isinstance(sympy_expression, sympy.core.mul.Mul) \
+                    and (cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[0]), var_str)
+                         or cls.check_if_key_zero_var_for_expression(str(sympy_expression.args[1]), var_str)):
                 return True
             elif rhs_expression_str == var_str:
                 return True
