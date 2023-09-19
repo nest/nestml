@@ -8,12 +8,20 @@
  * generated code for emit_spike() function
 **/
 
+{% if ast.wefwe() %}
+{#-     no parameters -- emit_spike() called from within neuron #}
 set_spiketime(nest::Time::step(origin.get_steps() + lag + 1));
 nest::SpikeEvent se;
 nest::kernel().event_delivery_manager.send(*this, se, lag);
 
-{%- if paired_synapse is defined %}
-{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
-{%-         include "directives/Statement.jinja2" %}
-{%-     endfor %}
+{%-     if paired_synapse is defined %}
+{%-         for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-             include "directives/Statement.jinja2" %}
+{%-         endfor %}
+{%-     endif %}
+{%- else %}
+{#-     weight and delay parameters given -- emit_spike() called from within synapse #}
+
 {%- endif %}
+
+

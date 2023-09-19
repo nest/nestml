@@ -586,14 +586,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endif %}
 
     /**
-     * End NESTML generated code for the update block(s)
+     * Begin NESTML generated code for the onReceive block(s)
     **/
 
-    /**
-     * Begin NESTML generated code for the onReceive blocks
-    **/
-
-{%- for blk in neuron.get_on_receive_blocks() %}
+{%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
   if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
   {
@@ -602,12 +598,9 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   }
 {%- endfor %}
 
-
     /**
-     * End NESTML generated code for the onReceive blocks
+     * Begin NESTML generated code for the onCondition block(s)
     **/
-
-    // NESTML generated code for the onCondition blocks
 
 {%- if neuron.get_on_condition_blocks() %}
 {%-     filter indent(2) %}
@@ -624,11 +617,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endif %}
 
     /**
-     * print updates due to convolutions
+     * updates due to convolutions
     **/
 
 {%- include "directives/ApplySpikesFromBuffers.jinja2" %}
-
 
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);

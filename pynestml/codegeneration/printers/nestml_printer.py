@@ -364,7 +364,7 @@ class NESTMLPrinter(ModelPrinter):
             ret += " " + self.print(node.get_datatype()) + " "
         if node.has_size_parameter():
             ret += "[" + self.print(node.get_size_parameter()) + "]"
-        ret += "<- "
+        ret += " <- "
         if node.has_input_qualifiers():
             for qual in node.get_input_qualifiers():
                 ret += self.print(qual) + " "
@@ -526,13 +526,13 @@ class NESTMLPrinter(ModelPrinter):
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
-        ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + "\n")
+        ret += self.print(node.get_block())
         return ret
 
     def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onCondition(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
-        ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + "\n")
+        ret += self.print(node.get_block())
         return ret
 
     def print_update_block(self, node: ASTUpdateBlock):

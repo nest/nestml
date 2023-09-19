@@ -59,22 +59,30 @@ class TestNeuronPriority:
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_neuron_event_priority(self):
-
-        fname_snip = ""
+        resolution = .5    # [ms]
 
         # one additional pre spike to ensure processing of post spikes in the intermediate interval
         port1_spike_times = np.array([1.])
-        port2_spike_times = np.array([10.])
+        port2_spike_times = np.array([1.])
 
-        self.run_neuron_test(
-            resolution=.5,  # [ms]
-            port1_spike_times=port1_spike_times,
-            port2_spike_times=port2_spike_times,
-            fname_snip=fname_snip)
+        neuron_model_name = "event_priority_test_neuron_nestml"
+        tr = self.run_nest_simulation(neuron_model_name=neuron_model_name,
+                                      resolution=resolution,
+                                      port1_spike_times=port1_spike_times,
+                                      port2_spike_times=port2_spike_times)
+
+        neuron_model_name = "event_inv_priority_test_neuron_nestml"
+        tr_inv = self.run_nest_simulation(neuron_model_name=neuron_model_name,
+                                          resolution=resolution,
+                                          port1_spike_times=port1_spike_times,
+                                          port2_spike_times=port2_spike_times)
+
+        np.testing.assert_allclose(tr, 4.14159)
+        np.testing.assert_allclose(tr_inv, 6.28318)
+
 
     def run_nest_simulation(self, neuron_model_name,
                             resolution=1.,  # [ms]
-                            sim_time=None,  # if None, computed from pre and post spike times
                             port1_spike_times=None,
                             port2_spike_times=None):
 
@@ -84,8 +92,7 @@ class TestNeuronPriority:
         if port2_spike_times is None:
             port2_spike_times = []
 
-        if sim_time is None:
-            sim_time = max(np.amax(port1_spike_times), np.amax(port2_spike_times)) + 10.
+        sim_time = max(np.amax(port1_spike_times), np.amax(port2_spike_times)) + 10.
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
@@ -101,33 +108,10 @@ class TestNeuronPriority:
         neuron = nest.Create(neuron_model_name)
         sr = nest.Create("spike_recorder")
 
-        nest.Connect(port1_sg, neuron, "one_to_one", syn_spec={"rport": 1, "delay": 1.})
-        nest.Connect(port2_sg, neuron, "one_to_one", syn_spec={"rport": 2, "delay": 1.})
+        nest.Connect(port1_sg, neuron, "one_to_one", syn_spec={"receptor_type": 1, "delay": 1.})
+        nest.Connect(port2_sg, neuron, "one_to_one", syn_spec={"receptor_type": 2, "delay": 1.})
         nest.Connect(neuron, sr)
 
         nest.Simulate(sim_time)
 
         return neuron.tr
-
-    def run_neuron_test(self,
-                        resolution=1.,  # [ms]
-                        sim_time=None,  # if None, computed from pre and post spike times
-                        port1_spike_times=None,
-                        port2_spike_times=None):
-
-        neuron_model_name = "event_priority_test_neuron"
-        tr = self.run_nest_simulation(neuron_model_name=neuron_model_name,
-                                      resolution=resolution,
-                                      sim_time=sim_time,
-                                      port1_spike_times=port1_spike_times,
-                                      port2_spike_times=port2_spike_times)
-
-        neuron_model_name = "event_inv_priority_test_neuron"
-        tr_inv = self.run_nest_simulation(neuron_model_name=neuron_model_name,
-                                          resolution=resolution,
-                                          sim_time=sim_time,
-                                          port1_spike_times=port1_spike_times,
-                                          port2_spike_times=port2_spike_times)
-
-        np.testing.assert_allclose(tr, 7.28318)
-        np.testing.assert_allclose(tr_inv, 5.14159)

@@ -58,7 +58,7 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
 
-        if function_name == PredefinedFunctions.DELIVER_SPIKE:
+        if function_name == PredefinedFunctions.EMIT_SPIKE:
             return '''
         set_delay( {1!s} );
         const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );

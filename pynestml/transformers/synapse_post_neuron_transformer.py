@@ -271,9 +271,7 @@ class SynapsePostNeuronTransformer(Transformer):
         convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(
             synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
 
-        syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars)))
         strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, synapse)
-
         syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
 
         #
@@ -416,8 +414,9 @@ class SynapsePostNeuronTransformer(Transformer):
                         for stmt in stmts:
                             if stmt.is_small_stmt() \
                                and stmt.small_stmt.is_assignment() \
-                               and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params):
-                                Logger.log_message(None, -1, "\t• Moving statement " + str(stmt), None, LoggingLevel.INFO)
+                               and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params) \
+                               and stmt.small_stmt.get_assignment().get_variable() in syn_to_neuron_params + syn_to_neuron_state_vars:
+                                Logger.log_message(None, -1, "\tMoving statement " + str(stmt), None, LoggingLevel.INFO)
 
                                 collected_on_post_stmts.append(stmt)
                                 stmts.pop(stmts.index(stmt))

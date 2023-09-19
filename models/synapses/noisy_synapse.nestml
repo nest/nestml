@@ -24,4 +24,4 @@ model noisy_synapse:
         w_ real = w + A_noise * random_normal(0, 1)
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w_, d)
+        emit_spike(w_, d)

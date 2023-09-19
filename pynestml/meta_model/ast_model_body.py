@@ -156,10 +156,23 @@ class ASTModelBody(ASTNode):
         return None
 
     def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
+        """Returned blocks are sorted descending, from high priority to low priority, if priority options were specified."""
         on_receive_blocks = []
+        priority_to_receive_block = {None: []}  # None for no priority specified
         for elem in self.get_body_elements():
             if isinstance(elem, ASTOnReceiveBlock):
-                on_receive_blocks.append(elem)
+                if "priority" in elem.get_const_parameters():
+                    priority_to_receive_block[elem.get_const_parameters()["priority"]] = elem
+                else:
+                    priority_to_receive_block[None].append(elem)
+
+        keys = [k for k in priority_to_receive_block.keys() if not k is None]
+
+        for k in sorted(keys, reverse=True):
+            on_receive_blocks.append(priority_to_receive_block[k])
+
+        on_receive_blocks.extend(priority_to_receive_block[None])
+
         return on_receive_blocks
 
     def get_on_condition_block(self, port_name) -> Optional[ASTOnConditionBlock]:

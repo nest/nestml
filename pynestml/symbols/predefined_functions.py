@@ -89,7 +89,6 @@ class PredefinedFunctions:
     DELTA = "delta"
     INTEGRATE_ODES = "integrate_odes"
     CONVOLVE = "convolve"
-    DELIVER_SPIKE = "deliver_spike"
     name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
@@ -127,7 +126,6 @@ class PredefinedFunctions:
         cls.__register_floor_function()
         cls.__register_round_function()
         cls.__register_convolve()
-        cls.__register_deliver_spike()
 
     @classmethod
     def register_function(cls, name, params, return_type, element_reference):
@@ -153,8 +151,8 @@ class PredefinedFunctions:
         """
         Registers the emit-spike function.
         """
-        symbol = FunctionSymbol(name=cls.EMIT_SPIKE, param_types=list(),
-                                return_type=PredefinedTypes.get_real_type(),
+        symbol = FunctionSymbol(name=cls.EMIT_SPIKE, param_types=[PredefinedTypes.get_variadic_type()],
+                                return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EMIT_SPIKE] = symbol
 
@@ -484,19 +482,6 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.CONVOLVE] = symbol
-
-    @classmethod
-    def __register_deliver_spike(cls):
-        """
-        Registers the deliver-spike function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_type("ms"))
-        symbol = FunctionSymbol(name=cls.DELIVER_SPIKE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.DELIVER_SPIKE] = symbol
 
     @classmethod
     def get_function_symbols(cls):

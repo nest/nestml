@@ -82,4 +82,4 @@ model third_factor_stdp_synapse:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, d)
+        emit_spike(w, d)
