@@ -64,12 +64,9 @@ from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVe
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
-
-
-# compartmental mode differentiation
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class CoCosManager:
@@ -409,6 +406,7 @@ class CoCosManager:
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+            # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(neuron)
             cls.check_compartmental_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
