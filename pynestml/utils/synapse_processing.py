@@ -120,6 +120,9 @@ class SynapseProcessing(MechanismProcessing):
 
     @classmethod
     def convolution_ode_toolbox_processing(cls, neuron, syns_info):
+        if not neuron.get_parameters_blocks():
+            return syns_info
+
         parameters_block = neuron.get_parameters_blocks()[0]
 
         for synapse_name, synapse_info in syns_info.items():

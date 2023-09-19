@@ -52,6 +52,8 @@ class ASTInlineExpression(ASTNode):
         :type expression: ASTExpression
         """
         super(ASTInlineExpression, self).__init__(*args, **kwargs)
+        if decorators is None:
+            decorators = []
         self.is_recordable = is_recordable
         self.variable_name = variable_name
         self.data_type = data_type

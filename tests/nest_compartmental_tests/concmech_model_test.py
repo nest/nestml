@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# compartmental_model_test.py
+# concmech_model_test.py
 #
 # This file is part of NEST.
 #
