@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -50,7 +51,7 @@ class CoCoVCompDefined(CoCo):
 
         if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             return
-        enforced_variable_name = FrontendConfiguration.getCompartmentalVariableName()
+        enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]
 
         state_blocks = neuron.get_state_blocks()
         if state_blocks is None:

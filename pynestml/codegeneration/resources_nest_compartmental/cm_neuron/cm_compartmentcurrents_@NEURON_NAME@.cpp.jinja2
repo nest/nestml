@@ -38,13 +38,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 {% macro render_time_resolution_variable(synapse_info) -%}
 {# we assume here that there is only one such variable ! #}
-{%- with %}
 {%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
 {%- if analytic_helper_info["is_time_resolution"] -%}
     {{ analytic_helper_name }}
 {%- endif -%}
 {%- endfor -%}
-{% endwith %}
 {%- endmacro %}
 
 {% macro render_function_return_type(function) -%}
@@ -63,7 +61,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 {% macro render_static_channel_variable_name(variable_type, ion_channel_name) -%}
 
-{%- with %}
 {%- for ion_channel_nm, channel_info in chan_info.items() -%}
     {%- if ion_channel_nm == ion_channel_name -%}
         {%- for variable_tp, variable_info in channel_info["channel_parameters"].items() -%}
@@ -74,12 +71,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
         {%- endfor -%}
     {%- endif -%}
 {%- endfor -%}
-{% endwith %}
 
 {%- endmacro %}
 
 {% macro render_channel_function(function, ion_channel_name) -%}
-{%- with %}
 {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channel_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
@@ -88,11 +83,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%-   endwith %}
 {%-   endfilter %}
 }
-{% endwith %}
 {%- endmacro %}
 
 
-{%- with %}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
 
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
@@ -132,7 +125,6 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_
 {%- endfor -%}
 // update {{ion_channel_name}} channel parameters
 {
-    {%- with %}
     {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %} //have to remove???????????
@@ -140,7 +132,6 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_
     if( channel_params->known( "{{variable.name}}" ) )
         {{variable.name}} = getValue< double >( channel_params, "{{variable.name}}" );
     {%- endfor -%}
-    {% endwith %}
 }
 
 void
@@ -148,12 +139,10 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
                                                const long compartment_idx)
 {
   // add state variables to recordables map
-  {%- with %}
   {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
   {%- set variable = variable_info["ASTVariable"] %}
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor -%}
-  {% endwith %}
     ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &i_tot_{{ion_channel_name}};
 }
 
@@ -199,7 +188,6 @@ double nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_current_{{ion_channel
 
 // {{ion_channel_name}} channel end ///////////////////////////////////////////////////////////
 {% endfor -%}
-{% endwith %}
 ////////////////////////////////////////////////////////////////////////////////
 
 {%- for synapse_name, synapse_info in syns_info.items() %}
@@ -337,7 +325,6 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 {%- endfor %}
 
 //////////////////////////////// concentrations
-{%- with %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
 
 // {{ concentration_name }} concentration //////////////////////////////////////////////////////////////////
@@ -379,7 +366,6 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::{{ concentration_name }}{{cm
 {%- endfor -%}
 // update {{ concentration_name }} concentration parameters
 {
-    {%- with %}
     {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %} //have to remove???????????
@@ -387,7 +373,6 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::{{ concentration_name }}{{cm
     if( concentration_params->known( "{{variable.name}}" ) )
         {{variable.name}} = getValue< double >( concentration_params, "{{variable.name}}" );
     {%- endfor -%}
-    {% endwith %}
 }
 
 void
@@ -395,7 +380,6 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
                                                const long compartment_idx)
 {
   // add state variables to recordables map
-  {%- with %}
   {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
   {%- set variable = variable_info["ASTVariable"] %}
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
@@ -432,10 +416,3 @@ double nest::{{concentration_name}}{{cm_unique_suffix}}::get_concentration_{{con
 
 // {{concentration_name}} concentration end ///////////////////////////////////////////////////////////
 {% endfor -%}
-{% endwith %}
-
-
-
-
-
-

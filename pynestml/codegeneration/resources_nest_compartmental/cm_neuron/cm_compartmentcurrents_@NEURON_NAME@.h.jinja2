@@ -37,7 +37,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 namespace nest
 {
 
-{%- with %}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
 
 class {{ion_channel_name}}{{cm_unique_suffix}}{
@@ -97,23 +96,19 @@ public:
 
 };
 {% endfor -%}
-{% endwith -%}
 
 
 ////////////////////////////////////////////////// synapses
 
 {% macro render_time_resolution_variable(synapse_info) -%}
 {# we assume here that there is only one such variable ! #}
-{%- with %}
 {%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
 {%- if analytic_helper_info["is_time_resolution"] -%}
     {{ analytic_helper_name }}
 {%- endif -%}
 {%- endfor -%}
-{% endwith %}
 {%- endmacro %}
 
-{%- with %}
 {%- for synapse_name, synapse_info in syns_info.items() %}
 
 class {{synapse_name}}{{cm_unique_suffix}}{
@@ -199,11 +194,9 @@ public:
 
 
 {% endfor -%}
-{% endwith -%}
 
 ///////////////////////////////////////////// concentrations
 
-{%- with %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
 
 class {{ concentration_name }}{{cm_unique_suffix}}{
@@ -262,7 +255,6 @@ public:
 
 };
 {% endfor -%}
-{% endwith -%}
 
 ///////////////////////////////////////////// currents
 
@@ -279,11 +271,9 @@ private:
 {% endwith %}
 
   // synapses
-  {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
   std::vector < {{synapse_name}}{{cm_unique_suffix}} > {{synapse_name}}_syns_;
   {% endfor -%}
-  {% endwith -%}
 
     //concentrations
 {% with %}
@@ -296,17 +286,13 @@ public:
   CompartmentCurrents{{cm_unique_suffix}}(){};
   explicit CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& compartment_params)
   {
-  {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}{{cm_unique_suffix}}( compartment_params );
     {% endfor -%}
-  {% endwith -%}
 
-{%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     {{ concentration_name }}{{concentration_suffix}} = {{ concentration_name }}{{cm_unique_suffix}}( compartment_params );
     {% endfor -%}
-  {% endwith -%}
   };
   ~CompartmentCurrents{{cm_unique_suffix}}(){};
 
@@ -316,7 +302,6 @@ public:
   void pre_run_hook() {
 {%- endif %}
     // initialization of ion channels
-  {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
     {{ion_channel_name}}{{channel_suffix}}.calibrate();
@@ -324,10 +309,8 @@ public:
     {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
 {%- endif %}
     {% endfor -%}
-  {% endwith -%}
 
     // initialization of concentrations
-  {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
     {{ concentration_name }}{{concentration_suffix}}.calibrate();
@@ -335,10 +318,8 @@ public:
     {{ concentration_name }}{{concentration_suffix}}.pre_run_hook();
 {%- endif %}
     {% endfor -%}
-  {% endwith -%}
 
     // initialization of synapses
-  {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     // initialization of {{synapse_name}} synapses
     for( auto syn_it = {{synapse_name}}_syns_.begin();
@@ -352,19 +333,16 @@ public:
 {%- endif %}
     }
   {% endfor -%}
-  {% endwith -%}
   };
 
   void add_synapse( const std::string& type, const long syn_idx )
   {
-  {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
       {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx ) );
     }
   {% endfor -%}
-  {% endwith -%}
     else
     {
       assert( false );
@@ -372,14 +350,12 @@ public:
   };
   void add_synapse( const std::string& type, const long syn_idx, const DictionaryDatum& receptor_params )
   {
-  {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
       {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx, receptor_params ) );
     }
   {% endfor -%}
-  {% endwith -%}
     else
     {
       assert( false );
@@ -389,8 +365,6 @@ public:
   void
   add_receptor_info( ArrayDatum& ad, const long compartment_index )
   {
-
-    {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
     {
@@ -401,19 +375,16 @@ public:
       ad.push_back( dd );
     }
     {% endfor -%}
-    {% endwith -%}
   };
 
   void
   set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
   {
     // spike buffers for synapses
-    {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
       syn_it->set_buffer_ptr( syn_buffers );
     {% endfor -%}
-    {% endwith -%}
   };
 
   std::map< Name, double* >
@@ -422,26 +393,20 @@ public:
     std::map< Name, double* > recordables;
 
     // append ion channel state variables to recordables
-    {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor -%}
-    {% endwith -%}
 
     // append concentration state variables to recordables
-    {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     {{concentration_name}}{{concentration_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor -%}
-    {% endwith -%}
 
     // append synapse state variables to recordables
-    {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
       syn_it->append_recordables( &recordables );
     {% endfor -%}
-    {% endwith -%}
 
     return recordables;
   };
@@ -462,7 +427,6 @@ public:
     }
 {% endfor %}
 
-  {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     // computation of {{ concentration_name }} concentration
     {{ concentration_name }}{{concentration_suffix}}.f_numstep( v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
@@ -470,9 +434,7 @@ public:
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{inline.variable_name}}{{channel_suffix}}.get_current_{{inline.variable_name}}(){% endfor %});
 
     {% endfor -%}
-  {% endwith -%}
 
-  {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
     gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ode.lhs.name}}{{concentration_suffix}}.get_concentration_{{ode.lhs.name}}(){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
@@ -483,9 +445,7 @@ public:
     i_val += gi.second;
 
     {% endfor -%}
-  {% endwith -%}
 
-  {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     // contribution of {{synapse_name}} synapses
     for( auto syn_it = {{synapse_name}}_syns_.begin();
@@ -500,7 +460,6 @@ public:
       i_val += gi.second;
     }
   {% endfor -%}
-  {% endwith -%}
 
     return std::make_pair(g_val, i_val);
   };
