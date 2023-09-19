@@ -8,6 +8,7 @@ Generate code for a compartmental model simulated in NEST.
 
 The structure of the neuron -- soma, dendrites, axon -- is user-defined at runtime by adding compartments through ``nest.SetStatus()``. Each compartment can be assigned receptors, also through ``nest.SetStatus()``.
 
+See also the NEST Simulator documentation on compartmental models at https://nest-simulator.readthedocs.io/en/stable/models/cm_default.html.
 
 Writing a compartmental NESTML model
 ------------------------------------
