@@ -12,7 +12,7 @@ synapse static_synapse:
         d ms = 1 ms  @nest::delay   # Synaptic transmission delay
 
     input:
-        pre_spikes real <- spike
+        pre_spikes <- spike
 
     onReceive(pre_spikes):
         deliver_spike(w, d)

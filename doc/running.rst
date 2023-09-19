@@ -23,6 +23,12 @@ Currently, the following code generators are supported:
      :height: 40px
      :target: #python-standalone-target
 
+.. warning::
+
+   To ensure correct and reproducible results, always inspect the generated code by hand. Run comprehensive numerical testing of the model(s).
+
+   In case of doubt, please create a GitHub Issue (https://github.com/nest/nestml/issues) or write in on the NEST mailing list (<https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_).
+
 
 Running NESTML from Python
 --------------------------
@@ -161,6 +167,8 @@ NEST Simulator target
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`, :ref:`vectors <Vectors>`, :ref:`delay differential equations <Delay Differential Equations>`, :ref:`guards <Guards>`
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
+
+Parameters, internals and state variables can be set and read by the user using ``nest.SetStatus()`` and ``nest.GetStatus()``.
 
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~

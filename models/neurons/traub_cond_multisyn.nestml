@@ -45,10 +45,10 @@ neuron traub_cond_multisyn:
         g_GABAB$ real = GABA_BInitialValue
 
     equations:
-        recordable inline I_syn_ampa pA = -convolve(g_AMPA, AMPA) * ( V_m - AMPA_E_rev )
-        recordable inline I_syn_nmda pA = -convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-        recordable inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
-        recordable inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
+        recordable inline I_syn_ampa pA = -convolve(g_AMPA, AMPA) * nS * ( V_m - AMPA_E_rev )
+        recordable inline I_syn_nmda pA = -convolve(g_NMDA, NMDA) * nS * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+        recordable inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * nS * ( V_m - GABA_A_E_rev )
+        recordable inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * nS * ( V_m - GABA_B_E_rev )
         recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
@@ -140,10 +140,10 @@ neuron traub_cond_multisyn:
         beta_h_init  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
 
     input:
-        AMPA nS  <- spike
-        NMDA nS  <- spike
-        GABA_A nS <- spike
-        GABA_B nS <- spike
+        AMPA <- spike
+        NMDA <- spike
+        GABA_A <- spike
+        GABA_B <- spike
         I_stim pA <- continuous
 
     output:
