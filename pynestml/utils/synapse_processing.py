@@ -56,6 +56,9 @@ class SynapseProcessing(MechanismProcessing):
 
     @classmethod
     def collect_additional_base_infos(cls, neuron, syns_info):
+        """
+        Collect internals, kernels, inputs and convolutions associated with the synapse.
+        """
         info_collector = ASTSynapseInformationCollector()
         neuron.accept(info_collector)
         for synapse_name, synapse_info in syns_info.items():
