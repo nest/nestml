@@ -113,6 +113,8 @@ For a complete example, please see `concmech.nestml <https://github.com/nest/nes
 Synapse description
 -------------------
 
+Here synapse models are based on convolutions over a buffer of incoming spikes. This means that the equation for the current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed. The descriptor for synapses is ``@mechanism::receptor``.
+
 .. code-block:: nestml
 
     neuron <neuron_name>:
