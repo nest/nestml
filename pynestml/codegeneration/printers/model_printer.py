@@ -276,7 +276,7 @@ class ModelPrinter(ASTPrinter):
             return self.print_on_receive_block(node)
 
         if isinstance(node, ASTOnConditionBlock):
-            return self.print_on_receive_block(node)
+            return self.print_on_condition_block(node)
 
         if isinstance(node, ASTOutputBlock):
             return self.print_output_block(node)

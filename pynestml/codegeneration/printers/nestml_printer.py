@@ -531,7 +531,7 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "onCondition(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += print_n_spaces(self.indent) + "onCondition(" + self.print(node.get_cond_expr()) + "):" + print_sl_comment(node.in_comment) + "\n"
         ret += self.print(node.get_block())
         return ret
 

@@ -27,6 +27,7 @@ import re
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -690,9 +691,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
-    def visitOnCondition(self, ctx):
+    def visitOnConditionBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        cond_expr = ctx.condition.text
+        cond_expr: ASTExpression = self.visit(ctx.condition)
         const_parameters = {}
         for el in ctx.constParameter():
             const_parameters[el.name.text] = el.value.text

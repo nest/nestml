@@ -1334,6 +1334,12 @@ class ASTVisitor:
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
 
+    def traverse_on_condition_block(self, node):
+        if node.get_cond_expr() is not None:
+            node.get_cond_expr().accept(self.get_real_self())
+        if node.get_block() is not None:
+            node.get_block().accept(self.get_real_self())
+
     def traverse_variable(self, node):
         return
         # if node.get_vector_parameter() is not None:

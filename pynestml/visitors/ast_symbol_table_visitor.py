@@ -195,6 +195,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_block().update_scope(scope)
+        node.get_cond_expr().update_scope(node.get_scope())
 
     def endvisit_on_condition_block(self, node=None):
         self.block_type_stack.pop()

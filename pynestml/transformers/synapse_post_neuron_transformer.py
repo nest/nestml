@@ -415,8 +415,8 @@ class SynapsePostNeuronTransformer(Transformer):
                             if stmt.is_small_stmt() \
                                and stmt.small_stmt.is_assignment() \
                                and ASTUtils.depends_only_on_vars(stmt.small_stmt.get_assignment().rhs, recursive_vars_used + all_declared_params) \
-                               and stmt.small_stmt.get_assignment().get_variable() in syn_to_neuron_params + syn_to_neuron_state_vars:
-                                Logger.log_message(None, -1, "\tMoving statement " + str(stmt), None, LoggingLevel.INFO)
+                               and stmt.small_stmt.get_assignment().get_variable().get_complete_name() in syn_to_neuron_params + syn_to_neuron_state_vars:
+                                Logger.log_message(None, -1, "\tMoving statement " + str(stmt).strip(), None, LoggingLevel.INFO)
 
                                 collected_on_post_stmts.append(stmt)
                                 stmts.pop(stmts.index(stmt))
@@ -468,7 +468,11 @@ class SynapsePostNeuronTransformer(Transformer):
         Logger.log_message(
             None, -1, "Adding suffix to variables in spike updates", None, LoggingLevel.INFO)
 
-        print("XXXXXXXXXXXXX")
+        for stmt in new_neuron.extra_on_emit_spike_stmts_from_synapse:
+            if stmt.small_stmt.is_assignment():
+                new_name: str = stmt.small_stmt.get_assignment().get_variable().get_name() + var_name_suffix
+                stmt.small_stmt.get_assignment().get_variable().set_name(new_name)
+
 
         #
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
