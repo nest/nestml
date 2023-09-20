@@ -93,6 +93,7 @@ The concentration-model description looks very similar:
 As an example a description of a calcium concentration model where we pretend that we have the Ca_HVA and the Ca_LVAst ion-channels defined:
 
 .. code-block:: nestml
+
     neuron <neuron_name>:
         state:
             c_Ca real = 0.0001
