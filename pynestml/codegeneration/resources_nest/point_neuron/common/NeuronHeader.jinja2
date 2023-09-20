@@ -366,6 +366,13 @@ public:
 {%- endfor %}
 {%- endfilter %}
 
+  // -------------------------------------------------------------------------
+  //   Initialization functions
+  // -------------------------------------------------------------------------
+
+{%- if not nest_version.startswith("v2") %}
+  void calibrate_time( const nest::TimeConverter& tc ) override;
+{%- endif %}
 
 protected:
 {%- if paired_synapse is defined %}
@@ -464,12 +471,14 @@ private:
   static std::vector< std::tuple< int, int > > rport_to_nestml_buffer_idx;
 {%- endif %}
 
-{%- if nest_version.startswith("v2") %}
   /**
    * Reset state of neuron.
   **/
+{%- if nest_version.startswith("v2") %}
   void init_state_(const Node& proto) override;
 {%- endif %}
+
+  void init_state_internal_();
 
   /**
    * Reset internal buffers of neuron.

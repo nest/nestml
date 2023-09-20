@@ -58,6 +58,7 @@ class TestStaticSynapse:
                              logging_level="DEBUG",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
+        nest.Install("nestmlmodule")
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -67,7 +68,6 @@ class TestStaticSynapse:
         sim_time = 100.   # [ms]
 
         nest.set_verbosity("M_ALL")
-        nest.Install("nestmlmodule")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
 

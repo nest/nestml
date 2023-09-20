@@ -19,7 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.cocos import co_co_internals_assigned_only_in_internals_block
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
@@ -43,8 +45,8 @@ from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDupli
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
-    CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
+from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
@@ -71,6 +73,13 @@ class CoCosManager:
         Checks for the handed over model that each used function it is defined.
         """
         CoCoFunctionUnique.check_co_co(model)
+
+    @classmethod
+    def check_inline_expression_not_assigned_to(cls, neuron: ASTNeuron):
+        """
+        Checks for the handed over neuron that inline expressions are not assigned to.
+        """
+        CoCoInlineExpressionNotAssignedTo.check_co_co(neuron)
 
     @classmethod
     def check_each_block_defined_at_most_once(cls, node: ASTModel):
@@ -194,7 +203,15 @@ class CoCosManager:
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(model)
 
     @classmethod
-    def check_output_port_defined_if_emit_call(cls, model: ASTModel):
+    def check_internals_not_assigned_outside_internals_block(cls, neuron: ASTNeuron):
+        """
+        Checks that internals are not assigned outside the internals block.
+        :param neuron: a single neuron object.
+        """
+        CoCoInternalsAssignedOnlyInInternalsBlock.check_co_co(neuron)
+
+    @classmethod
+    def check_output_port_defined_if_emit_call(cls, neuron: ASTNeuron):
         """
         Checks that if emit_spike() function is called, an spiking output port is defined.
         :param model: a single model object.
@@ -365,6 +382,7 @@ class CoCosManager:
         cls.check_each_block_defined_at_most_once(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
+        cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
         cls.check_variables_defined_before_usage(model, after_ast_rewrite)
         cls.check_inline_expressions_have_rhs(model)
@@ -378,6 +396,7 @@ class CoCosManager:
         cls.check_user_defined_function_correctly_built(model)
         cls.check_initial_ode_initial_values(model)
         cls.check_kernel_type(model)
+        cls.check_internals_not_assigned_outside_internals_block(model)
         cls.check_convolve_cond_curr_is_correct(model)
         cls.check_integrate_odes_params_correct(model)
         cls.check_output_port_defined_if_emit_call(model)

@@ -21,28 +21,28 @@ Tetzlaff (February 2021; January 2022)
 model ignore_and_fire_neuron:
 
   state:
-    phase real = 1.                ## relative time to next spike (in (0,1])
+    phase real = 1.                # relative time to next spike (in (0,1])
+    phase_steps integer = firing_period_steps / 2   # start halfway through the interval by default
 
   parameters:
-    firing_rate Bq = 10. Bq        ## firing rate
+    firing_rate Bq = 10. Bq        # firing rate
 
   internals:
-    firing_period_steps integer = steps( 1. / firing_rate )    ## firing period in steps
-    phase_steps integer = steps( max(0.,phase) / firing_rate ) ## firing phase in steps
+    firing_period_steps integer = steps( 1. / firing_rate )    # firing period in steps
 
   input:
-    spikes <- spike   ## the neuron receives spikes, but is not processing them
+    spikes <- spike   # the neuron receives spikes, but is not processing them
 
   output:
     spike
 
   update:
    integrate_odes()
-   if phase_steps == 0:
+   if phase_steps >= firing_period_steps - 1:
        emit_spike()
-       phase_steps = firing_period_steps - 1
-       #println("spike")
+       phase_steps = 0
+       println("emited spike")
     else:
-       phase_steps -= 1
+       phase_steps += 1
 
-    phase = 1. * phase_steps / firing_period_steps
+    phase = phase_steps / firing_period_steps

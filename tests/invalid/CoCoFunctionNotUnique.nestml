@@ -45,5 +45,7 @@ model CoCoFunctionNotUnique:
         test real = 1
         if True == True:
             return True
+        elif Tau_a == 2:
+            test = Tau_a # here no return statement should be detected
         else:
             test = test # here no return statement should be detected

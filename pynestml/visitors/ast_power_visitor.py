@@ -22,8 +22,11 @@
 """
 rhs : <assoc=right> left=rhs powOp='**' right=rhs
 """
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.either import Either
 from pynestml.utils.error_strings import ErrorStrings
@@ -70,21 +73,49 @@ class ASTPowerVisitor(ASTVisitor):
         :return: an Either object
         :rtype: Either
         """
-        # TODO write tests for this by PTraeder
-        if isinstance(expr, ASTExpression) and expr.is_encapsulated:
-            return self.calculate_numeric_value(expr.get_expression())
-        elif isinstance(expr, ASTSimpleExpression) and expr.get_numeric_literal() is not None:
-            if isinstance(expr.get_numeric_literal(), int) \
-                    or isinstance(expr.get_numeric_literal(), float):
-                literal = expr.get_numeric_literal()
-                return Either.value(literal)
-            else:
+        if isinstance(expr, ASTExpression):
+            if expr.is_encapsulated:
+                return self.calculate_numeric_value(expr.get_expression())
+            if expr.is_unary_operator() and expr.get_unary_operator().is_unary_minus:
+                term = self.calculate_numeric_value(expr.get_expression())
+                if term.is_error():
+                    return term
+                return Either.value(-term.get_value())
+            if expr.get_binary_operator() is not None:
+                op = expr.get_binary_operator()
+                lhs = expr.get_lhs()
+                rhs = expr.get_rhs()
+                if op.is_plus_op:
+                    return Either.value(self.calculate_numeric_value(lhs).get_value() + self.calculate_numeric_value(rhs).get_value())
+
+                if op.is_minus_op:
+                    return Either.value(self.calculate_numeric_value(lhs).get_value() - self.calculate_numeric_value(rhs).get_value())
+
+                if op.is_times_op:
+                    return Either.value(self.calculate_numeric_value(lhs).get_value() * self.calculate_numeric_value(rhs).get_value())
+
+                if op.is_div_op:
+                    return Either.value(self.calculate_numeric_value(lhs).get_value() / self.calculate_numeric_value(rhs).get_value())
+
+                if op.is_modulo_op:
+                    return Either.value(self.calculate_numeric_value(lhs).get_value() % self.calculate_numeric_value(rhs).get_value())
+            return self.calculate_numeric_value(expr)
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.get_numeric_literal() is not None:
+                if isinstance(expr.get_numeric_literal(), int) \
+                        or isinstance(expr.get_numeric_literal(), float):
+                    literal = expr.get_numeric_literal()
+                    return Either.value(literal)
                 error_message = ErrorStrings.message_unit_base(self, expr.get_source_position())
                 return Either.error(error_message)
-        elif expr.is_unary_operator() and expr.get_unary_operator().is_unary_minus:
-            term = self.calculate_numeric_value(expr.get_expression())
-            if term.is_error():
-                return term
-            return Either.value(-term.get_value())
+
+            # expr is a variable
+            variable = expr.get_variable()
+            symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+            if symbol is None:
+                if PredefinedUnits.is_unit(variable.get_complete_name()):
+                    return Either.value(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+            return self.calculate_numeric_value(symbol.get_declaring_expression())
+
         error_message = ErrorStrings.message_non_constant_exponent(self, expr.get_source_position())
         return Either.error(error_message)

@@ -45,6 +45,7 @@ model aeif_cond_exp_neuron:
     state:
         V_m mV = E_L   # Membrane potential
         w pA = 0 pA    # Spike-adaptation current
+        r integer = 0  # Counts number of tick during the refractory period
 
     equations:
         inline V_bounded mV = min(V_m, V_peak)    # prevent exponential divergence
@@ -89,8 +90,6 @@ model aeif_cond_exp_neuron:
         # refractory time in steps
         RefractoryCounts integer = steps(t_ref)
 
-        # counts number of tick during the refractory period
-        r integer
 
     input:
         inh_spikes <- inhibitory spike

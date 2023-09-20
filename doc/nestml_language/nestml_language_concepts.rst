@@ -798,9 +798,9 @@ Block types
 
 Within the top-level block, the following blocks may be defined:
 
--  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
+-  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. Parameters cannot be changed from within the model itself; for this, use state variables instead.
 -  ``state`` - This block is composed of a list of variable declarations that describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
--  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
+-  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
 -  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
@@ -1042,6 +1042,21 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
    IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
+
+An exception is made for inline expressions which are defined as a simple convolution and marked ``recordable``:
+
+.. code-block:: nestml
+
+   recordable inline I_syn pA = convolve(alpha_kernel, spiking_input_port) * pA
+
+During code generation, one or more state variables are created for each unique combination of (kernel, spike input port) that appears in convolution statements. These state variables keep track of the state of the convolution across time, and can be referenced in the rest of the model, for instance:
+
+.. code-block:: nestml
+
+   update:
+     # reset the state of synaptic integration
+     I_syn = 0 pA
+     I_syn' = 0 * s**-1
 
 
 Kernel functions
