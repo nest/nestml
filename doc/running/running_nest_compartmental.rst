@@ -121,11 +121,14 @@ Here synapse models are based on convolutions over a buffer of incoming spikes. 
         equations:
             inline <current_equation_name> real = \
                 <some equation based on state variables, parameters, membrane potential and other equation names \
-                and MUST contain at least one convolve() call> \
+                and MUST contain at least one convolve(<kernel_name>, <spike_name>) call> \
                 @mechanism::receptor
 
             # kernel(s) to be passed to the convolve call(s):
             kernel <kernel_name> = <some kernel description>
+
+        input:
+            <spike_name> <- spike
 
 For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `compartmental_model_test.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/concmech_model_test.py>`_.
 
