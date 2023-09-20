@@ -118,7 +118,8 @@ Synapse description
     neuron <neuron_name>:
         equations:
             inline <current_equation_name> real = \
-                <some equation based on state variables, parameters, membrane potential and other equation names and MUST contain at least one convolve() call> \
+                <some equation based on state variables, parameters, membrane potential and other equation names \
+                and MUST contain at least one convolve() call> \
                 @mechanism::receptor
 
             # kernel(s) to be passed to the convolve call(s):
