@@ -19,15 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Tuple
-
-from pynestml.codegeneration.printers.c_function_call_printer import CFunctionCallPrinter
+from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
+class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in C Spinnaker API  syntax.
     """
@@ -107,8 +105,6 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
 
         if function_name == PredefinedFunctions.LOG10:
             return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
-            # return 'std::log10({!s})'
-            raise Exception("Log10 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.COSH:
             return '(HALF * (expk({!s}) + expk(-{!s})))'
@@ -120,15 +116,12 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
             return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
 
         if function_name == PredefinedFunctions.ERF:
-            # return 'std::erf({!s})'
             raise Exception("Erf not defined for spinnaker")
 
         if function_name == PredefinedFunctions.ERFC:
-            # return 'std::erfc({!s})'
             raise Exception("Erfc not defined for spinnaker")
 
         if function_name == PredefinedFunctions.EXPM1:
-            # return 'numerics::expm1({!s})'
             raise Exception("Expm1 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.PRINT:

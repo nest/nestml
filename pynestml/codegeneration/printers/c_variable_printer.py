@@ -19,27 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_variables import PredefinedVariables
 
 
-# TODO: Make C conform
 class CVariablePrinter(VariablePrinter):
-
-    @classmethod
-    def _print_cpp_name(cls, variable_name: str) -> str:
-        """
-        Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp' += 1" will be converted into "G_ahp__d".
-
-        :param variable_name: a single name.
-        :return: a string representation
-        """
-        differential_order = variable_name.count("\"")
-        if differential_order > 0:
-            return variable_name.replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
-
-        return variable_name.replace("$", "__DOLLAR")
 
     def print_variable(self, node: ASTVariable) -> str:
         """
@@ -52,4 +38,4 @@ class CVariablePrinter(VariablePrinter):
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
 
-        return CVariablePrinter._print_cpp_name(node.get_complete_name())
+        return CppVariablePrinter._print_cpp_name(node.get_complete_name())

@@ -44,37 +44,6 @@ class SpinnakerPythonTypeSymbolPrinter(TypeSymbolPrinter):
         assert isinstance(type_symbol, TypeSymbol)
 
         if isinstance(type_symbol, RealTypeSymbol):
-            return "float"
-
-        if isinstance(type_symbol, BooleanTypeSymbol):
-            return "bool"
-
-        if isinstance(type_symbol, IntegerTypeSymbol):
-            return "int"
-
-        if isinstance(type_symbol, StringTypeSymbol):
-            return "str"
-
-        if isinstance(type_symbol, VoidTypeSymbol):
-            return ""
-
-        if isinstance(type_symbol, UnitTypeSymbol):
-            return "float"
-
-        if isinstance(type_symbol, ErrorTypeSymbol):
-            return "ERROR"
-
-        raise Exception("Unknown NESTML type")
-
-    def print_spinnaker_datatype(self, type_symbol: TypeSymbol):
-        r"""
-        Converts the name of the type symbol to a corresponding Spinnaker datatype.
-        :param type_symbol: a single type symbol
-        :return: the corresponding string representation.
-        """
-        assert isinstance(type_symbol, TypeSymbol)
-
-        if isinstance(type_symbol, RealTypeSymbol):
             return "DataType.S1615"
 
         if isinstance(type_symbol, BooleanTypeSymbol):

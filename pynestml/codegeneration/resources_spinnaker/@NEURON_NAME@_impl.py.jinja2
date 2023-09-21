@@ -78,23 +78,23 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
         self._struct = Struct([
                  # spike input ports:
 {%- for sym in neuron.get_spike_input_ports() | sort(attribute="name") %}
-            ({{type_symbol_printer.print_spinnaker_datatype(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # continuous input ports:
 {%- for sym in neuron.get_continuous_input_ports() | sort(attribute="name") %}
-            ({{type_symbol_printer.print_spinnaker_datatype(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # state:
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
-            ({{type_symbol_printer.print_spinnaker_datatype(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # parameters:
 {%- for sym in neuron.get_parameter_symbols() | sort(attribute="name")%}
-            ({{type_symbol_printer.print_spinnaker_datatype(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
                  # internals:
 {%- for sym in neuron.get_internal_symbols() | sort(attribute="name")%}
-            ({{type_symbol_printer.print_spinnaker_datatype(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
 {%- endfor %}
             ])
 
