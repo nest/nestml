@@ -58,8 +58,8 @@ neuron hh_cond_exp_destexhe:
         inline I_M pA = g_M * Noninact_p * (V_m - E_K)
         inline I_noise pA = (g_noise_exc * (V_m - E_exc) + g_noise_inh * (V_m - E_inh))
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * ( V_m - E_inh )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
 
         V_m' =( -I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
 
@@ -125,8 +125,8 @@ neuron hh_cond_exp_destexhe:
         A_inh uS = ((D_inh * tau_syn_inh / 2) * (1 - exp(-2 * resolution() / tau_syn_inh )))**.5
 
     input:
-        inh_spikes nS <- inhibitory spike
-        exc_spikes nS <- excitatory spike
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
     output:

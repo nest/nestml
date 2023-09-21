@@ -46,10 +46,10 @@ neuron hh_moto_5ht:
         # synapses: alpha functions
         kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
         kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
-        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes)
-        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes)
+        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes) * pA
+        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes) * pA
 
-        inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in)
+        inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in) * mV
 
         inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K pA = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
@@ -109,8 +109,8 @@ neuron hh_moto_5ht:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
-        inh_spikes pA <- inhibitory spike
-        exc_spikes pA <- excitatory spike
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
         I_stim pA <- continuous
 
     output:

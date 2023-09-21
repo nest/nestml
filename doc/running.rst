@@ -23,6 +23,12 @@ Currently, the following code generators are supported:
      :height: 40px
      :target: #python-standalone-target
 
+.. warning::
+
+   To ensure correct and reproducible results, always inspect the generated code by hand. Run comprehensive numerical testing of the model(s).
+
+   In case of doubt, please create a GitHub Issue (https://github.com/nest/nestml/issues) or write in on the NEST mailing list (<https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_).
+
 
 Running NESTML from Python
 --------------------------
@@ -162,6 +168,8 @@ NEST Simulator target
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
+Parameters, internals and state variables can be set and read by the user using ``nest.SetStatus()`` and ``nest.GetStatus()``.
+
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -199,14 +207,16 @@ After generating and building the model code, a ``receptor_type`` entry is avail
 
    neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
+   receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+
    sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+   nest.Connect(sg, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_1"], "weight": 1000.})
 
    sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_2"], "weight": 1000.})
 
    sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : receptor_types["SPIKES_3"], "weight": 500.})
 
 Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
@@ -214,9 +224,9 @@ We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2``
 
 .. code-block:: python
 
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
-                                                          'I_kernel2__X__spikes2',
-                                                          'I_kernel3__X__spikes3'],
+   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes_1',
+                                                          'I_kernel2__X__spikes_2',
+                                                          'I_kernel3__X__spikes_3'],
                                           'interval': .1})
    nest.Connect(mm, neuron)
 

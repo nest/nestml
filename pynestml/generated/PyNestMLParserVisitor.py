@@ -214,8 +214,13 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#inputPort.
-    def visitInputPort(self, ctx:PyNestMLParser.InputPortContext):
+    # Visit a parse tree produced by PyNestMLParser#spikeInputPort.
+    def visitSpikeInputPort(self, ctx:PyNestMLParser.SpikeInputPortContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#continuousInputPort.
+    def visitContinuousInputPort(self, ctx:PyNestMLParser.ContinuousInputPortContext):
         return self.visitChildren(ctx)
 
 

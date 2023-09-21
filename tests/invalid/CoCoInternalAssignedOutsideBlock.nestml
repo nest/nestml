@@ -1,12 +1,15 @@
 """
-CoCoContinuousInputPortQualifierSpecified.nestml
-################################################
+CoCoInternalAssignedOutsideBlock.nestml
+########################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if continuous time input ports are not specified by qualifiers.
+This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
+assignment of values to internals outside of internals blocks is detected.
+
+Negative case.
 
 
 Copyright statement
@@ -29,6 +32,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoContinuousInputPortQualifierSpecified:
-    input:
-        currents pA <- continuous   # no qualifier specified for current port, thus correct
+neuron CoCoInternalAssignedOutsideBlock:
+    internals:
+        test mV = 10 mV
+
+    update:
+        test = 20 mV
