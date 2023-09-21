@@ -1,6 +1,30 @@
+# -*- coding: utf-8 -*-
+#
+# synapse_remove_post_port.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Mapping, Any, Union, Sequence
+
+from pynestml.meta_model.ast_node import ASTNode
+
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
@@ -10,7 +34,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.utils.string_utils import removesuffix
 
 
-class SynapseRemovePostPortTransformer (Transformer):
+class SynapseRemovePostPortTransformer(Transformer):
     _default_options = {
         "neuron_synapse_pairs": []
     }
@@ -28,8 +52,10 @@ class SynapseRemovePostPortTransformer (Transformer):
             return False
 
         for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
-            if not (neuron_name in [neuron_synapse_pair["neuron"], neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
-                    and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
+            if not (neuron_name in [neuron_synapse_pair["neuron"],
+                                    neuron_synapse_pair["neuron"] + FrontendConfiguration.suffix]
+                    and synapse_name in [neuron_synapse_pair["synapse"],
+                                         neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
                 continue
 
             if not special_type + "_ports" in neuron_synapse_pair.keys():
@@ -56,7 +82,6 @@ class SynapseRemovePostPortTransformer (Transformer):
     def is_vt_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
         return self.is_special_port("vt", port_name, neuron_name, synapse_name)
 
-
     def get_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
         post_port_names = []
         for input_block in synapse.get_input_blocks():
@@ -81,7 +106,6 @@ class SynapseRemovePostPortTransformer (Transformer):
                     post_port_names.append(port.get_name())
         return post_port_names
 
-
     def transform_neuron_synapse_pair_(self, neuron, synapse):
 
         new_neuron = neuron.clone()
@@ -93,7 +117,6 @@ class SynapseRemovePostPortTransformer (Transformer):
         assert len(new_synapse.get_state_blocks()) <= 1, "Only one state block supported per synapse for now."
         assert len(new_neuron.get_update_blocks()) <= 1, "Only one update block supported per neuron for now."
         assert len(new_synapse.get_update_blocks()) <= 1, "Only one update block supported per synapse for now."
-
 
         #
         #     rename neuron
@@ -120,7 +143,8 @@ class SynapseRemovePostPortTransformer (Transformer):
         base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
 
         new_synapse.post_port_names = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
-        new_synapse.spiking_post_port_names = self.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name)
+        new_synapse.spiking_post_port_names = self.get_spiking_post_port_names(synapse, base_neuron_name,
+                                                                               base_synapse_name)
         new_synapse.vt_port_names = self.get_vt_port_names(synapse, base_neuron_name, base_synapse_name)
 
         #
@@ -136,7 +160,6 @@ class SynapseRemovePostPortTransformer (Transformer):
                            + new_neuron.name + ", " + new_synapse.name, None, LoggingLevel.INFO)
 
         return new_neuron, new_synapse
-
 
     def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):

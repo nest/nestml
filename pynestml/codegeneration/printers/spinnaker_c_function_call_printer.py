@@ -26,6 +26,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
+
 class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
     r"""
     Printer for ASTFunctionCall in C Spinnaker API  syntax.
@@ -62,7 +63,7 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);\n' \
-                    'send_spike(timer_count, time, neuron_index)'
+                   'send_spike(timer_count, time, neuron_index)'
 
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
             return "// Probably dont need to actively deliver spike"
@@ -94,20 +95,19 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
 
         if function_name == PredefinedFunctions.MIN:
             return 'MIN({!s}, {!s})'
- 
+
         if function_name == PredefinedFunctions.EXP:
             return 'expk({!s})'
 
         if function_name == PredefinedFunctions.LN:
             return 'logk({!s})'
-        
+
         if function_name == PredefinedFunctions.POW:
             return '(expk({1!s} * logk({0!s})))'
-        
 
         if function_name == PredefinedFunctions.LOG10:
             return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
-            #return 'std::log10({!s})'
+            # return 'std::log10({!s})'
             raise Exception("Log10 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.COSH:
@@ -120,15 +120,15 @@ class SpinnakerCFunctionCallPrinter(CFunctionCallPrinter):
             return 'kdik((expk({!s}) - expk(-{!s})), (expk({!s}) + expk(-{!s})))'
 
         if function_name == PredefinedFunctions.ERF:
-            #return 'std::erf({!s})'
+            # return 'std::erf({!s})'
             raise Exception("Erf not defined for spinnaker")
 
         if function_name == PredefinedFunctions.ERFC:
-           #return 'std::erfc({!s})'
+            # return 'std::erfc({!s})'
             raise Exception("Erfc not defined for spinnaker")
 
         if function_name == PredefinedFunctions.EXPM1:
-           #return 'numerics::expm1({!s})'
+            # return 'numerics::expm1({!s})'
             raise Exception("Expm1 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.PRINT:

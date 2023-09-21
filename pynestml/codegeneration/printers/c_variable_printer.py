@@ -24,8 +24,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_variables import PredefinedVariables
 
 
-
-#TODO: Make C conform
+# TODO: Make C conform
 class CVariablePrinter(VariablePrinter):
 
     @classmethod

@@ -51,4 +51,3 @@ class SPINNAKERCodeGeneratorUtils:
             return 'input.>%s'
 
         return ''
-        

@@ -31,16 +31,14 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                      "synapse": "stdp",
-                                                      "post_ports": ["post_spikes"]}]}
-
+                                                  "synapse": "stdp",
+                                                  "post_ports": ["post_spikes"]}]}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
             os.path.join("models", "synapses", "stdp_synapse.nestml")
-            ]
+        ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         target_path = "spinnaker-target"
@@ -57,7 +55,6 @@ class TestSpiNNakerIafPscExp:
                                   codegen_opts=codegen_opts)
 
     def test_iaf_psc_exp(self):
-
         # import spynnaker and plotting stuff
         import pyNN.spiNNaker as p
         from pyNN.utility.plotting import Figure, Panel
@@ -66,12 +63,10 @@ class TestSpiNNakerIafPscExp:
         # import models
         from python_models8.neuron.builds.iaf_psc_exp_nestml import iaf_psc_exp_nestml
 
-        #TODO: Set names for exitatory input, membrane potential and synaptic response
+        # TODO: Set names for exitatory input, membrane potential and synaptic response
         exc_input = "exc_spikes"
         membranePot = "V_m"
         synapticRsp = "I_kernel_exc__X__exc_spikes"
-
-
 
         # Set the run time of the execution
         run_time = 150

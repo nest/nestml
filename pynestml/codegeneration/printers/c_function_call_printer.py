@@ -32,7 +32,6 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-
 # TODO: Make C conform
 class CFunctionCallPrinter(FunctionCallPrinter):
     r"""
@@ -100,31 +99,31 @@ class CFunctionCallPrinter(FunctionCallPrinter):
             return 'logk({!s})'
 
         if function_name == PredefinedFunctions.LOG10:
-            #return 'std::log10({!s})'
+            # return 'std::log10({!s})'
             raise Exception("Log10 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.COSH:
-            #return 'std::cosh({!s})'
+            # return 'std::cosh({!s})'
             raise Exception("Cosh not defined for spinnaker")
 
         if function_name == PredefinedFunctions.SINH:
-            #return 'std::sinh({!s})'
+            # return 'std::sinh({!s})'
             raise Exception("Sinh not defined for spinnaker")
 
         if function_name == PredefinedFunctions.TANH:
-            #return 'std::tanh({!s})'
+            # return 'std::tanh({!s})'
             raise Exception("Tanh not defined for spinnaker")
 
         if function_name == PredefinedFunctions.ERF:
-            #return 'std::erf({!s})'
+            # return 'std::erf({!s})'
             raise Exception("Erf not defined for spinnaker")
 
         if function_name == PredefinedFunctions.ERFC:
-           #return 'std::erfc({!s})'
+            # return 'std::erfc({!s})'
             raise Exception("Erfc not defined for spinnaker")
 
         if function_name == PredefinedFunctions.EXPM1:
-           #return 'numerics::expm1({!s})'
+            # return 'numerics::expm1({!s})'
             raise Exception("Expm1 not defined for spinnaker")
 
         if function_name == PredefinedFunctions.PRINT:
@@ -191,7 +190,8 @@ class CFunctionCallPrinter(FunctionCallPrinter):
             fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
             fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
             ast_var = ASTVariable(var_name, scope=scope)
-            right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+            right = ' ' + ASTUtils.get_unit_name(
+                ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
         return '"' + stmt + '"'  # format bare string in C++ (add double quotes)

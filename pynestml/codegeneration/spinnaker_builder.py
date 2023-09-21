@@ -183,7 +183,7 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    pass # no problem if file is already there and gets overwritten
+                    pass  # no problem if file is already there and gets overwritten
 
             # Copy the example files
             try:
@@ -200,7 +200,7 @@ class SpiNNakerBuilder(Builder):
                                           shell=shell,
                                           cwd=target_path)
                 except subprocess.CalledProcessError:
-                    pass # no problem if file is already there and gets overwritten
+                    pass  # no problem if file is already there and gets overwritten
 
             # create python_models8 module directory
             try:

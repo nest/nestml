@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# c_expression_printer.py
+# spinnaker_c_expression_printer.py
 #
 # This file is part of NEST.
 #

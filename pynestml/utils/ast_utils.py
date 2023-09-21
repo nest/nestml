@@ -1703,7 +1703,7 @@ class ASTUtils:
                         expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
                 odetoolbox_indict["dynamics"].append(entry)
-                
+
         # write a copy for each (kernel, spike buffer) combination
         for kernel, spike_input_port in kernel_buffers:
 
