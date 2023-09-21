@@ -9,21 +9,21 @@ Running NESTML causes several processing steps to occur:
 
 Currently, the following code generators are supported:
 
-* :doc:`NEST Simulator </doc/running/running_nest>`
+* :doc:`NEST Simulator </running/running_nest>`
 
   .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
      :width: 95px
      :height: 40px
      :target: #nest-simulator-target
 
-* :doc:`Python-standalone </doc/running/running_python_standalone>`
+* :doc:`Python-standalone </running/running_python_standalone>`
 
   .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
      :width: 40px
      :height: 40px
      :target: #python-standalone-target
 
-* :doc:`SpiNNaker </doc/running/running_spinnaker>`
+* :doc:`SpiNNaker </running/running_spinnaker>`
 
   .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
      :width: 40px
