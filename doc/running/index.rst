@@ -9,21 +9,21 @@ Running NESTML causes several processing steps to occur:
 
 Currently, the following code generators are supported:
 
-* `NEST Simulator <NEST Simulator target_>`_
+* :doc:`NEST Simulator </doc/running/running_nest>`
 
   .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
      :width: 95px
      :height: 40px
      :target: #nest-simulator-target
 
-* `Python-standalone <Python-standalone target_>`_
+* :doc:`Python-standalone </doc/running/running_python_standalone>`
 
   .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
      :width: 40px
      :height: 40px
      :target: #python-standalone-target
 
-* `SpiNNaker <SpiNNaker target_>`_
+* :doc:`SpiNNaker </doc/running/running_spinnaker>`
 
   .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
      :width: 40px
@@ -34,7 +34,7 @@ Currently, the following code generators are supported:
 
    To ensure correct and reproducible results, always inspect the generated code by hand. Run comprehensive numerical testing of the model(s).
 
-   In case of doubt, please create a GitHub Issue (https://github.com/nest/nestml/issues) or write in on the NEST mailing list (<https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_).
+   In case of doubt, please create a `GitHub Issue <https://github.com/nest/nestml/issues>`_ or write in on the `NEST mailing list <https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_. 
 
 
 Running NESTML from Python
