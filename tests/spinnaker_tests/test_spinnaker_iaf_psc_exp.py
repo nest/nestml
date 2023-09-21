@@ -31,9 +31,9 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-       # codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-       #                                           "synapse": "stdp",
-       #                                           "post_ports": ["post_spikes"]}]}
+        # codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+        #                                           "synapse": "stdp",
+        #                                           "post_ports": ["post_spikes"]}]}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
