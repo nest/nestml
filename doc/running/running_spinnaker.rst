@@ -43,7 +43,7 @@ Generating code
 Further reading
 ~~~~~~~~~~~~~~~
 
-Levin Schmidt, "Extension of the NEST Modelling Language to the SpiNNaker Architecture". Master's thesis, RWTH Aachen University (2023) :download:`PDF <running/Schmidt_SpiNNaker_NESTML_Masters_thesis_2023.pdf>`
+Levin Schmidt, "Extension of the NEST Modelling Language to the SpiNNaker Architecture". Master's thesis, RWTH Aachen University (2023) :download:`PDF <Schmidt_SpiNNaker_NESTML_Masters_thesis_2023.pdf>`
 
 
 References
