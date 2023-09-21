@@ -1,0 +1,105 @@
+#
+#  {{neuronName}}.py
+#
+#  This file is part of NEST.
+#
+#  Copyright (C) 2004 The NEST Initiative
+#
+#  NEST is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  NEST is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  Generated from NESTML at time: {{now}}
+from numpy import exp, ceil
+
+from spynnaker.pyNN.models.neuron import AbstractPyNNNeuronModel
+from spynnaker.pyNN.models.defaults import default_parameters
+from spynnaker.pyNN.data.spynnaker_data_view import SpynnakerDataView
+
+from python_models8.neuron.implementations.{{neuronName}}_impl import {{neuronName}}Impl
+
+
+class {{neuronName}}(AbstractPyNNNeuronModel):
+
+    @default_parameters({
+{%- for sym in neuron.get_parameter_symbols() %}
+        "{{sym.get_symbol_name()}}", \
+{%- endfor %}
+    })
+    def __init__(self,
+# TODO: Initial values of input ports incorrect
+# XXX: need to print default values here?
+
+{%- filter indent(16) %}
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
+{%- endfor %}
+{%- endfilter %}
+
+{%- filter indent(16) %}
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}
+{%- endfor %}
+
+{%- for variable_symbol in neuron.get_spike_input_ports() %}
+{%-   if variable_symbol.get_initial_value() == None %}
+{{variable_symbol.get_symbol_name()}} = 0.0, 
+{%-   else %}
+{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
+{%-   endif %}
+{%- endfor %}
+
+{%- for variable_symbol in neuron.get_continuous_input_ports() %}
+{%-   if variable_symbol.get_initial_value() == None %}
+{{variable_symbol.get_symbol_name()}} = 0.0, 
+{%-   else %}
+{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
+{%-   endif %}
+{%- endfor %}
+{%- endfilter %}
+                ):
+        timestep = (SpynnakerDataView.get_simulation_time_step_ms())
+
+        # compute propagators and other internal parameters
+{%- filter indent(8) %}
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-   set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-   include "directives_py/MemberInitialization.jinja2" %}
+{%- endfor %}
+{%- endfilter %}
+
+        super().__init__({{neuronName}}Impl(
+                 # state:
+{%- for sym in neuron.get_state_symbols() %}
+                {{sym.get_symbol_name()}},
+{%- endfor %}
+
+                 # parameters:
+{%- for sym in neuron.get_parameter_symbols() %}
+                {{sym.get_symbol_name()}},
+{%- endfor %}
+
+                 # input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+                {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # continuous ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+                {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # internal variables:
+{%- for sym in neuron.get_internal_symbols() %}
+                {{sym.get_symbol_name()}},
+{%- endfor %}
+                                           ))
