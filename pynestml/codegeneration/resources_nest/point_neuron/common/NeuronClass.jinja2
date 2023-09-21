@@ -351,7 +351,7 @@ void {{neuronName}}::init_state_internal_()
 {%- filter indent(2) %}
 {%- for variable in parameter_vars_with_iv %}
 {%-     set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%-     include "directives/MemberInitialization.jinja2" %}
+{%-     include "directives_cpp/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -363,7 +363,7 @@ void {{neuronName}}::init_state_internal_()
 {%- filter indent(2) %}
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives/MemberInitialization.jinja2" %}
+{%-     include "directives_cpp/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
