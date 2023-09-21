@@ -31,13 +31,13 @@ class TestSpiNNakerIafPscExp:
     @pytest.fixture(autouse=True,
                     scope="module")
     def generate_code(self):
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                  "synapse": "stdp",
-                                                  "post_ports": ["post_spikes"]}]}
+        # codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+        #                                           "synapse": "stdp",
+        #                                           "post_ports": ["post_spikes"]}]}
 
         files = [
             os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-            os.path.join("models", "synapses", "stdp_synapse.nestml")
+            # os.path.join("models", "synapses", "stdp_synapse.nestml")
         ]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -51,8 +51,8 @@ class TestSpiNNakerIafPscExp:
                                   install_path=install_path,
                                   logging_level=logging_level,
                                   module_name=module_name,
-                                  suffix=suffix,
-                                  codegen_opts=codegen_opts)
+                                  suffix=suffix)
+        #                          codegen_opts=codegen_opts)
 
     def test_iaf_psc_exp(self):
         # import spynnaker and plotting stuff
