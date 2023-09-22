@@ -69,6 +69,9 @@ neuron ExpressionCollection:
         g_GABAA' nS/ms = 0.
         g_GABAB' nS/ms = 0.
 
+        # power operator
+        bar real = 1.5
+
     parameters:
         #neuron aeif_cond_alpha_neuron
         testA ms**2 = 1
@@ -83,6 +86,10 @@ neuron ExpressionCollection:
         test16 pA = 0pA
 
         beta real = 1.            # check for conflict with sympy built-in functions like beta()
+
+        # for power operator
+        expo1 integer = 3
+        expo2 mmol/pA = 2 mmol/pA
 
         #hh_cond_exp_traub_neuron
         test70 nS = 0nS # Inhibitory synaptic conductance
@@ -480,6 +487,10 @@ neuron ExpressionCollection:
         test77 real =  alpha_m_init / ( alpha_m_init + beta_m_init )
         test78 real = alpha_h_init / ( alpha_h_init + beta_h_init )
         test79 real =  alpha_n_init / ( alpha_n_init + beta_n_init )
+
+        bar = beta ** expo1
+        bar = beta ** expo2
+        bar = beta ** (expo1 + expo2)
 
         integrate_odes()
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...

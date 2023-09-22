@@ -1,12 +1,6 @@
-"""
-CoCoAssignmentToInlineExpression.nestml
-#######################################
-
-
-Description
-+++++++++++
-
-This test is used to test the function of CoCoAllVariablesDefined.
+""" 
+StringHandlingTest.nestml
+#########################
 
 
 Copyright statement
@@ -29,16 +23,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoAssignmentToInlineExpression:
+neuron string_handling_test:
+    state:
+        s1 string = "abc"
+        s2 string = "def"
+        b1 boolean = false
+        b2 boolean = false
+
     parameters:
-        tau_syn ms = 10 ms
+        s3 string = "ghi"
+        s4 string = "klm"
 
-    equations:
-        kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
-        inline foo real = convolve(alpha_kernel, spikes_in)
-
-    input:
-        spikes_in real <- spike
+    internals:
+        s5 string = "ghi"
 
     update:
-        foo = 42.
+        s7 string = s1 + s2
+        if s7 == "abcdef":
+            b1 = true
+
+        if s3 + s4 == s5 + "klm":
+            b2 = true

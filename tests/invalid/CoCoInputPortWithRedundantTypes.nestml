@@ -33,4 +33,4 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoInputPortWithRedundantTypes:
     input:
-        spikeInhX2 integer <- inhibitory inhibitory spike # spike redundant keywords used
+        spikeInhX2 <- inhibitory inhibitory spike # spike redundant keywords used

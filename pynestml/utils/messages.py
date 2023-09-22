@@ -117,6 +117,7 @@ class MessageCode(Enum):
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
+    ASSIGNING_TO_INLINE = 91
 
 
 class Messages:
@@ -1040,6 +1041,18 @@ class Messages:
         return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
 
     @classmethod
+    def get_assigning_to_inline(cls):
+        """
+        Cannot assign to inline expression
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "Cannot assign to inline expression."
+        return MessageCode.ASSIGNING_TO_INLINE, message
+
+    @classmethod
     def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
         """
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
@@ -1050,7 +1063,7 @@ class Messages:
         """
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
             str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
-            ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+            ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which has/have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod

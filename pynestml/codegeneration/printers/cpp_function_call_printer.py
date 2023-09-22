@@ -23,6 +23,8 @@ from typing import Tuple
 
 import re
 
+from pynestml.symbols.symbol import SymbolKind
+
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbol_table.scope import Scope
@@ -115,6 +117,15 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.ERFC:
             return 'std::erfc({!s})'
 
+        if function_name == PredefinedFunctions.CEIL:
+            return 'std::ceil({!s})'
+
+        if function_name == PredefinedFunctions.FLOOR:
+            return 'std::floor({!s})'
+
+        if function_name == PredefinedFunctions.ROUND:
+            return 'std::round({!s})'
+
         if function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1({!s})'
 
@@ -182,7 +193,16 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             fun_left = (lambda lhs: self.__convert_print_statement_str(lhs, scope) + ' << ' if lhs else '')
             fun_right = (lambda rhs: ' << ' + self.__convert_print_statement_str(rhs, scope) if rhs else '')
             ast_var = ASTVariable(var_name, scope=scope)
-            right = ' ' + ASTUtils.get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+
+            # set the `_is_numeric` value for the variable so that the variable is printed with the correct origin
+            symbol = ast_var.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+            if symbol:
+                if "_is_numeric" in dir(symbol):
+                    ast_var._is_numeric = symbol._is_numeric
+
+            # concatenate unit separated by a space with the right part of the string
+            if ASTUtils.get_unit_name(ast_var):
+                right = ' ' + ASTUtils.get_unit_name(ast_var) + right
             return fun_left(left) + self._expression_printer.print(ast_var) + fun_right(right)
 
         return '"' + stmt + '"'  # format bare string in C++ (add double quotes)

@@ -154,6 +154,17 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+
+    configure_front_end(input_path, target_platform, target_path, install_path, logging_level,
+                        module_name, store_log, suffix, dev, codegen_opts)
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
+
+
+def configure_front_end(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
+                        install_path: str = None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                        dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
+
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -194,9 +205,6 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
 
     if codegen_opts:
         FrontendConfiguration.set_codegen_opts(codegen_opts)
-
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
 
 
 def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
@@ -278,16 +286,17 @@ def main() -> int:
     return int(process())
 
 
-def process():
+def get_parsed_models():
     r"""
-    The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
+   Handle the parsing and validation of the NESTML files
 
     Returns
     -------
+    models: Sequence[Union[ASTNeuron, ASTSynapse]]
+        List of correctly parsed models
     errors_occurred : bool
         Flag indicating whether errors occurred during processing
     """
-
     # init log dir
     create_report_dir()
 
@@ -305,20 +314,9 @@ def process():
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is None:
             # Parsing error in the NESTML model, return True
-            return True
+            return [],  True
 
         compilation_units.append(parsed_unit)
-
-    # initialize and set options for transformers, code generator and builder
-    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
-    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                                           options=codegen_and_builder_opts)
-    _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
-    codegen_and_builder_opts = _codeGenerator.set_options(codegen_and_builder_opts)
-    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
-
-    if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
 
     if len(compilation_units) > 0:
         # generate a list of all neurons + synapses
@@ -337,24 +335,59 @@ def process():
                 Logger.log_message(node=model, code=code, message=message,
                                    error_position=model.get_source_position(),
                                    log_level=LoggingLevel.WARNING)
-                return True
+                return [model], True
 
-        # run transformers
-        for transformer in transformers:
-            models = transformer.transform(models)
+        return models, False
 
-        # perform code generation
-        _codeGenerator.generate_code(models)
 
-    # perform build
-    if _builder is not None:
-        _builder.build()
+def transform_models(transformers, models):
+    for transformer in transformers:
+        models = transformer.transform(models)
+    return models
+
+
+def generate_code(code_generators, models):
+    code_generators.generate_code(models)
+
+
+def process():
+    r"""
+    The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
+
+    Returns
+    -------
+    errors_occurred : bool
+        Flag indicating whether errors occurred during processing
+    """
+
+    # initialize and set options for transformers, code generator and builder
+    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+
+    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                           options=codegen_and_builder_opts)
+
+    code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
+    codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
+
+    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
+
+    if len(codegen_and_builder_opts) > 0:
+        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+
+    models, errors_occurred = get_parsed_models()
+
+    if not errors_occurred:
+        models = transform_models(transformers, models)
+        generate_code(code_generator, models)
+
+        # perform build
+        if _builder is not None:
+            _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    # Everything is fine, return false, i.e., no errors have occurred.
-    return False
+    return errors_occurred
 
 
 def init_predefined():

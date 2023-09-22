@@ -5,6 +5,6 @@
 {%- if uses_analytic_solver %}
 {%- for variable_name in analytic_state_variables_: %}
 {%-   set update_expr = update_expressions[variable_name] %}
-double {{variable_name}}__tmp = {{printer.print_expression(update_expr)}};
+double {{variable_name}}__tmp = {{printer.print(update_expr)}};
 {%- endfor %}
 {%- endif %}

@@ -1,14 +1,12 @@
 """
-CoCoContinuousInputPortQualifierSpecified.nestml
-################################################
+CoCoAssignmentToInlineExpression.nestml
+#######################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if continuous time input ports are not specified by qualifiers.
-
-Negative case.
+This test is used to test the function of CoCoAllVariablesDefined.
 
 
 Copyright statement
@@ -31,6 +29,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoContinuousInputPortQualifierSpecified:
+neuron CoCoAssignmentToInlineExpression:
+    parameters:
+        tau_syn ms = 10 ms
+
+    equations:
+        kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
+        inline foo real = convolve(alpha_kernel, spikes_in)
+
     input:
-        currents pA <- inhibitory continuous   # qualifiers may not be specified for a continuous time input port
+        spikes_in <- spike
+
+    update:
+        foo = 42.
