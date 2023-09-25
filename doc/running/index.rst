@@ -9,26 +9,31 @@ Running NESTML causes several processing steps to occur:
 
 Currently, the following code generators are supported:
 
-* :doc:`NEST Simulator </running/running_nest>`
+.. grid:: 1 1 2 2
 
-  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
-     :width: 95px
-     :height: 40px
-     :target: #nest-simulator-target
+   .. grid-item-card::  |nest_logo| :doc:`NEST Simulator </running/running_nest>`
+       :class-title: sd-d-flex-row sd-align-minor-center
 
-* :doc:`Python-standalone </running/running_python_standalone>`
+   .. grid-item-card::  |python_logo| :doc:`Python-standalone </running/running_python_standalone>`
+       :class-title: sd-d-flex-row sd-align-minor-center
 
-  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
-     :width: 40px
-     :height: 40px
-     :target: #python-standalone-target
+   .. grid-item-card::  |nest_logo| :doc:`SpiNNaker </running/running_spinnaker>`
+       :class-title: sd-d-flex-row sd-align-minor-center
 
-* :doc:`SpiNNaker </running/running_spinnaker>`
+.. |nest_logo| figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
+   :width: 95px
+   :height: 40px
+   :target: #nest-simulator-target
 
-  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
-     :width: 40px
-     :height: 40px
-     :target: #spinnaker-target
+.. |python_logo| figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
+   :width: 40px
+   :height: 40px
+   :target: #python-standalone-target
+
+.. |spinnaker_logo| figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
+   :width: 40px
+   :height: 40px
+   :target: #spinnaker-target
 
 .. warning::
 
