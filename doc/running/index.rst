@@ -11,9 +11,11 @@ Currently, the following code generators are supported (click for further inform
 
 .. grid:: 3
 
-   .. grid-item-card::  |nest_logo|
+   .. grid-item-card::
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
+
+      |nest_logo|
 
       :doc:`NEST Simulator </running/running_nest>`
 
@@ -30,19 +32,16 @@ Currently, the following code generators are supported (click for further inform
       :doc:`SpiNNaker </running/running_spinnaker>`
 
 .. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
-   :align: center
    :width: 95px
    :height: 40px
    :target: #nest-simulator-target
 
 .. |python_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
-   :align: center
    :width: 40px
    :height: 40px
    :target: #python-standalone-target
 
 .. |spinnaker_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
-   :align: center
    :width: 40px
    :height: 40px
    :target: #spinnaker-target
