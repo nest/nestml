@@ -11,14 +11,20 @@ Currently, the following code generators are supported:
 
 .. grid:: 3
 
-   .. grid-item-card::  |nest_logo| <br> :doc:`NEST Simulator </running/running_nest>`
-       :class-title: sd-d-flex-row sd-align-minor-center
+   .. grid-item-card::  |nest_logo|
+      :class-title: sd-d-flex-row sd-align-minor-center
 
-   .. grid-item-card::  |python_logo| <br> :doc:`Python-standalone </running/running_python_standalone>`
-       :class-title: sd-d-flex-row sd-align-minor-center
+      :doc:`NEST Simulator </running/running_nest>`
 
-   .. grid-item-card::  |spinnaker_logo| <br> :doc:`SpiNNaker </running/running_spinnaker>`
-       :class-title: sd-d-flex-row sd-align-minor-center
+   .. grid-item-card::  |python_logo|
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`Python-standalone </running/running_python_standalone>`
+
+   .. grid-item-card::  |spinnaker_logo|
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`SpiNNaker </running/running_spinnaker>`
 
 .. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
    :width: 95px
