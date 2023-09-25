@@ -7,7 +7,7 @@ Running NESTML causes several processing steps to occur:
 2. Code is generated from the model by one of the "code generators" selected when NESTML was invoked.
 3. If necessary, the code is compiled and built by the "builder" that belongs to the selected code generator.
 
-Currently, the following code generators are supported:
+Currently, the following code generators are supported (click for further information):
 
 .. grid:: 3
 
@@ -18,26 +18,31 @@ Currently, the following code generators are supported:
       :doc:`NEST Simulator </running/running_nest>`
 
    .. grid-item-card::  |python_logo|
+      :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`Python-standalone </running/running_python_standalone>`
 
    .. grid-item-card::  |spinnaker_logo|
+      :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`SpiNNaker </running/running_spinnaker>`
 
 .. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
+   :align: center
    :width: 95px
    :height: 40px
    :target: #nest-simulator-target
 
 .. |python_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
+   :align: center
    :width: 40px
    :height: 40px
    :target: #python-standalone-target
 
 .. |spinnaker_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
+   :align: center
    :width: 40px
    :height: 40px
    :target: #spinnaker-target
