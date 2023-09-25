@@ -19,9 +19,9 @@ Currently, the following target platforms are supported for code generation. Cli
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
-      |nest_logo|
-
       :doc:`NEST Simulator </running/running_nest>`
+
+      |nest_logo|
 
    .. grid-item-card::
       :text-align: center
@@ -43,17 +43,17 @@ Currently, the following target platforms are supported for code generation. Cli
 .. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
    :width: 95px
    :height: 40px
-   :target: /running/running_nest
+   :target: running_nest.html
 
 .. |python_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
    :width: 40px
    :height: 40px
-   :target: :doc:`Python-standalone target`
+   :target: running_python_standalone.html
 
 .. |spinnaker_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
    :width: 40px
    :height: 40px
-   :target: #spinnaker-target
+   :target: running_spinnaker.html
 
 .. warning::
 
