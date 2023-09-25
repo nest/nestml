@@ -12,16 +12,19 @@ Currently, the following code generators are supported:
 .. grid:: 3
 
    .. grid-item-card::  |nest_logo|
+      :child-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`NEST Simulator </running/running_nest>`
 
    .. grid-item-card::  |python_logo|
+      :child-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`Python-standalone </running/running_python_standalone>`
 
    .. grid-item-card::  |spinnaker_logo|
+      :child-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`SpiNNaker </running/running_spinnaker>`
