@@ -7,7 +7,11 @@ Running NESTML causes several processing steps to occur:
 2. Code is generated from the model by one of the "code generators" selected when NESTML was invoked.
 3. If necessary, the code is compiled and built by the "builder" that belongs to the selected code generator.
 
-Currently, the following code generators are supported (click for further information):
+
+Supported target platforms
+--------------------------
+
+Currently, the following target platforms are supported for code generation. Click on each for further information:
 
 .. grid:: 3
 
@@ -19,27 +23,32 @@ Currently, the following code generators are supported (click for further inform
 
       :doc:`NEST Simulator </running/running_nest>`
 
-   .. grid-item-card::  |python_logo|
+   .. grid-item-card::
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`Python-standalone </running/running_python_standalone>`
 
-   .. grid-item-card::  |spinnaker_logo|
+      |python_logo|
+
+   .. grid-item-card::
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
       :doc:`SpiNNaker </running/running_spinnaker>`
 
+      |spinnaker_logo|
+
+
 .. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
    :width: 95px
    :height: 40px
-   :target: #nest-simulator-target
+   :target: /running/running_nest
 
 .. |python_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
    :width: 40px
    :height: 40px
-   :target: #python-standalone-target
+   :target: :doc:`Python-standalone target`
 
 .. |spinnaker_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
    :width: 40px
