@@ -1247,7 +1247,7 @@ class ASTUtils:
 
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
-                spike_input_port_name += str(cls.get_numeric_vector_size(spike_input_port))
+                spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
         return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
@@ -1663,7 +1663,7 @@ class ASTUtils:
                         if differential_order:
                             type_str = "*s**-" + str(differential_order)
 
-                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if not cls.declaration_in_state_block(neuron, var_name):
                         cls.add_declaration_to_state_block(neuron, var_name, expr, type_str)
 
