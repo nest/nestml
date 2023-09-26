@@ -7,34 +7,69 @@ Running NESTML causes several processing steps to occur:
 2. Code is generated from the model by one of the "code generators" selected when NESTML was invoked.
 3. If necessary, the code is compiled and built by the "builder" that belongs to the selected code generator.
 
-Currently, the following code generators are supported:
 
-* `NEST Simulator <NEST Simulator target_>`_
+Supported target platforms
+--------------------------
 
-  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
-     :width: 95px
-     :height: 40px
-     :target: #nest-simulator-target
+Currently, the following target platforms are supported for code generation. Click on each for further information:
 
-* `NEST Simulator (compartmental) <NEST Simulator compartmental target_>`_
+.. grid:: 2
 
-  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
-     :width: 95px
-     :height: 40px
-     :target: #nest-simulator-compartmental-target
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
 
-* `Python-standalone <Python-standalone target_>`_
+      :doc:`NEST Simulator </running/running_nest>`
 
-  .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
-     :width: 40px
-     :height: 40px
-     :target: #python-standalone-target
+      |nest_logo|
+
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`NEST Simulator (compartmental) </running/running_nest_compartmental>`
+
+      |nest_logo|
+
+.. grid:: 2
+
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`Python-standalone </running/running_python_standalone>`
+
+      |python_logo|
+
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`SpiNNaker </running/running_spinnaker>`
+
+      |spinnaker_logo|
+
+
+.. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
+   :width: 95px
+   :height: 40px
+   :target: running_nest.html
+
+.. |python_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
+   :width: 40px
+   :height: 40px
+   :target: running_python_standalone.html
+
+.. |spinnaker_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
+   :width: 40px
+   :height: 40px
+   :target: running_spinnaker.html
 
 .. warning::
 
    To ensure correct and reproducible results, always inspect the generated code by hand. Run comprehensive numerical testing of the model(s).
 
-   In case of doubt, please create a GitHub Issue (https://github.com/nest/nestml/issues) or write in on the NEST mailing list (<https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_).
+   In case of doubt, please create a `GitHub Issue <https://github.com/nest/nestml/issues>`_ or write in on the `NEST mailing list <https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_. 
 
 
 Running NESTML from Python

@@ -1,5 +1,5 @@
 Python-standalone target
-########################
+------------------------
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`
 
@@ -34,6 +34,6 @@ After the code has been generated, a simple test can can be run by calling:
 
 
 Code generation options
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Several code generator options are available; for an overview see :class:`pynestml.codegeneration.python_standalone_code_generator.PythonStandaloneCodeGenerator`.

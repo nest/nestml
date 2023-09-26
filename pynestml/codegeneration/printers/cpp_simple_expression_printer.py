@@ -19,60 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class CppSimpleExpressionPrinter(SimpleExpressionPrinter):
+class CppSimpleExpressionPrinter(CSimpleExpressionPrinter):
     r"""
     Printer for ASTSimpleExpressions in C++ syntax.
     """
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
-        if node.has_unit():
-            if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return str(node.get_numeric_literal())
-
-            return str(node.get_numeric_literal()) + " * " + \
-                self._variable_printer.print(node.get_variable())
-
-        if node.is_numeric_literal():
-            return str(node.get_numeric_literal())
-
         if node.is_inf_literal:
             return 'std::numeric_limits< double_t >::infinity()'
 
-        if node.is_string():
-            return str(node.get_string())
-
-        if node.is_boolean_true:
-            return 'true'
-
-        if node.is_boolean_false:
-            return 'false'
-
-        if node.is_variable() or node.is_delay_variable():
-            return self._variable_printer.print(node.get_variable())
-
-        if node.is_function_call():
-            return self._function_call_printer.print_function_call(node.get_function_call())
-
-        raise Exception("Unknown node type: " + str(node))
-
-    def _print(self, node: ASTNode) -> str:
-        if isinstance(node, ASTVariable):
-            return self._variable_printer.print(node)
-
-        if isinstance(node, ASTFunctionCall):
-            return self._function_call_printer.print(node)
-
-        return self.print_simple_expression(node)
-
-    def print(self, node: ASTNode) -> str:
-        if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-            return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self._print(node) + "))"
-
-        return self._print(node)
+        return super().print_simple_expression(node)

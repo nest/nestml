@@ -1,5 +1,5 @@
 NEST Simulator target
-#####################
+---------------------
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`, :ref:`vectors <Vectors>`, :ref:`delay differential equations <Delay Differential Equations>`, :ref:`guards <Guards>`
 
@@ -8,13 +8,13 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
 Parameters, internals and state variables can be set and read by the user using ``nest.SetStatus()`` and ``nest.GetStatus()``.
 
 Code generation options
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
 Manually building the extension module
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sometimes it can be convenient to directly edit the generated code. To manually build and install the NEST extension module, go into the target directory and run:
 
@@ -28,13 +28,13 @@ where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home
 
 
 Custom templates
-----------------
+~~~~~~~~~~~~~~~~
 
 See :ref:`Running NESTML with custom templates`.
 
 
 Multiple input ports in NEST
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
 
@@ -76,7 +76,7 @@ For a full example, please see `iaf_psc_exp_multisynapse.nestml <https://github.
 
 
 Multiple input ports with vectors in NEST
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See :ref:`Multiple input ports with vectors` for an example with input ports defined as vectors.
 
@@ -126,7 +126,7 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
 
 Compatibility with different versions of NEST
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
 
@@ -136,3 +136,4 @@ To generate code that is compatible with particular versions of NEST Simulator, 
 - ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, ``"v3.3"``, ``"v3.4"``: NEST 3 release versions.
 
 For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
+
