@@ -93,7 +93,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": "cm_neuron",
+            "path": "resources_nest_compartmental/cm_neuron",
             "model_templates": {
                 "neuron": [
                     "cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
