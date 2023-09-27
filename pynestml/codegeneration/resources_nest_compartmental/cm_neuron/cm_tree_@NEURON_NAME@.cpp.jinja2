@@ -45,6 +45,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 {
   v_comp = el;
 }
+/*
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
   const long parent_index)
   : xx_( 0.0 )
@@ -75,6 +76,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 
   v_comp = el;
 }
+*/
 
 void
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -342,7 +344,7 @@ nest::CompTree{{cm_unique_suffix}}::set_syn_buffers( std::vector< RingBuffer >& 
 std::map< Name, double* >
 nest::CompTree{{cm_unique_suffix}}::get_recordables()
 {
-  std::map< Name, double* > recordables = neuron_currents.get_recordables( comp_index )
+  std::map< Name, double* > recordables;
 
   /**
    * add recordables for all compartments, suffixed by compartment_idx,
@@ -350,7 +352,8 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
    */
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
-    std::map< Name, double* > recordables_comp = ( *compartment_it )->get_recordables();
+    long comp_index = (*compartment_it)->comp_index;
+    std::map< Name, double* > recordables_comp = neuron_currents.get_recordables( comp_index );
     recordables.insert( recordables_comp.begin(), recordables_comp.end() );
   }
   return recordables;

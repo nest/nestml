@@ -90,7 +90,8 @@ void
     compartment_ad.push_back( dd );
 
     // add receptor info
-    c_tree_.neuron_currents.add_receptor_info( receptor_ad, compartment->comp_index );
+    long comp_id = compartment->comp_index;
+    c_tree_.neuron_currents.add_receptor_info( receptor_ad, comp_id );
   }
   // add compartment info and receptor info to the status dictionary
   def< ArrayDatum >( statusdict, names::compartments, compartment_ad );
