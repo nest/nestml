@@ -1,14 +1,17 @@
 NEST Simulator compartmental target
 ###################################
 
+Generate code for neuron models with complex dendritic structure.
+
 Introduction
 ------------
 
-Generate code for a compartmental model simulated in NEST.
+NEST Simulator implements compartmental neuron models. The structure of the neuron -- soma, dendrites, axon -- is user-defined at runtime by adding compartments through ``nest.SetStatus()``. Each compartment can be assigned receptors, also through ``nest.SetStatus()``.
 
-The structure of the neuron -- soma, dendrites, axon -- is user-defined at runtime by adding compartments through ``nest.SetStatus()``. Each compartment can be assigned receptors, also through ``nest.SetStatus()``.
+The default model is passive, but sodium and potassium currents can be added by passing non-zero conductances ``g_Na`` and ``g_K`` with the parameter dictionary when adding compartments. Receptors can be AMPA and/or NMDA (excitatory), and GABA (inhibitory). Ion channel and receptor currents to the compartments can be customized through NESTML.
 
-See also the NEST Simulator documentation on compartmental models at https://nest-simulator.readthedocs.io/en/stable/models/cm_default.html.
+For usage information and more details, see the NEST Simulator documentation on compartmental models at https://nest-simulator.readthedocs.io/en/stable/models/cm_default.html.
+
 
 Writing a compartmental NESTML model
 ------------------------------------
@@ -136,3 +139,14 @@ Mechanism interdependence
 -------------------------
 
 Above examples of explicit interdependence inbetween concentration and channel models where already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and synapses are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or synapse-type amongst multiple in a given compartment or some concentration.
+
+
+See also
+--------
+
+`convert_cm_default_to_template.py <https://github.com/nest/nestml/blob/master/extras/convert_cm_default_to_template.py>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This script converts the generic parts (cm_default.* and cm_tree.*) of the default compartmental model in NEST to a .jinja template.
+
+It is a helper tool for developers working concurrently on the compartmental models in NEST and NESTML. It should however be used with extreme caution, as it doesn't automatically update the compartmentcurrents.
