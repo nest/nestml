@@ -429,7 +429,7 @@ class ASTModel(ASTNode):
             blocks = [blocks]
         for block in blocks:
             for decl in block.get_declarations():
-                ret.extend(decl.get_varibles())
+                ret.extend(decl.get_variables())
         return ret
 
     def get_state_variables(self) -> List[ASTVariable]:
@@ -440,7 +440,7 @@ class ASTModel(ASTNode):
         ret = []
         for block in self.get_state_blocks():
             for decl in block.get_declarations():
-                ret.extend(decl.get_varibles())
+                ret.extend(decl.get_variables())
 
         return ret
 

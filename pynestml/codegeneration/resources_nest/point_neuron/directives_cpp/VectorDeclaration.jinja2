@@ -1,0 +1,5 @@
+{%- import "directives_cpp/VectorSizeParameter.jinja2" as vector_size_parameter with context %}
+{%- macro VectorDeclaration(node) -%}
+
+{{ nest_codegen_utils.print_symbol_origin(variable_symbol, variable) % variable_symbol.get_symbol_name() }}.resize({{ vector_size_parameter.VectorSizeParameter(variable, true) }}, {{ printer.print(variable_symbol.get_declaring_expression()) }});
+{%- endmacro -%}

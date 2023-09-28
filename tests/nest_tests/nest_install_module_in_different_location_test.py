@@ -47,7 +47,7 @@ class NestInstallExistingModule(unittest.TestCase):
         suffix = "_location_test"
         dev = True
         codegen_opts = {"templates": {
-            "path": "point_neuron",
+            "path": "resources_nest/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@.h.jinja2"]

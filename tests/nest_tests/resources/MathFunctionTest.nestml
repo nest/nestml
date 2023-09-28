@@ -33,6 +33,7 @@ model math_function_test:
         ceil_state real = 0.
         floor_state real = 0.
         round_state real = 0.
+        abs_state real = 0.
 
     update:
         ln_state = ln(x)
@@ -42,4 +43,5 @@ model math_function_test:
         ceil_state = ceil(x / 10.)
         floor_state = floor(x / 10.)
         round_state = round(x / 10.)
+        abs_state = abs(x)
         x = x + 1.

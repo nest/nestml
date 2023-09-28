@@ -57,7 +57,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": "point_neuron",
+            "path": "resources_python_standalone/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.py.jinja2"]
             },
