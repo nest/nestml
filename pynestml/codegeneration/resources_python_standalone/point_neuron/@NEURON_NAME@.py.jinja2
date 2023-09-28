@@ -273,14 +273,14 @@ class Neuron_{{neuronName}}(Neuron):
     #     process spikes from buffers
     # -------------------------------------------------------------------------
 
-{%- include "directives/ApplySpikesFromBuffers.jinja2" %}
+{%- include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
 
     # -------------------------------------------------------------------------
     #     integrate variables related to convolutions
     # -------------------------------------------------------------------------
 
 {%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
 {%- endwith %}
 
     # -------------------------------------------------------------------------
@@ -301,7 +301,7 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
 
 {%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
 {%- endwith %}
 
     # -------------------------------------------------------------------------

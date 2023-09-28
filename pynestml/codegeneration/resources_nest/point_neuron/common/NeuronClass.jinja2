@@ -652,7 +652,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
  */
 {%-         endif %}
 {%-         filter indent(6) %}
-{%-             include "directives/Block.jinja2" %}
+{%-             include "directives_cpp/Block.jinja2" %}
 {%-         endfilter %}
     }
 {%-     endfor %}
@@ -662,7 +662,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
      * spike updates due to convolutions
     **/
 
-{%- include "directives/ApplySpikesFromBuffers.jinja2" %}
+{%- include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
 
     /**
      * handle continuous input ports
@@ -741,7 +741,7 @@ void
 {{neuronName}}::on_receive_block_{{ blk.get_port_name() }}()
 {
 {%-     filter indent(2, True) -%}
-{%-         include "directives/Block.jinja2" %}
+{%-         include "directives_cpp/Block.jinja2" %}
 {%-     endfilter %}
 }
 

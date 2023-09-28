@@ -16,7 +16,7 @@ nest::kernel().event_delivery_manager.send(*this, se, lag);
 
 {%-     if paired_synapse is defined %}
 {%-         for stmt in extra_on_emit_spike_stmts_from_synapse %}
-{%-             include "directives/Statement.jinja2" %}
+{%-             include "directives_cpp/Statement.jinja2" %}
 {%-         endfor %}
 {%-     endif %}
 {%- else %}
