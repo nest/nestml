@@ -291,7 +291,7 @@ def get_parsed_models():
 
     Returns
     -------
-    models: Sequence[Union[ASTNeuron, ASTSynapse]]
+    models: Sequence[ASTModel]
         List of correctly parsed models
     errors_occurred : bool
         Flag indicating whether errors occurred during processing

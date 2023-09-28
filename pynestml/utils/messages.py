@@ -115,11 +115,8 @@ class MessageCode(Enum):
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
-<<<<<<< HEAD
     INTEGRATE_ODES_WRONG_ARG = 91
-=======
-    ASSIGNING_TO_INLINE = 91
->>>>>>> upstream/master
+    ASSIGNING_TO_INLINE = 92
 
 
 class Messages:
@@ -944,7 +941,7 @@ class Messages:
         Indicates start of code generation
         :param name: the name of the model
         :type name: ASTModel
-        :return: a nes code,message tuple
+        :return: a code, message tuple
         :rtype: (MessageCode,str)
         """
         assert (name is not None and isinstance(name, str)), \
@@ -957,8 +954,7 @@ class Messages:
         """
         Cannot assign to inline expression
         :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
+        :return: a code, message tuple
         :rtype: (MessageCode,str)
         """
         message = "Cannot assign to inline expression."
@@ -970,7 +966,7 @@ class Messages:
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
         :param name: the name of the model
         :type name: ASTModel
-        :return: a nes code,message tuple
+        :return: a code, message tuple
         :rtype: (MessageCode,str)
         """
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \

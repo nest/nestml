@@ -419,6 +419,12 @@ class SynapsePostNeuronTransformer(Transformer):
                                 Logger.log_message(None, -1, "\tMoving statement " + str(stmt).strip(), None, LoggingLevel.INFO)
 
                                 collected_on_post_stmts.append(stmt)
+
+                                stmt.scope = new_neuron.get_update_blocks()[0].scope
+                                stmt.small_stmt.scope = new_neuron.get_update_blocks()[0].scope
+                                stmt.small_stmt.get_assignment().scope = new_neuron.get_update_blocks()[0].scope
+                                stmt.small_stmt.get_assignment().get_variable().scope = new_neuron.get_update_blocks()[0].scope
+
                                 stmts.pop(stmts.index(stmt))
 
         new_neuron.extra_on_emit_spike_stmts_from_synapse = collected_on_post_stmts

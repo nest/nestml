@@ -585,7 +585,9 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   recompute_internal_variables();
 
 {% endif %}
-    // buffer spikes from input ports
+    /**
+     * buffer spikes from spiking input ports
+    **/
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
@@ -594,16 +596,23 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     }
 
 {%- if has_delay_variables %}
-    // delay variables
+    /**
+     * delay variables
+    **/
 
     update_delay_variables();
 {%- endif %}
 
     /**
-     * Begin NESTML generated code for the update block(s)
+     * subthreshold updates of the convolution variables
     **/
 
-{%- if neuron.get_update_blocks() %}
+    // XXX: TODO...
+
+    /**
+     * Begin NESTML generated code for the update block(s)
+    **/
+{%  if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_block() %}
@@ -620,39 +629,47 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     /**
      * Begin NESTML generated code for the onReceive block(s)
     **/
-
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
-  if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
-  {
-    // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
-    on_receive_block_{{ blk.get_port_name() }}();
-  }
+    if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
+    {
+      // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
+      on_receive_block_{{ blk.get_port_name() }}();
+    }
 {%- endfor %}
 
     /**
      * Begin NESTML generated code for the onCondition block(s)
     **/
-
-{%- if neuron.get_on_condition_blocks() %}
-{%-     filter indent(2) %}
-{%-         for block in neuron.get_on_condition_blocks() %}
-{%-             set ast = block.get_block() %}
-{%-             if ast.print_comment('*') | length > 1 %}
+{% if neuron.get_on_condition_blocks() %}
+{%-     for block in neuron.get_on_condition_blocks() %}
+    if ({{ printer.print(block.get_cond_expr()) }})
+    {
+{%-         set ast = block.get_block() %}
+{%-         if ast.print_comment('*') | length > 1 %}
 /*
  {{ast.print_comment('*')}}
  */
-{%-             endif %}
+{%-         endif %}
+{%-         filter indent(6) %}
 {%-             include "directives/Block.jinja2" %}
-{%-         endfor %}
-{%-     endfilter %}
+{%-         endfilter %}
+    }
+{%-     endfor %}
 {%- endif %}
 
     /**
-     * updates due to convolutions
+     * spike updates due to convolutions
     **/
 
 {%- include "directives/ApplySpikesFromBuffers.jinja2" %}
+
+    /**
+     * handle continuous input ports
+    **/
+{%- for inputPort in neuron.get_continuous_input_ports() %}
+    B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
+{%- endfor %}
 
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);

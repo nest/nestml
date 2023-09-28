@@ -87,7 +87,7 @@ model iaf_psc_exp_neuron:
 
     onCondition(V_m >= V_th):
         # threshold crossing
-        refr_t += refr_T
+        refr_t = refr_T    # start of the refractory period
         is_refractory = true
         V_m = V_reset
         emit_spike()

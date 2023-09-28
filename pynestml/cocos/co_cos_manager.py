@@ -75,11 +75,11 @@ class CoCosManager:
         CoCoFunctionUnique.check_co_co(model)
 
     @classmethod
-    def check_inline_expression_not_assigned_to(cls, neuron: ASTNeuron):
+    def check_inline_expression_not_assigned_to(cls, model: ASTModel):
         """
-        Checks for the handed over neuron that inline expressions are not assigned to.
+        Checks for the handed over model that inline expressions are not assigned to.
         """
-        CoCoInlineExpressionNotAssignedTo.check_co_co(neuron)
+        CoCoInlineExpressionNotAssignedTo.check_co_co(model)
 
     @classmethod
     def check_each_block_defined_at_most_once(cls, node: ASTModel):
@@ -203,19 +203,18 @@ class CoCosManager:
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(model)
 
     @classmethod
-    def check_internals_not_assigned_outside_internals_block(cls, neuron: ASTNeuron):
+    def check_internals_not_assigned_outside_internals_block(cls, model: ASTModel):
         """
         Checks that internals are not assigned outside the internals block.
-        :param neuron: a single neuron object.
+        :param model: a single model object.
         """
-        CoCoInternalsAssignedOnlyInInternalsBlock.check_co_co(neuron)
+        CoCoInternalsAssignedOnlyInInternalsBlock.check_co_co(model)
 
     @classmethod
-    def check_output_port_defined_if_emit_call(cls, neuron: ASTNeuron):
+    def check_output_port_defined_if_emit_call(cls, model: ASTModel):
         """
         Checks that if emit_spike() function is called, an spiking output port is defined.
         :param model: a single model object.
-        :type model: ASTModel
         """
         CoCoOutputPortDefinedIfEmitCall.check_co_co(model)
 
