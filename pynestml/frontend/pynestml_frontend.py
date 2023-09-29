@@ -45,14 +45,15 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "python_standalone", "autodoc", "spinnaker", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
 
 def transformers_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Transformer, Dict[str, Any]]:
     """Static factory method that returns a list of new instances of a child class of Transformers"""
-    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+    assert target_name.upper() in get_known_targets(
+    ), "Unknown target platform requested: \"" + str(target_name) + "\""
 
     # default: no transformers (empty list); options unchanged
     transformers: List[Transformer] = []
@@ -64,7 +65,8 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
         # rewrite all C++ keywords
         # from: https://docs.microsoft.com/en-us/cpp/cpp/keywords-cpp 2022-04-23
-        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
+        variable_name_rewriter = IllegalVariableNameTransformer({"forbidden_names": ["alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t", "class", "compl", "concept", "const", "const_cast", "consteval", "constexpr", "constinit", "continue", "co_await", "co_return", "co_yield", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend",
+                                                                "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"]})
         transformers.append(variable_name_rewriter)
 
     if target_name.upper() in ["SPINNAKER"]:
@@ -96,7 +98,8 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
 
 def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> CodeGenerator:
     """Static factory method that returns a new instance of a child class of CodeGenerator"""
-    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+    assert target_name.upper() in get_known_targets(
+    ), "Unknown target platform requested: \"" + str(target_name) + "\""
 
     if target_name.upper() == "NEST":
         from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -108,8 +111,13 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
-        assert options is None or options == {}, "\"autodoc\" code generator does not support options"
+        assert options is None or options == {
+        }, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
+
+    if target_name.upper() == "NEST_COMPARTMENTAL":
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
+        return NESTCompartmentalCodeGenerator()
 
     if target_name.upper() == "SPINNAKER":
         from pynestml.codegeneration.spinnaker_code_generator import SpiNNakerCodeGenerator
@@ -121,7 +129,8 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence
+    # cannot reach here due to earlier assert -- silence
+    assert "Unknown code generator requested: " + target_name
     # static checker warnings
 
 
@@ -129,9 +138,10 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     r"""Static factory method that returns a new instance of a child class of Builder"""
     from pynestml.frontend.pynestml_frontend import get_known_targets
 
-    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+    assert target_name.upper() in get_known_targets(
+    ), "Unknown target platform requested: \"" + str(target_name) + "\""
 
-    if target_name.upper() == "NEST":
+    if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
         builder = NESTBuilder(options)
         remaining_options = builder.set_options(options)
@@ -318,6 +328,38 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
                     install_path=install_path,
                     logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
+
+
+def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                                       install_path: Optional[str] = None, logging_level="ERROR",
+                                       module_name=None, store_log: bool = False, suffix: str = "",
+                                       dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
+    r"""Generate and build compartmental model code for NEST Simulator.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    install_path
+        Path to the directory where the generated code will be installed.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        The name of the generated Python module.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="NEST_compartmental", target_path=target_path,
+                    logging_level=logging_level, module_name=module_name, store_log=store_log,
+                    suffix=suffix, install_path=install_path, dev=dev, codegen_opts=codegen_opts)
 
 
 def main() -> int:

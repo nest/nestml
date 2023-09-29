@@ -52,7 +52,7 @@ class TestNestMathFunction:
         nrn = nest.Create("math_function_test_nestml")
         mm = nest.Create("multimeter")
 
-        nest.SetStatus(mm, {"record_from": ["x", "ln_state", "log10_state", "erf_state", "erfc_state", "ceil_state", "floor_state", "round_state"]})
+        nest.SetStatus(mm, {"record_from": ["x", "ln_state", "log10_state", "erf_state", "erfc_state", "ceil_state", "floor_state", "round_state", "abs_state"]})
 
         nest.Connect(mm, nrn)
 
@@ -67,6 +67,7 @@ class TestNestMathFunction:
             ceil_state_ts = nest.GetStatus(mm, "events")[0]["ceil_state"]
             floor_state_ts = nest.GetStatus(mm, "events")[0]["floor_state"]
             round_state_ts = nest.GetStatus(mm, "events")[0]["round_state"]
+            abs_state_ts = nest.GetStatus(mm, "events")[0]["abs_state"]
         else:
             timevec = mm.get("events")["x"]
             ln_state_ts = mm.get("events")["ln_state"]
@@ -76,6 +77,7 @@ class TestNestMathFunction:
             ceil_state_ts = mm.get("events")["ceil_state"]
             floor_state_ts = mm.get("events")["floor_state"]
             round_state_ts = mm.get("events")["round_state"]
+            abs_state_ts = mm.get("events")["abs_state"]
 
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
@@ -84,6 +86,7 @@ class TestNestMathFunction:
         ref_ceil_state_ts = np.ceil((timevec - 1) / 10)
         ref_floor_state_ts = np.floor((timevec - 1) / 10)
         ref_round_state_ts = np.round((timevec - 1) / 10)
+        ref_abs_state_ts = np.abs(timevec - 1)
 
         np.testing.assert_allclose(ln_state_ts, ref_ln_state_ts)
         np.testing.assert_allclose(log10_state_ts, ref_log10_state_ts)
@@ -92,3 +95,4 @@ class TestNestMathFunction:
         np.testing.assert_allclose(ceil_state_ts, ref_ceil_state_ts)
         np.testing.assert_allclose(floor_state_ts, ref_floor_state_ts)
         np.testing.assert_allclose(round_state_ts, ref_round_state_ts)
+        np.testing.assert_allclose(abs_state_ts, ref_abs_state_ts)
