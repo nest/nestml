@@ -112,7 +112,7 @@ class NestMultiSynapseTest(unittest.TestCase):
 
             ax[-1].set_xlabel("time")
 
-            plt.show()
+            plt.savefig("/tmp/nest_multisynapse_test.png")
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(

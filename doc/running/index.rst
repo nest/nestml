@@ -13,7 +13,7 @@ Supported target platforms
 
 Currently, the following target platforms are supported for code generation. Click on each for further information:
 
-.. grid:: 3
+.. grid:: 2
 
    .. grid-item-card::
       :text-align: center
@@ -22,6 +22,16 @@ Currently, the following target platforms are supported for code generation. Cli
       :doc:`NEST Simulator </running/running_nest>`
 
       |nest_logo|
+
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`NEST Simulator (compartmental) </running/running_nest_compartmental>`
+
+      |nest_logo|
+
+.. grid:: 2
 
    .. grid-item-card::
       :text-align: center

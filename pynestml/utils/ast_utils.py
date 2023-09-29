@@ -1240,9 +1240,14 @@ class ASTUtils:
         if isinstance(spike_input_port, ASTSimpleExpression):
             spike_input_port = spike_input_port.get_variable()
 
-        spike_input_port_name = spike_input_port.get_name()
-        if spike_input_port.has_vector_parameter():
-            spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
+        if not isinstance(spike_input_port, str):
+            spike_input_port_name = spike_input_port.get_name()
+        else:
+            spike_input_port_name = spike_input_port
+
+        if isinstance(spike_input_port, ASTVariable):
+            if spike_input_port.has_vector_parameter():
+                spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
         return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
 
@@ -1630,7 +1635,7 @@ class ASTUtils:
 
     @classmethod
     def create_initial_values_for_kernels(cls, neuron: ASTNeuron, solver_dicts: List[dict], kernels: List[ASTKernel]) -> None:
-        r"""
+        """
         Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST
         """
         for solver_dict in solver_dicts:
@@ -1658,7 +1663,7 @@ class ASTUtils:
                         if differential_order:
                             type_str = "*s**-" + str(differential_order)
 
-                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if not cls.declaration_in_state_block(neuron, var_name):
                         cls.add_declaration_to_state_block(neuron, var_name, expr, type_str)
 
@@ -1802,20 +1807,25 @@ class ASTUtils:
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         for m in inline_expressions:
-            source_position = m.get_source_position()
-            for target in definitions:
-                matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
-                target_definition = str(target.get_rhs())
-                target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
-                target.rhs = ModelParser.parse_expression(target_definition)
-                target.update_scope(m.get_scope())
-                target.accept(ASTSymbolTableVisitor())
+            if "mechanism" not in [e.namespace for e in m.get_decorators()]:
+                """
+                exclude compartmental mechanism definitions in order to have the
+                inline as a barrier inbetween odes that are meant to be solved independently
+                """
+                source_position = m.get_source_position()
+                for target in definitions:
+                    matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
+                    target_definition = str(target.get_rhs())
+                    target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
+                    target.rhs = ModelParser.parse_expression(target_definition)
+                    target.update_scope(m.get_scope())
+                    target.accept(ASTSymbolTableVisitor())
 
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
+                    def log_set_source_position(node):
+                        if node.get_source_position().is_added_source_position():
+                            node.set_source_position(source_position)
 
-                target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+                    target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
         return definitions
 
