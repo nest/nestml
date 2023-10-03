@@ -41,10 +41,13 @@ except Exception:
 class TestGapJunction:
     r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models"""
 
-    @pytest.fixture(params=["iaf_psc_exp", "aeif_cond_exp"])
-    def generate_code(self, request):
-        neuron_model: str = request.param
+    @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp", "aeif_cond_exp"])
+    def test_gap_junction_effect_on_membrane_potential(self, neuron_model: str):
+        self.generate_code(neuron_model)
+        for wfr_interpolation_order in [0, 1, 3]:
+            self._test_gap_junction_effect_on_membrane_potential(neuron_model, wfr_interpolation_order)
 
+    def generate_code(self, neuron_model: str):
         codegen_opts = {"gap_junctions": {"enable": True,
                                           "gap_current_port": "I_stim",
                                           "membrane_potential_variable": "V_m"}}
@@ -53,18 +56,15 @@ class TestGapJunction:
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
-                             module_name="nestml_gap_module",
+                             module_name="nestml_gap_" + neuron_model + "_module",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-        nest.Install("nestml_gap_module")
+        nest.Install("nestml_gap_" + neuron_model + "_module")
 
         return neuron_model
 
-    @pytest.mark.parametrize("wfr_interpolation_order", [0, 1, 3])
-    def test_gap_junction_effect_on_membrane_potential(self, generate_code, wfr_interpolation_order: int):
-        neuron_model = generate_code    # hacky because of pytest limitations -- loop over neuron models
-
+    def _test_gap_junction_effect_on_membrane_potential(self, neuron_model, wfr_interpolation_order: int):
         resolution = .1   # [ms]
         sim_time = 100.   # [ms]
         pre_spike_times = [1., 16., 31.]    # [ms]
@@ -132,8 +132,24 @@ class TestGapJunction:
 
         pre_neuron.E_L = -70.
         post_neuron.E_L = -80.
+        if "a" in pre_neuron.get().keys():
+            pre_neuron.a = 0.
+            pre_neuron.Delta_T = 1E-99
+        if "a" in post_neuron.get().keys():
+            post_neuron.a = 0.
+            post_neuron.Delta_T = 1E-99
 
-        nest.Simulate(100.)
+        nest.Simulate(100000.)
 
-        np.testing.assert_allclose(pre_neuron.V_m, -99.)
-        np.testing.assert_allclose(post_neuron.V_m, -99.)
+        # assert that DC solution is correct for one gap junction (1 nS) connecting two neurons (with given R_m)
+        if "tau_m" in pre_neuron.get().keys():
+            R_m_pre = 1E9 * pre_neuron.tau_m / pre_neuron.C_m    # [Ω]
+            R_m_post = 1E9 * post_neuron.tau_m / post_neuron.C_m    # [Ω]
+        else:
+            R_m_pre = 1E9 / pre_neuron.g_L
+            R_m_post = 1E9 / post_neuron.g_L
+        R_gap = 1 / 1E-9    # [Ω]
+        assert R_m_pre == R_m_post
+        I_gap = (pre_neuron.E_L - post_neuron.E_L) / (R_gap + 2 * R_m_pre)    # [A]
+        np.testing.assert_allclose(pre_neuron.V_m, pre_neuron.E_L - I_gap * R_m_pre)
+        np.testing.assert_allclose(post_neuron.V_m, post_neuron.E_L + I_gap * R_m_post)
