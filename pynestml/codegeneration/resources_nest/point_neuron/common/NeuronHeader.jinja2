@@ -257,27 +257,14 @@ public:
 
 {% if has_spike_input %}
   void handle(nest::SpikeEvent &) override;        //! accept spikes
-  nest::port handles_test_event(nest::SpikeEvent&, nest::port) override;
 {%- endif %}
 
 {%- if has_continuous_input %}
   void handle(nest::CurrentEvent &) override;      //! accept input current
-  nest::port handles_test_event(nest::CurrentEvent&, nest::port) override;
 {%- endif %}
 
   void handle(nest::DataLoggingRequest &) override;//! allow recording with multimeter
 
-<<<<<<< HEAD
-{%- if use_gap_junctions %}
-  void handle( nest::GapJunctionEvent& ) override;
-  nest::port handles_test_event( nest::GapJunctionEvent&, nest::rport ) override;
-  bool wfr_update( nest::Time const&, const long, const long ) override;
-
-  double gap_junction_step;
-
-{%- endif %}
-
-=======
 {%- if has_spike_input %}
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   size_t handles_test_event(nest::SpikeEvent&, size_t) override;
@@ -285,6 +272,7 @@ public:
   nest::port handles_test_event(nest::SpikeEvent&, nest::port) override;
 {%- endif %}
 {%- endif %}
+
 {%- if has_continuous_input %}
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   size_t handles_test_event(nest::CurrentEvent&, size_t) override;
@@ -295,8 +283,16 @@ public:
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   size_t handles_test_event(nest::DataLoggingRequest&, size_t) override;
 {%- else %}
->>>>>>> upstream/master
   nest::port handles_test_event(nest::DataLoggingRequest&, nest::port) override;
+{%- endif %}
+
+{%- if use_gap_junctions %}
+  void handle( nest::GapJunctionEvent& ) override;
+  nest::port handles_test_event( nest::GapJunctionEvent&, nest::rport ) override;
+  bool wfr_update( nest::Time const&, const long, const long ) override;
+
+  double gap_junction_step;
+
 {%- endif %}
 
   // -------------------------------------------------------------------------

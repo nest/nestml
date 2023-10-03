@@ -664,7 +664,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
 {%-         with analytic_state_variables_ = analytic_state_variables %}
-{%-             include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-             include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
 {%-         endwith %}
 
         hf_i = ({{ gap_junction_membrane_potential_variable }}__tmp - y_i) / nest::Time::get_resolution().get_ms();
@@ -759,7 +759,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
 {%-         with analytic_state_variables_ = analytic_state_variables %}
-{%-             include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-             include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
 {%-         endwith %}
 
             hf_ip1 = ({{ gap_junction_membrane_potential_variable }}__tmp - y_ip1) / nest::Time::get_resolution().get_ms();

@@ -63,7 +63,7 @@ class TestGapJunction:
 
     @pytest.mark.parametrize("wfr_interpolation_order", [0, 1, 3])
     def test_gap_junction_effect_on_membrane_potential(self, generate_code, wfr_interpolation_order: int):
-        neuron_model = generate_code
+        neuron_model = generate_code    # hacky because of pytest limitations -- loop over neuron models
 
         resolution = .1   # [ms]
         sim_time = 100.   # [ms]
@@ -129,3 +129,11 @@ class TestGapJunction:
 
         # assert that there are n_pre_spikes peaks in V_m
         assert len(scipy.signal.find_peaks(V_m_log)[0]) >= len(pre_sg.spike_times)
+
+        pre_neuron.E_L = -70.
+        post_neuron.E_L = -80.
+
+        nest.Simulate(100.)
+
+        np.testing.assert_allclose(pre_neuron.V_m, -99.)
+        np.testing.assert_allclose(post_neuron.V_m, -99.)
