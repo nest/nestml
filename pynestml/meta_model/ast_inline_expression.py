@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTInlineExpression(ASTNode):
@@ -35,7 +36,7 @@ class ASTInlineExpression(ASTNode):
         expression = None
     """
 
-    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, *args, **kwargs):
+    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, decorators=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -51,10 +52,13 @@ class ASTInlineExpression(ASTNode):
         :type expression: ASTExpression
         """
         super(ASTInlineExpression, self).__init__(*args, **kwargs)
+        if decorators is None:
+            decorators = []
         self.is_recordable = is_recordable
         self.variable_name = variable_name
         self.data_type = data_type
         self.expression = expression
+        self.decorators = decorators
 
     def clone(self):
         """
@@ -69,10 +73,15 @@ class ASTInlineExpression(ASTNode):
         expression_dup = None
         if self.expression:
             expression_dup = self.expression.clone()
+        decorators_dup = None
+        if self.decorators:
+            decorators_dup = [dec.clone() if isinstance(dec, ASTNamespaceDecorator) else str(dec) for dec in
+                              self.decorators]
         dup = ASTInlineExpression(is_recordable=self.is_recordable,
                                   variable_name=self.variable_name,
                                   data_type=data_type_dup,
                                   expression=expression_dup,
+                                  decorators=decorators_dup,
                                   # ASTNode common attributes:
                                   source_position=self.source_position,
                                   scope=self.scope,
@@ -82,6 +91,11 @@ class ASTInlineExpression(ASTNode):
                                   implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
+
+    def get_decorators(self):
+        """
+        """
+        return self.decorators
 
     def get_variable_name(self):
         """

@@ -284,9 +284,15 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         variable_name = (str(ctx.variableName.text) if ctx.variableName is not None else None)
         data_type = (self.visit(ctx.dataType()) if ctx.dataType() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
+
+        decorators = []
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
+
         inlineExpr = ASTNodeFactory.create_ast_inline_expression(is_recordable=is_recordable, variable_name=variable_name,
                                                                  data_type=data_type, expression=expression,
-                                                                 source_position=create_source_pos(ctx))
+                                                                 source_position=create_source_pos(ctx),
+                                                                 decorators=decorators)
         update_node_comments(inlineExpr, self.__comments.visit(ctx))
         return inlineExpr
 
@@ -294,7 +300,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOdeEquation(self, ctx):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
-        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx))
+
+        decorators = []
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
+
+        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx),
+                                                              decorators=decorators)
         update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 
@@ -488,10 +500,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return neuron
 
     def visitNamespaceDecoratorNamespace(self, ctx):
-        return ctx.NAME()
+        return str(ctx.NAME())
 
     def visitNamespaceDecoratorName(self, ctx):
-        return ctx.NAME()
+        return str(ctx.NAME())
 
     def visitAnyDecorator(self, ctx):
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -650,8 +662,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
     def visitInputBlock(self, ctx):
         input_ports = []
-        if ctx.inputPort() is not None:
-            for port in ctx.inputPort():
+        if ctx.spikeInputPort() is not None:
+            for port in ctx.spikeInputPort():
+                input_ports.append(self.visit(port))
+        if ctx.continuousInputPort() is not None:
+            for port in ctx.continuousInputPort():
                 input_ports.append(self.visit(port))
         ret = ASTNodeFactory.create_ast_input_block(input_definitions=input_ports,
                                                     source_position=create_source_pos(ctx))
@@ -659,7 +674,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#inputPort.
-    def visitInputPort(self, ctx):
+    def visitSpikeInputPort(self, ctx):
         name = str(ctx.name.text) if ctx.name is not None else None
         size_parameter = None
         if ctx.sizeParameter is not None:
@@ -668,15 +683,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.inputQualifier() is not None:
             for qual in ctx.inputQualifier():
                 input_qualifiers.append(self.visit(qual))
-        data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
-        if ctx.isContinuous:
-            signal_type = PortSignalType.CONTINUOUS
-        elif ctx.isSpike:
-            signal_type = PortSignalType.SPIKE
-        else:
-            signal_type = None
-        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
+        signal_type = PortSignalType.SPIKE
+        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=None,
                                                    input_qualifiers=input_qualifiers, signal_type=signal_type,
+                                                   source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
+        return ret
+
+    def visitContinuousInputPort(self, ctx):
+        name = str(ctx.name.text) if ctx.name is not None else None
+        size_parameter = None
+        if ctx.sizeParameter is not None:
+            size_parameter = self.visit(ctx.sizeParameter)
+        data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
+        signal_type = PortSignalType.CONTINUOUS
+        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
+                                                   input_qualifiers=None, signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret

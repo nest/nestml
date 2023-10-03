@@ -142,6 +142,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'sphinx_design',
     'nbsphinx',
 ]
 

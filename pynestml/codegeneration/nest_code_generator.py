@@ -107,6 +107,7 @@ class NESTCodeGenerator(CodeGenerator):
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
 
@@ -124,7 +125,7 @@ class NESTCodeGenerator(CodeGenerator):
             "gap_current_port": "¨I_gap"
         },
         "templates": {
-            "path": "point_neuron",
+            "path": "resources_nest/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@.h.jinja2"]
@@ -132,7 +133,8 @@ class NESTCodeGenerator(CodeGenerator):
             "module_templates": ["setup"]
         },
         "nest_version": "",
-        "solver": "analytic"
+        "solver": "analytic",
+        "numeric_solver": "rk45"
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -289,7 +291,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
-            return [], [], [], []
+            return {}, {}, [], []
 
         if len(neuron.get_equations_blocks()) > 1:
             raise Exception("Only one equations block per model supported for now")
@@ -446,6 +448,13 @@ class NESTCodeGenerator(CodeGenerator):
             if kw.isupper():
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
+        # ODE solving
+        namespace["uses_numeric_solver"] = astnode.get_name() in self.numeric_solver.keys() \
+            and self.numeric_solver[astnode.get_name()] is not None
+
+        if namespace["uses_numeric_solver"]:
+            namespace["numeric_solver"] = self.get_option("numeric_solver")
+
         return namespace
 
     def _get_synapse_model_namespace(self, synapse: ASTSynapse) -> Dict:
@@ -530,8 +539,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace["propagators"] = self.analytic_solver[synapse.get_name()]["propagators"]
 
-        namespace["uses_numeric_solver"] = synapse.get_name() in self.numeric_solver.keys() \
-            and self.numeric_solver[synapse.get_name()] is not None
         if namespace["uses_numeric_solver"]:
             namespace["numeric_state_variables"] = self.numeric_solver[synapse.get_name()]["state_variables"]
             namespace["variable_symbols"].update({sym: synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(
@@ -661,8 +668,6 @@ class NESTCodeGenerator(CodeGenerator):
         _names = [ASTUtils.to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
         namespace["non_equations_state_variables"] = _names
 
-        namespace["uses_numeric_solver"] = neuron.get_name() in self.numeric_solver.keys() \
-            and self.numeric_solver[neuron.get_name()] is not None
         if namespace["uses_numeric_solver"]:
             namespace["numeric_state_variables_moved"] = []
             if "paired_synapse" in dir(neuron):
@@ -859,10 +864,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             for kernel_var in kernel.get_variables():
                 for var_order in range(ASTUtils.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
-                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(
-                        kernel_var.get_name(), spike_input_port, var_order)
-                    expr = ASTUtils.get_initial_value_from_ode_toolbox_result(
-                        kernel_spike_buf_name, solver_dicts)
+                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(kernel_var.get_name(), spike_input_port, var_order)
+                    expr = ASTUtils.get_initial_value_from_ode_toolbox_result(kernel_spike_buf_name, solver_dicts)
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
@@ -901,9 +904,17 @@ class NESTCodeGenerator(CodeGenerator):
                 factor_expr = ModelParser.parse_expression(factor)
                 factor_expr.update_scope(neuron.get_scope())
                 factor_expr.accept(ASTSymbolTableVisitor())
-                assignment_str += "(" + self._printer_no_origin.print_expression(factor_expr) + ") * "
+                assignment_str += "(" + self._printer_no_origin.print(factor_expr) + ") * "
+
+            if "_is_post_port" in dir(inport) and inport._is_post_port:
+                orig_port_name = inport[:inport.index("__for_")]
+                buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+            else:
+                buffer_type = neuron.get_scope().resolve_to_symbol(inport.get_name(), SymbolKind.VARIABLE).get_type_symbol()
 
             assignment_str += str(inport)
+            if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
             ast_assignment = ModelParser.parse_assignment(assignment_str)
             ast_assignment.update_scope(neuron.get_scope())
             ast_assignment.accept(ASTSymbolTableVisitor())

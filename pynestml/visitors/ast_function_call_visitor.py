@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+
+from pynestml.symbols.predefined_units import PredefinedUnits
 
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -89,8 +92,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
         return_type.referenced_object = node
 
-        # convolve symbol does not have a return type set.
-        # returns whatever type the second parameter is.
+        # return type of the convolve function is the type of the second parameter multiplied by the unit of time (s)
         if function_name == PredefinedFunctions.CONVOLVE:
             # Deviations from the assumptions made here are handled in the convolveCoco
             buffer_parameter = node.get_function_call().get_args()[1]
@@ -99,7 +101,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
                 buffer_name = buffer_parameter.get_variable().get_name()
                 buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
                 if buffer_symbol_resolve is not None:
-                    node.type = buffer_symbol_resolve.get_type_symbol()
+                    node.type = buffer_symbol_resolve.get_type_symbol() * UnitTypeSymbol(PredefinedUnits.get_unit("s"))
                     return
 
             # getting here means there is an error with the parameters to convolve
