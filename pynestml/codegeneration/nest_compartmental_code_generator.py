@@ -527,7 +527,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             jinja_file_name).split(".")[0]
 
         file_name_calculators = {
-            "CompartmentCurrents": self.get_cm_syns_compartmentcurrents_file_prefix,
+            "NeuronCurrents": self.get_cm_syns_neuroncurrents_file_prefix,
             "Tree": self.get_cm_syns_tree_file_prefix,
             "Main": self.get_cm_syns_main_file_prefix,
         }

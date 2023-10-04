@@ -67,7 +67,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns
  * ----------------------------------------------------------------
  */
 void
-{{neuronSpecificFileNamesCmSyns["main"]}}::get_status( DictionaryDatum& statusdict ) const
+{{neuronSpecificFileNamesCmSyns["main"]}}::get_status( DictionaryDatum& statusdict )
 {
   def< double >( statusdict, names::V_th, V_th_ );
   ArchivingNode::get_status( statusdict );
@@ -90,8 +90,7 @@ void
     compartment_ad.push_back( dd );
 
     // add receptor info
-    long comp_id = compartment->comp_index;
-    c_tree_.neuron_currents.add_receptor_info( receptor_ad, comp_id );
+    c_tree_.neuron_currents.add_receptor_info( receptor_ad, compartment->comp_index );
   }
   // add compartment info and receptor info to the status dictionary
   def< ArrayDatum >( statusdict, names::compartments, compartment_ad );
@@ -221,11 +220,9 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   RingBuffer buffer;
 
   // add the ringbuffer to the global receptor vector
-  const size_t syn_idx = syn_buffers_.size();
   syn_buffers_.push_back( buffer );
 
   // add the receptor to the compartment
-  Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( compartment_idx );
   if ( dd->known( names::params ) )
   {
     c_tree_.neuron_currents.add_mechanism(
@@ -299,7 +296,7 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::pre_run_hook()
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, const long from, const long to )
 {
-  assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
+  assert( to >= 0 && from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
 
   for ( long lag = from; lag < to; ++lag )

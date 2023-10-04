@@ -535,22 +535,22 @@ public:
     {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.append_recordables( &recordables, compartment_idx );
-    {% endfor -%}
-    {% endwith -%}
+    {% endfor %}
+    {% endwith %}
 
     // append concentration state variables to recordables
     {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     {{concentration_name}}{{concentration_suffix}}.append_recordables( &recordables, compartment_idx );
-    {% endfor -%}
-    {% endwith -%}
+    {% endfor %}
+    {% endwith %}
 
     // append synapse state variables to recordables
 {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     {{synapse_name}}{{synapse_suffix}}.append_recordables( &recordables, compartment_idx );
-    {% endfor -%}
-    {% endwith -%}
+    {% endfor %}
+    {% endwith %}
 
     return recordables;
   };
