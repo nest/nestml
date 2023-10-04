@@ -26,6 +26,7 @@ import scipy
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -41,6 +42,8 @@ except Exception:
 class TestGapJunction:
     r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models"""
 
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                        reason="This test does not support NEST 2")
     @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp", "aeif_cond_exp"])
     def test_gap_junction_effect_on_membrane_potential(self, neuron_model: str):
         self.generate_code(neuron_model)
