@@ -122,7 +122,7 @@ class NESTCodeGenerator(CodeGenerator):
         "gap_junctions": {
             "enable": False,
             "membrane_potential_variable": "V_m",
-            "gap_current_port": "¨I_gap"
+            "gap_current_port": "I_gap"
         },
         "templates": {
             "path": "resources_nest/point_neuron",

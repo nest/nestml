@@ -70,7 +70,12 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super(NESTCodeGenerator, self).__init__("python_standalone", PythonStandaloneCodeGenerator._default_options.update(options if options else {}))
+        super(NESTCodeGenerator, self).__init__("python_standalone", PythonStandaloneCodeGenerator._default_options | (options if options else {}))
+
+        # make sure Python standalone code generator contains all options that are present in the NEST code generator, like gap junctions flags needed by the template
+        for k, v in NESTCodeGenerator._default_options.items():
+            if not k in self._options.keys():
+                self.add_options({k: v})
 
         self.analytic_solver = {}
         self.numeric_solver = {}
