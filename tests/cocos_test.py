@@ -38,13 +38,19 @@ class CoCosTest(unittest.TestCase):
 
     def setUp(self):
         Logger.init_logger(LoggingLevel.INFO)
-        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        SymbolTable.initialize_symbol_table(
+            ASTSourceLocation(
+                start_line=0,
+                start_column=0,
+                end_line=0,
+                end_column=0))
         PredefinedUnits.register_units()
         PredefinedTypes.register_types()
         PredefinedVariables.register_variables()
         PredefinedFunctions.register_functions()
 
     def test_invalid_element_defined_after_usage(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableDefinedAfterUsage.nestml'))

@@ -72,6 +72,7 @@ class FrontendConfiguration:
     target = None
     install_path = None
     target_path = None
+    target_platform = ""
     module_name = None
     store_log = False
     suffix = ""
