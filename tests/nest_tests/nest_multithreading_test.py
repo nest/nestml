@@ -33,7 +33,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 class TestNestMultithreading:
     neuron_synapse_module = "nestml_stdp_module"
     neuron_synapse_neuron_model = "iaf_psc_exp_neuron_nestml__with_stdp_nestml"
-    neuron_synapse_synapse_model = "stdp_nestml__with_iaf_psc_exp_neuron_nestml"
+    neuron_synapse_synapse_model = "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     neuron_module = "nestml_module"
     neuron_target = "/tmp/nestml-iaf-psc"

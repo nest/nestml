@@ -405,53 +405,49 @@ class ASTUtils:
         return len(ast_function_call.get_args()) > 0
 
     @classmethod
-    def create_internal_block(cls, neuron):
+    def create_internal_block(cls, model: ASTModel):
         """
-        Creates a single internal block in the handed over neuron.
-        :param neuron: a single neuron
-        :type neuron: ast_neuron
-        :return: the modified neuron
-        :rtype: ast_neuron
+        Creates a single internal block in the handed over model.
+        :param model: a single model
+        :return: the modified model
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if not neuron.get_internals_blocks():
+        if not model.get_internals_blocks():
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
                                                                       ASTSourceLocation.get_added_source_position())
-            internal.update_scope(neuron.get_scope())
-            neuron.get_body().get_body_elements().append(internal)
-        return neuron
+            internal.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(internal)
+        return model
 
     @classmethod
-    def create_state_block(cls, neuron):
+    def create_state_block(cls, model: ASTModel):
         """
-        Creates a single internals block in the handed over neuron.
-        :param neuron: a single neuron
-        :type neuron: ast_neuron
-        :return: the modified neuron
-        :rtype: ast_neuron
+        Creates a single internals block in the handed over model.
+        :param neuron: a single model
+        :return: the modified model
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if not neuron.get_internals_blocks():
+        if not model.get_internals_blocks():
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
-            neuron.get_body().get_body_elements().append(state)
-        return neuron
+            model.get_body().get_body_elements().append(state)
+        return model
 
     @classmethod
-    def create_equations_block(cls, neuron: ASTModel) -> ASTModel:
+    def create_equations_block(cls, model: ASTModel) -> ASTModel:
         """
-        Creates a single equations block in the handed over neuron.
-        :param neuron: a single neuron
-        :return: the modified neuron
+        Creates a single equations block in the handed over model.
+        :param model: a single model
+        :return: the modified model
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if not neuron.get_equations_blocks():
+        if not model.get_equations_blocks():
             block = ASTNodeFactory.create_ast_equations_block(list(),
                                                               ASTSourceLocation.get_added_source_position())
-            neuron.get_body().get_body_elements().append(block)
-        return neuron
+            model.get_body().get_body_elements().append(block)
+        return model
 
     @classmethod
     def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
@@ -1649,8 +1645,8 @@ class ASTUtils:
                             type_str = "*s**-" + str(differential_order)
 
                     expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
-                    if not cls.declaration_in_state_block(neuron, var_name):
-                        cls.add_declaration_to_state_block(neuron, var_name, expr, type_str)
+                    if not cls.declaration_in_state_block(model, var_name):
+                        cls.add_declaration_to_state_block(model, var_name, expr, type_str)
 
     @classmethod
     def transform_ode_and_kernels_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],

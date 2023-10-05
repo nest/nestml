@@ -48,7 +48,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
     """
 
     neuron_model_name = "iaf_psc_exp_neuron_nestml__with_neuromodulated_stdp_nestml"
-    synapse_model_name = "neuromodulated_stdp_nestml__with_iaf_psc_exp_neuron_nestml"
+    synapse_model_name = "neuromodulated_stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
     ref_synapse_model_name = "stdp_dopamine_synapse"

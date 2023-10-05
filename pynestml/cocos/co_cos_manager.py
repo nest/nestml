@@ -52,7 +52,7 @@ from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoC
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
-from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
+from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
 from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
@@ -130,7 +130,7 @@ class CoCosManager:
         CoCoAllVariablesDefined.check_co_co(model, after_ast_rewrite)
 
     @classmethod
-    def check_v_comp_requirement(cls, neuron: ASTNeuron):
+    def check_v_comp_requirement(cls, neuron: ASTModel):
         """
         In compartmental case, checks if v_comp variable was defined
         :param neuron: a single neuron object
@@ -138,7 +138,7 @@ class CoCosManager:
         CoCoVCompDefined.check_co_co(neuron)
 
     @classmethod
-    def check_compartmental_model(cls, neuron: ASTNeuron) -> None:
+    def check_compartmental_model(cls, neuron: ASTModel) -> None:
         """
         collects all relevant information for the different compartmental mechanism classes for later code-generation
 

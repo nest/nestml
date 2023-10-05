@@ -80,7 +80,6 @@ class TestNeuronPriority:
         np.testing.assert_allclose(tr, 4.14159)
         np.testing.assert_allclose(tr_inv, 6.28318)
 
-
     def run_nest_simulation(self, neuron_model_name,
                             resolution=1.,  # [ms]
                             port1_spike_times=None,

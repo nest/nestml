@@ -40,7 +40,7 @@ __all__ = [
     'co_co_no_duplicate_compilation_unit_names.py',
     'co_co_parameters_assigned_only_in_parameter_block.py',
     'co_cos_manager.py',
-    'co_co_sum_has_correct_parameter.py',
+    'co_co_convolve_has_correct_parameter.py',
     'co_co_input_port_qualifier_unique.py',
     'co_co_user_defined_function_correctly_defined.py',
     'co_co_variable_once_per_scope.py',

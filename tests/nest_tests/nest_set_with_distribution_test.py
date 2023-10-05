@@ -73,7 +73,7 @@ class TestNestSetWithDistribution:
         assert len(np.unique(neur.V_m)) > 1
         assert len(np.unique(neur.V_reset)) > 1
 
-        nest.Connect(neur, neur, syn_spec={"synapse_model": "stdp_nestml__with_iaf_psc_exp_neuron_nestml",
+        nest.Connect(neur, neur, syn_spec={"synapse_model": "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml",
                                            "weight": nest.random.normal(0., 1.),    # test setting a state variable
                                            "alpha": nest.random.uniform(0., 1.)})    # test setting a parameter
         syn = nest.GetConnections(source=neur)
