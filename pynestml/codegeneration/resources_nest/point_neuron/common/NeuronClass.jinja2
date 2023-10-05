@@ -639,6 +639,12 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endfor %}
 
     /**
+     * spike updates due to convolutions
+    **/
+
+{%- include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
+
+    /**
      * Begin NESTML generated code for the onCondition block(s)
     **/
 {% if neuron.get_on_condition_blocks() %}
@@ -657,12 +663,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     }
 {%-     endfor %}
 {%- endif %}
-
-    /**
-     * spike updates due to convolutions
-    **/
-
-{%- include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
 
     /**
      * handle continuous input ports
@@ -883,21 +883,19 @@ void
 // update only synapse->neuron moved variables; back-up and restore the rest
 double ode_state_bak[State_::STATE_VEC_SIZE];
 
-{%-   for variable_name in numeric_state_variables %}
+{%-     for variable_name in numeric_state_variables %}
   ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
 {%-     endfor %}
 
-{%- if uses_numeric_solver %}
 {%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
 
 // restore non-synapse->neuron-moved variables
-{%-   for variable_name in numeric_state_variables %}
+{%-     for variable_name in numeric_state_variables %}
 S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
 {%-     endfor %}
 
 // restore variables solved analytically
-{%-   for variable_name in numeric_state_variables %}
+{%-     for variable_name in numeric_state_variables %}
 S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
 {%-     endfor %}
 {%- endif %}
@@ -912,10 +910,14 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
       }
 
         /**
-         * print on pre spike event handler
+         * print extra on-emit statements transferred from synapse
         **/
 
-        // XXX: TODO
+{%     if paired_synapse is defined %}
+{%-         for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-             include "directives_cpp/Statement.jinja2" %}
+{%-         endfor %}
+{%-     endif %}
 
         /**
          * print updates due to convolutions

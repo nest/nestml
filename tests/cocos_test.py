@@ -155,11 +155,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionNotUnique.nestml'))
         self.assertEqual(
-<<<<<<< HEAD
-            len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 4)
-=======
-            len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 5)
->>>>>>> upstream/master
+            len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 5)
 
     def test_valid_function_unique_and_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -311,27 +307,27 @@ class CoCosTest(unittest.TestCase):
 
     def test_invalid_inline_expressions_assigned_only_in_declaration(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoAssignmentToInlineExpression.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_invalid_internals_assigned_only_in_internals_block(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInternalAssignedOutsideBlock.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_valid_internals_assigned_only_in_internals_block(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInternalAssignedOutsideBlock.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
 
     def test_invalid_function_with_wrong_arg_number_detected(self):
         Logger.set_logging_level(LoggingLevel.INFO)

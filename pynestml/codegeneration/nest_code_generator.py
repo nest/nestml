@@ -499,8 +499,7 @@ class NESTCodeGenerator(CodeGenerator):
         if spiking_post_port:
             post_spike_port_priority = None
             if "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
-                post_spike_port_priority = int(synapse.get_on_receive_block(
-                    spiking_post_port).get_const_parameters()["priority"])
+                post_spike_port_priority = int(synapse.get_on_receive_block(spiking_post_port).get_const_parameters()["priority"])
 
             if post_spike_port_priority \
                     and len(namespace["pre_ports"]) and len(namespace["post_ports"]) \

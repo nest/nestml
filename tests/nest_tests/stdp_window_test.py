@@ -52,11 +52,11 @@ def nestml_generate_target():
     generate_nest_target(input_path=input_path,
                          logging_level="DEBUG",
                          suffix="_nestml",
-                         codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                                 "synapse": "stdp",
+                         codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                                                 "synapse": "stdp_synapse",
                                                                  "post_ports": ["post_spikes"]},
-                                                                {"neuron": "izhikevich",
-                                                                 "synapse": "stdp",
+                                                                {"neuron": "izhikevich_neuron",
+                                                                 "synapse": "stdp_synapse",
                                                                  "post_ports": ["post_spikes"]}]})
     nest.Install("nestmlmodule")
 

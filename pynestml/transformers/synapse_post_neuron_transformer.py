@@ -479,7 +479,6 @@ class SynapsePostNeuronTransformer(Transformer):
                 new_name: str = stmt.small_stmt.get_assignment().get_variable().get_name() + var_name_suffix
                 stmt.small_stmt.get_assignment().get_variable().set_name(new_name)
 
-
         #
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
         #

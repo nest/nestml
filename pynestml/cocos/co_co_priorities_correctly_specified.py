@@ -45,14 +45,14 @@ class CoCoPrioritiesCorrectlySpecified(CoCo):
                 priorities[on_receive_block.get_port_name()] = int(on_receive_block.get_const_parameters()["priority"])
 
         if len(priorities) == 1:
-            on_receive_block_name = priorities.keys()[0]
+            on_receive_block_name = list(priorities.keys())[0]
 
             code, message = Messages.get_priority_defined_for_only_one_receive_block(on_receive_block_name)
             Logger.log_message(code=code,
                                message=message,
                                error_position=node.get_on_receive_block(on_receive_block_name).get_source_position(),
                                log_level=LoggingLevel.ERROR,
-                               node=node.get_on_receive_block(on_receive_block_name))
+                               node=node)
             return
 
         unique_priorities = set(priorities.values())

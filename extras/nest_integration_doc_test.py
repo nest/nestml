@@ -59,7 +59,7 @@ class TestNESTIntegration:
         sg = nest.Create("spike_generator", params={"spike_times": [1.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": syn_delay})
 
-        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_syn_exc"], "interval": nest.resolution})
+        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_syn"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
         # simulate
@@ -81,7 +81,7 @@ class TestNESTIntegration:
         sg = nest.Create("spike_generator", params={"spike_times": [1.]})
         nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": syn_delay})
 
-        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_syn_exc"], "interval": nest.resolution})
+        mm = nest.Create("multimeter", params={"record_from": ["V_m", "I_syn"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
         # simulate
@@ -154,7 +154,7 @@ class TestNESTIntegration:
         ax[0].set_yticks([0., 1.])
         ax[0].set_ylabel("Dendritic input")
 
-        for ax_idx, key, ylabel in [(1, "I_kernel_exc__X__exc_spikes", "current"),
+        for ax_idx, key, ylabel in [(1, "I_syn", "current"),
                                         (2, "V_m", "voltage")]:
             ax[ax_idx].plot(mm_fine_times, mm_fine_vals[key], linestyle="-", color="#1f77b4")
             ax[ax_idx].plot(mm_times, mm_vals[key], label="I_psp", linestyle="dashdot", color="#9467bd")

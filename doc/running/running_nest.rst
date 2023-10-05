@@ -5,12 +5,35 @@ NEST Simulator target
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
-Parameters, internals and state variables can be set and read by the user using ``nest.SetStatus()`` and ``nest.GetStatus()``.
+
+Simulation loop
+~~~~~~~~~~~~~~~
+
+At the beginning of each timestep, incoming spikes become visible in those variables that correspond to a convolution with the corresponding spiking input port.
+
+Then, the code is run corresponding to the NESTML ``update`` block.
+
+At the end of the timestep, variables corresponding to convolutions are updated according to their ODE dynamics.
+
 
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
+
+
+Setting and retrieving model properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
+-  Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable.
+-  Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
+
+
+Recording values with devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 
 
 Manually building the extension module

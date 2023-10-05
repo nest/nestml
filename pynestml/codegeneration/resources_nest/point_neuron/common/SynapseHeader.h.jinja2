@@ -697,7 +697,6 @@ public:
 
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     double timestep = 0;
-
     {
       // get spike history in relevant range (t1, t2] from post-synaptic neuron
       std::deque< histentry__{{paired_neuron}} >::iterator start;
