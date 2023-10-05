@@ -33,6 +33,22 @@ Custom templates
 See :ref:`Running NESTML with custom templates`.
 
 
+Gap junctions (electrical synapses)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each neuron model can be endowed with gap junctions. The model does not need to be (necessarily) modified itself, but additional flags are passed during code generation that identify which model variables correspond to the membrane potential and the gap junction current. For instance, the code generator options can look as follows:
+
+.. code-block:: python
+
+   "gap_junctions": {
+       "enable": True,
+       "membrane_potential_variable": "V_m",
+       "gap_current_port": "I_gap"
+   }
+
+For a full example, please see `test_gap_junction.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/test_gap_junction.py>`_.
+
+
 Multiple input ports in NEST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
