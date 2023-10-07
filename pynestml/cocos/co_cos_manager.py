@@ -27,6 +27,7 @@ from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExp
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
+from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
@@ -295,6 +296,14 @@ class CoCosManager:
         CoCoConvolveCondCorrectlyBuilt.check_co_co(neuron)
 
     @classmethod
+    def check_integrate_odes_params_correct(cls, model: ASTModel):
+        """
+        Checks if all integrate_odes() calls have correct parameters.
+        :param model: a single model object.
+        """
+        CoCoIntegrateODEsParamsCorrect.check_co_co(model)
+
+    @classmethod
     def check_correct_usage_of_kernels(cls, neuron: ASTNeuron):
         """
         Checks if all kernels are only used in convolve.
@@ -421,6 +430,7 @@ class CoCosManager:
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)
+        cls.check_integrate_odes_params_correct(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
         cls.check_output_port_defined_if_emit_call(neuron)
         if not after_ast_rewrite:

@@ -64,7 +64,7 @@ DEBUG = 1
 class Neuron_{{neuronName}}(Neuron):
 
   class Parameters_:
-{%- filter indent(4,True) %}
+{%- filter indent(4, False) %}
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include 'directives_py/MemberDeclaration.jinja2' %}
@@ -76,12 +76,12 @@ class Neuron_{{neuronName}}(Neuron):
     ode_state = np.nan * np.ones({{ numeric_state_variables|length }})
     ode_state_variable_name_to_index = {
 {%- for var_name in numeric_state_variables %}
-"{{ var_name }}" : {{ loop.index - 1 }},
+        "{{ var_name }}" : {{ loop.index - 1 }},
 {%- endfor %}
-      }
+    }
 
 {% endif %}
-{%- filter indent(4,True) %}
+{%- filter indent(4, False) %}
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include 'directives_py/MemberDeclaration.jinja2' %}
@@ -89,7 +89,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfilter %}
 
   class Variables_:
-{%- filter indent(4,True) %}
+{%- filter indent(4, False) %}
 {%- for variable_symbol in neuron.get_internal_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include "directives_py/MemberDeclaration.jinja2" %}
@@ -103,8 +103,10 @@ class Neuron_{{neuronName}}(Neuron):
 {%- for port in neuron.get_spike_input_ports() %}
 {%-     if port.has_vector_parameter() %}
     {{ port.get_symbol_name() }}: List[float] = []
+    spike_received_{{ port.get_symbol_name() }}: List[bool] = []
 {%-     else %}
     {{ port.get_symbol_name() }}: float = 0.
+    spike_received_{{ port.get_symbol_name() }}: bool = False
 {%-     endif %}
 {%- endfor %}
 
@@ -235,39 +237,61 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 {%- endfilter %}
 
-{%- if uses_numeric_solver %}
-  # -------------------------------------------------------------------------
-  #   Numeric solver stepping function
-  # -------------------------------------------------------------------------
-
-{% filter indent(2) %}
-{%- include "directives_py/GSLDifferentiationFunction.jinja2" %}
-{%- endfilter %}
-{%- endif %}
-
 {% if neuron.get_equations_blocks()|length > 0 %}
   # -------------------------------------------------------------------------
   #   Numeric + analytic solver stepping function
   # -------------------------------------------------------------------------
 
-  def _integrate_odes(self, origin: float, timestep: float):
-    r"""Integrate all ODEs defined in the model equation block by one timestep.
+{%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+
+{%- if uses_numeric_solver %}
+{%  filter indent(2) %}
+{%-     include "directives_py/GSLDifferentiationFunction.jinja2" %}
+{%- endfilter %}
+{%- endif %}
+
+  def _integrate_odes{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(self, origin: float, timestep: float):
+    r"""Integrate {% if ast.get_args() | length > 0 %}a subset of {% endif %}ODE(s) defined in the model equation block by one timestep.
+{%- if ast.get_args() | length > 0 %}
+
+    The variables that will be integrated are: {{ ", ".join(utils.integrate_odes_args_strs_from_function_call(ast)) }}
+{%- endif %}
     """
 {%- filter indent(4) %}
-{%-     with analytic_state_variables_ = analytic_state_variables %}
-{%-         include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
-{%-     endwith %}
+
+{%-     set analytic_state_variables_ = analytic_state_variables_except_convolutions %}
+{%-     if ast.get_args() | length > 0 %}
+{%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
+{%-     endif %}
+
+{#-      always integrate convolutions in time #}
+{%-      for var in analytic_state_variables %}
+{%-          if "__X__" in var %}
+{%-              set tmp = analytic_state_variables_.append(var) %}
+{%-          endif %}
+{%-      endfor %}
+
+{%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+
 {%-     if uses_numeric_solver %}
 {%-        include "directives_py/GSLIntegrationStep.jinja2" %}
 {%-     endif %}
-{%-     with analytic_state_variables_ = analytic_state_variables %}
-{%-         include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
-{%-     endwith %}
+
+{%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
 {%- endfilter %}
+{%- endfor %}
 {%- endif %}
 
   def step(self, origin: float, timestep: float) -> None:
     __resolution: float = timestep   # do not remove, this is necessary for the resolution() function
+
+    # -------------------------------------------------------------------------
+    #     integrate variables related to convolutions
+    # -------------------------------------------------------------------------
+
+{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
+{%- endwith %}
 
     # -------------------------------------------------------------------------
     #     NESTML generated code for the update block
@@ -283,11 +307,52 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endif %}
 
     # -------------------------------------------------------------------------
+    #     integrate variables related to convolutions
+    # -------------------------------------------------------------------------
+
+{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
+{%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
+{%- endwith %}
+
+    # -------------------------------------------------------------------------
+    #     process spikes from buffers
+    # -------------------------------------------------------------------------
+{%- filter indent(4, True) -%}
+{%-     include "directives_py/ApplySpikesFromBuffers.jinja2" %}
+{%- endfilter %}
+
+    # -------------------------------------------------------------------------
+    #     begin NESTML generated code for the onReceive block(s)
+    # -------------------------------------------------------------------------
+
+{%  for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = blk.get_port_name() %}
+    if self.B_.spike_received_{{ inport }}:
+      self.on_receive_block_{{ blk.get_port_name() }}()
+{%- endfor %}
+
+    # -------------------------------------------------------------------------
     #     Clear spike buffers at end of timestep
     # -------------------------------------------------------------------------
 
 {%- for port in neuron.get_spike_input_ports() %}
     self.B_.{{port.get_symbol_name()}} = 0.
+    self.B_.spike_received_{{port.get_symbol_name()}} = False
+{%- endfor %}
+
+
+    # -------------------------------------------------------------------------
+    #     Begin NESTML generated code for the onCondition block(s)
+    # -------------------------------------------------------------------------
+{%- for block in neuron.get_on_condition_blocks() %}
+    if {{ printer.print(block.get_cond_expr()) }}:
+{%-     set ast = block.get_block() %}
+{%-     if ast.print_comment('#') | length > 1 %}
+# {{ast.print_comment('#')}}
+{%-     endif %}
+{%-     filter indent(6) %}
+{%-             include "directives_py/Block.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
 
 
@@ -300,6 +365,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%-   for port in neuron.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
       self.B_.{{port.get_symbol_name()}} += abs(w)
+      self.B_.spike_received_{{port.get_symbol_name()}} = True
       return
 {%-   endfor %}
 {%- endif %}
@@ -311,3 +377,15 @@ class Neuron_{{neuronName}}(Neuron):
             "{{port.name}}",
 {%- endfor %}
     ]
+
+  # -------------------------------------------------------------------------
+  #   Methods corresponding to event handlers
+  # -------------------------------------------------------------------------
+
+{%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set ast = blk.get_block() %}
+  def on_receive_block_{{ blk.get_port_name() }}(self):
+{%-     filter indent(4, True) -%}
+{%-         include "directives_py/Block.jinja2" %}
+{%-     endfilter %}
+{% endfor %}

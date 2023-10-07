@@ -2,7 +2,8 @@
   Creates scipy odeint implementation of the differentiation step for the system of ODEs.
 #}
 @staticmethod
-def dynamics(t: float, ode_state: List[float], args: Tuple[Any]) -> List[float]:
+def dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(t: float, ode_state: List[float], args: Tuple[Any]) -> List[float]:
+  r"""Numerical integrator stepping function for _integrate_odes{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}"""
   # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
   node = args
 
@@ -14,24 +15,23 @@ def dynamics(t: float, ode_state: List[float], args: Tuple[Any]) -> List[float]:
 {%-     for inline_expr in utils.get_inline_expression_symbols(ode) %}
 {%-       if not inline_expr.is_equation() %}
 {%-         set declaring_expr = inline_expr.get_declaring_expression() %}
-  double {{ printer.print(utils.get_variable_by_name(astnode, inline_expr)) }} = {{ gsl_printer.print(declaring_expr) }}
+  {{ printer.print(utils.get_variable_by_name(astnode, inline_expr)) }} = {{ gsl_printer.print(declaring_expr) }}
 {%-       endif %}
 {%-     endfor %}
 {%-   endfor %}
 {%- endfor %}
 
-{%- for variable_name in numeric_state_variables %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = variable_symbols[variable_name] %}
-  f[node.S_.ode_state_variable_name_to_index["{{variable_symbol.name}}"]] = {{ gsl_printer.print(update_expr) }}
-{%- endfor %}
+{%- set var_names = numeric_state_variables %}
 {%- if paired_synapse is defined %}
-{%- for variable_name in numeric_state_variables_moved %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = neuron.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
-  f[node.S_.ode_state_variable_name_to_index["{{variable_symbol.name}}"]] = {{gsl_printer.print(update_expr)}}
-{%- endfor %}
+{%-     set tmp = var_names.extend(numeric_state_variables_moved) %}
 {%- endif %}
 
+{%- for variable_name in var_names %}
+{%-     set update_expr = numeric_update_expressions[variable_name] %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+  f[node.S_.ode_state_variable_name_to_index["{{ variable_symbol.name }}"]] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %}
+
+{%- endfor %}
+
   return f
-  
+

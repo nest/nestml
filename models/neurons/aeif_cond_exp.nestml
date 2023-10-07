@@ -99,13 +99,16 @@ neuron aeif_cond_exp:
         spike
 
     update:
-        integrate_odes()
-
-        if r > 0: # refractory
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve V_m
             r -= 1 # decrement refractory ticks count
-            V_m = V_reset # clamp potential
-        elif V_m >= V_peak: # threshold crossing detection
-            r = RefractoryCounts + 1
-            V_m = V_reset # clamp potential
-            w += b
-            emit_spike()
+            integrate_odes(w)
+        else:
+            # neuron not refractory, so evolve all ODEs
+            integrate_odes(w, V_m)
+            
+            if V_m >= V_peak: # threshold crossing detection
+                r = RefractoryCounts + 1
+                V_m = V_reset # clamp potential
+                w += b
+                emit_spike()
