@@ -45,7 +45,8 @@ model aeif_cond_exp_neuron:
     state:
         V_m mV = E_L   # Membrane potential
         w pA = 0 pA    # Spike-adaptation current
-        r integer = 0  # Counts number of tick during the refractory period
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
     equations:
         inline V_bounded mV = min(V_m, V_peak)    # prevent exponential divergence
@@ -64,7 +65,7 @@ model aeif_cond_exp_neuron:
     parameters:
         # membrane parameters
         C_m pF = 281.0 pF       # Membrane Capacitance
-        t_ref ms = 0.0 ms       # Refractory period
+        refr_T ms = 2 ms        # Duration of refractory period
         V_reset mV = -60.0 mV   # Reset Potential
         g_L nS = 30.0 nS        # Leak Conductance
         E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
@@ -86,11 +87,6 @@ model aeif_cond_exp_neuron:
         # constant external input current
         I_e pA = 0 pA
 
-    internals:
-        # refractory time in steps
-        RefractoryCounts integer = steps(t_ref)
-
-
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
@@ -100,16 +96,22 @@ model aeif_cond_exp_neuron:
         spike
 
     update:
-        if r > 0:
-            # neuron is absolute refractory
-            r -= 1 # decrement refractory ticks count
-
-            integrate_odes(w)    # do not integrate V_m
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve V_m
+            refr_t -= resolution()
+            integrate_odes(w)
         else:
-            integrate_odes()    # integrate all ODEs
+            # neuron not refractory, so evolve all ODEs
+            integrate_odes(w, V_m)
 
-        if V_m >= V_peak: # threshold crossing detection
-            r = RefractoryCounts + 1
-            V_m = V_reset # clamp potential
-            w += b
-            emit_spike()
+    onCondition(V_m >= V_peak):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset # clamp potential
+        w += b
+        emit_spike()
+
+    onCondition(refr_t <= 0 ms):
+        # end of refractory period
+        is_refractory = false

@@ -334,6 +334,7 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
         ASTUtils.remove_ode_definitions_from_equations_block(neuron)
         ASTUtils.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
+        ASTUtils.create_integrate_odes_combinations(neuron)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
         ASTUtils.add_timestep_symbol(neuron)
@@ -384,6 +385,7 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
             ASTUtils.remove_ode_definitions_from_equations_block(synapse)
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
+            ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
@@ -530,9 +532,6 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
-            namespace["analytic_state_variables_except_convolutions"] = []
-            for sym in namespace["analytic_state_variables"]:
-                namespace["analytic_state_variables_except_convolutions"].append(sym)
             namespace["analytic_state_variables_except_convolutions"] = []
             for sym in namespace["analytic_state_variables"]:
                 namespace["analytic_state_variables_except_convolutions"].append(sym)

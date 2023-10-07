@@ -50,6 +50,7 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -1613,6 +1614,83 @@ class ASTUtils:
                         iv_expr = ModelParser.parse_expression(iv_expr)
                         iv_expr.update_scope(state_block.get_scope())
                         iv_decl.set_expression(iv_expr)
+
+    @classmethod
+    def integrate_odes_args_strs_from_function_call(cls, function_call: ASTFunctionCall):
+        arg_names = []
+        for arg in function_call.get_args():
+            assert isinstance(arg, ASTSimpleExpression)
+            arg_names.append(arg.get_variable().get_name())
+
+        arg_names.sort()
+
+        return arg_names
+
+    @classmethod
+    def integrate_odes_args_str_from_function_call(cls, function_call: ASTFunctionCall):
+        arg_names = ASTUtils.integrate_odes_args_strs_from_function_call(function_call)
+        args_str = "_".join(arg_names)
+
+        return args_str
+
+    @classmethod
+    def create_integrate_odes_combinations(cls, model: ASTModel) -> None:
+        r"""
+
+        """
+        model.integrate_odes_combinations = []
+        class IntegrateODEsFunctionCallVisitor(ASTVisitor):
+            all_args = None
+
+            def __init__(self):
+                super().__init__()
+                self.all_args = []
+
+            def visit_small_stmt(self, node: ASTSmallStmt):
+                self._visit(node)
+
+            def visit_simple_expression(self, node: ASTSimpleExpression):
+                self._visit(node)
+
+            def _visit(self, node):
+                if node.is_function_call() and node.get_function_call().get_name() == "integrate_odes":
+                    args_str = ASTUtils.integrate_odes_args_str_from_function_call(node.get_function_call())
+                    self.all_args.append(args_str)
+
+        visitor = IntegrateODEsFunctionCallVisitor()
+        model.accept(visitor)
+        model.integrate_odes_combinations = visitor.all_args
+
+        return visitor.all_args
+
+    @classmethod
+    def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> None:
+        r"""
+
+        """
+        model.integrate_odes_combinations = []
+        class IntegrateODEsFunctionCallVisitor(ASTVisitor):
+            calls = None
+
+            def __init__(self):
+                super().__init__()
+                self.calls = []
+
+            def visit_small_stmt(self, node: ASTSmallStmt):
+                self._visit(node)
+
+            def visit_simple_expression(self, node: ASTSimpleExpression):
+                self._visit(node)
+
+            def _visit(self, node):
+                if node.is_function_call() and node.get_function_call().get_name() == "integrate_odes" and not node in self.calls:
+                    self.calls.append(node.get_function_call())
+
+        visitor = IntegrateODEsFunctionCallVisitor()
+        model.accept(visitor)
+
+        return visitor.calls
+
 
     @classmethod
     def create_initial_values_for_kernels(cls, model: ASTModel, solver_dicts: List[Dict], kernels: List[ASTKernel]) -> None:
