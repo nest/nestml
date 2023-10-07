@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Union
-from pynestml.cocos import co_co_internals_assigned_only_in_internals_block
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
@@ -296,7 +295,7 @@ class CoCosManager:
         CoCoConvolveCondCorrectlyBuilt.check_co_co(neuron)
 
     @classmethod
-    def check_integrate_odes_params_correct(cls, model: ASTModel):
+    def check_integrate_odes_params_correct(cls, model: Union[ASTNeuron, ASTSynapse]):
         """
         Checks if all integrate_odes() calls have correct parameters.
         :param model: a single model object.

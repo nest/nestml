@@ -19,8 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Union
+
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -33,7 +36,7 @@ class CoCoIntegrateODEsParamsCorrect(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, model: ASTModel):
+    def check_co_co(cls, model: Union[ASTNeuron, ASTSynapse]):
         """
         Ensures the coco for the handed over model.
         :param node: a single model instance.
