@@ -1636,9 +1636,10 @@ class ASTUtils:
     @classmethod
     def create_integrate_odes_combinations(cls, model: ASTModel) -> None:
         r"""
-
+        Visit all integrate_odes() calls in the model, compose these as a list of strings, and set them as a model private member (``model.integrate_odes_combinations``).
         """
         model.integrate_odes_combinations = []
+
         class IntegrateODEsFunctionCallVisitor(ASTVisitor):
             all_args = None
 
@@ -1669,6 +1670,7 @@ class ASTUtils:
 
         """
         model.integrate_odes_combinations = []
+
         class IntegrateODEsFunctionCallVisitor(ASTVisitor):
             calls = None
 
@@ -1690,7 +1692,6 @@ class ASTUtils:
         model.accept(visitor)
 
         return visitor.calls
-
 
     @classmethod
     def create_initial_values_for_kernels(cls, model: ASTModel, solver_dicts: List[Dict], kernels: List[ASTKernel]) -> None:
