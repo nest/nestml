@@ -17,7 +17,7 @@
 {%- for v in decl.get_variables() %}
 
 {%- set _name = v.get_name() %}
-{%- set _type_symbol = v.get_type_symbol().get_value().print_symbol() %}    {# XXX: can also use decl.get_data_type() #}
+{%- set _type_symbol = v.get_type_symbol().print_symbol() %}    {# XXX: can also use decl.get_data_type() #}
 {%- set _default = decl.get_expression() %}
     "{{ _name }}", "{{ _type_symbol }}", "{{ _default }}", "{{ comments(decl) | replace('\\', '\\\\') | replace('"', '""') | replace('|', '\\|') | indent }}"
 {%- endfor %}
