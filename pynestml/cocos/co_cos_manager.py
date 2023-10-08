@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.cocos import co_co_internals_assigned_only_in_internals_block
+from typing import Union
+
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
@@ -423,6 +424,7 @@ class CoCosManager:
         cls.check_no_nest_namespace_collisions(model)
         cls.check_input_port_qualifier_unique(model)
         cls.check_parameters_not_assigned_outside_parameters_block(model)
+        cls.check_internals_not_assigned_outside_internals_block(model)
         cls.check_user_defined_function_correctly_built(model)
         cls.check_initial_ode_initial_values(model)
         cls.check_kernel_type(model)
