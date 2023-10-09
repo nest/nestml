@@ -282,7 +282,8 @@ private:
 {%-     endfilter %}
 {%- else %}
     //! Symbolic indices to the elements of the state vector y
-    enum StateVecElems{
+    enum StateVecElems
+    {
 {# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver#}
 {%-   if uses_numeric_solver %}
       // numeric solver state variables

@@ -72,10 +72,10 @@ model iaf_psc_exp_dend_neuron:
         I_stim pA <- continuous
 
     onReceive(exc_spikes):
-        I_syn_exc += exc_spikes
+        I_syn_exc += exc_spikes * pA * s
 
     onReceive(inh_spikes):
-        I_syn_inh += inh_spikes
+        I_syn_inh += inh_spikes * pA * s
 
     output:
         spike

@@ -76,3 +76,6 @@ model stdp_triplet_nn_synapse:
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
+
+    update:
+        integrate_odes()
