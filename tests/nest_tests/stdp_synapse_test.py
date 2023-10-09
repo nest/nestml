@@ -63,33 +63,33 @@ class TestNestSTDPSynapse:
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
-        # # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        # files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
-        #          os.path.join("models", "synapses", "stdp_synapse.nestml")]
-        # input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-        #     os.pardir, os.pardir, s))) for s in files]
-        # generate_nest_target(input_path=input_path,
-        #                      target_path="/tmp/nestml-jit",
-        #                      logging_level="INFO",
-        #                      module_name="nestml_jit_module",
-        #                      suffix="_nestml",
-        #                      codegen_opts=jit_codegen_opts)
+        # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+                 os.path.join("models", "synapses", "stdp_synapse.nestml")]
+        input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, s))) for s in files]
+        generate_nest_target(input_path=input_path,
+                             target_path="/tmp/nestml-jit",
+                             logging_level="INFO",
+                             module_name="nestml_jit_module",
+                             suffix="_nestml",
+                             codegen_opts=jit_codegen_opts)
 
-        # if NESTTools.detect_nest_version().startswith("v2"):
-        #     non_jit_codegen_opts = {"neuron_parent_class": "Archiving_Node",
-        #                             "neuron_parent_class_include": "archiving_node.h"}
-        # else:
-        #     non_jit_codegen_opts = {"neuron_parent_class": "ArchivingNode",
-        #                             "neuron_parent_class_include": "archiving_node.h"}
+        if NESTTools.detect_nest_version().startswith("v2"):
+            non_jit_codegen_opts = {"neuron_parent_class": "Archiving_Node",
+                                    "neuron_parent_class_include": "archiving_node.h"}
+        else:
+            non_jit_codegen_opts = {"neuron_parent_class": "ArchivingNode",
+                                    "neuron_parent_class_include": "archiving_node.h"}
 
-        # # generate the "non-jit" model, that relies on ArchivingNode
-        # generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-        #                                                               os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
-        #                      target_path="/tmp/nestml-non-jit",
-        #                      logging_level="INFO",
-        #                      module_name="nestml_non_jit_module",
-        #                      suffix="_nestml_non_jit",
-        #                      codegen_opts=non_jit_codegen_opts)
+        # generate the "non-jit" model, that relies on ArchivingNode
+        generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
+                             target_path="/tmp/nestml-non-jit",
+                             logging_level="INFO",
+                             module_name="nestml_non_jit_module",
+                             suffix="_nestml_non_jit",
+                             codegen_opts=non_jit_codegen_opts)
 
         # load the generated modules into NEST
         nest.Install("nestml_jit_module")

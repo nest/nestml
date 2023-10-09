@@ -56,7 +56,9 @@ class TestIntegrateODEs:
         generate_nest_target(input_path=[os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join(os.pardir, os.pardir, "models", "neurons",  "iaf_psc_exp_neuron.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                       os.path.join("resources", "integrate_odes_test.nestml")))],
+                                                                       os.path.join("resources", "integrate_odes_test.nestml"))),
+                                         os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                       os.path.join("resources", "integrate_odes_nonlinear_test.nestml")))],
                              logging_level="INFO",
                              module_name="nestml_module",
                              suffix="_nestml")
@@ -147,6 +149,48 @@ class TestIntegrateODEs:
                 _ax.legend()
 
             fig.savefig("/tmp/test_integrate_odes.png", dpi=300)
+
+        # # verify
+        np.testing.assert_allclose(test_1[-1], 9.65029871)
+        np.testing.assert_allclose(test_2[-1], 5.34894639)
+
+    def test_integrate_odes_nonlinear(self):
+        r"""Test the integrate_odes() function, in particular when not all the ODEs are being integrated, for nonlinear ODEs."""
+
+        sim_time: float = 100.    # [ms]
+        resolution: float = .1    # [ms]
+
+        nest.set_verbosity("M_ALL")
+        nest.ResetKernel()
+        nest.SetKernelStatus({"resolution": resolution})
+
+        # create the network
+        spikedet = nest.Create("spike_recorder")
+        neuron = nest.Create("integrate_odes_nonlinear_test_nestml")
+        mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
+        nest.Connect(mm, neuron)
+        nest.Connect(neuron, spikedet)
+        nest.Simulate(sim_time)
+
+        # plot
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=2)
+            ax1, ax2 = ax
+
+            timevec = nest.GetStatus(mm, "events")[0]["times"]
+            test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
+            test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
+            ax2.plot(timevec, test_2, label="test_2")
+            ax1.plot(timevec, test_1, label="test_1", alpha=.7, linestyle=":")
+
+            for _ax in ax:
+                _ax.grid(which="major", axis="both")
+                _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+                # _ax.minorticks_on()
+                _ax.set_xlim(0., sim_time)
+                _ax.legend()
+
+            fig.savefig("/tmp/test_integrate_odes_nonlinear.png", dpi=300)
 
         # # verify
         np.testing.assert_allclose(test_1[-1], 9.65029871)

@@ -75,7 +75,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         nest.set_verbosity("M_ALL")
 
         nest.Install("nestmlmodule")
-        neuron = nest.Create("hh_cond_exp_destexhe_nestml")
+        neuron = nest.Create("hh_cond_exp_destexhe_neuron_nestml")
 
         multi = nest.Create("multimeter", params={"record_from": self.record_from, "interval": resolution})
 

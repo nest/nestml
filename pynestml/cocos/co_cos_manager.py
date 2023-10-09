@@ -428,7 +428,6 @@ class CoCosManager:
         cls.check_user_defined_function_correctly_built(model)
         cls.check_initial_ode_initial_values(model)
         cls.check_kernel_type(model)
-        cls.check_internals_not_assigned_outside_internals_block(model)
         cls.check_convolve_cond_curr_is_correct(model)
         cls.check_integrate_odes_params_correct(model)
         cls.check_output_port_defined_if_emit_call(model)

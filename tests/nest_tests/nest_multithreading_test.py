@@ -32,7 +32,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 @pytest.mark.parametrize("number_of_threads", [1, 2, 4])
 class TestNestMultithreading:
     neuron_synapse_module = "nestml_stdp_module"
-    neuron_synapse_neuron_model = "iaf_psc_exp_neuron_nestml__with_stdp_nestml"
+    neuron_synapse_neuron_model = "iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml"
     neuron_synapse_synapse_model = "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     neuron_module = "nestml_module"

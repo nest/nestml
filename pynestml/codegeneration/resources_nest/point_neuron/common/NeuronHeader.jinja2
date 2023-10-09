@@ -120,6 +120,8 @@ namespace {{names_namespace}}
 
 
 {% if uses_numeric_solver %}
+
+{%- for s in utils.create_integrate_odes_combinations(astnode) %}
 /**
  * Function computing right-hand side of ODE for GSL solver.
  * @note Must be declared here so we can befriend it in class.
@@ -129,9 +131,12 @@ namespace {{names_namespace}}
  * @note No point in declaring it inline, since it is called
  *       through a function pointer.
  * @param void* Pointer to model neuron instance.
+ *
+ * Integrate the variables: {{ s }}
 **/
-extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
-{% endif %}
+extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double y[], double f[], void* pnode );
+{%- endfor %}
+{%- endif %}
 
 #include "nest_time.h"
 
@@ -627,7 +632,6 @@ private:
 
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
-    bool ode_state_integration_inhibit[STATE_VEC_SIZE];
 {%- endif %}
 
     State_();
@@ -804,8 +808,10 @@ private:
 {%- endif %}
 
 {%- if uses_numeric_solver %}
-  friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
-{% endif %}
+{%-     for s in utils.create_integrate_odes_combinations(astnode) %}
+  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double y[], double f[], void* pnode );
+{%-     endfor %}
+{%- endif %}
 {%- if norm_rng %}
 
 {%- if nest_version.startswith("v2") %}

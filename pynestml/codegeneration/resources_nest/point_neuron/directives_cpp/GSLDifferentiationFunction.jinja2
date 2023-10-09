@@ -1,7 +1,7 @@
 {#
   Creates GSL implementation of the differentiation step for the system of ODEs.
 -#}
-extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], double f[], void* pnode)
+extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(double, const double ode_state[], double f[], void* pnode)
 {
   typedef {{neuronName}}::State_ State_;
   // get access to node so we can almost work as in a member function
@@ -22,26 +22,16 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 {%-     endfor %}
 {%- endfor %}
 
-{%- for variable_name in numeric_state_variables %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = variable_symbols[variable_name] %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
-{%- endfor %}
+
+{%- set var_names = numeric_state_variables %}
 {%- if paired_synapse is defined %}
-{%- for variable_name in numeric_state_variables_moved %}
-{%-   set update_expr = numeric_update_expressions[variable_name] %}
-{%-   set variable_symbol = utils.resolve_to_variable_symbol_in_blocks(variable_name, neuron.get_state_blocks()) %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
-{%- endfor %}
+{%-     set tmp = var_names.extend(numeric_state_variables_moved) %}
 {%- endif %}
 
-  // in case we are only integrating a subset of the variables
-{%- for variable_name in numeric_state_variables %}
-{%-     set variable_symbol = variable_symbols[variable_name] %}
-  if (node.S_.ode_state_integration_inhibit[State_::{{ variable_symbol.get_symbol_name() }}])
-  {
-      f[State_::{{ variable_symbol.get_symbol_name() }}] = 0.;
-  }
+{%- for variable_name in var_names %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_symbol = utils.resolve_to_variable_symbol_in_blocks(variable_name, neuron.get_state_blocks()) %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
 {%- endfor %}
 
 {%- if numeric_solver == "rk45" %}

@@ -348,16 +348,10 @@ void {{neuronName}}::init_state_internal_()
   pre_run_hook();
 {%- endif %}
 
-{%- if uses_numeric_solver %}
-  for (int i = 0; i < State_::STATE_VEC_SIZE; ++i) {
-    S_.ode_state_integration_inhibit[i] = 0;
-  }
-
-{%-     if numeric_solver == "rk45" %}
+{%- if numeric_solver == "rk45" %}
   // by default, integrate all variables
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
-{%-     endif %}
 {%- endif %}
 
 {%- if parameter_vars_with_iv|length > 0 %}
@@ -467,7 +461,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_evolve_reset( B_.__e );
   }
 
-  B_.__sys.function = {{neuronName}}_dynamics;
+  // B_.__sys.function = {{neuronName}}_dynamics; // will be set just prior to the call to gsl_odeiv_evolve_apply()
   B_.__sys.jacobian = nullptr;
   B_.__sys.dimension = State_::STATE_VEC_SIZE;
   B_.__sys.params = reinterpret_cast< void* >( this );
@@ -548,9 +542,11 @@ void {{neuronName}}::pre_run_hook() {
 //   Update and spike handling functions
 // ---------------------------------------------------------------------------
 
-{% if uses_numeric_solver %}
-{%- include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
-{% endif %}
+{%  if uses_numeric_solver %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-     endfor %}
+{%- endif %}
 
 {%- if has_delay_variables %}
 void {{neuronName}}::update_delay_variables()

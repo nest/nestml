@@ -47,7 +47,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
     Test the neuromodulated (for instance, dopamine-modulated) synapse, by numerically comparing it to the NEST "stdp_dopamine" synapse in a representative simulation run.
     """
 
-    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_neuromodulated_stdp_nestml"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_neuromodulated_stdp_synapse_nestml"
     synapse_model_name = "neuromodulated_stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
@@ -179,7 +179,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
             spikedet_pre = nest.Create("spike_recorder")
             spikedet_post = nest.Create("spike_recorder")
             spikedet_vt = nest.Create("spike_recorder")
-            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_tr__for_neuromodulated_stdp_nestml"]})
+            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_tr__for_neuromodulated_stdp_synapse_nestml"]})
 
         if sim_ref:
             spikedet_pre_ref = nest.Create("spike_recorder")
@@ -233,7 +233,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                 timevec = nest.GetStatus(mm, "events")[0]["times"]
                 V_m = nest.GetStatus(mm, "events")[0]["V_m"]
                 ax2.plot(timevec, nest.GetStatus(mm, "events")[
-                         0]["post_tr__for_neuromodulated_stdp_nestml"], label="post_tr nestml")
+                         0]["post_tr__for_neuromodulated_stdp_synapse_nestml"], label="post_tr nestml")
                 ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
             if sim_ref:
                 pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
@@ -290,7 +290,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
             ax1.set_ylabel("Pre spikes")
 
             ax2.plot(timevec, nest.GetStatus(mm, "events")[
-                     0]["post_tr__for_neuromodulated_stdp_nestml"], label="nestml post tr")
+                     0]["post_tr__for_neuromodulated_stdp_synapse_nestml"], label="nestml post tr")
             if sim_mdl:
                 n_spikes = len(post_spike_times_)
                 for i in range(n_spikes):

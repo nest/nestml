@@ -526,6 +526,20 @@ class ASTUtils:
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
+    def remove_state_var_from_integrate_odes_calls(cls, model: ASTModel, state_var_name: str):
+
+        class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
+            def visit_function_call(self, node: ASTFunctionCall):
+                if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+                    for arg in node.args:
+                        print("FChecking " + str(arg.get_variable().get_complete_name()) + "  aginst " + str(state_var_name))
+                    node.args = [arg for arg in node.args if not arg.get_variable().get_complete_name()]
+
+        remove_state_var_from_integrate_odes_calls_visitor = RemoveStateVarFromIntegrateODEsCallsVisitor()
+        model.accept(remove_state_var_from_integrate_odes_calls_visitor)
+
+
+    @classmethod
     def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str):
         """add suffix to variable names recursively throughout astnode"""
 

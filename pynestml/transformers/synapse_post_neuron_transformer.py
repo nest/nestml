@@ -356,6 +356,7 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            var_name_suffix,
                                                            mode="move")
             ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
+            ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
 
         #
         #    move initial values for equations

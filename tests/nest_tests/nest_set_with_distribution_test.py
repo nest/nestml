@@ -24,13 +24,9 @@ import numpy as np
 import pytest
 
 import nest
-from nest.lib.hl_api_exceptions import NESTErrors
 
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-
-nest_version = NESTTools.detect_nest_version()
 
 
 class TestNestSetWithDistribution:
@@ -58,7 +54,7 @@ class TestNestSetWithDistribution:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-    @pytest.mark.skipif(nest_version.startswith("v2"),
+    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_nest_set_with_distribution(self):
         nest.set_verbosity("M_ALL")
@@ -66,7 +62,7 @@ class TestNestSetWithDistribution:
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        neur = nest.Create("iaf_psc_exp_neuron_nestml__with_stdp_nestml", 100)
+        neur = nest.Create("iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml", 100)
         neur.V_m = nest.random.uniform(0., 1.)    # test setting a state variable
         neur.V_reset = nest.random.normal(0., 1.)    # test setting a parameter
 
