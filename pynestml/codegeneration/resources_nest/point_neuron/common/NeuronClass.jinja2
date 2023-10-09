@@ -811,7 +811,7 @@ void
 
     unsigned int num_transferred_variables = 0;
 {%- for var in transferred_variables %}
-    ++num_transferred_variables;
+    ++num_transferred_variables; {# XXX: TODO: make this into a const member variable #}
 {%- endfor %}
 
     const double t_sp_ms = t_sp.get_ms() - offset;
@@ -866,41 +866,12 @@ void
         V_.__h = t_sp_ms - last_spike_;
         if (V_.__h > 1E-12) {
           recompute_internal_variables(true);
-{#
-  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-#}
 
-{%- filter indent(6, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
+{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
-{%- if uses_numeric_solver %}
-// update only synapse->neuron moved variables; back-up and restore the rest
-double ode_state_bak[State_::STATE_VEC_SIZE];
-
-{%-     for variable_name in numeric_state_variables %}
-  ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
-{%-     endfor %}
-
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-
-// restore non-synapse->neuron-moved variables
-{%-     for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
-{%-     endfor %}
-
-// restore variables solved analytically
-{%-     for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
-{%-     endfor %}
-{%- endif %}
-
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-
-{%- endfilter %}
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
@@ -1013,37 +984,11 @@ double
         V_.__h = t - history_[i].t_;
         assert(V_.__h > 0);
         recompute_internal_variables(true);
-{#
-  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-#}
 
-{%- filter indent(6, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-
-{%- if purely_numeric_state_variables_moved|length > 0 %}
-double ode_state_tmp[STATE_VEC_SIZE];
-
-for (int i = 0; i < STATE_VEC_SIZE; ++i) {
-  ode_state_tmp[i] = S_.ode_state[i];
-}
-
-{%- if uses_numeric_solver %}
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-
-{%- for variable_name in numeric_state_variables_moved|sort %}
-{%- if not variable_name in analytic_state_variables_moved %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
+{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
@@ -1096,37 +1041,12 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
   recompute_internal_variables(true);
-{#
-  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-#}
-{%- filter indent(2, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
 
-{%- if purely_numeric_state_variables_moved|length > 0 %}
-double ode_state_tmp[STATE_VEC_SIZE];
+{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
-for (int i = 0; i < STATE_VEC_SIZE; ++i) {
-    ode_state_tmp[i] = S_.ode_state[i];
-}
-
-{%- if uses_numeric_solver %}
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-
-{%- for variable_name in numeric_state_variables_moved|sort %}
-{%- if not variable_name in analytic_state_variables_moved %}
-  S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-
-{%- endfilter %}
   V_.__h = old___h;
   recompute_internal_variables(true);
 

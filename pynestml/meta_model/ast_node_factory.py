@@ -233,7 +233,7 @@ class ASTNodeFactory:
         return ASTFunction(name, parameters, return_type, block, source_position=source_position)
 
     @classmethod
-    def create_ast_function_call(cls, callee_name, args, source_position):
+    def create_ast_function_call(cls, callee_name, args, source_position=None):
         # type: (str,(None|list(ASTExpression|ASTSimpleExpression)),ASTSourceLocation) -> ASTFunctionCall
         return ASTFunctionCall(callee_name, args, source_position=source_position)
 

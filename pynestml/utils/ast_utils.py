@@ -538,6 +538,17 @@ class ASTUtils:
         remove_state_var_from_integrate_odes_calls_visitor = RemoveStateVarFromIntegrateODEsCallsVisitor()
         model.accept(remove_state_var_from_integrate_odes_calls_visitor)
 
+    @classmethod
+    def resolve_variables_to_expressions(cls, astnode, analytic_state_variables_moved):
+        """receives a list of variable names (as strings) and returns a list of ASTExpressions containing each ASTVariable"""
+        expressions = []
+
+        for var_name in analytic_state_variables_moved:
+            node = ASTUtils.get_variable_by_name(astnode, var_name)
+            assert node is not None
+            expressions.append(ASTNodeFactory.create_ast_expression(False, None, False, ASTNodeFactory.create_ast_simple_expression(variable=node)))
+
+        return expressions
 
     @classmethod
     def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str):
@@ -1633,6 +1644,8 @@ class ASTUtils:
     def integrate_odes_args_strs_from_function_call(cls, function_call: ASTFunctionCall):
         arg_names = []
         for arg in function_call.get_args():
+            if isinstance(arg, ASTExpression):
+                arg = arg.get_expression()
             assert isinstance(arg, ASTSimpleExpression)
             arg_names.append(arg.get_variable().get_name())
 
@@ -1644,7 +1657,7 @@ class ASTUtils:
     def integrate_odes_args_str_from_function_call(cls, function_call: ASTFunctionCall):
         arg_names = ASTUtils.integrate_odes_args_strs_from_function_call(function_call)
         args_str = "_".join(arg_names)
-
+        import pdb;pdb.set_trace()
         return args_str
 
     @classmethod

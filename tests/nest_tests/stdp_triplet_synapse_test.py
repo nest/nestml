@@ -381,11 +381,11 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     if experiment == "test_nestml_pair_synapse":
         nest_modules_to_load = ["nestml_triplet_pair_module"]
 
-        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
-        neuron_opts = {'tau_minus__for_stdp_triplet_nestml': syn_opts['tau_minus'],
-                       'tau_y__for_stdp_triplet_nestml': syn_opts['tau_y']}
+        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_synapse_nestml"
+        neuron_opts = {'tau_minus__for_stdp_triplet_synapse_nestml': syn_opts['tau_minus'],
+                       'tau_y__for_stdp_triplet_synapse_nestml': syn_opts['tau_y']}
 
-        synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
+        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_nestml"
         nest_syn_opts = {'d': delay}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop('tau_minus')  # these have been moved to the neuron

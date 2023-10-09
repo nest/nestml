@@ -418,6 +418,7 @@ class NESTCodeGenerator(CodeGenerator):
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
         namespace["assignments"] = NestAssignmentsHelper()
+        namespace["ASTNodeFactory"] = ASTNodeFactory
         namespace["utils"] = ASTUtils
         namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
@@ -667,6 +668,7 @@ class NESTCodeGenerator(CodeGenerator):
         _names = self.non_equations_state_variables[neuron.get_name()]
         _names = [ASTUtils.to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
         namespace["non_equations_state_variables"] = _names
+        namespace["purely_numeric_state_variables_moved"] = []
 
         if namespace["uses_numeric_solver"]:
             namespace["numeric_state_variables_moved"] = []

@@ -44,10 +44,10 @@ sim_ref = True
 
 class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_restr_symm_nestml"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_restr_symm_synapse_nestml"
     ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nn_restr_symm_nestml__with_iaf_psc_exp_neuron_nestml"
+    synapse_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_nn_restr_synapse"
 
     def setUp(self):
@@ -179,7 +179,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
         if sim_mdl:
             spikedet_pre = nest.Create("spike_recorder")
             spikedet_post = nest.Create("spike_recorder")
-            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_trace__for_stdp_nn_restr_symm_nestml"]})
+            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_trace__for_stdp_nn_restr_symm_synapse_nestml"]})
         if sim_ref:
             spikedet_pre_ref = nest.Create("spike_recorder")
             spikedet_post_ref = nest.Create("spike_recorder")
@@ -282,7 +282,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
             if sim_mdl:
                 ax2.plot(nest.GetStatus(mm, "events")[0]["times"], nest.GetStatus(mm, "events")[
-                         0]["post_trace__for_stdp_nn_restr_symm_nestml"], label="nestml post tr")
+                         0]["post_trace__for_stdp_nn_restr_symm_synapse_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             if sim_mdl:
@@ -297,7 +297,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                 _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
-            fig.savefig("/tmp/stdp_nn_restr_symm_test" + fname_snip + ".png", dpi=300)
+            fig.savefig("/tmp/stdp_nn_restr_symm_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
         MAX_ABS_ERROR = 1E-6

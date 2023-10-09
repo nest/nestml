@@ -94,3 +94,6 @@ model stdp_nn_symm_synapse:
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
+
+    update:
+        integrate_odes()
