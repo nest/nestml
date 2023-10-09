@@ -1657,7 +1657,7 @@ class ASTUtils:
     def integrate_odes_args_str_from_function_call(cls, function_call: ASTFunctionCall):
         arg_names = ASTUtils.integrate_odes_args_strs_from_function_call(function_call)
         args_str = "_".join(arg_names)
-        import pdb;pdb.set_trace()
+
         return args_str
 
     @classmethod
@@ -2279,6 +2279,10 @@ class ASTUtils:
 
         if "moved_spike_updates" in dir(neuron):
             for expr in neuron.moved_spike_updates:
+                expr.accept(visitor)
+
+        if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):
+            for expr in neuron.extra_on_emit_spike_stmts_from_synapse:
                 expr.accept(visitor)
 
         if update_expressions:

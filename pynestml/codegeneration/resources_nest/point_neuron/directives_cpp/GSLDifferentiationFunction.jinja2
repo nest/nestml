@@ -22,11 +22,12 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
 {%-     endfor %}
 {%- endfor %}
 
-
 {%- set var_names = numeric_state_variables %}
+{#
 {%- if paired_synapse is defined %}
 {%-     set tmp = var_names.extend(numeric_state_variables_moved) %}
 {%- endif %}
+#}
 
 {%- for variable_name in var_names %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}

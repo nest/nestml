@@ -546,6 +546,14 @@ void {{neuronName}}::pre_run_hook() {
 {%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
 {%-     endfor %}
+
+{%- if paired_synapse is defined %}
+{# for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in this template #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%- endif %}
+
 {%- endif %}
 
 {%- if has_delay_variables %}

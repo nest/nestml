@@ -134,8 +134,17 @@ namespace {{names_namespace}}
  *
  * Integrate the variables: {{ s }}
 **/
-extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double y[], double f[], void* pnode );
+extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%- endfor %}
+
+{%-     if paired_synapse is defined %}
+{#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         set s = utils.integrate_odes_args_str_from_function_call(ast) %}
+extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endif %}
+
 {%- endif %}
 
 #include "nest_time.h"
@@ -611,6 +620,14 @@ private:
 {%-     for variable_name in numeric_state_variables %}
       {{variable_name}},
 {%-     endfor %}
+      // moved state variables from synapse (numeric)
+{%-     for variable_name in purely_numeric_state_variables_moved|sort %}
+      {{variable_name}},
+{%-     endfor %}
+      // moved state variables from synapse (analytic)
+{%-     for variable_name in analytic_state_variables_moved|sort %}
+      {{variable_name}},
+{%-     endfor %}
 {%-   else %}
 {#-     analytic solver only #}
       // analytic state variables
@@ -801,9 +818,19 @@ private:
 
 {%- if uses_numeric_solver %}
 {%-     for s in utils.create_integrate_odes_combinations(astnode) %}
-  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double y[], double f[], void* pnode );
+  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%-     endfor %}
+
+{%-     if paired_synapse is defined %}
+{#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         set s = utils.integrate_odes_args_str_from_function_call(ast) %}
+  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endif %}
 {%- endif %}
+
+
 {%- if norm_rng %}
 
 {%- if nest_version.startswith("v2") %}
