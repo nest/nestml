@@ -93,6 +93,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.MIN:
             return 'std::min({!s}, {!s})'
 
+        if function_name == PredefinedFunctions.ABS:
+            return 'std::abs({!s})'
+
         if function_name == PredefinedFunctions.EXP:
             return 'std::exp({!s})'
 

@@ -488,6 +488,9 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``max``
      - x, y
      - Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters.
+   * - ``abs``
+     - x
+     - Returns the absolute value of x. The return type is equal to the type of x.
    * - ``clip``
      - x, y, z
      - Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type.
