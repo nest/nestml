@@ -271,7 +271,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            code, message = Messages.get_analysing_transforming_neuron(
+            code, message = Messages.get_analysing_transforming_model(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates = self.analyse_neuron(neuron)
@@ -425,7 +425,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # goes through all convolve() inside equations block
         # extracts what kernel is paired with what spike buffer
         # returns pairs (kernel, spike_buffer)
-        kernel_buffers = ASTUtils.generate_kernel_buffers_(
+        kernel_buffers = ASTUtils.generate_kernel_buffers(
             neuron, equations_block)
 
         # replace convolve(g_E, spikes_exc) with g_E__X__spikes_exc[__d]
@@ -727,11 +727,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         Update symbol table and scope.
         """
-        SymbolTable.delete_neuron_scope(neuron.get_name())
+        SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
-        SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:
         """
