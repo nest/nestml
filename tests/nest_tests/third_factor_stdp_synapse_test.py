@@ -39,8 +39,8 @@ except Exception:
 
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp"
-    synapse_model_name = "third_factor_stdp__with_iaf_psc_exp_dend"
+    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp_synapse"
+    synapse_model_name = "third_factor_stdp_synapse__with_iaf_psc_exp_dend"
 
     post_trace_var = "I_dend"
 
@@ -48,7 +48,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         r"""Generate the neuron model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                  "synapse": "third_factor_stdp",
+                                                  "synapse": "third_factor_stdp_synapse",
                                                   "post_ports": ["post_spikes",
                                                                  ["I_post_dend", "I_dend"]]}]}
 

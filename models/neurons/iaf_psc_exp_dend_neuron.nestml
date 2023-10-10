@@ -35,18 +35,16 @@ See also
 
 iaf_cond_exp
 """
-model iaf_psc_exp_dend_neuron:
+model iaf_psc_exp_dend:
 
     state:
         r integer = 0             # Counts number of ticks during the refractory period
         V_m mV = E_L              # Membrane potential
         I_dend pA = 0 pA          # Third factor, to be read out by synapse during weight update
-        I_syn_exc pA = 0 pA
-        I_syn_inh pA = 0 pA
 
     equations:
-        I_syn_exc' = -I_syn_exc / tau_syn_exc
-        I_syn_inh' = -I_syn_inh / tau_syn_inh
+        kernel I_kernel_inh = exp(-t/tau_syn_inh)
+        kernel I_kernel_exc = exp(-t/tau_syn_exc)
         inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
@@ -71,12 +69,6 @@ model iaf_psc_exp_dend_neuron:
         inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
-    onReceive(exc_spikes):
-        I_syn_exc += exc_spikes * pA * s
-
-    onReceive(inh_spikes):
-        I_syn_inh += inh_spikes * pA * s
-
     output:
         spike
 
@@ -88,7 +80,7 @@ model iaf_psc_exp_dend_neuron:
         else:
             r = r - 1 # neuron is absolute refractory
 
-        if V_m >= V_th: # threshold crossing
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(V_m >= V_th): # threshold crossing
+        r = RefractoryCounts
+        V_m = V_reset
+        emit_spike()
