@@ -56,10 +56,10 @@ neuron biexp_postsynaptic_response:
         kernel g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
         kernel g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
 
-        inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
-        inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
-        inline I_syn_gap pA = (F_I + convolve(g_gap, spikeGap)) * (V_m - E_gap)
-        inline I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA)) * (V_m - E_gap)
+        inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc) * nS) * (V_m - E_ex)
+        inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh) * nS) * (V_m - E_in)
+        inline I_syn_gap pA = (F_I + convolve(g_gap, spikeGap) * nS) * (V_m - E_gap)
+        inline I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA) * nS) * (V_m - E_gap)
         inline I_leak pA = g_L * (V_m - E_L)
 
         V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_syn_gap - I_syn_GABA + I_e + I_stim) / C_m
@@ -82,8 +82,6 @@ neuron biexp_postsynaptic_response:
 
         tau_syn_rise_gap ms = 10 ms    # Synaptic Time Constant Excitatory Synapse
         tau_syn_decay_gap ms = 11 ms   # Synaptic Time Constant for Inhibitory Synapse
-
-        #tau_syn_alpha ms = 1.5ms   # Synaptic Time Constant for Inhibitory Synapse
 
         I_e pA = 0pA            # Constant Current
         F_E nS = 0nS            # Constant External input conductance (excitatory).
@@ -111,10 +109,10 @@ neuron biexp_postsynaptic_response:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
-        spikeInh nS  <- spike
-        spikeExc nS  <- spike
-        spikeGap nS  <- spike
-        spikeGABA nS  <- spike
+        spikeInh <- spike
+        spikeExc <- spike
+        spikeGap <- spike
+        spikeGABA <- spike
         I_stim pA <- continuous
 
     output:

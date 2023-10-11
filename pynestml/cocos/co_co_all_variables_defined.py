@@ -43,12 +43,9 @@ class CoCoAllVariablesDefined(CoCo):
     @classmethod
     def check_co_co(cls, node: ASTNeuron, after_ast_rewrite: bool = False):
         """
-        Checks if this coco applies for the handed over neuron.
-        Models which contain undefined variables are not correct.
+        Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
-        :param after_ast_rewrite: indicates whether this coco is checked
-            after the code generator has done rewriting of the abstract syntax tree.
-            If True, checks are not as rigorous. Use False where possible.
+        :param after_ast_rewrite: indicates whether this coco is checked after the code generator has done rewriting of the abstract syntax tree. If True, checks are not as rigorous. Use False where possible.
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()

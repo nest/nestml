@@ -1,8 +1,15 @@
 ipykernel
 nbsphinx
 docutils
-sphinx>=4
-sphinx_rtd_theme>=1.0.0
+sphinx>=6
+MarkupSafe==2.1.2
+readthedocs-sphinx-ext==2.2.0
+nbformat==5.8.0
+nbsphinx==0.9.1
+typing_extensions==4.5.0
+sphinx_rtd_theme==1.2.0
+nbclient==0.7.4
+sphinx-design
 
 # the following list is a direct copy from requirements.txt in the root directory (requirements for NESTML itself rather than for doc building)
 numpy >= 1.8.2

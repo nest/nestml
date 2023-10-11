@@ -207,14 +207,10 @@ class CoCosTest(unittest.TestCase):
     def test_invalid_function_unique_and_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoFunctionNotUnique.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoFunctionNotUnique.nestml'))
+        self.assertEqual(
+            len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 5)
 
     def test_valid_function_unique_and_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -277,14 +273,10 @@ class CoCosTest(unittest.TestCase):
     def test_invalid_no_values_assigned_to_input_ports(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoValueAssignedToInputPort.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoValueAssignedToInputPort.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_valid_no_values_assigned_to_input_ports(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -442,53 +434,29 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
             model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_invalid_continuous_input_ports_not_specified_with_keywords(self):
+    def test_invalid_inline_expressions_assigned_only_in_declaration(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoContinuousInputPortQualifierSpecified.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoAssignmentToInlineExpression.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-    def test_valid_continuous_input_ports_not_specified(self):
+    def test_invalid_internals_assigned_only_in_internals_block(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoContinuousInputPortQualifierSpecified.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoInternalAssignedOutsideBlock.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-    def test_invalid_spike_input_port_without_datatype(self):
+    def test_valid_internals_assigned_only_in_internals_block(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoSpikeInputPortWithoutType.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
-
-    def test_valid_spike_input_port_without_datatype(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoSpikeInputPortWithoutType.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoInternalAssignedOutsideBlock.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
     def test_invalid_function_with_wrong_arg_number_detected(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -596,7 +564,7 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoConvolveNotCorrectlyProvided.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
+            model.get_neuron_list()[0], LoggingLevel.ERROR)), 3)
 
     def test_valid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -716,7 +684,7 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoConvolveNotCorrectlyParametrized.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_convolve_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -939,210 +907,6 @@ class CoCosTest(unittest.TestCase):
                 'CoCoStateVariablesInitialized.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
             model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
-
-    def test_invalid_at_least_one_cm_gating_variable_name(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmVariableName.nestml'))
-        # assert there is exactly one error
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
-
-    def test_valid_at_least_one_cm_gating_variable_name(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmVariableName.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    def test_invalid_cm_function_existence(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmFunctionExists.nestml'))
-        # assert there are exactly 2 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
-
-    def test_valid_cm_function_existence(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmFunctionExists.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    def test_invalid_cm_variables_declared(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmVariablesDeclared.nestml'))
-        # assert there are exactly 3 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 3)
-
-    def test_valid_cm_variables_declared(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmVariablesDeclared.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    def test_invalid_cm_function_one_arg(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmFunctionOneArg.nestml'))
-        # assert there are exactly 2 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
-
-    def test_valid_cm_function_one_arg(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmFunctionOneArg.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    def test_invalid_cm_function_returns_real(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmFunctionReturnsReal.nestml'))
-        # assert there are exactly 4 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
-
-    def test_valid_cm_function_returns_real(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmFunctionReturnsReal.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    def test_invalid_synapse_uses_exactly_one_buffer(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoSynsOneBuffer.nestml'))
-        # assert there are exactly 1 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
-
-    def test_valid_synapse_uses_exactly_one_buffer(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoSynsOneBuffer.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    # it is currently not enforced for the non-cm parameter block, but cm
-    # needs that
-    def test_invalid_cm_variable_has_rhs(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmVariableHasRhs.nestml'))
-        # assert there are exactly 5 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 5)
-
-    def test_valid_cm_variable_has_rhs(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmVariableHasRhs.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-    # it is currently not enforced for the non-cm parameter block, but cm
-    # needs that
-    def test_invalid_cm_v_comp_exists(self):
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'invalid')),
-                'CoCoCmVcompExists.nestml'))
-        # assert there are exactly 5 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
-
-    def test_valid_cm_v_comp_exists(self):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
-            os.path.join(
-                os.path.realpath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        'valid')),
-                'CoCoCmVcompExists.nestml'))
-        # assert there is exactly 0 errors
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
     def test_invalid_co_co_priorities_correctly_specified(self):
         """

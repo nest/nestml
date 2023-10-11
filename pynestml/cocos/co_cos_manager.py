@@ -20,14 +20,15 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Union
+from pynestml.cocos import co_co_internals_assigned_only_in_internals_block
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
-from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
+from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
-from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -46,14 +47,13 @@ from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
-from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
-    CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
+from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
-from pynestml.cocos.co_co_synapses_model import CoCoSynapsesModel
-from pynestml.cocos.co_co_concentrations_model import CoCoConcentrationsModel
+from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
+from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
@@ -64,6 +64,7 @@ from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVe
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
@@ -79,6 +80,13 @@ class CoCosManager:
         Checks for the handed over neuron that each used function it is defined.
         """
         CoCoFunctionUnique.check_co_co(neuron)
+
+    @classmethod
+    def check_inline_expression_not_assigned_to(cls, neuron: ASTNeuron):
+        """
+        Checks for the handed over neuron that inline expressions are not assigned to.
+        """
+        CoCoInlineExpressionNotAssignedTo.check_co_co(neuron)
 
     @classmethod
     def check_each_block_defined_at_most_once(cls, node: Union[ASTNeuron, ASTSynapse]):
@@ -122,52 +130,24 @@ class CoCosManager:
         CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
 
     @classmethod
-    def check_synapses_model(cls, neuron: ASTNeuron) -> None:
-        """
-        similar to check_compartmental_model, but checks for synapses
-        synapses are defined by inlines that use kernels
-        """
-        CoCoSynapsesModel.check_co_co(neuron)
-
-    @classmethod
-    def check_concentrations_model(cls, neuron: ASTNeuron) -> None:
-        CoCoConcentrationsModel.check_co_co(neuron)
-
-    @classmethod
-    def check_v_comp_requirement(cls, neuron: ASTNeuron, after_ast_rewrite: bool):
+    def check_v_comp_requirement(cls, neuron: ASTNeuron):
         """
         In compartmental case, checks if v_comp variable was defined
         :param neuron: a single neuron object
         """
-        CoCoVCompDefined.check_co_co(neuron, after_ast_rewrite)
+        CoCoVCompDefined.check_co_co(neuron)
 
     @classmethod
-    def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
+    def check_compartmental_model(cls, neuron: ASTNeuron) -> None:
         """
-        searches ASTEquationsBlock for inline expressions without kernels
+        collects all relevant information for the different compartmental mechanism classes for later code-generation
 
-        If such inline expression is found
-        -finds all gatomg variables x_{channel_name} used in that expression
-        -makes sure following functions are defined:
-
-        x_inf_{channelType}(somevariable real) real
-        tau_x_{channelType}(somevariable real) real
-
-        -makes sure that all such functions have exactly one argument and that
-        they return real
-
-        -makes sure that all Variables x are defined in state block
-        -makes sure that state block contains
-
-        gbar_{channelType}
-        e_{channelType}
-
-        -makes sure that in the key inline expression every variable is used only once
-        -makes sure there is at least one gating variable per cm inline expression
-        :param neuron: a single neuron.
-        :type neuron: ast_neuron
+        searches for inlines or odes with decorator @mechanism::<type> and performs a base and, depending on type,
+        specific information collection process. See nestml documentation on compartmental code generation.
         """
-        CoCoCompartmentalModel.check_co_co(neuron)
+        CoCoCmChannelModel.check_co_co(neuron)
+        CoCoCmConcentrationModel.check_co_co(neuron)
+        CoCoCmSynapseModel.check_co_co(neuron)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, neuron: ASTNeuron):
@@ -250,12 +230,12 @@ class CoCosManager:
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(neuron)
 
     @classmethod
-    def check_continuous_input_ports_not_qualified(cls, neuron: ASTNeuron):
+    def check_internals_not_assigned_outside_internals_block(cls, neuron: ASTNeuron):
         """
-        Checks that continuous time input ports have not been specified with keywords, e.g., inhibitory.
+        Checks that internals are not assigned outside the internals block.
         :param neuron: a single neuron object.
         """
-        CoCoContinuousInputPortNotQualified.check_co_co(neuron)
+        CoCoInternalsAssignedOnlyInInternalsBlock.check_co_co(neuron)
 
     @classmethod
     def check_output_port_defined_if_emit_call(cls, neuron: ASTNeuron):
@@ -281,14 +261,6 @@ class CoCosManager:
         :param neuron: a single neuron object.
         """
         CoCoOdeFunctionsHaveConsistentUnits.check_co_co(neuron)
-
-    @classmethod
-    def check_input_port_data_type(cls, neuron: ASTNeuron):
-        """
-        Checks that input ports have specified the data type if required and no data type if not allowed.
-        :param neuron: a single neuron object.
-        """
-        CoCoInputPortDataType.check_co_co(neuron)
 
     @classmethod
     def check_integrate_odes_called_if_equations_defined(cls, neuron: ASTNeuron):
@@ -428,14 +400,15 @@ class CoCosManager:
         """
         cls.check_each_block_defined_at_most_once(neuron)
         cls.check_function_defined(neuron)
+        cls.check_inline_expression_not_assigned_to(neuron)
         cls.check_function_declared_and_correctly_typed(neuron)
         cls.check_variables_unique_in_scope(neuron)
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
-        cls.check_v_comp_requirement(neuron, after_ast_rewrite)
-        cls.check_compartmental_model(neuron, after_ast_rewrite)
-        cls.check_synapses_model(neuron)
-        cls.check_concentrations_model(neuron)
+        if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+            # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
+            cls.check_v_comp_requirement(neuron)
+            cls.check_compartmental_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
         cls.check_inline_has_max_one_lhs(neuron)
         cls.check_input_ports_not_assigned_to(neuron)
@@ -444,8 +417,7 @@ class CoCosManager:
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_input_port_qualifier_unique(neuron)
         cls.check_parameters_not_assigned_outside_parameters_block(neuron)
-        cls.check_continuous_input_ports_not_qualified(neuron)
-        cls.check_input_port_data_type(neuron)
+        cls.check_internals_not_assigned_outside_internals_block(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)
@@ -457,6 +429,8 @@ class CoCosManager:
             # ODE functions have been removed at this point
             cls.check_ode_functions_have_consistent_units(neuron)
             cls.check_correct_usage_of_kernels(neuron)
+            if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
+                cls.check_integrate_odes_called_if_equations_defined(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)

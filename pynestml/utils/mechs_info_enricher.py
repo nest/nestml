@@ -28,12 +28,14 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from collections import defaultdict
 from pynestml.utils.ast_utils import ASTUtils
 
-class MechsInfoEnricher():
+
+class MechsInfoEnricher:
     """
     Adds information collection that can't be done in the processing class since that is used in the cocos.
     Here we use the ModelParser which would lead to a cyclic dependency.
     """
-    def __init__(self, params):
+
+    def __init__(self):
         pass
 
     @classmethod
@@ -53,8 +55,7 @@ class MechsInfoEnricher():
                     solution_transformed["states"] = defaultdict()
                     solution_transformed["propagators"] = defaultdict()
 
-                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                        "initial_values"].items():
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
                         variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                   SymbolKind.VARIABLE)
 
@@ -81,11 +82,9 @@ class MechsInfoEnricher():
                             "init_expression": expression,
                             "update_expression": update_expr_ast,
                         }
-                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                        "propagators"].items(
-                    ):
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
                         prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                                  SymbolKind.VARIABLE)
+                                                                                                       SymbolKind.VARIABLE)
                         if prop_variable is None:
                             ASTUtils.add_declarations_to_internals(
                                 neuron, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])
@@ -109,15 +108,13 @@ class MechsInfoEnricher():
                         neuron_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
                         neuron.accept(neuron_internal_declaration_collector)
 
-                        # print("TRV: " + PredefinedFunctions.TIME_RESOLUTION)
                         for variable in expression_variable_collector.all_variables:
                             for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
-                                # print(internal_declaration.get_variables()[0].get_name())
-                                # print(internal_declaration.get_expression().callee_name)
                                 if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
                                         and internal_declaration.get_expression().is_function_call() \
-                                        and internal_declaration.get_expression().get_function_call().callee_name == PredefinedFunctions.TIME_RESOLUTION:
-                                    mechanism_info["time_resolution_var"] = variable  # not so sensible (predefined) :D
+                                        and internal_declaration.get_expression().get_function_call().callee_name == \
+                                        PredefinedFunctions.TIME_RESOLUTION:
+                                    mechanism_info["time_resolution_var"] = variable
 
                     mechanism_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
 

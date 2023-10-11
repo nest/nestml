@@ -1,6 +1,6 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.13.0
+# Generated from PyNestMLParser.g4 by ANTLR 4.10.1
 from antlr4 import *
-if "." in __name__:
+if __name__ is not None and "." in __name__:
     from .PyNestMLParser import PyNestMLParser
 else:
     from PyNestMLParser import PyNestMLParser
@@ -214,8 +214,13 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#inputPort.
-    def visitInputPort(self, ctx:PyNestMLParser.InputPortContext):
+    # Visit a parse tree produced by PyNestMLParser#spikeInputPort.
+    def visitSpikeInputPort(self, ctx:PyNestMLParser.SpikeInputPortContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#continuousInputPort.
+    def visitContinuousInputPort(self, ctx:PyNestMLParser.ContinuousInputPortContext):
         return self.visitChildren(ctx)
 
 

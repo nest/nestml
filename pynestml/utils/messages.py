@@ -121,6 +121,7 @@ class MessageCode(Enum):
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
+    ASSIGNING_TO_INLINE = 91
     CM_NO_GATING_VARIABLES = 100
     CM_FUNCTION_MISSING = 101
     CM_VARIABLES_NOT_DECLARED = 102
@@ -176,10 +177,10 @@ class Messages:
         message = 'Error occurred during lexing: abort'
         return MessageCode.LEXER_ERROR, message
 
-    # @classmethod
-    # def get_could_not_determine_cond_based(cls, type_str, name):
-    #     message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
-    #     return MessageCode.LEXER_ERROR, message
+    @classmethod
+    def get_could_not_determine_cond_based(cls, type_str, name):
+        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
+        return MessageCode.LEXER_ERROR, message
 
     @classmethod
     def get_parser_error(cls):
@@ -1081,13 +1082,19 @@ class Messages:
         return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
 
     @classmethod
-    def templated_arg_types_inconsistent(
-            cls,
-            function_name,
-            failing_arg_idx,
-            other_args_idx,
-            failing_arg_type_str,
-            other_type_str):
+    def get_assigning_to_inline(cls):
+        """
+        Cannot assign to inline expression
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "Cannot assign to inline expression."
+        return MessageCode.ASSIGNING_TO_INLINE, message
+
+    @classmethod
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
         """
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
         :param name: the name of the neuron model
@@ -1098,7 +1105,7 @@ class Messages:
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
             str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
             ', '.join([str(_ + 1) for _ in other_args_idx]) + \
-            ', which have type \'' + other_type_str + '\''
+            ', which has/have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod
@@ -1213,8 +1220,8 @@ class Messages:
 
     @classmethod
     def get_vector_parameter_wrong_block(cls, var, block):
-        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + \
-            "'. " "The vector parameter can only be declared in parameters or internals block."
+        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
+                  "The vector parameter can only be declared in parameters or internals block."
         return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
 
     @classmethod
@@ -1225,15 +1232,13 @@ class Messages:
 
     @classmethod
     def get_vector_parameter_wrong_size(cls, var, value):
-        message = "The vector parameter '" + var + "' has value '" + \
-            value + "' " "which is less than or equal to 0."
+        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+                  "which is less than or equal to 0."
         return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
 
     @classmethod
-    def get_priority_defined_for_only_one_receive_block(
-            cls, event_handler_port_name: str):
-        message = "Priority defined for only one event handler (" + \
-            event_handler_port_name + ")"
+    def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
+        message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
         return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message
 
     @classmethod
@@ -1332,7 +1337,7 @@ class Messages:
     def get_v_comp_variable_value_missing(
             cls, neuron_name: str, missing_variable_name):
         message = "Missing state variable '" + missing_variable_name
-        message += "' in side of neuron +'" + neuron_name + "'+. "
+        message += "' inside of neuron '" + neuron_name + "'. "
         message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
         message += "In this mode, such variable must be declared in the state block.\n"
         message += "This variable represents the dynamically calculated value of membrane potential "

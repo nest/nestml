@@ -43,7 +43,10 @@ neuron CoCoFunctionNotUnique:
 
     function deltaNoReturn(Tau_a ms,Tau_b ms) boolean:
         test real = 1
-        if True == True:
-            return True
+        if Tau_a == 1:
+            test = True
+        elif Tau_b == 2:
+            test = True
         else:
-            return False
+            test = False
+        return test

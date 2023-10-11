@@ -79,4 +79,4 @@ class TestNestSetWithDistribution:
         syn = nest.GetConnections(source=neur)
 
         assert len(np.unique(syn.alpha)) > 1
-        assert len(np.unique(syn.w)) > 1
+        assert len(np.unique(syn.weight)) > 1

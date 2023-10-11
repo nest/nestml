@@ -55,6 +55,8 @@ class ASTOdeEquation(ASTNode):
         super(ASTOdeEquation, self).__init__(*args, **kwargs)
         assert isinstance(lhs, ASTVariable)
         assert isinstance(rhs, ASTExpression) or isinstance(rhs, ASTSimpleExpression)
+        if decorators is None:
+            decorators = []
         self.lhs = lhs
         self.rhs = rhs
         self.decorators = decorators
@@ -73,7 +75,7 @@ class ASTOdeEquation(ASTNode):
 
         dup = ASTOdeEquation(lhs=self.lhs.clone(),
                              rhs=self.rhs.clone(),
-                             decorators = decorators_dup,
+                             decorators=decorators_dup,
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,

@@ -29,16 +29,15 @@ from pynestml.utils.logger import Logger, LoggingLevel
 
 class CoCoVCompDefined(CoCo):
     """
-    This class represents a constraint condition which ensures that variable v_comp has benn
+    This class represents a constraint condition which ensures that variable v_comp has been
     defined if we have compartmental model case.
     When we start code generation with NEST_COMPARTMENTAL flag the following must exist:
         state:
             v_comp real = 0
-        end
     """
 
     @classmethod
-    def check_co_co(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
+    def check_co_co(cls, neuron: ASTNeuron):
         """
         Checks if this coco applies for the handed over neuron.
         Models which are supposed to be compartmental but do not contain
@@ -48,10 +47,12 @@ class CoCoVCompDefined(CoCo):
             after the code generator has done rewriting of the abstract syntax tree.
             If True, checks are not as rigorous. Use False where possible.
         """
+        from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
-        if not FrontendConfiguration.target_is_compartmental():
+        if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             return
-        enforced_variable_name = FrontendConfiguration.getCompartmentalVariableName()
+
+        enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]
 
         state_blocks = neuron.get_state_blocks()
         if state_blocks is None:

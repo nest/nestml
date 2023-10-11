@@ -39,7 +39,7 @@ neuron CoCoEachBlockUnique:
         test2 integer = 0
 
     input:
-        spike1 pA <- spike
+        spike1 <- spike
 
     input:
-        spike2 pA <- spike
+        spike2 <- spike
