@@ -533,9 +533,6 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["update_expressions"][sym] = expr_ast
-            namespace["analytic_state_variables_except_convolutions"] = []
-            for sym in namespace["analytic_state_variables"]:
-                namespace["analytic_state_variables_except_convolutions"].append(sym)
             namespace["propagators"] = self.analytic_solver[synapse.get_name()]["propagators"]
 
         if namespace["uses_numeric_solver"]:
@@ -625,10 +622,6 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["analytic_state_variables"] = self.analytic_solver[neuron.get_name()]["state_variables"]
 
             namespace["variable_symbols"].update({sym: neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace["analytic_state_variables"]})
-
-            namespace["analytic_state_variables_except_convolutions"] = []
-            for sym in namespace["analytic_state_variables"]:
-                namespace["analytic_state_variables_except_convolutions"].append(sym)
 
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace["initial_values"][sym] = expr

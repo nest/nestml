@@ -415,6 +415,7 @@ void {{neuronName}}::init_buffers_()
 {%-     endfor %}
 {%-   endfilter %}
 {%- endif %}
+// 0 analytic_state_variables = {{ analytic_state_variables }}
 
   B_.logger_.reset();
 
@@ -537,6 +538,7 @@ void {{neuronName}}::pre_run_hook() {
 }
 {%- endfor %}
 {%- endif %}
+// 0 analytic_state_variables = {{ analytic_state_variables }}
 
 // ---------------------------------------------------------------------------
 //   Update and spike handling functions
@@ -738,6 +740,7 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
 // -------------------------------------------------------------------------
 //   Methods corresponding to event handlers
 // -------------------------------------------------------------------------
+// 0 analytic_state_variables = {{ analytic_state_variables }}
 
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_block() %}
@@ -811,6 +814,7 @@ void
   }
   *start = runner.base();
 }
+// 0 analytic_state_variables = {{ analytic_state_variables }}
 
 void
 {{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
@@ -868,6 +872,8 @@ void
 
         /**
          * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
+         *
+         * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
         **/
 
         const double old___h = V_.__h;
@@ -931,6 +937,7 @@ void
   last_spike_ = -1.0;
   history_.clear();
 }
+// 0 analytic_state_variables = {{ analytic_state_variables }}
 
 
 {#
@@ -984,6 +991,8 @@ double
 
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
+       *
+       * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
       **/
 
       if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
@@ -1044,7 +1053,12 @@ double
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
-  // propagate in time
+  /**
+   * update state variables transferred from synapse from initial condition to `t`
+   *
+   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+  **/
+
   const double old___h = V_.__h;
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
@@ -1065,3 +1079,4 @@ double
 
 {%- endif %}
 {# leave this comment here to ensure newline is generated at end of file -#}
+// 0 analytic_state_variables = {{ analytic_state_variables }}

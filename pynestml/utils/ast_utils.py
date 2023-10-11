@@ -1748,7 +1748,7 @@ class ASTUtils:
                     if spike_in_port:
                         differential_order: int = len(re.findall("__d", var_name))
                         if differential_order:
-                            type_str = "s**-" + str(differential_order)
+                            type_str = "(s**-" + str(differential_order) + ")"
 
                     expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
                     if not cls.declaration_in_state_block(model, var_name):

@@ -34,12 +34,15 @@ class CSimpleExpressionPrinter(SimpleExpressionPrinter):
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.has_unit():
             if self._variable_printer.print(node.get_variable()) in ["1", "1.", "1.0"]:
-                return str(node.get_numeric_literal())
+                print("XXX1 CSimpleExpressionPrinter is_numeric_literal: " + str(node.numeric_literal))
 
-            return str(node.get_numeric_literal()) + " * " + \
-                self._variable_printer.print(node.get_variable())
+                return str(node.get_numeric_literal())
+            print("XXX2 CSimpleExpressionPrinter2 is_numeric_literal: " + str(str(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())))
+
+            return str(node.get_numeric_literal()) + " * " + self._variable_printer.print(node.get_variable())
 
         if node.is_numeric_literal():
+            print("XXX3 CSimpleExpressionPrinter is_numeric_literal: " + str(node.numeric_literal))
             return str(node.get_numeric_literal())
 
         if node.is_inf_literal:

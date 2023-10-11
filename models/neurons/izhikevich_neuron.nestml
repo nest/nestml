@@ -73,8 +73,8 @@ model izhikevich_neuron:
         # lower bound of membrane potential
         V_m = max(V_min, V_m)
 
+    onCondition(V_m >= V_th):
         # threshold crossing
-        if V_m >= V_th:
-            V_m = c
-            U_m += d
-            emit_spike()
+        V_m = c
+        U_m += d
+        emit_spike()

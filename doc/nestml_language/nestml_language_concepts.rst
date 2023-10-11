@@ -473,7 +473,7 @@ e.g.
 Predefined functions
 ^^^^^^^^^^^^^^^^^^^^
 
-The following functions are predefined in NESTML and can be used out of the box:
+The following functions are predefined in NESTML and can be used out of the box. No functions can be defined in NESTML that have the same name.
 
 .. list-table::
    :header-rows: 1
@@ -566,6 +566,26 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``resolution``
      -
      - Returns the current resolution of the simulation in ms. See the section :ref:`Handling of time` for more information.
+
+
+Predefined variables and constants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following variables and constants are predefined in NESTML and can be used out of the box. No variables can be defined in NESTML that have the same name.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 30
+
+   * - Name
+     - Description
+   * - ``t``
+     - The current simulation time (read only)
+   * - ``e``
+     - Euler's constant (2.718...)
+   * - ``inf``
+     - Floating point infinity
+
 
 Return statement
 ^^^^^^^^^^^^^^^^
