@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.6_rc1", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.6", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents

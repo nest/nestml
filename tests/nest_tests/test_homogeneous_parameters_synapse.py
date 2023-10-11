@@ -39,8 +39,10 @@ except Exception:
     TEST_PLOTS = False
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestHomogeneousParametersSynapse:
-    r"""
+    r"""Test code generation and basic functionality of synapse with homogeneous parameters.
     """
 
     @pytest.fixture(scope="module", autouse=True)
@@ -72,15 +74,11 @@ class TestHomogeneousParametersSynapse:
         pre_sg = nest.Create("spike_generator",
                              params={"spike_times": 10. * (1 + np.arange(sim_time))})
 
-        # set up custom synapse models
-        wr = nest.Create("weight_recorder")
-        nest.CopyModel(synapse_model_name, "syn_nestml_rec", {"weight_recorder": wr[0], "a": 42.})
-
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(neuron_model_name)
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one")
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "syn_nestml_rec"})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": synapse_model_name})
 
         V_m_before_sim = post_neuron.V_m
 
