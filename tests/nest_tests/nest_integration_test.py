@@ -61,12 +61,12 @@ class TestNestIntegration:
 
         alt_codegen_opts = {**codegen_opts, **{"solver": "numeric"}}
 
-        generate_nest_target(input_path=["models/neurons/iaf_psc_exp_neuron.nestml"],
-                             target_path="/tmp/nestml-allmodels",
-                             logging_level="DEBUG",
-                             module_name="nestml_alt_allmodels_module",
-                             suffix="_alt_nestml",
-                             codegen_opts=alt_codegen_opts)
+        # generate_nest_target(input_path=["models/neurons/iaf_psc_exp_neuron.nestml"],
+        #                      target_path="/tmp/nestml-alt-allmodels",
+        #                      logging_level="DEBUG",
+        #                      module_name="nestml_alt_allmodels_module",
+        #                      suffix="_alt_nestml",
+        #                      codegen_opts=alt_codegen_opts)
 
     def test_nest_integration(self):
         # N.B. all models are assumed to have been already built in the continuous integration script
@@ -208,10 +208,11 @@ class TestNestIntegration:
             ts2 = dmm2["events"]["times"]
 
             if TEST_PLOTS:
-                fig, ax = plt.subplots(2, 1)
+                fig, ax = plt.subplots(3, 1)
                 ax[0].plot(ts1, Vms1, label="Reference " + nest_model_name)
                 ax[0].plot(ts2, Vms2, label="Testant " + nestml_model_name)
                 ax[1].plot([0, t_pulse_start, t_pulse_start, t_pulse_stop, t_pulse_stop, t_stop], [0, 0, I_stim, I_stim, 0, 0], label="I_inj")
+                ax[2].semilogy(ts1, np.abs(Vms1 - Vms2), label="error")
                 for _ax in ax:
                     _ax.legend(loc="upper right")
                     _ax.grid()
@@ -242,7 +243,7 @@ class TestNestIntegration:
             # if gsl_error_tol is not None:
             #     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
-            dc = nest.Create("dc_generator", params={"amplitude": 0.})  # 1E12: convert A to pA
+            dc = nest.Create("dc_generator", params={"amplitude": 1E12 * I_stim})  # 1E12: convert A to pA
 
             nest.Connect(dc, neuron1)
             nest.Connect(dc, neuron2)
