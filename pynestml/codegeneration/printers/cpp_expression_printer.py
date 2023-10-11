@@ -40,21 +40,11 @@ class CppExpressionPrinter(ExpressionPrinter):
     def print(self, node: ASTNode) -> str:
         if isinstance(node, ASTExpression):
             if node.get_implicit_conversion_factor() and not node.get_implicit_conversion_factor() == 1:
-                s = "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + "))"
+                return "(" + str(node.get_implicit_conversion_factor()) + " * (" + self.print_expression(node) + "))"
 
-                print("XXX 1CppExpressionPrinter print: " + s)
+            return self.print_expression(node)
 
-                return s
-
-            s = str(self.print_expression(node))
-            print("XXX 2CppExpressionPrinter print: " + s)
-
-            return s
-
-        s = self._simple_expression_printer.print(node)
-        print("XXX 3CppExpressionPrinter print: " + s)
-
-        return s
+        return self._simple_expression_printer.print(node)
 
     def print_expression(self, node: ASTExpressionNode) -> str:
         assert isinstance(node, ASTExpression)

@@ -462,7 +462,7 @@ class NESTMLPrinter(ModelPrinter):
         if node.is_numeric_literal():
             if node.variable is not None:
                 return str(node.numeric_literal) + self.print(node.variable)
-            print("XXX NESTMLPrinter print_simple_expression " + str(node.numeric_literal))
+
             return str(node.numeric_literal)
 
         if node.is_variable():
