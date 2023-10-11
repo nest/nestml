@@ -337,29 +337,37 @@ public:
 
   void add_synapse( const std::string& type, const long syn_idx )
   {
+{% with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
       {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx ) );
     }
   {% endfor %}
+{% endwith %}
+{% if syns_info|count > 0 %}
     else
     {
       assert( false );
     }
+{% endif %}
   };
   void add_synapse( const std::string& type, const long syn_idx, const DictionaryDatum& receptor_params )
   {
+{% with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
       {{synapse_name}}_syns_.push_back( {{synapse_name}}{{cm_unique_suffix}}( syn_idx, receptor_params ) );
     }
   {% endfor %}
+{% endwith %}
+    {% if syns_info|count > 0 %}
     else
     {
       assert( false );
     }
+    {% endif %}
   };
 
   void
