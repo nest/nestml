@@ -108,6 +108,7 @@ public:
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
 {%-     if isHomogeneous %}
 {%-         with variable = utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()) %}
+{%-             set variable_symbol = synapse.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-             include "directives_cpp/CommonPropertiesDictionaryMemberInitialization.jinja2" %}
 {%-         endwith %}
 {%-     endif %}
@@ -130,9 +131,9 @@ public:
 {%-         if namespaceName == '' %}
 {{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()))) }}
 {%-         endif %}
-{%-         with variable = parameter %}
-{%-             include "directives_cpp/CommonPropertiesDictionaryWriter.jinja2" %}
-{%-         endwith %}
+{%-         set variable_symbol = parameter %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_cpp/CommonPropertiesDictionaryWriter.jinja2" %}
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -154,9 +155,9 @@ public:
 {%-         if (namespaceName == '') %}
         {{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()))) }}
 {%-         endif %}
-{%-         with variable = parameter %}
-{%-             include "directives_cpp/CommonPropertiesDictionaryReader.jinja2" %}
-{%-         endwith %}
+{%-         set variable_symbol = parameter %}
+{%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_cpp/CommonPropertiesDictionaryReader.jinja2" %}
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -667,7 +668,6 @@ public:
         return tid;
     };
 
-    // synapse STDP depressing/facilitation dynamics
     const double __t_spike = e.get_stamp().get_ms();
 #ifdef DEBUG
     std::cout << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
@@ -788,11 +788,6 @@ public:
 
     const double _tr_t = __t_spike - __dendritic_delay;
 
-#ifdef DEBUG
-    std::cout << "\tDepressing, old w = " << S_.w << "\n";
-#endif
-    //std::cout << "r2 = " << get_tr_r2() << std::endl;
-
     {
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
@@ -809,10 +804,6 @@ public:
 {%- endfor %}
 {%- endfilter %}
     }
-
-#ifdef DEBUG
-    std::cout <<"\t-> new w = " << S_.w << std::endl;
-#endif
 
     /**
      *  update all convolutions with pre spikes
@@ -840,9 +831,6 @@ public:
 /**
  *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
 **/
-#ifdef DEBUG
-std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
-#endif
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-         with ast = dynamics.get_block() %}
 {%-             include "directives_cpp/Block.jinja2" %}
@@ -850,9 +838,6 @@ std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
-#ifdef DEBUG
-      std::cout << " to " << S_.c << std::endl;
-#endif
     }
 
     /**
@@ -950,9 +935,6 @@ std::cout<<"\t\tIncrementing n_ from " << S_.n << " to " ;
 std::cout << S_.n << "\n";
 #endif
     }
-#ifdef DEBUG
-  std::cout << "\t\t3\n";
-#endif
 
     // propagate up to t1
     update_internal_state_(vt_spikes[ vt_spikes_idx_ ].spike_time_,
@@ -1325,9 +1307,6 @@ inline void
 {%- endif %}
 {%- endfilter %}
 
-// #ifdef DEBUG
-//   std::cout << "\t--> new w = " << S_.w << std::endl;
-// #endif
 #ifdef DEBUG
       std::cout << " to " << S_.c << std::endl;
 #endif
