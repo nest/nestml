@@ -39,6 +39,8 @@ except Exception:
     TEST_PLOTS = False
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestHomogeneousParametersSynapse:
     r"""Test code generation and basic functionality of synapse with homogeneous parameters.
     """
