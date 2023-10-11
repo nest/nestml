@@ -231,7 +231,6 @@ class CppExpressionPrinter(ExpressionPrinter):
         :param node: an expression with binary operator
         :return: a string representation
         """
-        print("\tbinary op")
         binary_operator = node.get_binary_operator()
 
         if isinstance(binary_operator, ASTArithmeticOperator):
