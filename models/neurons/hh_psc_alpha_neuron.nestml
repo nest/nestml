@@ -118,13 +118,10 @@ model hh_psc_alpha_neuron:
     update:
         U_old = V_m
         if is_refractory:
-            # neuron is absolute refractory, do not evolve V_m
             refr_t -= resolution()
-        else:
-            # neuron not refractory, so evolve all ODEs (including V_m)
-            integrate_odes()
+        integrate_odes()
 
-    onCondition(V_m > 0 mV and U_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > 0 mV and U_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
         is_refractory = true

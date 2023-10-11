@@ -44,7 +44,8 @@ model aeif_cond_alpha_neuron:
     state:
         V_m mV = E_L       # Membrane potential
         w pA = 0 pA        # Spike-adaptation current
-        r integer = 0      # Counts number of tick during the refractory period
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
     equations:
         inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
@@ -63,7 +64,7 @@ model aeif_cond_alpha_neuron:
     parameters:
         # membrane parameters
         C_m pF = 281.0 pF         # Membrane Capacitance
-        t_ref ms = 0.0 ms         # Refractory period
+        refr_T ms = 2 ms         # Duration of refractory period
         V_reset mV = -60.0 mV     # Reset Potential
         g_L nS = 30.0 nS          # Leak Conductance
         E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
@@ -92,29 +93,31 @@ model aeif_cond_alpha_neuron:
         # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion
         PSConInit_I nS/ms = nS * e / tau_syn_inh
 
-        # refractory time in steps
-        RefractoryCounts integer = steps(t_ref)
-
-
     input:
-        inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
     output:
         spike
 
     update:
-        integrate_odes(w)
-
-        if r > 0:
-            # neuron is absolute refractory
-            r -= 1
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve V_m
+            refr_t -= resolution()
         else:
-            integrate_odes(V_m)
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
 
     onCondition(V_m >= V_th):
-        r = RefractoryCounts
-        V_m = V_reset # clamp potential
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
         w += b
         emit_spike()
+
+    onCondition(refr_t <= 0 ms):
+        # end of refractory period
+        is_refractory = false
+
