@@ -59,7 +59,7 @@ class NestWBCondExpTest(unittest.TestCase):
                              module_name=module_name)
 
         nest.Install(module_name)
-        model = "wb_cond_exp_nestml"
+        model = "wb_cond_exp_neuron_nestml"
 
         dt = 0.01
         t_simulation = 1000.0

@@ -83,6 +83,7 @@ model hh_psc_alpha_neuron:
         V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_exc - I_syn_inh ) / C_m
 
     parameters:
+        V_m_init mV = -65 mV     # Initial membrane potential
         C_m pF = 100 pF          # Membrane Capacitance
         g_Na nS = 12000 nS       # Sodium peak conductance
         g_K nS = 3600 nS         # Potassium peak conductance
@@ -99,7 +100,6 @@ model hh_psc_alpha_neuron:
         I_e pA = 0 pA
 
     internals:
-        V_m_init mV = -65 mV     # Initial membrane potential
         alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )
         beta_n_init  real = 0.125 * exp( -( V_m_init / mV + 65. ) / 80. )
         alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )

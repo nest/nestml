@@ -56,7 +56,7 @@ class NestWBCondExpTest(unittest.TestCase):
                              module_name=module_name)
 
         nest.Install("nestmlmodule")
-        model = "traub_psc_alpha_nestml"
+        model = "traub_psc_alpha_neuron_nestml"
 
         dt = 0.01
         t_simulation = 1000.0
