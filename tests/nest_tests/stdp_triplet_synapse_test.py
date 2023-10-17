@@ -48,7 +48,7 @@ def nestml_generate_target():
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
                          target_path="/tmp/nestml-triplet-stdp",
-                         logging_level="INFO",
+                         logging_level="DEBUG",
                          module_name="nestml_triplet_pair_module",
                          suffix="_nestml",
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
@@ -381,11 +381,11 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     if experiment == "test_nestml_pair_synapse":
         nest_modules_to_load = ["nestml_triplet_pair_module"]
 
-        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_synapse_nestml"
+        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_stdp_triplet_synapse_nestml"
         neuron_opts = {'tau_minus__for_stdp_triplet_synapse_nestml': syn_opts['tau_minus'],
                        'tau_y__for_stdp_triplet_synapse_nestml': syn_opts['tau_y']}
 
-        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_nestml"
+        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
         nest_syn_opts = {'d': delay}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop('tau_minus')  # these have been moved to the neuron

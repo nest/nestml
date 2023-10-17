@@ -28,9 +28,11 @@ wb_cond_multisyn
 """
 model wb_cond_multisyn_neuron:
     state:
-        r integer = 0 # number of steps in the current refractory phase
-
         V_m mV = -65. mV # Membrane potential
+        U_old mV = E_L    # Membrane potential at previous timestep for threshold check
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
+
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
         Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)  # Activation variable n for K
 
@@ -76,7 +78,6 @@ model wb_cond_multisyn_neuron:
                g_GABAB$' = -g_GABAB$ / GABA_B_Tau_1
 
     parameters:
-        t_ref ms = 2.0 ms      # Refractory period 2.0
         g_Na nS = 3500.0 nS    # Sodium peak conductance
         g_K nS = 900.0 nS      # Potassium peak conductance
         g_L nS = 10 nS          # Leak conductance
@@ -85,6 +86,7 @@ model wb_cond_multisyn_neuron:
         E_K mV = -90.0 mV        # Potassium reversal potentia
         E_L mV = -65.0 mV     # Leak reversal Potential (aka resting potential)
         V_Tr mV = -55.0 mV        # Spike Threshold
+        refr_T ms = 2 ms        # Duration of refractory period
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
         AMPA_g_peak nS = 0.1 nS      # peak conductance
@@ -117,7 +119,6 @@ model wb_cond_multisyn_neuron:
         NMDAInitialValue real = compute_synapse_constant( NMDA_Tau_1, NMDA_Tau_2, NMDA_g_peak )
         GABA_AInitialValue real = compute_synapse_constant( GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak )
         GABA_BInitialValue real = compute_synapse_constant( GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak )
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
         alpha_n_init real = -0.05 * (V_m / mV + 34.0) / (exp(-0.1 * (V_m / mV + 34.0)) - 1.0)
         beta_n_init  real = 0.625 * exp(-(V_m / mV + 44.0) / 80.0)
@@ -137,15 +138,21 @@ model wb_cond_multisyn_neuron:
         spike
 
     update:
-        U_old mV = V_m
-
+        U_old = V_m
+        if is_refractory:
+            refr_t -= resolution()
         integrate_odes()
 
-        if r > 0: # is refractory?
-            r -= 1
-        elif V_m > V_Tr and U_old > V_m: # threshold && maximum
-            r = RefractoryCounts
-            emit_spike()
+    onCondition(not is_refractory and V_m > V_Tr and U_old > V_m):
+        # threshold crossing and maximum
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        emit_spike()
+
+    onCondition(refr_t <= 0 ms):
+        # end of refractory period
+        is_refractory = false
+        refr_t = 0 ms
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak nS) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term

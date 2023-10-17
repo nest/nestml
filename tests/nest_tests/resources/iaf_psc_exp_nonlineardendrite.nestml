@@ -77,22 +77,23 @@ model iaf_psc_exp_nonlineardendrite:
         # solve ODEs
         integrate_odes()
 
-        if t_dend_ap > 0 ms:
-            t_dend_ap -= resolution()
-            if t_dend_ap <= 0 ms:
-                t_dend_ap = 0 ms
-                dend_curr_enabled = 1.
-                I_dend = 0 pA
-                I_dend' = 0 * s**-1
-                I_dend_ap = 0 pA
+    onCondition(t_dend_ap > 0 ms):
+        # we are in the middle of emitting a dendritic action potential
+        t_dend_ap -= resolution()
+        if t_dend_ap <= 0 ms:
+            t_dend_ap = 0 ms
+            dend_curr_enabled = 1.
+            I_dend = 0 pA
+            I_dend' = 0 * s**-1
+            I_dend_ap = 0 pA
 
-        if I_dend > i_th:
-            # current-threshold, emit a dendritic action potential
-            dend_curr_enabled = 0.
-            t_dend_ap = T_dend_ap
-            I_dend_ap = i_dend_ap
+    onCondition(I_dend > i_th):
+        # current-threshold, emit a dendritic action potential
+        dend_curr_enabled = 0.
+        t_dend_ap = T_dend_ap
+        I_dend_ap = i_dend_ap
 
+    onCondition(V_m > V_th):
         # emit somatic action potential
-        if V_m > V_th:
-            emit_spike()
-            V_m = V_reset
+        emit_spike()
+        V_m = V_reset

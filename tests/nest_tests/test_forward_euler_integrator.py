@@ -57,8 +57,8 @@ class TestForwardEulerIntegrator:
         nest.ResetKernel()
         nest.resolution = .001
 
-        nrn1 = nest.Create("izhikevich_rk45_nestml")
-        nrn2 = nest.Create("izhikevich_forward_Euler_nestml")
+        nrn1 = nest.Create("izhikevich_neuron_rk45_nestml")
+        nrn2 = nest.Create("izhikevich_neuron_forward_Euler_nestml")
 
         nrn1.I_e = 10.
         nrn2.I_e = 10.

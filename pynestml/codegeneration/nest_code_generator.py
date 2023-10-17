@@ -270,7 +270,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         for synapse in synapses:
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
-            self.analyse_synapse(synapse)
+            synapse.spike_updates = self.analyse_synapse(synapse)
 
     def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
         """
@@ -560,6 +560,8 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
+
+        namespace["spike_updates"] = synapse.spike_updates
 
         return namespace
 

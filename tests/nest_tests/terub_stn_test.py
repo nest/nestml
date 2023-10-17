@@ -56,14 +56,13 @@ class NestSTNExpTest(unittest.TestCase):
                              module_name=module_name)
 
         nest.Install(module_name)
-        model = "terub_stn_nestml"
+        model = "terub_stn_neuron_nestml"
 
         dt = 0.01
         t_simulation = 1000.0
         nest.SetKernelStatus({"resolution": dt})
 
         neuron = nest.Create(model)
-        parameters = nest.GetDefaults(model)
 
         nest.SetStatus(neuron, {"I_e": 10.0})
         multimeter = nest.Create("multimeter")

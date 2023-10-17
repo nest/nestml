@@ -27,9 +27,10 @@ hh_cond_exp_traub
 """
 model traub_cond_multisyn_neuron:
     state:
-        r integer = 0 # number of steps in the current refractory phase
-
         V_m mV = -70. mV # Membrane potential
+        U_old mV = E_L    # Membrane potential at previous timestep for threshold check
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
         Act_m real = alpha_m_init / ( alpha_m_init + beta_m_init )      # Activation variable m for Na
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -89,15 +90,15 @@ model traub_cond_multisyn_neuron:
                g_GABAB$' = -g_GABAB$ / tau_GABAB_1
 
     parameters:
-        t_ref ms = 2.0 ms       # Refractory period 2.0
+        C_m pF = 100.0 pF       # Membrane Capacitance
         g_Na nS = 10000.0 nS    # Sodium peak conductance
         g_K nS = 8000.0 nS      # Potassium peak conductance
         g_L nS = 10 nS          # Leak conductance
-        C_m pF = 100.0 pF       # Membrane Capacitance
         E_Na mV = 50. mV        # Sodium reversal potential
         E_K mV = -100. mV       # Potassium reversal potentia
         E_L mV = -67. mV        # Leak reversal Potential (aka resting potential)
         V_Tr mV = -20. mV       # Spike Threshold
+        refr_T ms = 2 ms        # Duration of refractory period
 
         # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
         AMPA_g_peak nS = 0.1 nS      # peak conductance
@@ -130,7 +131,6 @@ model traub_cond_multisyn_neuron:
         NMDAInitialValue real = compute_synapse_constant( tau_NMDA_1, tau_NMDA_2, NMDA_g_peak )
         GABA_AInitialValue real = compute_synapse_constant( tau_GABAA_1, tau_GABAA_2, GABA_A_g_peak )
         GABA_BInitialValue real = compute_synapse_constant( tau_GABAB_1, tau_GABAB_2, GABA_B_g_peak )
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
         alpha_n_init real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))
         beta_n_init  real = 0.5 * exp(-(V_m / mV + 57.) / 40.)
@@ -150,16 +150,21 @@ model traub_cond_multisyn_neuron:
         spike
 
     update:
-        U_old mV = V_m
-
+        U_old = V_m
+        if is_refractory:
+            refr_t -= resolution()
         integrate_odes()
 
-        # sending spikes:
-        if r > 0: # is refractory?
-            r -= 1
-        elif V_m > V_Tr and U_old > V_Tr: # threshold && maximum
-            r = RefractoryCounts
-            emit_spike()
+    onCondition(not is_refractory and V_m > V_Tr and U_old > V_m):
+        # threshold crossing and maximum
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        emit_spike()
+
+    onCondition(refr_t <= 0 ms):
+        # end of refractory period
+        is_refractory = false
+        refr_t = 0 ms
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term

@@ -1689,6 +1689,10 @@ class ASTUtils:
         model.accept(visitor)
         model.integrate_odes_combinations = visitor.all_args
 
+        # always ensure code is generated for an integrate_odes() call without any arguments. This is needed, for example, for gap junctions support
+        if not [] in model.integrate_odes_combinations:
+            model.integrate_odes_combinations.append([])
+
         return visitor.all_args
 
     @classmethod
