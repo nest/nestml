@@ -56,9 +56,9 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
 {%- if use_gap_junctions %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) %}{{ gsl_printer.print(update_expr)|replace("node.B_." + gap_junction_port + "_grid_sum_", "(node.B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr)|replace("node.B_." + gap_junction_port + "_grid_sum_", "(node.B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
 {%- else %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
 {%- endif %}
 {%- endfor %}
 

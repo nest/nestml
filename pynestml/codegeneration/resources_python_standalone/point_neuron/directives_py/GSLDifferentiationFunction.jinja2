@@ -29,7 +29,7 @@ def dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_st
 {%- for variable_name in var_names %}
 {%-     set update_expr = numeric_update_expressions[variable_name] %}
 {%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
-  f[node.S_.ode_state_variable_name_to_index["{{ variable_symbol.name }}"]] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %}
+  f[node.S_.ode_state_variable_name_to_index["{{ variable_symbol.name }}"]] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %}
 
 {%- endfor %}
 

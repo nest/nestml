@@ -1225,6 +1225,12 @@ class ASTUtils:
         assert False, "variable name not found in kernel"
 
     @classmethod
+    def all_convolution_variable_names(cls, model: ASTModel) -> List[str]:
+        vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks())
+        var_names = [var.get_complete_name() for var in vars if "__X__" in var.get_complete_name()]
+        return var_names
+
+    @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
                                           diff_order_symbol="__d"):
         """

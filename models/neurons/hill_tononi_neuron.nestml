@@ -199,20 +199,21 @@ model hill_tononi_neuron:
             g_spike = false # Deactivate potassium current.
         r_potassium -= 1
 
-        if (not g_spike) and V_m >= Theta:
-            # Set V and Theta to the sodium reversal potential.
-            V_m = E_Na
-            Theta = E_Na
+    onCondition((not g_spike) and V_m >= Theta):
+        # Set V and Theta to the sodium reversal potential.
+        V_m = E_Na
+        Theta = E_Na
 
-            # Activate fast potassium current. Drives the
-            # membrane potential towards the potassium reversal
-            # potential (activate only if duration is non-zero).
-            if PotassiumRefractoryCounts > 0:
-                g_spike = true
-            else:
-                g_spike = false
-            r_potassium = PotassiumRefractoryCounts
-            emit_spike()
+        # Activate fast potassium current. Drives the
+        # membrane potential towards the potassium reversal
+        # potential (activate only if duration is non-zero).
+        if PotassiumRefractoryCounts > 0:
+            g_spike = true
+        else:
+            g_spike = false
+        r_potassium = PotassiumRefractoryCounts
+
+        emit_spike()
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
