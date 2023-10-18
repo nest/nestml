@@ -51,14 +51,14 @@ class TestNestIntegration:
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
-        generate_nest_target(input_path=["models/neurons/hh_cond_exp_traub_neuron_nestml",
-                                         "models/neurons/hh_psc_alpha_neuron_nestml",
-                                         "models/neurons/iaf_cond_beta_neuron_nestml",
-                                         "models/neurons/iaf_cond_alpha_neuron_nestml",
-                                         "models/neurons/iaf_cond_exp_neuron_nestml",
-                                         "models/neurons/iaf_psc_alpha_neuron_nestml",
-                                         "models/neurons/iaf_psc_exp_neuron_nestml",
-                                         "models/neurons/iaf_psc_delta_neuron_nestml"],
+        generate_nest_target(input_path=["models/neurons/hh_cond_exp_traub_neuron.nestml",
+                                         "models/neurons/hh_psc_alpha_neuron.nestml",
+                                         "models/neurons/iaf_cond_beta_neuron.nestml",
+                                         "models/neurons/iaf_cond_alpha_neuron.nestml",
+                                         "models/neurons/iaf_cond_exp_neuron.nestml",
+                                         "models/neurons/iaf_psc_alpha_neuron.nestml",
+                                         "models/neurons/iaf_psc_exp_neuron.nestml",
+                                         "models/neurons/iaf_psc_delta_neuron.nestml"],
                              target_path="/tmp/nestml-allmodels",
                              logging_level="DEBUG",
                              module_name="nestml_allmodels_module",
