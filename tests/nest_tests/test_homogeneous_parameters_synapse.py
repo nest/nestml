@@ -22,7 +22,6 @@
 import numpy as np
 import os
 import pytest
-import unittest
 
 import nest
 
@@ -58,8 +57,6 @@ class TestHomogeneousParametersSynapse:
                              suffix="_nestml")
 
     def test_homogeneous_parameters_synapse(self):
-
-        fname_snip = ""
 
         sim_time = 50.
         synapse_model_name = "static_synapse_nestml"

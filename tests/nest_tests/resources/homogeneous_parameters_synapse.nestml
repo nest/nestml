@@ -17,5 +17,8 @@ model static_synapse:
     input:
         pre_spikes <- spike
 
+    output:
+        spike
+
     onReceive(pre_spikes):
         emit_spike(3.18E-3 * a * b * w, d)
