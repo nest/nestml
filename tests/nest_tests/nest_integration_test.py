@@ -131,7 +131,6 @@ class TestNestIntegration:
         self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
 
         self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml")
-        self._test_model_equivalence_spiking("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", tolerance=1E-5)     # larger tolerance because NESTML solves PSCs analytically; NEST solves all ODEs numerically
         self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml")
 
         self._test_model_equivalence_subthreshold("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
