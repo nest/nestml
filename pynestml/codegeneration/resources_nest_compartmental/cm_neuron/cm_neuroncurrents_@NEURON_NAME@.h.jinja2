@@ -486,7 +486,21 @@ public:
     {%- for concentration_name, concentration_info in conc_info.items() %}
     this->add_mechanism("{{ concentration_name }}", compartment_number);
     {% endfor -%}
+
     compartment_number++;
+
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    this->{{ion_channel_name}}{{channel_suffix}}_shared_current.push_back(0.0);
+    {% endfor -%}
+
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    this->{{concentration_name}}{{concentration_suffix}}_shared_concentration.push_back(0.0);
+    {% endfor -%}
+
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    this->{{synapse_name}}{{synapse_suffix}}_shared_current.push_back(0.0);
+    {% endfor -%}
+
   };
 
   void add_compartment(const DictionaryDatum& compartment_params){
@@ -497,7 +511,20 @@ public:
     {%- for concentration_name, concentration_info in conc_info.items() %}
     this->add_mechanism("{{ concentration_name }}", compartment_number, compartment_params);
     {% endfor -%}
+
     compartment_number++;
+
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    this->{{ion_channel_name}}{{channel_suffix}}_shared_current.push_back(0.0);
+    {% endfor -%}
+
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    this->{{concentration_name}}{{concentration_suffix}}_shared_concentration.push_back(0.0);
+    {% endfor -%}
+
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    this->{{synapse_name}}{{synapse_suffix}}_shared_current.push_back(0.0);
+    {% endfor -%}
   };
 
   void add_receptor_info( ArrayDatum& ad, long compartment_index )

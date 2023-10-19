@@ -159,14 +159,14 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   {%- set variable = variable_info["ASTVariable"] %}
   for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
       if(compartment_association[chan_id] == compartment_idx){
-        ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}}[chan_id];
+        ( *recordables )[ Name( std::string("{{variable.name}}") + std::string("_") + std::to_string(compartment_idx) + "_" + std::to_string(chan_id))] = &{{variable.name}}[chan_id];
       }
   }
   {%- endfor %}
   {% endwith %}
   for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
       if(compartment_association[chan_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::to_string(compartment_idx) + std::to_string(chan_id))] = &i_tot_{{ion_channel_name}}[chan_id];    //not gonna work! vector elements can't be safely referenced.
+        ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::string("_") + std::to_string(compartment_idx) + std::string("_") + std::to_string(chan_id))] = &i_tot_{{ion_channel_name}}[chan_id];    //not gonna work! vector elements can't be safely referenced.
       }
   }
 }
@@ -235,7 +235,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_currents_per_compartmen
 }
 
 std::vector< double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::distribute_shared_vector(std::vector< double > shared_vector){
-    std::vector< double > distributed_vector;
+    std::vector< double > distributed_vector(this->neuron_{{ ion_channel_name }}_channel_count, 0.0);
     for(std::size_t chan_id = 0; chan_id < this->neuron_{{ ion_channel_name }}_channel_count; chan_id++){
         distributed_vector[chan_id] = shared_vector[compartment_association[chan_id]];
     }
@@ -376,7 +376,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::get_concentrations_per_co
 }
 
 std::vector< double > nest::{{concentration_name}}{{cm_unique_suffix}}::distribute_shared_vector(std::vector< double > shared_vector){
-    std::vector< double > distributed_vector;
+    std::vector< double > distributed_vector(this->neuron_{{ concentration_name }}_concentration_count, 0.0);
     for(std::size_t conc_id = 0; conc_id < this->neuron_{{ concentration_name }}_concentration_count; conc_id++){
         distributed_vector[conc_id] = shared_vector[compartment_association[conc_id]];
     }
@@ -503,7 +503,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
-
+    std::cout << "chan sim step" << std::endl;
     std::vector< double > g_val(neuron_{{ synapse_name }}_synapse_count, 0.);
     std::vector< double > i_val(neuron_{{ synapse_name }}_synapse_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ synapse_name }}_synapse_count, 0.);
@@ -583,7 +583,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::get_currents_per_compartment(st
 }
 
 std::vector< double > nest::{{synapse_name}}{{cm_unique_suffix}}::distribute_shared_vector(std::vector< double > shared_vector){
-    std::vector< double > distributed_vector;
+    std::vector< double > distributed_vector(this->neuron_{{ synapse_name }}_synapse_count, 0.0);
     for(std::size_t syn_id = 0; syn_id < this->neuron_{{ synapse_name }}_synapse_count; syn_id++){
         distributed_vector[syn_id] = shared_vector[compartment_association[syn_id]];
     }

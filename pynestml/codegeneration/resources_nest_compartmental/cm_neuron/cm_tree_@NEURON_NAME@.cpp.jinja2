@@ -101,7 +101,6 @@ nest::Compartment{{cm_unique_suffix}}::get_recordables()
 {
   std::map< Name, double* > recordables;
 
-  recordables.insert( recordables.begin(), recordables.end() );
   recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = &v_comp;
 
   return recordables;
@@ -353,6 +352,9 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
   {
     long comp_index = (*compartment_it)->comp_index;
     std::map< Name, double* > recordables_comp = neuron_currents.get_recordables( comp_index );
+    recordables.insert( recordables_comp.begin(), recordables_comp.end() );
+
+    recordables_comp = ( *compartment_it )->get_recordables();
     recordables.insert( recordables_comp.begin(), recordables_comp.end() );
   }
   return recordables;
