@@ -87,10 +87,11 @@ class NESTCodeGeneratorUtils:
                 nestml_neuron_model = nestml_model_file.read()
 
         # update neuron model name inside the file
-        neuron_model_name_orig = re.findall(r"neuron\ [^:\s]*:", nestml_neuron_model)[0][7:-1]
-        neuron_model_name_uniq = neuron_model_name_orig + uniq_id
-        nestml_model = re.sub(r"neuron\ [^:\s]*:",
-                              "neuron " + neuron_model_name_uniq + ":", nestml_neuron_model)
+        neuron_model_name_orig = re.findall(r"model\ [^:\s]*:", nestml_neuron_model)[0][6:-1]
+        assert neuron_model_name_orig[-len("_neuron"):] == "_neuron", "Please make sure neuron model names end with '_neuron'"
+        neuron_model_name_uniq = neuron_model_name_orig[:-len("_neuron")] + uniq_id + "_neuron"
+        nestml_model = re.sub(r"model\ [^:\s]*:",
+                              "model " + neuron_model_name_uniq + ":", nestml_neuron_model)
         neuron_uniq_fn = neuron_model_name_uniq + ".nestml"
         with open(neuron_uniq_fn, "w") as f:
             print(nestml_model, file=f)
@@ -102,10 +103,11 @@ class NESTCodeGeneratorUtils:
                     nestml_synapse_model = nestml_model_file.read()
 
             # update synapse model name inside the file
-            synapse_model_name_orig = re.findall(r"synapse\ [^:\s]*:", nestml_synapse_model)[0][8:-1]
-            synapse_model_name_uniq = synapse_model_name_orig + uniq_id
-            nestml_model = re.sub(r"synapse\ [^:\s]*:",
-                                  "synapse " + synapse_model_name_uniq + ":", nestml_synapse_model)
+            synapse_model_name_orig = re.findall(r"model\ [^:\s]*:", nestml_synapse_model)[0][6:-1]
+            assert synapse_model_name_orig[-len("_synapse"):] == "_synapse", "Please make sure synapse model names end with '_synapse'"
+            synapse_model_name_uniq = synapse_model_name_orig[:-len("_synapse")] + uniq_id + "_synapse"
+            nestml_model = re.sub(r"model\ [^:\s]*:",
+                                  "model " + synapse_model_name_uniq + ":", nestml_synapse_model)
             synapse_uniq_fn = synapse_model_name_uniq + ".nestml"
             with open(synapse_uniq_fn, "w") as f:
                 print(nestml_model, file=f)

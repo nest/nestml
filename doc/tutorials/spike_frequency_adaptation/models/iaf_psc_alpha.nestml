@@ -56,7 +56,7 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 """
-neuron iaf_psc_alpha:
+model iaf_psc_alpha_neuron:
 
     state:
         r integer = 0      # Counts number of tick during the refractory period
@@ -98,11 +98,11 @@ neuron iaf_psc_alpha:
         else: # neuron is absolute refractory
             r = r - 1
 
-        if V_m >= V_th: # threshold crossing
-            # A supra-threshold membrane potential should never be observable.
-            # The reset at the time of threshold crossing enables accurate
-            # integration independent of the computation step size, see [2,3] for
-            # details.
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(V_m >= V_th): # threshold crossing
+        # A supra-threshold membrane potential should never be observable.
+        # The reset at the time of threshold crossing enables accurate
+        # integration independent of the computation step size, see [2,3] for
+        # details.
+        r = RefractoryCounts
+        V_m = V_reset
+        emit_spike()

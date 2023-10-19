@@ -220,7 +220,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
         Does not modify existing neurons or synapses, but returns lists with additional elements representing new pair neuron and synapse
         """
-
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
 
@@ -426,7 +425,8 @@ class SynapsePostNeuronTransformer(Transformer):
                                 stmt.small_stmt.get_assignment().scope = new_neuron.get_update_blocks()[0].scope
                                 stmt.small_stmt.get_assignment().get_variable().scope = new_neuron.get_update_blocks()[0].scope
 
-                                stmts.pop(stmts.index(stmt))
+                        for stmt in collected_on_post_stmts:
+                            stmts.pop(stmts.index(stmt))
 
         new_neuron.extra_on_emit_spike_stmts_from_synapse = collected_on_post_stmts
 

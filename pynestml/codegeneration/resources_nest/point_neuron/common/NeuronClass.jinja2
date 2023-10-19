@@ -624,9 +624,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   recompute_internal_variables();
 
 {% endif %}
-    /**
-     * buffer spikes from spiking input ports
-    **/
+
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
 {%- if use_gap_junctions %}
@@ -690,6 +688,9 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     }
 
 {%- endif %}
+    /**
+     * buffer spikes from spiking input ports
+    **/
 
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
