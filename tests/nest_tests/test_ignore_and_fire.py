@@ -40,15 +40,15 @@ except Exception:
 
 class TestIgnoreAndFire:
 
-    neuron_model_name = "ignore_and_fire_nestml__with_stdp_nestml"
-    synapse_model_name = "stdp_nestml__with_ignore_and_fire_nestml"
+    neuron_model_name = "ignore_and_fire_neuron_nestml__with_stdp_synapse_nestml"
+    synapse_model_name = "stdp_synapse_nestml__with_ignore_and_fire_neuron_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         """Generate the model code"""
 
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire",
-                                                  "synapse": "stdp",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire_neuron",
+                                                  "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}]}
 
         files = [os.path.join("models", "neurons", "ignore_and_fire_neuron.nestml"),

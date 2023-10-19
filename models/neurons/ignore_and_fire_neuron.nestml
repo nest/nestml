@@ -38,10 +38,10 @@ model ignore_and_fire_neuron:
 
   update:
    integrate_odes()
+
    if phase_steps >= firing_period_steps - 1:
        emit_spike()
        phase_steps = 0
-       println("emited spike")
     else:
        phase_steps += 1
 
