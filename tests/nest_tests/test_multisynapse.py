@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_multisynapse_test.py
+# test_multisynapse.py
 #
 # This file is part of NEST.
 #

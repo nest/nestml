@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_biexponential_synapse_kernel_test.py
+# test_biexponential_synapse_kernel.py
 #
 # This file is part of NEST.
 #
