@@ -22,8 +22,9 @@
 import nest
 import numpy as np
 import os
-import unittest
+import pytest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
@@ -34,7 +35,9 @@ except BaseException:
     TEST_PLOTS = False
 
 
-class NestBiexponentialSynapseTest(unittest.TestCase):
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
+class TestNestBiexponentialSynapse:
 
     def test_biexp_synapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(

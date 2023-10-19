@@ -178,12 +178,12 @@ class TestNestSTDPSynapse:
         if sim_mdl:
             pre_neuron = nest.Create("parrot_neuron")
             post_neuron = nest.Create(neuron_model_name)
-            post_neuron.tau_syn_exc = .2  # [ms] -- very brief
+            nest.SetStatus(post_neuron, "tau_syn_exc", .2)  # [ms] -- very brief
 
         if sim_ref:
             pre_neuron_ref = nest.Create("parrot_neuron")
             post_neuron_ref = nest.Create(ref_neuron_model_name)
-            post_neuron_ref.tau_syn_exc = .2  # [ms] -- very brief
+            nest.SetStatus(post_neuron_ref, "tau_syn_exc", .2)  # [ms] -- very brief
 
         if sim_mdl:
             if NESTTools.detect_nest_version().startswith("v2"):

@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
+import pytest
 import re
 
 import nest
@@ -42,6 +43,8 @@ def get_model_doc_title(model_fname: str):
         return re.compile(r'\"\"\"[^#]*###').search(model).group()[3:-3].strip()
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestNestIntegration:
 
     def generate_all_models(self):
