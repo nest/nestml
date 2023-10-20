@@ -52,7 +52,7 @@ extern "C" inline int {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %
 {%- endif %}
 
 
-{%- for variable_name in numeric_state_variables %}
+{%- for variable_name in numeric_state_variables + numeric_state_variables_moved %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
 {%- if use_gap_junctions %}
