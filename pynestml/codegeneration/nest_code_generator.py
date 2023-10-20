@@ -289,6 +289,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()] = []
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
+            ASTUtils.add_timestep_symbol(neuron)
 
             return {}, {}, [], []
 
@@ -407,6 +408,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.update_symbol_table(synapse)
         else:
             ASTUtils.add_timestep_symbol(synapse)
+            self.update_symbol_table(synapse)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
 

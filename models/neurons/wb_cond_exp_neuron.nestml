@@ -91,7 +91,7 @@ model wb_cond_exp_neuron:
             refr_t -= resolution()
         integrate_odes()
 
-    onCondition(refr_t <= 0 ms and V_m > 0 mV and U_old > V_m):
+    onCondition(not is_refractory and V_m > 0 mV and U_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
         is_refractory = true

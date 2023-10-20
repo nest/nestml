@@ -125,7 +125,7 @@ model biexp_postsynaptic_response_neuron:
             # neuron not refractory, so evolve all ODEs (including V_m)
             integrate_odes()
 
-    onCondition(V_m >= V_th):
+    onCondition(not is_refractory and V_m >= V_th):
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
         is_refractory = true
