@@ -364,6 +364,7 @@ void {{neuronName}}::init_state_internal_()
 {%- endfilter %}
 {%- endif %}
 
+  V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 
 {%- if neuron.get_state_symbols()|length > 0 %}
@@ -523,6 +524,7 @@ void {{neuronName}}::pre_run_hook() {
   B_.logger_.init();
 
   // parameters might have changed -- recompute internals
+  V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 
   // buffers B_
@@ -621,6 +623,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   {
 {% if propagators_are_state_dependent %}
   // the propagators are state dependent; update them!
+  V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 
 {% endif %}
