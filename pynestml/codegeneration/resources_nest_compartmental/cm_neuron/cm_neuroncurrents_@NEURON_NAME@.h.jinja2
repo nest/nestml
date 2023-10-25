@@ -82,21 +82,6 @@ public:
 {%- else %}
     void pre_run_hook() {
 {%- endif %}
-        for(std::size_t channel_id = 0; channel_id < neuron_{{ ion_channel_name }}_channel_count; channel_id++){
-            // states
-    {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-            {{ variable.name }}[channel_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "channel_id") }};
-    {%- endfor %}
-
-            // parameters
-    {%- for pure_variable_name, variable_info in channel_info["Parameters"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-            {{ variable.name }}[channel_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "channel_id") }};
-    {%- endfor %}
-        };
     };
 
     void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
@@ -148,7 +133,7 @@ private:
 
 public:
     // constructor, destructor
-    {{ concentration_name }}{{cm_unique_suffix}}();
+    {{ concentration_name }}{{cm_unique_suffix}}(){};
     ~{{ concentration_name }}{{cm_unique_suffix}}(){};
 
     void new_concentration(std::size_t comp_ass);
@@ -258,7 +243,7 @@ private:
 
 public:
   // constructor, destructor
-  {{synapse_name}}{{cm_unique_suffix}}();
+  {{synapse_name}}{{cm_unique_suffix}}(){};
   ~{{synapse_name}}{{cm_unique_suffix}}(){};
 
   void new_synapse(std::size_t comp_ass);
