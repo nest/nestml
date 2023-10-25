@@ -239,7 +239,7 @@ private:
 
 
   // spike buffer
-  std::vector< RingBuffer* > {{synapse_info["buffer_name"]}}_;
+  std::vector< RingBuffer >* {{synapse_info["buffer_name"]}}_;
 
 public:
   // constructor, destructor
@@ -268,9 +268,7 @@ public:
   void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
   {
-    for(std::size_t syn_id = 0; syn_id < neuron_{{ synapse_name }}_synapse_count; syn_id++){
-        {{synapse_info["buffer_name"]}}_[syn_id] = &syn_buffers[ syn_id ];
-    }
+        {{synapse_info["buffer_name"]}}_ = &syn_buffers;
   };
 
   // function declarations
