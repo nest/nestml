@@ -1213,14 +1213,8 @@ The numeric results of a typical are shown below. When the neuron is being updat
            emit_spike()
 
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_numeric.png
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_strageties.png
    :alt: Numerical results from a typical simulation run.
-
-In the case where processing of input and propagation of the system state are performed in the (not recommended) reverse sequence, the spike at 2 ms is processed at the beginning of the timestep, incrementing the postsynaptic current
-
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_numeric_alt.png
-   :alt: Numerical results from a typical simulation run.
-
 
 
 Emitting spikes
