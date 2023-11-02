@@ -66,6 +66,7 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
@@ -224,8 +225,8 @@ class NESTCodeGenerator(CodeGenerator):
                 raise Exception("Error(s) occurred during code generation")
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons = [model for model in models if not model.name.split("_with_")[0].removesuffix("_").removesuffix(FrontendConfiguration.suffix).endswith("synapse")]   # neuron by default (if the name does not end in "synapse")
-        synapses = [model for model in models if model.name.split("_with_")[0].removesuffix("_").removesuffix(FrontendConfiguration.suffix).endswith("synapse")]
+        neurons = [model for model in models if not removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix).endswith("synapse")]   # neuron by default (if the name does not end in "synapse")
+        synapses = [model for model in models if removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix).endswith("synapse")]
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
