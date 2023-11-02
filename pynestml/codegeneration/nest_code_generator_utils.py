@@ -22,6 +22,7 @@
 from typing import List, Optional
 
 import re
+import tempfile
 import uuid
 
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -77,6 +78,9 @@ class NESTCodeGeneratorUtils:
 
         from pynestml.frontend.pynestml_frontend import generate_nest_target
 
+        # generate temporary install directory
+        install_path = tempfile.mkdtemp(prefix="nestml_target_")
+
         # generate unique ID
         if uniq_id is None:
             uniq_id = str(uuid.uuid4().hex)
@@ -129,6 +133,7 @@ class NESTCodeGeneratorUtils:
             mangled_synapse_name = synapse_model_name_uniq + "_nestml__with_" + neuron_model_name_uniq + "_nestml"
 
         generate_nest_target(input_path=input_fns,
+                             install_path=install_path,
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix="_nestml",
