@@ -579,10 +579,6 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
             namespace["paired_synapse"] = neuron.paired_synapse.get_name()
             namespace["post_spike_updates"] = neuron.post_spike_updates
-            if "moved_spike_updates" in dir(neuron):
-                namespace["spike_update_stmts"] = neuron.moved_spike_updates
-            else:
-                namespace["spike_update_stmts"] = []
             namespace["transferred_variables"] = neuron._transferred_variables
             namespace["transferred_variables_syms"] = {var_name: neuron.scope.resolve_to_symbol(
                 var_name, SymbolKind.VARIABLE) for var_name in namespace["transferred_variables"]}
