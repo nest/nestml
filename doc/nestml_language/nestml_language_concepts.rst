@@ -9,7 +9,7 @@ NESTML uses Python-like indentation to group statements into blocks. Leading whi
 
 .. code-block:: nestml
 
-   neuron test:
+   model test_neuron:
        state:
            foo integer = 42
            bar s = 0 s
@@ -24,7 +24,7 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 
 .. code-block:: nestml
 
-   neuron test:
+   model test_neuron:
        state:
            tau ms = 42 ms
            foo s = 0 s
@@ -305,7 +305,7 @@ For example, the following model will result in one warning and one error:
 
 .. code-block:: nestml
 
-   neuron test:
+   model test_neuron:
        state:
            ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
            foo s = 0 s     # foo has units of time (seconds)
@@ -318,7 +318,7 @@ For example, the following model will result in one warning and one error:
 Documentation string
 ~~~~~~~~~~~~~~~~~~~~
 
-Each neuron model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
+Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
 
 .. code-block:: nestml
 
@@ -336,7 +336,7 @@ Each neuron model may be documented by a block of text in reStructuredText forma
       E = mc^2
 
    """
-   neuron iaf_psc_custom:
+   model my_custom_neuron:
        # [...]
 
 This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
@@ -807,7 +807,7 @@ For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ 
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every model. The general syntax looks like this:
 
 ::
 
@@ -817,17 +817,21 @@ To structure NESTML files, all content is structured in blocks. Blocks begin wit
 Block types
 ~~~~~~~~~~~
 
-``neuron <name>`` - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create("<name>")``. All following blocks are contained in this block.
+``model <name>`` - The top-level block of a model called ``<name>``. All following blocks are contained in this block.
 
 Within the top-level block, the following blocks may be defined:
 
--  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. Parameters cannot be changed from within the model itself; for this, use state variables instead.
--  ``state`` - This block is composed of a list of variable declarations that describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
--  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
--  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
--  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
--  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language.
+- ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead.
+- ``internals`` - This block is composed of a list of helper parameters which remain constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
+- ``state`` - This block is composed of a list of variable declarations that describe the state of the model which may change over time.
+- ``equations`` - This block contains kernel declarations, inline expressions, and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
+- ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
+- ``output`` - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
+- ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event). The length of the timestep is given by the function ``resolution()``. If there are ODEs that need to be integrated in time, statements in this block are responsible for performing the integration by calling ``integrate_odes()``. At the start of the block, the state corresponds to that at time :math:`t`; at the end of the block, the state should have been updated (by the statements) to :math:`t+\texttt{resolution()}`.
+- ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
+- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds, within each (fixed resolution) simulation timestep. This makes the model more generic with respect to the simulator that is used.
+
+
 
 Input
 -----
@@ -838,13 +842,14 @@ For more details, on handling inputs in neuron and synapse models, please see :d
 
 
 Output
-~~~~~~
+------
 
 Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
 
 .. code-block:: nestml
 
-   output: spike
+   output:
+       spike
 
 
 Handling of time
@@ -852,14 +857,17 @@ Handling of time
 
 To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
 
--  ``resolution`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
--  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+-  ``resolution()`` can be used inside the ``update`` block, and returns the length of the current integration timestep that is to be taken. This can correspond to a fixed simulation resolution grid, but depending on the simulation platform, it can also be a jump from spike event to spike event.
+-  ``steps(interval)`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense for simulations for which a fixed simulation time grid is defined.
 
-These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
+These functions can be used to implement custom buffer lookup logic, but should be used with care.
 
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than assigning to to a parameter. This makes the model more robust in case of non-constant timestep. For example:
 
 .. code-block:: nestml
+
+   state:
+       x real = 1.
 
    parameters:
        h ms = resolution()   # !! NOT RECOMMENDED.
@@ -870,7 +878,6 @@ When using ``resolution()``, it is recommended to use the function call directly
                                        # evolve the state of x one timestep
 
 
-
 The following text is based on [2]_.
 
 Consider a linear, time-invariant system
@@ -879,10 +886,7 @@ Consider a linear, time-invariant system
 
    \dot{\mathbf{x}} = \mathbf{Ax} + \mathbf{y}
 
-
-Here, x(t) is the time-dependent state of the system, and y(t) is the time-dependent input to the system. Both x and y are n-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear dierential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A fundamental system of solutions to the homoge-
-neous (zero-input) equation _y à Ay is given by the col-
-umns of the matrix exponential eAt.
+Here, x(t) is the time-dependent state of the system, and y(t) is the time-dependent input to the system. Both x and y are n-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear differential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A fundamental system of solutions to the homogeneous (zero-input) equation :math:`\dot{x}=Ax` is given by the columns of the matrix exponential :math:`\exp{\mathbf{A}t}`.
 
 The unique solution of the full equation with initial value :math:`x(t_0)` is
 
@@ -964,11 +968,7 @@ As input, we take a pulse train on the grid. The response :math:`x(t)` is then
 
    x(t) = \int_0^t \exp{-a(t - \tau)} I d\tau
 
-The result of a discrete iteration according to (5) is
-illustrated in Fig. 4 and describes a scalar system which
-relaxes from its previous state according to its autono-
-mous dynamics, and which then updates its initial
-conditions to satisfy the input.
+The result of a discrete iteration according to (5) is illustrated in Fig. 4 and describes a scalar system which relaxes from its previous state according to its autonomous dynamics, and which then updates its initial conditions to satisfy the input.
 
 
 Example: integrate-and fire
@@ -985,9 +985,7 @@ where the initial conditions are defined at the time that an incoming spike is h
 
    \mathbf{x}(0) = \left[\begin{aligned}\Delta I_\text{PSP}\\ V_{m,0}\end{aligned}\right]
 
-In a grid-constrained simulation, only
-delays that are an integer multiple of h can be considered because incoming
-spikes can be handled only at grid points.
+In a grid-constrained simulation, only delays that are an integer multiple of h can be considered because incoming spikes can be handled only at grid points.
 
 If a neuron emits a spike at time t that has a delay of d, the simulation algorithm waits until all neurons have completed their updates for the integration step (t − h, t] and then delivers the event to its target(s).
 
@@ -1066,7 +1064,15 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
-An exception is made for inline expressions which are defined as a simple convolution and marked ``recordable``:
+The ``recordable`` keyword can be used to make inline available to recording devices:
+
+.. code-block:: nestml
+
+   equations:
+       ...
+       recordable inline V_m mV = V_rel + E_L
+
+An special case is when an inline expression is defined as a simple convolution and marked ``recordable``:
 
 .. code-block:: nestml
 
@@ -1208,9 +1214,9 @@ The numeric results of a typical are shown below. When the neuron is being updat
    update:
        integrate_odes()
 
-       if V_m >= V_th: # threshold crossing
-           V_m = V_reset
-           emit_spike()
+   onCondition(V_m >= V_th): # threshold crossing
+       V_m = V_reset
+       emit_spike()
 
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_numeric.png
@@ -1228,17 +1234,6 @@ Emitting spikes
 
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
 
-
-Recording values
-----------------
-
--  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
-
-.. code-block:: nestml
-
-   equations:
-       ...
-       recordable inline V_m mV = V_rel + E_L
 
 Guards
 ------
