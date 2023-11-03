@@ -2287,10 +2287,6 @@ class ASTUtils:
         visitor._numeric_state_variables = numeric_state_variable_names
         neuron.accept(visitor)
 
-        if "moved_spike_updates" in dir(neuron):
-            for expr in neuron.moved_spike_updates:
-                expr.accept(visitor)
-
         if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):
             for expr in neuron.extra_on_emit_spike_stmts_from_synapse:
                 expr.accept(visitor)
