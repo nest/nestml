@@ -541,16 +541,16 @@ void {{neuronName}}::pre_run_hook() {
 //   Functions defined in the NESTML model
 // ---------------------------------------------------------------------------
 
-{%- for function in neuron.get_functions() %}
+{%-     for function in neuron.get_functions() %}
 {{ function_declaration.FunctionDeclaration(function, neuronName + "::") }}
 {
-{%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives_cpp/Block.jinja2" %}
-{%-   endwith %}
-{%-   endfilter %}
+{%-         filter indent(2,True) %}
+{%-             with ast = function.get_block() %}
+{%-                 include "directives_cpp/Block.jinja2" %}
+{%-             endwith %}
+{%-         endfilter %}
 }
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 
 // ---------------------------------------------------------------------------
@@ -562,12 +562,12 @@ void {{neuronName}}::pre_run_hook() {
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
 {%-     endfor %}
 
-{%- if paired_synapse is defined %}
-{# for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in this template #}
-{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     if paired_synapse is defined %}
+{#          for neuron-synapse co-generation: separate integrator for the emulated integrate_odes() calls below in this template #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
-{%- endif %}
+{%-     endif %}
 
 {%- endif %}
 
@@ -575,10 +575,10 @@ void {{neuronName}}::pre_run_hook() {
 void {{neuronName}}::update_delay_variables()
 {
 {%-   for variable_symbol in neuron.get_state_symbols() %}
-{%-     if variable_symbol.has_delay_parameter() %}
-{%-       set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-       include "directives_cpp/UpdateDelayVariables.jinja2" %}
-{%-     endif %}
+{%-       if variable_symbol.has_delay_parameter() %}
+{%-           set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-           include "directives_cpp/UpdateDelayVariables.jinja2" %}
+{%-       endif %}
 {%-   endfor %}
 }
 
@@ -755,7 +755,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 {%-     set inport = blk.get_port_name() %}
     if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
     {
-      // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;
+      // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;  // no need to reset the flag -- reading from the RingBuffer into the "grid_sum" variables resets the RingBuffer entries
       on_receive_block_{{ blk.get_port_name() }}();
     }
 {%- endfor %}
