@@ -44,12 +44,12 @@ class CodeGeneratorUtils:
         synapses = []
         for model in models:
             if model in neuron_models \
-             or not removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix).endswith("synapse"):
+               or not removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix).endswith("synapse"):
                 # if explicitly marked, or if the name does not end in "synapse"
                 neurons.append(model)
 
             if model in synapse_models \
-             or removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix).endswith("synapse"):
+               or removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix).endswith("synapse"):
                 synapses.append(model)
 
         return neurons, synapses
