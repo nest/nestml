@@ -5,7 +5,7 @@ NESTML language concepts
 Structure and indentation
 -------------------------
 
-NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
+NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Functions`, :ref:`Control structures`, or any of the block in :ref:`Block types`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
 
@@ -244,75 +244,15 @@ Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
 
    x = 10 N * 22 Ohm / 0.5 V
 
-Physical unit literals
-~~~~~~~~~~~~~~~~~~~~~~
-
-Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two):
-
-::
-
-   <number> <unit_type>
-
-e.g.:
-
-.. code-block:: nestml
-
-   V_m mV = 1 mV
-
-Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
-
-.. code-block:: nestml
-
-   V_rest = -55 mV/s**2
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion from unit-typed to ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+
 
 Basic elements of the embedded programming language
 ---------------------------------------------------
-
-The basic elements of the language are declarations, assignments, function calls and return statements.
-
-Declarations
-~~~~~~~~~~~~
-
-Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
-
-::
-
-    ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*
-
-Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
-
-
-::
-
-    <list_of_comma_separated_names> <type> (= initialization_expression)?
-
-.. code-block:: nestml
-
-    a, b, c real = -0.42
-    d integer = 1
-    n integer # default value is 0
-    e string = "foo"
-    f mV = -2e12 mV
-
-It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
-
-For example, the following model will result in one warning and one error:
-
-.. code-block:: nestml
-
-   model test_neuron:
-       state:
-           ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
-           foo s = 0 s     # foo has units of time (seconds)
-
-       update:
-           ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
-           foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
 Documentation string
@@ -323,8 +263,8 @@ Each model may be documented by a block of text in reStructuredText format. Foll
 .. code-block:: nestml
 
    """
-   iaf_psc_custom: My customized version of iaf_psc
-   ################################################
+   my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   #################################################################
 
    Description
    +++++++++++
@@ -339,7 +279,7 @@ Each model may be documented by a block of text in reStructuredText format. Foll
    model my_custom_neuron:
        # [...]
 
-This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
+This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 
 Comments in the model
@@ -385,6 +325,45 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
+
+Declarations
+~~~~~~~~~~~~
+
+Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
+
+::
+
+    ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )+
+
+Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
+
+
+::
+
+    <list_of_comma_separated_names> <type> (= initialization_expression)?
+
+.. code-block:: nestml
+
+    a, b, c real = -0.42
+    d integer = 1
+    n integer # default value is 0
+    e string = "foo"
+    f mV = -2e12 mV
+
+It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
+
+For example, the following model will result in one warning and one error:
+
+.. code-block:: nestml
+
+   model test_neuron:
+       state:
+           ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
+           foo s = 0 s     # foo has units of time (seconds)
+
+       update:
+           ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
+           foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 Assignments
 ~~~~~~~~~~~
@@ -568,25 +547,6 @@ The following functions are predefined in NESTML and can be used out of the box.
      - Returns the current resolution of the simulation in ms. See the section :ref:`Handling of time` for more information.
 
 
-Predefined variables and constants
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following variables and constants are predefined in NESTML and can be used out of the box. No variables can be defined in NESTML that have the same name.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 10 30
-
-   * - Name
-     - Description
-   * - ``t``
-     - The current simulation time (read only)
-   * - ``e``
-     - Euler's constant (2.718...)
-   * - ``inf``
-     - Floating point infinity
-
-
 Return statement
 ^^^^^^^^^^^^^^^^
 
@@ -628,6 +588,26 @@ Variables defined in the model can be printed by enclosing them in ``{`` and ``}
         print("A spike event with membrane voltage: {V_m}")
         ...
         println("Membrane voltage {V_m} is less than the threshold {V_thr}")
+
+
+Predefined variables and constants
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following variables and constants are predefined in NESTML and can be used out of the box. No variables can be defined in NESTML that have the same name.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 30
+
+   * - Name
+     - Description
+   * - ``t``
+     - The current simulation time (read only)
+   * - ``e``
+     - Euler's constant (2.718...)
+   * - ``inf``
+     - Floating point infinity
+
 
 Control structures
 ~~~~~~~~~~~~~~~~~~
