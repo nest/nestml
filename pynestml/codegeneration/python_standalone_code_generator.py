@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Mapping, Optional, Sequence, Union
-
-import os
+from typing import Any, Dict, Mapping, Optional
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
