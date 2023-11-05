@@ -835,7 +835,7 @@ Each model can only send a single type of event. The type of the event has to be
 Dynamics and time evolution
 ---------------------------
 
-The following text is based on [2]_.
+We will first define the model in mathematical terms, and then show how to model it with NESTML. The following text is based on [2]_.
 
 Consider a linear, time-invariant system
 
@@ -867,8 +867,9 @@ the temporal evolution of the continuous system (2)
 collapses to a discrete matrix equation. Namely, if we let :math:`t_0 = t_k` and :math:`t = t_{k+1}` be two successive points on the grid, the solution to :eq:`eq_b` is
 
 .. math::
+   :label: eq_iter
 
-   x(t_{k+1}) = \exp{\mathbf{A}h} \mathbf{x}(t_k) + \mathbf{y}(t_{k+1})
+   x(t_{k+1}) = \exp{\mathbf{A}h} \cdot \mathbf{x}(t_k) + \mathbf{y}(t_{k+1})
 
 which can be interpreted as an iteration
 
@@ -880,13 +881,7 @@ which can be interpreted as an iteration
    x_0 → x_1 → x_2 → x_3
 
 
-Starting with an initial state :math:`y_0` and assuming non-zero input only at :math:`t_k` for :math:`k = 1,2,3,\ldots`, it propagates the exact solution on the grid, step by step. The diagram depicts the dependency of the current output of the
-system on its previous output and the current input. We
-refer to the iteration (5) as the method of ``Exact
-Integration''. For a time-invariant system, it is based on
-the fixed numerical matrix :math:`\exp\{\mathbf{A}h}`, which has to be
-computed only once by using appropriate standard
-numerical algorithms. During code generation, this step is performed by ODE-toolbox.
+Starting with an initial state :math:`y_0` and assuming non-zero input only at :math:`t_k` for :math:`k = 1,2,3,\ldots`, it propagates the exact solution on the grid, step by step. The diagram depicts the dependency of the current output of the system on its previous output and the current input. We refer to the iteration :eq:`eq_b` as the method of "Exact Integration". For a time-invariant system, it is based on the fixed numerical matrix :math:`\exp{\mathbf{A}\cdot\Delta t}`, which has to be computed only once by using appropriate standard numerical algorithms. During code generation, this step is performed by ODE-toolbox.
 
 Example: exponential decay
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -895,7 +890,7 @@ For a scalar value :math:`x` and no external input:
 
 .. math::
 
-   \dot{x} = -a\x
+   \dot{x} = -ax
 
 with initial condition :math:`x(0) = x_0`, the solution of this initial value problem is given by
 
@@ -913,7 +908,7 @@ Consider now the same system with input:
 
 .. math::
 
-   \dot{x} = -a\x + I
+   \dot{x} = -ax + I
 
 As input, we take a pulse train on the grid. The response :math:`x(t)` is then
 
@@ -921,7 +916,7 @@ As input, we take a pulse train on the grid. The response :math:`x(t)` is then
 
    x(t) = \int_0^t \exp{-a(t - \tau)} I d\tau
 
-The result of a discrete iteration according to (5) is illustrated in Fig. 4 and describes a scalar system which relaxes from its previous state according to its autonomous dynamics, and which then updates its initial conditions to satisfy the input.
+The result of a discrete iteration according to :eq:`eq_iter` can be seen as a system which relaxes from its previous state according to its autonomous dynamics, and which then updates its initial conditions to satisfy the input.
 
 
 Example: integrate-and fire
@@ -936,7 +931,7 @@ where the initial conditions are defined at the time that an incoming spike is h
 
 .. math::
 
-   \mathbf{x}(0) = \left[\begin{aligned}\Delta I_\text{PSP}\\ V_{m,0}\end{aligned}\right]
+   \mathbf{x}(0) = \left[\begin{aligned}\Delta I_\text{PSP}\\V_{m,0}\end{aligned}\right]
 
 In a grid-constrained simulation, only delays that are an integer multiple of h can be considered because incoming spikes can be handled only at grid points.
 
