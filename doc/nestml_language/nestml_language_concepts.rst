@@ -832,31 +832,8 @@ Each model can only send a single type of event. The type of the event has to be
        spike
 
 
-Handling of time
-----------------
-
-To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
-
--  ``resolution()`` can be used inside the ``update`` block, and returns the length of the current integration timestep that is to be taken. This can correspond to a fixed simulation resolution grid, but depending on the simulation platform, it can also be a jump from spike event to spike event.
--  ``steps(interval)`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense for simulations for which a fixed simulation time grid is defined.
-
-These functions can be used to implement custom buffer lookup logic, but should be used with care.
-
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than assigning to to a parameter. This makes the model more robust in case of non-constant timestep. For example:
-
-.. code-block:: nestml
-
-   state:
-       x real = 1.
-
-   parameters:
-       h ms = resolution()   # !! NOT RECOMMENDED.
-
-   update:
-       # update from t to t + resolution()
-       x *= exp(-resolution() / tau)   # let x' = -x / tau
-                                       # evolve the state of x one timestep
-
+Dynamics and time evolution
+---------------------------
 
 The following text is based on [2]_.
 
@@ -866,22 +843,18 @@ Consider a linear, time-invariant system
 
    \dot{\mathbf{x}} = \mathbf{Ax} + \mathbf{y}
 
-Here, x(t) is the time-dependent state of the system, and y(t) is the time-dependent input to the system. Both x and y are n-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear differential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A fundamental system of solutions to the homogeneous (zero-input) equation :math:`\dot{x}=Ax` is given by the columns of the matrix exponential :math:`\exp{\mathbf{A}t}`.
+Here, :math:`\mathbf{x}(t)` is the time-dependent state of the system, and :math:`\mathbf{y}(t)` is the time-dependent input to the system. Both :math:`\mathbf{x}` and :math:`\mathbf{y}` are :math:`n`-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear differential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A solution to the homogeneous (zero-input) equation :math:`\dot{\mathbf{x}}=A\mathbf{x}` is given by the matrix exponential :math:`x(t) = \exp{\mathbf{A}t}`.
 
-The unique solution of the full equation with initial value :math:`x(t_0)` is
+The unique solution of the full equation with initial value :math:`\mathbf{x}(t_0)` is
 
 .. math::
    :label: eq_b
 
-   x(t) = \exp{\mathbf{A}(t - t_0)}\mathbf{x}(t_0) + \int_{t_0^+}^t \exp{\mathbf{A}(t - \tau)} y(\tau) d\tau
+   \mathbf{x}(t) = \exp{\mathbf{A}(t - t_0)}\mathbf{x}(t_0) + \int_{t_0^+}^t \exp{\mathbf{A}(t - \tau)} \mathbf{y}(\tau) d\tau
 
-The first part of the sum is the result of passive propagation of the initial state, wheras the second part represents the input-driven response of the system.  Correspondingly, for a system with no input,
-the matrix eAt is termed ``time-evolution operator'' or
-``propagator''. In contrast, for a system with input but
-zero initial conditions, the same matrix is called the
-``impulse response'' of the system.
+The first part of the sum is the result of passive propagation of the initial state, wheras the second part represents the input-driven response of the system.  Correspondingly, for a system with no input, the matrix :math:`exp{\mathbf{A}t}` is termed "time-evolution operator" or "propagator". In contrast, for a system with input but zero initial conditions, the same matrix is called the "impulse response" of the system.
 
-Digital simulation means to compute the response :math:`\mathbf{x}(t)` of the syetem to a prescribed input :math:`\mathbf{y}(t)`  on an evenly sampled grid :math:`t_k = k\cdot h` where :math:`h` is a fixed step size and :math:`k` takes only integer values. The function :math:`x(t)` then corresponds to the sequence :math:`x(t_k)` of its samples on the grid. For a special type of input functions, the simulation can be performed in an exact way, avoiding potentially inaccurate and unstable integration methods. To this end, we consider (generalized) functions xÖtÜ of the form
+Digital simulation means to compute the response :math:`\mathbf{x}(t)` of the system to a prescribed input :math:`\mathbf{y}(t)`  on an evenly sampled grid :math:`t_k = k\cdot \Delta t` where :math:`\Delta t` is a fixed step size and :math:`k` takes only integer values. The function :math:`x(t)` then corresponds to the sequence :math:`x(t_k)` of its samples on the grid. For a special type of input functions, the simulation can be performed in an exact way, avoiding potentially inaccurate and unstable integration methods. To this end, we consider functions :math:`\mathbf{y}(t)` of the form
 
 .. math::
 
@@ -944,7 +917,7 @@ Consider now the same system with input:
 
 As input, we take a pulse train on the grid. The response :math:`x(t)` is then
 
-.. math
+.. math::
 
    x(t) = \int_0^t \exp{-a(t - \tau)} I d\tau
 
@@ -1155,9 +1128,6 @@ Currently, there is support for GSL and exact integration. ODEs that can be solv
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
 
 
-Dynamics and time evolution
----------------------------
-
 Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model from the "current" time ``t`` to the next timestep ``t + resolution()``.
 
 Integrating the ODEs needs to be triggered explicitly in NESTML by using the ``integrate_odes()`` in the ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulses to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. This allows a wider range of model behaviour to be reproduced from the literature.
@@ -1207,6 +1177,32 @@ Emitting spikes
 ~~~~~~~~~~~~~~~
 
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
+
+
+Predefined time-related functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
+
+-  ``resolution()`` can be used inside the ``update`` block, and returns the length of the current integration timestep that is to be taken. This can correspond to a fixed simulation resolution grid, but depending on the simulation platform, it can also be a jump from spike event to spike event.
+-  ``steps(interval)`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense for simulations for which a fixed simulation time grid is defined.
+
+These functions can be used to implement custom buffer lookup logic, but should be used with care.
+
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than assigning to to a parameter. This makes the model more robust in case of non-constant timestep. For example:
+
+.. code-block:: nestml
+
+   state:
+       x real = 1.
+
+   parameters:
+       h ms = resolution()   # !! NOT RECOMMENDED.
+
+   update:
+       # update from t to t + resolution()
+       x *= exp(-resolution() / tau)   # let x' = -x / tau
+                                       # evolve the state of x one timestep
 
 
 Guards
