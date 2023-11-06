@@ -541,7 +541,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
-    std::cout << "chan sim step" << std::endl;
     std::vector< double > g_val(neuron_{{ synapse_name }}_synapse_count, 0.);
     std::vector< double > i_val(neuron_{{ synapse_name }}_synapse_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ synapse_name }}_synapse_count, 0.);
