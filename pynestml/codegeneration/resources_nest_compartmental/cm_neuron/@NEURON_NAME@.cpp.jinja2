@@ -220,17 +220,18 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor_( DictionaryDatum&
   RingBuffer buffer;
 
   // add the ringbuffer to the global receptor vector
+  const size_t syn_idx = syn_buffers_.size();
   syn_buffers_.push_back( buffer );
 
   // add the receptor to the compartment
   if ( dd->known( names::params ) )
   {
     c_tree_.neuron_currents.add_mechanism(
-      receptor_type, compartment_idx, getValue< DictionaryDatum >( dd, names::params ) );
+      receptor_type, compartment_idx, getValue< DictionaryDatum >( dd, names::params ), syn_idx );
   }
   else
   {
-    c_tree_.neuron_currents.add_mechanism( receptor_type, compartment_idx );
+    c_tree_.neuron_currents.add_mechanism( receptor_type, compartment_idx, syn_idx );
   }
 }
 

@@ -200,7 +200,7 @@ public:
 class {{synapse_name}}{{cm_unique_suffix}}{
 private:
   // global synapse index
-  long syn_idx = 0;
+  std::vector< long > syn_idx = {};
 
   // propagators, initialized via pre_run_hook() or calibrate()
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
@@ -239,15 +239,15 @@ private:
 
 
   // spike buffer
-  std::vector< RingBuffer >* {{synapse_info["buffer_name"]}}_;
+  std::vector< RingBuffer* > {{synapse_info["buffer_name"]}}_;
 
 public:
   // constructor, destructor
   {{synapse_name}}{{cm_unique_suffix}}(){};
   ~{{synapse_name}}{{cm_unique_suffix}}(){};
 
-  void new_synapse(std::size_t comp_ass);
-  void new_synapse(std::size_t comp_ass, const DictionaryDatum& synapse_params);
+  void new_synapse(std::size_t comp_ass, const long syn_index);
+  void new_synapse(std::size_t comp_ass, const long syn_index, const DictionaryDatum& synapse_params);
 
   //number of synapses
   std::size_t neuron_{{ synapse_name }}_synapse_count = 0;
@@ -268,7 +268,9 @@ public:
   void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
   void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
   {
-        {{synapse_info["buffer_name"]}}_ = &syn_buffers;
+    for(std::size_t i = 0; i < syn_idx.size(); i++){
+        {{synapse_info["buffer_name"]}}_.push_back(&(syn_buffers[syn_idx[i]]));
+    }
   };
 
   // function declarations
@@ -393,7 +395,7 @@ public:
   {% endwith -%}
   };
 
-  void add_mechanism( const std::string& type, const std::size_t compartment_id)
+  void add_mechanism( const std::string& type, const std::size_t compartment_id, const long syn_index = 0)
   {
   {%- with %}
     bool mech_found = false;
@@ -416,7 +418,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id);
+      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, syn_index);
       mech_found = true;
     }
   {% endfor -%}
@@ -427,7 +429,7 @@ public:
     }
   };
 
-  void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params)
+  void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params, const long syn_index = 0)
   {
    {%- with %}
     bool mech_found = false;
@@ -450,7 +452,7 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, mechanism_params);
+      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, syn_index, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}

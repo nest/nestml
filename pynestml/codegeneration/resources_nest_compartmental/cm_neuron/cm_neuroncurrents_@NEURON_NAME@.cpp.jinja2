@@ -393,11 +393,12 @@ std::vector< double > nest::{{concentration_name}}{{cm_unique_suffix}}::distribu
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 
-void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_ass)
+void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_ass, const long syn_index)
 {
     neuron_{{ synapse_name }}_synapse_count++;
     i_tot_{{synapse_name}}.push_back(0);
     compartment_association.push_back(comp_ass);
+    syn_idx.push_back(syn_index);
 
     {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
     // state variable {{pure_variable_name }}
@@ -433,12 +434,13 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_as
   {%- endfor %}
 }
 
-void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_ass, const DictionaryDatum& synapse_params)
+void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_ass, const long syn_index, const DictionaryDatum& synapse_params)
 // update {{synapse}} synapse parameters
 {
     neuron_{{ synapse_name }}_synapse_count++;
     compartment_association.push_back(comp_ass);
     i_tot_{{synapse_name}}.push_back(0);
+    syn_idx.push_back(syn_index);
 
     {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
     // state variable {{pure_variable_name }}
@@ -533,7 +535,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
     {{internal_name}}[i] = {{ printer_no_origin.print_with_indices(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
-  (*{{synapse_info["buffer_name"]}}_)[i].clear();
+  {{synapse_info["buffer_name"]}}_[i]->clear();
   }
 }
 
@@ -555,7 +557,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
 
   for(std::size_t i = 0; i < neuron_{{ synapse_name }}_synapse_count; i++){
       // get spikes
-      double s_val = (*{{synapse_info["buffer_name"]}}_)[i].get_value( lag ); //  * g_norm_;
+      double s_val = {{synapse_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
 
       //update ODE state variable
       {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
