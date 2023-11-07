@@ -103,11 +103,11 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_
 // channel parameter {{variable_type -}}
 {%- set variable = variable_info["ASTVariable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
-,{{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
+, {{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
 {%- endfor %}
 {}
 
-nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
+nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_suffix}}( const DictionaryDatum& channel_params )
 
 {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
 // state variable {{pure_variable_name -}}
@@ -121,61 +121,74 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::{{ion_channel_name}}{{cm_unique_
 // channel parameter {{variable_type -}}
 {%- set variable = variable_info["ASTVariable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
-,{{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
+, {{- variable.name }}({{ printer_no_origin.print(rhs_expression) -}})
 {%- endfor %}
 // update {{ion_channel_name}} channel parameters
 {
-    {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %} //have to remove???????????
-    // {{ion_channel_name}} channel parameter {{dynamic_variable }}
-    if( channel_params->known( "{{variable.name}}" ) )
-        {{variable.name}} = getValue< double >( channel_params, "{{variable.name}}" );
-    {%- endfor %}
+  {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
+  {%- set variable = variable_info["ASTVariable"] %}
+  if( channel_params->known( "{{variable.name}}" ) )
+    {{variable.name}} = getValue< double >( channel_params, "{{variable.name}}" );
+  {%- endfor %}
+  if( channel_params->known( "V_init" ) )
+    v_init = getValue< double >( channel_params, "V_init" );
 }
 
 void
-nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables,
-                                               const long compartment_idx)
+nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables( std::map< Name, double* >* recordables, const long compartment_idx )
 {
   // add state variables to recordables map
   {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
   {%- set variable = variable_info["ASTVariable"] %}
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor %}
-    ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &i_tot_{{ion_channel_name}};
+  ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::to_string(compartment_idx) )] = &i_tot_{{ion_channel_name}};
+}
+
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::calibrate()
+{%- else %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook()
+{%- endif %}
+{
+  // initialize all state variables with their asymptotic value for `v_init`
+  // For now, they are initialized at 0., but this should change
+  {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
+    {%- set variable = variable_info["ASTVariable"] %}
+    {%- set rhs_expression = variable_info["rhs_expression"] %}
+  {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+  {%- endfor %}
 }
 
 std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
                         {% for inline in channel_info["Dependencies"]["receptors"] %}, double {{inline.variable_name}}{% endfor %}
                         {% for inline in channel_info["Dependencies"]["channels"] %}, double {{inline.variable_name}}{% endfor %})
 {
-    double g_val = 0., i_val = 0.;
+  double g_val = 0., i_val = 0.;
 
-    if({%- for key_zero_param in channel_info["RootInlineKeyZeros"] %} {{ key_zero_param }} > 1e-9 && {%- endfor %} true ){
-        {% if channel_info["ODEs"].items()|length %} double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms(); {% endif %}
+  if({%- for key_zero_param in channel_info["RootInlineKeyZeros"] %} {{ key_zero_param }} > 1e-9 && {%- endfor %} true ){
+    {% if channel_info["ODEs"].items()|length %}double {{ printer_no_origin.print(channel_info["time_resolution_var"]) }} = Time::get_resolution().get_ms(); {% endif %}
 
-        {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-        double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
-            {%- endfor %}
-            {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-        {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
-            {%- endfor %}
+    {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
+        {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+    double {{ propagator }} = {{ printer_no_origin.print(propagator_info["init_expression"]) }};
         {%- endfor %}
+        {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+    {{state}} = {{ printer_no_origin.print(state_solution_info["update_expression"]) }};
+        {%- endfor %}
+    {%- endfor %}
 
-        {%- set inline_expression = channel_info["root_expression"] %}
-        {%- set inline_expression_d = channel_info["inline_derivative"] %}
-        // compute the conductance of the {{ion_channel_name}} channel
-        this->i_tot_{{ion_channel_name}} = {{ printer_no_origin.print(inline_expression.get_expression()) }};
-        // derivative
-        double d_i_tot_dv = {{ printer_no_origin.print(inline_expression_d) }};
+    {%- set inline_expression = channel_info["root_expression"] %}
+    {%- set inline_expression_d = channel_info["inline_derivative"] %}
+    // compute the conductance of the {{ion_channel_name}} channel
+    i_tot_{{ion_channel_name}} = {{ printer_no_origin.print(inline_expression.get_expression()) }};
+    // derivative
+    double d_i_tot_dv = {{ printer_no_origin.print(inline_expression_d) }};
 
-        g_val = - d_i_tot_dv / 2.;
-        i_val = this->i_tot_{{ion_channel_name}} - d_i_tot_dv * v_comp / 2.;
-    }
-    return std::make_pair(g_val, i_val);
-
+    g_val = - d_i_tot_dv / 2.;
+    i_val = i_tot_{{ion_channel_name}} - d_i_tot_dv * v_comp / 2.;
+  }
+  return std::make_pair(g_val, i_val);
 }
 
 {%- for function in channel_info["Functions"] %}
@@ -183,9 +196,8 @@ std::pair< double, double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_nu
 {%- endfor %}
 
 double nest::{{ion_channel_name}}{{cm_unique_suffix}}::get_current_{{ion_channel_name}}(){
-    return this->i_tot_{{ion_channel_name}};
+  return i_tot_{{ion_channel_name}};
 }
-
 // {{ion_channel_name}} channel end ///////////////////////////////////////////////////////////
 {% endfor %}
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,6 +226,8 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::{{synapse_name}}{{cm_unique_suffix}}
   if( receptor_params->known( "{{param_name}}" ) )
     {{param_name}} = getValue< double >( receptor_params, "{{param_name}}" );
   {%- endfor %}
+  if( receptor_params->known( "V_init" ) )
+    v_init = getValue< double >( receptor_params, "V_init" );
 }
 
 void
@@ -222,8 +236,9 @@ nest::{{synapse_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, d
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx) )] = &{{convolution}};
   {%- endfor %}
-    ( *recordables )[ Name( "i_tot_{{synapse_name}}" + std::to_string(syn_idx) )] = &i_tot_{{synapse_name}};
+  ( *recordables )[ Name( "i_tot_{{synapse_name}}" + std::to_string(syn_idx) )] = &i_tot_{{synapse_name}};
 }
+
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
 void nest::{{synapse_name}}{{cm_unique_suffix}}::calibrate()
@@ -231,7 +246,6 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::calibrate()
 void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
-
   const double {{render_time_resolution_variable(synapse_info)}} = Time::get_resolution().get_ms();
 
   // set propagators to ode toolbox returned value
@@ -317,10 +331,9 @@ std::pair< double, double > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numste
 }
 {%- endfor %}
 
-    double nest::{{synapse_name}}{{cm_unique_suffix}}::get_current_{{synapse_name}}(){
-        return this->i_tot_{{synapse_name}};
-    }
-
+double nest::{{synapse_name}}{{cm_unique_suffix}}::get_current_{{synapse_name}}(){
+  return this->i_tot_{{synapse_name}};
+}
 // {{synapse_name}} synapse end ///////////////////////////////////////////////////////////
 {%- endfor %}
 
@@ -366,13 +379,15 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::{{ concentration_name }}{{cm
 {%- endfor %}
 // update {{ concentration_name }} concentration parameters
 {
-    {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %} //have to remove???????????
-    // {{ concentration_name }} concentration parameter {{dynamic_variable }}
-    if( concentration_params->known( "{{variable.name}}" ) )
-        {{variable.name}} = getValue< double >( concentration_params, "{{variable.name}}" );
-    {%- endfor %}
+  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+    {%- set variable = variable_info["ASTVariable"] %}
+    {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %}
+  // {{ concentration_name }} concentration parameter {{dynamic_variable }}
+  if( concentration_params->known( "{{variable.name}}" ) )
+    {{variable.name}} = getValue< double >( concentration_params, "{{variable.name}}" );
+  {%- endfor %}
+  if( concentration_params->known( "{{ concentration_name }}_init" ) )
+    {{ concentration_name }}_init = getValue< double >( concentration_params, "{{ concentration_name }}_init" );
 }
 
 void
@@ -384,7 +399,22 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
   {%- set variable = variable_info["ASTVariable"] %}
   ( *recordables )[ Name( "{{variable.name}}" + std::to_string(compartment_idx) )] = &{{variable.name}};
   {%- endfor %}
-    ( *recordables )[ Name( "{{concentration_name}}" + std::to_string(compartment_idx) )] = &{{concentration_name}};
+  ( *recordables )[ Name( "{{concentration_name}}" + std::to_string(compartment_idx) )] = &{{concentration_name}};
+}
+
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void nest::{{synapse_name}}{{cm_unique_suffix}}::calibrate()
+{%- else %}
+void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
+{%- endif %}
+{
+  // states
+  {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+      {%- set variable = variable_info["ASTVariable"] %}
+      {%- set rhs_expression = variable_info["rhs_expression"] %}
+      {{ variable.name }} = {{ printer_no_origin.print(rhs_expression) }};
+  {%- endfor %}
+  {{ concentration_name }} = {{ concentration_name }}_init;
 }
 
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, double {{ode.lhs.name}}{% endfor %}
@@ -412,6 +442,5 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(const double 
 double nest::{{concentration_name}}{{cm_unique_suffix}}::get_concentration_{{concentration_name}}(){
     return this->{{concentration_name}};
 }
-
 // {{concentration_name}} concentration end ///////////////////////////////////////////////////////////
 {% endfor %}
