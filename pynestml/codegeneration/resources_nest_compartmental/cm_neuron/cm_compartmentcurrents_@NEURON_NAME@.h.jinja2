@@ -56,7 +56,7 @@ private:
   {%- endfor %}
 
   // initial voltage
-  double v_init = -75.;
+  double V_init = -75.;
 
   // ion-channel root-inline value
   double i_tot_{{ion_channel_name}} = 0;
@@ -128,7 +128,7 @@ private:
   {%- endfor %}
 
   // initialization voltage:
-  double v_init = 0.;
+  double V_init = 0.;
 
   // states
   {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
@@ -208,7 +208,7 @@ private:
   {%- endfor %}
 
   // concentration initialization
-  {{ concentration_name }}_init = 0.;
+  double {{ concentration_name }}_init = 0.;
 
   // concentration value (root-ode state)
   double {{concentration_name}} = 0;
@@ -221,9 +221,9 @@ public:
 
   // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  void calibrate() {
+  void calibrate();
 {%- else %}
-  void pre_run_hook() {
+  void pre_run_hook();
 {%- endif %}
   void append_recordables(std::map< Name, double* >* recordables,
                           const long compartment_idx);
