@@ -26,24 +26,8 @@
 #include "{{ neuronName }}.h"
 #include "spike_buffer.h"
 
+{%- if uses_analytic_solver %}
 using namespace {{ neuronName }}_ns;
-
-extern __constant__ float NESTGPUTimeResolution;
-
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} var[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
-
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
-{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} param[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
-
-{%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} param[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
 
 __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
 				      int n_param, float h)
@@ -88,12 +72,74 @@ __global__ void {{ neuronName }}_Update(int n_node, int i_node_0, float *var_arr
 {%- endif %}
   }
 }
+{%- endif %}
 
 {{ neuronName }}::~{{ neuronName }}()
 {
   FreeVarArr();
   FreeParamArr();
 }
+
+{%- if uses_numeric_solver %}
+namespace {{neuronName}}_ns
+{
+__device__
+void NodeInit(int n_var, int n_param, double x, float *y, float *param,
+	      {{neuronName}}_rk5 data_struct)
+{
+    // Parameters
+{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+
+    // Internal variables
+{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+
+    // State variables
+{%- for variable_symbol in neuron.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%- endfor %}
+}
+
+__device__
+void NodeCalibrate(int n_var, int n_param, double x, float *y,
+		       float *param, {{neuronName}}_rk5 data_struct)
+{
+  refractory_step = 0;
+{%- filter indent(4,True) %}
+{%- for internals_block in neuron.get_internals_blocks() %}
+{%-     for decl in internals_block.get_declarations() %}
+{%-         for variable in decl.get_variables() %}
+{%-             include "directives/MemberInitialization.jinja2" %}
+{%-         endfor %}
+{%-     endfor %}
+{%- endfor %}
+{%- endfilter %}
+}
+
+} // namespace
+			    
+__device__
+void NodeInit(int n_var, int n_param, double x, float *y,
+	     float *param, {{neuronName}}_rk5 data_struct)
+{
+   {{neuronName}}_ns::NodeInit(n_var, n_param, x, y, param, data_struct);
+}
+
+__device__
+void NodeCalibrate(int n_var, int n_param, double x, float *y,
+		  float *param, {{neuronName}}_rk5 data_struct)
+
+{
+    {{neuronName}}_ns::NodeCalibrate(n_var, n_param, x, y, param, data_struct);
+}
+  using namespace aeif_cond_alpha_ns;
+{%- endif %}
 
 int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 			 int i_group, unsigned long long *seed)
@@ -105,6 +151,10 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   n_var_ = n_scal_var_;
   n_scal_param_ = N_SCAL_PARAM;
   n_param_ = n_scal_param_;
+{%- if uses_numeric_solver %}
+  n_group_param_ = N_GROUP_PARAM;
+  group_param_ = new float[N_GROUP_PARAM];
+{%- endif %}
 
   AllocParamArr();
   AllocVarArr();
@@ -112,20 +162,35 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   scal_var_name_ = {{ neuronName }}_scal_var_name;
   scal_param_name_ = {{ neuronName }}_scal_param_name;
 
+{%- if uses_numeric_solver %}
+  group_param_name_ = aeif_cond_alpha_group_param_name;
+  rk5_data_struct_.i_node_0_ = i_node_0_;
+
+  SetGroupParam("h_min_rel", 1.0e-3);
+  SetGroupParam("h0_rel",  1.0e-2);
+  h_ = h0_rel_* 0.1;
+  rk5_.Init(n_node, n_var_, n_param_, 0.0, h_, rk5_data_struct_);
+  var_arr_ = rk5_.GetYArr();
+  param_arr_ = rk5_.GetParamArr();
+{%- else %}
+  // Parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     SetScalParam(0, n_node, "{{ printer_no_origin.print(variable) }}", {{printer.print(variable_symbol.get_declaring_expression())}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}
 {%- endfor %}
 
+    // Internal variables
 {%- for variable_symbol in neuron.get_internal_symbols() %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-    SetScalParam(0, n_node, "{{ printer_no_origin.print(variable) }}", 0.0);
+    SetScalParam(0, n_node, "{{ printer_no_origin.print(variable) }}", {{printer.print(variable_symbol.get_declaring_expression())}});
 {%- endfor %}
 
+    // State variables
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     SetScalVar(0, n_node, "{{ printer_no_origin.print(variable) }}", {{printer.print(variable_symbol.get_declaring_expression())}});
 {%- endfor %}
+{%- endif %}
 
   // multiplication factor of input signal is always 1 for all nodes
   float input_weight = 1.0;
@@ -135,11 +200,12 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   port_weight_arr_step_ = 0;
   port_weight_port_step_ = 0;
 
-  // input spike signal is stored in I_syn_ex, I_syn_in
-  port_input_arr_ = GetVarArr() + GetScalVarIdx("I_kernel_exc__X__exc_spikes");
+  // process the input spikes
+  port_input_arr_ = GetVarArr() + GetScalVarIdx("{{ printer_no_origin.print(utils.get_first_spike_port_from_spike_updates()) }}");
   port_input_arr_step_ = n_var_;
   port_input_port_step_ = 1;
 
+{# TODO #}
 {#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay");#}
 
   return 0;
@@ -147,10 +213,13 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 
 int {{ neuronName }}::Update(long long it, double t1)
 {
+{%- if uses_analytic_solver %}
   {{ neuronName }}_Update<<<(n_node_+1023)/1024, 1024>>>
     (n_node_, i_node_0_, var_arr_, param_arr_, n_var_, n_param_);
   // gpuErrchk( cudaDeviceSynchronize() );
-
+{%- else %}
+  rk5_.Update<N_SCAL_VAR, N_SCAL_PARAM>(t1, h_min_, rk5_data_struct_);
+{%- endif %}
   return 0;
 }
 
@@ -162,11 +231,16 @@ int {{ neuronName }}::Free()
   return 0;
 }
 
-int {{ neuronName }}::Calibrate(double, float time_resolution)
+int {{ neuronName }}::Calibrate(double time_min, float time_resolution)
 {
+{%- if uses_analytic_solver %}
   {{ neuronName }}_Calibrate<<<(n_node_+1023)/1024, 1024>>>
     (n_node_, param_arr_, n_param_, time_resolution);
-
+{%- else %}
+  h_min_ = h_min_rel_* time_resolution;
+  h_ = h0_rel_* time_resolution;
+  rk5_.Calibrate(time_min, h_, rk5_data_struct_);
+{%- endif %}
   return 0;
 }
 
