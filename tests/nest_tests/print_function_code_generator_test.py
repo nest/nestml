@@ -62,14 +62,14 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'simple_print_test.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 1)
+            self.assertEqual(reader.read().count('std::cout'), 4)
 
     def test_print_statement_with_variables(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -84,14 +84,14 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_variables.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 2)
+            self.assertEqual(reader.read().count('std::cout'), 5)
 
     def test_print_variables_with_different_units(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -106,14 +106,14 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_variable.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 1)
+            self.assertEqual(reader.read().count('std::cout'), 4)
 
     def test_print_statment_in_function(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -128,14 +128,14 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
-        compilation_unit = ModelParser.parse_model(input_path)
+        compilation_unit = ModelParser.parse_file(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_model_list())
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_function.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 1)
+            self.assertEqual(reader.read().count('std::cout'), 4)
 
     def tearDown(self):
         import shutil

@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -30,14 +32,13 @@ class CoCoFunctionUnique(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, model: ASTModel):
         """
         Checks if each function is defined uniquely.
         :param node: a single neuron
-        :type node: ast_neuron
         """
         checked_funcs_names = list()
-        for func in node.get_functions():
+        for func in model.get_functions():
             if func.get_name() not in checked_funcs_names:
                 symbols = func.get_scope().resolve_to_all_symbols(func.get_name(), SymbolKind.FUNCTION)
                 if isinstance(symbols, list) and len(symbols) > 1:
@@ -65,4 +66,3 @@ class CoCoFunctionUnique(CoCo):
                                         message=message, code=code)
                         checked.append(funcA)
             checked_funcs_names.append(func.get_name())
-        return

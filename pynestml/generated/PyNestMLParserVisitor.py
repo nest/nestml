@@ -1,6 +1,6 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.10
+# Generated from PyNestMLParser.g4 by ANTLR 4.13.1
 from antlr4 import *
-if __name__ is not None and "." in __name__:
+if "." in __name__:
     from .PyNestMLParser import PyNestMLParser
 else:
     from PyNestMLParser import PyNestMLParser
@@ -169,28 +169,23 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#neuron.
-    def visitNeuron(self, ctx:PyNestMLParser.NeuronContext):
+    # Visit a parse tree produced by PyNestMLParser#model.
+    def visitModel(self, ctx:PyNestMLParser.ModelContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#neuronBody.
-    def visitNeuronBody(self, ctx:PyNestMLParser.NeuronBodyContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#synapse.
-    def visitSynapse(self, ctx:PyNestMLParser.SynapseContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#synapseBody.
-    def visitSynapseBody(self, ctx:PyNestMLParser.SynapseBodyContext):
+    # Visit a parse tree produced by PyNestMLParser#modelBody.
+    def visitModelBody(self, ctx:PyNestMLParser.ModelBodyContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNestMLParser#onReceiveBlock.
     def visitOnReceiveBlock(self, ctx:PyNestMLParser.OnReceiveBlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#onConditionBlock.
+    def visitOnConditionBlock(self, ctx:PyNestMLParser.OnConditionBlockContext):
         return self.visitChildren(ctx)
 
 
@@ -214,8 +209,13 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#inputPort.
-    def visitInputPort(self, ctx:PyNestMLParser.InputPortContext):
+    # Visit a parse tree produced by PyNestMLParser#spikeInputPort.
+    def visitSpikeInputPort(self, ctx:PyNestMLParser.SpikeInputPortContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#continuousInputPort.
+    def visitContinuousInputPort(self, ctx:PyNestMLParser.ContinuousInputPortContext):
         return self.visitChildren(ctx)
 
 

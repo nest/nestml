@@ -66,15 +66,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "C_m", "pF", "250pF", "Capacitance of the membrane"    
-    "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"    
-    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"    
-    "t_ref", "ms", "2ms", "Duration of refractory period"    
-    "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
-    "V_th", "mV", "-55mV", "Spike threshold potential"    
+
+    "C_m", "pF", "250pF", "Capacitance of the membrane"
+    "tau_m", "ms", "10ms", "Membrane time constant"
+    "tau_syn_inh", "ms", "2ms", "Time constant of synaptic current"
+    "tau_syn_exc", "ms", "2ms", "Time constant of synaptic current"
+    "t_ref", "ms", "2ms", "Duration of refractory period"
+    "E_L", "mV", "-70mV", "Resting potential"
+    "V_reset", "mV", "-70mV", "Reset potential of the membrane"
+    "V_th", "mV", "-55mV", "Spike threshold potential"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -86,8 +86,8 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "r", "integer", "0", "counts number of tick during the refractory period"    
+
+    "r", "integer", "0", "counts number of tick during the refractory period"
     "V_m", "mV", "E_L", ""
 
 
@@ -106,7 +106,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_psc_alpha <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_alpha.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_psc_alpha <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_alpha_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -116,4 +116,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.837818
+   Generated at 2023-08-22 14:29:44.449697

@@ -1,0 +1,60 @@
+"""
+dopa_second_order_synapse
+#########################
+
+
+Description
++++++++++++
+
+This model is used to test second-order integration of dopamine spikes.
+
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+model dopa_second_order_synapse:
+    state:
+        dopa_rate real = 0.
+        dopa_rate_d real = 0.
+
+    parameters:
+        tau_dopa ms = 100 ms
+        d ms = 1 ms    @nest::delay
+
+    equations:
+        dopa_rate' = dopa_rate_d / ms
+        dopa_rate_d' = -dopa_rate / tau_dopa**2 * ms - 2 * dopa_rate_d / tau_dopa
+
+    input:
+        pre_spikes <- spike
+        dopa_spikes <- spike
+
+    output:
+        spike
+
+    onReceive(dopa_spikes):
+        dopa_rate_d += 1. / tau_dopa
+
+    onReceive(pre_spikes):
+        emit_spike(1., 1 ms)
+
+    update:
+        integrate_odes()

@@ -29,8 +29,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-# neuron pre
-neuron aeif_cond_alpha_implicit:
+# model pre
+model aeif_cond_alpha_implicit:
     # state pre
     state: # state in
         # state var decl pre
@@ -42,10 +42,6 @@ neuron aeif_cond_alpha_implicit:
         # inline pre
         inline V_bounded mV = min(0,1) # inline in
         # inline post
-
-        # kernel pre
-        kernel V_M'' = 1 # kernel in
-        # kernel post
 
         # ode pre
         V_m'= 1 # ode in
@@ -66,7 +62,7 @@ neuron aeif_cond_alpha_implicit:
     # input pre
     input:
         # input decl pre
-        inh_spikes nS <- inhibitory spike # input decl in
+        inh_spikes <- inhibitory spike # input decl in
         # input decl post
 
     # output pre

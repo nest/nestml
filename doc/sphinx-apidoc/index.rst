@@ -35,7 +35,7 @@ Internally, differential equations are analyzed by the associated `ODE-toolbox <
 
    nestml_language/index
    installation
-   running
+   running/index
    models_library/index
    tutorials/index
    extending

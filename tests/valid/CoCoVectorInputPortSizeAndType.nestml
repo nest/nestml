@@ -32,8 +32,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoVectorInputPortSizeAndType:
+model CoCoVectorInputPortSizeAndType:
     input:
-        foo[2] pA <- spike
-        bar1[3] pA <- excitatory spike
-        bar2[3] pA <- inhibitory spike
+        foo[2] <- spike
+        bar1[3] <- excitatory spike
+        bar2[3] <- inhibitory spike

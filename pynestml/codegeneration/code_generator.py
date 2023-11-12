@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, List, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, List, Optional, Sequence
 
 import glob
 import os
@@ -33,8 +33,7 @@ from jinja2 import Environment, FileSystemLoader, Template, TemplateRuntimeError
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -72,8 +71,7 @@ class CodeGenerator(WithOptions):
         templates_root_dir = self.get_option("templates")["path"]
         if not os.path.isabs(templates_root_dir):
             # Prefix the default templates location
-            resources_dir = "resources_" + self._target.lower()
-            templates_root_dir = os.path.join(os.path.dirname(__file__), resources_dir, templates_root_dir)
+            templates_root_dir = os.path.join(os.path.dirname(__file__), templates_root_dir)
             code, message = Messages.get_template_root_path_created(templates_root_dir)
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         if not os.path.isdir(templates_root_dir):
@@ -97,8 +95,6 @@ class CodeGenerator(WithOptions):
         # Setup modules template environment
         if "module_templates" in self.get_option("templates"):
             module_templates = self.get_option("templates")["module_templates"]
-            if not module_templates:
-                raise Exception("A list of module template files/directories is missing.")
             self._module_templates.extend(self._setup_template_env(module_templates, templates_root_dir))
 
     def _init_templates_list(self):
@@ -151,11 +147,11 @@ class CodeGenerator(WithOptions):
         return _abs_template_paths
 
     @abstractmethod
-    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+    def generate_code(self, models: Sequence[ASTModel]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 
-    def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
+    def generate_neurons(self, neurons: Sequence[ASTModel]) -> None:
         """
         Generate code for the given neurons.
 
@@ -169,7 +165,7 @@ class CodeGenerator(WithOptions):
                 code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-    def generate_synapses(self, synapses: Sequence[ASTSynapse]) -> None:
+    def generate_synapses(self, synapses: Sequence[ASTModel]) -> None:
         """
         Generates code for a list of synapses.
         :param synapses: a list of synapses.
@@ -197,7 +193,6 @@ class CodeGenerator(WithOptions):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-
         for _model_templ in model_templates:
             templ_file_name = os.path.basename(_model_templ.filename)
             if len(templ_file_name.split(".")) < 2:
@@ -222,19 +217,19 @@ class CodeGenerator(WithOptions):
             with open(rendered_templ_file_name, "w+") as f:
                 f.write(str(_file))
 
-    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
+    def generate_neuron_code(self, neuron: ASTModel) -> None:
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron),
                                  model_name_escape_string="@NEURON_NAME@")
 
-    def generate_synapse_code(self, synapse: ASTNeuron) -> None:
+    def generate_synapse_code(self, synapse: ASTModel) -> None:
         self.generate_model_code(synapse.get_name(),
                                  model_templates=self._model_templates["synapse"],
                                  template_namespace=self._get_synapse_model_namespace(synapse),
                                  model_name_escape_string="@SYNAPSE_NAME@")
 
-    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]) -> None:
         self.generate_model_code(FrontendConfiguration.get_module_name(),
                                  model_templates=self._module_templates,
                                  template_namespace=self._get_module_namespace(neurons, synapses),

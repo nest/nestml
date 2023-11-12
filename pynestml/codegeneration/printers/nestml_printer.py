@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.model_printer import ModelPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -42,15 +41,15 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
@@ -58,7 +57,6 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -76,19 +74,11 @@ class NESTMLPrinter(ModelPrinter):
     def __init__(self):
         self.indent = 0
 
-    def print_neuron(self, node: ASTNeuron) -> str:
+    def print_model(self, node: ASTModel) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         self.inc_indent()
-        ret += "neuron " + node.get_name() + ":" + print_sl_comment(node.in_comment)
+        ret += "model " + node.get_name() + ":" + print_sl_comment(node.in_comment)
         ret += "\n" + self.print(node.get_body())
-        self.dec_indent()
-        return ret
-
-    def print_synapse(self, node: ASTSynapse) -> str:
-        ret = print_ml_comments(node.pre_comments, self.indent, False)
-        self.inc_indent()
-        ret += "synapse " + node.get_name() + ":" + print_sl_comment(node.in_comment)
-        ret += "\n" + self.print(node.get_body()) + "\n"
         self.dec_indent()
         return ret
 
@@ -177,7 +167,7 @@ class NESTMLPrinter(ModelPrinter):
         self.dec_indent()
         return ret
 
-    def print_neuron_or_synapse_body(self, node: ASTNeuronOrSynapseBody) -> str:
+    def print_model_body(self, node: ASTModelBody) -> str:
         ret = ""
         for elem in node.body_elements:
             ret += self.print(elem)
@@ -253,7 +243,7 @@ class NESTMLPrinter(ModelPrinter):
                 ret += ","
         ret += " " + self.print(node.get_data_type()) + " "
         if node.has_size_parameter():
-            ret += "[" + node.get_size_parameter() + "] "
+            ret += "[" + self.print(node.get_size_parameter()) + "] "
         if node.has_expression():
             ret += "= " + self.print(node.get_expression())
         if node.has_invariant():
@@ -370,15 +360,15 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_datatype():
             ret += " " + self.print(node.get_datatype()) + " "
         if node.has_size_parameter():
-            ret += "[" + node.get_size_parameter() + "]"
-        ret += "<-"
+            ret += "[" + self.print(node.get_size_parameter()) + "]"
+        ret += " <- "
         if node.has_input_qualifiers():
             for qual in node.get_input_qualifiers():
                 ret += self.print(qual) + " "
         if node.is_spike():
             ret += "spike"
         else:
-            ret += "current"
+            ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
 
@@ -400,13 +390,9 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
         ret = ""
-        if node.get_neuron_list() is not None:
-            for neuron in node.get_neuron_list():
-                ret += self.print(neuron)
-
-        if node.get_synapse_list() is not None:
-            for synapse in node.get_synapse_list():
-                ret += self.print(synapse)
+        if node.get_model_list() is not None:
+            for model in node.get_model_list():
+                ret += self.print(model)
 
         return ret
 
@@ -442,7 +428,9 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_output_block(self, node: ASTOutputBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "output: " + ("spike" if node.is_spike() else "current")
+        ret += print_n_spaces(self.indent) + "output:\n"
+        ret += print_n_spaces(self.indent + 4)
+        ret += "spike" if node.is_spike() else "continuous"
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
         return ret
@@ -535,7 +523,13 @@ class NESTMLPrinter(ModelPrinter):
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
-        ret += (self.print(node.get_block()) + print_n_spaces(self.indent) + "\n")
+        ret += self.print(node.get_block())
+        return ret
+
+    def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent) + "onCondition(" + self.print(node.get_cond_expr()) + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += self.print(node.get_block())
         return ret
 
     def print_update_block(self, node: ASTUpdateBlock):

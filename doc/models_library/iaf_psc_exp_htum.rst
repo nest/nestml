@@ -56,16 +56,16 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "C_m", "pF", "250pF", "Capacitance of the membrane"    
-    "tau_m", "ms", "10ms", "Membrane time constant"    
-    "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"    
-    "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"    
-    "t_ref_abs", "ms", "2ms", "Absolute refractory period"    
-    "t_ref_tot", "ms", "2ms", "total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"    
-    "E_L", "mV", "-70mV", "Resting potential"    
-    "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potentia. lRELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L)."    
-    "V_th", "mV", "-55.0mV - E_L", "Threshold, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (E_L + V_th)"    
+
+    "C_m", "pF", "250pF", "Capacitance of the membrane"
+    "tau_m", "ms", "10ms", "Membrane time constant"
+    "tau_syn_inh", "ms", "2ms", "Time constant of inhibitory synaptic current"
+    "tau_syn_exc", "ms", "2ms", "Time constant of excitatory synaptic current"
+    "t_ref_abs", "ms", "2ms", "Absolute refractory period"
+    "t_ref_tot", "ms", "2ms", "total refractory period, if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"
+    "E_L", "mV", "-70mV", "Resting potential"
+    "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potentia. lRELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (V_reset + E_L)."
+    "V_th", "mV", "-55.0mV - E_L", "Threshold, RELATIVE TO RESTING POTENTIAL(!) I.e. the real threshold is (E_L + V_th)"
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -77,9 +77,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "r_tot", "integer", "0", ""    
-    "r_abs", "integer", "0", ""    
+
+    "r_tot", "integer", "0", ""
+    "r_abs", "integer", "0", ""
     "V_m", "mV", "0.0mV", "Membrane potential"
 
 
@@ -91,14 +91,14 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -V_{m} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -V_{m} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right)
 
 
 
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_psc_exp_htum <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_htum.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_psc_exp_htum <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_htum_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -108,4 +108,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.961309
+   Generated at 2023-08-22 14:29:44.584571

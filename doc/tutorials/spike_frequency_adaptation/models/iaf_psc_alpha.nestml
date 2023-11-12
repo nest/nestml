@@ -56,7 +56,7 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 """
-neuron iaf_psc_alpha:
+model iaf_psc_alpha_neuron:
 
     state:
         r integer = 0      # Counts number of tick during the refractory period
@@ -65,7 +65,7 @@ neuron iaf_psc_alpha:
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes) + I_e + I_stim
+        inline I pA = (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) * pA + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I / C_m
 
     parameters:
@@ -85,8 +85,8 @@ neuron iaf_psc_alpha:
         RefractoryCounts integer = steps(t_ref)    # refractory time in steps
 
     input:
-        exc_spikes pA <- excitatory spike
-        inh_spikes pA <- inhibitory spike
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
     output:
@@ -98,11 +98,11 @@ neuron iaf_psc_alpha:
         else: # neuron is absolute refractory
             r = r - 1
 
-        if V_m >= V_th: # threshold crossing
-            # A supra-threshold membrane potential should never be observable.
-            # The reset at the time of threshold crossing enables accurate
-            # integration independent of the computation step size, see [2,3] for
-            # details.
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(V_m >= V_th): # threshold crossing
+        # A supra-threshold membrane potential should never be observable.
+        # The reset at the time of threshold crossing enables accurate
+        # integration independent of the computation step size, see [2,3] for
+        # details.
+        r = RefractoryCounts
+        V_m = V_reset
+        emit_spike()

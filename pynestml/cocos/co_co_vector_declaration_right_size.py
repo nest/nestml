@@ -21,7 +21,7 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
@@ -36,7 +36,7 @@ class CoCoVectorDeclarationRightSize(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron):
+    def check_co_co(cls, node: ASTModel):
         visitor = VectorDeclarationVisitor()
         visitor._neuron = node
         node.accept(visitor)

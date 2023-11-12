@@ -1,0 +1,280 @@
+#
+#  {{neuronName}}_impl.py
+#
+#  This file is part of NEST.
+#
+#  Copyright (C) 2004 The NEST Initiative
+#
+#  NEST is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  NEST is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  Generated from NESTML at time: {{now}}
+
+from spinn_front_end_common.interface.ds import DataType
+from spinn_front_end_common.utilities.constants import BYTES_PER_WORD
+from spynnaker.pyNN.utilities.struct import Struct
+from spynnaker.pyNN.models.neuron.implementations import (
+    AbstractNeuronImpl, RangedDictVertexSlice)
+
+from spinn_utilities.overrides import overrides
+
+class {{neuronName}}Impl(AbstractNeuronImpl):
+
+    def __init__(self,
+                 # state:
+{%- for sym in neuron.get_state_symbols() %}
+                 {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # parameters:
+{%- for sym in neuron.get_parameter_symbols() %}
+                 {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+                 {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+                 {{sym.get_symbol_name()}},
+{%- endfor %}
+                 # internals:
+{%- for sym in neuron.get_internal_symbols() %}
+                 {{ sym.get_symbol_name() }},
+{%- endfor %}
+                ):
+
+        # state:
+{%- for sym in neuron.get_state_symbols() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+        # parameters:
+{%- for sym in neuron.get_parameter_symbols() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+        # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+        # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+        # internals:
+{%- for sym in neuron.get_internal_symbols() %}
+        self._{{sym.get_symbol_name()}} = {{sym.get_symbol_name()}}
+{%- endfor %}
+
+# INFO: Has to be same order as the neuron struct (I guess for value assignment)
+        self._struct = Struct([
+                 # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name") %}
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() | sort(attribute="name") %}
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
+                 # state:
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
+                 # parameters:
+{%- for sym in neuron.get_parameter_symbols() | sort(attribute="name")%}
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
+                 # internals:
+{%- for sym in neuron.get_internal_symbols() | sort(attribute="name")%}
+            ({{type_symbol_printer.print(sym.type_symbol)}},   "{{sym.get_symbol_name()}}"),
+{%- endfor %}
+            ])
+
+    @property
+    @overrides(AbstractNeuronImpl.structs)
+    def structs(self):
+        return [self._struct]
+
+    @property
+    @overrides(AbstractNeuronImpl.model_name)
+    def model_name(self):
+        return "{{neuronName}}Impl"
+
+    @property
+    @overrides(AbstractNeuronImpl.binary_name)
+    def binary_name(self):
+        return "{{neuronName}}_impl.aplx"
+
+    @overrides(AbstractNeuronImpl.get_global_weight_scale)
+    def get_global_weight_scale(self):
+        # TODO: Update if a weight scale is required
+        return 1.
+
+    @overrides(AbstractNeuronImpl.get_n_synapse_types)
+    def get_n_synapse_types(self):
+        return 0 \
+{%- for inputPort in neuron.get_spike_input_ports() %}
+                + 1 \
+{%- endfor %}
+                + 0
+
+    @overrides(AbstractNeuronImpl.get_synapse_id_by_target)
+    def get_synapse_id_by_target(self, target):
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name")%}
+        if target == "{{sym.get_symbol_name()}}":
+            return {{loop.index -1}}
+{%- endfor %}
+        raise ValueError("Unknown target {}".format(target))
+
+    @overrides(AbstractNeuronImpl.get_synapse_targets)
+    def get_synapse_targets(self):
+        return [
+{%- for sym in neuron.get_spike_input_ports() | sort(attribute="name")%}
+            "{{sym.get_symbol_name()}}",
+{%- endfor %}
+               ]
+
+    @overrides(AbstractNeuronImpl.get_recordable_variables)
+    def get_recordable_variables(self):
+        return [
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
+            "{{sym.get_symbol_name()}}",
+{%- endfor %} 
+        ]
+
+    @overrides(AbstractNeuronImpl.get_recordable_data_types)
+    def get_recordable_data_types(self):
+        return {
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
+            "{{sym.get_symbol_name()}}": DataType.S1615,
+{%- endfor %}
+            }
+
+    @overrides(AbstractNeuronImpl.get_recordable_units)
+    def get_recordable_units(self, variable):
+{%- for sym in neuron.get_state_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+        raise ValueError("Unknown variable {}".format(variable))
+
+    @overrides(AbstractNeuronImpl.get_recordable_variable_index)
+    def get_recordable_variable_index(self, variable):
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
+        if variable == "{{sym.get_symbol_name()}}":
+            return {{loop.index-1}}
+{%- endfor %}
+
+        raise ValueError("Unknown variable {}".format(variable))
+
+    @overrides(AbstractNeuronImpl.is_recordable)
+    def is_recordable(self, variable):
+        return variable in [
+{%- for sym in neuron.get_state_symbols() %}
+        "{{sym.get_symbol_name()}}",
+{%- endfor %}
+                           ]
+
+    @overrides(AbstractNeuronImpl.add_parameters)
+    def add_parameters(self, parameters):
+{%- for sym in neuron.get_parameter_symbols() %}
+        parameters["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+
+    @overrides(AbstractNeuronImpl.add_state_variables)
+    def add_state_variables(self, state_variables):
+{%- for sym in neuron.get_state_symbols() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+                 # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+                 # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+                 # internals:
+{%- for sym in neuron.get_internal_symbols() %}
+        state_variables["{{sym.get_symbol_name()}}"] = self._{{sym.get_symbol_name()}}
+{%- endfor %}
+
+    @overrides(AbstractNeuronImpl.get_units)
+    def get_units(self, variable):
+        # state:
+{%- for sym in neuron.get_state_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+        # parameters:
+{%- for sym in neuron.get_parameter_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+        # spike input ports:
+{%- for sym in neuron.get_spike_input_ports() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+        # continuous input ports:
+{%- for sym in neuron.get_continuous_input_ports() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+        # internal parameters:
+{%- for sym in neuron.get_internal_symbols() %}
+{%- with type_symbol = sym.get_type_symbol() %}
+        if variable == "{{sym.get_symbol_name()}}":
+{%- if type_symbol.is_instance_of(UnitTypeSymbol)%}
+            return "{{sym.get_type_symbol().astropy_unit}}"
+{%- else %}
+            return ""
+{%- endif%}
+{%- endwith%}
+{%- endfor %}
+
+        raise ValueError("Unknown variable {}".format(variable))
+
+    @property
+    @overrides(AbstractNeuronImpl.is_conductance_based)
+    def is_conductance_based(self):
+        # TODO: Update if uses conductance
+        return False

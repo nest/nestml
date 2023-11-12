@@ -28,6 +28,8 @@ import json
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.messages import MessageCode
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_input_port import ASTInputPort
 
 
 class LoggingLevel(Enum):
@@ -132,8 +134,8 @@ class Logger:
             '(PyNestML.Logger) Wrong type of node provided (%s)!' % type(node)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
             '(PyNestML.Logger) Wrong type of error position provided (%s)!' % type(error_position)
-        from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-        if isinstance(node, ASTNeuronOrSynapse):
+        from pynestml.meta_model.ast_model import ASTModel
+        if isinstance(node, ASTModel):
             cls.log[cls.curr_message] = (
                 node.get_artifact_name(), node, log_level, code, error_position, message)
         elif cls.current_node is not None:
@@ -143,8 +145,15 @@ class Logger:
         if cls.no_print:
             return
         if cls.logging_level.value <= log_level.value:
+            if isinstance(node, ASTInlineExpression):
+                node_name = node.variable_name
+            elif node is None:
+                node_name = "unknown node"
+            else:
+                node_name = node.get_name()
+
             to_print = '[' + str(cls.curr_message) + ','
-            to_print = (to_print + (node.get_name() + ', ' if node is not None else
+            to_print = (to_print + (node_name + ', ' if node is not None else
                                     cls.current_node.get_name() + ', ' if cls.current_node is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '

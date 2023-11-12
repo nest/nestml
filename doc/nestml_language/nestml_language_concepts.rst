@@ -5,26 +5,26 @@ NESTML language concepts
 Structure and indentation
 -------------------------
 
-NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent (i.e. post block) statements must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
+NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Functions`, :ref:`Control structures`, or any of the block in :ref:`Block types`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
 
-   neuron test:
+   model test_neuron:
        state:
-           tau ms = 42 ms
-           foo s = 0 s
+           foo integer = 42
+           bar s = 0 s
 
        update:
-           if tau > 0:
-               foo += 1
+           if foo > 42:
+               bar += 1 ms
            else:
-               foo -= 1
+               bar -= 1 ms
 
 Similar to Python, a single line can be split into multiple lines by using a backslash (``\``). For example, the expression in the ``update`` block of the model below is split into multiple lines using this technique.
 
 .. code-block:: nestml
 
-   neuron test:
+   model test_neuron:
        state:
            tau ms = 42 ms
            foo s = 0 s
@@ -134,71 +134,71 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
    * - radian
      - rad
      - angle
-     - 
+     -
      - m⋅m\ :sup:`-1`
    * - steradian
      - sr
      - solid angle
-     - 
+     -
      - m\ :sup:`2`\ ⋅m\ :sup:`−2`
    * - Hertz
      - Hz
      - frequency
      -
      - s\ :sup:`−1`
-   * - Newton      
-     - N        
-     - force, weight                                
+   * - Newton
+     - N
+     - force, weight
      -
      - kg⋅m⋅s\ :sup:`−2`
-   * - Pascal      
-     - Pa       
-     - pressure, stress                             
-     - N/m\ :sup:`2`                                                                                                        
+   * - Pascal
+     - Pa
+     - pressure, stress
+     - N/m\ :sup:`2`
      - kg⋅m\ :sup:`−1`\ ⋅s\ :sup:`−2`
-   * - Joule       
-     - J        
-     - energy, work, heat                           
+   * - Joule
+     - J
+     - energy, work, heat
      - N⋅m=Pa⋅m\ :sup:`3`
-     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−2`                                                                       
-   * - Watt        
-     - W        
-     - power, radiant flux                          
-     - J/s                                                                                                         
-     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`                                                                                         
-   * - Coulomb     
-     - C        
-     - electric charge or quantity of electricity   
-     -                                                                                                             
-     - s⋅A                                                                                                    
-   * - Volt        
-     - V        
-     - voltage (electrical potential), emf          
-     - W/A                                                                                                         
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−2`
+   * - Watt
+     - W
+     - power, radiant flux
+     - J/s
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`
+   * - Coulomb
+     - C
+     - electric charge or quantity of electricity
+     -
+     - s⋅A
+   * - Volt
+     - V
+     - voltage (electrical potential), emf
+     - W/A
      - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`\ ⋅ A\ :sup:`−1`
    * - Farad
      - F
      - capacitance
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
-   * - Ohm         
-     - Ω        
-     - resistance, impedance, reactance             
-     - V/A                                                                                                         
-     - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )                                                                           
-   * - Siemens     
-     - S        
-     - electrical conductance                       
+   * - Ohm
+     - Ω
+     - resistance, impedance, reactance
+     - V/A
+     - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )
+   * - Siemens
+     - S
+     - electrical conductance
      - Ω\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
-   * - Weber       
-     - Wb       
-     - magnetic flux                                
-     - V⋅s                                                                                                         
-     - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )                                                                         
-   * - Tesla       
-     - T        
-     - magnetic flux density                        
+   * - Weber
+     - Wb
+     - magnetic flux
+     - V⋅s
+     - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )
+   * - Tesla
+     - T
+     - magnetic flux density
      - Wb/m\ :sup:`2`
      - kg⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )
    * - Henry
@@ -206,36 +206,36 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - inductance
      - Wb/A
      - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−2`\ )
-   * - lumen       
-     - lm       
-     - luminous flux                                
+   * - lumen
+     - lm
+     - luminous flux
      - cd⋅sr
      - cd
    * - lux
      - lx
      - illuminance
      - lm/m\ :sup:`2`
-     - m\ :sup:`−2`\ ⋅ cd                                                 
-   * - Becquerel   
-     - Bq       
-     - radioactivity (decays per unit time)         
-     -                                                                                                             
+     - m\ :sup:`−2`\ ⋅ cd
+   * - Becquerel
+     - Bq
+     - radioactivity (decays per unit time)
+     -
      - s\ :sup:`−1`
-   * - Gray        
-     - Gy       
-     - absorbed dose (of ionizing radiation)        
-     - J/kg                                                                                                        
-     - (m\ :sup:`2`\ )⋅(s\ :sup:`−2`\ )                                                                                      
-   * - Sievert     
-     - Sv       
-     - equivalent dose (of ionizing radiation)      
-     - J/kg                                                                                                        
-     - (m\ :sup:`2`\ )⋅ (s\ :sup:`−2`\ )                                                                                      
-   * - katal       
-     - kat      
-     - catalytic activity                           
-     -                                                                                                             
-     - mol⋅(s\ :sup:`−1`\ )                                                                                            
+   * - Gray
+     - Gy
+     - absorbed dose (of ionizing radiation)
+     - J/kg
+     - (m\ :sup:`2`\ )⋅(s\ :sup:`−2`\ )
+   * - Sievert
+     - Sv
+     - equivalent dose (of ionizing radiation)
+     - J/kg
+     - (m\ :sup:`2`\ )⋅ (s\ :sup:`−2`\ )
+   * - katal
+     - kat
+     - catalytic activity
+     -
+     - mol⋅(s\ :sup:`−1`\ )
 
 
 Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
@@ -244,102 +244,42 @@ Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
 
    x = 10 N * 22 Ohm / 0.5 V
 
-Physical unit literals
-~~~~~~~~~~~~~~~~~~~~~~
-
-Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two):
-
-::
-
-   <number> <unit_type>
-
-e.g.:
-
-.. code-block:: nestml
-
-   V_m mV = 1 mV
-
-Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
-
-.. code-block:: nestml
-
-   V_rest = -55 mV/s**2
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion from unit-typed to ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+
 
 Basic elements of the embedded programming language
 ---------------------------------------------------
-
-The basic elements of the language are declarations, assignments, function calls and return statements.
-
-Declarations
-~~~~~~~~~~~~
-
-Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
-
-::
-
-    ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*
-
-Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
-
-
-::
-
-    <list_of_comma_separated_names> <type> (= initialization_expression)?
-
-.. code-block:: nestml
-
-    a, b, c real = -0.42
-    d integer = 1
-    n integer # default value is 0
-    e string = "foo"
-    f mV = -2e12 mV
-
-It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
-
-For example, the following model will result in one warning and one error:
-
-.. code-block:: nestml
-
-   neuron test:
-       state:
-           ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
-           foo s = 0 s     # foo has units of time (seconds)
-
-       update:
-           ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
-           foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
 Documentation string
 ~~~~~~~~~~~~~~~~~~~~
 
-Each neuron model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
+Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
 
 .. code-block:: nestml
 
    """
-   iaf_psc_custom: My customized version of iaf_psc
-   ################################################
-   
+   my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   #################################################################
+
    Description
    +++++++++++
-   
+
    Long description follows here. We can typeset LaTeX math:
-   
+
    .. math::
 
       E = mc^2
-   
+
    """
-   neuron iaf_psc_custom:
+   model my_custom_neuron:
        # [...]
 
-This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
+This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 
 Comments in the model
@@ -353,7 +293,7 @@ Example of single or multi-line comments:
 
    var1 real # single line comment
 
-   # This is 
+   # This is
    #  a comment
    #   over several lines.
 
@@ -386,6 +326,45 @@ Whitelines are therefore used to separate comment targets:
    V_rest mV = -60 mV
 
 
+Declarations
+~~~~~~~~~~~~
+
+Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
+
+::
+
+    ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )+
+
+Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
+
+
+::
+
+    <list_of_comma_separated_names> <type> (= initialization_expression)?
+
+.. code-block:: nestml
+
+    a, b, c real = -0.42
+    d integer = 1
+    n integer # default value is 0
+    e string = "foo"
+    f mV = -2e12 mV
+
+It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
+
+For example, the following model will result in one warning and one error:
+
+.. code-block:: nestml
+
+   model test_neuron:
+       state:
+           ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
+           foo s = 0 s     # foo has units of time (seconds)
+
+       update:
+           ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
+           foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
+
 Assignments
 ~~~~~~~~~~~
 
@@ -393,8 +372,8 @@ NESTML supports simple or compound assignments. The left-hand side of the assign
 
 Examples for valid assignments for a numeric variable ``n`` are
 
-* simple assignment: ``n = 10`` 
-* compound sum: ``n += 10`` which corresponds to ``n = n + 10`` 
+* simple assignment: ``n = 10``
+* compound sum: ``n += 10`` which corresponds to ``n = n + 10``
 * compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
@@ -473,7 +452,7 @@ e.g.
 Predefined functions
 ^^^^^^^^^^^^^^^^^^^^
 
-The following functions are predefined in NESTML and can be used out of the box:
+The following functions are predefined in NESTML and can be used out of the box. No functions can be defined in NESTML that have the same name.
 
 .. list-table::
    :header-rows: 1
@@ -488,6 +467,9 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``max``
      - x, y
      - Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters.
+   * - ``abs``
+     - x
+     - Returns the absolute value of x. The return type is equal to the type of x.
    * - ``clip``
      - x, y, z
      - Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type.
@@ -512,6 +494,21 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``tanh``
      - x
      - Returns the hyperbolic tangent of x. The type of x and the return type are Real.
+   * - ``erf``
+     - x
+     - Returns the error function of x. The type of x and the return type are Real.
+   * - ``erfc``
+     - x
+     - Returns the complementary error function of x. The type of x and the return type are Real.
+   * - ``ceil``
+     - x
+     - Returns the ceil of x. The type of x and the return type are Real.
+   * - ``floor``
+     - x
+     - Returns the floor of x. The type of x and the return type are Real.
+   * - ``round``
+     - x
+     - Returns the rounded value of x. The type of x and the return type are Real.
    * - ``random_normal``
      - mean, std
      - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
@@ -548,6 +545,7 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``resolution``
      -
      - Returns the current resolution of the simulation in ms. See the section :ref:`Handling of time` for more information.
+
 
 Return statement
 ^^^^^^^^^^^^^^^^
@@ -590,6 +588,26 @@ Variables defined in the model can be printed by enclosing them in ``{`` and ``}
         print("A spike event with membrane voltage: {V_m}")
         ...
         println("Membrane voltage {V_m} is less than the threshold {V_thr}")
+
+
+Predefined variables and constants
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following variables and constants are predefined in NESTML and can be used out of the box. No variables can be defined in NESTML that have the same name.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 30
+
+   * - Name
+     - Description
+   * - ``t``
+     - The current simulation time (read only)
+   * - ``e``
+     - Euler's constant (2.718...)
+   * - ``inf``
+     - Floating point infinity
+
 
 Control structures
 ~~~~~~~~~~~~~~~~~~
@@ -769,7 +787,7 @@ For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ 
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every model. The general syntax looks like this:
 
 ::
 
@@ -779,17 +797,21 @@ To structure NESTML files, all content is structured in blocks. Blocks begin wit
 Block types
 ~~~~~~~~~~~
 
-``neuron <name>`` - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create("<name>")``. All following blocks are contained in this block.
+``model <name>`` - The top-level block of a model called ``<name>``. All following blocks are contained in this block.
 
 Within the top-level block, the following blocks may be defined:
 
--  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
--  ``state`` - This block is composed of a list of variable declarations that describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
--  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
--  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
--  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
--  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language.
+- ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead.
+- ``internals`` - This block is composed of a list of helper parameters which remain constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
+- ``state`` - This block is composed of a list of variable declarations that describe the state of the model which may change over time.
+- ``equations`` - This block contains kernel declarations, inline expressions, and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
+- ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
+- ``output`` - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
+- ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event). The length of the timestep is given by the function ``resolution()``. If there are ODEs that need to be integrated in time, statements in this block are responsible for performing the integration by calling ``integrate_odes()``. At the start of the block, the state corresponds to that at time :math:`t`; at the end of the block, the state should have been updated (by the statements) to :math:`t+\texttt{resolution()}`.
+- ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
+- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds, within each (fixed resolution) simulation timestep. This makes the model more generic with respect to the simulator that is used.
+
+
 
 Input
 -----
@@ -800,36 +822,121 @@ For more details, on handling inputs in neuron and synapse models, please see :d
 
 
 Output
-~~~~~~
+------
 
 Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
 
 .. code-block:: nestml
 
-   output: spike
+   output:
+       spike
 
 
-Handling of time
-----------------
+Dynamics and time evolution
+---------------------------
 
-To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
+We will first define the model in mathematical terms, and then show how to model it with NESTML. The following text is based on [2]_.
 
--  ``resolution`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
--  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+Consider a linear, time-invariant system
 
-These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
+.. math::
 
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
+   \dot{\mathbf{x}} = \mathbf{Ax} + \mathbf{y}
 
-.. code-block:: nestml
+Here, :math:`\mathbf{x}(t)` is the time-dependent state of the system, and :math:`\mathbf{y}(t)` is the time-dependent input to the system. Both :math:`\mathbf{x}` and :math:`\mathbf{y}` are :math:`n`-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear differential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A solution to the homogeneous (zero-input) equation :math:`\dot{\mathbf{x}}=A\mathbf{x}` is given by the matrix exponential :math:`x(t) = \exp{\mathbf{A}t}`.
 
-   parameters:
-       h ms = resolution()   # !! NOT RECOMMENDED.
+The unique solution of the full equation with initial value :math:`\mathbf{x}(t_0)` is
 
-   update:
-       # update from t to t + resolution()
-       x *= exp(-resolution() / tau)   # let x' = -x / tau
-                                       # evolve the state of x one timestep
+.. math::
+   :label: eq_b
+
+   \mathbf{x}(t) = \exp{\mathbf{A}(t - t_0)}\mathbf{x}(t_0) + \int_{t_0^+}^t \exp{\mathbf{A}(t - \tau)} \mathbf{y}(\tau) d\tau
+
+The first part of the sum is the result of passive propagation of the initial state, wheras the second part represents the input-driven response of the system.  Correspondingly, for a system with no input, the matrix :math:`exp{\mathbf{A}t}` is termed "time-evolution operator" or "propagator". In contrast, for a system with input but zero initial conditions, the same matrix is called the "impulse response" of the system.
+
+Digital simulation means to compute the response :math:`\mathbf{x}(t)` of the system to a prescribed input :math:`\mathbf{y}(t)`  on an evenly sampled grid :math:`t_k = k\cdot \Delta t` where :math:`\Delta t` is a fixed step size and :math:`k` takes only integer values. The function :math:`x(t)` then corresponds to the sequence :math:`x(t_k)` of its samples on the grid. For a special type of input functions, the simulation can be performed in an exact way, avoiding potentially inaccurate and unstable integration methods. To this end, we consider functions :math:`\mathbf{y}(t)` of the form
+
+.. math::
+
+   \mathbf{y}(t) = \sum_k \mathbf{y}(t_k) \delta(t - t_k)
+
+where :math:`\mathbf{y}` is an :math:`n`\ -dimensional vector for each :math:`k`, and :math:`\delta(t)` is the scalar Dirac delta function.
+
+For pulse train inputs which are restricted to the grid,
+the temporal evolution of the continuous system (2)
+collapses to a discrete matrix equation. Namely, if we let :math:`t_0 = t_k` and :math:`t = t_{k+1}` be two successive points on the grid, the solution to :eq:`eq_b` is
+
+.. math::
+   :label: eq_iter
+
+   x(t_{k+1}) = \exp{\mathbf{A}h} \cdot \mathbf{x}(t_k) + \mathbf{y}(t_{k+1})
+
+which can be interpreted as an iteration
+
+
+::
+
+         y_1   y_2   y_3
+          ↓     ↓     ↓
+   x_0 → x_1 → x_2 → x_3
+
+
+Starting with an initial state :math:`y_0` and assuming non-zero input only at :math:`t_k` for :math:`k = 1,2,3,\ldots`, it propagates the exact solution on the grid, step by step. The diagram depicts the dependency of the current output of the system on its previous output and the current input. We refer to the iteration :eq:`eq_b` as the method of "Exact Integration". For a time-invariant system, it is based on the fixed numerical matrix :math:`\exp{\mathbf{A}\cdot\Delta t}`, which has to be computed only once by using appropriate standard numerical algorithms. During code generation, this step is performed by ODE-toolbox.
+
+Example: exponential decay
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a scalar value :math:`x` and no external input:
+
+.. math::
+
+   \dot{x} = -ax
+
+with initial condition :math:`x(0) = x_0`, the solution of this initial value problem is given by
+
+.. math::
+
+   x(t) = x_0\exp{-at}
+
+The iteration yields the sequence
+
+.. math::
+
+   x(t_{k+1}) = \exp{-ah} x(t_k)
+
+Consider now the same system with input:
+
+.. math::
+
+   \dot{x} = -ax + I
+
+As input, we take a pulse train on the grid. The response :math:`x(t)` is then
+
+.. math::
+
+   x(t) = \int_0^t \exp{-a(t - \tau)} I d\tau
+
+The result of a discrete iteration according to :eq:`eq_iter` can be seen as a system which relaxes from its previous state according to its autonomous dynamics, and which then updates its initial conditions to satisfy the input.
+
+
+Example: integrate-and fire
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. math::
+
+   \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} = \left[\begin{aligned}\tau_\text{syn} & 0\\
+   \frac{1}{C_m} & -\frac{1}{\tau_m} \end{aligned}\right]
+
+where the initial conditions are defined at the time that an incoming spike is handled, that is that the variable
+
+.. math::
+
+   \mathbf{x}(0) = \left[\begin{aligned}\Delta I_\text{PSP}\\V_{m,0}\end{aligned}\right]
+
+In a grid-constrained simulation, only delays that are an integer multiple of h can be considered because incoming spikes can be handled only at grid points.
+
+If a neuron emits a spike at time t that has a delay of d, the simulation algorithm waits until all neurons have completed their updates for the integration step (t − h, t] and then delivers the event to its target(s).
+
 
 Equations
 ---------
@@ -894,7 +1001,7 @@ For a full example, please refer to the tests at `tests/nest_tests/nest_delay_ba
    - Delay differential equations with multiple delay values for the same variable are also not supported.
 
 Inline expressions
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or kernel expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
 
@@ -905,9 +1012,32 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
+The ``recordable`` keyword can be used to make inline available to recording devices:
+
+.. code-block:: nestml
+
+   equations:
+       ...
+       recordable inline V_m mV = V_rel + E_L
+
+An special case is when an inline expression is defined as a simple convolution and marked ``recordable``:
+
+.. code-block:: nestml
+
+   recordable inline I_syn pA = convolve(alpha_kernel, spiking_input_port) * pA
+
+During code generation, one or more state variables are created for each unique combination of (kernel, spike input port) that appears in convolution statements. These state variables keep track of the state of the convolution across time, and can be referenced in the rest of the model, for instance:
+
+.. code-block:: nestml
+
+   update:
+     # reset the state of synaptic integration
+     I_syn = 0 pA
+     I_syn' = 0 * s**-1
+
 
 Kernel functions
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 A `kernel` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying kernel could be described as a direct function of time, as follows:
 
@@ -993,61 +1123,87 @@ Currently, there is support for GSL and exact integration. ODEs that can be solv
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
 
 
-Dynamics and time evolution
----------------------------
+Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model from the "current" time ``t`` to the next timestep ``t + resolution()``.
 
-Inside the ``update`` block, the current time can be accessed via the variable ``t``.
+Integrating the ODEs needs to be triggered explicitly in NESTML by using the ``integrate_odes()`` in the ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulses to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. This allows a wider range of model behaviour to be reproduced from the literature.
 
-``integrate_odes``: this function can be used to integrate all stated differential equations of the ``equations`` block.
+The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
 
-``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
-
-
-Concepts for refractoriness
----------------------------
-
-In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
-
-.. code-block:: nestml
-
-   parameters:
-       t_ref ms = 5 ms
-
-   internals:
-       ref_counts = 0
-
-   update:
-       if ref_count == 0: # neuron is in non-refractory state
-           if <refractoriness_condition>:
-               ref_counts = steps(t_ref) # make neuron refractory for 5 ms
-           else:
-               ref_counts -= 1 # neuron is refractory
+Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The affected state variables are updated when the ``process_spikes()`` function is called for that input port. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 
 
-Setting and retrieving model properties
----------------------------------------
+Integration order
+~~~~~~~~~~~~~~~~~
 
--  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
--  Values can be set using ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>`` is the name of the corresponding NESTML variable.
--  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This call will return the value of the corresponding NESTML variable.
+The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
+   :alt: Integration order. Modified after [1]_, their Fig. 10.2.
 
-Recording values with devices
------------------------------
-
--  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
--  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
+The numeric results of a typical are shown below. When the neuron is being updated from ``t`` to ``t + resolution()``, the subthreshold dynamics step is performed first, and then the neuron state is modified to include the spikes. The effect of the spike at time ``t`` only become visible at ``t + resolution()``. This is illustrated in the figure below, which shows a comparison between the "true" solution in blue (middle and bottom panels) to a spike arriving at 2 ms (top panel) for an integrate-and-fire neuron with an exponentially decaying postsynaptic kernel. The spike increments the value of the postsynaptic current (middle panel), which appears as a term in the membrane potential ODE (bottom panel). The effect of the spike becomes visible at the end of the timestep because ``process_spikes()`` has incremented the postsynaptic current, but the effect of the spike on the membrane potential only becomes visible one timestep later (at 3 ms) because the new value of the postsynaptic current is only taken into account in the subthreshold dynamics at the next timestep.
 
 .. code-block:: nestml
+
+   input:
+       spikes pA/s <- spike
+       I_stim pA <- continuous
+
+   state:
+       V_m mV = E_L     # Membrane potential
 
    equations:
-       ...
-       recordable inline V_m mV = V_rel + E_L
+       kernel I_kernel = exp(-t / tau_syn)
+       inline I_syn pA = convolve(I_kernel, spikes)
+       V_m' = -(V_m - E_L) / tau_m + (I_syn + I_stim) / C_m
+
+   update:
+       integrate_odes()
+
+   onCondition(V_m >= V_th): # threshold crossing
+       V_m = V_reset
+       emit_spike()
+
+
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_strageties.png
+   :alt: Numerical results from a typical simulation run.
+
+
+Emitting spikes
+~~~~~~~~~~~~~~~
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
+
+
+Predefined time-related functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
+
+-  ``resolution()`` can be used inside the ``update`` block, and returns the length of the current integration timestep that is to be taken. This can correspond to a fixed simulation resolution grid, but depending on the simulation platform, it can also be a jump from spike event to spike event.
+-  ``steps(interval)`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense for simulations for which a fixed simulation time grid is defined.
+
+These functions can be used to implement custom buffer lookup logic, but should be used with care.
+
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than assigning to to a parameter. This makes the model more robust in case of non-constant timestep. For example:
+
+.. code-block:: nestml
+
+   state:
+       x real = 1.
+
+   parameters:
+       h ms = resolution()   # !! NOT RECOMMENDED.
+
+   update:
+       # update from t to t + resolution()
+       x *= exp(-resolution() / tau)   # let x' = -x / tau
+                                       # evolve the state of x one timestep
+
 
 Guards
 ------
 
-Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
+Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through guards. These guards are checked when the variable is assigned a value.
 
 ::
 
@@ -1060,3 +1216,11 @@ e.g.:
 
    parameters:
        t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
+
+
+References
+----------
+
+.. [1] Morrison A, Diesmann M (2008). Maintaining causality in discrete time neuronal network simulations. Lectures in Supercomputational Neurosciences: Dynamics in Complex Brain Networks, 267-278.
+
+.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381±402 (1999)

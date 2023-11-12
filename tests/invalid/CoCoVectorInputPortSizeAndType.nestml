@@ -32,10 +32,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoVectorInputPortSizeAndType:
+model CoCoVectorInputPortSizeAndType:
     parameters:
         TWO integer = 2
 
     input:
-        foo[TWO] pA <- spike
-        bar[-3] pA <- spike
+        foo[TWO] <- spike
+        bar[-3] <- spike

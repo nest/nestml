@@ -10,7 +10,7 @@ Neuron models
 
 Current-based leaky integrate-and-fire neuron model with delta-kernel post-synaptic currents
 
-Source file: `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_delta.nestml>`_
+Source file: `iaf_psc_delta_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_delta_neuron.nestml>`_
 
 .. list-table::
 
@@ -26,7 +26,7 @@ Source file: `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 Leaky integrate-and-fire neuron model with exponential PSCs
 
-Source file: `iaf_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp.nestml>`_
+Source file: `iaf_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_neuron.nestml>`_
 
 .. list-table::
 
@@ -42,7 +42,7 @@ Source file: `iaf_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master
 
 Leaky integrate-and-fire neuron model
 
-Source file: `iaf_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_alpha.nestml>`_
+Source file: `iaf_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_alpha_neuron.nestml>`_
 
 .. list-table::
 
@@ -58,7 +58,7 @@ Source file: `iaf_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/mast
 
 Simple conductance based leaky integrate-and-fire neuron model
 
-Source file: `iaf_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_exp.nestml>`_
+Source file: `iaf_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_exp_neuron.nestml>`_
 
 .. list-table::
 
@@ -74,7 +74,7 @@ Source file: `iaf_cond_exp.nestml <https://www.github.com/nest/nestml/blob/maste
 
 Simple conductance based leaky integrate-and-fire neuron model
 
-Source file: `iaf_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_alpha.nestml>`_
+Source file: `iaf_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_alpha_neuron.nestml>`_
 
 .. list-table::
 
@@ -90,7 +90,7 @@ Source file: `iaf_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/mas
 
 Simple conductance based leaky integrate-and-fire neuron model
 
-Source file: `iaf_cond_beta.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_beta.nestml>`_
+Source file: `iaf_cond_beta_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_beta_neuron.nestml>`_
 
 .. list-table::
 
@@ -106,7 +106,7 @@ Source file: `iaf_cond_beta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 Izhikevich neuron model
 
-Source file: `izhikevich.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/izhikevich.nestml>`_
+Source file: `izhikevich_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/izhikevich_neuron.nestml>`_
 
 .. list-table::
 
@@ -122,7 +122,7 @@ Source file: `izhikevich.nestml <https://www.github.com/nest/nestml/blob/master/
 
 Hodgkin-Huxley neuron model
 
-Source file: `hh_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_psc_alpha.nestml>`_
+Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_psc_alpha_neuron.nestml>`_
 
 .. list-table::
 
@@ -138,7 +138,7 @@ Source file: `hh_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/maste
 
 Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_chxk_2008.nestml>`_
+Source file: `iaf_chxk_2008_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_chxk_2008_neuron.nestml>`_
 
 .. list-table::
 
@@ -154,7 +154,7 @@ Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/mast
 
 Conductance based exponential integrate-and-fire neuron model
 
-Source file: `aeif_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_exp.nestml>`_
+Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_exp_neuron.nestml>`_
 
 .. list-table::
 
@@ -170,7 +170,7 @@ Source file: `aeif_cond_exp.nestml <https://www.github.com/nest/nestml/blob/mast
 
 Conductance based exponential integrate-and-fire neuron model
 
-Source file: `aeif_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_alpha.nestml>`_
+Source file: `aeif_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_alpha_neuron.nestml>`_
 
 .. list-table::
 
@@ -186,7 +186,7 @@ Source file: `aeif_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/ma
 
 Terman Rubin neuron model
 
-Source file: `terub_gpe.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/terub_gpe.nestml>`_
+Source file: `terub_gpe_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/terub_gpe_neuron.nestml>`_
 
 
 :doc:`traub_cond_multisyn <traub_cond_multisyn>`
@@ -194,7 +194,7 @@ Source file: `terub_gpe.nestml <https://www.github.com/nest/nestml/blob/master/m
 
 Traub model according to Borgers 2017
 
-Source file: `traub_cond_multisyn.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_cond_multisyn.nestml>`_
+Source file: `traub_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_cond_multisyn_neuron.nestml>`_
 
 
 :doc:`mat2_psc_exp <mat2_psc_exp>`
@@ -202,7 +202,7 @@ Source file: `traub_cond_multisyn.nestml <https://www.github.com/nest/nestml/blo
 
 Non-resetting leaky integrate-and-fire neuron model with exponential PSCs and adaptive threshold
 
-Source file: `mat2_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/mat2_psc_exp.nestml>`_
+Source file: `mat2_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/mat2_psc_exp_neuron.nestml>`_
 
 
 :doc:`hill_tononi <hill_tononi>`
@@ -210,7 +210,7 @@ Source file: `mat2_psc_exp.nestml <https://www.github.com/nest/nestml/blob/maste
 
 Neuron model after Hill & Tononi (2005)
 
-Source file: `hill_tononi.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hill_tononi.nestml>`_
+Source file: `hill_tononi_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hill_tononi_neuron.nestml>`_
 
 
 :doc:`hh_cond_exp_traub <hh_cond_exp_traub>`
@@ -218,7 +218,7 @@ Source file: `hill_tononi.nestml <https://www.github.com/nest/nestml/blob/master
 
 Hodgkin-Huxley model for Brette et al (2007) review
 
-Source file: `hh_cond_exp_traub.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_traub.nestml>`_
+Source file: `hh_cond_exp_traub_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_traub_neuron.nestml>`_
 
 
 :doc:`iaf_cond_exp_sfa_rr <iaf_cond_exp_sfa_rr>`
@@ -226,7 +226,7 @@ Source file: `hh_cond_exp_traub.nestml <https://www.github.com/nest/nestml/blob/
 
 Conductance based leaky integrate-and-fire model with spike-frequency adaptation and relative refractory mechanisms
 
-Source file: `iaf_cond_exp_sfa_rr.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_exp_sfa_rr.nestml>`_
+Source file: `iaf_cond_exp_sfa_rr_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_cond_exp_sfa_rr_neuron.nestml>`_
 
 
 :doc:`traub_psc_alpha <traub_psc_alpha>`
@@ -234,7 +234,7 @@ Source file: `iaf_cond_exp_sfa_rr.nestml <https://www.github.com/nest/nestml/blo
 
 Traub model according to Borgers 2017
 
-Source file: `traub_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_psc_alpha.nestml>`_
+Source file: `traub_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_psc_alpha_neuron.nestml>`_
 
 
 :doc:`iaf_psc_exp_dend <iaf_psc_exp_dend>`
@@ -242,7 +242,7 @@ Source file: `traub_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/ma
 
 Leaky integrate-and-fire neuron model with exponential PSCs
 
-Source file: `iaf_psc_exp_dend.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_dend.nestml>`_
+Source file: `iaf_psc_exp_dend_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_dend_neuron.nestml>`_
 
 
 :doc:`wb_cond_exp <wb_cond_exp>`
@@ -250,7 +250,7 @@ Source file: `iaf_psc_exp_dend.nestml <https://www.github.com/nest/nestml/blob/m
 
 Wang-Buzsaki model
 
-Source file: `wb_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_exp.nestml>`_
+Source file: `wb_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_exp_neuron.nestml>`_
 
 
 :doc:`hh_cond_exp_destexhe <hh_cond_exp_destexhe>`
@@ -258,7 +258,7 @@ Source file: `wb_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master
 
 Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 
-Source file: `hh_cond_exp_destexhe.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_destexhe.nestml>`_
+Source file: `hh_cond_exp_destexhe_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_destexhe_neuron.nestml>`_
 
 
 :doc:`terub_stn <terub_stn>`
@@ -266,7 +266,7 @@ Source file: `hh_cond_exp_destexhe.nestml <https://www.github.com/nest/nestml/bl
 
 Terman Rubin neuron model
 
-Source file: `terub_stn.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/terub_stn.nestml>`_
+Source file: `terub_stn_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/terub_stn_neuron.nestml>`_
 
 
 :doc:`iaf_psc_exp_htum <iaf_psc_exp_htum>`
@@ -274,7 +274,7 @@ Source file: `terub_stn.nestml <https://www.github.com/nest/nestml/blob/master/m
 
 Leaky integrate-and-fire model with separate relative and absolute refractory period
 
-Source file: `iaf_psc_exp_htum.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_htum.nestml>`_
+Source file: `iaf_psc_exp_htum_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_htum_neuron.nestml>`_
 
 
 :doc:`izhikevich_psc_alpha <izhikevich_psc_alpha>`
@@ -282,7 +282,7 @@ Source file: `iaf_psc_exp_htum.nestml <https://www.github.com/nest/nestml/blob/m
 
 Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
 
-Source file: `izhikevich_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/izhikevich_psc_alpha.nestml>`_
+Source file: `izhikevich_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/izhikevich_psc_alpha_neuron.nestml>`_
 
 
 :doc:`wb_cond_multisyn <wb_cond_multisyn>`
@@ -290,7 +290,16 @@ Source file: `izhikevich_psc_alpha.nestml <https://www.github.com/nest/nestml/bl
 
 Wang-Buzsaki model with multiple synapses
 
-Source file: `wb_cond_multisyn.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_multisyn.nestml>`_
+Source file: `wb_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_multisyn_neuron.nestml>`_
+
+
+:doc:`ignore_and_fire <ignore_and_fire>`
+------------------------------------
+
+Neuron generating spikes at fixed intervals irrespective of inputs
+
+Source file: `ignore_and_fire_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/ignore_and_fire_neuron.nestml>`_
+
 
 Synapse models
 ~~~~~~~~~~~~~~
@@ -325,7 +334,7 @@ Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/maste
 
 Synapse type for spike-timing dependent plasticity, with nearest-neighbour spike pairing
 
-Source file: `stdp_nn_pre_centered.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_pre_centered.nestml>`_
+Source file: `stdp_nn_pre_centered_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_
 
 
 :doc:`stdp_nn_restr_symm <stdp_nn_restr_symm>`
@@ -333,7 +342,7 @@ Source file: `stdp_nn_pre_centered.nestml <https://www.github.com/nest/nestml/bl
 
 Synapse type for spike-timing dependent plasticity with restricted symmetric nearest-neighbour spike pairing scheme
 
-Source file: `stdp_nn_restr_symm.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_restr_symm.nestml>`_
+Source file: `stdp_nn_restr_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_
 
 
 :doc:`stdp_nn_symm <stdp_nn_symm>`
@@ -341,7 +350,7 @@ Source file: `stdp_nn_restr_symm.nestml <https://www.github.com/nest/nestml/blob
 
 Synapse type for spike-timing dependent plasticity with symmetric nearest-neighbour spike pairing scheme
 
-Source file: `stdp_nn_symm.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_symm.nestml>`_
+Source file: `stdp_nn_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_symm_synapse.nestml>`_
 
 
 :doc:`stdp_triplet_nn <stdp_triplet_nn>`
@@ -373,5 +382,5 @@ Source file: `third_factor_stdp_synapse.nestml <https://www.github.com/nest/nest
 
 Synapse model for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine
 
-Source file: `neuromodulated_stdp.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/neuromodulated_stdp.nestml>`_
+Source file: `neuromodulated_stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/neuromodulated_stdp_synapse.nestml>`_
 

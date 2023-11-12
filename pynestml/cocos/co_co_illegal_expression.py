@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_declaration import ASTDeclaration
@@ -41,7 +42,7 @@ class CoCoIllegalExpression(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ASTModel
         """
         neuron.accept(CorrectExpressionVisitor())
 
@@ -70,6 +71,19 @@ class CorrectExpressionVisitor(ASTVisitor):
             if self.__types_do_not_match(lhs_type, rhs_type):
                 TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
         return
+
+    def visit_inline_expression(self, node):
+        """
+        Visits a single inline expression and asserts that type of lhs is equal to type of rhs.
+        """
+        assert isinstance(node, ASTInlineExpression)
+        lhs_type = node.get_data_type().get_type_symbol()
+        rhs_type = node.get_expression().type
+        if isinstance(rhs_type, ErrorTypeSymbol):
+            LoggingHelper.drop_missing_type_error(node)
+            return
+        if self.__types_do_not_match(lhs_type, rhs_type):
+            TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
 
     def visit_assignment(self, node):
         """
@@ -231,8 +245,7 @@ class CorrectExpressionVisitor(ASTVisitor):
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not (from_type.equals(PredefinedTypes.get_integer_type())
-                  or from_type.equals(
-                PredefinedTypes.get_real_type())):
+                  or from_type.equals(PredefinedTypes.get_real_type())):
             code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_integer_type(),
                                                                       from_type)
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),

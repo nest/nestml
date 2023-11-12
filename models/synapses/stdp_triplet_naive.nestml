@@ -19,7 +19,7 @@ References
        of spike timing-dependent plasticity.  The Journal of Neuroscience
        26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
 """
-synapse stdp_triplet:
+model stdp_triplet_synapse:
     state:
         w nS = 1 nS   # Synaptic weight
 
@@ -53,8 +53,8 @@ synapse stdp_triplet:
         inline tr_o2 real = convolve(tr_o2_kernel, post_spikes)
 
     input:
-        pre_spikes nS <- spike
-        post_spikes nS <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
 
     output:
         spike
@@ -72,4 +72,7 @@ synapse stdp_triplet:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, d)
+        emit_spike(w, d)
+
+    update:
+        integrate_odes()

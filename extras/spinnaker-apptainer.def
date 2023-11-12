@@ -1,0 +1,102 @@
+Bootstrap: docker
+From: python:3.10
+
+### SPINNAKER DEVELOPMENT ENVIRONMENT ###
+# Following DevEnv setup found here
+# http://spinnakermanchester.github.io/development/devenv6.0.html
+
+### NESTML DEVELOPMENT SETUP ###
+# Cloning from repository and using setup script
+
+
+# Run after loading OS but in host system, ${APPTAINER_ROOTFS} to reference container
+%setup
+    mkdir ${APPTAINER_ROOTFS}/home/nestml
+    mkdir ${APPTAINER_ROOTFS}/home/spinnaker
+    mkdir ${APPTAINER_ROOTFS}/home/spinnaker/source
+    mkdir ${APPTAINER_ROOTFS}/home/spinnaker/reports
+    mkdir ${APPTAINER_ROOTFS}/home/dev
+
+    cp ./.spynnaker.cfg ~/
+
+
+# Save way to copy files: source destination(in container)
+%files
+
+# Setting environment variables
+%environment
+    export PATH=${APPTAINER_ROOTFS}/home/dev/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
+    cd /home/spinnaker/source/spinnaker_tools
+    source ${APPTAINER_ROOTFS}/home/spinnaker/source/spinnaker_tools/setup
+    cd /home/spinnaker/source/sPyNNaker/neural_modelling/
+    source /home/spinnaker/source/sPyNNaker/neural_modelling/setup.bash
+
+
+
+# Downloading, installing libraries, define environment variables used in build process
+%post
+    apt-get update -y
+    apt-get upgrade -y
+
+    apt-get install nano vim -y
+    
+
+    # [Spinnaker] Manual install arm-none-eabi toolchain (apt uses old version)
+    # apt-get install gcc-arm-none-eabi  libnewlib-arm-none-eabi -y
+    wget -P ${APPTAINER_ROOTFS}/home/dev https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+    echo "Unpacking gcc-arm-none-eabi toolchain"
+    tar xvf ${APPTAINER_ROOTFS}/home/dev/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/dev >/dev/null
+    rm ${APPTAINER_ROOTFS}/home/dev/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+    export PATH=${APPTAINER_ROOTFS}/home/dev/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH
+
+
+    # [Spinnaker] Perl
+    apt-get install perl perl-tk libterm-readline-gnu-perl -y
+
+    # [Workaround] Checked in SupportScripts/setup to install for user
+    export VIRTUAL_ENV="Place"
+
+    # [Spinnaker] Source repositories
+    git clone https://github.com/SpiNNakerManchester/SupportScripts ${APPTAINER_ROOTFS}/home/spinnaker/source/SupportScripts
+    cd ${APPTAINER_ROOTFS}/home/spinnaker/source && bash ${APPTAINER_ROOTFS}/home/spinnaker/source/SupportScripts/install.sh 8 -y
+    # [Spinnaker] Setup libraries
+    cd ${APPTAINER_ROOTFS}/home/spinnaker/source && bash ${APPTAINER_ROOTFS}/home/spinnaker/source/SupportScripts/setup.sh > /dev/null
+    python -m spynnaker.pyNN.setup_pynn
+
+    # [Spinnaker] C Environment
+    echo "Compiling libraries"
+    cd ${APPTAINER_ROOTFS}/home/spinnaker/source && bash ${APPTAINER_ROOTFS}/home/spinnaker/source/SupportScripts/automatic_make.sh > /dev/null
+
+
+    # [NESTML] Source repository
+    git clone https://github.com/siirty/nestml.git ${APPTAINER_ROOTFS}/home/nestml
+    ${APPTAINER_ROOTFS}/home/nestml && git checkout stash
+    ${APPTAINER_ROOTFS}/home/nestml && python setup.py install		
+ # Not installing nestml here because would be for root user
+
+    # [NESTML] Python testing
+    pip install pytest
+
+
+
+# Written to file in container which is run when 'apptainer run' is called . 
+# Appended parameters to run command are accessible here
+%runscript
+
+# Written to file in container which is run when 'instance start' is called . 
+# Appended parameters to run command are accessible here
+%startscript
+
+
+# Runs at end of build process to validate container
+%test
+    # cd /home/spinnaker/ && python /home/spinnaker/source/PyNN8Examples/examples/va_benchmark.py
+    # pytest /home/nestml/nestml/tests/spinnaker_tests/test_spinnaker_iaf_psc_exp.py 
+
+
+# Metadata of container like author
+%labels
+
+
+# Output of the 'run-help' command
+%help

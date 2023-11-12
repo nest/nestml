@@ -1,0 +1,24 @@
+"""
+Model for testing the integrate_odes() function.
+"""
+model integrate_odes_test:
+    state:
+        test_1 real = 0.
+        test_2 real = 0.
+        r integer = 0
+
+    equations:
+        test_1' = -test_1 / (100 ms)
+        test_2' = -test_2 / (10 ms)
+
+    update:
+        r += 1
+
+        if r % 64 == 0:
+            test_1 += 1
+            test_2 += 1
+
+        integrate_odes(test_1)
+
+        if test_1 > 3 and test_1 < 8:
+            integrate_odes(test_2)

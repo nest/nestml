@@ -1,0 +1,196 @@
+
+model multichannel_test_model:
+    parameters:
+        e_AMPA real = 0 mV
+        tau_r_AMPA real = 0.2 ms
+        tau_d_AMPA real = 3.0 ms
+
+        # parameters Ca_HVA
+        gbar_Ca_HVA real = 0.00
+        e_Ca_HVA real = 50.00
+
+        # parameters Ca_LVAst
+        gbar_Ca_LVAst real = 0.00
+        e_Ca_LVAst real = 50.00
+
+        # parameters NaTa_t
+        gbar_NaTa_t real = 0.00
+        e_NaTa_t real = 50.00
+
+        # parameters SK_E2
+        gbar_SK_E2 real = 0.00
+        e_SK_E2 real = -85.00
+
+        # parameters SKv3_1
+        gbar_SKv3_1 real = 0.00
+        e_SKv3_1 real = -85.00
+
+        # parameters Ca conentration mech
+        gamma_Ca real = 0.04627
+        tau_Ca real = 605.03
+        inf_Ca real = 0.0001
+
+    state:
+        v_comp real = -7500.00000000
+
+        # state variables Ca_HVA
+        h_Ca_HVA real = 0.69823671
+        m_Ca_HVA real = 0.00000918
+
+        # state variables Ca_LVAst
+        h_Ca_LVAst real = 0.08756384
+        m_Ca_LVAst real = 0.00291975
+
+        # state variables NaTa_t
+        h_NaTa_t real = 0.81757448
+        m_NaTa_t real = 0.00307019
+
+        # state variables SK_E2
+        z_SK_E2 real = 0.00090982
+
+        # state variables SKv3_1
+        z_SKv3_1 real = 0.00006379
+
+        # state variable Ca concentration
+        c_Ca real = 0.0001
+
+    equations:
+        kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
+        inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
+
+        # equations Ca_HVA
+        inline Ca_HVA real = gbar_Ca_HVA * (h_Ca_HVA*m_Ca_HVA**2) * (e_Ca_HVA - v_comp) @mechanism::channel
+        m_Ca_HVA' = ( m_inf_Ca_HVA(v_comp) - m_Ca_HVA ) / (tau_m_Ca_HVA(v_comp)*1s)
+        h_Ca_HVA' = ( h_inf_Ca_HVA(v_comp) - h_Ca_HVA ) / (tau_h_Ca_HVA(v_comp)*1s)
+
+        # equations Ca_LVAst
+        inline Ca_LVAst real = gbar_Ca_LVAst * (h_Ca_LVAst*m_Ca_LVAst**2) * (e_Ca_LVAst - v_comp) @mechanism::channel
+        m_Ca_LVAst' = ( m_inf_Ca_LVAst(v_comp) - m_Ca_LVAst ) / (tau_m_Ca_LVAst(v_comp)*1s)
+        h_Ca_LVAst' = ( h_inf_Ca_LVAst(v_comp) - h_Ca_LVAst ) / (tau_h_Ca_LVAst(v_comp)*1s)
+
+        # equations NaTa_t
+        #inline NaTa_t real = gbar_NaTa_t * (h_NaTa_t*m_NaTa_t**3) * (e_NaTa_t - v_comp) @mechanism::channel
+        #m_NaTa_t' = ( m_inf_NaTa_t(v_comp) - m_NaTa_t ) / (tau_m_NaTa_t(v_comp)*1s)
+        #h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
+
+        # equations SKv3_1
+        #inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
+        #z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
+
+        # equations SK_E2
+        #inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
+        #z_SK_E2' = ( z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
+
+        # equations Ca concentration mechanism
+        c_Ca' = (inf_Ca - c_Ca) / (tau_Ca*1s) + (gamma_Ca * (Ca_HVA + Ca_LVAst)) / 1s @mechanism::concentration
+
+
+
+    # functions Ca_HVA
+    function h_inf_Ca_HVA (v_comp real) real:
+        val real
+        val = 0.000457*(0.000457 + (0.000457 + 0.0065*exp(13/50 + (1/50)*v_comp))*exp(15/28 + (1/28)*v_comp))**(-1)*(1 + exp(-15/28 - 1/28*v_comp))*exp(15/28 + (1/28)*v_comp)
+        return val
+
+
+    function tau_h_Ca_HVA (v_comp real) real:
+        val real
+        val = 1.0*(0.0065*(1 + exp(-15/28 - 1/28*v_comp))**(-1) + 0.000457*exp(-13/50 - 1/50*v_comp))**(-1)
+        return val
+
+    function m_inf_Ca_HVA (v_comp real) real:
+        val real
+        val = (-9.36151644263754e-6 + 0.055*(27 + v_comp)*exp(0.321981424148607*v_comp) + 0.0114057221149848*exp(0.263157894736842*v_comp))**(-1)*(1.485 + 0.055*v_comp)*exp(0.321981424148607*v_comp)
+        return val
+
+
+    function tau_m_Ca_HVA (v_comp real) real:
+        val real
+        val = (-9.36151644263754e-6 + 0.055*(27 + v_comp)*exp(0.321981424148607*v_comp) + 0.0114057221149848*exp(0.263157894736842*v_comp))**(-1)*(-0.000820773673798209 + 1.0*exp(0.263157894736842*v_comp))*exp((1/17)*v_comp)
+        return val
+
+
+    # functions Ca_LVAst
+    function h_inf_Ca_LVAst (v_comp real) real:
+        val real
+        val = 1.0*(1 + 1280165.59676428*exp(0.15625*v_comp))**(-1)
+        return val
+
+
+    function tau_h_Ca_LVAst (v_comp real) real:
+        val real
+        val = (1 + 1265.03762380433*exp((1/7)*v_comp))**(-1)*(23.7056491911662 + 8568.15374958056*exp((1/7)*v_comp))
+        return val
+
+    function m_inf_Ca_LVAst (v_comp real) real:
+        val real
+        val = 1.0*(1 + 0.00127263380133981*exp(-1/6*v_comp))**(-1)
+        return val
+
+
+    function tau_m_Ca_LVAst (v_comp real) real:
+        val real
+        val = (1 + 1096.63315842846*exp((1/5)*v_comp))**(-1)*(8.46630328255936 + 1856.88578179326*exp((1/5)*v_comp))
+        return val
+
+
+    # functions NaTa_t
+    function h_inf_NaTa_t (v_comp real) real:
+        val real
+        if v_comp >= -66.000006 and v_comp < -65.999994:
+            val = -(2.25 + 0.0416666666666667 * v_comp)
+        else:
+            val = (-1.67017007902457e-05 + 59874.1417151978 * exp(0.333333333333333 * v_comp)) ** (-1) * (-1.67017007902457e-05 + 1.0 * exp(0.166666666666667 * v_comp))
+
+        return val
+
+
+    function tau_h_NaTa_t (v_comp real) real:
+        val real
+        if v_comp >= -66.000006 and v_comp < -65.999994:
+            val = 1.88140072945764
+        else:
+            val = (-0.00110231225215621 + 3951693.35320306 * exp(0.333333333333333 * v_comp) - 1.67017007902457e-05 * v_comp + 59874.1417151978 * v_comp * exp(0.333333333333333 * v_comp)) ** (-1) * (0.000377071104599416 - 45.1536175069833 * exp(0.166666666666667 * v_comp) + 1351767.04678348 * exp(0.333333333333333 * v_comp))
+
+        return val
+
+    function m_inf_NaTa_t (v_comp real) real:
+        val real
+        if v_comp > -38.000006 and v_comp < -37.999994:
+            val = (2.938 + 0.029 * v_comp) ** (-1) * (4.55 + 0.091 * v_comp)
+        else:
+            val = 0.182 * (0.182 * (-1 + 563.030236835951 * exp(0.166666666666667 * v_comp)) * (38.0 + v_comp) * exp(0.166666666666667 * v_comp) + (4.712 + 0.124 * v_comp) * (-0.00177610354573438 + exp(0.166666666666667 * v_comp))) ** (-1) * (-1 + 563.030236835951 * exp(0.166666666666667 * v_comp)) * (38.0 + v_comp) * exp(0.166666666666667 * v_comp)
+        return val
+
+    function tau_m_NaTa_t (v_comp real) real:
+        val real
+        if v_comp > -38.000006 and v_comp < -37.999994:
+            val = 0.338652131302374 * (2.938 + 0.029 * v_comp) ** (-1)
+        else:
+            val = 0.338652131302374 * (0.182 * (-1 + 563.030236835951 * exp(0.166666666666667 * v_comp)) * (38.0 + v_comp) * exp(0.166666666666667 * v_comp) + (4.712 + 0.124 * v_comp) * (-0.00177610354573438 + exp(0.166666666666667 * v_comp))) ** (-1) * (-1 + 563.030236835951 * exp(0.166666666666667 * v_comp)) * (-0.00177610354573438 + exp(0.166666666666667 * v_comp))
+        return val
+
+    # functions SKv3_1
+    function z_inf_SKv3_1 (v_comp real) real:
+        val real
+        val = (6.874610940966 + exp(0.103092783505155*v_comp))**(-1)*exp(0.103092783505155*v_comp)
+        return val
+
+    function tau_z_SKv3_1 (v_comp real) real:
+        val real
+        val = 4.0*(0.348253173014273 + exp(0.0226551880380607*v_comp))**(-1)*exp(0.0226551880380607*v_comp)
+        return val
+
+
+    # functions SK_E2
+    function z_inf_SK_E2 (ca real) real:
+        val real
+        val = 1. / (1. + (0.00043 / ca)**4.8)
+        return val
+
+    internals:
+        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln( tau_d_AMPA / tau_r_AMPA )
+        g_norm_AMPA real =  1. / ( -exp( -tp_AMPA / tau_r_AMPA ) + exp( -tp_AMPA / tau_d_AMPA ) )
+
+    input:
+        spikes_AMPA <- spike

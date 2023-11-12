@@ -62,15 +62,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "d", "ms", "1ms", "Synaptic transmission delay"    
-    "lambda", "real", "0.01", ""    
-    "tau_tr_pre", "ms", "20ms", ""    
-    "tau_tr_post", "ms", "20ms", ""    
-    "alpha", "real", "1.0", ""    
-    "mu_plus", "real", "1.0", ""    
-    "mu_minus", "real", "1.0", ""    
-    "Wmax", "real", "100.0", ""    
+
+    "d", "ms", "1ms", "Synaptic transmission delay"
+    "lambda", "real", "0.01", ""
+    "tau_tr_pre", "ms", "20ms", ""
+    "tau_tr_post", "ms", "20ms", ""
+    "alpha", "real", "1.0", ""
+    "mu_plus", "real", "1.0", ""
+    "mu_minus", "real", "1.0", ""
+    "Wmax", "real", "100.0", ""
     "Wmin", "real", "0.0", ""
 
 
@@ -81,14 +81,14 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-    
-    "w", "real", "1", "Synaptic weight"    
-    "pre_trace", "real", "0.0", ""    
+
+    "w", "real", "1", "Synaptic weight"
+    "pre_trace", "real", "0.0", ""
     "post_trace", "real", "0.0", ""
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `stdp_nn_pre_centered <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_pre_centered.nestml>`_.
+The model source code can be found in the NESTML models repository here: `stdp_nn_pre_centered <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
 Characterisation
@@ -99,4 +99,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-23 09:41:54.882045
+   Generated at 2023-08-22 14:29:44.899570

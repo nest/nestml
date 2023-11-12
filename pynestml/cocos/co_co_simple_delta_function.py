@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
@@ -33,18 +34,17 @@ class CoCoSimpleDeltaFunction(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, model: ASTModel):
         """
         Checks if this coco applies for the handed over neuron.
 
-        :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param model: a single model instance.
         """
 
         def check_simple_delta(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "delta":
                 deltafunc = _expr.get_function_call()
-                parent = node.get_parent(_expr)
+                parent = model.get_parent(_expr)
 
                 # check the argument
                 if not (len(deltafunc.get_args()) == 1
@@ -63,4 +63,4 @@ class CoCoSimpleDeltaFunction(CoCo):
         def func(x):
             return check_simple_delta(x) if isinstance(x, ASTSimpleExpression) else True
 
-        node.accept(ASTHigherOrderVisitor(func))
+        model.accept(ASTHigherOrderVisitor(func))

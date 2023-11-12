@@ -47,9 +47,10 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -57,7 +58,6 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_unit_type import ASTUnitType
@@ -120,9 +120,13 @@ class ASTNodeFactory:
         return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
 
     @classmethod
-    def create_ast_neuron_or_synapse_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTNeuronOrSynapseBody
-        return ASTNeuronOrSynapseBody(body_elements, source_position=source_position)
+    def create_ast_on_condition_block(cls, block=None, cond_expr=None, const_parameters=None, source_position=None):
+        return ASTOnConditionBlock(block, cond_expr, const_parameters, source_position=source_position)
+
+    @classmethod
+    def create_ast_model_body(cls, body_elements, source_position):
+        # type: (list,ASTSourceLocation) -> ASTModelBody
+        return ASTModelBody(body_elements, source_position=source_position)
 
     @classmethod
     def create_ast_comparison_operator(cls, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False,
@@ -229,7 +233,7 @@ class ASTNodeFactory:
         return ASTFunction(name, parameters, return_type, block, source_position=source_position)
 
     @classmethod
-    def create_ast_function_call(cls, callee_name, args, source_position):
+    def create_ast_function_call(cls, callee_name, args, source_position=None):
         # type: (str,(None|list(ASTExpression|ASTSimpleExpression)),ASTSourceLocation) -> ASTFunctionCall
         return ASTFunctionCall(callee_name, args, source_position=source_position)
 
@@ -265,37 +269,29 @@ class ASTNodeFactory:
         return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
-    def create_ast_nestml_compilation_unit(cls, list_of_neurons, list_of_synapses, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
+    def create_ast_nestml_compilation_unit(cls, list_of_models, source_position: ASTSourceLocation, artifact_name: str) -> ASTNestMLCompilationUnit:
         instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
-        for i in list_of_neurons:
-            instance.add_neuron(i)
-        for i in list_of_synapses:
-            instance.add_synapse(i)
+        for i in list_of_models:
+            instance.add_model(i)
         return instance
 
     @classmethod
-    def create_ast_neuron(cls, name: str, body: ASTNeuronOrSynapseBody, source_position: ASTSourceLocation, artifact_name: str) -> ASTNeuron:
-        return ASTNeuron(name, body, artifact_name, source_position=source_position)
+    def create_ast_model(cls, name: str, body: ASTModelBody, source_position: ASTSourceLocation, artifact_name: str) -> ASTModel:
+        return ASTModel(name, body, artifact_name, source_position=source_position)
 
     @classmethod
-    def create_ast_synapse(cls, name, body, source_position, artifact_name):
-        # type: (str,ASTNeuronOrSynapseBody,ASTSourceLocation,str) -> ASTSynapse
-        return ASTSynapse(name, body, artifact_name=artifact_name, source_position=source_position)
+    def create_ast_ode_equation(cls, lhs, rhs, source_position, decorators=None):
+        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation,Optional[List]) -> ASTOdeEquation
+        return ASTOdeEquation(lhs, rhs, source_position=source_position, decorators=decorators)
 
     @classmethod
-    def create_ast_ode_equation(cls, lhs, rhs, source_position):
-        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTOdeEquation
-        return ASTOdeEquation(lhs, rhs, source_position=source_position)
-
-    @classmethod
-    def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
-        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
+    def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False, decorators: Optional[list] = None):
+        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool,list) -> ASTInlineExpression
         return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
-                                   is_recordable=is_recordable, source_position=source_position)
+                                   is_recordable=is_recordable, source_position=source_position, decorators=decorators)
 
     @classmethod
-    def create_ast_kernel(cls, variables=None, expressions=None, source_position=None):
-        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTKernel
+    def create_ast_kernel(cls, variables=None, expressions=None, source_position=None) -> ASTKernel:
         return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
