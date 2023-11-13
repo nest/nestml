@@ -37,23 +37,20 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-sim_mdl = True
-sim_ref = True
-
 
 class TestClopathSynapse:
 
-    neuron_model_name = "aeif_psc_delta_nestml__with_clopath_synapse_nestml"
-    synapse_model_name = "clopath_synapse_nestml__with_aeif_psc_delta_nestml"
+    neuron_model_name = "iaf_psc_delta_nestml__with_clopath_synapse_nestml"
+    synapse_model_name = "clopath_synapse_nestml__with_iaf_psc_delta_nestml"
 
-    ref_neuron_model_name = "aeif_psc_delta_clopath"
+    ref_neuron_model_name = "iaf_psc_delta_clopath"
     ref_synapse_model_name = "clopath_synapse"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         """Generate the model code"""
 
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "aeif_psc_delta",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
                                                       "synapse": "clopath_synapse",
                                                       "post_ports": ["post_spikes",
                                                                      ["post_membrane_potential", "V_m"]]}]}
