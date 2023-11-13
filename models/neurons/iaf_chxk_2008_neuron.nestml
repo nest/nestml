@@ -37,6 +37,7 @@ model iaf_chxk_2008_neuron:
 
     state:
         V_m mV = E_L   # membrane potential
+        V_m_prev mV = E_L   # membrane potential
         g_ahp nS = 0 nS      # AHP conductance
         g_ahp' nS/ms = 0 nS/ms   # AHP conductance
 
@@ -87,26 +88,25 @@ model iaf_chxk_2008_neuron:
         spike
 
     update:
-        vm_prev mV = V_m
+        V_m_prev = V_m
         integrate_odes()
-        if vm_prev < V_th and V_m >= V_th:
-            # Neuron is not absolute refractory
 
-            # Find precise spike time using linear interpolation
-            sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev ) / ms
+    onCondition(V_m_prev < V_th and V_m >= V_th):
+        # Find precise spike time using linear interpolation
+        sigma real = ( V_m - V_th ) * resolution() / ( V_m - V_m_prev ) / ms
 
-            alpha real = exp( -sigma / tau_ahp )
+        alpha real = exp( -sigma / tau_ahp )
 
-            delta_dg_ahp real = PSConInit_AHP * alpha
-            delta_g_ahp real = delta_dg_ahp * sigma  #PSConInit_AHP * sigma * alpha
+        delta_dg_ahp real = PSConInit_AHP * alpha
+        delta_g_ahp real = delta_dg_ahp * sigma
 
-            if ahp_bug == true:
-                # Bug in original code ignores AHP conductance from previous spikes
-                g_ahp = delta_g_ahp * nS
-                g_ahp' = delta_dg_ahp * nS/ms
-            else:
-                # Correct implementation adds initial values for new AHP to AHP history
-                g_ahp  += delta_g_ahp * nS
-                g_ahp' += delta_dg_ahp * nS/ms
+        if ahp_bug == true:
+            # Bug in original code ignores AHP conductance from previous spikes
+            g_ahp = delta_g_ahp * nS
+            g_ahp' = delta_dg_ahp * nS/ms
+        else:
+            # Correct implementation adds initial values for new AHP to AHP history
+            g_ahp  += delta_g_ahp * nS
+            g_ahp' += delta_dg_ahp * nS/ms
 
-            emit_spike()
+        emit_spike()

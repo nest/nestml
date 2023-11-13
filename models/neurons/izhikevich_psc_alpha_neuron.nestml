@@ -38,9 +38,10 @@ References
 """
 model izhikevich_psc_alpha_neuron:
     state:
-        r integer = 0   # Number of steps in the current refractory phase
         V_m mV = -65 mV # Membrane potential
         U_m pA = 0 pA   # Membrane potential recovery variable
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
     equations:
         # synapses: alpha functions
@@ -65,13 +66,10 @@ model izhikevich_psc_alpha_neuron:
         V_peak mV = 0 mV          # Spike detection threshold (reset condition)
         tau_syn_exc ms = 0.2 ms   # Synaptic time constant of excitatory synapse
         tau_syn_inh ms = 2 ms     # Synaptic time constant of inhibitory synapse
-        t_ref ms = 2 ms           # Refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
 
         # constant external input current
         I_e pA = 0 pA
-
-    internals:
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     input:
         inh_spikes <- inhibitory spike
@@ -82,13 +80,21 @@ model izhikevich_psc_alpha_neuron:
         spike
 
     update:
-        integrate_odes()
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve V_m and U_m
+            refr_t -= resolution()
+        else:
+            integrate_odes()
 
-        # refractoriness and threshold crossing
-        if r > 0: # is refractory?
-            r -= 1
-        elif V_m >= V_peak:
-            V_m = c
-            U_m += d
-            emit_spike()
-            r = RefractoryCounts
+    onCondition(not is_refractory and V_m >= V_peak):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = c
+        U_m += d
+        emit_spike()
+
+    onCondition(refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

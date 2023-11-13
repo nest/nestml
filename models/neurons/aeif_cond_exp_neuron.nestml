@@ -112,6 +112,7 @@ model aeif_cond_exp_neuron:
         w += b
         emit_spike()
 
-    onCondition(refr_t <= 0 ms):
+    onCondition(refr_t <= resolution() / 2):
         # end of refractory period
+        refr_t = 0 ms
         is_refractory = false

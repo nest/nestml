@@ -94,6 +94,7 @@ model iaf_psc_delta_neuron:
         V_m = V_reset
         emit_spike()
 
-    onCondition(refr_t <= 0 ms):
+    onCondition(refr_t <= resolution() / 2):
         # end of refractory period
+        refr_t = 0 ms
         is_refractory = false
