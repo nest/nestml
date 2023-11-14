@@ -121,10 +121,8 @@ model hh_moto_5ht_neuron:
             refr_t -= resolution()
         else:
             # neuron not refractory, evolve all ODEs
+            V_m_old = V_m
             integrate_odes()
-
-        V_m_old = V_m
-        integrate_odes()
 
     onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
         # threshold && maximum
