@@ -42,7 +42,7 @@ def get_model_doc_title(model_fname: str):
         return re.compile(r'\"\"\"[^#]*###').search(model).group()[3:-3].strip()
 
 
-class NESTMLModelDocGenerator:
+class AutoDocCodeGeneratorUtils:
 
     def generate_all_models(self):
         codegen_opts = {}
@@ -148,13 +148,13 @@ class NESTMLModelDocGenerator:
         synapse_models.append(("static_synapse", "static_synapse.nestml"))
         synapse_models.append(("noisy_synapse", "noisy_synapse.nestml"))
         synapse_models.append(("stdp_synapse", "stdp_synapse.nestml"))
-        synapse_models.append(("stdp_nn_pre_centered_synapse", "stdp_nn_pre_centered.nestml"))
-        synapse_models.append(("stdp_nn_restr_symm_synapse", "stdp_nn_restr_symm.nestml"))
-        synapse_models.append(("stdp_nn_symm_synapse", "stdp_nn_symm.nestml"))
+        synapse_models.append(("stdp_nn_pre_centered_synapse", "stdp_nn_pre_centered_synapse.nestml"))
+        synapse_models.append(("stdp_nn_restr_symm_synapse", "stdp_nn_restr_symm_synapse.nestml"))
+        synapse_models.append(("stdp_nn_symm_synapse", "stdp_nn_symm_synapse.nestml"))
         synapse_models.append(("stdp_triplet_nn_synapse", "triplet_stdp_synapse.nestml"))
         synapse_models.append(("stdp_triplet_synapse", "stdp_triplet_naive.nestml"))
         synapse_models.append(("third_factor_stdp_synapse", "third_factor_stdp_synapse.nestml"))
-        synapse_models.append(("neuromodulated_stdp_synapse", "neuromodulated_stdp.nestml"))
+        synapse_models.append(("neuromodulated_stdp_synapse", "neuromodulated_stdp_synapse.nestml"))
 
         all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
         s += self.generate_synapse_models_documentation(synapse_models, all_synapse_models)
