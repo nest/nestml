@@ -226,7 +226,7 @@ Output
 Implementing refractoriness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (say, ``refr_T``) can be introduced, that defines the duration of the refractory period. A new state variable, ``refr_t``, then specifies the time of the refractory period that has already passed, and a boolean, ``is_refactory``. In the initial state, the neuron is not refractory and the timer is set to zero. When a spike is emitted, the boolean flag is set to true and the timer is set to ``refr_T``. Using a separate flag allows us to freely formulate a condition on ending the timer without having to worry about special (for instance, negative) values representing a non-refactory condition. This is difficult because of an imprecise floating point representation of real numbers. Integrating the ODE for :math:`V_\text{m}` is disabled while the flag is set to true. When the timer reaches zero, the flag is set to false. In the ``update`` block, the timer is decremented each timestep. An ``onCondition`` is formulated on ending the refractory period, which allows the time at which the condition becomes true to be determined precisely (where it would be aliased to the nearest simulation timestep interval if the condition had been checked in ``update``).
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (say, ``refr_T``) can be introduced, that defines the duration of the refractory period. A new state variable, ``refr_t``, then specifies the time of the refractory period that has already elapsed, and a second boolean state variable ``is_refactory`` identifies whether or not we are in the refractory state. In the initial state, the neuron is not refractory and the timer is set to zero. When a spike is emitted, the boolean flag is set to true and the timer is set to ``refr_T``. Using a separate flag allows us to freely formulate a condition on ending the timer without having to worry about special (for instance, negative) values representing a non-refactory condition. This is hazardous because of an imprecise floating point representation of real numbers. The check against :math:`\Delta t/2` instead of checking against 0 additionally guards against accumulated discretization errors. Integrating the ODE for :math:`V_\text{m}` is disabled while the flag is set to true. When the timer reaches zero, the flag is set to false. In the ``update`` block, the timer is decremented each timestep. An ``onCondition`` is formulated on ending the refractory period, which allows the time at which the condition becomes true to be determined precisely (whereas it would be aliased to the nearest simulation timestep interval if the condition had been checked in ``update``).
 
 .. code-block:: nestml
 
@@ -250,6 +250,7 @@ In order to model an absolute refractory state, in which the neuron cannot fire 
            # neuron not refractory, so evolve all ODEs
            integrate_odes(V_m, I_syn)
 
-   onCondition(refr_t <= 0 ms):
+   onCondition(refr_t <= resolution() / 2):
        # end of refractory period
+       refr_t = 0 ms
        is_refractory = false

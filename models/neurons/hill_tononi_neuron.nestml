@@ -36,7 +36,8 @@ References
 """
 model hill_tononi_neuron:
     state:
-        r_potassium integer = 0
+        potassium_refr_t ms = 0 ms
+        is_refractory boolean = false
         g_spike boolean = false
 
         V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
@@ -179,7 +180,6 @@ model hill_tononi_neuron:
 
         GABA_AInitialValue real = compute_synapse_constant( GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak )
         GABA_BInitialValue real = compute_synapse_constant( GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak )
-        PotassiumRefractoryCounts integer = steps(t_spike)
 
     input:
         AMPA <- spike
@@ -192,14 +192,18 @@ model hill_tononi_neuron:
         spike
 
     update:
-        integrate_odes()
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            potassium_refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs
+            integrate_odes()
 
+    onCondition(potassium_refr_t <= resolution() / 2):
         # Deactivate potassium current after spike time have expired
-        if (r_potassium > 0) and (r_potassium-1 == 0):
-            g_spike = false # Deactivate potassium current.
-        r_potassium -= 1
+        g_spike = false # Deactivate potassium current.
 
-    onCondition((not g_spike) and V_m >= Theta):
+    onCondition(not g_spike and V_m >= Theta):
         # Set V and Theta to the sodium reversal potential.
         V_m = E_Na
         Theta = E_Na
@@ -207,11 +211,11 @@ model hill_tononi_neuron:
         # Activate fast potassium current. Drives the
         # membrane potential towards the potassium reversal
         # potential (activate only if duration is non-zero).
-        if PotassiumRefractoryCounts > 0:
+        if is_refractory:
             g_spike = true
         else:
             g_spike = false
-        r_potassium = PotassiumRefractoryCounts
+        potassium_refr_t = t_spike
 
         emit_spike()
 

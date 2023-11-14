@@ -2344,3 +2344,9 @@ class ASTUtils:
             if blk.get_port_name() == port_name:
                 blks.append(blk)
         return blks
+
+    @classmethod
+    def initial_value_or_zero(cls, astnode: ASTModel, var):
+        if ASTUtils.get_state_variable_by_name(astnode, var):
+            return astnode.get_initial_value(var)
+        return "0"

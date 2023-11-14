@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Mapping, Optional
 import datetime
 import os
 
-from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
+from jinja2 import TemplateRuntimeError
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper

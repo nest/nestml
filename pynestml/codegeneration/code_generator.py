@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, List, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, List, Optional, Sequence
 
 import glob
 import os

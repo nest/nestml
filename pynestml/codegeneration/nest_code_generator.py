@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import datetime
 import re
@@ -29,6 +29,7 @@ import pynestml
 
 from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
@@ -73,7 +74,6 @@ from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import \
     ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 def find_spiking_post_port(synapse, namespace):
@@ -93,6 +93,8 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
+    - **neuron_models**: List of neuron model names. Instructs the code generator that models with these names are neuron models.
+    - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **gap_junctions**:
@@ -116,6 +118,8 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
+        "neuron_models": [],
+        "synapse_models": [],
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "gap_junctions": {
@@ -224,8 +228,8 @@ class NESTCodeGenerator(CodeGenerator):
                 raise Exception("Error(s) occurred during code generation")
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons = [model for model in models if not model.name.split("_with_")[0].removesuffix("_").removesuffix(FrontendConfiguration.suffix).endswith("synapse")]   # neuron by default (if the name does not end in "synapse")
-        synapses = [model for model in models if model.name.split("_with_")[0].removesuffix("_").removesuffix(FrontendConfiguration.suffix).endswith("synapse")]
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
+
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)

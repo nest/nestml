@@ -33,11 +33,13 @@ hh_cond_exp_traub
 model hh_cond_exp_destexhe_neuron:
 
     state:
-        r integer = 0 # counts number of tick during the refractory period
         g_noise_exc uS = g_noise_exc0
         g_noise_inh uS = g_noise_inh0
 
         V_m mV = E_L #  Membrane potential
+        V_m_old mV = E_L #  Membrane potential at the previous timestep
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
         Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
         Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
@@ -114,11 +116,12 @@ model hh_cond_exp_destexhe_neuron:
         alpha_p_init 1/ms = 0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp(-(V_m + 30. mV) / 9. mV))
         beta_p_init 1/ms = -0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp( (V_m + 30. mV) / 9. mV ))
 
+        refr_T ms = 2 ms          # Duration of refractory period
+
         # constant external input current
         I_e pA = 0 pA
 
     internals:
-        RefractoryCounts integer = 20
         D_exc uS**2/ms = 2 * sigma_noise_exc**2 / tau_syn_exc
         D_inh uS**2/ms = 2 * sigma_noise_inh**2 / tau_syn_inh
         A_exc uS = ((D_exc * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc )))**.5
@@ -133,16 +136,24 @@ model hh_cond_exp_destexhe_neuron:
         spike
 
     update:
-        U_old mV = V_m
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
 
-        integrate_odes()
+            g_noise_exc = g_noise_exc0 + (g_noise_exc - g_noise_exc0) * exp(-resolution() / tau_syn_exc) + A_exc * random_normal(0, 1)
+            g_noise_inh = g_noise_inh0 + (g_noise_inh - g_noise_inh0) * exp(-resolution() / tau_syn_inh) + A_inh * random_normal(0, 1)
 
-        g_noise_exc = g_noise_exc0 + (g_noise_exc - g_noise_exc0) * exp(-resolution() / tau_syn_exc) + A_exc * random_normal(0, 1)
-        g_noise_inh = g_noise_inh0 + (g_noise_inh - g_noise_inh0) * exp(-resolution() / tau_syn_inh) + A_inh * random_normal(0, 1)
+            V_m_old mV = V_m
+            integrate_odes()
 
-        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-        if r > 0:
-            r -= 1
-        elif V_m > V_T + 30mV and U_old > V_m:
-            r = RefractoryCounts
-            emit_spike()
+    onCondition(not is_refractory and V_m > V_T + 30mV and V_m_old > V_m):
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        emit_spike()
+
+    onCondition(refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

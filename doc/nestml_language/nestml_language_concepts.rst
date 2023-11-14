@@ -5,7 +5,7 @@ NESTML language concepts
 Structure and indentation
 -------------------------
 
-NESTML uses Python-like indentation to group statements into blocks. Leading whitespace (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following model is written with our recommended indentation level of 4 spaces:
+NESTML uses Python-like indentation to group statements into blocks. Leading whitespace (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Functions`, :ref:`Control structures`, or any of the block in :ref:`Block types`. As an example, the following model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
 
@@ -40,6 +40,7 @@ Data types and physical units
 
 Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
 
+
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -48,6 +49,7 @@ Primitive data types
 -  ``boolean`` corresponds to the ``bool`` data type in C++. Its only literals are ``true`` and ``false``
 -  ``string`` corresponds to the ``std::string`` data type in C++. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
 -  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
+
 
 Physical units
 ~~~~~~~~~~~~~~
@@ -244,36 +246,18 @@ Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
 
    x = 10 N * 22 Ohm / 0.5 V
 
-Physical unit literals
-~~~~~~~~~~~~~~~~~~~~~~
-
-Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two):
-
-::
-
-   <number> <unit_type>
-
-e.g.:
-
-.. code-block:: nestml
-
-   V_m mV = 1 mV
-
-Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
-
-.. code-block:: nestml
-
-   V_rest = -55 mV/s**2
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
 NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
 
+
 Basic elements of the embedded programming language
 ---------------------------------------------------
 
 The basic elements of the language are declarations, assignments, function calls and return statements.
+
 
 Declarations
 ~~~~~~~~~~~~
@@ -323,8 +307,8 @@ Each model may be documented by a block of text in reStructuredText format. Foll
 .. code-block:: nestml
 
    """
-   iaf_psc_custom: My customized version of iaf_psc
-   ################################################
+   my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   #################################################################
 
    Description
    +++++++++++
@@ -336,10 +320,10 @@ Each model may be documented by a block of text in reStructuredText format. Foll
       E = mc^2
 
    """
-   model iaf_psc_custom:
+   model my_custom_neuron:
        # [...]
 
-This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
+This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 
 Comments in the model
@@ -820,12 +804,14 @@ Block types
 ``model <name>`` - The top-level block of a model called ``<name>``. Within the top-level block, the following blocks may be defined:
 
 -  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead.
--  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
+-  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
 -  ``output`` *``<event_type>``* - Defines which type of event the model can send. Currently, only ``spike`` is supported.
--  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language.
+-  ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event).
+- ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
+- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds, within each (fixed resolution) simulation timestep. This makes the model more generic with respect to the simulator that is used.
 
 
 Input
@@ -955,13 +941,21 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
-An exception is made for inline expressions which are defined as a simple convolution and marked ``recordable``:
+The ``recordable`` keyword can be used to make inline available to recording devices:
+
+.. code-block:: nestml
+
+   equations:
+       ...
+       recordable inline V_m mV = V_rel + E_L
+
+During simulation, one or more state variables are used to maintain the dynamical state of each convolution across time. To be able to reference these variables from within the model, a special case occurs when an inline expression is defined as a convolution and marked ``recordable``:
 
 .. code-block:: nestml
 
    recordable inline I_syn pA = convolve(alpha_kernel, spiking_input_port) * pA
 
-During code generation, one or more state variables are created for each unique combination of (kernel, spike input port) that appears in convolution statements. These state variables keep track of the state of the convolution across time, and can be referenced in the rest of the model, for instance:
+Then, the state variables corresponding to this convolution can be referenced in the rest of the model, for instance:
 
 .. code-block:: nestml
 
@@ -969,18 +963,6 @@ During code generation, one or more state variables are created for each unique 
      # reset the state of synaptic integration
      I_syn = 0 pA
      I_syn' = 0 * s**-1
-
-
-Recording values
-^^^^^^^^^^^^^^^^
-
-The ``recordable`` keyword can be used to make ``inline`` expressions in the ``equations`` block available to recording devices.
-
-.. code-block:: nestml
-
-   equations:
-       ...
-       recordable inline V_m mV = V_rel + E_L
 
 
 Kernel functions
