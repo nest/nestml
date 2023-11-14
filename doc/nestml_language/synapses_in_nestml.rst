@@ -59,7 +59,7 @@ The corresponding event handler has the general structure:
        # ... plasticity dynamics go here ...
        emit_spike(w, d)
 
-The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
+The statements in the event handler will be executed when the event occurs. The weight and delay could be defined as follows:
 
 .. code-block:: nestml
 

@@ -819,9 +819,6 @@ Input
 
 A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
 
-.. note::
-   For more details, on handling inputs in neuron and synapse models, please see :ref:`Neuronal interactions` (for neurons) and :ref:`Presynaptic spike event handler` (for synapses).
-
 
 Continuous-time input ports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -842,7 +839,7 @@ The unit of the Dirac delta function follows from its definition:
 
 .. math::
 
-   f(0) = \int dx \delta(x) f(x)
+   f(0) = \int \delta(x) f(x) dx
 
 Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
 Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
@@ -850,9 +847,35 @@ Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the uni
 In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`\text{s}`. Consequently, the delta pulses will have a unit of inverse of time, :math:`\text{1/s}`.
 Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
 
-Physical units such as millivolts (:math:`\text{mV`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
+Physical units such as millivolts (:math:`\text{mV}`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
 In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`\text{mV}` or :math:`\text{nA}`, to obtain a quantity with units of volts or amperes, respectively.
 For example, the product of a Dirac delta function and millivolt (:math:`\text{mV}`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
+
+
+Handling spiking input
+~~~~~~~~~~~~~~~~~~~~~~
+
+Spiking input can be handled by convolutions with kernels (see :ref:`Integrating spiking input`) or by means of ``onReceive`` event handler blocks. An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+       print("Info: processing a presynaptic spike at time t = {t}")
+       # ... further statements go here ...
+
+The statements in the event handler will be executed when the event occurs.
+
+To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes, priority=1):
+       print("Info: processing a presynaptic spike at time t = {t}")
+
+   onReceive(post_spikes, priority=2):
+       print("Info: processing a postsynaptic spike at time t = {t}")
+
+In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
 
 
 Output
