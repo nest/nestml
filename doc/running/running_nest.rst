@@ -36,6 +36,14 @@ Recording values with devices
 All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 
 
+Solver selection
+~~~~~~~~~~~~~~~~
+
+Currently, there is support for GSL, forward Euler, and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
+
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
+
+
 Manually building the extension module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

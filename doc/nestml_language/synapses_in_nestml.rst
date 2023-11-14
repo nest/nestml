@@ -41,7 +41,8 @@ Depending on whether the plasticity rule depends only on pre-, or on both pre- a
        pre_spikes <- spike
        post_spikes <- spike
 
-   output: spike
+   output:
+       spike
 
 
 Presynaptic spike event handler

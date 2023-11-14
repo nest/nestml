@@ -5,11 +5,11 @@ NESTML language concepts
 Structure and indentation
 -------------------------
 
-NESTML uses Python-like indentation to group statements into blocks. Leading white spaces (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following neuron model is written with our recommended indentation level of 4 spaces:
+NESTML uses Python-like indentation to group statements into blocks. Leading whitespace (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Block types`, :ref:`Functions`, or :ref:`Control structures`. As an example, the following model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
 
-   neuron test:
+   model test:
        state:
            foo integer = 42
            bar s = 0 s
@@ -24,7 +24,7 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 
 .. code-block:: nestml
 
-   neuron test:
+   model test:
        state:
            tau ms = 42 ms
            foo s = 0 s
@@ -305,7 +305,7 @@ For example, the following model will result in one warning and one error:
 
 .. code-block:: nestml
 
-   neuron test:
+   model test:
        state:
            ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
            foo s = 0 s     # foo has units of time (seconds)
@@ -318,7 +318,7 @@ For example, the following model will result in one warning and one error:
 Documentation string
 ~~~~~~~~~~~~~~~~~~~~
 
-Each neuron model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
+Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
 
 .. code-block:: nestml
 
@@ -336,7 +336,7 @@ Each neuron model may be documented by a block of text in reStructuredText forma
       E = mc^2
 
    """
-   neuron iaf_psc_custom:
+   model iaf_psc_custom:
        # [...]
 
 This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
@@ -807,7 +807,7 @@ For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ 
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. Indentation inside a block is mandatory with a recommended indentation level of 4 spaces. Refer to :ref:`Structure and indentation` for more details. Each of the following blocks must only occur at most once. Some of the blocks are required to occur in every model. The general syntax looks like this:
 
 ::
 
@@ -817,179 +817,69 @@ To structure NESTML files, all content is structured in blocks. Blocks begin wit
 Block types
 ~~~~~~~~~~~
 
-``neuron <name>`` - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create("<name>")``. All following blocks are contained in this block.
+``model <name>`` - The top-level block of a model called ``<name>``. Within the top-level block, the following blocks may be defined:
 
-Within the top-level block, the following blocks may be defined:
-
--  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. Parameters cannot be changed from within the model itself; for this, use state variables instead.
--  ``state`` - This block is composed of a list of variable declarations that describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
+-  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead.
+-  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported.
+-  ``output`` *``<event_type>``* - Defines which type of event the model can send. Currently, only ``spike`` is supported.
 -  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language.
+
 
 Input
 -----
 
 A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
 
-For more details, on handling inputs in neuron and synapse models, please see :doc:`neurons_in_nestml` and :doc:`synapses_in_nestml`.
+.. note::
+   For more details, on handling inputs in neuron and synapse models, please see :ref:`Neuronal interactions` (for neurons) and :ref:`Presynaptic spike event handler` (for synapses).
+
+
+Continuous-time input ports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t` (but that could, in practice, be implemented as a stepwise-continuous function of time).
+
+
+Spiking input ports
+~~~~~~~~~~~~~~~~~~~
+
+The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1:
+
+.. math::
+
+   \int \delta(x - u) dx = 1
+
+The unit of the Dirac delta function follows from its definition:
+
+.. math::
+
+   f(0) = \int dx \delta(x) f(x)
+
+Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
+Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
+
+In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`\text{s}`. Consequently, the delta pulses will have a unit of inverse of time, :math:`\text{1/s}`.
+Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
+
+Physical units such as millivolts (:math:`\text{mV`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
+In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`\text{mV}` or :math:`\text{nA}`, to obtain a quantity with units of volts or amperes, respectively.
+For example, the product of a Dirac delta function and millivolt (:math:`\text{mV}`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
 
 
 Output
-~~~~~~
+------
 
 Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
 
 .. code-block:: nestml
 
-   output: spike
+   output:
+       spike
 
-
-Handling of time
-----------------
-
-To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
-
--  ``resolution`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
--  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
-
-These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
-
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
-
-.. code-block:: nestml
-
-   parameters:
-       h ms = resolution()   # !! NOT RECOMMENDED.
-
-   update:
-       # update from t to t + resolution()
-       x *= exp(-resolution() / tau)   # let x' = -x / tau
-                                       # evolve the state of x one timestep
-
-
-
-The following text is based on [2]_.
-
-Consider a linear, time-invariant system
-
-.. math::
-
-   \dot{\mathbf{x}} = \mathbf{Ax} + \mathbf{y}
-
-
-Here, x(t) is the time-dependent state of the system, and y(t) is the time-dependent input to the system. Both x and y are n-dimensional column vectors containing real numbers. By substitution of variables, any higher-order linear dierential equation is written as a first-order system during processing with the NESTML component ODE-toolbox. A fundamental system of solutions to the homoge-
-neous (zero-input) equation _y à Ay is given by the col-
-umns of the matrix exponential eAt.
-
-The unique solution of the full equation with initial value :math:`x(t_0)` is
-
-.. math::
-   :label: eq_b
-
-   x(t) = \exp{\mathbf{A}(t - t_0)}\mathbf{x}(t_0) + \int_{t_0^+}^t \exp{\mathbf{A}(t - \tau)} y(\tau) d\tau
-
-The first part of the sum is the result of passive propagation of the initial state, wheras the second part represents the input-driven response of the system.  Correspondingly, for a system with no input,
-the matrix eAt is termed ``time-evolution operator'' or
-``propagator''. In contrast, for a system with input but
-zero initial conditions, the same matrix is called the
-``impulse response'' of the system.
-
-Digital simulation means to compute the response :math:`\mathbf{x}(t)` of the syetem to a prescribed input :math:`\mathbf{y}(t)`  on an evenly sampled grid :math:`t_k = k\cdot h` where :math:`h` is a fixed step size and :math:`k` takes only integer values. The function :math:`x(t)` then corresponds to the sequence :math:`x(t_k)` of its samples on the grid. For a special type of input functions, the simulation can be performed in an exact way, avoiding potentially inaccurate and unstable integration methods. To this end, we consider (generalized) functions xÖtÜ of the form
-
-.. math::
-
-   \mathbf{y}(t) = \sum_k \mathbf{y}(t_k) \delta(t - t_k)
-
-where :math:`\mathbf{y}` is an :math:`n`\ -dimensional vector for each :math:`k`, and :math:`\delta(t)` is the scalar Dirac delta function.
-
-For pulse train inputs which are restricted to the grid,
-the temporal evolution of the continuous system (2)
-collapses to a discrete matrix equation. Namely, if we let :math:`t_0 = t_k` and :math:`t = t_{k+1}` be two successive points on the grid, the solution to :eq:`eq_b` is
-
-.. math::
-
-   x(t_{k+1}) = \exp{\mathbf{A}h} \mathbf{x}(t_k) + \mathbf{y}(t_{k+1})
-
-which can be interpreted as an iteration
-
-
-::
-
-         y_1   y_2   y_3
-          ↓     ↓     ↓
-   x_0 → x_1 → x_2 → x_3
-
-
-Starting with an initial state :math:`y_0` and assuming non-zero input only at :math:`t_k` for :math:`k = 1,2,3,\ldots`, it propagates the exact solution on the grid, step by step. The diagram depicts the dependency of the current output of the
-system on its previous output and the current input. We
-refer to the iteration (5) as the method of ``Exact
-Integration''. For a time-invariant system, it is based on
-the fixed numerical matrix :math:`\exp\{\mathbf{A}h}`, which has to be
-computed only once by using appropriate standard
-numerical algorithms. During code generation, this step is performed by ODE-toolbox.
-
-Example: exponential decay
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For a scalar value :math:`x` and no external input:
-
-.. math::
-
-   \dot{x} = -a\x
-
-with initial condition :math:`x(0) = x_0`, the solution of this initial value problem is given by
-
-.. math::
-
-   x(t) = x_0\exp{-at}
-
-The iteration yields the sequence
-
-.. math::
-
-   x(t_{k+1}) = \exp{-ah} x(t_k)
-
-Consider now the same system with input:
-
-.. math::
-
-   \dot{x} = -a\x + I
-
-As input, we take a pulse train on the grid. The response :math:`x(t)` is then
-
-.. math
-
-   x(t) = \int_0^t \exp{-a(t - \tau)} I d\tau
-
-The result of a discrete iteration according to (5) is
-illustrated in Fig. 4 and describes a scalar system which
-relaxes from its previous state according to its autono-
-mous dynamics, and which then updates its initial
-conditions to satisfy the input.
-
-
-Example: integrate-and fire
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. math::
-
-   \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} = \left[\begin{aligned}\tau_\text{syn} & 0\\
-   \frac{1}{C_m} & -\frac{1}{\tau_m} \end{aligned}\right]
-
-where the initial conditions are defined at the time that an incoming spike is handled, that is that the variable
-
-.. math::
-
-   \mathbf{x}(0) = \left[\begin{aligned}\Delta I_\text{PSP}\\ V_{m,0}\end{aligned}\right]
-
-In a grid-constrained simulation, only
-delays that are an integer multiple of h can be considered because incoming
-spikes can be handled only at grid points.
-
-If a neuron emits a spike at time t that has a delay of d, the simulation algorithm waits until all neurons have completed their updates for the integration step (t − h, t] and then delivers the event to its target(s).
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
 
 
 Equations
@@ -998,28 +888,27 @@ Equations
 Systems of ODEs
 ~~~~~~~~~~~~~~~
 
-In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say ``V``, one must write: ``V'``. It is then assumed that ``V'`` is the first time derivate of ``V``. The second time derivative of ``V`` is ``V''``, and so on. If an equation contains a derivative of order :math:`n`, for example, :math:`V^{(n)}`, all initial values of :math:`V` up to order :math:`n-1` must be defined in the ``state`` block. For example, if stating
+In the ``equations`` block one can define a system of differential equations, with an arbitrary amount of equations, that contain derivatives of arbitrary order. When using a derivative of a variable, say ``V``, one must write: ``V'``. It is then assumed that ``V'`` is the first time derivative of ``V``, that is, :math:`dV/dt`. The second time derivative of ``V`` is ``V''``, and so on. If an equation contains a derivative of order :math:`n`, for example, :math:`V^{(n)}`, all initial values of :math:`V` up to order :math:`n-1` must be defined in the ``state`` block. For example, if stating
 
 .. code-block:: nestml
 
    V' = a * V
 
-in the ``equations`` block,
+in the ``equations`` block, then
 
 .. code-block:: nestml
 
-   V mV = 0 mV
+   V real = 0
 
 has to be defined in the ``state`` block. Otherwise, an error message is generated.
 
-The content of spike and continuous time buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
+The content of spike and continuous time input ports can be used by just using their names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
+
 
 Delay Differential Equations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The differential equations in the ``equations`` block can also be a delay differential equation, where the derivative
-at the current time depends on the derivative of a function at previous times. A state variable, say ``foo`` that is
-dependent on another state variable ``bar`` at a constant time offset (here, ``delay``) in the past, can be written as
+The differential equations in the ``equations`` block can also be a delay differential equation, where the derivative at the current time depends on the derivative of a function at previous times. A state variable, say ``foo`` that is dependent on another state variable ``bar`` at a constant time offset (here, ``delay``) in the past, can be written as
 
 .. code-block:: nestml
 
@@ -1080,6 +969,18 @@ During code generation, one or more state variables are created for each unique 
      # reset the state of synaptic integration
      I_syn = 0 pA
      I_syn' = 0 * s**-1
+
+
+Recording values
+^^^^^^^^^^^^^^^^
+
+The ``recordable`` keyword can be used to make ``inline`` expressions in the ``equations`` block available to recording devices.
+
+.. code-block:: nestml
+
+   equations:
+       ...
+       recordable inline V_m mV = V_rel + E_L
 
 
 Kernel functions
@@ -1161,78 +1062,62 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
    kernel g = delta(t)
 
 
-Solver selection
-~~~~~~~~~~~~~~~~
-
-Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
-
-In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
-
-
-Dynamics and time evolution
----------------------------
+Handling of time
+----------------
 
 Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model from the "current" time ``t`` to the next timestep ``t + resolution()``.
 
-Integrating the ODEs needs to be triggered explicitly in NESTML by using the ``integrate_odes()`` in the ``update`` block. The reason to make this explicit is that, although a certain sequence of steps is recommended in general, making these statements explicit forces the modeler to be explicit and precise, rather than leaving implementation details up to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulses to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. This allows a wider range of model behaviour to be reproduced from the literature.
+
+Integrating the ODEs
+~~~~~~~~~~~~~~~~~~~~
+
+Integrating the ODEs needs to be triggered explicitly inside the ``update`` block by calling the ``integrate_odes()`` function. The reason to make this explicit is that making this explicit forces the modeler to be precise, rather than leaving implementation details (what is updated at what point) to the simulation platform, which could cause variations in behavior of the same model on different platforms. For instance, depending on the sequence of operations, we might want to process the spikes that were received in the last time interval, which typically would apply delta impulse increments to the state variables, before integrating the model ODEs over the same time interval---or to do it exactly vice versa. Being explicit allows a wider range of model behaviour to be reproduced from the literature.
 
 The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
 
 Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The affected state variables are updated when the ``process_spikes()`` function is called for that input port. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 
+ODEs that can be solved analytically are integrated to machine precision from one timestep to the next using the propagators obtained from `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_. In case a numerical solver is used (such as Runge-Kutta or forward Euler), the same ODEs are also evaluated numerically by the numerical solver to allow more precise values for analytically solvable ODEs *within* a timestep. In this way, the long-term dynamics obeys the analytic (more exact) equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
+
+
+Retrieving simulation timing parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To retrieve timing parameters from the simulator kernel, two special functions are built into NESTML:
+
+-  ``resolution`` returns the current resolution of the simulation in ms.
+-  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+
+These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
+
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
+
+.. code-block:: nestml
+
+   parameters:
+       h ms = resolution()   # !! NOT RECOMMENDED.
+
+   update:
+       # update from t to t + resolution()
+       x *= exp(-resolution() / tau)   # let x' = -x / tau
+                                       # evolve the state of x one timestep
+
 
 Integration order
 ~~~~~~~~~~~~~~~~~
 
-The recommended update sequence for a spiking neuron model is shown below, which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
+During simulation, the simulation kernel (for example, NEST Simulator) is responsible for invoking the model functions that update its state: those in ``update``, ``onReceive``, integrating the ODEs, etc. Different simulators may invoke these functions in a different sequence and with different steps of time, leading to different numerical results even though the same model was used. For example, "time-based" simulators take discrete steps of time of fixed duration (for example, 1 millisecond), whereas "event-based" simulators process events at their exact time of occurrence, without having to round off the time of occurrence of the event to the nearest timestep interval. The following section describes some of the variants of integration sequences that can be encountered and what this means for the outcome of a simulation.
+
+The recommended update sequence for a spiking neuron model is shown below (panel B), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
-   :alt: Integration order. Modified after [1]_, their Fig. 10.2.
+   :alt: Four different conventions for integration sequence. Modified after [1]_, their Fig. 10.2.
 
-The numeric results of a typical are shown below. When the neuron is being updated from ``t`` to ``t + resolution()``, the subthreshold dynamics step is performed first, and then the neuron state is modified to include the spikes. The effect of the spike at time ``t`` only become visible at ``t + resolution()``. This is illustrated in the figure below, which shows a comparison between the "true" solution in blue (middle and bottom panels) to a spike arriving at 2 ms (top panel) for an integrate-and-fire neuron with an exponentially decaying postsynaptic kernel. The spike increments the value of the postsynaptic current (middle panel), which appears as a term in the membrane potential ODE (bottom panel). The effect of the spike becomes visible at the end of the timestep because ``process_spikes()`` has incremented the postsynaptic current, but the effect of the spike on the membrane potential only becomes visible one timestep later (at 3 ms) because the new value of the postsynaptic current is only taken into account in the subthreshold dynamics at the next timestep.
+The numeric results of a typical simulation run are shown below. Consider a leaky integrate-and-fire neuron with exponentially decaying postsynaptic currents :math:`I_\text{syn}`. The neuron is integrated using a fixed timestep of :math:`1~\text{ms}` (left) and using an event-based method (right). On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` blcok are run every timestep for a fixed resolution of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but because events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
 
-.. code-block:: nestml
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order_example.png
+   :alt: Numerical example for two different integration sequences.
 
-   input:
-       spikes pA/s <- spike
-       I_stim pA <- continuous
-
-   state:
-       V_m mV = E_L     # Membrane potential
-
-   equations:
-       kernel I_kernel = exp(-t / tau_syn)
-       inline I_syn pA = convolve(I_kernel, spikes)
-       V_m' = -(V_m - E_L) / tau_m + (I_syn + I_stim) / C_m
-
-   update:
-       integrate_odes()
-
-       if V_m >= V_th: # threshold crossing
-           V_m = V_reset
-           emit_spike()
-
-
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_strageties.png
-   :alt: Numerical results from a typical simulation run.
-
-
-Emitting spikes
-~~~~~~~~~~~~~~~
-
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
-
-
-Recording values
-----------------
-
--  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
-
-.. code-block:: nestml
-
-   equations:
-       ...
-       recordable inline V_m mV = V_rel + E_L
 
 Guards
 ------

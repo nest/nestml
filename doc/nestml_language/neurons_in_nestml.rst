@@ -74,28 +74,6 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
 
-The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1.
-
-.. math::
-
-   \int \delta(x - u) dx = 1
-
-The unit of the Dirac delta function follows from its definition:
-
-.. math::
-
-   f(0) = \int dx \delta(x) f(x)
-
-Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
-Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
-
-In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`s`. Consequently, the delta pulses will have a unit of inverse of time, :math:`1/s`.
-Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`1/s`.
-
-Physical units such as millivolts (:math:`mV`) and nanoamperes (:math:`nA`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
-In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`mV` or :math:`nA`, to obtain a quantity with units of volts or amperes, respectively.
-For example, the product of a Dirac delta function and millivolt (:math:`mV`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
-
 
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -260,8 +238,8 @@ In order to model an absolute refractory state, in which the neuron cannot fire 
        is_refractory boolean = false
 
    equations:
-      I_syn' = ...
-      V_m' = ...
+       I_syn' = ...
+       V_m' = ...
 
    update:
        if is_refractory:
