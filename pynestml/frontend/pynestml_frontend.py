@@ -135,10 +135,8 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
 
 def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
-    from pynestml.frontend.pynestml_frontend import get_known_targets
 
-    assert target_name.upper() in get_known_targets(
-    ), "Unknown target platform requested: \"" + str(target_name) + "\""
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
     if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
@@ -149,6 +147,12 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     if target_name.upper() == "SPINNAKER":
         from pynestml.codegeneration.spinnaker_builder import SpiNNakerBuilder
         builder = SpiNNakerBuilder(options)
+        remaining_options = builder.set_options(options)
+        return builder, remaining_options
+
+    if target_name.upper() == "AUTODOC":
+        from pynestml.codegeneration.autodoc_builder import AutodocBuilder
+        builder = AutodocBuilder(options)
         remaining_options = builder.set_options(options)
         return builder, remaining_options
 
