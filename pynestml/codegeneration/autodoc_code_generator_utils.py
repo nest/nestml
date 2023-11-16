@@ -244,11 +244,11 @@ class AutoDocCodeGeneratorUtils:
                       model_name + "]_f-I_curve.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
-                print("Writing to file: ", os.path.join(target_path, model_name + "_characterisation.rst"))
                 f.write(s_)
 
         for model_name in untested_models:
             model_fname = model_name + ".nestml"
+            model_name = removesuffix(model_name, "_neuron")
 
             s += "\n"
             s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
