@@ -24,23 +24,16 @@ from typing import Optional, Mapping, Any
 from pynestml.codegeneration.autodoc_code_generator_utils import AutoDocCodeGeneratorUtils
 from pynestml.codegeneration.builder import Builder
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class AutodocBuilder(Builder):
-    _default_options = {
-        "autodoc_target_path": None
-    }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("AUTODOC", options)
 
-        if not self.option_exists("autodoc_target_path"):
-            autodoc_path = os.path.realpath(
-                os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "doc", "models_library"))
-            self.set_options({"autodoc_target_path": autodoc_path})
-
     def build(self) -> None:
-        target_path = self.get_option("autodoc_target_path")
+        target_path = FrontendConfiguration.get_target_path()
 
         try:
             AutoDocCodeGeneratorUtils.generate_docs(target_path)

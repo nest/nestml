@@ -1,13 +1,13 @@
-third_factor_stdp
-#################
+third_factor_stdp_synapse
+#########################
 
 
-third_factor_stdp - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
+third_factor_stdp_synapse - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
 
 Description
 +++++++++++
 
-third_factor_stdp is a synapse with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression. Examples::
+third_factor_stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression. Examples::
 
 Multiplicative STDP [2]  mu_plus = mu_minus = 1
 Additive STDP       [3]  mu_plus = mu_minus = 0
@@ -72,15 +72,15 @@ State variables
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `third_factor_stdp <https://github.com/nest/nestml/tree/master/models/synapses/third_factor_stdp_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `third_factor_stdp_synapse <https://github.com/nest/nestml/tree/master/models/synapses/third_factor_stdp_synapse.nestml>`_.
 
 
 Characterisation
 ++++++++++++++++
 
-.. include:: third_factor_stdp_characterisation.rst
+.. include:: third_factor_stdp_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.880454
+   Generated at 2023-11-16 11:16:00.049589

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_integration_test.py
+# autodoc_code_generator_utils.py
 #
 # This file is part of NEST.
 #
@@ -45,7 +45,7 @@ def get_model_doc_title(model_fname: str):
 
 
 class AutoDocCodeGeneratorUtils:
-    models_input_path = os.path.realpath(os.path.join(os.pardir, os.pardir, "models"))
+    models_input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models"))
 
     @classmethod
     def generate_all_models(cls):
@@ -88,38 +88,9 @@ class AutoDocCodeGeneratorUtils:
                          "aeif_cond_exp_neuron_nestml",
                          "aeif_cond_alpha_neuron_nestml"]
 
-        cls._test_model_curr_inj("iaf_psc_delta_neuron_nestml")
-        cls._test_model_psc("iaf_psc_delta_neuron_nestml")
-
-        cls._test_model_curr_inj("iaf_psc_exp_neuron_nestml")
-        cls._test_model_psc("iaf_psc_exp_neuron_nestml")
-
-        cls._test_model_curr_inj( "iaf_psc_alpha_neuron_nestml")
-        cls._test_model_psc("iaf_psc_alpha_neuron_nestml")
-
-        cls._test_model_curr_inj("iaf_cond_exp_neuron_nestml")
-        cls._test_model_psc("iaf_cond_exp_neuron_nestml")
-
-        cls._test_model_curr_inj("iaf_cond_alpha_neuron_nestml")
-        cls._test_model_psc("iaf_cond_alpha_neuron_nestml")
-
-        cls._test_model_curr_inj("iaf_cond_beta_neuron_nestml")
-        cls._test_model_psc("iaf_cond_beta_neuron_nestml")
-
-        cls._test_model_curr_inj("izhikevich_neuron_nestml")
-        cls._test_model_psc("izhikevich_neuron_nestml")
-
-        cls._test_model_curr_inj("hh_psc_alpha_neuron_nestml")
-        cls._test_model_psc("hh_psc_alpha_neuron_nestml")
-
-        cls._test_model_curr_inj( "hh_cond_exp_traub_neuron_nestml")
-        cls._test_model_psc("hh_cond_exp_traub_neuron_nestml")
-
-        cls._test_model_curr_inj("aeif_cond_exp_neuron_nestml")
-        cls._test_model_psc("aeif_cond_exp_neuron_nestml")
-
-        cls._test_model_curr_inj("aeif_cond_alpha_neuron_nestml")
-        cls._test_model_psc("aeif_cond_alpha_neuron_nestml")
+        for model in neuron_models:
+            cls._test_model_curr_inj(model)
+            cls._test_model_psc(model)
 
         all_nestml_neuron_models = [s[:-7] for s in list(os.walk(os.path.join(cls.models_input_path, "neurons")))[0][2] if s[-7:] == ".nestml"]
         s += cls.generate_neuron_models_documentation(neuron_models, all_nestml_neuron_models, target_path)
@@ -273,6 +244,7 @@ class AutoDocCodeGeneratorUtils:
                       model_name + "]_f-I_curve.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
+                print("Writing to file: ", os.path.join(target_path, model_name + "_characterisation.rst"))
                 f.write(s_)
 
         for model_name in untested_models:
@@ -346,12 +318,13 @@ class AutoDocCodeGeneratorUtils:
             else:
                 marker = None
             fig, ax = plt.subplots(1, 1)
+            ax = [ax]
             ax[0].plot(ts, Vms, label="Testant " + testant)
             for _ax in ax:
                 _ax.legend(loc="upper right")
                 _ax.grid()
                 _ax.set_ylabel("Firing rate [Hz]")
-            ax[1].set_xlabel("$I_{inj}$ [pA]")
+            ax[0].set_xlabel("$I_{inj}$ [pA]")
             plt.savefig(
                 "/tmp/nestml_nest_integration_test_subthreshold_[" + model_name + "]_[" + testant + "].png")
             plt.close(fig)

@@ -1,5 +1,5 @@
-stdp_triplet
-############
+stdp_triplet_synapse
+####################
 
 
 stdp_triplet - Synapse type with triplet spike-timing dependent plasticity
@@ -57,15 +57,15 @@ State variables
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `stdp_triplet <https://github.com/nest/nestml/tree/master/models/synapses/stdp_triplet_naive.nestml>`_.
+The model source code can be found in the NESTML models repository here: `stdp_triplet_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_triplet_naive.nestml>`_.
 
 
 Characterisation
 ++++++++++++++++
 
-.. include:: stdp_triplet_characterisation.rst
+.. include:: stdp_triplet_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.866991
+   Generated at 2023-11-16 11:16:00.041844

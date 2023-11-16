@@ -38,6 +38,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
+from pynestml.utils.string_utils import removesuffix
 
 
 class AutoDocCodeGenerator(CodeGenerator):
@@ -88,7 +89,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param neuron: a single neuron object.
         """
         nestml_model_doc = self._template_neuron_nestml_model.render(self.setup_neuron_model_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.rst',
+        neuron_name = removesuffix(neuron.get_name(), "_neuron")
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_name)) + '.rst',
                   'w+') as f:
             f.write(str(nestml_model_doc))
 
@@ -114,7 +116,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neuron'] = neuron
-        namespace['neuronName'] = str(neuron.get_name())
+        namespace['neuronName'] = removesuffix(str(neuron.get_name()), "_neuron")
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
@@ -139,7 +141,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['synapse'] = synapse
-        namespace['synapseName'] = str(synapse.get_name())
+        namespace['synapseName'] = synapse.get_name()
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
@@ -165,8 +167,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neurons'] = neurons
         namespace['synapses'] = synapses
-        namespace['neuronNames'] = [str(neuron.get_name()) for neuron in neurons]
-        namespace['synapseNames'] = [str(neuron.get_name()) for neuron in neurons]
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
