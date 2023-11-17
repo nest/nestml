@@ -116,15 +116,13 @@ model hh_moto_5ht_neuron:
         spike
 
     update:
-        if is_refractory:
-            # neuron is absolute refractory, do not evolve ODEs
-            refr_t -= resolution()
-        else:
-            # neuron not refractory, evolve all ODEs
-            integrate_odes()
-
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
         integrate_odes()
+
+        if is_refractory:
+            # neuron is absolute refractory, decrease refractoriness timer
+            refr_t -= resolution()
 
     onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
         # threshold && maximum
