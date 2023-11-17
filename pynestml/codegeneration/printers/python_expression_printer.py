@@ -203,7 +203,7 @@ class PythonExpressionPrinter(ExpressionPrinter):
             return lhs + " % " + rhs
 
         if op.is_pow_op:
-            return "pow" + "(" + lhs + ", " + rhs + ")"
+            return lhs + "**" + rhs
 
         raise RuntimeError("Cannot determine arithmetic operator!")
 

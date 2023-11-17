@@ -1,22 +1,24 @@
-stdp_nn_symm
-############
+stdp_nn_pre_centered_synapse
+############################
 
 
-Synapse type for spike-timing dependent plasticity with symmetric nearest-neighbour spike pairing scheme
+stdp_nn_pre_centered - Synapse type for spike-timing dependent plasticity, with nearest-neighbour spike pairing
 
 Description
 +++++++++++
 
-stdp_nn_symm_synapse is a connector to create synapses with spike time
-dependent plasticity with the symmetric nearest-neighbour spike pairing
-scheme [1]_.
+stdp_nn_pre_centered_synapse is a connector to create synapses with spike
+time dependent plasticity with the presynaptic-centered nearest-neighbour
+spike pairing scheme, as described in [1]_.
 
-When a presynaptic spike occurs, it is taken into account in the depression
-part of the STDP weight change rule with the nearest preceding postsynaptic
-one, and when a postsynaptic spike occurs, it is accounted in the
-facilitation rule with the nearest preceding presynaptic one (instead of
-pairing with all spikes, like in stdp_synapse). For a clear illustration of
-this scheme see fig. 7A in [2]_.
+Each presynaptic spike is taken into account in the STDP weight change rule
+with the nearest preceding postsynaptic one and the nearest succeeding
+postsynaptic one (instead of pairing with all spikes, like in stdp_synapse).
+So, when a presynaptic spike occurs, it is accounted in the depression rule
+with the nearest preceding postsynaptic one; and when a postsynaptic spike
+occurs, it is accounted in the facilitation rule with all preceding
+presynaptic spikes that were not earlier than the previous postsynaptic
+spike. For a clear illustration of this scheme see fig. 7B in [2]_.
 
 The pairs exactly coinciding (so that presynaptic_spike == postsynaptic_spike
 + dendritic_delay), leading to zero delta_t, are discarded. In this case the
@@ -26,10 +28,10 @@ result in a potentiation pair 20-to-10).
 
 The implementation involves two additional variables - presynaptic and
 postsynaptic traces [2]_. The presynaptic trace decays exponentially over
-time with the time constant tau_plus and increases to 1 on a pre-spike
-occurrence. The postsynaptic trace (implemented on the postsynaptic neuron
-side) decays with the time constant tau_minus and increases to 1 on a
-post-spike occurrence.
+time with the time constant tau_plus, increases by 1 on a pre-spike
+occurrence, and is reset to 0 on a post-spike occurrence. The postsynaptic
+trace (implemented on the postsynaptic neuron side) decays with the time
+constant tau_minus and increases to 1 on a post-spike occurrence.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp-nearest-neighbour.png
 
@@ -39,11 +41,12 @@ post-spike occurrence.
 
    Phenomenological models of synaptic plasticity based on spike timing", Biological Cybernetics 98 (2008). "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron j and a postsynaptic neuron i. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)
 
+
 References
 ++++++++++
 
-.. [1] Morrison A., Aertsen A., Diesmann M. (2007) Spike-timing dependent
-       plasticity in balanced random networks, Neural Comput. 19:1437--1467
+.. [1] Izhikevich E. M., Desai N. S. (2003) Relating STDP to BCM,
+       Neural Comput. 15, 1511--1523
 
 .. [2] Morrison A., Diesmann M., and Gerstner W. (2008) Phenomenological
        models of synaptic plasticity based on spike timing,
@@ -59,15 +62,15 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "d", "ms", "1ms", "Synaptic transmission delay"
-    "lambda", "real", "0.01", ""
-    "tau_tr_pre", "ms", "20ms", ""
-    "tau_tr_post", "ms", "20ms", ""
-    "alpha", "real", "1.0", ""
-    "mu_plus", "real", "1.0", ""
-    "mu_minus", "real", "1.0", ""
-    "Wmax", "real", "100.0", ""
+    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
+    "lambda", "real", "0.01", ""    
+    "tau_tr_pre", "ms", "20ms", ""    
+    "tau_tr_post", "ms", "20ms", ""    
+    "alpha", "real", "1.0", ""    
+    "mu_plus", "real", "1.0", ""    
+    "mu_minus", "real", "1.0", ""    
+    "Wmax", "real", "100.0", ""    
     "Wmin", "real", "0.0", ""
 
 
@@ -78,22 +81,22 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "w", "real", "1.0", "Synaptic weight"
-    "pre_trace", "real", "0.0", ""
+    
+    "w", "real", "1", "Synaptic weight"    
+    "pre_trace", "real", "0.0", ""    
     "post_trace", "real", "0.0", ""
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `stdp_nn_symm <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_symm_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `stdp_nn_pre_centered_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
 Characterisation
 ++++++++++++++++
 
-.. include:: stdp_nn_symm_characterisation.rst
+.. include:: stdp_nn_pre_centered_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.875577
+   Generated at 2023-11-16 11:40:54.333803

@@ -46,19 +46,19 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "C_m", "pF", "200pF", "Membrane capacitance"
-    "k", "pF / (mV ms)", "8pF / mV / ms", "Spiking slope"
-    "V_r", "mV", "-65mV", "Resting potential"
-    "V_t", "mV", "-45mV", "Threshold potential"
-    "a", "1 / ms", "0.01 / ms", "Time scale of recovery variable"
-    "b", "nS", "9nS", "Sensitivity of recovery variable"
-    "c", "mV", "-65mV", "After-spike reset value of V_m"
-    "d", "pA", "60pA", "After-spike reset value of U_m"
-    "V_peak", "mV", "0mV", "Spike detection threshold (reset condition)"
-    "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of excitatory synapse"
-    "tau_syn_inh", "ms", "2ms", "Synaptic time constant of inhibitory synapse"
-    "t_ref", "ms", "2ms", "Refractory period"
+    
+    "C_m", "pF", "200pF", "Membrane capacitance"    
+    "k", "pF / (ms mV)", "8pF / mV / ms", "Spiking slope"    
+    "V_r", "mV", "-65mV", "Resting potential"    
+    "V_t", "mV", "-45mV", "Threshold potential"    
+    "a", "1 / ms", "0.01 / ms", "Time scale of recovery variable"    
+    "b", "nS", "9nS", "Sensitivity of recovery variable"    
+    "c", "mV", "-65mV", "After-spike reset value of V_m"    
+    "d", "pA", "60pA", "After-spike reset value of U_m"    
+    "V_peak", "mV", "0mV", "Spike detection threshold (reset condition)"    
+    "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of excitatory synapse"    
+    "tau_syn_inh", "ms", "2ms", "Synaptic time constant of inhibitory synapse"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -70,10 +70,11 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "r", "integer", "0", "Number of steps in the current refractory phase"
-    "V_m", "mV", "-65mV", "Membrane potential"
-    "U_m", "pA", "0pA", "Membrane potential recovery variable"
+    
+    "V_m", "mV", "-65mV", "Membrane potential"    
+    "U_m", "pA", "0pA", "Membrane potential recovery variable"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""
 
 
 
@@ -84,7 +85,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right)
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right) 
 
 .. math::
    \frac{ dU_{m} } { dt }= a \cdot (b \cdot (V_{m} - V_{r}) - U_{m})
@@ -104,4 +105,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.285400
+   Generated at 2023-11-16 11:40:53.824156

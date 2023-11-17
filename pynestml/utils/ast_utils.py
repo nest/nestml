@@ -1722,11 +1722,12 @@ class ASTUtils:
                 self._visit(node)
 
             def _visit(self, node):
-                if node.is_function_call() and node.get_function_call().get_name() == "integrate_odes" and not node in self.calls:
+                if node.is_function_call() and node.get_function_call().get_name() == "integrate_odes" and not any([call.equals(node.get_function_call()) for call in self.calls]):
                     self.calls.append(node.get_function_call())
 
         visitor = IntegrateODEsFunctionCallVisitor()
         model.accept(visitor)
+        print(visitor.calls)
 
         return visitor.calls
 
