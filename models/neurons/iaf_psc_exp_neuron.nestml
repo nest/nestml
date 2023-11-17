@@ -109,7 +109,7 @@ model iaf_psc_exp_neuron:
         V_m = V_reset
         emit_spike()
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false

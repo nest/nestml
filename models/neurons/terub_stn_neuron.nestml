@@ -164,7 +164,7 @@ model terub_stn_neuron:
         is_refractory = true
         emit_spike()
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false

@@ -103,7 +103,7 @@ model iaf_cond_exp_sfa_rr_neuron:
         g_rr += q_rr
         emit_spike()
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false

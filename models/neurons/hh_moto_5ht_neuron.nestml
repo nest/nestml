@@ -117,8 +117,8 @@ model hh_moto_5ht_neuron:
 
     update:
         # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
-            V_m_old = V_m
-            integrate_odes()
+        V_m_old = V_m
+        integrate_odes()
 
         if is_refractory:
             # neuron is absolute refractory, decrease refractoriness timer
@@ -130,7 +130,7 @@ model hh_moto_5ht_neuron:
         is_refractory = true
         emit_spike()
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false
