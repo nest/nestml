@@ -1,4 +1,4 @@
-// #define DEBUG 1
+#define DEBUG 1
 {#
 NeuronClass.jinja2
 
@@ -606,7 +606,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 #ifdef DEBUG
-  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << __resolution << std::endl;
+  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %} (dt = " << __resolution << ")" << std::endl;
 #endif
 
 {%- if purely_numeric_state_variables_moved %}
@@ -642,6 +642,10 @@ const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
 {% endif %}
 
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
+
+#ifdef DEBUG
+  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << get_t() << std::endl;
+#endif
 
 {%- if use_gap_junctions %}
     // B_.lag is needed by GSL stepping function to determine the current section
@@ -1246,6 +1250,8 @@ double
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
+{%- if analytic_state_variables_moved | length > 0 %}
+
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1267,6 +1273,8 @@ double
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
+
+{%- endif %}
 
 #ifdef DEBUG
       std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
@@ -1311,6 +1319,8 @@ double
    * variables that will be integrated: {{ analytic_state_variables_moved }}
   **/
 
+  {%- if analytic_state_variables_moved | length > 0 %}
+
   const double old___h = V_.__h;
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
@@ -1323,6 +1333,7 @@ double
 
   V_.__h = old___h;
   recompute_internal_variables(true);
+{%- endif %}
 
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }

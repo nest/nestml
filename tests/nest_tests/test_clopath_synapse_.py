@@ -70,7 +70,7 @@ class TestClopathSynapse:
     def test_nest_clopath_synapse(self):
         fname_snip = ""
 
-        pre_spike_times = [1., 11.]    # [ms]
+        pre_spike_times = [1., 13.]    # [ms]
         post_spike_times = [6.]  # [ms]
 
         delay = 1.   # [ms]
@@ -85,8 +85,8 @@ class TestClopathSynapse:
         sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         # nest.set_verbosity("M_WARNING")
-        # nest.set_verbosity("M_ERROR")
-        nest.set_verbosity("M_ALL")
+        nest.set_verbosity("M_ERROR")
+        # nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
 
