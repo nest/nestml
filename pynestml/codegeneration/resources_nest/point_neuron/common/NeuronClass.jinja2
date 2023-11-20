@@ -609,6 +609,15 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << __resolution << std::endl;
 #endif
 
+{%- if purely_numeric_state_variables_moved %}
+  // numeric state variables moved from synapse to neuron should always be integrated, regardless of calls to integrate_odes() in the neuron
+  // make a temporary copy of the old values
+{%-     for variable_name in purely_numeric_state_variables_moved %}
+{%-         set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
+{%-     endfor %}
+{%- endif %}
+
 {%- if use_gap_junctions %}
   const size_t interpolation_order = nest::kernel().simulation_manager.get_wfr_interpolation_order();
   const double wfr_tol = nest::kernel().simulation_manager.get_wfr_tol();
@@ -780,6 +789,23 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 {%-     endfor %}
 {%- endif %}
 
+
+{%- if purely_numeric_state_variables_moved %}
+  /**
+   * numeric state variables moved from synapse to neuron should always be integrated, regardless of calls to integrate_odes() in the neuron
+  **/
+
+  // restore the original values
+{%-     for variable_name in purely_numeric_state_variables_moved %}
+{%-         set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{{ printer.print(var_ast) }} = {{ variable_name }}__tmp;
+{%-     endfor %}
+
+{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved)`` #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endif %}
 
     /**
      * spike updates due to convolutions
@@ -1094,27 +1120,24 @@ void
     {
       assert(history_.back().t_ == last_spike_);
 
-{%-     for var in purely_numeric_state_variables_moved|sort %}
-      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
-{%-     endfor %}
 {%-     for var in analytic_state_variables_moved|sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
 {%-     endfor %}
     }
     else
     {
-{%-     for var in purely_numeric_state_variables_moved|sort %}
-      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
-{%-     endfor %}
 {%-     for var in analytic_state_variables_moved|sort %}
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
 {%-     endfor %}
     }
 
+{%- if analytic_state_variables_moved %}
     /**
       * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
       *
-      * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+      * variables that will be integrated: {{ analytic_state_variables_moved }}
+      *
+      * N.B.: only analytic variables are integrated here; numeric variables will have been updated by calls in update()
     **/
 
     const double old___h = V_.__h;
@@ -1122,10 +1145,9 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-
 {%-     filter indent(10, True) -%}
-{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{#          emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%-     endfilter %}
@@ -1133,6 +1155,7 @@ void
       V_.__h = old___h;
       recompute_internal_variables(true);
     }
+{%- endif %}
 
     /**
       * print extra on-emit statements transferred from synapse
@@ -1219,9 +1242,6 @@ double
       std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
-{%- for var_ in purely_numeric_state_variables_moved %}
-      {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
-{%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
@@ -1229,7 +1249,7 @@ double
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
-       * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+       * variables that will be integrated: {{ analytic_state_variables_moved }}
       **/
 
       if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
@@ -1239,8 +1259,8 @@ double
         assert(V_.__h > 0);
         recompute_internal_variables(true);
 
-{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{# emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
 {%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
@@ -1259,9 +1279,6 @@ double
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
   if ( (!before_increment) and t == history_[ 0 ].t_)
   {
-{%- for var_ in purely_numeric_state_variables_moved %}
-    {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
-{%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
@@ -1284,9 +1301,6 @@ double
   }
 
   // set to initial value
-{%- for var_ in purely_numeric_state_variables_moved %}
-  {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
-{%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
@@ -1294,7 +1308,7 @@ double
   /**
    * update state variables transferred from synapse from initial condition to `t`
    *
-   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+   * variables that will be integrated: {{ analytic_state_variables_moved }}
   **/
 
   const double old___h = V_.__h;
@@ -1302,8 +1316,8 @@ double
   assert(V_.__h > 0);
   recompute_internal_variables(true);
 
-{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{# emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
 {%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
