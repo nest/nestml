@@ -3,6 +3,8 @@ Release checklist
 
 Follow this checklist to successfully perform a NESTML release. Let's say that 5.0.0 is the currently-out release, and we want to publish 5.0.1.
 
+- Check that lexer/parser are generated with the appropriate version of Antlr (antlr4-python-runtime and antlr4 lexer/parser generator versions have to agree).
+
 - Find out authors who contributed since the last release.
 
   ```bash
