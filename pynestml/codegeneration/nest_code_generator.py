@@ -27,7 +27,6 @@ import re
 import odetoolbox
 import pynestml
 
-from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -137,7 +136,9 @@ class NESTCodeGenerator(CodeGenerator):
         },
         "nest_version": "",
         "solver": "analytic",
-        "numeric_solver": "rk45"
+        "numeric_solver": "rk45",
+        "delay_variable": "",
+        "weight_variable": ""
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -221,16 +222,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         return ret
 
-    def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
-        for synapse in synapses:
-            CoCoNESTDelayDecoratorSpecified.check_co_co(synapse)
-            if Logger.has_errors(synapse):
-                raise Exception("Error(s) occurred during code generation")
-
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
 
-        self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -478,7 +472,12 @@ class NESTCodeGenerator(CodeGenerator):
         """
         namespace = self._get_model_namespace(synapse)
 
-        namespace["nest_version"] = self.get_option("nest_version")
+        # special case for NEST delay variable (state or parameter)
+        namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")
+
+        # special case for NEST weight variable (state or parameter)
+        if self.option_exists("weight_variable"):
+            namespace["nest_codegen_opt_weight_variable"] = self.get_option("weight_variable")
 
         all_input_port_names = []
         for input_block in synapse.get_input_blocks():

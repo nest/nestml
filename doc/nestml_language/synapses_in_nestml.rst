@@ -500,15 +500,27 @@ NEST target synapses are not allowed to have any time-based internal dynamics (O
 The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
 
 
-Dendritic delay
-~~~~~~~~~~~~~~~
+Dendritic delay and synaptic weight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). To indicate that a given parameter is specifying this NEST-specific delay value, use an annotation:
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``, for example, given the following model:
 
 .. code:: nestml
 
+   state:
+       w real = 1.
+
    parameters:
-       dend_delay ms = 1 ms     @nest::delay
+       dend_delay ms = 1 ms
+
+the variables might be specified as:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": "dend_delay",
+                                 "weight_variable": "w"})
 
 
 Generating code

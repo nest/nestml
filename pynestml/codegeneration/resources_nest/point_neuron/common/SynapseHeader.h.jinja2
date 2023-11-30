@@ -333,7 +333,7 @@ private:
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not isHomogeneous %}
+{%-     if not isHomogeneous  and not (variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable) %}
 {%-         include 'directives_cpp/MemberDeclaration.jinja2' %}
 {%-     else %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
@@ -374,31 +374,30 @@ private:
   Variables_  V_;  //!< Internal Variables
 {%- if synapse.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
-  //   Getters/setters for state block
+  //   Getters/setters for parameters and state variables
   // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
+{%  filter indent(2, True) -%}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
-
-{% endfor %}
-{%- endfilter %}
-{%- endif %}
-
-{%- if synapse.get_parameter_symbols()|length > 0 %}
-  // -------------------------------------------------------------------------
-  //   Getters/setters for parameters
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous %}
-{%-         set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-         if variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable and printer_no_origin.print(variable) != "delay" %}
+// special case because in NEST, synaptic delay is stored in syn_id_delay_ (type SynIdDelay) of class Connection
+inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ printer_no_origin.print(variable) }}() const
+{
+  return get_delay();
+}
+
+inline void set_{{ printer_no_origin.print(variable) }}(const {{ declarations.print_variable_type(variable_symbol) }} __v)
+{
+  set_delay(__v);
+}
+{%-         else %}
+{%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
+{%-         endif %}
 {%-     endif %}
-{%- endfor %}
+{%  endfor %}
 {%- endfilter %}
 {%- endif %}
 
@@ -598,24 +597,41 @@ public:
   };
 
   /**
-   *  special case for weights in NEST: only in case a NESTML state variable was decorated by @nest::weight
+   *  special case for weights in NEST: only in case a NESTML state variable was specified in code generation options as ``weight_variable``
   **/
   inline void set_weight(double w)
   {
-{%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
-    // special case for variable marked with @nest::weight decorator
-{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-         if nest_namespace_name == "weight" %}
+{%- if nest_codegen_opt_weight_variable is defined %}
+{%-     for variable_symbol in synapse.get_state_symbols() %}
+{%-         if variable_symbol.get_symbol_name() == nest_codegen_opt_weight_variable and printer_no_origin.print(variable) != "weight" %}
     set_{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
     return;
 {%-         endif %}
-{%-     endif %}
-{%- endfor %}
+{%-     endfor %}
+{%- endif %}
 
-    // no variable was decorated by @nest::weight, so no "weight" defined from the NEST perspective
+
+    // no ``weight_variable`` was given in code generation options, so no "weight" defined from the NEST perspective
     assert(0);
   }
+
+  /**
+   *  special case for weights in NEST: only in case a NESTML state variable was specified in code generation options as ``weight_variable``
+  **/
+  inline double get_weight() const
+  {
+{%- if nest_codegen_opt_weight_variable is defined %}
+{%-     for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
+{%-         if variable_symbol.get_symbol_name() == nest_codegen_opt_weight_variable and printer_no_origin.print(variable) != "weight" %}
+    return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
+    // no ``weight_variable`` was given in code generation options, so no "weight" defined from the NEST perspective
+    assert(0);
+  }
+{%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   void
@@ -962,7 +978,7 @@ void
 {%-     endif %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or kernel
+  // state variables
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -985,6 +1001,9 @@ void
 {{synapseName}}< targetidentifierT >::set_status( const DictionaryDatum& __d,
   ConnectorModel& cm )
 {
+  // call parent class method
+  ConnectionBase::set_status( __d, cm );
+
   // parameters
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -1070,13 +1089,24 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
 {% endif %}
 
   // special treatment of NEST delay
-  set_delay({%- for variable_symbol in synapse.get_parameter_symbols() %}
-{%-     set namespaceName = variable_symbol.get_namespace_decorator("nest") %}
-{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if namespaceName == "delay" %}
+  set_delay(
+{%- for variable_symbol in synapse.get_parameter_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable %}
+{%-         set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 get_{{ printer_no_origin.print(variable) }}()
 {%-     endif %}
 {%- endfor %});
+
+{%- if nest_codegen_opt_weight_variable is defined %}
+  // special treatment of NEST weight
+  set_weight(
+{%- for variable_symbol in synapse.get_parameter_symbols() %}
+{%-     if variable_symbol.get_symbol_name() == nest_codegen_opt_weight_variable %}
+{%-         set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+get_{{ printer_no_origin.print(variable) }}()
+{%-     endif %}
+{%- endfor %});
+{%- endif %}
 
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
   V_.__h = nest::Time::get_resolution().get_ms();
@@ -1162,6 +1192,11 @@ template < typename targetidentifierT >
 
     // special treatment of NEST delay
     set_delay(rhs.get_delay());
+{%- if nest_codegen_opt_weight_variable is defined %}
+
+    // special treatment of NEST weight
+    set_delay(rhs.get_weight());
+{%- endif %}
 }
 
 template < typename targetidentifierT >
