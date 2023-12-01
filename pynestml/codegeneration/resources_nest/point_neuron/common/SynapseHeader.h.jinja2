@@ -631,7 +631,6 @@ public:
     // no ``weight_variable`` was given in code generation options, so no "weight" defined from the NEST perspective
     assert(0);
   }
-{%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
   void
