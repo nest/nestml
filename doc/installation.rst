@@ -16,7 +16,31 @@ NESTML can then be installed into your local user directory via:
 
 .. code-block:: bash
 
-   pip install --pre nestml
+   pip install nestml
+
+
+Installing the latest release from PPA (Linux)
+----------------------------------------------
+
+NESTML can be installed via the ``apt`` package manager. This requires superuser (sudo) access. First, add the NEST PPA:
+
+.. code-block:: bash
+
+   sudo add-apt-repository ppa:nest-simulator/nest
+
+Then update the index and install the necessary packages:
+
+.. code-block:: bash
+
+   sudo apt update
+   sudo apt install nest python3-nestml
+   python3 -m pip install --upgrade odetoolbox pygsl antlr4-python3-runtime==4.10
+
+Before running NEST or NESTML, make sure the correct environment variables are set by running the following command:
+
+.. code-block:: bash
+
+   source /usr/bin/nest_vars.sh
 
 
 Installing the latest development version from GitHub
