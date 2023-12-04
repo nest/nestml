@@ -65,7 +65,7 @@ In preparation, `create a conda environment with NEST <https://nest-simulator.re
 
    conda create --name wnestml
    conda activate wnestml
-   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython
+   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost
    pip install nestml
 
 Test the path to ``c++``:
