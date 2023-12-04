@@ -284,9 +284,15 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         variable_name = (str(ctx.variableName.text) if ctx.variableName is not None else None)
         data_type = (self.visit(ctx.dataType()) if ctx.dataType() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
+
+        decorators = []
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
+
         inlineExpr = ASTNodeFactory.create_ast_inline_expression(is_recordable=is_recordable, variable_name=variable_name,
                                                                  data_type=data_type, expression=expression,
-                                                                 source_position=create_source_pos(ctx))
+                                                                 source_position=create_source_pos(ctx),
+                                                                 decorators=decorators)
         update_node_comments(inlineExpr, self.__comments.visit(ctx))
         return inlineExpr
 
@@ -294,7 +300,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOdeEquation(self, ctx):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
-        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx))
+
+        decorators = []
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
+
+        ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx),
+                                                              decorators=decorators)
         update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 
@@ -488,10 +500,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return neuron
 
     def visitNamespaceDecoratorNamespace(self, ctx):
-        return ctx.NAME()
+        return str(ctx.NAME())
 
     def visitNamespaceDecoratorName(self, ctx):
-        return ctx.NAME()
+        return str(ctx.NAME())
 
     def visitAnyDecorator(self, ctx):
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer

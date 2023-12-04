@@ -31,7 +31,6 @@ class ASTExpressionNode(ASTNode):
     This class is abstract, thus no instances can be created.
     """
     __type = None
-    __typeEither = None
     __metaclass__ = ABCMeta
 
     def __init__(self, *args, **kwargs):

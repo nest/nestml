@@ -25,6 +25,7 @@ from pynestml.cocos import co_co_internals_assigned_only_in_internals_block
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
+from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
@@ -51,8 +52,11 @@ from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoC
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
+from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
+from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
+from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
 from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
@@ -60,6 +64,7 @@ from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVe
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 
@@ -123,6 +128,26 @@ class CoCosManager:
         :param neuron: a single neuron.
         """
         CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
+
+    @classmethod
+    def check_v_comp_requirement(cls, neuron: ASTNeuron):
+        """
+        In compartmental case, checks if v_comp variable was defined
+        :param neuron: a single neuron object
+        """
+        CoCoVCompDefined.check_co_co(neuron)
+
+    @classmethod
+    def check_compartmental_model(cls, neuron: ASTNeuron) -> None:
+        """
+        collects all relevant information for the different compartmental mechanism classes for later code-generation
+
+        searches for inlines or odes with decorator @mechanism::<type> and performs a base and, depending on type,
+        specific information collection process. See nestml documentation on compartmental code generation.
+        """
+        CoCoCmChannelModel.check_co_co(neuron)
+        CoCoCmConcentrationModel.check_co_co(neuron)
+        CoCoCmSynapseModel.check_co_co(neuron)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, neuron: ASTNeuron):
@@ -380,6 +405,10 @@ class CoCosManager:
         cls.check_variables_unique_in_scope(neuron)
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
+        if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+            # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
+            cls.check_v_comp_requirement(neuron)
+            cls.check_compartmental_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
         cls.check_inline_has_max_one_lhs(neuron)
         cls.check_input_ports_not_assigned_to(neuron)
@@ -397,9 +426,11 @@ class CoCosManager:
         if not after_ast_rewrite:
             # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
             cls.check_odes_have_consistent_units(neuron)
-            cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
+            # ODE functions have been removed at this point
+            cls.check_ode_functions_have_consistent_units(neuron)
             cls.check_correct_usage_of_kernels(neuron)
-            cls.check_integrate_odes_called_if_equations_defined(neuron)
+            if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
+                cls.check_integrate_odes_called_if_equations_defined(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)

@@ -1,0 +1,79 @@
+{#
+  Creates GSL implementation of the differentiation step for the system of ODEs.
+-#}
+extern "C" inline int {{neuronName}}_dynamics(double __time, const double ode_state[], double f[], void* pnode)
+{
+  typedef {{neuronName}}::State_ State_;
+  // get access to node so we can almost work as in a member function
+  assert( pnode );
+  const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
+
+  // ode_state[] here is---and must be---the state vector supplied by the integrator,
+  // not the state vector in the node, node.S_.ode_state[].
+
+{%- for eq_block in neuron.get_equations_blocks() %}
+{%-     for ode in eq_block.get_declarations() %}
+{%-         for inline_expr in utils.get_inline_expression_symbols(ode) %}
+{%-             if not inline_expr.is_equation() %}
+{%-                 set declaring_expr = inline_expr.get_declaring_expression() %}
+  double {{ printer.print(utils.get_state_variable_by_name(astnode, inline_expr)) }} = {{ gsl_printer.print(declaring_expr) }};
+{%-             endif %}
+{%-         endfor %}
+{%-     endfor %}
+{%- endfor %}
+
+
+
+{%- if use_gap_junctions %}
+  // set I_gap depending on interpolation order
+  double __I_gap = 0.0;
+
+  const double __t_gap = node.gap_junction_step / nest::Time::get_resolution().get_ms();
+
+  switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
+  {
+  case 0:
+    __I_gap = -node.B_.sumj_g_ij_ * ode_state[State_::{{ gap_junction_membrane_potential_variable }}] + node.B_.interpolation_coefficients[ node.B_.lag_ ];
+    break;
+
+  case 1:
+    __I_gap = -node.B_.sumj_g_ij_ * ode_state[State_::{{ gap_junction_membrane_potential_variable }}] + node.B_.interpolation_coefficients[ node.B_.lag_ * 2 + 0 ]
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 2 + 1 ] * __t_gap;
+    break;
+
+  case 3:
+    __I_gap = -node.B_.sumj_g_ij_ * ode_state[State_::{{ gap_junction_membrane_potential_variable }}] + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 0 ]
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 1 ] * __t_gap
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+      + node.B_.interpolation_coefficients[ node.B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+    break;
+
+  default:
+    throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
+  }
+{%- endif %}
+
+
+{%- for variable_name in numeric_state_variables %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_symbol = variable_symbols[variable_name] %}
+{%- if use_gap_junctions %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr)|replace("node.B_." + gap_junction_port + "_grid_sum_", "(node.B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
+{%- else %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
+{%- endif %}
+{%- endfor %}
+{%- if paired_synapse is defined %}
+{%- for variable_name in numeric_state_variables_moved %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_symbol = utils.resolve_to_variable_symbol_in_blocks(variable_name, neuron.get_state_blocks()) %}
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
+{%- endfor %}
+{%- endif %}
+
+{%- if numeric_solver == "rk45" %}
+  return GSL_SUCCESS;
+{%- else %}
+  return 0;
+{%- endif %}
+}

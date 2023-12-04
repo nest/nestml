@@ -28,7 +28,6 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.utils.either import Either
 from pynestml.utils.error_strings import ErrorStrings
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -59,63 +58,66 @@ class ASTPowerVisitor(ASTVisitor):
 
     def try_to_calculate_resulting_unit(self, expr):
         base_type = expr.get_lhs().type
-        exponent_numeric_value_either = self.calculate_numeric_value(expr.get_rhs())
-        if exponent_numeric_value_either.is_value():
-            return base_type ** exponent_numeric_value_either.get_value()
-        else:
-            return base_type ** None
+        exponent_numeric_value = self.calculate_numeric_value(expr.get_rhs())
+        return base_type ** exponent_numeric_value
 
     def calculate_numeric_value(self, expr):
         """
         Calculates the numeric value of a exponent.
         :param expr: a single expression
         :type expr: ASTSimpleExpression or ASTExpression
-        :return: an Either object
-        :rtype: Either
+        :return: a numeric value or unit type
         """
         if isinstance(expr, ASTExpression):
             if expr.is_encapsulated:
                 return self.calculate_numeric_value(expr.get_expression())
+
             if expr.is_unary_operator() and expr.get_unary_operator().is_unary_minus:
                 term = self.calculate_numeric_value(expr.get_expression())
-                if term.is_error():
-                    return term
-                return Either.value(-term.get_value())
+                return -term
+
             if expr.get_binary_operator() is not None:
                 op = expr.get_binary_operator()
                 lhs = expr.get_lhs()
                 rhs = expr.get_rhs()
                 if op.is_plus_op:
-                    return Either.value(self.calculate_numeric_value(lhs).get_value() + self.calculate_numeric_value(rhs).get_value())
+                    return self.calculate_numeric_value(lhs) + self.calculate_numeric_value(rhs)
 
                 if op.is_minus_op:
-                    return Either.value(self.calculate_numeric_value(lhs).get_value() - self.calculate_numeric_value(rhs).get_value())
+                    return self.calculate_numeric_value(lhs) - self.calculate_numeric_value(rhs)
 
                 if op.is_times_op:
-                    return Either.value(self.calculate_numeric_value(lhs).get_value() * self.calculate_numeric_value(rhs).get_value())
+                    return self.calculate_numeric_value(lhs) * self.calculate_numeric_value(rhs)
 
                 if op.is_div_op:
-                    return Either.value(self.calculate_numeric_value(lhs).get_value() / self.calculate_numeric_value(rhs).get_value())
+                    return self.calculate_numeric_value(lhs) / self.calculate_numeric_value(rhs)
 
                 if op.is_modulo_op:
-                    return Either.value(self.calculate_numeric_value(lhs).get_value() % self.calculate_numeric_value(rhs).get_value())
+                    return self.calculate_numeric_value(lhs) % self.calculate_numeric_value(rhs)
+
             return self.calculate_numeric_value(expr)
+
         if isinstance(expr, ASTSimpleExpression):
             if expr.get_numeric_literal() is not None:
                 if isinstance(expr.get_numeric_literal(), int) \
                         or isinstance(expr.get_numeric_literal(), float):
                     literal = expr.get_numeric_literal()
-                    return Either.value(literal)
+                    return literal
+
                 error_message = ErrorStrings.message_unit_base(self, expr.get_source_position())
-                return Either.error(error_message)
+
+                raise Exception(error_message)
 
             # expr is a variable
             variable = expr.get_variable()
             symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
             if symbol is None:
                 if PredefinedUnits.is_unit(variable.get_complete_name()):
-                    return Either.value(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+                    return NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+
+                raise Exception("Declaration for symbol '" + str(variable) + "' not found and is not a unit.")
+
             return self.calculate_numeric_value(symbol.get_declaring_expression())
 
         error_message = ErrorStrings.message_non_constant_exponent(self, expr.get_source_position())
-        return Either.error(error_message)
+        raise Exception(error_message)

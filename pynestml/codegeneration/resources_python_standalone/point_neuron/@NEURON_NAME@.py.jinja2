@@ -18,7 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
-{%- import 'directives/FunctionDeclaration.jinja2' as function_declaration with context %}
+{%- import 'directives_py/FunctionDeclaration.jinja2' as function_declaration with context %}
 """
 {{neuronName}}.py
 
@@ -67,7 +67,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- filter indent(4,True) %}
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include 'directives/MemberDeclaration.jinja2' %}
+{%-   include 'directives_py/MemberDeclaration.jinja2' %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -84,7 +84,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- filter indent(4,True) %}
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include 'directives/MemberDeclaration.jinja2' %}
+{%-   include 'directives_py/MemberDeclaration.jinja2' %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -92,7 +92,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- filter indent(4,True) %}
 {%- for variable_symbol in neuron.get_internal_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives/MemberDeclaration.jinja2" %}
+{%-   include "directives_py/MemberDeclaration.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -133,7 +133,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- filter indent(4) %}
 {%- for variable in parameter_vars_with_iv %}
 {%-   set variable_symbol = neuron.get_scope().resolve_to_symbol(variable.get_name(), SymbolKind.VARIABLE) %}
-{%-   include "directives/MemberInitialization.jinja2" %}
+{%-   include "directives_py/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -143,7 +143,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- filter indent(4) %}
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives/MemberInitialization.jinja2" %}
+{%-   include "directives_py/MemberInitialization.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
@@ -185,7 +185,7 @@ class Neuron_{{neuronName}}(Neuron):
   {%- for variable_symbol in neuron.get_internal_symbols() %}
   {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   {%-   if variable.name != "__h" %}
-  {%-     include "directives/MemberInitialization.jinja2" %}
+  {%-     include "directives_py/MemberInitialization.jinja2" %}
   {%-   endif %}
   {%- endfor %}
   {%- endfilter %}
@@ -194,7 +194,7 @@ class Neuron_{{neuronName}}(Neuron):
   {%- filter indent(6) %}
   {%- for variable_symbol in neuron.get_internal_symbols() %}
   {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-  {%-   include "directives/MemberInitialization.jinja2" %}
+  {%-   include "directives_py/MemberInitialization.jinja2" %}
   {%- endfor %}
   {%- endfilter %}
 
@@ -207,7 +207,7 @@ class Neuron_{{neuronName}}(Neuron):
   {{ function_declaration.FunctionDeclaration(function, neuronName) }}:
 {%-   filter indent(4,True) %}
 {%-   with ast = function.get_block() %}
-{%-     include "directives/Block.jinja2" %}
+{%-     include "directives_py/Block.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 {%- endfor %}
@@ -220,7 +220,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives/MemberVariableGetterSetter.jinja2" %}
+{%-     include "directives_py/MemberVariableGetterSetter.jinja2" %}
 {%-   endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -231,7 +231,7 @@ class Neuron_{{neuronName}}(Neuron):
 {% filter indent(2, True) -%}
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-   include "directives/MemberVariableGetterSetter.jinja2" %}
+{%-   include "directives_py/MemberVariableGetterSetter.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -241,7 +241,7 @@ class Neuron_{{neuronName}}(Neuron):
   # -------------------------------------------------------------------------
 
 {% filter indent(2) %}
-{%- include "directives/GSLDifferentiationFunction.jinja2" %}
+{%- include "directives_py/GSLDifferentiationFunction.jinja2" %}
 {%- endfilter %}
 {%- endif %}
 
@@ -255,13 +255,13 @@ class Neuron_{{neuronName}}(Neuron):
     """
 {%- filter indent(4) %}
 {%-     with analytic_state_variables_ = analytic_state_variables %}
-{%-         include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%-         include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
 {%-     endwith %}
 {%-     if uses_numeric_solver %}
-{%-        include "directives/GSLIntegrationStep.jinja2" %}
+{%-        include "directives_py/GSLIntegrationStep.jinja2" %}
 {%-     endif %}
 {%-     with analytic_state_variables_ = analytic_state_variables %}
-{%-         include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%-         include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
 {%-     endwith %}
 {%- endfilter %}
 {%- endif %}
@@ -277,7 +277,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- filter indent(4) %}
 {%- for dynamics in neuron.get_update_blocks() %}
 {%-   set ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" %}
+{%-   include "directives_py/Block.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}

@@ -42,10 +42,11 @@ class NESTVariablePrinter(CppVariablePrinter):
     Variable printer for C++ syntax and the NEST API.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, enforce_getter: bool = True) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
+        self.enforce_getter = enforce_getter
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -95,7 +96,11 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
-            return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+            if self.enforce_getter:
+                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+            # modification to not enforce getter function:
+            else:
+                return self._print(variable, symbol, with_origin=False)
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
