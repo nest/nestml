@@ -1066,6 +1066,10 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 void
 {{neuronName}}::clear_history()
 {
+{%- if neuron_parent_class in ["ArchivingNode", "Archiving_Node"] %}
+  ArchivingNode::clear_history();
+{%- endif %}
+
   last_spike_nestml_ = -1.0;
   history_nestml_.clear();
 }
