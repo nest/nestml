@@ -1,0 +1,58 @@
+
+synapse stdsp_synapse_no_permanence:
+
+  state:
+    w real = 1.  @nest::weight
+    t_last_pre_spike ms = -1ms
+
+  parameters:
+    d ms = 2.0 ms  @nest::delay # !!! cannot have a variable called "delay"
+    lambda real = .01
+    lambda_minus real = .01
+    tau_tr_pre ms = 20 ms
+    tau_tr_post ms = 20 ms
+    tau_perm ms = 18500 ms
+    mu_plus real = 1
+    Wmax real = 100.
+    Wmin real = 0.
+    dt_min ms = - 5. ms
+    dt_max ms = - 50. ms
+
+  equations:
+    kernel pre_trace_kernel = exp(-t / tau_tr_pre)
+    inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
+
+    # all-to-all trace of postsynaptic neuron
+    kernel post_trace_kernel = exp(-t / tau_tr_post)
+    inline post_trace real = convolve(post_trace_kernel, post_spikes)
+
+    w' = (Wmin-w) / tau_perm
+
+  input:
+    pre_spikes <- spike
+    post_spikes <- spike
+    z_post pA <- continuous
+
+  output:
+    spike
+
+  onReceive(post_spikes):
+    delta_t ms = t_last_pre_spike - ( t + d )
+    # potentiate synapse
+    w_ real = 0.
+    if delta_t > dt_max and delta_t < dt_min:
+       w_ = w + Wmax * lambda * ( w / Wmax )**mu_plus * pre_trace
+       w = min(Wmax, w_)
+    elif delta_t > dt_min:
+       w_ = w + Wmax * lambda * ( w / Wmax )**mu_plus * ( pre_trace - exp( delta_t / tau_tr_pre) )
+       w = min(Wmax, w_)
+
+  onReceive(pre_spikes):
+    t_last_pre_spike = t
+    # depress synapse
+    w_ real = w - lambda_minus * Wmax
+    w = max(Wmin, w_)
+
+    # deliver spike to postsynaptic partner
+    deliver_spike(w, d)
+
