@@ -40,26 +40,26 @@ except Exception:
 
 class TestClopathSynapse:
 
-    neuron_model_name = "iaf_psc_delta_clopath_neuron_nestml__with_clopath_synapse_nestml"
-    synapse_model_name = "clopath_synapse_nestml__with_iaf_psc_delta_clopath_neuron_nestml"
+    neuron_model_name = "aeif_psc_delta_clopath_neuron_nestml__with_clopath_synapse_nestml"
+    synapse_model_name = "clopath_synapse_nestml__with_aeif_psc_delta_clopath_neuron_nestml"
 
-    ref_neuron_model_name = "iaf_psc_delta"
+    ref_neuron_model_name = "aeif_psc_delta_clopath"
     ref_synapse_model_name = "clopath_synapse"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         """Generate the model code"""
 
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_clopath_neuron",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "aeif_psc_delta_clopath_neuron",
                                                       "synapse": "clopath_synapse",
                                                       "post_ports": ["post_spikes",
                                                                      ["post_membrane_potential", "V_m"]]}]}
 
-        files = [os.path.join("models", "neurons", "iaf_psc_delta_clopath_neuron.nestml"),
+        files = [os.path.join("models", "neurons", "aeif_psc_delta_clopath_neuron.nestml"),
                  os.path.join("models", "synapses", "clopath_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
-        if 1:
+        if 0:
          generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
                              suffix="_nestml",
@@ -93,64 +93,97 @@ class TestClopathSynapse:
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
+        # set up network for the NESTML models
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(self.synapse_model_name, "clopath_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
-        nest.CopyModel(self.ref_synapse_model_name, "clopath_ref_rec",
-                       {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
-
-        # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
                              params={"spike_times": pre_spike_times})
         post_sg = nest.Create("spike_generator",
                               params={"spike_times": post_spike_times,
                                       "allow_offgrid_times": True})
-
-        # create parrot neurons and connect spike_generators
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(self.neuron_model_name)
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
         mm = nest.Create("multimeter", params={
-
             "interval": resolution,
-            "record_from": [
-                             "V_m", "post_membrane_potential_avg_plus__for_clopath_synapse_nestml", "post_membrane_potential_avg_minus__for_clopath_synapse_nestml", "post_membrane_avg_avg__for_clopath_synapse_nestml", "refr_t", "clamp_t"]})
+            "record_from": ["V_m", "post_membrane_potential_avg_plus__for_clopath_synapse_nestml", "post_membrane_potential_avg_minus__for_clopath_synapse_nestml", "post_membrane_avg_avg__for_clopath_synapse_nestml", "refr_t", "clamp_t"]})
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "clopath_nestml_rec"})
         nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)
-
-        # get Clopath synapse and weight before protocol
         syn = nest.GetConnections(source=pre_neuron, synapse_model="clopath_nestml_rec")
+
+        # set up network for the NEST built-in models
+        wr = nest.Create("weight_recorder")
+        wr_ref = nest.Create("weight_recorder")
+        nest.CopyModel(self.ref_synapse_model_name, "clopath_ref_rec",
+                       {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
+        pre_ref_sg = nest.Create("spike_generator",
+                             params={"spike_times": pre_spike_times})
+        post_ref_sg = nest.Create("spike_generator",
+                              params={"spike_times": post_spike_times,
+                                      "allow_offgrid_times": True})
+        pre_ref_neuron = nest.Create("parrot_neuron")
+        post_ref_neuron = nest.Create(self.ref_neuron_model_name)
+        spikedet_ref_pre = nest.Create("spike_recorder")
+        spikedet_ref_post = nest.Create("spike_recorder")
+        mm_ref = nest.Create("multimeter", params={
+            "interval": resolution,
+            "record_from": ["V_m", "u_bar_plus", "u_bar_minus", "u_bar_bar"]}) # , "t_ref", "t_clamp"
+        nest.Connect(pre_ref_sg, pre_ref_neuron, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_ref_sg, post_ref_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+        nest.Connect(pre_ref_neuron, post_ref_neuron, "all_to_all", syn_spec={"synapse_model": "clopath_ref_rec"})
+        nest.Connect(mm_ref, post_ref_neuron)
+        nest.Connect(pre_ref_neuron, spikedet_ref_pre)
+        nest.Connect(post_ref_neuron, spikedet_ref_post)
+        syn_ref = nest.GetConnections(source=pre_ref_neuron, synapse_model="clopath_ref_rec")
+
+
+        # simulate
 
         n_steps = int(np.ceil(sim_time / resolution)) + 1
         t = 0.
         t_hist = []
         w_hist = []
+        w_ref_hist = []
+        t_ref_ref_hist = []
+        t_clamp_ref_hist = []
         while t <= sim_time:
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
             w_hist.append(nest.GetStatus(syn)[0]["w"])
+            w_ref_hist.append(nest.GetStatus(syn_ref)[0]["weight"])
+            t_ref_ref_hist.append(post_ref_neuron.t_ref)
+            t_clamp_ref_hist.append(post_ref_neuron.t_clamp)
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=6, figsize=(8,12))
 
             timevec = nest.GetStatus(mm, "events")[0]["times"]
-            V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-            ax[0].plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
+            ax[0].plot(timevec, nest.GetStatus(mm, "events")[0]["V_m"], label="nestml", alpha=.7, linestyle=":", c="blue")
+            ax[0].plot(timevec, nest.GetStatus(mm_ref, "events")[0]["V_m"], label="nest", alpha=.7, linestyle=":", c="orange")
 
-            ax[1].plot(timevec, nest.GetStatus(mm, "events")[0]["refr_t"], label="refr_t")
-            ax[2].plot(timevec, nest.GetStatus(mm, "events")[0]["clamp_t"], label="clamp_t")
+            ax[1].plot(timevec, nest.GetStatus(mm, "events")[0]["refr_t"], label="refr_t", c="blue")
+            ax[1].plot(t_hist, t_clamp_ref_hist, label="refr_t", c="orange")
 
-            ax[3].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_potential_avg_plus__for_clopath_synapse_nestml"], label="V_m avg+")
-            ax[4].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_potential_avg_minus__for_clopath_synapse_nestml"], label="V_m avg-")
-            ax[5].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_avg_avg__for_clopath_synapse_nestml"], label="V_m avg avg")
+            ax[2].plot(timevec, nest.GetStatus(mm, "events")[0]["clamp_t"], label="clamp_t", c="blue")
+            ax[2].plot(t_hist, t_clamp_ref_hist, label="t_clamp", c="orange")
+
+            ax[3].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_potential_avg_plus__for_clopath_synapse_nestml"], label="V_m avg+", c="blue")
+            ax[3].plot(timevec, nest.GetStatus(mm_ref, "events")[0]["u_bar_plus"], label="V_m avg+", c="orange")
+
+            ax[4].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_potential_avg_minus__for_clopath_synapse_nestml"], label="V_m avg-", c="blue")
+            ax[4].plot(timevec, nest.GetStatus(mm_ref, "events")[0]["u_bar_minus"], label="V_m avg-", c="orange")
+
+            ax[5].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_avg_avg__for_clopath_synapse_nestml"], label="V_m avg avg", c="blue")
+            ax[5].plot(timevec, nest.GetStatus(mm_ref, "events")[0]["u_bar_bar"], label="V_m avg avg", c="orange")
 
 
             ax[0].set_ylabel("V_m")
@@ -163,26 +196,41 @@ class TestClopathSynapse:
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/clopath_synapse_test_" + fname_snip + "_V_m.png", dpi=300)
-            import pdb;pdb.set_trace()
 
         # plot
         if TEST_PLOTS:
-            fig, ax = plt.subplots(nrows=4)
-            ax1, ax2, ax3, _ = ax
+            fig, ax = plt.subplots(nrows=3)
+            ax1, ax2, ax3 = ax
 
             pre_spike_times_ = nest.GetStatus(spikedet_pre, "events")[0]["times"]
-            print("Actual pre spike times: " + str(pre_spike_times_))
+            print("Actual pre spike times (NESTML): " + str(pre_spike_times_))
             n_spikes = len(pre_spike_times_)
             for i in range(n_spikes):
-                    if i == 0:
-                        _lbl = "nestml"
-                    else:
-                        _lbl = None
-                    ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4, label=_lbl)
+                if i == 0:
+                    _lbl = "nestml"
+                else:
+                    _lbl = None
+                ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4, label=_lbl)
+
+            pre_spike_times_ref_ = nest.GetStatus(spikedet_ref_pre, "events")[0]["times"]
+            print("Actual pre spike times (NEST): " + str(pre_spike_times_ref_))
+            n_spikes = len(pre_spike_times_ref_)
+            for i in range(n_spikes):
+                if i == 0:
+                    _lbl = "nest"
+                else:
+                    _lbl = None
+                ax1.plot(2 * [pre_spike_times_ref_[i] + delay], [0, 1], linewidth=2, color="orange", alpha=.4, label=_lbl)
+
+            ax1.set_ylabel("Pre spikes")
+
+
+
+
+
 
             post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
             print("Actual post spike times: " + str(post_spike_times_))
-            ax1.set_ylabel("Pre spikes")
 
             n_spikes = len(post_spike_times_)
             for i in range(n_spikes):
@@ -190,14 +238,34 @@ class TestClopathSynapse:
                         _lbl = "nestml"
                     else:
                         _lbl = None
-                    ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
+                    ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="blue", alpha=.4, label=_lbl)
+
+
+            post_spike_times_ref_ = nest.GetStatus(spikedet_ref_post, "events")[0]["times"]
+            print("Actual post spike times: " + str(post_spike_times_ref_))
+
+            n_spikes = len(post_spike_times_ref_)
+            for i in range(n_spikes):
+                    if i == 0:
+                        _lbl = "nest"
+                    else:
+                        _lbl = None
+                    ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="orange", alpha=.4, label=_lbl)
+
             ax2.set_ylabel("Post spikes")
 
 
-            ax[3].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_potential_avg_plus__for_clopath_synapse_nestml"], label="Vm post avg+")
-            ax[3].set_ylabel("Post V_m_avg_plus")
 
-            ax3.plot(t_hist, w_hist, marker="o", label="nestml")
+
+
+
+
+
+            # ax[3].plot(timevec, nest.GetStatus(mm, "events")[0]["post_membrane_potential_avg_plus__for_clopath_synapse_nestml"], label="Vm post avg+")
+            # ax[3].set_ylabel("Post V_m_avg_plus")
+
+            ax3.plot(t_hist, w_hist, label="nestml", color="blue")
+            ax3.plot(t_hist, w_ref_hist, label="nest", color="orange") #, marker="o"
             ax3.set_xlabel("Time [ms]")
             ax3.set_ylabel("w")
 

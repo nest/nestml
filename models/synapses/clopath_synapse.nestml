@@ -15,9 +15,9 @@ model clopath_synapse:
     state:
         w real = 1.    @nest::weight   # Synaptic weight
         pre_trace real = 0.
-        post_membrane_potential_avg_plus mV = -70 mV
-        post_membrane_potential_avg_minus mV = -70 mV
-        post_membrane_avg_avg mV = -70 mV
+        post_membrane_potential_avg_plus mV = -70.6 mV
+        post_membrane_potential_avg_minus mV = -70.6 mV
+        post_membrane_avg_avg mV = -70.6 mV
 
     parameters:
         d ms = 1 ms  @nest::delay   # Synaptic transmission delay
@@ -28,8 +28,9 @@ model clopath_synapse:
         tau_pre_tr ms = 15 ms
         theta_minus mV = -70.6 mV
         theta_plus mV = -45.3 mV   # should be greater than theta_minus
-        A_LTD real = 14.0e-5
-        A_LTP real = 8.0e-5
+        A_LTD real = 14e-5
+        A_LTP real = 8e-5
+        u_ref real = 7.74
 
     equations:
         pre_trace' = -pre_trace / tau_pre_tr
@@ -63,7 +64,7 @@ model clopath_synapse:
             foobar mV = post_membrane_potential_avg_minus
             println("\tDepressing synapse, post_membrane_potential_avg_minus = {foobar}")
             #w -= A_LTD * (post_membrane_potential_avg_minus - theta_minus)
-            w -= A_LTD * (post_membrane_potential_avg_minus - theta_minus)
+            w -= A_LTD * post_membrane_avg_avg**2 * ( post_membrane_potential_avg_minus - theta_minus ) / u_ref**2
             w = max(w, 0.)
 
         # deliver spike to postsynaptic partner

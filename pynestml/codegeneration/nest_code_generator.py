@@ -303,6 +303,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
@@ -613,8 +614,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
+        namespace["analytic_state_variables_moved"] = []
         if namespace["uses_analytic_solver"]:
-            namespace["analytic_state_variables_moved"] = []
             if "paired_synapse" in dir(neuron):
                 namespace["analytic_state_variables"] = []
                 for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
