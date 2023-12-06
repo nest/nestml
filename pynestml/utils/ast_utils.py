@@ -500,6 +500,7 @@ class ASTUtils:
         expr = inline_expr.get_expression()
         if isinstance(expr, ASTExpression):
             expr = expr.get_lhs()
+
         if isinstance(expr, ASTSimpleExpression) \
            and expr.is_function_call() \
            and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
@@ -1950,9 +1951,13 @@ class ASTUtils:
         For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
         """
         delta_factors = {}
-        for ode_eq in equations_block.get_ode_equations():
-            var = ode_eq.get_lhs()
-            expr = ode_eq.get_rhs()
+        for ode_eq in equations_block.get_ode_equations() + equations_block.get_inline_expressions():
+            if ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                expr = ode_eq.get_rhs()
+            else:
+                var = ASTUtils.get_variable_by_name(neuron, ode_eq.get_variable_name())
+                expr = ode_eq.get_expression()
             conv_calls = ASTUtils.get_convolve_function_calls(expr)
             for conv_call in conv_calls:
                 assert len(
