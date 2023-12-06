@@ -28,7 +28,7 @@ hh_cond_exp_traub
 model traub_cond_multisyn_neuron:
     state:
         V_m mV = -70. mV # Membrane potential
-        U_old mV = E_L    # Membrane potential at previous timestep for threshold check
+        V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
         is_refractory boolean = false
 
@@ -150,21 +150,22 @@ model traub_cond_multisyn_neuron:
         spike
 
     update:
-        U_old = V_m
         if is_refractory:
             refr_t -= resolution()
+
+        V_m_old = V_m
         integrate_odes()
 
-    onCondition(not is_refractory and V_m > V_Tr and U_old > V_m):
+    onCondition(not is_refractory and V_m > V_Tr and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
         is_refractory = true
         emit_spike()
 
-    onCondition(refr_t <= 0 ms):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
-        is_refractory = false
         refr_t = 0 ms
+        is_refractory = false
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term

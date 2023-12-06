@@ -1,5 +1,5 @@
-neuromodulated_stdp
-###################
+neuromodulated_stdp_synapse
+###########################
 
 
 neuromodulated_stdp - Synapse model for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine
@@ -35,16 +35,16 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "d", "ms", "1ms", "Synaptic transmission delay"
-    "tau_tr_pre", "ms", "20ms", "STDP time constant for weight changes caused by pre-before-post spike pairings."
-    "tau_tr_post", "ms", "20ms", "STDP time constant for weight changes caused by post-before-pre spike pairings."
-    "tau_c", "ms", "1000ms", "Time constant of eligibility trace"
-    "tau_n", "ms", "200ms", "Time constant of dopaminergic trace"
-    "b", "real", "0.0", "Dopaminergic baseline concentration"
-    "Wmax", "real", "200.0", "Maximal synaptic weight"
-    "Wmin", "real", "0.0", "Minimal synaptic weight"
-    "A_plus", "real", "1.0", "Multiplier applied to weight changes caused by pre-before-post spike pairings. If b (dopamine baseline concentration) is zero, then A_plus is simply the multiplier for facilitation (as in the stdp_synapse model). If b is not zero, then A_plus will be the multiplier for facilitation only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_plus will be the multiplier for depression."
+    
+    "d", "ms", "1ms", "Synaptic transmission delay"    
+    "tau_tr_pre", "ms", "20ms", "STDP time constant for weight changes caused by pre-before-post spike pairings."    
+    "tau_tr_post", "ms", "20ms", "STDP time constant for weight changes caused by post-before-pre spike pairings."    
+    "tau_c", "ms", "1000ms", "Time constant of eligibility trace"    
+    "tau_n", "ms", "200ms", "Time constant of dopaminergic trace"    
+    "b", "real", "0.0", "Dopaminergic baseline concentration"    
+    "Wmax", "real", "200.0", "Maximal synaptic weight"    
+    "Wmin", "real", "0.0", "Minimal synaptic weight"    
+    "A_plus", "real", "1.0", "Multiplier applied to weight changes caused by pre-before-post spike pairings. If b (dopamine baseline concentration) is zero, then A_plus is simply the multiplier for facilitation (as in the stdp_synapse model). If b is not zero, then A_plus will be the multiplier for facilitation only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_plus will be the multiplier for depression."    
     "A_minus", "real", "1.5", "Multiplier applied to weight changes caused by post-before-pre spike pairings. If b (dopamine baseline concentration) is zero, then A_minus is simply the multiplier for depression (as in the stdp_synapse model). If b is not zero, then A_minus will be the multiplier for depression only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_minus will be the multiplier for facilitation."
 
 
@@ -55,24 +55,24 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "w", "real", "1.0", ""
-    "n", "real", "0.0", "Neuromodulator concentration"
-    "c", "real", "0.0", "Eligibility trace"
-    "pre_tr", "real", "0.0", ""
+    
+    "w", "real", "1.0", ""    
+    "n", "real", "0.0", "Neuromodulator concentration"    
+    "c", "real", "0.0", "Eligibility trace"    
+    "pre_tr", "real", "0.0", ""    
     "post_tr", "real", "0.0", ""
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `neuromodulated_stdp <https://github.com/nest/nestml/tree/master/models/synapses/neuromodulated_stdp_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `neuromodulated_stdp_synapse <https://github.com/nest/nestml/tree/master/models/synapses/neuromodulated_stdp_synapse.nestml>`_.
 
 
 Characterisation
 ++++++++++++++++
 
-.. include:: neuromodulated_stdp_characterisation.rst
+.. include:: neuromodulated_stdp_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.891623
+   Generated at 2023-11-16 11:40:54.345553

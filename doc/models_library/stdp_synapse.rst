@@ -1,5 +1,5 @@
-stdp
-####
+stdp_synapse
+############
 
 
 stdp - Synapse model for spike-timing dependent plasticity
@@ -71,15 +71,15 @@ State variables
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `stdp <https://github.com/nest/nestml/tree/master/models/synapses/stdp_synapse.nestml>`_.
+The model source code can be found in the NESTML models repository here: `stdp_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_synapse.nestml>`_.
 
 
 Characterisation
 ++++++++++++++++
 
-.. include:: stdp_characterisation.rst
+.. include:: stdp_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.906792
+   Generated at 2023-11-16 11:40:54.343488

@@ -29,7 +29,7 @@ hh_cond_exp_traub, wb_cond_multisyn
 model wb_cond_exp_neuron:
     state:
         V_m mV = E_L    # Membrane potential
-        U_old mV = E_L    # Membrane potential at previous timestep for threshold check
+        V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
         is_refractory boolean = false
 
@@ -86,19 +86,20 @@ model wb_cond_exp_neuron:
         spike
 
     update:
-        U_old = V_m
         if is_refractory:
             refr_t -= resolution()
+        V_m_old = V_m
         integrate_odes()
 
-    onCondition(not is_refractory and V_m > 0 mV and U_old > V_m):
+    onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
         is_refractory = true
         emit_spike()
 
-    onCondition(refr_t <= 0 ms):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
+        refr_t = 0 ms
         is_refractory = false
 
     function _subexpr(V_m mV) real:

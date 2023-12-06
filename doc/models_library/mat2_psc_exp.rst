@@ -52,18 +52,18 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "tau_m", "ms", "5ms", "Membrane time constant"
-    "C_m", "pF", "100pF", "Capacitance of the membrane"
-    "t_ref", "ms", "2ms", "Duration of absolute refractory period (no spiking)"
-    "E_L", "mV", "-70mV", "Resting potential"
-    "tau_syn_exc", "ms", "1ms", "Time constant of postsynaptic excitatory currents"
-    "tau_syn_inh", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"
-    "tau_1", "ms", "10ms", "Short time constant of adaptive threshold"
-    "tau_2", "ms", "200ms", "Long time constant of adaptive threshold"
-    "alpha_1", "mV", "37mV", "Amplitude of short time threshold adaption [3]"
-    "alpha_2", "mV", "2mV", "Amplitude of long time threshold adaption [3]"
-    "omega", "mV", "19mV", "Resting spike threshold (absolute value, not relative to E_L)"
+    
+    "tau_m", "ms", "5ms", "Membrane time constant"    
+    "C_m", "pF", "100pF", "Capacitance of the membrane"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
+    "E_L", "mV", "-70mV", "Resting potential"    
+    "tau_syn_exc", "ms", "1ms", "Time constant of postsynaptic excitatory currents"    
+    "tau_syn_inh", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"    
+    "tau_1", "ms", "10ms", "Short time constant of adaptive threshold"    
+    "tau_2", "ms", "200ms", "Long time constant of adaptive threshold"    
+    "alpha_1", "mV", "37mV", "Amplitude of short time threshold adaption [3]"    
+    "alpha_2", "mV", "2mV", "Amplitude of long time threshold adaption [3]"    
+    "omega", "mV", "19mV", "Resting spike threshold (absolute value, not relative to E_L)"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -75,11 +75,12 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "V_th_alpha_1", "mV", "0mV", "Two-timescale adaptive threshold"
-    "V_th_alpha_2", "mV", "0mV", "Two-timescale adaptive threshold"
-    "r", "integer", "0", "counts number of tick during the refractory period"
-    "V_m", "mV", "E_L", "Absolute membrane potential."
+    
+    "V_th_alpha_1", "mV", "0mV", "Two-timescale adaptive threshold"    
+    "V_th_alpha_2", "mV", "0mV", "Two-timescale adaptive threshold"    
+    "V_m", "mV", "E_L", "Absolute membrane potential."    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""
 
 
 
@@ -90,7 +91,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right)
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -107,4 +108,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.812580
+   Generated at 2023-11-16 11:40:53.782490

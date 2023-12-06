@@ -46,7 +46,7 @@ hh_cond_exp_traub
 model hh_psc_alpha_neuron:
     state:
         V_m mV = V_m_init    # Membrane potential
-        U_old mV = V_m_init    # Membrane potential at previous timestep for threshold check
+        V_m_old mV = V_m_init    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
         is_refractory boolean = false
 
@@ -116,18 +116,22 @@ model hh_psc_alpha_neuron:
         spike
 
     update:
-        U_old = V_m
-        if is_refractory:
-            refr_t -= resolution()
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
+        V_m_old = V_m
         integrate_odes()
 
-    onCondition(not is_refractory and V_m > 0 mV and U_old > V_m):
+        if is_refractory:
+            # neuron is absolute refractory, decrease refractoriness timer
+            refr_t -= resolution()
+
+    onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
         is_refractory = true
         emit_spike()
 
-    onCondition(refr_t <= 0 ms):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
+        refr_t = 0 ms
         is_refractory = false
 

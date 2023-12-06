@@ -50,9 +50,10 @@ hh_psc_alpha
 model hh_cond_exp_traub_neuron:
 
     state:
-        r integer = 0    # counts number of tick during the refractory period
-
         V_m mV = E_L    #  Membrane potential
+        V_m_old mV = E_L    #  Membrane potential at previous timestep
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
         Act_m real = alpha_m_init / ( alpha_m_init + beta_m_init )
         Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
@@ -97,7 +98,7 @@ model hh_cond_exp_traub_neuron:
                                   # parameters, V_T = -63 mV results in a threshold around -50 mV.
         tau_syn_exc ms = 5 ms     # Synaptic time constant of excitatory synapse
         tau_syn_inh ms = 10 ms    # Synaptic time constant of inhibitory synapse
-        t_ref ms = 2 ms           # Refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         E_exc mV = 0 mV           # Excitatory synaptic reversal potential
         E_inh mV = -80 mV         # Inhibitory synaptic reversal potential
 
@@ -111,9 +112,6 @@ model hh_cond_exp_traub_neuron:
         # constant external input current
         I_e pA = 0 pA
 
-    internals:
-        RefractoryCounts integer = steps(t_ref)
-
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
@@ -123,13 +121,20 @@ model hh_cond_exp_traub_neuron:
         spike
 
     update:
-        U_old mV = V_m
-
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
+        V_m_old = V_m
         integrate_odes()
 
-        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-        if r > 0:
-            r -= 1
-        elif V_m > V_T + 30 mV and U_old > V_m:
-            r = RefractoryCounts
-            emit_spike()
+        if is_refractory:
+            # neuron is absolute refractory, decrease refractoriness timer
+            refr_t -= resolution()
+
+    onCondition(not is_refractory and V_m > V_T + 30 mV and V_m_old > V_m):
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

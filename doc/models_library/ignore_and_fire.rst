@@ -13,6 +13,10 @@ To create asynchronous activity for a population of ``ignore_and_fire`` neurons,
 
 (*) The model can easily be extended and equipped with any arbitrary input processing (such as calculating input currents with alpha-function shaped PSC kernels or updating the gating variables in the Hodgkin-Huxley model) or (after-) spike generation dynamics to make it more similar and comparable to other non-ignorant neuron models. In such extended ignore_and_fire models, the spike emission process would still be decoupled from the intrinsic neuron dynamics.
 
+.. note::
+   This neuron model can only be used in combination with a fixed
+   simulation resolution (timestep size).
+
 Authors
 +++++++
 
@@ -27,8 +31,8 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "firing_rate", "Bq", "10.0Bq", "# firing rate"
+    
+    "firing_rate", "Bq", "10.0Bq", "firing rate"
 
 
 
@@ -39,8 +43,9 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "phase", "real", "1.0", "# relative time to next spike (in (0,1])"
+    
+    "phase", "real", "1.0", "relative time to next spike (in (0,1])"    
+    "phase_steps", "integer", "firing_period_steps / 2", "start halfway through the interval by default"
 
 
 
@@ -65,4 +70,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.764699
+   Generated at 2023-11-16 11:40:54.002509

@@ -102,13 +102,14 @@ model iaf_psc_exp_neuron:
     onReceive(inh_spikes):
         I_syn_inh += inh_spikes * pA * s
 
-    onCondition(V_m >= V_th):
+    onCondition(not is_refractory and V_m >= V_th):
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
         is_refractory = true
         V_m = V_reset
         emit_spike()
 
-    onCondition(refr_t <= 0 ms):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
+        refr_t = 0 ms
         is_refractory = false

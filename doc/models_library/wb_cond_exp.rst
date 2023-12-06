@@ -36,20 +36,20 @@ Parameters
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "t_ref", "ms", "2ms", "Refractory period"
-    "g_Na", "nS", "3500nS", "Sodium peak conductance"
-    "g_K", "nS", "900nS", "Potassium peak conductance"
-    "g_L", "nS", "10nS", "Leak conductance"
-    "C_m", "pF", "100pF", "Membrane capacitance"
-    "E_Na", "mV", "55mV", "Sodium reversal potential"
-    "E_K", "mV", "-90mV", "Potassium reversal potential"
-    "E_L", "mV", "-65mV", "Leak reversal potential (aka resting potential)"
-    "V_Tr", "mV", "-55mV", "Spike threshold"
-    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"
-    "tau_syn_inh", "ms", "10ms", "Rise time of the inhibitory synaptic alpha function"
-    "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"
-    "E_inh", "mV", "-75mV", "Inhibitory synaptic reversal potential"
+    
+    "C_m", "pF", "100pF", "Membrane capacitance"    
+    "g_Na", "nS", "3500nS", "Sodium peak conductance"    
+    "g_K", "nS", "900nS", "Potassium peak conductance"    
+    "g_L", "nS", "10nS", "Leak conductance"    
+    "E_Na", "mV", "55mV", "Sodium reversal potential"    
+    "E_K", "mV", "-90mV", "Potassium reversal potential"    
+    "E_L", "mV", "-65mV", "Leak reversal potential (aka resting potential)"    
+    "V_Tr", "mV", "-55mV", "Spike threshold"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
+    "tau_syn_exc", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function"    
+    "tau_syn_inh", "ms", "10ms", "Rise time of the inhibitory synaptic alpha function"    
+    "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
+    "E_inh", "mV", "-75mV", "Inhibitory synaptic reversal potential"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -61,10 +61,12 @@ State variables
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-
-    "r", "integer", "0", "number of steps in the current refractory phase"
-    "V_m", "mV", "E_L", "Membrane potential"
-    "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""
+    
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "V_m_old", "mV", "E_L", "Membrane potential at previous timestep for threshold check"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
+    "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
     "Act_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""
 
 
@@ -76,7 +78,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right)
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,exc} - I_{syn,inh}) } \right) 
 
 .. math::
    \frac{ dAct_{n} } { dt }= (\text{alpha_n}(V_{m}) \cdot (1 - Act_{n}) - \text{beta_n}(V_{m}) \cdot Act_{n})
@@ -99,4 +101,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.844732
+   Generated at 2023-11-16 11:40:54.003927
