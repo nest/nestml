@@ -1115,6 +1115,7 @@ During simulation, the simulation kernel (for example, NEST Simulator) is respon
 
 The recommended update sequence for a spiking neuron model is shown below (panel B), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
+.. _label:fig_integration_order
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
    :alt: Four different conventions for integration sequence. Modified after [1]_, their Fig. 10.2.
 

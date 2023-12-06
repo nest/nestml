@@ -119,7 +119,23 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
        inline I_syn pA = convolve(G, spikes) * pA
        V_m' = -V_m / tau_m + I_syn / C_m
 
-By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the scalar convolution result with the unit literal. By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+
+The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
+
+.. code-block:: nestml
+
+   state:
+       I_syn pA = 0 pA
+
+   equations:
+       I_syn' = -I_syn / tau_syn
+       V_m' = -V_m / tau_m + I_syn / C_m
+
+   onReceive(spikes):
+       I_syn += spikes * pA * s
+
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
 
 
 (Re)setting synaptic integration state
