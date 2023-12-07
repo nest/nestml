@@ -881,7 +881,7 @@ void
 {{neuronName}}::register_stdp_connection( double t_first_read, double delay )
 {
 {%- if neuron_parent_class in ["ArchivingNode", "Archiving_Node"] %}
-  ArchivingNode::register_stdp_connection(t_first_read, delay);
+  {{ neuron_parent_class }}::register_stdp_connection(t_first_read, delay);
 {%- endif %}
 
   // Mark all entries in the deque, which we will not read in future as read by
@@ -1067,7 +1067,7 @@ void
 {{neuronName}}::clear_history()
 {
 {%- if neuron_parent_class in ["ArchivingNode", "Archiving_Node"] %}
-  ArchivingNode::clear_history();
+  {{ neuron_parent_class }}::clear_history();
 {%- endif %}
 
   last_spike_nestml_ = -1.0;
