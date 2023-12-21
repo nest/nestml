@@ -357,7 +357,13 @@ public:
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %});
 
-  std::vector< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
+  void get_continuous_variable_history( double t1,
+    double t2,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish );
+
+
+  std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
 {%- endif %}
 
 {%- endif %}
