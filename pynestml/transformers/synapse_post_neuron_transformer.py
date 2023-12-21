@@ -57,10 +57,10 @@ class SynapsePostNeuronTransformer(Transformer):
 
     def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
         """
-        Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense
-        for synapses.
+        Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense for synapses.
         """
         assert special_type in ["post", "vt"]
+
         if not "neuron_synapse_pairs" in self._options.keys():
             return False
 
@@ -357,6 +357,28 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(port.get_name(), neuron.name, synapse.name))
 
         #
+        #   collect all ``continuous`` type input ports, the value of which is used in the update or the onReceive(post_port) blocks (because they have to be buffered in the postsynaptic neuron)
+        #
+
+        continuous_post_vars_that_need_post_buffering = []
+
+        post_receive_blocks = []
+        for input_block in new_synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_post_port(port.name, new_neuron.name, new_synapse.name):
+                    post_receive_blocks.extend(ASTUtils.get_on_receive_blocks_by_input_port_name(synapse, port.name))
+
+        for post_connected_continuous_input_port in post_connected_continuous_input_ports:
+            var_names = [var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(synapse.get_update_blocks())]
+            for post_receive_block in post_receive_blocks:
+                var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(post_receive_block)])
+
+            if post_connected_continuous_input_port in var_names and not post_connected_continuous_input_port in continuous_post_vars_that_need_post_buffering:
+                continuous_post_vars_that_need_post_buffering.append(post_connected_continuous_input_port)
+
+        Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need continuous-time buffering: " + str(continuous_post_vars_that_need_post_buffering), None, LoggingLevel.INFO)
+
+        #
         #   move state variable declarations from synapse to neuron
         #
 
@@ -518,8 +540,10 @@ class SynapsePostNeuronTransformer(Transformer):
         name_separator_str = "__with_"
 
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
+        new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
         new_neuron.paired_synapse = new_synapse
+        new_neuron.state_vars_that_need_continuous_buffering = continuous_post_vars_that_need_post_buffering
 
         #
         #    rename synapse

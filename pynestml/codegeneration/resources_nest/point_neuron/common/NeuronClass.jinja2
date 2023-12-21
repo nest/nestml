@@ -67,6 +67,22 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "lockptrdatum.h"
 
 #include "{{neuronName}}.h"
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+
+continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} )
+: t_( t )
+, access_counter_ ( 0 )
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+, {{ state_var }}( {{ state_var }} )
+{%-     endfor %}
+{
+}
+{%- endif %}
+
 
 // ---------------------------------------------------------------------------
 //   Recordables map
@@ -927,6 +943,15 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
 {%-     endif %}
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+    write_continuous_variable_history( nest::Time::step( origin.get_steps() + lag + 1 ),
+{%-     for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
+{%-         set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
+      {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
+{%-     endfor %}
+    );
+{%- endif %}
   }
 
 {%- if use_gap_junctions %}
@@ -953,6 +978,24 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
   return wfr_tol_exceeded;
 {%- endif %}
 }
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+
+void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %})
+{
+  const double t_ms = t.get_ms();
+
+  continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %}) );
+}
+{%- endif %}
+
+
 
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.

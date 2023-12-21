@@ -193,6 +193,24 @@ size_t access_counter )
 {%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+class continuous_variable_histentry_{{ neuronName }}
+{
+public:
+  continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} );
+
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }};
+{%-     endfor %}
+
+  double t_;              //!< point in time for history entry
+  size_t access_counter_;
+};
+{%- endif %}
 
 {%- endif %}
 
@@ -313,12 +331,9 @@ public:
   // support for spike archiving
 
   /**
-   * \fn void get_history(long t1, long t2,
-   * std::deque<Archiver::histentry__>::iterator* start,
-   * std::deque<Archiver::histentry__>::iterator* finish)
-   * return the spike times (in steps) of spikes which occurred in the range
-   * (t1,t2].
-   * XXX: two underscores to differentiate it from nest::Node::get_history()
+   * Return the spike times (in steps) of spikes which occurred in the range (t1,t2].
+   *
+   * Two underscores in the name to differentiate it from nest::Node::get_history().
    */
   void get_history__( double t1,
     double t2,
@@ -332,6 +347,19 @@ public:
    * with t > t_first_read.
    */
   void register_stdp_connection( double t_first_read, double delay );
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+  /**
+   * write_continuous_variable_history
+   */
+  void write_continuous_variable_history(nest::Time const &t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %});
+
+  std::vector< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
+{%- endif %}
+
 {%- endif %}
 {%- if neuron.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------

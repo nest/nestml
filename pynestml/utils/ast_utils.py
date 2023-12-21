@@ -1504,12 +1504,30 @@ class ASTUtils:
         return None
 
     @classmethod
+    def is_iterable(cls, obj):
+        try:
+            iter(obj)
+            return True
+
+        except:
+            return False
+
+    @classmethod
     def collect_variable_names_in_expression(cls, expr: ASTNode) -> List[ASTVariable]:
         """
         Collect all occurrences of variables (`ASTVariable`) XXX ...
         :param expr: expression to collect the variables from
         :return: a list of variables
         """
+
+        if not expr:
+            return []
+
+        if ASTUtils.is_iterable(expr):
+            import functools
+            list_fold = lambda lst: functools.reduce(lambda a, b: a + b, lst)
+            return list_fold([ASTUtils.collect_variable_names_in_expression(x) for x in expr])
+
         vars_used_ = []
 
         def collect_vars(_expr=None):
