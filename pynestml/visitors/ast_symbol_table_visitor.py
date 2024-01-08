@@ -32,7 +32,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.either import Either
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.stack import Stack
@@ -354,7 +353,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                     )
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)
-            var.set_type_symbol(Either.value(type_symbol))
+            var.set_type_symbol(type_symbol)
         # the data type
         node.get_data_type().update_scope(node.get_scope())
         # the rhs update

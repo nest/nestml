@@ -55,8 +55,8 @@ class ConcentrationProcessing(MechanismProcessing):
 
             fake_conc_info = cls.ode_toolbox_processing(neuron, fake_conc_info)
 
-            conc_info[concentration_name]["ODEs"] = conc_info[concentration_name]["ODEs"] | fake_conc_info["fake"][
-                "ODEs"]
+            conc_info[concentration_name]["ODEs"] = {**conc_info[concentration_name]["ODEs"], **fake_conc_info["fake"][
+                "ODEs"]}
 
         return conc_info
 
