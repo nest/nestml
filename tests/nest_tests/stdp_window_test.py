@@ -58,7 +58,6 @@ def nestml_generate_target():
                                                                 {"neuron": "izhikevich",
                                                                  "synapse": "stdp",
                                                                  "post_ports": ["post_spikes"]}]})
-    nest.Install("nestmlmodule")
 
 
 def run_stdp_network(pre_spike_time, post_spike_time,
@@ -75,6 +74,7 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     nest.set_verbosity("M_ALL")
 
     nest.ResetKernel()
+    nest.Install("nestmlmodule")
     nest.SetKernelStatus({"resolution": resolution})
 
     wr = nest.Create("weight_recorder")

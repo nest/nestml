@@ -91,11 +91,7 @@ class NestIntegrationTest(unittest.TestCase):
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        try:
-            nest.Install("nestml_allmodels_module")
-        except Exception:
-            self.generate_all_models()
-            nest.Install("nestml_allmodels_module")
+        nest.Install("nestml_allmodels_module")
 
         s = "Models library\n==============\n\n"
 
@@ -359,6 +355,7 @@ class NestIntegrationTest(unittest.TestCase):
         for i, I_stim in enumerate(I_stim_vec):
 
             nest.ResetKernel()
+            nest.Install("nestml_allmodels_module")
             neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
             neuron2 = nest.Create(testant, params=custom_model_opts)
             if model_initial_state is not None:
@@ -463,6 +460,7 @@ class NestIntegrationTest(unittest.TestCase):
         spike_weights = [1., -1.]
 
         nest.ResetKernel()
+        nest.Install("nestml_allmodels_module")
         neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
         neuron2 = nest.Create(testant, params=custom_model_opts)
 

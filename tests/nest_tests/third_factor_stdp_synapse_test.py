@@ -111,8 +111,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         print("Post spike times: " + str(post_spike_times))
 
         nest.set_verbosity("M_WARNING")
-
-        nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
 
         wr = nest.Create("weight_recorder")

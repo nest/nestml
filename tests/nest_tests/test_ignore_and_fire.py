@@ -59,7 +59,6 @@ class TestIgnoreAndFire:
                              logging_level="DEBUG",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
-        nest.Install("nestmlmodule")
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -69,6 +68,7 @@ class TestIgnoreAndFire:
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        nest.Install("nestmlmodule")
         nest.SetKernelStatus({"resolution": resolution})
 
         pre_neuron = nest.Create(self.neuron_model_name)
