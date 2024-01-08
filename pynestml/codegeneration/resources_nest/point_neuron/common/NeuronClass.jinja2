@@ -57,6 +57,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from nestkernel:
 #include "exceptions.h"
 #include "kernel_manager.h"
+#include "nest_impl.h"
 #include "universal_data_logger_impl.h"
 
 // Includes from sli:
@@ -67,6 +68,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "lockptrdatum.h"
 
 #include "{{neuronName}}.h"
+
+void
+register_{{ neuronName }}( const std::string& name )
+{
+  nest::register_node_model< {{ neuronName }} >( name );
+}
 
 // ---------------------------------------------------------------------------
 //   Recordables map

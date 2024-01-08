@@ -209,6 +209,10 @@ size_t access_counter )
 
   Receives: {% if has_spike_input %}Spike, {% endif %}{% if has_continuous_input %}Current,{% endif %} DataLoggingRequest
 */
+
+// Register the neuron model
+void register_{{ neuronName }}( const std::string& name );
+
 class {{neuronName}} : public nest::{{neuron_parent_class}}
 {
 public:

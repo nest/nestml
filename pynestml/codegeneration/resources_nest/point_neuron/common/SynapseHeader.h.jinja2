@@ -54,6 +54,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "connection.h"
 #include "connector_model.h"
 #include "event.h"
+#include "nest_impl.h"
 {%- if norm_rng %}
 
 // Includes for random number generator
@@ -82,6 +83,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace nest
 {
+// Register the synapse model
+void register_{{ synapseName }}( const std::string& name );
 
 namespace {{names_namespace}}
 {
@@ -218,6 +221,11 @@ public:
 {%- endif %}
 };
 
+void
+register_{{ synapseName }}( const std::string& name )
+{
+  nest::register_connection_model< {{ synapseName }} >( name );
+}
 
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
