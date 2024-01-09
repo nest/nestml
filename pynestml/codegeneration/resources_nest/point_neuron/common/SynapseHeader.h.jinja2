@@ -82,7 +82,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace nest
 {
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or (nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
 // Register the synapse model
 void register_{{ synapseName }}( const std::string& name );
@@ -870,7 +870,7 @@ public:
 {%- endif %}
 };
 
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or (nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
 void
 register_{{ synapseName }}( const std::string& name )
