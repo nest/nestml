@@ -54,7 +54,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "connection.h"
 #include "connector_model.h"
 #include "event.h"
-#include "nest_impl.h"
 {%- if norm_rng %}
 
 // Includes for random number generator
@@ -220,12 +219,6 @@ public:
 
 {%- endif %}
 };
-
-void
-register_{{ synapseName }}( const std::string& name )
-{
-  nest::register_connection_model< {{ synapseName }} >( name );
-}
 
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
@@ -662,10 +655,10 @@ public:
   }
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-  void
+  bool
   send( Event& e, const size_t tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- else %}
-  void
+  bool
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- endif %}
   {
@@ -853,6 +846,7 @@ public:
     **/
 
     t_lastspike_ = __t_spike;
+    return true;
   }
 
   void get_status( DictionaryDatum& d ) const;
@@ -867,6 +861,12 @@ public:
 {%- endif %}
 {%- endif %}
 };
+
+void
+register_{{ synapseName }}( const std::string& name )
+{
+  nest::register_connection_model< {{ synapseName }} >( name );
+}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 template < typename targetidentifierT >
