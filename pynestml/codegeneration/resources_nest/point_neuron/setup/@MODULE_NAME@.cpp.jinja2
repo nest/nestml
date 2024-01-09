@@ -127,9 +127,9 @@ void
 {%-   for neuron in neurons %}
 {%-     if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
-    nest::kernel().model_manager.register_node_model<{{neuron.get_name()}}>("{{neuron.get_name()}}");
-{%-     else  %}
     register_{{neuron.get_name()}}("{{neuron.get_name()}}");
+{%-     else  %}
+    nest::kernel().model_manager.register_node_model<{{neuron.get_name()}}>("{{neuron.get_name()}}");
 {%-     endif  %}
 {%-   endfor %}
 {%- endif %}
@@ -139,9 +139,9 @@ void
 {%-   for synapse in synapses %}
 {%-     if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
-    nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
-{%-     else  %}
     nest::register_{{synapse.get_name()}}( "{{synapse.get_name()}}" );
+{%-     else  %}
+    nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
 {%-     endif  %}
 {%-   endfor %}
 {%- endif %}
