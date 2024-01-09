@@ -82,8 +82,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace nest
 {
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or (nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
 // Register the synapse model
 void register_{{ synapseName }}( const std::string& name );
+{%- endif %}
 
 namespace {{names_namespace}}
 {
@@ -655,8 +658,13 @@ public:
   }
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+{%-   if not (nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
   bool
   send( Event& e, const size_t tid, const {{synapseName}}CommonSynapseProperties& cp )
+{%-   else %}
+  void
+  send( Event& e, const size_t tid, const {{synapseName}}CommonSynapseProperties& cp )
+{%-   endif %}
 {%- else %}
   bool
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
@@ -862,11 +870,14 @@ public:
 {%- endif %}
 };
 
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or (nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
 void
 register_{{ synapseName }}( const std::string& name )
 {
   nest::register_connection_model< {{ synapseName }} >( name );
 }
+{%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 template < typename targetidentifierT >
