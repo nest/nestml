@@ -699,27 +699,36 @@ public:
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     double timestep = 0;
     {
-      // get spike history in relevant range (t1, t2] from post-synaptic neuron
+      /**
+       * Updates due to post-synaptic spikes since last pre-synaptic spike.
+       *
+       * t_lastspike_ contains the point in time of the last spike. So we read the history (t_last_spike - dendritic_delay, ..., __t_spike - dendritic_delay]
+       *
+       * Note that this also increases the access counter for these entries which is used to prune the history.
+      **/
       std::deque< histentry__{{paired_neuron}} >::iterator start;
       std::deque< histentry__{{paired_neuron}} >::iterator finish;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       double t0 = t_last_update_;
 {%- endif %}
-      // For a new synapse, t_lastspike_ contains the point in time of the last
-      // spike. So we initially read the
-      // history(t_last_spike - dendritic_delay, ..., T_spike-dendritic_delay]
-      // which increases the access counter for these entries.
-      // At registration, all entries' access counters of
-      // history[0, ..., t_last_spike - dendritic_delay] have been
-      // incremented by Archiving_Node::register_stdp_connection(). See bug #218 for
-      // details.
       __target->get_history__( t_lastspike_ - __dendritic_delay,
         __t_spike - __dendritic_delay,
         &start,
         &finish );
-      // facilitation due to post-synaptic spikes since last pre-synaptic spike
       while ( start != finish )
       {
+{%- if paired_neuron is not none and paired_neuron|length > 0 %}
+
+{%-   if paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+         auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ - __dendritic_delay);
+{%-   endif %}
+
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
+        const double {{ var_name }}_at_post_spike_time = histentry.{{ var_name }};
+{%-     endfor %}
+{%- endif %}
+
         {%- if vt_ports is defined and vt_ports|length > 0  %}
         {%- set vt_port = vt_ports[0] %}
         process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );

@@ -362,6 +362,7 @@ public:
     std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
     std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish );
 
+  continuous_variable_histentry_{{ neuronName }} get_continuous_variable_history( double t );
 
   std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
 {%- endif %}

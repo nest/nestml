@@ -747,17 +747,16 @@ const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
      *
      * step 1: regardless of whether and how integrate_odes() will be called, update variables due to convolutions
     **/
-
-{%- if uses_analytic_solver %}
+{% if uses_analytic_solver %}
 {%-     for variable_name in analytic_state_variables: %}
 {%-         if "__X__" in variable_name %}
 {%-             set update_expr = update_expressions[variable_name] %}
 {%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
 {%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
 {%-             if use_gap_junctions %}
-const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
 {%-             else %}
-const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
+    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
 {%-             endif %}
 {%-         endif %}
 {%-     endfor %}
@@ -857,9 +856,8 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
     /**
      * handle continuous input ports
     **/
-
-{%- for inputPort in neuron.get_continuous_input_ports() %}
-{%-   if use_gap_junctions %}
+{% for inputPort in neuron.get_continuous_input_ports() %}
+{%-     if use_gap_junctions %}
     if ( called_from_wfr_update )
     {
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value_wfr_update(lag);
@@ -868,9 +866,9 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
     {
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
     }
-{%-   else %}
+{%-     else %}
     B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
-{%-   endif %}
+{%-     endif %}
 {%- endfor %}
 
 {%- if use_gap_junctions %}
@@ -980,6 +978,37 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 }
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
 
+continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_variable_history( double t )
+{
+  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator runner;
+  if ( continuous_variable_history_.empty() or t < 0.0 )
+  {
+    std::cout << "\n\n\nXXX FIX ME\n\n\n";
+    return continuous_variable_histentry_{{ neuronName }}(0., {%-     for state_var in state_vars_that_need_continuous_buffering %}
+      0.{% if not loop.last %}, {% endif %}
+{%-     endfor %}); // XXX: TODO: return initial value
+  }
+  else
+  {
+    runner = continuous_variable_history_.begin();
+    while ( runner != continuous_variable_history_.end() )
+    {
+      if ( fabs( t - runner->t_ ) < nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        return *runner;
+      }
+      ( runner->access_counter_ )++;
+      ++runner;
+    }
+  }
+
+  // if we get here, there is no entry at time t
+  std::cout << "\n\n\nXXX FIX ME\n\n\n";
+  return continuous_variable_histentry_{{ neuronName }}(0., {%-     for state_var in state_vars_that_need_continuous_buffering %}
+      0.{% if not loop.last %}, {% endif %}
+{%-     endfor %}); // XXX: TODO: return initial value
+}
+
 void {{neuronName}}::get_continuous_variable_history( double t1,
   double t2,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
@@ -1019,8 +1048,7 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
 {
   const double t_ms = t.get_ms();
 
-  // prune all entries from history which are no longer needed
-  // except the penultimate one. we might still need it.
+  // prune all entries from history which are no longer needed except the penultimate one. we might still need it.
   while ( continuous_variable_history_.size() > 1 )
   {
     if ( continuous_variable_history_.front().access_counter_ >= n_incoming_ )
