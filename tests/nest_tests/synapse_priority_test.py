@@ -107,7 +107,6 @@ class NestSynapsePriorityTest(unittest.TestCase):
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
         nest.set_verbosity("M_ALL")
-        # nest.set_verbosity("M_WARNING")
         nest.ResetKernel()
         try:
             nest.Install("nestml_module")
@@ -118,10 +117,8 @@ class NestSynapsePriorityTest(unittest.TestCase):
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        # wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "syn_nestml",
-                       {"d": delay})
-        #    {"weight_recorder": wr[0], "d": delay})
+                       {"delay": delay})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -135,12 +132,10 @@ class NestSynapsePriorityTest(unittest.TestCase):
 
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
-        # mm = nest.Create("multimeter", params={"record_from" : ["V_m", "post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"]})
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'syn_nestml'})
-        # nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)
 

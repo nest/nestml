@@ -24,6 +24,7 @@ from typing import Any, Optional
 from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
@@ -42,7 +43,7 @@ class ASTVariable(ASTNode):
     """
 
     def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
-                 vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
+                 vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, alternate_name: Optional[str] = None, alternate_scope: Optional[Scope] = None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the variable
@@ -52,6 +53,8 @@ class ASTVariable(ASTNode):
         :param type_symbol: the type of the variable
         :param vector_parameter: the vector parameter of the variable
         :param delay_parameter: the delay value to be used in the differential equation
+        :param alternate_name: alternate name that aliases the variable, e.g. for references to variables in other models
+        :param alternate_scope: the variable scope in which to resolve the variable ``alternate_name``
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
@@ -66,6 +69,8 @@ class ASTVariable(ASTNode):
         self.vector_parameter = vector_parameter
         self.is_homogeneous = is_homogeneous
         self.delay_parameter = delay_parameter
+        self.alternate_name = alternate_name
+        self.alternate_scope = alternate_scope
 
     def clone(self):
         r"""
@@ -76,7 +81,8 @@ class ASTVariable(ASTNode):
                            type_symbol=self.type_symbol,
                            vector_parameter=self.vector_parameter,
                            delay_parameter=self.delay_parameter,
-                           # ASTNode common attriutes:
+                           alternate_name=self.alternate_name,
+                           # ASTNode common attributes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
                            comment=self.comment,
@@ -211,7 +217,7 @@ class ASTVariable(ASTNode):
         """
         if not isinstance(other, ASTVariable):
             return False
-        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
+        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order() and self.get_alternate_name() == other.get_alternate_name()
 
     def is_delay_variable(self) -> bool:
         """
@@ -219,3 +225,9 @@ class ASTVariable(ASTNode):
         :return: True if the variable has a delay parameter, False otherwise
         """
         return self.get_delay_parameter() is not None
+
+    def set_alternate_name(self, alternate_name: Optional[str]):
+        self.alternate_name = alternate_name
+
+    def get_alternate_name(self):
+        return self.alternate_name

@@ -31,6 +31,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 synapse CoCoResolutionLegallyUsed:
     parameters:
+        w real = 1.  @nest::weight
         d ms = 1 ms  @nest::delay
         a ms = resolution()
 

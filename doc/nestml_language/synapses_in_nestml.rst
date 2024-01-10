@@ -502,9 +502,12 @@ The synapse is allowed to contain an ``update`` block. Statements in the ``updat
 Dendritic delay
 ~~~~~~~~~~~~~~~
 
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). To indicate that a given parameter is specifying this NEST-specific delay value, use an annotation:
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use an annotation:
 
 .. code:: nestml
+
+   state:
+       w ms = 1 ms     @nest::weight
 
    parameters:
        dend_delay ms = 1 ms     @nest::delay

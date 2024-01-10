@@ -117,7 +117,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0, "lambda": .001})
+                       {"weight_recorder": wr[0], "weight": 1., "delay": 1., "receptor_type": 0, "lambda": .001})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -169,7 +169,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
-            w_hist.append(nest.GetStatus(syn)[0]["w"])
+            w_hist.append(nest.GetStatus(syn)[0]["weight"])
 
         third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
         timevec = nest.GetStatus(mm, "events")[0]["times"]
