@@ -61,7 +61,8 @@ class NESTVariablePrinter(CppVariablePrinter):
             _name = str(variable)
             if variable.get_alternate_name():
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
-                return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
+                return "__" + variable.get_alternate_name()
+                # return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
             return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
 

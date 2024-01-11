@@ -43,8 +43,8 @@ model third_factor_stdp_synapse:
     parameters:
         d ms = 1 ms  @nest::delay   # Synaptic transmission delay
         lambda real = .01
-        tau_tr_pre ms = 20 ms
-        tau_tr_post ms = 20 ms
+        tau_tr_pre ms = 10 ms
+        tau_tr_post ms = 10 ms
         alpha real = 1.
         mu_plus real = 1.
         mu_minus real = 1.

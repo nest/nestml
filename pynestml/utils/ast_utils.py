@@ -29,6 +29,7 @@ import odetoolbox
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -612,6 +613,31 @@ class ASTUtils:
                 if name in kernel.get_variable_names():
                     return kernel
 
+        return None
+
+    @classmethod
+    def print_alternate_var_name(cls, var_name, continuous_post_ports):
+        for pair in continuous_post_ports:
+            if pair[0] == var_name:
+                return pair[1]
+
+        assert False
+
+    @classmethod
+    def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
+        for pair in codegen_opts_pairs:
+            print("Checking pair " + str(pair) + " for ne = " + str(neuron.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix)) + " syn = " + synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix))
+            if pair["neuron"] == neuron.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix) and pair["synapse"] == synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix):
+                return pair["post_ports"]
+        return None
+
+    @classmethod
+    def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port):
+        print("post port names: " + str(post_port_names))
+        print("Searching for " + str(post_port))
+        for pair in post_port_names:
+            if pair[0] == post_port:
+                return pair[1]
         return None
 
     @classmethod

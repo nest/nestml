@@ -488,9 +488,16 @@ class NESTCodeGenerator(CodeGenerator):
 
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
-            namespace["paired_neuron"] = synapse.paired_neuron.get_name()
+            namespace["paired_neuron"] = synapse.paired_neuron
+            namespace["paired_neuron_name"] = synapse.paired_neuron.get_name()
             namespace["post_ports"] = synapse.post_port_names
             namespace["spiking_post_ports"] = synapse.spiking_post_port_names
+
+            namespace["continuous_post_ports"] = []
+            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
+                post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(synapse.paired_neuron, synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
+                namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+
             namespace["vt_ports"] = synapse.vt_port_names
             namespace["pre_ports"] = list(set(all_input_port_names)
                                           - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
@@ -587,7 +594,7 @@ class NESTCodeGenerator(CodeGenerator):
 
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
-                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, neuron.unpaired_name.removesuffix(FrontendConfiguration.suffix), neuron.paired_synapse.get_name().split("__with_")[0].removesuffix("_nestml")) for port_name in neuron.state_vars_that_need_continuous_buffering]
+                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, neuron.unpaired_name.removesuffix(FrontendConfiguration.suffix), neuron.paired_synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_continuous_buffering]
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse

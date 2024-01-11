@@ -222,8 +222,8 @@ public:
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
 {
-{%- if paired_neuron | length > 0 %}
-  typedef {{ paired_neuron }} post_neuron_t;
+{%- if paired_neuron_name | length > 0 %}
+  typedef {{ paired_neuron_name }} post_neuron_t;
 
 {% endif %}
 {%- if vt_ports is defined and vt_ports|length > 0  %}
@@ -636,10 +636,10 @@ public:
 
 {%- if paired_neuron is defined %}
     try {
-      dynamic_cast<{{paired_neuron}}&>(t);
+      dynamic_cast<{{paired_neuron_name}}&>(t);
     }
     catch (std::bad_cast &exp) {
-      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron}}'.\n";
+      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron_name}}'.\n";
       exit(1);
     }
 {%- endif %}
@@ -669,7 +669,7 @@ public:
         return tid;
     };
 
-    const double __t_spike = e.get_stamp().get_ms();
+    const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
 #ifdef DEBUG
     std::cout << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
 #endif
@@ -680,8 +680,8 @@ public:
 
 {%- endif %}
     // use accessor functions (inherited from Connection< >) to obtain delay and target
-{%- if paired_neuron is not none and paired_neuron|length > 0 %}
-    {{paired_neuron}}* __target = static_cast<{{paired_neuron}}*>(get_target(tid));
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+    {{paired_neuron_name}}* __target = static_cast<{{paired_neuron_name}}*>(get_target(tid));
     assert(__target);
 {%- else %}
     Node* __target = get_target( tid );
@@ -696,7 +696,7 @@ public:
         t_lastspike_ = 0.;
     }
 
-{%- if paired_neuron is not none and paired_neuron|length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
     double timestep = 0;
     {
       /**
@@ -706,8 +706,8 @@ public:
        *
        * Note that this also increases the access counter for these entries which is used to prune the history.
       **/
-      std::deque< histentry__{{paired_neuron}} >::iterator start;
-      std::deque< histentry__{{paired_neuron}} >::iterator finish;
+      std::deque< histentry__{{paired_neuron_name}} >::iterator start;
+      std::deque< histentry__{{paired_neuron_name}} >::iterator finish;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       double t0 = t_last_update_;
 {%- endif %}
@@ -717,23 +717,25 @@ public:
         &finish );
       while ( start != finish )
       {
-{%- if paired_neuron is not none and paired_neuron|length > 0 %}
-
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+        /**
+         * grab the postsynaptic continuous variable values from the postsynaptic neuron
+        **/
 {%-   if paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
-         auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ - __dendritic_delay);
+        auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ - __dendritic_delay);
 {%-   endif %}
 
 {%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 {%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
-        const double {{ var_name }}_at_post_spike_time = histentry.{{ var_name }};
+        const double __{{ var_name }} = histentry.{{ var_name }};
 {%-     endfor %}
 {%- endif %}
 
-        {%- if vt_ports is defined and vt_ports|length > 0  %}
-        {%- set vt_port = vt_ports[0] %}
+{%  if vt_ports is defined and vt_ports|length > 0  %}
+{%-     set vt_port = vt_ports[0] %}
         process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
         t0 = start->t_ + __dendritic_delay;
-        {%- endif %}
+{%- endif %}
         const double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
         // get_history() should make sure that
         // start->t_ > t_lastspike_ - dendritic_delay, i.e. minus_dt < 0
@@ -798,7 +800,18 @@ public:
     const double _tr_t = __t_spike - __dendritic_delay;
 
     {
-        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model    // XXX: TODO: is this correct or should this be equal to ``_tr_t``, i.e. with dendritic delay subtracted?
+
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron. state_vars_that_need_continuous_buffering | length > 0 %}
+        /**
+         * grab the postsynaptic continuous variable values from the postsynaptic neuron
+        **/
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+
+{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     endfor %}
+{%- endif %}
 
 {%- filter indent(8, True) %}
 {%- for pre_port in pre_ports %}
@@ -832,6 +845,17 @@ public:
     if (pre_before_post_flag)
     {
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron. state_vars_that_need_continuous_buffering | length > 0 %}
+        /**
+         * grab the postsynaptic continuous variable values from the postsynaptic neuron
+        **/
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+
+{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+{%-     endfor %}
+{%- endif %}
 
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
@@ -1249,9 +1273,9 @@ inline void
   double dendritic_delay = get_delay();
 
   // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
-  std::deque< histentry__{{paired_neuron}} >::iterator start;
-  std::deque< histentry__{{paired_neuron}} >::iterator finish;
-  static_cast<{{paired_neuron}}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+  std::deque< histentry__{{paired_neuron_name}} >::iterator start;
+  std::deque< histentry__{{paired_neuron_name}} >::iterator finish;
+  static_cast<{{paired_neuron_name}}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
