@@ -1,0 +1,116 @@
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <debug.h>
+#include <utils.h>
+#include <static-assert.h>
+#include <spin1_api.h>
+
+#include <neuron/plasticity/stdp/maths.h>
+#include <neuron/plasticity/stdp/stdp_typedefs.h>
+
+#include <neuron/synapses.h>
+// Row describes the connection from presynaptic to all postsynaptic neurons
+#include <neuron/synapse_row.h>
+#include <neuron/plasticity/synapse_dynamics.h>
+
+
+//---------------------------------------
+// Defines
+//---------------------------------------
+
+// These need to be defined before including any synapse stuff
+#define SYNAPSE_TYPE_BITS 1
+#define SYNAPSE_TYPE_COUNT 2
+
+#ifndef SYNAPSE_AXONAL_DELAY_BITS
+#define SYNAPSE_AXONAL_DELAY_BITS 3
+#endif
+
+#define SYNAPSE_AXONAL_DELAY_MASK \
+    ((1 << SYNAPSE_AXONAL_DELAY_BITS) - 1)
+
+#ifndef __use
+#define __use(x)    do { (void) (x); } while (0)
+#endif
+
+// post_trace / pre_trace from nestml
+typedef REAL post_trace_t;
+typedef REAL pre_trace_t;
+
+
+/*****
+FIXED STRUCTS
+*****/
+
+// Fixed format from spinnaker 
+typedef struct {
+    //! The event time
+    uint32_t prev_time;
+    //! The event trace
+    pre_trace_t prev_trace; // 16Bit (sPyNNaker paper, Fig 8), shouldn't be hard specification
+} pre_event_history_t;
+
+// Fixed format from spinnaker
+// Fixed synapse parameters
+// Describes layout of stdp fixed data
+typedef struct fixed_stdp_synapse {
+    uint32_t delay_dendritic; // NESTML delay
+    uint32_t delay_axonal; // ??
+    uint32_t type; // Synapse type 
+    uint32_t index; // Index of synapse
+    uint32_t type_index; // type and index packed together
+    uint32_t ring_buffer_index; // neuron index
+} fixed_stdp_synapse;
+
+
+/*****
+MODEL STRUCTS
+*****/
+
+// TODO: switch to fixed point
+// Add synapse paramters here
+typedef struct {
+{%- for sym in synapse.get_parameter_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
+{%- endfor %}
+
+{%- for sym in synapse.get_internal_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
+{%- endfor %}
+
+    // TODO: Put in all required parameters
+
+} plasticity_weight_region_data_t;
+
+//TODO: switch to fixed point
+typedef struct {
+{%- for variable_symbol in synapse.get_state_symbols() %}
+    {{type_symbol_printer.print(variable_symbol.type_symbol) }} {{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}};
+{%- endfor %}
+
+    uint32_t weight_shift;
+    plasticity_weight_region_data_t *parameter;
+
+    // TODO: Put in any variables required in the intermediate state
+} weight_state_t;
+
+
+/*****
+UNUSED STRUCTS
+*****/
+
+/*
+// layout of initializing datastructure, saved as global variables
+typedef struct my_timing_config {
+    accum my_potentiation_parameter;
+    accum my_depression_parameter;
+} my_timing_config_t;
+*/
+/*
+//! The type of configuration parameters in SDRAM (written by host)
+typedef struct stdp_params {
+    //! The back-propagation delay, in basic simulation timesteps
+    uint32_t backprop_delay;
+} stdp_params;
+*/

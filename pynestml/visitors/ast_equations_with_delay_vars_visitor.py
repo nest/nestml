@@ -45,6 +45,7 @@ class ASTEquationsWithDelayVarsVisitor(ASTVisitor):
             # Get the delay parameter
             delay_parameter = ASTUtils.extract_delay_parameter(node.get_function_call())
             ast_variable.set_delay_parameter(delay_parameter)
+            ast_variable.update_scope(node.get_scope())
 
             # Set the variable in the SimpleExpression node
             node.set_variable(ast_variable)

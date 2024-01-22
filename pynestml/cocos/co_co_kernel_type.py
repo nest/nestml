@@ -28,7 +28,6 @@ from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.either import Either
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -92,9 +91,6 @@ class KernelTypeVisitor(ASTVisitor):
                 assert len(decl.get_variables()) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
                 type_symbol = iv.get_type_symbol()
-                if isinstance(type_symbol, Either) and type_symbol.is_value():
-                    type_symbol = type_symbol.get_value()
-
                 if not type_symbol.is_castable_to(PredefinedTypes.get_type("ms")**-order):
                     actual_type_str = CppTypeSymbolPrinter().print(type_symbol)
                     expected_type_str = "s^-" + str(order)

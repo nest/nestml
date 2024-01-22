@@ -60,20 +60,23 @@ try:
         pass
 
     if "DataConnect" in dir(nest):
-        nest_version = "v2.20.2"
-    elif "kernel_status" not in dir(nest):  # added in v3.1
-        nest_version = "v3.0"
-    elif "Kplus" in syn.get().keys():  # "Kplus" trace variable is made accessible via get_status() in master
-        nest_version = "master"
-    elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
-        nest_version = "v3.4"
-    elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
-        nest_version = "v3.3"
-    elif "tau_Ca" in vt.get().keys():   # removed in v3.2
-        nest_version = "v3.1"
+            nest_version = "v2.20.2"
     else:
-        nest_version = "v3.2"
-
+        nest_version = "v" + nest.__version__
+        if nest_version.startswith("v3.5") or nest_version.startswith("v3.6"):
+            if "post0.dev0" in nest_version:
+                nest_version = "master"
+        else:
+            if "kernel_status" not in dir(nest):  # added in v3.1
+                nest_version = "v3.0"
+            elif "prepared" in nest.GetKernelStatus().keys():  # "prepared" key was added after v3.3 release
+                nest_version = "v3.4"
+            elif "tau_u_bar_minus" in neuron.get().keys():   # added in v3.3
+                nest_version = "v3.3"
+            elif "tau_Ca" in vt.get().keys():   # removed in v3.2
+                nest_version = "v3.1"
+            else:
+                nest_version = "v3.2"
 except ModuleNotFoundError:
     nest_version = ""
 

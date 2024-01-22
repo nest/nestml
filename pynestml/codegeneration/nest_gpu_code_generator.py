@@ -72,7 +72,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": "point_neuron",
+            "path": "resources_nest_gpu/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2",
                 "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],

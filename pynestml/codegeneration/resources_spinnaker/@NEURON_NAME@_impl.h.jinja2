@@ -1,0 +1,281 @@
+#ifndef _{{neuronName.upper()}}_IMPL_
+#define _{{neuronName.upper()}}_IMPL_
+
+#include <math.h>
+#include <stdbool.h>
+#include <neuron/implementations/neuron_impl.h>
+#include <spin1_api.h>
+#include <debug.h>
+
+{%- if norm_rng %}
+
+// Includes for random number generator
+{%- if nest_version.startswith("v2") %}
+#include "normal_randomdev.h"
+#include "uniform_randomdev.h"
+{%- else %}
+#include <random>
+{%- endif %}
+{%- endif %}
+
+{%- if uses_numeric_solver %}
+
+#ifndef HAVE_GSL
+#error "The GSL library is required for neurons that require a numerical solver."
+#endif
+
+// External includes:
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv.h>
+{%- endif %}
+
+
+{% set ns = namespace(count=0) %}
+{%-  for variable in neuron.get_state_symbols() | sort(attribute="name") %}
+{%-   if variable.is_recordable %}
+#define {{ variable.get_symbol_name().upper() }}_RECORDING_INDEX {{ ns.count }}
+{%-     set ns.count = ns.count + 1 %}
+{%-    endif %}
+{%-  endfor %}
+//! Number of recorded state variables
+#define N_RECORDED_VARS {{ns.count}}
+
+#define SPIKE_RECORDING_BITFIELD 0
+#define N_BITFIELD_VARS 1
+//TODO: Spinnaker specific includes
+// Recording defines must be done before this
+#include <neuron/neuron_recording.h>
+//#include <neuron/current_sources/current_source_impl.h>
+//#include <neuron/current_sources/current_source.h>
+
+
+{% if uses_numeric_solver %}
+//TODO: Check if we can generate this because we are using C
+/**
+ * Function computing right-hand side of ODE for GSL solver.
+ * @note Must be declared here so we can befriend it in class.
+ * @note Must have C-linkage for passing to GSL. Internally, it is
+ *       a first-class C++ function, but cannot be a member function
+ *       because of the C-linkage.
+ * @note No point in declaring it inline, since it is called
+ *       through a function pointer.
+ * @param void* Pointer to model neuron instance.
+**/
+extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
+{% endif %}
+
+// Missing paired_synapse stuff here
+
+{% if has_multiple_synapses -%}
+  /**
+   * Synapse types to connect to
+   * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
+   *       Excluding port 0 avoids accidental connections.
+  **/
+const long MIN_SPIKE_RECEPTOR = 1;
+{%-   set ns = namespace(count=1) %}
+{%- else %}
+const long MIN_SPIKE_RECEPTOR = 0;
+{%-   set ns = namespace(count=0) %}
+{%- endif %}
+
+enum input_indices
+{
+{%- set ns = namespace(count=0) %}
+{%- for variable in neuron.get_spike_input_ports() | sort(attribute="name") %}
+    {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
+{%-   set ns.count = ns.count + 1 -%}
+{%- endfor %}
+{%- for variable in neuron.get_continuous_input_ports() | sort(attribute="name") %}
+    {{ variable.get_symbol_name().upper() }} = {{ ns.count }},
+{%-   set ns.count = ns.count + 1 -%}
+{%- endfor %}
+{# Not resetting count here to use for input generation #}
+};
+
+typedef struct {
+{# Make shure count is |spike_input_ports| + |continous_input_ports| #}
+// 0: exc, 1: inh, 2: Istim
+{%- if ns.count > 0 %}
+    REAL inputs[{{ ns.count }}];
+{%- endif %} 
+}neuron_input_t;
+
+typedef struct {
+// State variables of the neuron
+{%- for sym in neuron.get_state_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
+{%- endfor %}
+}neuron_state_t;
+
+typedef struct {
+// Parameters of the neuron
+{%- for sym in neuron.get_parameter_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{ sym.get_symbol_name() }};
+{%- endfor %}
+{%- if uses_numeric_solver %}
+
+{%- endif %}
+    // Internal variables of the neuron
+{%- for sym in neuron.get_internal_symbols() | sort(attribute="name") %}
+    {{type_symbol_printer.print(sym.type_symbol)}} {{sym.get_symbol_name()}};
+{%- endfor %}
+}neuron_parameter_t;
+
+//! neuron_impl_t struct
+typedef struct neuron_impl_t {
+    neuron_input_t input;
+    neuron_state_t state;
+    neuron_parameter_t parameter;
+} neuron_impl_t;
+
+// TODO: implement gsl solver support and find out where to put gsl
+/***
+{%- if uses_numeric_solver %}
+    REAL __gsl_error_tol;
+
+
+    // -----------------------------------------------------------------------
+    //   GSL ODE solver data structures
+    // -----------------------------------------------------------------------
+
+    gsl_odeiv_step* __s;    //!< stepping function
+    gsl_odeiv_control* __c; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* __e;  //!< evolution function
+    gsl_odeiv_system __sys; //!< struct describing system
+
+    // __integration_step should be reset with the neuron on ResetNetwork,
+    // but remain unchanged during calibration. Since it is initialized with
+    // step_, and the resolution cannot change after nodes have been created,
+    // it is safe to place both here.
+    double __step;             //!< step size in ms
+    double __integration_step; //!< current integration time step, updated by GSL
+{%- endif %}
+***/
+
+
+
+//! Array of neuron states
+static neuron_impl_t *neuron_array;
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static bool neuron_impl_initialise(uint32_t n_neurons) {
+    // Allocate DTCM for neuron array
+    if (sizeof(neuron_impl_t) != 0) {
+        neuron_array = spin1_malloc(n_neurons * sizeof(neuron_impl_t));
+        if (neuron_array == NULL) {
+            log_error("Unable to allocate neuron array - Out of DTCM");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_load_neuron_parameters(
+        address_t address, uint32_t next, uint32_t n_neurons, address_t save_initial_state) {
+    // Copy parameters to DTCM from SDRAM
+    spin1_memcpy(neuron_array, &address[next],
+            n_neurons * sizeof(neuron_impl_t));
+    // If we are to save the initial state, copy the whole of the parameters
+    // to the initial state
+    if (save_initial_state) {
+        spin1_memcpy(save_initial_state, neuron_array,
+                n_neurons * sizeof(neuron_impl_t));
+    }
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_store_neuron_parameters(
+        address_t address, uint32_t next, uint32_t n_neurons) {
+    // Copy parameters to SDRAM from DTCM
+    spin1_memcpy(&address[next], neuron_array,
+            n_neurons * sizeof(neuron_impl_t));
+}
+
+// This should handle incoming input events (spike and additional inputs e.g. current)
+// For implementation follow the nestml "handle"- function
+// Weights are already applied ? 
+// Apply synapse type before adding to buffer (delta, exp, ...)
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_add_inputs(
+        index_t synapse_type_index, index_t neuron_index,
+        input_t weights_this_timestep) {
+    // Get the neuron itself
+
+    neuron_impl_t *neuron = &neuron_array[neuron_index];
+    neuron_input_t *input = &neuron->input;
+
+    // Do something to store the inputs for the next state update
+    input->inputs[synapse_type_index] += weights_this_timestep;
+}
+
+__attribute__((unused)) // Marked unused as only used sometimes
+static void neuron_impl_do_timestep_update(
+        uint32_t timer_count, uint32_t time, uint32_t n_neurons) {
+    for (uint32_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
+        // Get the neuron itself
+        neuron_impl_t *neuron = &neuron_array[neuron_index];
+        neuron_state_t *state = &neuron->state;
+        neuron_input_t *input = &neuron->input;
+        neuron_parameter_t *parameter = &neuron->parameter;
+
+        // Store the recorded membrane voltage
+{%- for variable in neuron.get_state_symbols() %}
+{%-   if variable.is_recordable %}
+        neuron_recording_record_accum({{ variable.get_symbol_name().upper() }}_RECORDING_INDEX, neuron_index, state->{{ variable.get_symbol_name() }});
+{%-   endif -%}
+{%- endfor %}
+
+{%- if neuron.get_update_blocks() %}
+{%-   filter indent(8) %}
+{%-     for block in neuron.get_update_blocks() %}
+{%-       set ast = block.get_block() %}
+{%-       if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-       endif %}
+{%-       include "directives_cpp/Block.jinja2" %}
+{%-     endfor %}
+{%-   endfilter %}
+{%- endif %}
+
+        // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
+    
+{%- for variable in neuron.get_spike_input_ports() %}
+        input->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+{%- endfor %}
+{%- for variable in neuron.get_continuous_input_ports() %}
+        input->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
+{%- endfor %}
+    }
+}
+
+#if LOG_LEVEL >= LOG_DEBUG
+void neuron_impl_print_inputs(uint32_t n_neurons) {
+    log_debug("-------------------------------------\n");
+    for (index_t i = 0; i < n_neurons; i++) {
+        neuron_impl_t *neuron = &neuron_array[i];
+        neuron_input_t *input = &neuron.input;
+
+        log_debug("inputs: %k %k", input->inputs[0], input->inputs[1]);
+    }
+    log_debug("-------------------------------------\n");
+}
+
+void neuron_impl_print_synapse_parameters(uint32_t n_neurons) {
+    // there aren't any accessible in this example
+    use(n_neurons);
+}
+
+const char *neuron_impl_get_synapse_type_char(uint32_t synapse_type) {
+    use(synapse_type);
+    return 0;
+}
+#endif // LOG_LEVEL >= LOG_DEBUG
+
+
+#endif // _{{neuronName.upper()}}_IMPL_
