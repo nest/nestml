@@ -74,12 +74,13 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         "templates": {
             "path": "point_neuron",
             "model_templates": {
-                "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2"]
-                # "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
+                "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2",
+                "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
             },
             "module_templates": [""]
         },
         "solver": "analytic",
+        "numeric_solver": "rk45",
         "nest_gpu_path": None
     }
 
@@ -96,6 +97,11 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             self.set_options({"nest_gpu_path": self.nest_gpu_path})
             Logger.log_message(None, -1, "The NEST-GPU path was automatically detected as: " + self.nest_gpu_path, None,
                                LoggingLevel.INFO)
+        
+        # make sure NEST GPU code generator contains all options that are present in the NEST code generator, like gap junctions flags needed by the template
+        for k, v in NESTCodeGenerator._default_options.items():
+            if not k in self._options.keys():
+                self.add_options({k: v})
 
         self.analytic_solver = {}
         self.numeric_solver = {}

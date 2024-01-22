@@ -39,14 +39,13 @@ neuron iaf_psc_exp:
 
     state:
         r integer = 0    # Counts number of tick during the refractory period
-        V_m mV = -70 mV     # Membrane potential
+        V_m mV = E_L     # Membrane potential
 
     equations:
         kernel I_kernel_inh = exp(-t / tau_syn_inh)
         kernel I_kernel_exc = exp(-t / tau_syn_exc)
         inline I_syn pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)
-        #V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
-        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e) / C_m
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
@@ -67,7 +66,7 @@ neuron iaf_psc_exp:
     input:
         exc_spikes pA <- excitatory spike
         inh_spikes pA <- inhibitory spike
-        #I_stim pA <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

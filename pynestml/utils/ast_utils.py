@@ -2166,7 +2166,7 @@ class ASTUtils:
         # Get the first variable in the spike update expressions list
         for spike_update in neuron.spike_updates.values():
             for update_expr in spike_update:
-                return update_expr.get_lhs()
+                return update_expr.get_variable()
         return None
     
 

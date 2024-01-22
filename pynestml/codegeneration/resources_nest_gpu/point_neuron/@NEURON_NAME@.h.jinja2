@@ -55,13 +55,18 @@ enum ScalParamIndexes {
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   i_{{ printer_no_origin.print(variable) }},
 {%- endfor %}
+
+{%- for variable_symbol in neuron.get_continuous_input_ports() %}
+{%-     set variable = utils.get_input_port_by_name(astnode.get_input_blocks(), variable_symbol.get_symbol_name()) %}
+  i_{{ variable.get_name() }},
+{%- endfor %}
   N_SCAL_PARAM
 };
 
 enum PortVarIndexes {
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
-{%-     set variable = utils.get_input_port_by_name(astnode, variable_symbol.get_symbol_name()) %}
-  i_{{ printer_no_origin.print(variable) }},
+{%-     set variable = utils.get_input_port_by_name(astnode.get_input_blocks(), variable_symbol.get_symbol_name()) %}
+  i_{{ variable.get_name() }},
 {%- endfor %}
   N_PORT_VAR
 };
@@ -91,12 +96,17 @@ const std::string {{ neuronName }}_scal_param_name[N_SCAL_PARAM] = {
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   "{{ printer_no_origin.print(variable) }}",
 {%- endfor %}
+
+{%- for variable_symbol in neuron.get_continuous_input_ports() %}
+{%-     set variable = utils.get_input_port_by_name(astnode.get_input_blocks(), variable_symbol.get_symbol_name()) %}
+  "{{ variable.get_name() }}",
+{%- endfor %}
 };
 
 const std::string {{neuronName}}_var_name[N_PORT_VAR] = {
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
-{%-     set variable = utils.get_input_port_by_name(astnode, variable_symbol.get_symbol_name()) %}
-  "{{ printer_no_origin.print(variable) }}",
+{%-     set variable = utils.get_input_port_by_name(astnode.get_input_blocks(), variable_symbol.get_symbol_name()) %}
+  "{{ variable.get_name() }}",
 {%- endfor %}
 };
 
@@ -106,6 +116,8 @@ const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
   "h0_rel"
 };
 {%- endif %}
+
+{#
 //
 // I know that defines are "bad", but the defines below make the
 // following equations much more readable.
@@ -120,6 +132,8 @@ const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
 #define dwdt dydx[i_w]
 #define dI_syn_exdt dydx[i_I_syn_ex]
 #define dI_syn_indt dydx[i_I_syn_in]
+
+#}
 
 {%- if uses_numeric_solver %}
 {%- for variable_symbol in utils.adjusted_state_symbols() %}
@@ -141,6 +155,11 @@ const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
 {%- for variable_symbol in neuron.get_internal_symbols() %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 #define {{ printer_no_origin.print(variable) }} param[i_{{ printer_no_origin.print(variable) }}]
+{%- endfor %}
+
+{%- for variable_symbol in neuron.get_continuous_input_ports() %}
+{%-     set variable = utils.get_input_port_by_name(astnode.get_input_blocks(), variable_symbol.get_symbol_name()) %}
+#define {{ variable.get_name() }} param[i_{{ variable.get_name() }}]
 {%- endfor %}
 
 //TODO: to be defined?
@@ -181,7 +200,7 @@ class {{ neuronName }} : public BaseNeuron
 
   int Update(long long it, double t1);
 
-{%- id uses_numeric_solver %}
+{%- if uses_numeric_solver %}
   int GetX(int i_neuron, int n_node, double *x) {
     return rk5_.GetX(i_neuron, n_node, x);
   }
