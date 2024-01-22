@@ -144,6 +144,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx_design',
     'nbsphinx',
+    'sphinxcontrib.jquery'
 ]
 
 mathjax_path = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
