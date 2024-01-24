@@ -48,7 +48,6 @@ class NESTGPUFunctionCallPrinter(CUDAFunctionCallPrinter):
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             # context dependent; we assume the template contains the necessary definitions
             return 'h'
-            #return 'NESTGPUTimeResolution'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             return '(int)round({!s}/NESTGPUTimeResolution)'

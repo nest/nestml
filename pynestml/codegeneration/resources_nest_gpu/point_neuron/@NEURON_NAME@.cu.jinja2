@@ -26,6 +26,8 @@
 #include "{{ neuronName }}.h"
 #include "spike_buffer.h"
 
+{%- import 'directives/SetScalParamAndVar.jinja2' as set_scal_param_var with context %}
+
 {%- if uses_analytic_solver %}
 using namespace {{ neuronName }}_ns;
 
@@ -176,7 +178,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   // Parameters
 {%- for variable_symbol in neuron.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-    SetScalParam(0, n_node, "{{ printer_no_origin.print(variable) }}", {{printer_no_origin.print(variable_symbol.get_declaring_expression())}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}
+    SetScalParam(0, n_node, "{{ printer_no_origin.print(variable) }}", {{set_scal_param_var.SetScalParamAndVar(variable_symbol.get_declaring_expression())}});  // as {{variable_symbol.get_type_symbol().print_symbol()}}
 {%- endfor %}
 
     // Internal variables
@@ -194,7 +196,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
     // State variables
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-    SetScalVar(0, n_node, "{{ printer_no_origin.print(variable) }}", {{printer_no_origin.print(variable_symbol.get_declaring_expression())}});
+    SetScalVar(0, n_node, "{{ printer_no_origin.print(variable) }}", {{set_scal_param_var.SetScalParamAndVar(variable_symbol.get_declaring_expression())}});
 {%- endfor %}
 {%- endif %}
 
@@ -212,7 +214,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   port_input_port_step_ = 1;
 
 {# TODO #}
-{#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay");#}
+{#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay"); #}
 
   return 0;
 }
