@@ -99,7 +99,9 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += "B_." + self._print_buffer_value(variable)
+            if not (self.print_as_arrays and self.array_index is not None):
+                s += "B_."
+            s += self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -163,6 +165,9 @@ class NESTVariablePrinter(CppVariablePrinter):
                 var_name = var_name + "_" + str(vector_parameter)
 
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+        if self.print_as_arrays and self.array_index is not None:
+            return variable_symbol.get_symbol_name() + "[" + str(self.array_index) + "]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

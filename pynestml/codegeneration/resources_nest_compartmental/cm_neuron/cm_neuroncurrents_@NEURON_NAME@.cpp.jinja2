@@ -133,55 +133,93 @@ inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channe
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t comp_ass)
 {
-    neuron_{{ ion_channel_name }}_channel_count++;
-    i_tot_{{ion_channel_name}}.push_back(0);
-    compartment_association.push_back(comp_ass);
-
-    {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
-    // state variable {{pure_variable_name}}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+    //Check whether the channel will contribute at all based on initial key-parameters. If not then don't add the channel.
+    bool channel_contributing = true;
+    {%- for key_zero_param in channel_info["RootInlineKeyZeros"] %}
+        {% for variable_type, variable_info in channel_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {% if key_zero_param == variable.name %}
+        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+            channel_contributing = false;
+        }
+        {% endif %}
+        {%- endfor %}
     {%- endfor %}
 
-    {% for variable_type, variable_info in channel_info["Parameters"].items() %}
-    // channel parameter {{variable_type }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
-    {%- endfor %}
+    if(channel_contributing){
+        neuron_{{ ion_channel_name }}_channel_count++;
+        i_tot_{{ion_channel_name}}.push_back(0);
+        compartment_association.push_back(comp_ass);
+
+        {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
+        // state variable {{pure_variable_name}}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {%- endfor %}
+
+        {% for variable_type, variable_info in channel_info["Parameters"].items() %}
+        // channel parameter {{variable_type }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {%- endfor %}
+    }
 }
 
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t comp_ass, const DictionaryDatum& channel_params)
 // update {{ion_channel_name}} channel parameters
 {
-    neuron_{{ ion_channel_name }}_channel_count++;
-    compartment_association.push_back(comp_ass);
-    i_tot_{{ion_channel_name}}.push_back(0);
-
-    {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
-    // state variable {{pure_variable_name }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
-    {%- endfor %}
-
-    {% for variable_type, variable_info in channel_info["Parameters"].items() %}
-    // channel parameter {{variable_type }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
-    {%- endfor %}
-
-    {%- with %}
-    {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
+    //Check whether the channel will contribute at all based on initial key-parameters. If not then don't add the channel.
+    bool channel_contributing = true;
+    {%- for key_zero_param in channel_info["RootInlineKeyZeros"] %}
+    if( channel_params->known( "{{key_zero_param}}" ) ){
+        if(getValue< double >( channel_params, "{{key_zero_param}}" ) <= 1e-9){
+            channel_contributing = false;
+        }
+    }else{
+        {% for variable_type, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %} //have to remove???????????
-    // {{ion_channel_name}} channel parameter {{dynamic_variable }}
-    if( channel_params->known( "{{variable.name}}" ) )
-        {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = getValue< double >( channel_params, "{{variable.name}}" );
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {% if key_zero_param == variable.name %}
+        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+            channel_contributing = false;
+        }
+        {% endif %}
+        {%- endfor %}
+    }
     {%- endfor %}
-    {% endwith %}
+
+    if(channel_contributing){
+        neuron_{{ ion_channel_name }}_channel_count++;
+        compartment_association.push_back(comp_ass);
+        i_tot_{{ion_channel_name}}.push_back(0);
+
+        {%- for pure_variable_name, variable_info in channel_info["States"].items() %}
+        // state variable {{pure_variable_name }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {%- endfor %}
+
+        {% for variable_type, variable_info in channel_info["Parameters"].items() %}
+        // channel parameter {{variable_type }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {%- endfor %}
+
+        {%- with %}
+        {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
+            {%- set variable = variable_info["ASTVariable"] %}
+            {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %} //have to remove???????????
+        // {{ion_channel_name}} channel parameter {{dynamic_variable }}
+        if( channel_params->known( "{{variable.name}}" ) )
+            {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = getValue< double >( channel_params, "{{variable.name}}" );
+        {%- endfor %}
+        {% endwith %}
+    }
 }
 
 void
@@ -194,21 +232,22 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   {%- set variable = variable_info["ASTVariable"] %}
   for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
       if(compartment_association[chan_id] == compartment_idx){
-        ( *recordables )[ Name( std::string("{{variable.name}}") + std::string("_") + std::to_string(compartment_idx) + "_" + std::to_string(chan_id))] = &{{variable.name}}[chan_id];
+        ( *recordables )[ Name( std::string("{{variable.name}}") + std::to_string(compartment_idx))] = &{{variable.name}}[chan_id];
       }
   }
   {%- endfor %}
   {% endwith %}
   for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
       if(compartment_association[chan_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_{{ion_channel_name}}" + std::string("_") + std::to_string(compartment_idx) + std::string("_") + std::to_string(chan_id))] = &i_tot_{{ion_channel_name}}[chan_id];    //not gonna work! vector elements can't be safely referenced.
+        ( *recordables )[ Name( std::string("i_tot_{{ion_channel_name}}") + std::to_string(compartment_idx))] = &i_tot_{{ion_channel_name}}[chan_id];    //not gonna work! vector elements can't be safely referenced.
       }
   }
 }
 
 std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
     std::vector< double > g_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
     std::vector< double > i_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
@@ -292,54 +331,92 @@ std::vector< double > nest::{{ion_channel_name}}{{cm_unique_suffix}}::distribute
 
 void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::size_t comp_ass)
 {
-    neuron_{{ concentration_name }}_concentration_count++;
-    {{concentration_name}}.push_back(0);
-    compartment_association.push_back(comp_ass);
-
-    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
-    // state variable {{pure_variable_name }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+    //Check whether the concentration will contribute at all based on initial key-parameters. If not then don't add the concentration.
+    bool concentration_contributing = true;
+    {%- for key_zero_param in concentration_info["RootInlineKeyZeros"] %}
+        {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {% if key_zero_param == variable.name %}
+        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+            concentration_contributing = false;
+        }
+        {% endif %}
+        {%- endfor %}
     {%- endfor %}
 
-    {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
-    // channel parameter {{variable_type }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
-    {%- endfor %}
+    if(concentration_contributing){
+        neuron_{{ concentration_name }}_concentration_count++;
+        {{concentration_name}}.push_back(0);
+        compartment_association.push_back(comp_ass);
+
+        {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        // state variable {{pure_variable_name }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {%- endfor %}
+
+        {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        // channel parameter {{variable_type }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {%- endfor %}
+    }
 }
 
 void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::size_t comp_ass, const DictionaryDatum& concentration_params)
 {
-    neuron_{{ concentration_name }}_concentration_count++;
-    {{concentration_name}}.push_back(0);
-    compartment_association.push_back(comp_ass);
-
-    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
-    // state variable {{pure_variable_name }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
-    {%- endfor %}
-
-    {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
-    // channel parameter {{variable_type }}
-    {%- set variable = variable_info["ASTVariable"] %}
-    {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
-    {%- endfor %}
-
-    {%- with %}
-    {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+    //Check whether the concentration will contribute at all based on initial key-parameters. If not then don't add the concentration.
+    bool concentration_contributing = true;
+    {%- for key_zero_param in concentration_info["RootInlineKeyZeros"] %}
+    if( concentration_params->known( "{{key_zero_param}}" ) ){
+        if(getValue< double >( concentration_params, "{{key_zero_param}}" ) <= 1e-9){
+            concentration_contributing = false;
+        }
+    }else{
+        {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
-        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %} //have to remove???????????
-    // {{ concentration_name }} concentration parameter {{dynamic_variable }}
-    if( concentration_params->known( "{{variable.name}}" ) )
-        {{variable.name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{variable.name}}" );
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {% if key_zero_param == variable.name %}
+        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+            concentration_contributing = false;
+        }
+        {% endif %}
+        {%- endfor %}
+    }
     {%- endfor %}
-    {% endwith %}
+
+    if(concentration_contributing){
+        neuron_{{ concentration_name }}_concentration_count++;
+        {{concentration_name}}.push_back(0);
+        compartment_association.push_back(comp_ass);
+
+        {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        // state variable {{pure_variable_name }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {%- endfor %}
+
+        {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        // channel parameter {{variable_type }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {%- endfor %}
+
+        {%- with %}
+        {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+            {%- set variable = variable_info["ASTVariable"] %}
+            {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, concentration_name) %} //have to remove???????????
+        // {{ concentration_name }} concentration parameter {{dynamic_variable }}
+        if( concentration_params->known( "{{variable.name}}" ) )
+            {{variable.name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{variable.name}}" );
+        {%- endfor %}
+        {% endwith %}
+    }
 }
 
 void
@@ -352,21 +429,22 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
   {%- set variable = variable_info["ASTVariable"] %}
   for(size_t conc_id = 0; conc_id < neuron_{{ concentration_name }}_concentration_count; conc_id++){
       if(compartment_association[conc_id] == compartment_idx){
-        ( *recordables )[ Name( std::string("{{variable.name}}") + std::string("_") + std::to_string(compartment_idx) + std::string("_") + std::to_string(conc_id))] = &{{variable.name}}[conc_id];
+        ( *recordables )[ Name( std::string("{{variable.name}}") + std::to_string(compartment_idx))] = &{{variable.name}}[conc_id];
       }
   }
   {%- endfor %}
   {% endwith %}
     for(size_t conc_id = 0; conc_id < neuron_{{ concentration_name }}_concentration_count; conc_id++){
       if(compartment_association[conc_id] == compartment_idx){
-        ( *recordables )[ Name( std::string("{{concentration_name}}") + std::string("_") + std::to_string(compartment_idx) + std::string("_") + std::to_string(conc_id))] = &{{concentration_name}}[conc_id];
+        ( *recordables )[ Name( std::string("{{concentration_name}}") + std::to_string(compartment_idx))] = &{{concentration_name}}[conc_id];
       }
     }
 }
 
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
     //if({%- for key_zero_param in concentration_info["RootInlineKeyZeros"] %} {{ key_zero_param }} > 1e-9 && {%- endfor %} true ){
         std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
@@ -578,7 +656,8 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
 
 std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}{{cm_unique_suffix}}::f_numstep( std::vector< double > v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
     std::vector< double > g_val(neuron_{{ synapse_name }}_synapse_count, 0.);
     std::vector< double > i_val(neuron_{{ synapse_name }}_synapse_count, 0.);
@@ -668,6 +747,200 @@ std::vector< double > nest::{{synapse_name}}{{cm_unique_suffix}}::distribute_sha
 }
 
 // {{synapse_name}} synapse end ///////////////////////////////////////////////////////////
+{%- endfor %}
+
+
+////////////////////////////////////// continuous inputs
+
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+// {{continuous_name}} continuous input ////////////////////////////////////////////////////////////////
+
+void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index)
+{
+    neuron_{{ continuous_name }}_continuous_input_count++;
+    i_tot_{{continuous_name}}.push_back(0);
+    compartment_association.push_back(comp_ass);
+    continuous_idx.push_back(con_in_index);
+
+    {%- for pure_variable_name, variable_info in continuous_info["States"].items() %}
+    // state variable {{pure_variable_name }}
+    {%- set variable = variable_info["ASTVariable"] %}
+    {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {%- endfor %}
+
+    {% for variable_type, variable_info in continuous_info["Parameters"].items() %}
+    // parameter {{variable_type }}
+    {%- set variable = variable_info["ASTVariable"] %}
+    {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {%- endfor %}
+
+    // user declared internals in order they were declared
+  {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
+    {{internal_name}}.push_back(0);
+  {%- endfor %}
+}
+
+void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params)
+// update {{continuous_name}} continuous input parameters
+{
+    neuron_{{ continuous_name }}_continuous_input_count++;
+    compartment_association.push_back(comp_ass);
+    i_tot_{{continuous_name}}.push_back(0);
+    continuous_idx.push_back(con_in_index);
+
+    {%- for pure_variable_name, variable_info in continuous_info["States"].items() %}
+    // state variable {{pure_variable_name }}
+    {%- set variable = variable_info["ASTVariable"] %}
+    {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {%- endfor %}
+
+    {% for variable_type, variable_info in continuous_info["Parameters"].items() %}
+    // continuous parameter {{variable_type }}
+    {%- set variable = variable_info["ASTVariable"] %}
+    {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {%- endfor %}
+
+    {%- with %}
+    {%- for variable_type, variable_info in continuous_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+    if( con_in_params->known( "{{variable.name}}" ) )
+        {{variable.name}}[neuron_{{ continuous_name }}_continuous_input_count-1] = getValue< double >( con_in_params, "{{variable.name}}" );
+    {%- endfor %}
+    {% endwith %}
+
+    // user declared internals in order they were declared
+  {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
+    {{internal_name}}.push_back(0);
+  {%- endfor %}
+}
+
+void
+nest::{{continuous_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables, const long compartment_idx)
+{
+    for(size_t con_in_id = 0; con_in_id < neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
+      if(compartment_association[con_in_id] == compartment_idx){
+        ( *recordables )[ Name( "i_tot_{{continuous_name}}" + std::to_string(con_in_id) )] = &i_tot_{{continuous_name}}[con_in_id];
+      }
+    }
+}
+
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void nest::{{continuous_name}}{{cm_unique_suffix}}::calibrate()
+{%- else %}
+void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
+{%- endif %}
+{
+    // initial values for user defined states
+    // warning: this shadows class variables
+  {%- for state_name, state_declaration in continuous_info["States"].items() %}
+    std::vector< double > {{state_name}} = (neuron_{{ continuous_name }}_continuous_input_count, {{ printer_no_origin.print(state_declaration["rhs_expression"])}});
+  {%- endfor %}
+
+  for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+    {% for port_name, port_info in continuous_info["Continuous"].items() %}
+    {{port_name}}_[i]->clear();
+    {% endfor %}
+  }
+}
+
+std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep( std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+{
+    std::vector< double > g_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
+    std::vector< double > i_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
+    std::vector< double > d_i_tot_dv(neuron_{{ continuous_name }}_continuous_input_count, 0.);
+
+    {% if continuous_info["ODEs"].items()|length %}
+    std::vector< double > {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
+    {% endif %}
+
+    {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
+            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+    std::vector< double > {{ propagator }}(neuron_{{ continuous_name }}_continuous_input_count, 0);
+            {%- endfor %}
+    {%- endfor %}
+
+    {% for port_name, port_info in continuous_info["Continuous"].items() %}
+    std::vector< double > {{ port_name }}(neuron_{{ continuous_name }}_continuous_input_count, 0.);
+    {% endfor %}
+
+    #pragma omp simd
+    for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+        {% for port_name, port_info in continuous_info["Continuous"].items() %}
+        {{ port_name }}[i] = {{ port_name }}_[i]->get_value( lag );
+        {% endfor %}
+    }
+
+  #pragma omp simd
+  for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+      //update ODE state variable
+      {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
+          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+      {{ propagator }}[i] = {{ printer_no_origin.print_with_indices(propagator_info["init_expression"], "i") }};
+          {%- endfor %}
+          {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+      {{state}}[i] = {{ printer_no_origin.print_with_indices(state_solution_info["update_expression"], "i") }};
+          {%- endfor %}
+      {%- endfor %}
+
+      // total current
+      // this expression should be the transformed inline expression
+      this->i_tot_{{continuous_name}}[i] = {{ printer_no_origin.print_with_indices(continuous_info["root_expression"].get_expression(), "i") }};
+
+      // derivative of that expression
+      // voltage derivative of total current
+      // compute derivative with respect to current with sympy
+      d_i_tot_dv[i] = {{ printer_no_origin.print_with_indices(continuous_info["inline_derivative"], "i") }};
+
+      // for numerical integration
+      g_val[i] = - d_i_tot_dv[i] / 2.;
+      i_val[i] = this->i_tot_{{continuous_name}}[i] - d_i_tot_dv[i] * v_comp[i] / 2.;
+  }
+
+  return std::make_pair(g_val, i_val);
+
+}
+
+{%- for function in continuous_info["Functions"] %}
+inline {{ function_declaration.FunctionDeclaration(function, "nest::"~continuous_name~cm_unique_suffix~"::") }}
+{
+{%-   filter indent(2,True) %}
+{%-   with ast = function.get_block() %}
+{%-     include "directives/Block.jinja2" %}
+{%-   endwith %}
+{%-   endfilter %}
+}
+{%- endfor %}
+/*
+double nest::{{continuous_name}}{{cm_unique_suffix}}::get_current_{{continuous_name}}(std::size_t continuous_id){
+    return this->i_tot_{{continuous_name}}[continuous_id];
+}
+*/
+
+void nest::{{continuous_name}}{{cm_unique_suffix}}::get_currents_per_compartment(std::vector< double >& compartment_to_current){
+    for(std::size_t comp_id = 0; comp_id < compartment_to_current.size(); comp_id++){
+        compartment_to_current[comp_id] = 0;
+    }
+    for(std::size_t con_in_id = 0; con_in_id < neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
+        compartment_to_current[this->compartment_association[con_in_id]] += this->i_tot_{{continuous_name}}[con_in_id];
+    }
+}
+
+std::vector< double > nest::{{continuous_name}}{{cm_unique_suffix}}::distribute_shared_vector(std::vector< double > shared_vector){
+    std::vector< double > distributed_vector(this->neuron_{{ continuous_name }}_continuous_input_count, 0.0);
+    for(std::size_t con_in_id = 0; con_in_id < this->neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
+        distributed_vector[con_in_id] = shared_vector[compartment_association[con_in_id]];
+    }
+    return distributed_vector;
+}
+
+// {{continuous_name}} continuous input end ///////////////////////////////////////////////////////////
 {%- endfor %}
 
 

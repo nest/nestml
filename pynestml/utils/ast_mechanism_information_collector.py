@@ -132,16 +132,22 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(kernel_collector)
             global_kernels = kernel_collector.all_kernels
 
+            continuous_input_collector = ASTContinuousInputDeclarationVisitor()
+            neuron.accept(continuous_input_collector)
+            global_continuous_inputs = continuous_input_collector.ports
+
             mechanism_states = list()
             mechanism_parameters = list()
             mechanism_functions = list()
             mechanism_inlines = list()
             mechanism_odes = list()
             synapse_kernels = list()
+            mechanism_continuous_inputs = list()
             mechanism_dependencies = defaultdict()
             mechanism_dependencies["concentrations"] = list()
             mechanism_dependencies["channels"] = list()
             mechanism_dependencies["receptors"] = list()
+            mechanism_dependencies["continuous"] = list()
 
             mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
 
@@ -199,6 +205,10 @@ class ASTMechanismInformationCollector(object):
                                                 if not inline.variable_name in [i.variable_name for i in
                                                                                 mechanism_dependencies["receptors"]]:
                                                     mechanism_dependencies["receptors"].append(inline)
+                                            if "continuous" in [e.name for e in inline.get_decorators()]:
+                                                if not inline.variable_name in [i.variable_name for i in
+                                                                                mechanism_dependencies["continuous"]]:
+                                                    mechanism_dependencies["continuous"].append(inline)
 
                                 if not is_dependency:
                                     mechanism_inlines.append(inline)
@@ -267,6 +277,11 @@ class ASTMechanismInformationCollector(object):
                                                                                                        local_function_call_collector.all_function_calls,
                                                                                                        search_functions + found_functions)
 
+                        for input in global_continuous_inputs:
+                            if variable.name == input.name:
+                                mechanism_continuous_inputs.append(input)
+
+
                     search_variables.remove(variable)
                     found_variables.append(variable)
                     # IMPLEMENT CATCH NONDEFINED!!!
@@ -276,6 +291,7 @@ class ASTMechanismInformationCollector(object):
             mechs_info[mechanism_name]["Functions"] = mechanism_functions
             mechs_info[mechanism_name]["SecondaryInlineExpressions"] = mechanism_inlines
             mechs_info[mechanism_name]["ODEs"] = mechanism_odes
+            mechs_info[mechanism_name]["Continuous"] = mechanism_continuous_inputs
             mechs_info[mechanism_name]["Dependencies"] = mechanism_dependencies
 
         return mechs_info
@@ -455,3 +471,20 @@ class ASTKernelCollectorVisitor(ASTVisitor):
 
     def endvisit_kernel(self, node):
         self.inside_kernel = False
+
+
+class ASTContinuousInputDeclarationVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTContinuousInputDeclarationVisitor, self).__init__()
+        self.inside_port = False
+        self.current_port = None
+        self.ports = list()
+
+    def visit_input_port(self, node):
+        self.inside_port = True
+        self.current_port = node
+        if self.current_port.is_continuous():
+            self.ports.append(node.clone())
+
+    def endvisit_input_port(self, node):
+        self.inside_port = False

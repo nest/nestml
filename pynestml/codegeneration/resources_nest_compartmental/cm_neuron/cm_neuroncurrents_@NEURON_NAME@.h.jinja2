@@ -90,7 +90,8 @@ public:
     // numerical integration step
     std::pair< std::vector< double >, std::vector< double > > f_numstep( std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
 
     // function declarations
 
@@ -165,7 +166,8 @@ public:
     // numerical integration step
     void f_numstep( std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
 
     // function declarations
 {%- for function in concentration_info["Functions"] %}
@@ -258,7 +260,8 @@ public:
   // numerical integration step
   std::pair< std::vector< double >, std::vector< double > > f_numstep( std::vector< double > v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if synapse_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
 
   // calibration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -291,11 +294,101 @@ public:
 {% endwith -%}
 
 
+////////////////////////////////////////////////// continuous inputs
+
+{%- with %}
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+
+class {{continuous_name}}{{cm_unique_suffix}}{
+private:
+  // global continuous input index
+  std::vector< long > continuous_idx = {};
+
+  // user defined parameters, initialized via pre_run_hook() or calibrate()
+  {%- for param_name, param_declaration in continuous_info["Parameters"].items() %}
+  std::vector< double > {{param_name}};
+  {%- endfor %}
+
+      // states
+    {%- for pure_variable_name, variable_info in continuous_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+  std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {}
+        };
+    {%- endfor %}
+
+  std::vector< double > i_tot_{{continuous_name}} = {};
+
+  // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
+  {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
+  std::vector< double > {{internal_name}};
+  {%- endfor %}
+
+
+
+  // continuous buffer
+  {% for port_name, port_info in continuous_info["Continuous"].items() %}
+  std::vector< RingBuffer* > {{ port_name }}_;
+  {% endfor %}
+
+public:
+  // constructor, destructor
+  {{continuous_name}}{{cm_unique_suffix}}(){};
+  ~{{continuous_name}}{{cm_unique_suffix}}(){};
+
+  void new_continuous_input(std::size_t comp_ass, const long con_in_index);
+  void new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params);
+
+  //number of continuous inputs
+  std::size_t neuron_{{ continuous_name }}_continuous_input_count = 0;
+
+  std::vector< long > compartment_association = {};
+
+  // numerical integration step
+  std::pair< std::vector< double >, std::vector< double > > f_numstep( std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+
+  // calibration
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+  void calibrate();
+{%- else %}
+  void pre_run_hook();
+{%- endif %}
+  void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
+  void set_buffer_ptr( std::vector< RingBuffer >& continuous_buffers )
+  {
+    for(std::size_t i = 0; i < continuous_idx.size(); i++){
+        {% for port_name, port_info in continuous_info["Continuous"].items() %}
+        {{port_name}}_.push_back(&(continuous_buffers[continuous_idx[i]]));
+        {% endfor %}
+    }
+  };
+
+  // function declarations
+  {%- for function in continuous_info["Functions"] %}
+  inline {{ function_declaration.FunctionDeclaration(function) -}};
+
+  {% endfor %}
+
+    // root_inline getter
+    void get_currents_per_compartment(std::vector< double >& compartment_to_current);
+
+    std::vector< double > distribute_shared_vector(std::vector< double > shared_vector);
+
+};
+
+{% endfor -%}
+{% endwith -%}
+
+
 ///////////////////////////////////////////// currents
 
 {%- set channel_suffix = "_chan_" %}
 {%- set concentration_suffix = "_conc_" %}
 {%- set synapse_suffix = "_syn_" %}
+{%- set continuous_suffix = "_con_in_" %}
 
 class NeuronCurrents{{cm_unique_suffix}} {
 private:
@@ -316,6 +409,12 @@ private:
 {% with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
   {{synapse_name}}{{cm_unique_suffix}} {{synapse_name}}{{synapse_suffix}};
+  {% endfor -%}
+{% endwith %}
+  // continuous inputs
+{% with %}
+  {%- for continuous_name, continuous_info in con_in_info.items() %}
+  {{continuous_name}}{{cm_unique_suffix}} {{continuous_name}}{{continuous_suffix}};
   {% endfor -%}
 {% endwith %}
 
@@ -339,6 +438,12 @@ private:
 {% with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
   std::vector < double > {{synapse_name}}{{synapse_suffix}}_shared_current;
+  {% endfor -%}
+{% endwith %}
+// continuous inputs
+{% with %}
+  {%- for continuous_name, continuous_info in con_in_info.items() %}
+  std::vector < double > {{continuous_name}}{{continuous_suffix}}_shared_current;
   {% endfor -%}
 {% endwith %}
 
@@ -382,6 +487,9 @@ public:
     {%- for synapse_name, synapse_info in syns_info.items() %}
     {{synapse_name}}{{synapse_suffix}}.calibrate();
     {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.calibrate();
+    {% endfor -%}
 {%- else %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.pre_run_hook();
@@ -392,11 +500,14 @@ public:
     {%- for synapse_name, synapse_info in syns_info.items() %}
     {{synapse_name}}{{synapse_suffix}}.pre_run_hook();
     {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.pre_run_hook();
+    {% endfor -%}
 {%- endif %}
   {% endwith -%}
   };
 
-  void add_mechanism( const std::string& type, const std::size_t compartment_id, const long syn_index = 0)
+  void add_mechanism( const std::string& type, const std::size_t compartment_id, const long multi_mech_index = 0)
   {
   {%- with %}
     bool mech_found = false;
@@ -419,10 +530,19 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, syn_index);
+      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, multi_mech_index);
       mech_found = true;
     }
   {% endfor -%}
+
+  {%- for continuous_name, continuous_info in con_in_info.items() %}
+    if ( type == "{{continuous_name}}" )
+    {
+      {{continuous_name}}{{continuous_suffix}}.new_continuous_input(compartment_id, multi_mech_index);
+      mech_found = true;
+    }
+  {% endfor -%}
+
   {% endwith -%}
     if(!mech_found)
     {
@@ -430,7 +550,7 @@ public:
     }
   };
 
-  void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params, const long syn_index = 0)
+  void add_mechanism( const std::string& type, const std::size_t compartment_id, const DictionaryDatum& mechanism_params, const long multi_mech_index = 0)
   {
    {%- with %}
     bool mech_found = false;
@@ -453,7 +573,15 @@ public:
   {%- for synapse_name, synapse_info in syns_info.items() %}
     if ( type == "{{synapse_name}}" )
     {
-      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, syn_index, mechanism_params);
+      {{synapse_name}}{{synapse_suffix}}.new_synapse(compartment_id, multi_mech_index, mechanism_params);
+      mech_found = true;
+    }
+  {% endfor -%}
+
+  {%- for continuous_name, continuous_info in con_in_info.items() %}
+    if ( type == "{{continuous_name}}" )
+    {
+      {{continuous_name}}{{continuous_suffix}}.new_continuous_input(compartment_id, multi_mech_index, mechanism_params);
       mech_found = true;
     }
   {% endfor -%}
@@ -487,6 +615,10 @@ public:
     this->{{synapse_name}}{{synapse_suffix}}_shared_current.push_back(0.0);
     {% endfor -%}
 
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    this->{{continuous_name}}{{continuous_suffix}}_shared_current.push_back(0.0);
+    {% endfor -%}
+
   };
 
   void add_compartment(const DictionaryDatum& compartment_params){
@@ -511,11 +643,14 @@ public:
     {%- for synapse_name, synapse_info in syns_info.items() %}
     this->{{synapse_name}}{{synapse_suffix}}_shared_current.push_back(0.0);
     {% endfor -%}
+
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    this->{{continuous_name}}{{continuous_suffix}}_shared_current.push_back(0.0);
+    {% endfor -%}
   };
 
   void add_receptor_info( ArrayDatum& ad, long compartment_index )
   {
-
     {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     for( std::size_t syn_it = 0; syn_it != {{synapse_name}}{{synapse_suffix}}.neuron_{{synapse_name}}_synapse_count; syn_it++)
@@ -527,16 +662,31 @@ public:
       ad.push_back( dd );
     }
     {% endfor -%}
+
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    for( std::size_t con_it = 0; con_it != {{continuous_name}}{{continuous_suffix}}.neuron_{{continuous_name}}_continuous_input_count; con_it++)
+    {
+      DictionaryDatum dd = DictionaryDatum( new Dictionary );
+      def< long >( dd, names::receptor_idx, con_it );
+      def< long >( dd, names::comp_idx, compartment_index );
+      def< std::string >( dd, names::receptor_type, "{{continuous_name}}" );
+      ad.push_back( dd );
+    }
+    {% endfor -%}
+
     {% endwith -%}
   };
 
-  void set_syn_buffers( std::vector< RingBuffer >& syn_buffers)
+  void set_buffers( std::vector< RingBuffer >& buffers)
   {
-    // spike buffers for synapses
+    // spike and continuous buffers for synapses and continuous inputs
 
     {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
-      {{synapse_name}}{{ synapse_suffix }}.set_buffer_ptr( syn_buffers );
+      {{synapse_name}}{{ synapse_suffix }}.set_buffer_ptr( buffers );
+    {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+      {{continuous_name}}{{ continuous_suffix }}.set_buffer_ptr( buffers );
     {% endfor -%}
     {% endwith %}
 
@@ -561,9 +711,16 @@ public:
     {% endwith %}
 
     // append synapse state variables to recordables
-{%- with %}
+    {%- with %}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     {{synapse_name}}{{synapse_suffix}}.append_recordables( &recordables, compartment_idx );
+    {% endfor %}
+    {% endwith %}
+
+    // append continuous input state variables to recordables
+    {%- with %}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor %}
     {% endwith %}
 
@@ -575,6 +732,9 @@ public:
     std::vector< std::pair< double, double > > comp_to_gi(compartment_number, std::make_pair(0., 0.));
 {%- for synapse_name, synapse_info in syns_info.items() %}
     {{synapse_name}}{{synapse_suffix}}.get_currents_per_compartment({{synapse_name}}{{synapse_suffix}}_shared_current);
+{% endfor %}
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.get_currents_per_compartment({{continuous_name}}{{continuous_suffix}}_shared_current);
 {% endfor %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
     {{ concentration_name }}{{concentration_suffix}}.get_concentrations_per_compartment({{concentration_name}}{{concentration_suffix}}_shared_concentration);
@@ -594,7 +754,8 @@ public:
     // computation of {{ concentration_name }} concentration
     {{ concentration_name }}{{concentration_suffix}}.f_numstep( {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     {% endfor -%}
   {% endwith -%}
@@ -606,7 +767,8 @@ public:
     // contribution of {{ion_channel_name}} channel
     gi_mech = {{ion_channel_name}}{{channel_suffix}}.f_numstep( {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
+                        {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     for(std::size_t chan_id = 0; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
         comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].first += gi_mech.first[chan_id];
@@ -620,11 +782,27 @@ public:
     // contribution of {{synapse_name}} synapses
     gi_mech = {{synapse_name}}{{synapse_suffix}}.f_numstep( {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["receptors"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if synapse_info["Dependencies"]["channels"]|length %}
-                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %});
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if synapse_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in synapse_info["Dependencies"]["continuous"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     for(std::size_t syn_id = 0; syn_id < {{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count; syn_id++){
         comp_to_gi[{{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]].first += gi_mech.first[syn_id];
         comp_to_gi[{{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]].second += gi_mech.second[syn_id];
+    }
+    {% endfor -%}
+  {% endwith -%}
+
+  {%- with %}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    // contribution of {{continuous_name}} continuous inputs
+    gi_mech = {{continuous_name}}{{continuous_suffix}}.f_numstep( {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{synapse_suffix}}_shared_current){% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
+
+    for(std::size_t con_id = 0; con_id < {{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count; con_id++){
+        comp_to_gi[{{continuous_name}}{{continuous_suffix}}.compartment_association[con_id]].first += gi_mech.first[con_id];
+        comp_to_gi[{{continuous_name}}{{continuous_suffix}}.compartment_association[con_id]].second += gi_mech.second[con_id];
     }
     {% endfor -%}
   {% endwith -%}
