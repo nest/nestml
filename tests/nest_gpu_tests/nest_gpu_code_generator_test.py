@@ -36,3 +36,15 @@ class TestNESTGPUCodeGenerator:
         generate_nest_gpu_target(input_path, target_path,
                                  logging_level=logging_level,
                                  suffix=suffix)
+
+    def test_nest_gpu_code_generator_numeric(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, os.pardir, "models", "neurons", "aeif_cond_alpha.nestml"))))
+        target_path = "target_gpu_numeric"
+        logging_level = "INFO"
+        suffix = "_nestml"
+        codegen_opts = {"solver": "numeric"}
+        generate_nest_gpu_target(input_path, target_path,
+                                 logging_level=logging_level,
+                                 suffix=suffix,
+                                 codegen_opts=codegen_opts)

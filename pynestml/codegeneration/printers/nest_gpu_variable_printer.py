@@ -63,7 +63,7 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
             return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
-            return "numerics::e"
+            return "M_E"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 

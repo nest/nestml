@@ -136,7 +136,7 @@ const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
 #}
 
 {%- if uses_numeric_solver %}
-{%- for variable_symbol in utils.adjusted_state_symbols() %}
+{%- for variable_symbol in utils.adjusted_state_symbols(neuron) %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 #define {{ printer_no_origin.print(variable) }} y[i_{{ printer_no_origin.print(variable) }}]
 {%- endfor %}
