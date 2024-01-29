@@ -59,6 +59,7 @@ def replace_text_between_tags(filepath, replace_str, begin_tag="// <<BEGIN_NESTM
     file_str = file_str[:start_pos] + replace_str + file_str[end_pos:]
     with open(filepath, "w") as f:
         f.write(file_str)
+    f.close()
 
 
 class NESTGPUCodeGenerator(NESTCodeGenerator):
@@ -133,6 +134,9 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             self.add_model_name_to_neuron_header(neuron)
             self.add_model_to_neuron_class(neuron)
             self.add_files_to_makefile(neuron)
+            if neuron.get_name() in self.numeric_solver.keys() \
+                and self.numeric_solver[neuron.get_name()] is not None:
+                self.add_model_header_to_rk5_interface(neuron)
 
     def copy_models_from_target_path(self, neuron: ASTNeuron):
         """Copies all the files related to the neuron model to the NEST GPU src directory"""
@@ -190,3 +194,22 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         replace_text_between_tags(cmakelists_path, code_block,
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
+
+    def add_model_header_to_rk5_interface(self, neuron: ASTNeuron):
+        """
+        Modifies the rk5_interface.h header file to add the model rk5 header file. This is only for 
+        neuron models with a numeric solver.
+        """
+        rk5_interface_path = str(os.path.join(self.nest_gpu_path, "src", "rk5_interface.h"))
+        shutil.copy(rk5_interface_path, rk5_interface_path + ".bak")
+
+        code_block = f"#include \"{neuron.get_name()}_rk5.h\""
+
+        replace_text_between_tags(rk5_interface_path, code_block)
+
+        # with open(rk5_interface_path, "a+") as f:
+        #     lines  = f.readlines()
+        #     lines.append(f"#include \"{neuron.get_name()}_rk5.h\"")
+        #     f.writelines(lines)
+        
+        # f.close()

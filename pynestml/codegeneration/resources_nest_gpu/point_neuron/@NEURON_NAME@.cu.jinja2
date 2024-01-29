@@ -46,7 +46,9 @@ __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
 {%- for internals_block in neuron.get_internals_blocks() %}
 {%-     for decl in internals_block.get_declarations() %}
 {%-         for variable in decl.get_variables() %}
+{%-           if variable.get_name() != "__h" %}
 {%-             include "directives/MemberInitialization.jinja2" %}
+{%-           endif %}
 {%-         endfor %}
 {%-     endfor %}
 {%- endfor %}
@@ -124,7 +126,7 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 {%- for internals_block in neuron.get_internals_blocks() %}
 {%-     for decl in internals_block.get_declarations() %}
 {%-         for variable in decl.get_variables() %}
-{%-           if variable.get_name() != "h" %}
+{%-           if variable.get_name() != "__h" %}
 {%-             include "directives/MemberInitialization.jinja2" %}
 {%-           endif %}
 {%-         endfor %}
@@ -151,6 +153,8 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 }
 {%- endif %}
 
+using namespace {{ neuronName }}_ns;
+
 int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 			 int i_group, unsigned long long *seed)
 {
@@ -166,8 +170,10 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   group_param_ = new float[N_GROUP_PARAM];
 {%- endif %}
 
+{%- if not uses_numeric_solver %}
   AllocParamArr();
   AllocVarArr();
+{%- endif %}
 
   scal_var_name_ = {{ neuronName }}_scal_var_name;
   scal_param_name_ = {{ neuronName }}_scal_param_name;

@@ -40,7 +40,7 @@ __device__
     void Derivatives(double x, float *y, float *dydx, float *param,
 		     {{ neuronName }}_rk5 data_struct)
 {
-  float I_syn_tot = 0.0;
+  {# float I_syn_tot = 0.0;
   I_syn_tot += I_syn_ex - I_syn_in;
 
   float V = ( refractory_step > 0 ) ? V_reset :  MIN(V_m, V_peak);
@@ -52,7 +52,7 @@ __device__
   // Adaptation current w.
   dwdt = (a*(V - E_L) - w) / tau_w;
   dI_syn_exdt = -I_syn_ex / tau_syn_ex;
-  dI_syn_indt = -I_syn_in / tau_syn_in;
+  dI_syn_indt = -I_syn_in / tau_syn_in; #}
 }
 
  template<int NVAR, int NPARAM> //, class DataStruct>
