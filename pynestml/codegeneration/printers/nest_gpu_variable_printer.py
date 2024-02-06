@@ -20,13 +20,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+from pynestml.codegeneration.nest_gpu_code_generator_utils import NESTGPUCodeGeneratorUtils
 
 from pynestml.utils.ast_utils import ASTUtils
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -54,21 +54,13 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
-        if isinstance(variable, ASTExternalVariable):
-            _name = str(variable)
-            if variable.get_alternate_name():
-                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
-                return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
-
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
-
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "M_E"
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
-        if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
-            return "get_t()"
+        # if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
+        #     return "get_t()"
 
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -80,9 +72,9 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
                                error_position=variable.get_source_position())
             return ""
 
-        vector_param = ""
-        if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+        # vector_param = ""
+        # if self.with_vector_parameter and symbol.has_vector_parameter():
+        #     vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -99,14 +91,14 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
-            return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+            return "get_" + self._print(variable, symbol, with_origin=False) + "()"
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+            return self._print(variable, symbol, with_origin=self.with_origin)
 
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+        return self._print(variable, symbol, with_origin=self.with_origin)
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
@@ -130,5 +122,8 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
         if symbol.is_local():
             return variable_name
+        
+        if with_origin:
+            return NESTGPUCodeGeneratorUtils.print_symbol_origin(symbol, variable) % ("i_" + variable_name)
 
         return variable_name

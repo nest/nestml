@@ -17,14 +17,14 @@
 {{ nest_codegen_utils.print_symbol_origin(lhs_variable_sym, lhs_variable) % printer_no_origin.print(lhs_variable) }}[{{ ast.get_variable().get_vector_parameter() }}]
 {%-         elif lhs_vector_variable.is_variable() %}
 {%-             set vec_symbol = lhs_vector_variable.get_scope().resolve_to_symbol(lhs_vector_variable.get_variable().get_complete_name(), SymbolKind.VARIABLE) %}
-{{ printer_no_origin.print(lhs_variable) }}
+{{ printer.print(lhs_variable) }}
 {%-         else -%}
 {{ raise("Cannot handle vector index expression") }}
 {%-         endif %}
 {%-     else %}
-{{ printer_no_origin.print(lhs_variable) }}
+{{ printer.print(lhs_variable) }}
 {%-     endif %}
-{{assignments.print_assignments_operation(ast)}} {{ printer_no_origin.print(ast.get_expression()) }};
+{{assignments.print_assignments_operation(ast)}} {{ printer.print(ast.get_expression()) }};
 {%- else %}
-{{ printer_no_origin.print(lhs_variable) }} {{ assignments.print_assignments_operation(ast) }} {{ printer_no_origin.print(ast.get_expression()) }};
+{{ printer.print(lhs_variable) }} {{ assignments.print_assignments_operation(ast) }} {{ printer.print(ast.get_expression()) }};
 {%- endif %}

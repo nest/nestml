@@ -38,7 +38,7 @@ extern __constant__ float NESTGPUTimeResolution;
 namespace {{ neuronName }}_ns
 {
 enum ScalVarIndexes {
-{%- for variable_symbol in neuron.get_state_symbols() %}
+{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   i_{{ printer_no_origin.print(variable) }},
 {%- endfor %}
@@ -80,7 +80,7 @@ enum GroupParamIndexes {
 {%- endif %}
 
 const std::string {{ neuronName }}_scal_var_name[N_SCAL_VAR] = {
-{%- for variable_symbol in neuron.get_state_symbols() %}
+{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   "{{ printer_no_origin.print(variable) }}",
 {%- endfor %}
@@ -117,61 +117,6 @@ const std::string {{ neuronName }}_group_param_name[N_GROUP_PARAM] = {
 };
 {%- endif %}
 
-{#
-//
-// I know that defines are "bad", but the defines below make the
-// following equations much more readable.
-// For every rule there is some exceptions!
-//
-#define I_syn_ex y[i_I_syn_ex]
-#define I_syn_in y[i_I_syn_in]
-#define V_m y[i_V_m]
-#define w y[i_w]
-
-#define dVdt dydx[i_V_m]
-#define dwdt dydx[i_w]
-#define dI_syn_exdt dydx[i_I_syn_ex]
-#define dI_syn_indt dydx[i_I_syn_in]
-
-#}
-
-{%- if uses_numeric_solver %}
-{%- for variable_symbol in utils.adjusted_state_symbols(neuron) %}
-{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} y[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
-{%- else %}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} var[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
-{%- endif %}
-
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
-{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} param[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
-
-{%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-#define {{ printer_no_origin.print(variable) }} param[i_{{ printer_no_origin.print(variable) }}]
-{%- endfor %}
-
-{%- for variable_symbol in neuron.get_continuous_input_ports() %}
-{%-     set variable = utils.get_input_port_by_name(astnode.get_input_blocks(), variable_symbol.get_symbol_name()) %}
-#define {{ variable.get_name() }} param[i_{{ variable.get_name() }}]
-{%- endfor %}
-
-//TODO: to be defined?
-{# #define t_ref param[i_t_ref]
-#define refractory_step param[i_refractory_step]
-#define den_delay param[i_den_delay] #}
-
-{%- if uses_numeric_solver %}
-#define h_min_rel_ group_param_[i_h_min_rel]
-#define h0_rel_ group_param_[i_h0_rel]
-{%- endif %}
-
 }; //namespace
 
 {%- if uses_numeric_solver %}
@@ -179,6 +124,25 @@ struct {{neuronName}}_rk5
 {
   int i_node_0_;
 };
+
+template<int NVAR, int NPARAM>
+__device__
+void Derivatives(double x, float *y, float *dydx, float *param,
+		 {{neuronName}}_rk5 data_struct);
+
+template<int NVAR, int NPARAM>
+__device__
+void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
+		    {{neuronName}}_rk5 data_struct);
+
+__device__
+void NodeInit(int n_var, int n_param, double x, float *y,
+	      float *param, {{neuronName}}_rk5 data_struct);
+
+__device__
+void NodeCalibrate(int n_var, int n_param, double x, float *y,
+		   float *param, {{neuronName}}_rk5 data_struct);
+
 {%- endif %}
 
 class {{ neuronName }} : public BaseNeuron

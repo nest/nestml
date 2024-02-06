@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_gpu_function_call_printer.py
+# nest_gpu_numeric_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -24,25 +24,12 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
-class NESTGPUFunctionCallPrinter(CUDAFunctionCallPrinter):
-    r"""
-    Printer for ASTFunctionCall for NEST-GPU target
+class NESTGPUNumericFunctionPrinter(CUDAFunctionCallPrinter):
+    """
+    Printer for a function call for NEST-GPU target with numeric solver.
     """
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
-        """
-        Converts a single handed over function call to CUDA NEST-GPU API syntax.
-
-        Parameters
-        ----------
-        function_call
-            The function call node to convert.
-
-        Returns
-        -------
-        s
-            The function call string in NEST-GPU target syntax.
-        """
         function_name = function_call.get_name()
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
@@ -60,6 +47,7 @@ class NESTGPUFunctionCallPrinter(CUDAFunctionCallPrinter):
         #     return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return 'PushSpike(i_node_0 + i_neuron, 1.0);'
+            return "int i_neuron = threadIdx.x + blockIdx.x * blockDim.x;\n \
+                PushSpike(data_struct.i_node_0_ + i_neuron, 1.0);"
 
         return super()._print_function_call_format_string(function_call)

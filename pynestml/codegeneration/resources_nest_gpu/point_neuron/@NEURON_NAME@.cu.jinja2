@@ -35,6 +35,8 @@
 {%- if not uses_numeric_solver %}
 using namespace {{ neuronName }}_ns;
 
+{# {%- include "directives/DefineVariables.jinja2" %} #}
+
 __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
 				      int n_param, float h)
 {
@@ -92,6 +94,8 @@ __global__ void {{ neuronName }}_Update(int n_node, int i_node_0, float *var_arr
 {%- if uses_numeric_solver %}
 namespace {{neuronName}}_ns
 {
+{# {%- include "directives/DefineVariables.jinja2" %} #}
+
 __device__
 void NodeInit(int n_var, int n_param, double x, float *y, float *param,
 	      {{neuronName}}_rk5 data_struct)
@@ -111,7 +115,7 @@ void NodeInit(int n_var, int n_param, double x, float *y, float *param,
 {%- endfor %}
 
     // State variables
-{%- for variable_symbol in neuron.get_state_symbols() %}
+{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
@@ -135,7 +139,38 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 {%- endfilter %}
 }
 
-} // namespace
+ template<int NVAR, int NPARAM> //, class DataStruct>
+__device__
+    void Derivatives(double x, float *y, float *dydx, float *param,
+		     {{ neuronName }}_rk5 data_struct)
+{
+{%- filter indent(2,True) %}
+{%- include "directives/NumericIntegrationStep.jinja2" %}
+{%- endfilter %}
+}
+
+ template<int NVAR, int NPARAM> //, class DataStruct>
+__device__
+    void ExternalUpdate
+    (double x, float *y, float *param, bool end_time_step,
+			{{ neuronName }}_rk5 data_struct)
+{
+{%- if neuron.get_update_blocks() %}
+{%-     filter indent(2) %}
+{%-         for block in neuron.get_update_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+  /*
+  {{ast.print_comment('*')}}
+  */
+{%-             endif %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+}
+
+}; // namespace
 			    
 __device__
 void NodeInit(int n_var, int n_param, double x, float *y,
@@ -151,6 +186,28 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 {
     {{neuronName}}_ns::NodeCalibrate(n_var, n_param, x, y, param, data_struct);
 }
+
+int Update(long long it, double t1);
+
+template<int NVAR, int NPARAM>
+__device__
+void Derivatives(double x, float *y, float *dydx, float *param,
+		 {{ neuronName }}_rk5 data_struct)
+{
+    {{ neuronName }}_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
+						 data_struct);
+}
+
+template<int NVAR, int NPARAM>
+__device__
+void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
+		    {{ neuronName }}_rk5 data_struct)
+{
+    {{ neuronName }}_ns::ExternalUpdate<NVAR, NPARAM>(x, y, param,
+						    end_time_step,
+						    data_struct);
+}
+
 {%- endif %}
 
 using namespace {{ neuronName }}_ns;
@@ -208,7 +265,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 {%- endfor %}
 
     // State variables
-{%- for variable_symbol in neuron.get_state_symbols() %}
+{%- for variable_symbol in neuron.get_state_symbols_sorted_by_suffix() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
     SetScalVar(0, n_node, "{{ printer_no_origin.print(variable) }}", {{set_scal_param_var.SetScalParamAndVar(variable_symbol.get_declaring_expression())}});
 {%- endfor %}

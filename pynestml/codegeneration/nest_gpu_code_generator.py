@@ -20,11 +20,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import glob
 import os
-import re
 import shutil
-from typing import Sequence, Optional, Mapping, Any
+from typing import Dict, Sequence, Optional, Mapping, Any
 
 from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
+from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 
@@ -32,7 +32,11 @@ from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressio
 
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_function_call_printer import NESTGPUFunctionCallPrinter
+from pynestml.codegeneration.printers.nest_gpu_numeric_function_call_printer import NESTGPUNumericFunctionPrinter
+from pynestml.codegeneration.printers.nest_gpu_numeric_variable_printer import NESTGPUNumericVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_variable_printer import NESTGPUVariablePrinter
+from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
+from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 
 from pynestml.utils.logger import LoggingLevel, Logger
 
@@ -75,10 +79,10 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         "templates": {
             "path": "resources_nest_gpu/point_neuron",
             "model_templates": {
-                "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2",
-                "@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
+                "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2"]
+                #"@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
             },
-            "module_templates": [""]
+            "module_templates": []
         },
         "solver": "analytic",
         "numeric_solver": "rk45",
@@ -115,6 +119,19 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
     def setup_printers(self):
         super().setup_printers()
 
+        # Printer with origin
+        self._nest_variable_printer = NESTGPUVariablePrinter(expression_printer=None, with_origin=True,
+                                                             with_vector_parameter=False)
+        self._nest_function_call_printer = NESTGPUFunctionCallPrinter(None)
+        self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(
+            variable_printer=self._nest_variable_printer,
+            constant_printer=self._constant_printer,
+            function_call_printer=self._nest_function_call_printer))
+        self._nest_variable_printer._expression_printer = self._printer
+        self._nest_function_call_printer._expression_printer = self._printer
+        self._nest_printer = CppPrinter(expression_printer=self._printer)
+
+        # Printer without origin
         self._nest_variable_printer_no_origin = NESTGPUVariablePrinter(None, with_origin=False,
                                                                        with_vector_parameter=False)
         self._nest_function_call_printer_no_origin = NESTGPUFunctionCallPrinter(None)
@@ -125,6 +142,15 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
+        # Printer for numeric solver
+        self._gsl_variable_printer = NESTGPUNumericVariablePrinter(None)
+        self._gsl_function_call_printer = NESTGPUNumericFunctionPrinter(None)
+        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+            variable_printer=self._gsl_variable_printer,
+            constant_printer=self._constant_printer,
+            function_call_printer=self._gsl_function_call_printer))
+        self._gsl_function_call_printer._expression_printer = self._gsl_printer
+
     def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         """
         Modify some header and CUDA files for the new models to be recognized
@@ -134,9 +160,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             self.add_model_name_to_neuron_header(neuron)
             self.add_model_to_neuron_class(neuron)
             self.add_files_to_makefile(neuron)
-            if neuron.get_name() in self.numeric_solver.keys() \
-                and self.numeric_solver[neuron.get_name()] is not None:
-                self.add_model_header_to_rk5_interface(neuron)
 
     def copy_models_from_target_path(self, neuron: ASTNeuron):
         """Copies all the files related to the neuron model to the NEST GPU src directory"""
@@ -188,9 +211,9 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         code_block = "\n" \
                      f"    {neuron.get_name()}.h\n" \
-                     f"    {neuron.get_name()}_kernel.h\n" \
-                     f"    {neuron.get_name()}_rk5.h\n" \
                      f"    {neuron.get_name()}.cu\n"
+                    #  f"    {neuron.get_name()}_kernel.h\n" \
+                    #  f"    {neuron.get_name()}_rk5.h\n" \
         replace_text_between_tags(cmakelists_path, code_block,
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
@@ -207,9 +230,9 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         replace_text_between_tags(rk5_interface_path, code_block)
 
-        # with open(rk5_interface_path, "a+") as f:
-        #     lines  = f.readlines()
-        #     lines.append(f"#include \"{neuron.get_name()}_rk5.h\"")
-        #     f.writelines(lines)
+    def _get_neuron_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
+        namespace = super()._get_neuron_model_namespace(astnode)
+        if namespace["uses_numeric_solver"]:
+            namespace["printer"] = self._gsl_printer
         
-        # f.close()
+        return namespace

@@ -576,3 +576,10 @@ class ASTNeuronOrSynapse(ASTNode):
                 return True
 
         return False
+    
+    def get_state_symbols_sorted_by_suffix(self, suffix: str="__d") -> List[VariableSymbol]:
+        """
+        This method returns a list of state symbols that are sorted by symbol name with a suffix string.
+        """
+        return sorted(self.get_state_symbols(), key=lambda x: (x.name.endswith(suffix)))
+

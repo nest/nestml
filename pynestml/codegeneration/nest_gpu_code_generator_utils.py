@@ -39,10 +39,7 @@ class NESTGPUCodeGeneratorUtils:
 
             return 'var[%s]'
 
-        if variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'param[%s]'
-
-        if variable_symbol.block_type == BlockType.INTERNALS:
+        if variable_symbol.block_type == BlockType.PARAMETERS or  variable_symbol.block_type == BlockType.INTERNALS:
             return 'param[%s]'
 
         return ''
