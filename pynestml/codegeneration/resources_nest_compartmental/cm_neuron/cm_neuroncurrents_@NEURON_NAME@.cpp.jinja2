@@ -165,6 +165,13 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
+
+        {% for variable_type, variable_info in channel_info["Internals"].items() %}
+        // channel parameter {{variable_type }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {%- endfor %}
     }
 }
 
@@ -219,6 +226,13 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
             {{variable.name}}[neuron_{{ ion_channel_name }}_channel_count-1] = getValue< double >( channel_params, "{{variable.name}}" );
         {%- endfor %}
         {% endwith %}
+
+        {%- for pure_variable_name, variable_info in channel_info["Internals"].items() %}
+        // state variable {{pure_variable_name }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {%- endfor %}
     }
 }
 
@@ -363,6 +377,13 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
+
+        {% for variable_type, variable_info in concentration_info["Internals"].items() %}
+        // channel parameter {{variable_type }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {%- endfor %}
     }
 }
 
@@ -416,6 +437,13 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
             {{variable.name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{variable.name}}" );
         {%- endfor %}
         {% endwith %}
+
+        {%- for pure_variable_name, variable_info in concentration_info["Internals"].items() %}
+        // state variable {{pure_variable_name }}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {%- endfor %}
     }
 }
 
@@ -834,10 +862,10 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::calibrate()
 void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
-    // initial values for user defined states
-    // warning: this shadows class variables
-  {%- for state_name, state_declaration in continuous_info["States"].items() %}
-    std::vector< double > {{state_name}} = (neuron_{{ continuous_name }}_continuous_input_count, {{ printer_no_origin.print(state_declaration["rhs_expression"])}});
+
+      // user declared internals in order they were declared
+  {%- for internal_name, internal_declaration in continuous_info["Internals"] %}
+    {{internal_name}}[i] = {{ printer_no_origin.print_with_indices(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){

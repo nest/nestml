@@ -100,6 +100,7 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(var_init_visitor)
             mechs_info[mechanism_name]["States"] = var_init_visitor.states
             mechs_info[mechanism_name]["Parameters"] = var_init_visitor.parameters
+            mechs_info[mechanism_name]["Internals"] = var_init_visitor.internals
 
         return mechs_info
 
@@ -115,6 +116,7 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(variable_collector)
             global_states = variable_collector.all_states
             global_parameters = variable_collector.all_parameters
+            global_internals = variable_collector.all_internals
 
             function_collector = ASTFunctionCollectorVisitor()
             neuron.accept(function_collector)
@@ -138,6 +140,7 @@ class ASTMechanismInformationCollector(object):
 
             mechanism_states = list()
             mechanism_parameters = list()
+            mechanism_internals = list()
             mechanism_functions = list()
             mechanism_inlines = list()
             mechanism_odes = list()
@@ -261,6 +264,10 @@ class ASTMechanismInformationCollector(object):
                             if variable.name == parameter.name:
                                 mechanism_parameters.append(parameter)
 
+                        for internal in global_internals:
+                            if variable.name == internal.name:
+                                mechanism_internals.append(internal)
+
                         for kernel in global_kernels:
                             if variable.name == kernel.get_variables()[0].name:
                                 synapse_kernels.append(kernel)
@@ -288,6 +295,7 @@ class ASTMechanismInformationCollector(object):
 
             mechs_info[mechanism_name]["States"] = mechanism_states
             mechs_info[mechanism_name]["Parameters"] = mechanism_parameters
+            mechs_info[mechanism_name]["Internals"] = mechanism_internals
             mechs_info[mechanism_name]["Functions"] = mechanism_functions
             mechs_info[mechanism_name]["SecondaryInlineExpressions"] = mechanism_inlines
             mechs_info[mechanism_name]["ODEs"] = mechanism_odes
@@ -327,9 +335,11 @@ class VariableInitializationVisitor(ASTVisitor):
         self.inside_declaration = False
         self.inside_parameter_block = False
         self.inside_state_block = False
+        self.inside_internal_block = False
         self.current_declaration = None
         self.states = defaultdict()
         self.parameters = defaultdict()
+        self.internals = defaultdict()
         self.channel_info = channel_info
 
     def visit_declaration(self, node):
@@ -345,10 +355,13 @@ class VariableInitializationVisitor(ASTVisitor):
             self.inside_state_block = True
         if node.is_parameters:
             self.inside_parameter_block = True
+        if node.is_internals:
+            self.inside_internal_block = True
 
     def endvisit_block_with_variables(self, node):
         self.inside_state_block = False
         self.inside_parameter_block = False
+        self.inside_internal_block = False
 
     def visit_variable(self, node):
         self.inside_variable = True
@@ -363,6 +376,12 @@ class VariableInitializationVisitor(ASTVisitor):
                 self.parameters[node.name] = defaultdict()
                 self.parameters[node.name]["ASTVariable"] = node.clone()
                 self.parameters[node.name]["rhs_expression"] = self.current_declaration.get_expression()
+
+        if self.inside_internal_block and self.inside_declaration:
+            if any(node.name == variable.name for variable in self.channel_info["Internals"]):
+                self.internals[node.name] = defaultdict()
+                self.internals[node.name]["ASTVariable"] = node.clone()
+                self.internals[node.name]["rhs_expression"] = self.current_declaration.get_expression()
 
     def endvisit_variable(self, node):
         self.inside_variable = False
@@ -389,8 +408,10 @@ class ASTVariableCollectorVisitor(ASTVisitor):
         self.inside_block_with_variables = False
         self.all_states = list()
         self.all_parameters = list()
+        self.all_internals = list()
         self.inside_states_block = False
         self.inside_parameters_block = False
+        self.inside_internals_block = False
         self.all_variables = list()
 
     def visit_block_with_variables(self, node):
@@ -399,10 +420,13 @@ class ASTVariableCollectorVisitor(ASTVisitor):
             self.inside_states_block = True
         if node.is_parameters:
             self.inside_parameters_block = True
+        if node.is_internals:
+            self.inside_internals_block = True
 
     def endvisit_block_with_variables(self, node):
         self.inside_states_block = False
         self.inside_parameters_block = False
+        self.inside_internals_block = False
         self.inside_block_with_variables = False
 
     def visit_variable(self, node):
@@ -412,6 +436,8 @@ class ASTVariableCollectorVisitor(ASTVisitor):
             self.all_states.append(node.clone())
         if self.inside_parameters_block:
             self.all_parameters.append(node.clone())
+        if self.inside_internals_block:
+            self.all_internals.append(node.clone())
 
     def endvisit_variable(self, node):
         self.inside_variable = False
