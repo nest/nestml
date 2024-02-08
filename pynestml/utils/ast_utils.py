@@ -2216,3 +2216,30 @@ class ASTUtils:
 
         for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
             node.accept(visitor)
+
+
+    @classmethod
+    def get_first_spike_port_from_spike_updates(cls, neuron: ASTNeuron) -> ASTVariable:
+        # Get the first variable in the sorted spike update expressions list
+        for update_expr in dict(sorted(neuron.spike_updates.items())).values():
+            for expr in update_expr:
+                return expr.get_variable()
+        return None
+    
+    @classmethod
+    def is_declaring_expression_parameter(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_parameters():
+                    return True
+        return False
+        
+    @classmethod
+    def is_declaring_expression_state_varible(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_state():
+                    return True
+        return False

@@ -96,8 +96,8 @@ neuron aeif_cond_alpha:
         RefractoryCounts integer = steps(t_ref)
 
     input:
-        inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
     output:
