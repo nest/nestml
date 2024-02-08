@@ -2220,22 +2220,12 @@ class ASTUtils:
 
     @classmethod
     def get_first_spike_port_from_spike_updates(cls, neuron: ASTNeuron) -> ASTVariable:
-        # Get the first variable in the spike update expressions list
-        for spike_update in neuron.spike_updates.values():
-            for update_expr in spike_update:
-                return update_expr.get_variable()
+        # Get the first variable in the sorted spike update expressions list
+        for update_expr in dict(sorted(neuron.spike_updates.items())).values():
+            for expr in update_expr:
+                return expr.get_variable()
         return None
     
-
-    @classmethod
-    def adjusted_state_symbols(cls, neuron: ASTNeuron):
-        extract_list = [var for var in neuron.get_state_symbols() if "__d" in var.get_symbol_name()]
-        if extract_list:
-            diff =  list(set(neuron.get_state_symbols()) - set(extract_list))
-            return diff + extract_list
-        return neuron.get_state_symbols()
-    
-
     @classmethod
     def is_declaring_expression_parameter(cls, expr: ASTExpression) -> bool:
         if isinstance(expr, ASTSimpleExpression):

@@ -241,7 +241,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 
   SetGroupParam("h_min_rel", 1.0e-3);
   SetGroupParam("h0_rel",  1.0e-2);
-  h_ = h0_rel_* 0.1;
+  h_ = group_param_[i_h0_rel] * 0.1;
   rk5_.Init(n_node, n_var_, n_param_, 0.0, h_, rk5_data_struct_);
   var_arr_ = rk5_.GetYArr();
   param_arr_ = rk5_.GetParamArr();
@@ -271,6 +271,12 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 {%- endfor %}
 {%- endif %}
 
+{%- if uses_numeric_solver %}
+  {# TODO: automatically determine "PSConInit_E" #}
+  port_weight_arr_ = GetParamArr() + GetScalParamIdx("PSConInit_E");
+  port_weight_arr_step_ = n_param_;
+  port_weight_port_step_ = 1;
+{%- else %}
   // multiplication factor of input signal is always 1 for all nodes
   float input_weight = 1.0;
   gpuErrchk(cudaMalloc(&port_weight_arr_, sizeof(float)));
@@ -278,6 +284,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 			 sizeof(float), cudaMemcpyHostToDevice));
   port_weight_arr_step_ = 0;
   port_weight_port_step_ = 0;
+{%- endif %}
 
   // process the input spikes
   port_input_arr_ = GetVarArr() + GetScalVarIdx("{{ printer_no_origin.print(utils.get_first_spike_port_from_spike_updates(neuron)) }}");
@@ -290,6 +297,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   return 0;
 }
 
+{%- if not uses_numeric_solver %}
 int {{ neuronName }}::Free()
 {
   FreeVarArr();
@@ -297,12 +305,13 @@ int {{ neuronName }}::Free()
 
   return 0;
 }
+{%- endif %}
 
 int {{ neuronName }}::Calibrate(double time_min, float time_resolution)
 {
 {%- if uses_numeric_solver %}
-  h_min_ = h_min_rel_* time_resolution;
-  h_ = h0_rel_* time_resolution;
+  h_min_ = group_param_[i_h_min_rel] * time_resolution;
+  h_ = group_param_[i_h0_rel] * time_resolution;
   rk5_.Calibrate(time_min, h_, rk5_data_struct_);
 {%- else %}
    {{ neuronName }}_Calibrate<<<(n_node_+1023)/1024, 1024>>>

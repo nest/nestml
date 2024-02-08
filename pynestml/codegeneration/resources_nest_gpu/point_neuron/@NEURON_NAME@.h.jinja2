@@ -52,8 +52,10 @@ enum ScalParamIndexes {
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-   if variable_symbol.get_symbol_name() != "__h" %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   i_{{ printer_no_origin.print(variable) }},
+{%- endif %}  
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}
@@ -93,8 +95,10 @@ const std::string {{ neuronName }}_scal_param_name[N_SCAL_PARAM] = {
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_internal_symbols() %}
+{%-   if variable_symbol.get_symbol_name() != "__h" %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   "{{ printer_no_origin.print(variable) }}",
+{%- endif %}
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}
@@ -153,9 +157,9 @@ class {{ neuronName }} : public BaseNeuron
   float h_min_;
   float h_;
   {{neuronName}}_rk5 rk5_data_struct_;
-{%- endif %}
-
+{%- else %}
   ~{{ neuronName }}();
+{%- endif %}
 
   int Init(int i_node_0, int n_neuron, int n_port, int i_group,
 	   unsigned long long *seed);
@@ -175,9 +179,9 @@ class {{ neuronName }} : public BaseNeuron
 
   template<int N_PORT>
     int UpdateNR(long long it, double t1);
-{%- endif %}
-
+{%- else %}
   int Free();
+{%- endif %}
 
 };
 
