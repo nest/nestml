@@ -602,12 +602,12 @@ public:
   **/
   inline void set_weight(double w)
   {
-{%- for variable_symbol in synapse.get_state_symbols() %}
+{%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
 {%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
     // special case for variable marked with @nest::weight decorator
 {%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {%-         if nest_namespace_name == "weight" %}
-    set_{{ printer_no_origin.print(utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
+    set_{{ printer_no_origin.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()))}}(w);
     return;
 {%-         endif %}
 {%-     endif %}

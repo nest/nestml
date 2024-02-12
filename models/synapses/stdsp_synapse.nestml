@@ -11,26 +11,32 @@ References
 """
 model stdsp_synapse:
     state:
-        w real = 1.   # Synaptic weight
+        permanence real = 1.
+        pre_tr real = 0.
+        t_last_pre_spike ms = 0 ms
+        pre_trace real = 0.
 
     parameters:
+        w real = 100.  @nest::weight # Synaptic weight
         d ms = 1 ms  @nest::delay   # Synaptic transmission delay
-        lambda real = .01
-        tau_tr_pre ms = 10 ms
-        tau_tr_post ms = 10 ms
-        alpha real = 1.
-        mu_plus real = 1.
-        mu_minus real = 1.
+
+        tau_pre_trace ms = 80 ms
+        lambda_h real = 1.
+        zt real = 1.
+        lambda_plus real = .01
+        lambda_minus real = 1.
         Wmax real = 100.
+        permanence_max real = 100.
+        permanence_min real = 0.
+        dt_min ms = 4 ms
+        dt_max ms = 100 ms
+
+        permanence_threshold real = 10.
+
         Wmin real = 0.
 
     equations:
-        kernel pre_trace_kernel = exp(-t / tau_tr_pre)
-        inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
-
-        # all-to-all trace of postsynaptic neuron
-        kernel post_trace_kernel = exp(-t / tau_tr_post)
-        inline post_trace real = convolve(post_trace_kernel, post_spikes)
+        pre_trace' = -pre_trace / tau_pre_trace
 
     input:
         pre_spikes <- spike
@@ -41,18 +47,32 @@ model stdsp_synapse:
         spike
 
     onReceive(post_spikes):
-        # potentiate synapse
-        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-        if I_post_dend <= 1 pA:
-            w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
-        w = min(Wmax, w_)
+        time_since_last_spike ms = t_last_pre_spike - t
+
+        if time_since_last_spike < dt_max and time_since_last_spike > dt_min:
+            # facilitation
+            norm_perm real = permanence / permanence_max + lambda_plus * pre_trace
+            permanence = min(norm_perm * permanence_max, permanence_max)
+
+            # homeostasis
+            permanence += lambda_h * (zt - dAP_trace) * permanence_max
+            permanence = min(norm_perm * permanence_max, permanence_max)
+            permanence = max(permanence, permanence_min)
 
     onReceive(pre_spikes):
-        # depress synapse
-        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
-        if I_post_dend <= 1 pA:
-            w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
-        w = max(Wmin, w_)
+        t_last_pre_spike = t
 
-        # deliver spike to postsynaptic partner
-        emit_spike(w, d)
+        integrate_odes(pre_trace)
+        pre_trace += 1.
+
+        # depress synapse
+        permanence -= lambda_minus * permanence_max
+        permanence = max(permanence, permanence_min)
+
+        if permanence > permanence_threshold:
+            # deliver spike to postsynaptic partner
+            emit_spike(w, d)
+
+    update:
+        # solve ODEs
+        integrate_odes()
