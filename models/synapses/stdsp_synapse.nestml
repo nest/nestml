@@ -15,14 +15,14 @@ model stdsp_synapse:
         pre_tr real = 0.
         t_last_pre_spike ms = 0 ms
         pre_trace real = 0.
+        w real = 100.  @nest::weight # dummy synaptic weight
 
     parameters:
-        w real = 100.  @nest::weight # Synaptic weight
         d ms = 1 ms  @nest::delay   # Synaptic transmission delay
 
         tau_pre_trace ms = 80 ms
         lambda_h real = 1.
-        zt real = 1.
+        zt pA = 1 pA
         lambda_plus real = .01
         lambda_minus real = 1.
         Wmax real = 100.
@@ -47,7 +47,7 @@ model stdsp_synapse:
         spike
 
     onReceive(post_spikes):
-        time_since_last_spike ms = t_last_pre_spike - t
+        time_since_last_spike ms = t - t_last_pre_spike
 
         if time_since_last_spike < dt_max and time_since_last_spike > dt_min:
             # facilitation
@@ -55,8 +55,8 @@ model stdsp_synapse:
             permanence = min(norm_perm * permanence_max, permanence_max)
 
             # homeostasis
-            permanence += lambda_h * (zt - dAP_trace) * permanence_max
-            permanence = min(norm_perm * permanence_max, permanence_max)
+            permanence += lambda_h * (zt - dAP_trace) / pA * permanence_max
+            permanence = min(permanence, permanence_max)
             permanence = max(permanence, permanence_min)
 
     onReceive(pre_spikes):
@@ -70,9 +70,14 @@ model stdsp_synapse:
         permanence = max(permanence, permanence_min)
 
         if permanence > permanence_threshold:
+            # set a dummy "weight" so the weight an be recorded
+            w = Wmax
+
             # deliver spike to postsynaptic partner
             emit_spike(w, d)
-
+        else:
+            # set a dummy "weight" so the weight an be recorded
+            w = 0.
     update:
         # solve ODEs
         integrate_odes()

@@ -4,23 +4,28 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         V_m mV = 0 mV         # membrane potential in mV
         dAP_trace pA = 0 pA             # dAP trace
         active_dendrite boolean = false
+        active_dendrite_readout real = 0.
         dAP_counts integer = 0
         ref_counts integer = 0
+        I_dend pA = 0 pA
+        I_dend$ pA/ms = 0 pA/ms
 
     equations:
         # exponential shaped postsynaptic current kernel
         kernel I_kernel1 = exp(-1/tau_syn1*t)
 
         # alpha shaped postsynaptic current kernel
-        kernel I_kernel2 = (e/tau_syn2) * t * exp(-t/tau_syn2)
+        #kernel I_kernel2 = (e/tau_syn2) * t * exp(-t/tau_syn2)
+        I_dend' = I_dend$ - I_dend / tau_syn2
+        I_dend$' = -I_dend$ / tau_syn2
 
         # exponential shaped postsynaptic current kernel
         kernel I_kernel3 = exp(-1/tau_syn3*t)
 
         # diff. eq. for membrane potential
-        recordable inline I_dend pA = convolve(I_kernel2, I_2) * pA
-        inline I_syn pA = convolve(I_kernel1, I_1) * pA + I_dend + convolve(I_kernel3, I_3) * pA + I_e
-        V_m' = -(V_m-E_L)/tau_m + I_syn/C_m
+        #recordable inline I_dend pA = convolve(I_kernel2, I_2) * pA
+        inline I_syn pA = convolve(I_kernel1, I_1) * pA + convolve(I_kernel3, I_3) * pA + I_e
+        V_m' = -(V_m - E_L)/tau_m + (I_syn + I_dend) / C_m
 
         # diff. eq. for dAP trace
         dAP_trace' = -dAP_trace / tau_h
@@ -47,6 +52,9 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         t_ref ms = 10ms                                                        # refractory period
         ref_timeout_ticks integer = steps(t_ref)
 
+        I_dend_incr pA/ms = pA * exp(1) / tau_syn2
+
+
     input:
         I_1 <- spike
         I_2 <- spike
@@ -54,6 +62,9 @@ model iaf_psc_exp_nonlineardendrite_neuron:
 
     output:
         spike
+
+    onReceive(I_2):
+        I_dend$ += I_dend_incr
 
     update:
         # solve ODEs
@@ -66,11 +77,13 @@ model iaf_psc_exp_nonlineardendrite_neuron:
                 if active_dendrite == false:
                     dAP_trace += 1 pA
                     active_dendrite = true
+                    active_dendrite_readout = 1.
                     I_dend = I_p
                     dAP_counts = dAP_timeout_ticks
                 else:
                     I_dend = 0 pA
                     active_dendrite = false
+                    active_dendrite_readout = 0.
 
             else:
                 dAP_counts -= 1
@@ -85,9 +98,11 @@ model iaf_psc_exp_nonlineardendrite_neuron:
                 dAP_counts = 0
                 I_dend = 0 pA
                 active_dendrite = false
+                active_dendrite_readout = 0.
         else:
             ref_counts -= 1
             V_m = V_reset
             active_dendrite = false
+            active_dendrite_readout = 0.
             dAP_counts = 0
             I_dend = 0 pA
