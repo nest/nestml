@@ -421,7 +421,7 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartm
 void
 nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
-  std::map< size_t, double > v_comps;
+  std::vector< double > v_comps(compartments_.size());
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
     v_comps[( *compartment_it )->comp_index] = ( *compartment_it )->v_comp;

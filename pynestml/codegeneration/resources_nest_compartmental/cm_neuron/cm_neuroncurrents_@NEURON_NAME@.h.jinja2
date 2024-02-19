@@ -794,7 +794,7 @@ public:
     return recordables;
   };
 
-  std::vector< std::pair< double, double > > f_numstep( std::map< size_t, double > v_comps, const long lag )
+  std::vector< std::pair< double, double > > f_numstep( std::vector< double > v_comp_vec, const long lag )
   {
     std::vector< std::pair< double, double > > comp_to_gi(compartment_number, std::make_pair(0., 0.));
 {%- for synapse_name, synapse_info in syns_info.items() %}
@@ -809,12 +809,6 @@ public:
 {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.get_currents_per_compartment({{ion_channel_name}}{{channel_suffix}}_shared_current);
 {% endfor -%}
-
-  //transform to vector:
-  std::vector< double > v_comp_vec = {};
-    for(size_t i = 0; i < v_comps.size(); i++){
-        v_comp_vec.push_back(v_comps[i]);
-    }
 
   {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
