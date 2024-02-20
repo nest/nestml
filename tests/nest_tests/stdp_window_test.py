@@ -50,7 +50,7 @@ def nestml_generate_target():
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
-                         logging_level="DEBUG",
+                         logging_level="INFO",
                          suffix="_nestml",
                          codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
                                                                  "synapse": "stdp",
@@ -74,7 +74,10 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     nest.set_verbosity("M_ALL")
 
     nest.ResetKernel()
-    nest.Install("nestmlmodule")
+    try:
+        nest.Install("nestmlmodule")
+    except Exception:
+        pass
     nest.SetKernelStatus({"resolution": resolution})
 
     wr = nest.Create("weight_recorder")
