@@ -147,8 +147,15 @@ class TestNestSTDPSynapse:
         nest.ResetKernel()
 
         # load the generated modules into NEST
-        nest.Install("nestml_jit_module")
-        nest.Install("nestml_non_jit_module")
+        try:
+            nest.Install("nestml_jit_module")
+        except Exception:
+            pass
+
+        try:
+            nest.Install("nestml_non_jit_module")
+        except Exception:
+            pass
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))

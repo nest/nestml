@@ -58,7 +58,10 @@ class TestStaticSynapse:
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.SetKernelStatus({"resolution": .1})
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            pass
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",

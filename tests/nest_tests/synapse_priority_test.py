@@ -109,7 +109,10 @@ class NestSynapsePriorityTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
         # nest.set_verbosity("M_WARNING")
         nest.ResetKernel()
-        nest.Install("nestml_module")
+        try:
+            nest.Install("nestml_module")
+        except Exception:
+            pass
         nest.SetKernelStatus({'resolution': resolution})
 
         print("Pre spike times: " + str(pre_spike_times))

@@ -854,7 +854,11 @@ public:
     **/
 
     t_lastspike_ = __t_spike;
+
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
     return true;
+{%- endif %}
   }
 
   void get_status( DictionaryDatum& d ) const;

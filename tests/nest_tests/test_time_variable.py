@@ -45,12 +45,14 @@ class TestTimeVariable:
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
 
     def test_time_variable_neuron(self):
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            pass
         nrn = nest.Create("time_variable_neuron_nestml")
         mm = nest.Create("multimeter")
         nest.SetStatus(mm, {"record_from": ["x", "y"]})
@@ -68,7 +70,10 @@ class TestTimeVariable:
     def test_time_variable_synapse(self):
         """a synapse is only updated when presynaptic spikes arrive"""
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            pass
         nrn = nest.Create("iaf_psc_delta", 2)
         nrn[0].I_e = 1000.  # [pA]
         sr = nest.Create("spike_recorder")

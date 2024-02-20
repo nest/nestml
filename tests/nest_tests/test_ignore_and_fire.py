@@ -68,7 +68,10 @@ class TestIgnoreAndFire:
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            pass
         nest.SetKernelStatus({"resolution": resolution})
 
         pre_neuron = nest.Create(self.neuron_model_name)

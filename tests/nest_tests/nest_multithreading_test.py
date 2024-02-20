@@ -76,7 +76,10 @@ class TestNestMultithreading:
                         reason="This test does not support NEST 2")
     def test_neuron_multithreading(self, number_of_threads: int) -> None:
         nest.ResetKernel()
-        nest.Install(self.neuron_module)
+        try:
+            nest.Install(self.neuron_module)
+        except Exception:
+            pass
         nest.resolution = 0.1
         nest.local_num_threads = number_of_threads
         spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,
@@ -112,7 +115,10 @@ class TestNestMultithreading:
                                      48., 49., 50., 54., 56., 57., 59., 60., 61., 62., 67., 74.])
 
         nest.ResetKernel()
-        nest.Install(self.neuron_synapse_module)
+        try:
+            nest.Install(self.neuron_module)
+        except Exception:
+            pass
         nest.resolution = 0.1
         nest.local_num_threads = number_of_threads
 

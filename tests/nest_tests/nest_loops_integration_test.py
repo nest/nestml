@@ -68,7 +68,10 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         np.testing.assert_almost_equal(v_m[-1], 16.6)
 
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            pass
         nrn = nest.Create("while_loop_nestml")
 
         mm = nest.Create("multimeter")

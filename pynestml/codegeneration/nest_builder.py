@@ -113,7 +113,6 @@ class NESTBuilder(Builder):
         if install_path is not None:
             add_libraries_to_sli(install_path)
         nest_path = self.get_option("nest_path")
-        add_libraries_to_sli(nest_path)
 
         if not os.path.isdir(target_path):
             raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
