@@ -17,6 +17,10 @@ Creating neuron models
 
   Implement the Ornstein-Uhlenbeck process in NESTML and use it to inject a noise current into a neuron.
 
+* :doc:`Galves-Löcherbach (GL) model </tutorials/gl_model/gl_model_tutorial>`
+
+  In the GL model, firing of the neuron is a stochastic event, whose probability of occurrence is a function of the membrane potential.
+
 
 Creating synapse models
 -----------------------
