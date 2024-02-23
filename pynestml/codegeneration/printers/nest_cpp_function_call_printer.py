@@ -55,6 +55,9 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
             return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
 
+        if function_name == PredefinedFunctions.RANDOM_POISSON:
+            return '([&]() -> int {{ nest::poisson_distribution::param_type poisson_params({!s}); int sample = poisson_dev_( nest::get_vp_specific_rng( get_thread() ), poisson_params); return sample; }})()'   # double curly braces {{ }} due to passing through str.format() later
+
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
 

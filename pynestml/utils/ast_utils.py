@@ -2214,5 +2214,6 @@ class ASTUtils:
         for update_expr in neuron.post_spike_updates.values():
             update_expr.accept(visitor)
 
+        # XXX: why not loop over all equations in the neuron? then we wouldn't need ASTEquationsWithVectorVariablesVisitor any longer
         for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
             node.accept(visitor)

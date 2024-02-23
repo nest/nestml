@@ -1,0 +1,27 @@
+neuron inhomogeneous_poisson:
+
+    state:
+        idx integer = 0
+        dt_next_spike ms = -1 ms
+        t_last_spike ms = 0 ms
+
+    parameters:
+        N integer = 1
+        rate_times[N] ms = 0 ms
+        rate_values[N] ms**-1 = 0 s**-1
+
+    output:
+        spike
+
+    update:
+        # update the rate
+        if N > 0:
+            while idx < N - 1 and t > rate_times[idx + 1]:
+                idx += 1
+
+        rate ms**-1 = rate_values[idx]
+
+        n_spikes_in_this_timestep integer = random_poisson(rate * resolution() * 1E-3)
+        if n_spikes_in_this_timestep > 0:
+            emit_spike()
+            # XXX: TODO: support multiplicity in spikes
