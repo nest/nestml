@@ -116,7 +116,7 @@ model iaf_psc_alpha_adapt_curr_neuron:
         I_sfa += Delta_I_sfa
         emit_spike()
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false

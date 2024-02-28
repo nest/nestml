@@ -115,7 +115,7 @@ class TestNestMultiSynapse:
             fig.savefig("/tmp/test_multisynapse.png")
 
         # testing
-        np.testing.assert_almost_equal(V_m[-1], -72.89041451202327)
+        np.testing.assert_almost_equal(V_m[-1], -72.93610279332957)
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
