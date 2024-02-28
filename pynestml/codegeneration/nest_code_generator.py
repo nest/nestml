@@ -302,12 +302,12 @@ class NESTCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_blocks()[0]
 
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTUtils.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
         # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
         equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
@@ -382,12 +382,12 @@ class NESTCodeGenerator(CodeGenerator):
 
             equations_block = synapse.get_equations_blocks()[0]
 
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
             ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
             ASTUtils.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
+            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver

@@ -1928,6 +1928,7 @@ class ASTUtils:
         For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
         """
         delta_factors = {}
+
         for ode_eq in equations_block.get_ode_equations():
             var = ode_eq.get_lhs()
             expr = ode_eq.get_rhs()

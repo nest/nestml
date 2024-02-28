@@ -43,7 +43,7 @@ class TestNestMultiSynapse:
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
         target_path = "target"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
@@ -52,13 +52,13 @@ class TestNestMultiSynapse:
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
-
-        nest.ResetKernel()
         nest.Install(module_name)
 
-        # network construction
+        nest.ResetKernel()
+        nest.set_verbosity("M_ALL")
+        nest.resolution = 0.1
 
+        # network construction
         neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
         receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
@@ -73,10 +73,10 @@ class TestNestMultiSynapse:
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES3"], "weight": 500., "delay": 0.1})
 
         mm = nest.Create("multimeter", params={"record_from": [
-                         "I_kernel1__X__spikes1", "I_kernel2__X__spikes2", "I_kernel3__X__spikes3"], "interval": 0.1})
+                         "I_syn", "I_kernel2__X__spikes2", "I_kernel3__X__spikes3"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
-        vm_1 = nest.Create("voltmeter")
+        vm_1 = nest.Create("voltmeter", params={"interval": nest.resolution})
         nest.Connect(vm_1, neuron)
 
         # simulate
@@ -93,7 +93,7 @@ class TestNestMultiSynapse:
             ax[0].plot(V_m_timevec, V_m, label="V_m")
             ax[0].set_ylabel("voltage")
 
-            ax[1].plot(mm["times"], mm["I_kernel1__X__spikes1"], label="I_kernel1")
+            ax[1].plot(mm["times"], mm["I_syn"], label="I_syn")
             ax[1].set_ylabel("current")
 
             ax[2].plot(mm["times"], mm["I_kernel2__X__spikes2"], label="I_kernel2")
@@ -115,13 +115,13 @@ class TestNestMultiSynapse:
             fig.savefig("/tmp/test_multisynapse.png")
 
         # testing
-        np.testing.assert_almost_equal(V_m[-1], -72.93610279332957)
+        np.testing.assert_almost_equal(V_m[-1], -72.77625579314515)
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse_vectors.nestml")))
         target_path = "target"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         module_name = "nestml_module"
         suffix = "_nestml"
 
@@ -134,6 +134,7 @@ class TestNestMultiSynapse:
 
         nest.ResetKernel()
         nest.Install(module_name)
+        nest.resolution = 0.1
 
         # network construction
         neuron = nest.Create("iaf_psc_exp_multisynapse_vectors_neuron_nestml")
@@ -151,10 +152,10 @@ class TestNestMultiSynapse:
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_3"], "weight": 500., "delay": 0.1})
 
         mm = nest.Create("multimeter", params={"record_from": [
-            "I_kernel1__X__spikes_1", "I_kernel2__X__spikes_2", "I_kernel3__X__spikes_3"], "interval": 0.1})
+            "I_kernel1__X__spikes_1", "I_kernel2__X__spikes_2", "I_kernel3__X__spikes_3"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
-        vm_1 = nest.Create("voltmeter")
+        vm_1 = nest.Create("voltmeter", params={"interval": nest.resolution})
         nest.Connect(vm_1, neuron)
 
         # simulate
@@ -192,4 +193,4 @@ class TestNestMultiSynapse:
             fig.savefig("/tmp/test_multisynapse_vector.png")
 
         # testing
-        np.testing.assert_almost_equal(V_m[-1], -72.89041451202327)
+        np.testing.assert_almost_equal(V_m[-1], -72.77067117288824)
