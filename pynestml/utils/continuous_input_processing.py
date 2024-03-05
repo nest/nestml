@@ -25,6 +25,7 @@ from pynestml.utils.mechanism_processing import MechanismProcessing
 
 from collections import defaultdict
 
+
 class ContinuousInputProcessing(MechanismProcessing):
     mechType = "continuous_input"
 

@@ -288,7 +288,6 @@ class ASTMechanismInformationCollector(object):
                             if variable.name == input.name:
                                 mechanism_continuous_inputs.append(input)
 
-
                     search_variables.remove(variable)
                     found_variables.append(variable)
                     # IMPLEMENT CATCH NONDEFINED!!!

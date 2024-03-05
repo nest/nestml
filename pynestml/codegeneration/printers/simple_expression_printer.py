@@ -73,4 +73,3 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
     def array_printing_toggle(self, array_printing=None):
         self._variable_printer.array_printing_toggle(array_printing)
         self._function_call_printer.array_printing_toggle(array_printing)
-
