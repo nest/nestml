@@ -71,6 +71,9 @@ private:
     // ion-channel root-inline value
     std::vector< double > i_tot_{{ion_channel_name}} = {};
 
+    //zero recordable variable in case of zero contribution channel
+    double zero_recordable = 0;
+
 public:
     // constructor, destructor
     {{ion_channel_name}}{{cm_unique_suffix}}(){};
@@ -82,7 +85,7 @@ public:
     //number of channels
     std::size_t neuron_{{ ion_channel_name }}_channel_count = 0;
 
-    std::vector< long > compartment_association = {};
+    std::vector< size_t > compartment_association = {};
 
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -147,6 +150,9 @@ private:
     // concentration value (root-ode state)
     std::vector< double > {{concentration_name}} = {};
 
+    //zero recordable variable in case of zero contribution concentration
+    double zero_recordable = 0;
+
 public:
     // constructor, destructor
     {{ concentration_name }}{{cm_unique_suffix}}(){};
@@ -158,7 +164,7 @@ public:
     //number of channels
     std::size_t neuron_{{ concentration_name }}_concentration_count = 0;
 
-    std::vector< long > compartment_association = {};
+    std::vector< size_t > compartment_association = {};
 
     // initialization concentration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -269,7 +275,7 @@ public:
   //number of synapses
   std::size_t neuron_{{ synapse_name }}_synapse_count = 0;
 
-  std::vector< long > compartment_association = {};
+  std::vector< size_t > compartment_association = {};
 
   // numerical integration step
   std::pair< std::vector< double >, std::vector< double > > f_numstep( std::vector< double > v_comp, const long lag {% for ode in synapse_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if synapse_info["Dependencies"]["receptors"]|length %}
@@ -356,7 +362,7 @@ public:
   //number of continuous inputs
   std::size_t neuron_{{ continuous_name }}_continuous_input_count = 0;
 
-  std::vector< long > compartment_association = {};
+  std::vector< size_t > compartment_association = {};
 
   // numerical integration step
   std::pair< std::vector< double >, std::vector< double > > f_numstep( std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
@@ -525,11 +531,11 @@ public:
     int con_end_index;
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     if({{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count){
-        con_end_index = {{ion_channel_name}}{{channel_suffix}}.compartment_association[0];
+        con_end_index = int({{ion_channel_name}}{{channel_suffix}}.compartment_association[0]);
         {{ion_channel_name}}{{channel_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
     }
     for(std::size_t chan_id = 1; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
-        if(!({{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id] == chan_id + con_end_index)){
+        if(!({{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id] == size_t(int(chan_id) + con_end_index))){
             con_end_index = int({{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]) - int(chan_id);
             {{ion_channel_name}}{{channel_suffix}}_con_area.push_back(std::pair< std::size_t, int >(chan_id, con_end_index));
         }
@@ -537,11 +543,11 @@ public:
     {% endfor -%}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     if({{concentration_name}}{{concentration_suffix}}.neuron_{{ concentration_name }}_concentration_count){
-        con_end_index = {{concentration_name}}{{concentration_suffix}}.compartment_association[0];
+        con_end_index = int({{concentration_name}}{{concentration_suffix}}.compartment_association[0]);
         {{concentration_name}}{{concentration_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
     }
     for(std::size_t conc_id = 0; conc_id < {{concentration_name}}{{concentration_suffix}}.neuron_{{ concentration_name }}_concentration_count; conc_id++){
-        if(!({{concentration_name}}{{concentration_suffix}}.compartment_association[conc_id] == conc_id + con_end_index)){
+        if(!({{concentration_name}}{{concentration_suffix}}.compartment_association[conc_id] == size_t(int(conc_id) + con_end_index))){
             con_end_index = int({{concentration_name}}{{concentration_suffix}}.compartment_association[conc_id]) - int(conc_id);
             {{concentration_name}}{{concentration_suffix}}_con_area.push_back(std::pair< std::size_t, int >(conc_id, con_end_index));
         }
@@ -549,11 +555,11 @@ public:
     {% endfor -%}
     {%- for synapse_name, synapse_info in syns_info.items() %}
     if({{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count){
-        con_end_index = {{synapse_name}}{{synapse_suffix}}.compartment_association[0];
+        con_end_index = int({{synapse_name}}{{synapse_suffix}}.compartment_association[0]);
         {{synapse_name}}{{synapse_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
     }
     for(std::size_t syn_id = 0; syn_id < {{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count; syn_id++){
-        if(!({{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id] == syn_id + con_end_index)){
+        if(!({{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id] == size_t(int(syn_id) + con_end_index))){
             con_end_index = int({{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]) - int(syn_id);
             {{synapse_name}}{{synapse_suffix}}_con_area.push_back(std::pair< std::size_t, int >(syn_id, con_end_index));
         }
@@ -561,11 +567,11 @@ public:
     {% endfor -%}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     if({{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count){
-        con_end_index = {{continuous_name}}{{continuous_suffix}}.compartment_association[0];
+        con_end_index = int({{continuous_name}}{{continuous_suffix}}.compartment_association[0]);
         {{continuous_name}}{{continuous_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
     }
     for(std::size_t cont_id = 0; cont_id < {{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count; cont_id++){
-        if(!({{continuous_name}}{{continuous_suffix}}.compartment_association[cont_id] == cont_id + con_end_index)){
+        if(!({{continuous_name}}{{continuous_suffix}}.compartment_association[cont_id] == size_t(int(cont_id) + con_end_index))){
             con_end_index = int({{continuous_name}}{{continuous_suffix}}.compartment_association[cont_id]) - (cont_id);
             {{continuous_name}}{{continuous_suffix}}_con_area.push_back(std::pair< std::size_t, int >(cont_id, con_end_index));
         }

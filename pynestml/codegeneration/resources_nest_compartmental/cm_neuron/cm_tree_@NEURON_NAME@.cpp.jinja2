@@ -171,6 +171,35 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index )
 void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
 {
+  //Check whether all passed parameters exist within the used neuron model:
+  Dictionary* comp_param_copy = new Dictionary(*compartment_params);
+
+  comp_param_copy->remove(names::C_m);
+  comp_param_copy->remove(names::g_C);
+  comp_param_copy->remove(names::g_L);
+  comp_param_copy->remove(names::e_L);
+{%- for ion_channel_name, channel_info in chan_info.items() %}
+  {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
+
+  if(!comp_param_copy->empty()){
+    std::string msg = "Following parameters are invalid: \n";
+    for(auto& param : *comp_param_copy){
+        msg += param.first.toString();
+        msg += "\n";
+    }
+    throw BadParameter(msg);
+  }
+
   Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}( size_, parent_index, compartment_params );
   neuron_currents.add_compartment(compartment_params);
   add_compartment( compartment, parent_index );
