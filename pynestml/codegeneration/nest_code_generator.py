@@ -96,6 +96,9 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
+    - **gap_junctions**:
+        - **membrane_potential_variable**
+        - **gap_current_port**
     - **templates**: Path containing jinja templates used to generate code for NEST simulator.
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
         - **model_templates**: A list of the jinja templates or a relative path to a directory containing the neuron and synapse model templates.
@@ -116,6 +119,11 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_synapse_pairs": [],
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
+        "gap_junctions": {
+            "enable": False,
+            "membrane_potential_variable": "V_m",
+            "gap_current_port": "I_gap"
+        },
         "templates": {
             "path": "resources_nest/point_neuron",
             "model_templates": {
@@ -746,6 +754,16 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols()
                                                       if isinstance(sym.get_type_symbol(), (UnitTypeSymbol, RealTypeSymbol))
                                                       and sym.is_recordable]
+
+        namespace["use_gap_junctions"] = self.get_option("gap_junctions")["enable"]
+        if namespace["use_gap_junctions"]:
+            namespace["gap_junction_membrane_potential_variable"] = self.get_option("gap_junctions")["membrane_potential_variable"]
+
+            var = ASTUtils.get_state_variable_by_name(neuron, self.get_option("gap_junctions")["membrane_potential_variable"])
+            namespace["gap_junction_membrane_potential_variable_is_numeric"] = "_is_numeric" in dir(var) and var._is_numeric
+
+            namespace["gap_junction_membrane_potential_variable_cpp"] = NESTVariablePrinter(expression_printer=None).print(var)
+            namespace["gap_junction_port"] = self.get_option("gap_junctions")["gap_current_port"]
 
         return namespace
 

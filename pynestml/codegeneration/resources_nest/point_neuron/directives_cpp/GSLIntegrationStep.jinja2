@@ -19,6 +19,10 @@ double __t = 0;
 // simulation intervals
 while ( __t < B_.__step )
 {
+{%- if use_gap_junctions %}
+  gap_junction_step = B_.__step;
+{%- endif %}
+
   const int status = gsl_odeiv_evolve_apply(B_.__e,
                                             B_.__c,
                                             B_.__s,

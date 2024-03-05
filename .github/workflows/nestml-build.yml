@@ -29,10 +29,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python version
-      - name: Setup Python 3.9
+      - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -60,10 +60,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python version
-      - name: Setup Python 3.9
+      - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -99,7 +99,7 @@ jobs:
       # Install NESTML
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.6_rc1", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.6", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
@@ -131,10 +131,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python version
-      - name: Setup Python 3.9
+      - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -188,7 +188,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -262,10 +262,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python version
-      - name: Setup Python 3.9
+      - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -301,7 +301,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install

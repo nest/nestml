@@ -392,6 +392,19 @@ void {{neuronName}}::init_buffers_()
 #ifdef DEBUG
   std::cout << "{{neuronName}}::init_buffers_()" << std::endl;
 #endif
+
+{%- if use_gap_junctions %}
+  // resize interpolation_coefficients depending on interpolation order
+  const size_t buffer_size =
+    nest::kernel().connection_manager.get_min_delay() * ( nest::kernel().simulation_manager.get_wfr_interpolation_order() + 1 );
+
+  B_.interpolation_coefficients.resize( buffer_size, 0.0 );
+
+  B_.last_y_values.resize( nest::kernel().connection_manager.get_min_delay(), 0.0 );
+
+  B_.sumj_g_ij_ = 0.0;
+{%- endif %}
+
 {%- if neuron.get_spike_input_ports() | length > 0 %}
   // spike input buffers
   get_spike_inputs_().clear();
@@ -557,9 +570,27 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 
 {%- endif %}
 
+{%- if use_gap_junctions %}
+bool {{neuronName}}::update_( nest::Time const& origin, const long from, const long to, const bool called_from_wfr_update )
+{%- else %}
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
+{%- endif %}
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
+{%- if use_gap_junctions %}
+  const size_t interpolation_order = nest::kernel().simulation_manager.get_wfr_interpolation_order();
+  const double wfr_tol = nest::kernel().simulation_manager.get_wfr_tol();
+  bool wfr_tol_exceeded = false;
+
+  // allocate memory to store the new interpolation coefficients
+  // to be sent by gap event
+  const size_t buffer_size = nest::kernel().connection_manager.get_min_delay() * ( interpolation_order + 1 );
+  std::vector< double > new_coefficients( buffer_size, 0.0 );
+
+  // parameters needed for piecewise interpolation
+  double y_i = 0.0, y_ip1 = 0.0, hf_i = 0.0, hf_ip1 = 0.0;
+{%- endif %}
 
 {% if propagators_are_state_dependent %}
   // the propagators are state dependent; update them!
@@ -569,14 +600,99 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   for ( long lag = from ; lag < to ; ++lag )
   {
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
+
+{%- if use_gap_junctions %}
+    // B_.lag is needed by GSL stepping function to determine the current section
+    B_.lag_ = lag;
+
+
+
+
+
+
+{%- if not gap_junction_membrane_potential_variable_is_numeric %}
+{#      in case V_m is solved analytically, need to compute __I_gap here so dV_m/dt can be computed below #}
+  // set I_gap depending on interpolation order
+  double __I_gap = 0.0;
+
+  const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
+
+  switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
+  {
+  case 0:
+    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ ];
+    break;
+
+  case 1:
+    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 2 + 0 ]
+      + B_.interpolation_coefficients[ B_.lag_ * 2 + 1 ] * __t_gap;
+    break;
+
+  case 3:
+    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+      + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+    break;
+
+  default:
+    throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
+  }
+{%- endif %}
+
+
+
+
+
+
+
+    if ( called_from_wfr_update )
+    {
+      y_i = {{ gap_junction_membrane_potential_variable_cpp }};
+      if ( interpolation_order == 3 )
+      {
+        // find dV_m/dt
+        gap_junction_step = 0;
+        double __I_gap = 0;
+{%-     if gap_junction_membrane_potential_variable_is_numeric %}
+{#          solved using a numeric solver #}
+        double f_temp[ State_::STATE_VEC_SIZE ];
+        {{neuronName}}_dynamics( get_t(), S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
+        hf_i = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+{%-     else %}
+{#        solved using an analytic solver #}
+
+{#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
+{%-         with analytic_state_variables_ = analytic_state_variables %}
+{%-             include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
+{%-         endwith %}
+
+        hf_i = ({{ gap_junction_membrane_potential_variable }}__tmp - y_i) / nest::Time::get_resolution().get_ms();
+{%-     endif %}
+      }
+    }
+
+{%- endif %}
+
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
         get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
     }
 
-  {%- for inputPort in neuron.get_continuous_input_ports() %}
+{%- for inputPort in neuron.get_continuous_input_ports() %}
+{%-   if use_gap_junctions %}
+    if ( called_from_wfr_update )
+    {
+      B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value_wfr_update(lag);
+    }
+    else
+    {
+      B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
+    }
+{%-   else %}
     B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
-  {%- endfor %}
+{%-   endif %}
+{%- endfor %}
 
 {%- if has_delay_variables %}
     update_delay_variables();
@@ -598,9 +714,102 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-     endfilter %}
 {%- endif %}
 
+
+{%- if use_gap_junctions %}
+    if ( called_from_wfr_update )
+    {
+      // check if deviation from last iteration exceeds wfr_tol
+      wfr_tol_exceeded = wfr_tol_exceeded or fabs( {{ gap_junction_membrane_potential_variable_cpp }} - B_.last_y_values[ lag ] ) > wfr_tol;
+      B_.last_y_values[ lag ] = {{ gap_junction_membrane_potential_variable_cpp }};
+
+      // update different interpolations
+
+      // constant term is the same for each interpolation order
+      new_coefficients[ lag * ( interpolation_order + 1 ) + 0 ] = y_i;
+
+      switch ( interpolation_order )
+      {
+        case 0:
+          break;
+
+        case 1:
+          y_ip1 = {{ gap_junction_membrane_potential_variable_cpp }};
+
+          new_coefficients[ lag * ( interpolation_order + 1 ) + 1 ] = y_ip1 - y_i;
+          break;
+
+        case 3:
+          // find dV_m/dt
+          {
+            gap_junction_step = __resolution;
+            y_ip1 = {{ gap_junction_membrane_potential_variable_cpp }};
+{%-     if gap_junction_membrane_potential_variable_is_numeric %}
+            double f_temp[ State_::STATE_VEC_SIZE ];
+            {{ neuronName }}_dynamics( get_t(), S_.ode_state, f_temp, reinterpret_cast< void* >( this ) );
+            hf_ip1 = nest::Time::get_resolution().get_ms() * f_temp[ State_::{{ gap_junction_membrane_potential_variable }} ];
+{%-     else %}
+{#          solved using an analytic solver #}
+
+            const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
+
+            double __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+              + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+              + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+              + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+
+{#        the following statements will only assign to temporary variables and not edit the internal state of the neuron #}
+{%-         with analytic_state_variables_ = analytic_state_variables %}
+{%-             include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
+{%-         endwith %}
+
+            hf_ip1 = ({{ gap_junction_membrane_potential_variable }}__tmp - y_ip1) / nest::Time::get_resolution().get_ms();
+{%-     endif %}
+          }
+
+          new_coefficients[ lag * ( interpolation_order + 1 ) + 1 ] = hf_i;
+          new_coefficients[ lag * ( interpolation_order + 1 ) + 2 ] = -3 * y_i + 3 * y_ip1 - 2 * hf_i - hf_ip1;
+          new_coefficients[ lag * ( interpolation_order + 1 ) + 3 ] = 2 * y_i - 2 * y_ip1 + hf_i + hf_ip1;
+          break;
+
+        default:
+          throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
+      }
+    }
+
+    if ( not called_from_wfr_update )
+    {
+      // voltage logging
+      B_.logger_.record_data(origin.get_steps() + lag);
+    }
+{%-     else %}
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
+{%-     endif %}
   }
+
+{%- if use_gap_junctions %}
+  // if not called_from_wfr_update perform constant extrapolation and reset last_y_values
+  if ( not called_from_wfr_update )
+  {
+    for ( long temp = from; temp < to; ++temp )
+    {
+      new_coefficients[ temp * ( interpolation_order + 1 ) + 0 ] = {{ gap_junction_membrane_potential_variable_cpp }};
+    }
+
+    std::vector< double >( nest::kernel().connection_manager.get_min_delay(), 0.0 ).swap( B_.last_y_values );
+  }
+
+  // Send gap-event
+  nest::GapJunctionEvent ge;
+  ge.set_coeffarray( new_coefficients );
+  nest::kernel().event_delivery_manager.send_secondary( *this, ge );
+
+  // Reset variables
+  B_.sumj_g_ij_ = 0.0;
+  std::vector< double >( buffer_size, 0.0 ).swap( B_.interpolation_coefficients );
+
+  return wfr_tol_exceeded;
+{%- endif %}
 }
 
 // Do not move this function as inline to h-file. It depends on
@@ -609,6 +818,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 {
   B_.logger_.handle(e);
 }
+
 {% if has_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
@@ -1039,4 +1249,29 @@ for (int i = 0; i < STATE_VEC_SIZE; ++i) {
 {%- endfor %}
 
 {%- endif %}
+
+
+
+{%- if use_gap_junctions %}
+void {{neuronName}}::handle( nest::GapJunctionEvent& e )
+{
+#ifdef DEBUG
+  std::cout << "Handling GapJunctionEvent\n";
+#endif
+
+  const double weight = e.get_weight();
+
+  B_.sumj_g_ij_ += weight;
+
+  size_t i = 0;
+  std::vector< unsigned int >::iterator it = e.begin();
+  // The call to get_coeffvalue( it ) in this loop also advances the iterator it
+  while ( it != e.end() )
+  {
+    B_.interpolation_coefficients[ i ] += weight * e.get_coeffvalue( it );
+    ++i;
+  }
+}
+{%- endif %}
+
 {# leave this comment here to ensure newline is generated at end of file -#}
