@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# conc_info_enricher.py
+# con_in_info_enricher.py
 #
 # This file is part of NEST.
 #

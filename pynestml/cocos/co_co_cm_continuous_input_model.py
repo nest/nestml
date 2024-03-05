@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_cm_channel_model.py
+# co_co_cm_continuous_input_model.py
 #
 # This file is part of NEST.
 #
