@@ -62,11 +62,6 @@ class {{moduleName}} : public NESTExtensionInterface
     ~{{moduleName}}() {}
 
     void init() override;
-
-    std::string name() override { return "{{moduleName}}"; }
-    std::string contact() override { return "info@nest-initiative.org"; }
-    std::string url() override { return "https://nestml.readthedocs.io/en/latest"; }
-    std::string uri() override { return ""; }
 };
 
 {{moduleName}} {{moduleName}}_LTX_module;
