@@ -55,18 +55,18 @@
 #include "{{synapse.get_name()}}.h"
 {% endfor %}
 
-class {{moduleName}} : public NESTExtensionInterface
+class {{moduleName}} : public nest::NESTExtensionInterface
 {
   public:
     {{moduleName}}() {}
     ~{{moduleName}}() {}
 
-    void init() override;
+    void initialize() override;
 };
 
 {{moduleName}} {{moduleName}}_LTX_module;
 
-void {{moduleName}}::init()
+void {{moduleName}}::initialize()
 {
 {%- if neurons %}
     // register neurons
