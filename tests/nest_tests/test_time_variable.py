@@ -52,6 +52,7 @@ class TestTimeVariable:
         try:
             nest.Install("nestmlmodule")
         except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nrn = nest.Create("time_variable_neuron_nestml")
         mm = nest.Create("multimeter")
@@ -73,6 +74,7 @@ class TestTimeVariable:
         try:
             nest.Install("nestmlmodule")
         except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nrn = nest.Create("iaf_psc_delta", 2)
         nrn[0].I_e = 1000.  # [pA]

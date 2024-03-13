@@ -71,6 +71,7 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         try:
             nest.Install("nestmlmodule")
         except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nrn = nest.Create("while_loop_nestml")
 

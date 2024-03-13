@@ -71,6 +71,7 @@ class TestIgnoreAndFire:
         try:
             nest.Install("nestmlmodule")
         except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nest.SetKernelStatus({"resolution": resolution})
 

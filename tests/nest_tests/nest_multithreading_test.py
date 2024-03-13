@@ -79,6 +79,7 @@ class TestNestMultithreading:
         try:
             nest.Install(self.neuron_module)
         except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nest.resolution = 0.1
         nest.local_num_threads = number_of_threads
@@ -118,6 +119,7 @@ class TestNestMultithreading:
         try:
             nest.Install(self.neuron_module)
         except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nest.resolution = 0.1
         nest.local_num_threads = number_of_threads
