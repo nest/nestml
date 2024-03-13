@@ -519,4 +519,7 @@ class CMTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
+    cmt = CMTest()
+    cmt.test_compartmental_model()
+

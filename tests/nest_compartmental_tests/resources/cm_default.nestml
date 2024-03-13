@@ -143,10 +143,16 @@ neuron cm_default:
         g_norm_AN_NMDA real =  1. / ( -exp( -tp_AN_NMDA / tau_r_AN_NMDA ) + exp( -tp_AN_NMDA / tau_d_AN_NMDA ) )
 
     input:
+
+
+
         spikes_AMPA <- spike
         spikes_GABA <- spike
         spikes_NMDA <- spike
         spikes_AN <- spike
 
     output:
+
+
+
         spike
