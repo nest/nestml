@@ -33,7 +33,7 @@ class TestPythonStandaloneNeuronBuildAndSimNumeric(unittest.TestCase):
 
     def test_python_standalone_neuron_build_and_sim_numeric(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "aeif_cond_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "aeif_cond_exp_neuron.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "INFO"
         suffix = ""
@@ -48,4 +48,4 @@ class TestPythonStandaloneNeuronBuildAndSimNumeric(unittest.TestCase):
 
         from nestmlmodule.test_python_standalone_module import TestSimulator
         neuron_log = TestSimulator().test_simulator()
-        np.testing.assert_allclose(neuron_log["V_m"][-1], -66.53925432719718)
+        np.testing.assert_allclose(neuron_log["V_m"][-1], -66.284172)

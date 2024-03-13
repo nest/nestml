@@ -21,9 +21,9 @@
 
 import os
 import nest
-import shutil
 
 from pynestml.frontend.pynestml_frontend import generate_nest_target
+
 
 input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), "PrintVariables.nestml")))
 target_path = "target"

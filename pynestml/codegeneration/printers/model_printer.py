@@ -37,19 +37,19 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -84,7 +84,7 @@ class ModelPrinter(ASTPrinter):
     def print_block_with_variables(self, node: ASTBlockWithVariables) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_neuron_or_synapse_body(self, node: ASTNeuronOrSynapseBody) -> str:
+    def print_model_body(self, node: ASTModelBody) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_comparison_operator(self, node: ASTComparisonOperator) -> str:
@@ -132,7 +132,7 @@ class ModelPrinter(ASTPrinter):
     def print_compilation_unit(self, node: ASTNestMLCompilationUnit) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_neuron(self, node: ASTNeuron) -> str:
+    def print_neuron(self, node: ASTModel) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_ode_equation(self, node: ASTOdeEquation) -> str:
@@ -148,6 +148,9 @@ class ModelPrinter(ASTPrinter):
         raise Exception("Printer does not support printing this node type")
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
+        raise Exception("Printer does not support printing this node type")
+
+    def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_parameter(self, node: ASTParameter) -> str:
@@ -174,7 +177,7 @@ class ModelPrinter(ASTPrinter):
     def print_stmt(self, node: ASTStmt) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_synapse(self, node: ASTSynapse) -> str:
+    def print_model(self, node: ASTModel) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_declaration(self, node: ASTDeclaration) -> str:
@@ -259,17 +262,20 @@ class ModelPrinter(ASTPrinter):
         if isinstance(node, ASTNestMLCompilationUnit):
             return self.print_compilation_unit(node)
 
-        if isinstance(node, ASTNeuron):
-            return self.print_neuron(node)
+        if isinstance(node, ASTModel):
+            return self.print_model(node)
 
-        if isinstance(node, ASTNeuronOrSynapseBody):
-            return self.print_neuron_or_synapse_body(node)
+        if isinstance(node, ASTModelBody):
+            return self.print_model_body(node)
 
         if isinstance(node, ASTOdeEquation):
             return self.print_ode_equation(node)
 
         if isinstance(node, ASTOnReceiveBlock):
             return self.print_on_receive_block(node)
+
+        if isinstance(node, ASTOnConditionBlock):
+            return self.print_on_condition_block(node)
 
         if isinstance(node, ASTOutputBlock):
             return self.print_output_block(node)
@@ -288,9 +294,6 @@ class ModelPrinter(ASTPrinter):
 
         if isinstance(node, ASTStmt):
             return self.print_stmt(node)
-
-        if isinstance(node, ASTSynapse):
-            return self.print_synapse(node)
 
         if isinstance(node, ASTUnaryOperator):
             return self.print_unary_operator(node)

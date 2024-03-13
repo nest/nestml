@@ -40,7 +40,7 @@ class Synapse(metaclass=ABCMeta):
         r"""Handle a spike at time ``t_spike`` on port ``port_name``."""
         pass
 
-    def deliver_spike(self, t: float) -> None:
+    def emit_spike(self, t: float) -> None:
         r"""Called by the synapse to pass on the spike to its postsynaptic partner."""
         self._emitted_spikes.append(t)
 

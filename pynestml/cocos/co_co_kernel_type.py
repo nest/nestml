@@ -23,7 +23,7 @@ from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -39,11 +39,10 @@ class CoCoKernelType(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron):
+    def check_co_co(cls, node: ASTModel):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
         """
         kernel_type_visitor = KernelTypeVisitor()
         kernel_type_visitor._neuron = node
@@ -55,7 +54,7 @@ class KernelTypeVisitor(ASTVisitor):
     This visitor checks if each kernel has the appropriate data type.
     """
 
-    _neuron: Optional[ASTNeuron] = None  # the parent ASTNeuron containing the kernel
+    _neuron: Optional[ASTModel] = None  # the parent ASTModel containing the kernel
 
     def visit_kernel(self, node):
         """

@@ -93,7 +93,8 @@ State variables
     :widths: auto
 
     
-    "r_potassium", "integer", "0", ""    
+    "potassium_refr_t", "ms", "0ms", ""    
+    "is_refractory", "boolean", "false", ""    
     "g_spike", "boolean", "false", ""    
     "V_m", "mV", "(g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL)", "membrane potential"    
     "Theta", "mV", "Theta_eq", "Threshold"    
@@ -141,7 +142,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hill_tononi <https://github.com/nest/nestml/tree/master/models/neurons/hill_tononi.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hill_tononi <https://github.com/nest/nestml/tree/master/models/neurons/hill_tononi_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -151,4 +152,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.380314
+   Generated at 2023-11-16 11:40:54.143368

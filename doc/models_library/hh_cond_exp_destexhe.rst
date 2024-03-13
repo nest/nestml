@@ -66,6 +66,7 @@ Parameters
     "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", ""    
     "alpha_p_init", "1 / ms", "0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp(-(V_m + 30.0mV) / 9.0mV))", ""    
     "beta_p_init", "1 / ms", "-0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp((V_m + 30.0mV) / 9.0mV))", ""    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -78,10 +79,12 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
     "g_noise_exc", "uS", "g_noise_exc0", ""    
     "g_noise_inh", "uS", "g_noise_inh0", ""    
     "V_m", "mV", "E_L", "Membrane potential"    
+    "V_m_old", "mV", "E_L", "Membrane potential at the previous timestep"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
     "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
     "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""    
@@ -115,7 +118,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hh_cond_exp_destexhe <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_destexhe.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hh_cond_exp_destexhe <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_destexhe_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -125,4 +128,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.766222
+   Generated at 2023-11-16 11:40:53.935360

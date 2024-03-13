@@ -34,7 +34,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
-neuron vector_declaration:
+model vector_declaration:
     state:
         g_in [20] mV = 11mV
         g_ex [ten] mV = 1mV

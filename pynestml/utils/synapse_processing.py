@@ -19,21 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.mechanism_processing import MechanismProcessing
-from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector
-
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+import copy
+from collections import defaultdict
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.utils.ast_utils import ASTUtils
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.messages import Messages
 
 from odetoolbox import analysis
-from collections import defaultdict
-import copy
 
 
 class SynapseProcessing(MechanismProcessing):
@@ -134,7 +133,7 @@ class SynapseProcessing(MechanismProcessing):
 
     @classmethod
     def ode_solve_convolution(cls,
-                              neuron: ASTNeuron,
+                              neuron: ASTModel,
                               parameters_block: ASTBlockWithVariables,
                               kernel_buffer):
         odetoolbox_indict = cls.create_ode_indict(
@@ -155,7 +154,7 @@ class SynapseProcessing(MechanismProcessing):
 
     @classmethod
     def create_ode_indict(cls,
-                          neuron: ASTNeuron,
+                          neuron: ASTModel,
                           parameters_block: ASTBlockWithVariables,
                           kernel_buffer):
         kernel_buffers = {tuple(kernel_buffer)}
@@ -168,7 +167,7 @@ class SynapseProcessing(MechanismProcessing):
     @classmethod
     def transform_ode_and_kernels_to_json(
             cls,
-            neuron: ASTNeuron,
+            neuron: ASTModel,
             parameters_block,
             kernel_buffers):
         """

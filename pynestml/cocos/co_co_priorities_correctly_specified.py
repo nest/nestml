@@ -22,7 +22,7 @@
 from typing import Dict
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
@@ -33,14 +33,11 @@ class CoCoPrioritiesCorrectlySpecified(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTSynapse):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks the context condition.
         :param node: a single synapse
         """
-        if not isinstance(node, ASTSynapse):
-            # only synapses have event handlers
-            return
 
         priorities = {}   # type: Dict[str, int]
         for on_receive_block in node.get_on_receive_blocks():
@@ -48,14 +45,14 @@ class CoCoPrioritiesCorrectlySpecified(CoCo):
                 priorities[on_receive_block.get_port_name()] = int(on_receive_block.get_const_parameters()["priority"])
 
         if len(priorities) == 1:
-            on_receive_block_name = priorities.keys()[0]
+            on_receive_block_name = list(priorities.keys())[0]
 
             code, message = Messages.get_priority_defined_for_only_one_receive_block(on_receive_block_name)
             Logger.log_message(code=code,
                                message=message,
                                error_position=node.get_on_receive_block(on_receive_block_name).get_source_position(),
                                log_level=LoggingLevel.ERROR,
-                               node=node.get_on_receive_block(on_receive_block_name))
+                               node=node)
             return
 
         unique_priorities = set(priorities.values())

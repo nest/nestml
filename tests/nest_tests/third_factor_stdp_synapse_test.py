@@ -39,8 +39,8 @@ except Exception:
 
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp"
-    synapse_model_name = "third_factor_stdp__with_iaf_psc_exp_dend"
+    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp_synapse"
+    synapse_model_name = "third_factor_stdp_synapse__with_iaf_psc_exp_dend"
 
     post_trace_var = "I_dend"
 
@@ -48,7 +48,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         r"""Generate the neuron model code"""
 
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                  "synapse": "third_factor_stdp",
+                                                  "synapse": "third_factor_stdp_synapse",
                                                   "post_ports": ["post_spikes",
                                                                  ["I_post_dend", "I_dend"]]}]}
 
@@ -57,7 +57,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = [os.path.join("models", "neurons", "iaf_psc_exp_dend.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_dend_neuron.nestml"),
                  os.path.join("models", "synapses", "third_factor_stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]

@@ -29,7 +29,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-synapse CoCoResolutionLegallyUsed:
+model resolution_legally_used_synapse:
     state:
         x real = 0.
 
@@ -42,3 +42,6 @@ synapse CoCoResolutionLegallyUsed:
 
     parameters:
         tau ms = 10 ms
+
+    update:
+        integrate_odes()

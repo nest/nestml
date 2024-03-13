@@ -5,12 +5,43 @@ NEST Simulator target
 
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
 
-Parameters, internals and state variables can be set and read by the user using ``nest.SetStatus()`` and ``nest.GetStatus()``.
+
+Simulation loop
+~~~~~~~~~~~~~~~
+
+At the beginning of each timestep, incoming spikes become visible in those variables that correspond to a convolution with the corresponding spiking input port.
+
+Then, the code is run corresponding to the NESTML ``update`` block.
+
+At the end of the timestep, variables corresponding to convolutions are updated according to their ODE dynamics.
+
 
 Code generation options
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
+
+
+Setting and retrieving model properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
+-  Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable.
+-  Values can be read using the PyNEST API call ``node_collection.<variable>``. This will return the value of the corresponding NESTML variable.
+
+
+Recording values with devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
+
+
+Solver selection
+~~~~~~~~~~~~~~~~
+
+Currently, there is support for GSL, forward Euler, and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
+
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
 
 
 Manually building the extension module

@@ -41,7 +41,7 @@ Parameters
     :widths: auto
 
     
-    "t_ref", "ms", "2.0ms", "Refractory period"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "g_Na", "nS", "5000.0nS", "Sodium peak conductance"    
     "g_L", "nS", "200.0nS", "Leak conductance"    
     "g_K_rect", "nS", "30000.0nS", "Delayed Rectifier Potassium peak conductance"    
@@ -77,8 +77,10 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "number of steps in the current refractory phase"    
     "V_m", "mV", "V_m_init", "Membrane potential"    
+    "V_m_old", "mV", "V_m_init", "Membrane potential"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "Ca_in", "mmol", "Ca_in_init", "Inside Calcium concentration"    
     "Act_m", "real", "alpha_m(V_m_init) / (alpha_m(V_m_init) + beta_m(V_m_init))", ""    
     "Act_h", "real", "h_inf(V_m_init)", ""    
@@ -124,7 +126,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hh_moto_5ht <https://github.com/nest/nestml/tree/master/models/neurons/hh_moto_5ht.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hh_moto_5ht <https://github.com/nest/nestml/tree/master/models/neurons/hh_moto_5ht_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -134,4 +136,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.636925
+   Generated at 2023-11-16 11:40:53.883052

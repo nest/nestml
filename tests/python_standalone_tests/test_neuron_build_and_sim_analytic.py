@@ -35,7 +35,7 @@ class TestPythonStandaloneNeuronBuildAndSimAnalytic(unittest.TestCase):
 
     def test_python_standalone_neuron_build_and_sim_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "INFO"
         suffix = ""

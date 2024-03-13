@@ -74,28 +74,6 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
 
 
-The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac Delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=u`, and whose integral is equal to 1.
-
-.. math::
-
-   \int \delta(x - u) dx = 1
-
-The unit of the Dirac delta function follows from its definition:
-
-.. math::
-
-   f(0) = \int dx \delta(x) f(x)
-
-Here :math:`f(x)` is a continuous function of x. As the unit of the :math:`f()` is the same on both left- and right-hand side, the unit of :math:`dx \delta(x)` must be equal to 1.
-Therefore, the unit of :math:`\delta(x)` must be equal to the inverse of the unit of :math:`x`.
-
-In the context of neuroscience, the spikes are represented as events in time with a unit of :math:`s`. Consequently, the delta pulses will have a unit of inverse of time, :math:`1/s`.
-Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`1/s`.
-
-Physical units such as millivolts (:math:`mV`) and nanoamperes (:math:`nA`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
-In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`mV` or :math:`nA`, to obtain a quantity with units of volts or amperes, respectively.
-For example, the product of a Dirac delta function and millivolt (:math:`mV`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
-
 
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -245,11 +223,34 @@ Output
 ``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 
+Implementing refractoriness
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generating code
-###############
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (say, ``refr_T``) can be introduced, that defines the duration of the refractory period. A new state variable, ``refr_t``, then specifies the time of the refractory period that has already elapsed, and a second boolean state variable ``is_refactory`` identifies whether or not we are in the refractory state. In the initial state, the neuron is not refractory and the timer is set to zero. When a spike is emitted, the boolean flag is set to true and the timer is set to ``refr_T``. Using a separate flag allows us to freely formulate a condition on ending the timer without having to worry about special (for instance, negative) values representing a non-refactory condition. This is hazardous because of an imprecise floating point representation of real numbers. The check against :math:`\Delta t/2` instead of checking against 0 additionally guards against accumulated discretization errors. Integrating the ODE for :math:`V_\text{m}` is disabled while the flag is set to true. When the timer reaches zero, the flag is set to false. In the ``update`` block, the timer is decremented each timestep. An ``onCondition`` is formulated on ending the refractory period, which allows the time at which the condition becomes true to be determined precisely (whereas it would be aliased to the nearest simulation timestep interval if the condition had been checked in ``update``).
 
-Co-generation of neuron and synapse
------------------------------------
+.. code-block:: nestml
 
-The ``update`` block in a NESTML model is translated into the ``update`` method in NEST.
+   parameters:
+       refr_T ms = 5 ms
+
+   state:
+       refr_t ms = 0 ms    # Refractory period timer
+       is_refractory boolean = false
+
+   equations:
+       I_syn' = ...
+       V_m' = ...
+
+   update:
+       if is_refractory:
+           # neuron is absolute refractory, do not evolve V_m
+           refr_t -= resolution()
+           integrate_odes(I_syn)
+       else:
+           # neuron not refractory, so evolve all ODEs
+           integrate_odes(V_m, I_syn)
+
+   onCondition(refr_t <= resolution() / 2):
+       # end of refractory period
+       refr_t = 0 ms
+       is_refractory = false

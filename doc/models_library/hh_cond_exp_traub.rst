@@ -68,7 +68,7 @@ Parameters
     "V_T", "mV", "-63mV", "Voltage offset that controls dynamics. For default"    
     "tau_syn_exc", "ms", "5ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "10ms", "Synaptic time constant of inhibitory synapse"    
-    "t_ref", "ms", "2ms", "Refractory period"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "E_exc", "mV", "0mV", "Excitatory synaptic reversal potential"    
     "E_inh", "mV", "-80mV", "Inhibitory synaptic reversal potential"    
     "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)", ""    
@@ -89,8 +89,10 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
     "V_m", "mV", "E_L", "Membrane potential"    
+    "V_m_old", "mV", "E_L", "Membrane potential at previous timestep"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
     "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
     "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""
@@ -120,7 +122,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `hh_cond_exp_traub <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_traub.nestml>`_.
+The model source code can be found in the NESTML models repository here: `hh_cond_exp_traub <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_traub_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -130,4 +132,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.206568
+   Generated at 2023-11-16 11:40:53.801490
