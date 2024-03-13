@@ -666,7 +666,7 @@ public:
   send( Event& e, const size_t tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%-   endif %}
 {%- else %}
-  bool
+  void
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- endif %}
   {
