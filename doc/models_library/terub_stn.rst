@@ -50,7 +50,7 @@ Parameters
     "tau_syn_exc", "ms", "1ms", "Rise time of the excitatory synaptic alpha function"    
     "tau_syn_inh", "ms", "0.08ms", "Rise time of the inhibitory synaptic alpha function"    
     "E_gs", "mV", "-85mV", "Reversal potential for inhibitory input (from GPe)"    
-    "t_ref", "ms", "2ms", "Refractory time"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -63,12 +63,14 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
     "V_m", "mV", "E_L", "Membrane potential"    
+    "V_m_old", "mV", "E_L", "Membrane potential at previous timestep for threshold check"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "gate_h", "real", "0.0", "gating variable h"    
     "gate_n", "real", "0.0", "gating variable n"    
     "gate_r", "real", "0.0", "gating variable r"    
-    "Ca_con", "real", "0.0", "gating variable r"
+    "Ca_con", "real", "0.0", "calcium concentration"
 
 
 
@@ -98,7 +100,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `terub_stn <https://github.com/nest/nestml/tree/master/models/neurons/terub_stn.nestml>`_.
+The model source code can be found in the NESTML models repository here: `terub_stn <https://github.com/nest/nestml/tree/master/models/neurons/terub_stn_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -108,4 +110,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.333524
+   Generated at 2023-11-16 11:40:54.023572

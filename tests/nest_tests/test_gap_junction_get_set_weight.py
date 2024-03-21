@@ -44,7 +44,7 @@ except Exception:
 class TestGapJunctionGetSetWeight:
     r"""Test that getting and setting the gap junction weight works correctly"""
 
-    neuron_model = "iaf_psc_exp"
+    neuron_model = "iaf_psc_exp_neuron"
 
     @pytest.fixture(autouse=True)
     def generate_code(self):

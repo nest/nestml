@@ -48,6 +48,6 @@ class SPINNAKERCodeGeneratorUtils:
             return 'parameter->%s'
 
         if variable_symbol.block_type == BlockType.INPUT:
-            return 'input.>%s'
+            return 'input->%s'
 
         return ''

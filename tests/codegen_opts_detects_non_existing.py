@@ -28,5 +28,5 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 @pytest.mark.xfail(strict=True, raises=CodeGeneratorOptionsException)
 def test_codegen_opts_detects_non_existing():
-    generate_nest_target(input_path="models/neurons/iaf_psc_exp.nestml",
+    generate_nest_target(input_path="models/neurons/iaf_psc_exp_neuron.nestml",
                          codegen_opts={"non_existing_options": "42"})

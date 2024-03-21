@@ -79,7 +79,7 @@ class VariableSymbol(Symbol):
         ode_declaration       Used to store the corresponding ode declaration.
         is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value         Indicates the initial value if such is declared.
-        variable_type         The type of the variable, either a kernel, or buffer or function. Type: VariableType
+        variable_type         The type of the variable, either a buffer or function. Type: VariableType
     """
 
     def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
@@ -345,9 +345,9 @@ class VariableSymbol(Symbol):
 
     def get_ode_or_kernel(self):
         """
-        Returns the ODE or kernel defining the value of this variable symbol.
+        Returns the ODE defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression or ASTSimpleExpression or ASTKernel
+        :rtype: ASTExpression or ASTSimpleExpression
         """
         return self.ode_or_kernel
 

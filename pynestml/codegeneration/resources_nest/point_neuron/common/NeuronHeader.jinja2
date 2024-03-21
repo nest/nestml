@@ -120,6 +120,8 @@ namespace {{names_namespace}}
 
 
 {% if uses_numeric_solver %}
+
+{%- for s in utils.create_integrate_odes_combinations(astnode) %}
 /**
  * Function computing right-hand side of ODE for GSL solver.
  * @note Must be declared here so we can befriend it in class.
@@ -129,9 +131,21 @@ namespace {{names_namespace}}
  * @note No point in declaring it inline, since it is called
  *       through a function pointer.
  * @param void* Pointer to model neuron instance.
+ *
+ * Integrate the variables: {{ s }}
 **/
-extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
-{% endif %}
+extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%- endfor %}
+
+{%-     if paired_synapse is defined %}
+{#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         set s = utils.integrate_odes_args_str_from_function_call(ast) %}
+extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endif %}
+
+{%- endif %}
 
 #include "nest_time.h"
 
@@ -179,6 +193,24 @@ size_t access_counter )
 {%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+class continuous_variable_histentry_{{ neuronName }}
+{
+public:
+  continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} );
+
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }};
+{%-     endfor %}
+
+  double t_;              //!< point in time for history entry
+  size_t access_counter_;
+};
+{%- endif %}
 
 {%- endif %}
 
@@ -299,12 +331,9 @@ public:
   // support for spike archiving
 
   /**
-   * \fn void get_history(long t1, long t2,
-   * std::deque<Archiver::histentry__>::iterator* start,
-   * std::deque<Archiver::histentry__>::iterator* finish)
-   * return the spike times (in steps) of spikes which occurred in the range
-   * (t1,t2].
-   * XXX: two underscores to differentiate it from nest::Node::get_history()
+   * Return the spike times (in steps) of spikes which occurred in the range (t1,t2].
+   *
+   * Two underscores in the name to differentiate it from nest::Node::get_history().
    */
   void get_history__( double t1,
     double t2,
@@ -318,6 +347,26 @@ public:
    * with t > t_first_read.
    */
   void register_stdp_connection( double t_first_read, double delay );
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+  /**
+   * write_continuous_variable_history
+   */
+  void write_continuous_variable_history(nest::Time const &t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %});
+
+  void get_continuous_variable_history( double t1,
+    double t2,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish );
+
+  continuous_variable_histentry_{{ neuronName }} get_continuous_variable_history( double t );
+
+  std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
+{%- endif %}
+
 {%- endif %}
 {%- if neuron.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
@@ -370,6 +419,16 @@ public:
   double get_{{var}}( double t, const bool before_increment = true );
 {%- endfor %}
 {%- endif %}
+
+  // -------------------------------------------------------------------------
+  //   Methods corresponding to event handlers
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for blk in neuron.get_on_receive_blocks() %}
+    void on_receive_block_{{ blk.get_port_name() }}();
+{%- endfor %}
+{%- endfilter %}
 
   // -------------------------------------------------------------------------
   //   Initialization functions
@@ -699,21 +758,24 @@ private:
 {%- endif %}
 
     // -----------------------------------------------------------------------
-    //   Buffers and sums of incoming spikes/currents per timestep
+    //   Spike buffers and sums of incoming spikes/currents per timestep
     // -----------------------------------------------------------------------
-    // Buffer containing the incoming spikes
-    {{ buffer_getter.SpikeBufferGetter(false, true) }}
 
-    // Buffer containing the sum of all the incoming spikes
-    {{ buffer_getter.SpikeBufferGetter(true, true) }}
+{%- filter indent(4, True) -%}
+{{ buffer_getter.SpikeBufferGetter(true) }}
+{%- endfilter %}
 
-{%- for inputPort in neuron.get_continuous_input_ports() %}
+    // -----------------------------------------------------------------------
+    //   Continuous-input buffers
+    // -----------------------------------------------------------------------
+
+{% filter indent(4, True) %}
+{%-     for inputPort in neuron.get_continuous_input_ports() %}
 {{ buffer_declaration.BufferDeclaration(inputPort) }}
-{%-     filter indent(4, True) -%}
 {{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, true) }}
-{%-     endfilter %}
 {{ buffer_declaration_value.BufferDeclarationValue(inputPort) }}
-{%- endfor %}
+{%-     endfor %}
+{%- endfilter %}
 
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -770,13 +832,12 @@ private:
   //   Getters/setters for input buffers
   // -------------------------------------------------------------------------
 
-  // Buffer containing the incoming spikes
-  {{ buffer_getter.SpikeBufferGetter(false, false) }}
-
-  {{ buffer_getter.SpikeBufferGetter(true, false) }}
+{%- filter indent(2, True) %}
+{{ buffer_getter.SpikeBufferGetter(false) }}
+{%- endfilter %}
 
 {%- for inputPort in neuron.get_continuous_input_ports() %}
-  {{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, false) }}
+{{ continuous_buffer_getter.ContinuousInputBufferGetter(inputPort, false) }}
 {%- endfor %}
 
 {%- if neuron.get_functions()|length > 0 %}
@@ -822,8 +883,20 @@ private:
 {%- endif %}
 
 {%- if uses_numeric_solver %}
-  friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
-{% endif %}
+{%-     for s in utils.create_integrate_odes_combinations(astnode) %}
+  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endfor %}
+
+{%-     if paired_synapse is defined %}
+{#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         set s = utils.integrate_odes_args_str_from_function_call(ast) %}
+  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endif %}
+{%- endif %}
+
+
 {%- if norm_rng %}
 
 {%- if nest_version.startswith("v2") %}
@@ -925,9 +998,9 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
-{%-         filter indent(2) %}
+{%-     filter indent(2) %}
 {%-             include "directives_cpp/WriteInDictionary.jinja2" %}
-{%-         endfilter %}
+{%-     endfilter %}
 {%-     endif -%}
 {%- endfor %}
 

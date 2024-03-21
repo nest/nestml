@@ -27,7 +27,6 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 
@@ -48,9 +47,6 @@ class CppPrinter(ModelPrinter):
         return self._expression_printer.print(node)
 
     def print_function_call(self, node: ASTFunctionCall) -> str:
-        return self._expression_printer.print(node)
-
-    def print_expression(self, node: ASTExpression) -> str:
         return self._expression_printer.print(node)
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:

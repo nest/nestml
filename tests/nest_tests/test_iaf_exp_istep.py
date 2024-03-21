@@ -36,7 +36,7 @@ def test_iaf_psc_exp_istep():
     """
     target_path = "target_iaf_istep"
     module_name = "nestml_module"
-    input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_cond_exp_Istep.nestml"))
+    input_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_cond_exp_Istep_neuron.nestml"))
     generate_nest_target(input_path=input_path,
                          target_path=target_path,
                          logging_level="INFO",
@@ -44,10 +44,12 @@ def test_iaf_psc_exp_istep():
     nest.Install(module_name)
     I_step = [10., -20., 30., -40., 50.]
     t_step = [10., 30., 40., 45., 50.]
-    n = nest.Create('iaf_cond_exp_Istep', params={'n_step': 5, 'I_step': I_step,
-                                                  't_step': t_step})
-    vm = nest.Create('voltmeter', params={'interval': 0.1})
+    n = nest.Create("iaf_cond_exp_Istep_neuron", params={"n_step": 5,
+                                                         "I_step": I_step,
+                                                         "t_step": t_step})
+    vm = nest.Create("voltmeter", params={"interval": 0.1})
     nest.Connect(vm, n)
     nest.Simulate(100)
     index = int(t_step[0] / nest.resolution) + 2  # +2 to wait for the raise in amplitude of V_m after the current is applied at t_step = 10ms
-    np.testing.assert_allclose(vm.get("events")["V_m"][index], -69.996013)
+
+    np.testing.assert_allclose(vm.get("events")["V_m"][index], -69.99205309719004)

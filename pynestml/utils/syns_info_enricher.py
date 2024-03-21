@@ -20,19 +20,19 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from _collections import defaultdict
+
 import copy
+import sympy
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
-import sympy
-
-from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
 
 
 class SynsInfoEnricher(MechsInfoEnricher):
@@ -55,10 +55,7 @@ class SynsInfoEnricher(MechsInfoEnricher):
         return mechs_info
 
     @classmethod
-    def transform_convolutions_analytic_solutions(
-            cls,
-            neuron: ASTNeuron,
-            cm_syns_info: dict):
+    def transform_convolutions_analytic_solutions(cls, neuron: ASTModel, cm_syns_info: dict):
 
         enriched_syns_info = copy.copy(cm_syns_info)
         for synapse_name, synapse_info in cm_syns_info.items():
@@ -134,7 +131,7 @@ class SynsInfoEnricher(MechsInfoEnricher):
         return enriched_syns_info
 
     @classmethod
-    def restore_order_internals(cls, neuron: ASTNeuron, cm_syns_info: dict):
+    def restore_order_internals(cls, neuron: ASTModel, cm_syns_info: dict):
         """orders user defined internals
         back to the order they were originally defined
         this is important if one such variable uses another

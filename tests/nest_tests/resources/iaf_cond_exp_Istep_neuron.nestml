@@ -1,0 +1,89 @@
+"""
+iaf_cond_exp_Istep_neuron - Simple conductance based leaky integrate-and-fire neuron model with step current
+############################################################################################################
+
+Description
++++++++++++
+
+This is a variation of iaf_cond_exp [1] that incorporates a stepwise-constant injected current, defined according to a vector of times (``t_step``) and a vector of current amplitudes at those times (``I_step``).
+
+References
+++++++++++
+
+.. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+       model for the large, fluctuating synaptic conductance state typical of
+       neocortical neurons in vivo. Journal of Computational Neuroscience,
+       16:159-175.
+       DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
+
+See also
+++++++++
+
+iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+"""
+model iaf_cond_exp_Istep_neuron:
+    state:
+        V_m mV = E_L     # membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
+        k_step integer = 0       # iterator for step current
+        I_step_now pA = 0. pA  # momentaneous value of step current
+
+    equations:
+        kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
+        kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
+
+        inline I_syn_ex pA = convolve(g_ex, exc_spikes) * nS * ( V_m - E_ex )
+        inline I_syn_in pA = convolve(g_in, inh_spikes) * nS * ( V_m - E_in )
+        inline I_leak pA = g_L * ( V_m - E_L )
+        V_m' = ( -I_leak - I_syn_ex - I_syn_in + I_e + I_stim + I_step_now ) / C_m
+
+    parameters:
+        V_th mV = -55 mV        # Threshold potential
+        V_reset mV = -60 mV     # Reset potential
+        refr_T ms = 2 ms        # Duration of refractory period
+        g_L nS = 16.6667 nS     # Leak conductance
+        C_m pF = 250 pF         # Membrane capacitance
+        E_ex mV = 0 mV          # Excitatory reversal potential
+        E_in mV = -85 mV        # Inhibitory reversal potential
+        E_L mV = -70 mV         # Leak reversal potential (aka resting potential)
+        tau_syn_ex ms = 0.2 ms  # Synaptic time constant of excitatory synapse
+        tau_syn_in ms = 2 ms    # Synaptic time constant of inhibitory synapse
+
+        # constant external input current
+        I_e pA = 0 pA
+
+        n_step integer = 1  # length of step current
+        I_step[n_step] pA = 0. pA  # injected current
+        t_step[n_step] ms = 0. ms  # times of step current changes
+
+    input:
+        inh_spikes <- inhibitory spike
+        exc_spikes <- excitatory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
+
+    onCondition(not is_refractory and V_m >= V_th):  # neuron is not absolute refractory
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset # clamp potential
+        emit_spike()
+
+    onCondition(k_step <= n_step and t > t_step[k_step]):
+        I_step_now = I_step[k_step]
+        k_step += 1
+
+    onCondition(refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

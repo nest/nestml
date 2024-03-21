@@ -26,7 +26,6 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.messages import Messages
 
 

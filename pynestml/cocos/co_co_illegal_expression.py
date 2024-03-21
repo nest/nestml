@@ -42,7 +42,7 @@ class CoCoIllegalExpression(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ASTModel
         """
         neuron.accept(CorrectExpressionVisitor())
 

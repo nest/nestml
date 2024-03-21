@@ -52,7 +52,7 @@ Parameters
 
     
     "C_m", "pF", "281.0pF", "membrane parametersMembrane Capacitance"    
-    "t_ref", "ms", "0.0ms", "Refractory period"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "V_reset", "mV", "-60.0mV", "Reset Potential"    
     "g_L", "nS", "30.0nS", "Leak Conductance"    
     "E_L", "mV", "-70.6mV", "Leak reversal Potential (aka resting potential)"    
@@ -79,7 +79,9 @@ State variables
 
     
     "V_m", "mV", "E_L", "Membrane potential"    
-    "w", "pA", "0pA", "Spike-adaptation current"
+    "w", "pA", "0pA", "Spike-adaptation current"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""
 
 
 
@@ -100,7 +102,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `aeif_cond_exp <https://github.com/nest/nestml/tree/master/models/neurons/aeif_cond_exp.nestml>`_.
+The model source code can be found in the NESTML models repository here: `aeif_cond_exp <https://github.com/nest/nestml/tree/master/models/neurons/aeif_cond_exp_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -110,4 +112,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.513192
+   Generated at 2023-11-16 11:40:54.284516

@@ -5,7 +5,7 @@ Description
 +++++++++++
 Corresponds to standard compartmental model implemented in NEST.
 """
-neuron cm_default:
+model cm_default:
 
     state:
 

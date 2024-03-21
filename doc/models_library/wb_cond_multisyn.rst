@@ -37,7 +37,6 @@ Parameters
     :widths: auto
 
     
-    "t_ref", "ms", "2.0ms", "Refractory period 2.0"    
     "g_Na", "nS", "3500.0nS", "Sodium peak conductance"    
     "g_K", "nS", "900.0nS", "Potassium peak conductance"    
     "g_L", "nS", "10nS", "Leak conductance"    
@@ -46,6 +45,7 @@ Parameters
     "E_K", "mV", "-90.0mV", "Potassium reversal potentia"    
     "E_L", "mV", "-65.0mV", "Leak reversal Potential (aka resting potential)"    
     "V_Tr", "mV", "-55.0mV", "Spike Threshold"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "AMPA_g_peak", "nS", "0.1nS", "Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDApeak conductance"    
     "AMPA_E_rev", "mV", "0.0mV", "reversal potential"    
     "AMPA_Tau_1", "ms", "0.5ms", "rise time"    
@@ -76,8 +76,10 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "number of steps in the current refractory phase"    
     "V_m", "mV", "-65.0mV", "Membrane potential"    
+    "V_m_old", "mV", "E_L", "Membrane potential at previous timestep for threshold check"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "Inactivation variable h for Na"    
     "Act_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "Activation variable n for K"    
     "g_AMPA", "real", "0", ""    
@@ -111,7 +113,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `wb_cond_multisyn <https://github.com/nest/nestml/tree/master/models/neurons/wb_cond_multisyn.nestml>`_.
+The model source code can be found in the NESTML models repository here: `wb_cond_multisyn <https://github.com/nest/nestml/tree/master/models/neurons/wb_cond_multisyn_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -121,4 +123,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.473067
+   Generated at 2023-11-16 11:40:53.965800
