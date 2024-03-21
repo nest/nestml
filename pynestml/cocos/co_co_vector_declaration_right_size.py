@@ -48,6 +48,7 @@ class VectorDeclarationVisitor(ASTVisitor):
     """
 
     def visit_variable(self, node: ASTVariable):
+        return # XXX TODO remove this!!!!!
         vector_parameter = node.get_vector_parameter()
         if vector_parameter is not None:
             if isinstance(self._neuron.get_parent(node), ASTDeclaration):
@@ -65,7 +66,7 @@ class VectorDeclarationVisitor(ASTVisitor):
                 return
 
             # otherwise, ``vector_parameter`` is a SimpleExpression
-            assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal()
+            assert vector_parameter.is_variable() or vector_parameter.is_numeric_literal() # XXX TODO enhance/extend condition
 
             vector_parameter_val = None
 

@@ -63,6 +63,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes for random number generator
 {%- if nest_version.startswith("v2") %}
 #include "normal_randomdev.h"
+#include "poisson_randomdev.h"
 #include "uniform_randomdev.h"
 {%- else %}
 #include <random>
@@ -828,8 +829,10 @@ private:
 
 {%- if nest_version.startswith("v2") %}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+  librandom::PoissonRandomDev poisson_dev_; //!< random deviate generator
 {%- else %}
   nest::normal_distribution normal_dev_; //!< random deviate generator
+  nest::poisson_distribution poisson_dev_; //!< random deviate generator
 {%- endif %}
 {%- endif %}
 {%- if has_delay_variables %}
