@@ -117,7 +117,7 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_neuron_with_comments(self):
         neuron = "# pre\n" \
-                 "neuron test: # in\n" \
+                 "model test: # in\n" \
                  "    parameters:\n" \
                  "        foo integer = 0\n"
         model = ModelParser.parse_nestml_compilation_unit(neuron)
@@ -128,8 +128,8 @@ class NestMLPrinterTest(unittest.TestCase):
         neuron = '"""hello, world\n" \
                  "\n" \
                  "3.141592653589793"""\n'\
-                 "neuron test:\n"
-        model = ModelParser.parse_neuron(neuron)
+                 "model test:\n"
+        model = ModelParser.parse_model(neuron)
         model_printer = NESTMLPrinter()
         self.assertEqual(neuron, model_printer.print(model))
 

@@ -1,4 +1,4 @@
-""" 
+"""
 CppVariableNames.nestml
 #######################
 
@@ -26,7 +26,7 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron cpp_variable_names_test:
+model cpp_variable_names_test:
     state:
         static real = 0.
         concept real = 0.

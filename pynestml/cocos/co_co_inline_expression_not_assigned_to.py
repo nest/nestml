@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_utils import ASTUtils
@@ -35,7 +35,7 @@ class CoCoInlineExpressionNotAssignedTo(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron):
+    def check_co_co(cls, node: ASTModel):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.

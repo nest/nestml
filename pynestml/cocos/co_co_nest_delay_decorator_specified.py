@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -31,7 +31,7 @@ class CoCoNESTDelayDecoratorSpecified(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuronOrSynapse):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks if the coco applies for the node.
         :param node:

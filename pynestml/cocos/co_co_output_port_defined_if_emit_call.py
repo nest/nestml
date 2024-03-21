@@ -23,7 +23,7 @@ from typing import Optional
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -35,7 +35,7 @@ class CoCoOutputPortDefinedIfEmitCall(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron: ASTNeuron):
+    def check_co_co(cls, neuron: ASTModel):
         """
         Checks the coco for the handed over neuron.
         :param neuron: a single neuron instance.
@@ -50,7 +50,7 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
     This visitor ensures that all function calls are consistent.
     """
 
-    neuron = None   # type: Optional[ASTNeuron]
+    neuron = None   # type: Optional[ASTModel]
 
     def visit_function_call(self, node: ASTFunctionCall):
         """

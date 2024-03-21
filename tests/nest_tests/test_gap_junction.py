@@ -44,7 +44,7 @@ except Exception:
 class TestGapJunction:
     r"""Test code generation and perform simulations and numerical checks for gap junction support in linear and non-linear neuron models"""
 
-    @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp", "aeif_cond_exp"])
+    @pytest.mark.parametrize("neuron_model", ["iaf_psc_exp_neuron", "aeif_cond_exp_neuron"])
     def test_gap_junction_effect_on_membrane_potential(self, neuron_model: str):
         self.generate_code(neuron_model)
         for wfr_interpolation_order in [0, 1, 3]:

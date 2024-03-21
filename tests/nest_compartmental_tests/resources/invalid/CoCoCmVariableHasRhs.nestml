@@ -6,7 +6,7 @@ CoCoCmVariableHasRhs.nestml
 Description
 +++++++++++
 
-This model is used to test whether the all variable declarations of the 
+This model is used to test whether the all variable declarations of the
 compartmental model contain a right hand side expression
 
 Negative case.
@@ -33,19 +33,19 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron cm_model_four_invalid:
+model cm_model_four_invalid:
 
     state:
         # compartmental voltage variable,
         # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
         v_comp real
-    
+
         m_Na real
 
     #sodium
     function m_inf_Na(v_comp real) real:
         return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
-    
+
     function tau_m_Na(v_comp real) real:
         return 0.3115264797507788/((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp)))
 

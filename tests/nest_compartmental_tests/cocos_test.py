@@ -52,7 +52,7 @@ class CoCosTest(unittest.TestCase):
         FrontendConfiguration.target_platform = "NEST_COMPARTMENTAL"
 
     def test_invalid_cm_variables_declared(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -60,11 +60,11 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoCmVariablesDeclared.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 4)
 
     def test_valid_cm_variables_declared(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -72,12 +72,12 @@ class CoCosTest(unittest.TestCase):
                         'valid')),
                 'CoCoCmVariablesDeclared.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 0)
 
     # it is currently not enforced for the non-cm parameter block, but cm
     # needs that
     def test_invalid_cm_variable_has_rhs(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -85,11 +85,11 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoCmVariableHasRhs.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_cm_variable_has_rhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -97,12 +97,12 @@ class CoCosTest(unittest.TestCase):
                         'valid')),
                 'CoCoCmVariableHasRhs.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 0)
 
     # it is currently not enforced for the non-cm parameter block, but cm
     # needs that
     def test_invalid_cm_v_comp_exists(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -110,11 +110,11 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoCmVcompExists.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 4)
 
     def test_valid_cm_v_comp_exists(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -122,4 +122,4 @@ class CoCosTest(unittest.TestCase):
                         'valid')),
                 'CoCoCmVcompExists.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 0)

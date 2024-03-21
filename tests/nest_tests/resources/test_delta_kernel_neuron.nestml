@@ -1,0 +1,29 @@
+"""
+test_delta_kernel
+#################
+
+Description
++++++++++++
+
+Used in NESTML unit testing.
+"""
+model test_delta_kernel_neuron:
+    state:
+        x real = 0.
+
+    equations:
+        kernel delta_kernel = delta(t)
+        recordable inline psp real = convolve(delta_kernel, spikes) * mV
+        x' = -x / tau_m + psp
+
+    parameters:
+        tau_m ms = 10 ms
+
+    input:
+        spikes <- spike
+
+    output:
+        spike
+
+    update:
+        integrate_odes()

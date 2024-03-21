@@ -37,7 +37,7 @@ class TestForwardEulerIntegrator:
     def generate_target(self, numeric_solver: str):
         r"""Generate the neuron model code"""
 
-        files = [os.path.join("models", "neurons", "izhikevich.nestml")]
+        files = [os.path.join("models", "neurons", "izhikevich_neuron.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -57,8 +57,8 @@ class TestForwardEulerIntegrator:
         nest.ResetKernel()
         nest.resolution = .001
 
-        nrn1 = nest.Create("izhikevich_rk45_nestml")
-        nrn2 = nest.Create("izhikevich_forward_Euler_nestml")
+        nrn1 = nest.Create("izhikevich_neuron_rk45_nestml")
+        nrn2 = nest.Create("izhikevich_neuron_forward_Euler_nestml")
 
         nrn1.I_e = 10.
         nrn2.I_e = 10.

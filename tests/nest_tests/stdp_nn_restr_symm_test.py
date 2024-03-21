@@ -44,18 +44,18 @@ sim_ref = True
 
 class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nn_restr_symm_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_restr_symm_synapse_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nn_restr_symm_nestml__with_iaf_psc_exp_nestml"
+    synapse_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_nn_restr_synapse"
 
     def setUp(self):
         r"""Generate the neuron model code"""
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-                 os.path.join("models", "synapses", "stdp_nn_restr_symm.nestml")]
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+                 os.path.join("models", "synapses", "stdp_nn_restr_symm_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -65,13 +65,13 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp_nn_restr_symm",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "stdp_nn_restr_symm_synapse",
                                                                      "post_ports": ["post_spikes"]}]})
 
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",
@@ -148,8 +148,6 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_WARNING")
 
-        post_weights = {'parrot': []}
-
         nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
@@ -181,7 +179,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
         if sim_mdl:
             spikedet_pre = nest.Create("spike_recorder")
             spikedet_post = nest.Create("spike_recorder")
-            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_trace__for_stdp_nn_restr_symm_nestml"]})
+            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_trace__for_stdp_nn_restr_symm_synapse_nestml"]})
         if sim_ref:
             spikedet_pre_ref = nest.Create("spike_recorder")
             spikedet_post_ref = nest.Create("spike_recorder")
@@ -237,6 +235,8 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                 pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
                 print("Actual pre ref spike times: " + str(pre_ref_spike_times_))
 
+            np.testing.assert_almost_equal(pre_spike_times_, pre_ref_spike_times_)
+
             if sim_mdl:
                 n_spikes = len(pre_spike_times_)
                 for i in range(n_spikes):
@@ -282,7 +282,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
             if sim_mdl:
                 ax2.plot(nest.GetStatus(mm, "events")[0]["times"], nest.GetStatus(mm, "events")[
-                         0]["post_trace__for_stdp_nn_restr_symm_nestml"], label="nestml post tr")
+                         0]["post_trace__for_stdp_nn_restr_symm_synapse_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             if sim_mdl:
@@ -297,7 +297,7 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                 _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
-            fig.savefig("/tmp/stdp_nn_restr_symm_test" + fname_snip + ".png", dpi=300)
+            fig.savefig("/tmp/stdp_nn_restr_symm_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
         MAX_ABS_ERROR = 1E-6

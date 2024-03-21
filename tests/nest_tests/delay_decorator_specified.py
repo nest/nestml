@@ -27,21 +27,21 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 class TestDelayDecoratorSpecified:
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
+    synapse_model_name = "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_synapse"
 
     @pytest.mark.xfail(strict=True)
     def test_delay_decorator_not_specified_results_in_failure(self):
         r"""Generate the model code"""
 
-        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                      "synapse": "stdp",
+        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                      "synapse": "stdp_synapse",
                                                       "post_ports": ["post_spikes"]}]}
 
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("tests", "invalid", "stdp_synapse_missing_delay_decorator.nestml")]
         # remove ``@nest::delay`` decorator from the file
         with open(os.path.join("models", "synapses", "stdp_synapse.nestml"), "r") as syn_file:

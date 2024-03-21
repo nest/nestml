@@ -34,7 +34,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron BlockTest:
+model BlockTest:
     update:
         while j < 3.14 and j>0 or False==true:
             for i in 10-3.14 ... 10+3.14e0 step -1:

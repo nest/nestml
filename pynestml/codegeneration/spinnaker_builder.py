@@ -21,10 +21,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence, Union
+from typing import Any, Mapping, Optional
 
 import os
-import platform
 import subprocess
 import sys
 import fnmatch
@@ -33,8 +32,6 @@ from pynestml.codegeneration.builder import Builder
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.utils.logger import Logger
-from pynestml.utils.logger import LoggingLevel
 
 
 class SpiNNakerBuilder(Builder):

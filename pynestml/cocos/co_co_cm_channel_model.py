@@ -20,17 +20,16 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.channel_processing import ChannelProcessing
 
 
 class CoCoCmChannelModel(CoCo):
     @classmethod
-    def check_co_co(cls, neuron: ASTNeuron):
+    def check_co_co(cls, model: ASTModel):
         """
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param model: a single neuron instance.
         """
-        return ChannelProcessing.check_co_co(neuron)
+        return ChannelProcessing.check_co_co(model)

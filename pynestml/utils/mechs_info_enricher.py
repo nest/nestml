@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.symbols.symbol import SymbolKind
@@ -39,7 +39,7 @@ class MechsInfoEnricher:
         pass
 
     @classmethod
-    def enrich_with_additional_info(cls, neuron: ASTNeuron, mechs_info: dict):
+    def enrich_with_additional_info(cls, neuron: ASTModel, mechs_info: dict):
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         return mechs_info

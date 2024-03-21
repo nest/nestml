@@ -75,10 +75,10 @@ class ASTCloneTest(unittest.TestCase):
         # now, do the actual test for clone()
         ast_copy = ast.clone()
         assert str(ast) == str(ast_copy)
-        ast.get_neuron_list()[0].name = "foo"
-        ast_copy.get_neuron_list()[0].name = "bar"
+        ast.get_model_list()[0].name = "foo"
+        ast_copy.get_model_list()[0].name = "bar"
         assert str(ast) != str(ast_copy)
-        ast_copy.get_neuron_list()[0].name = "foo"
+        ast_copy.get_model_list()[0].name = "foo"
         assert str(ast) == str(ast_copy)
 
     @classmethod

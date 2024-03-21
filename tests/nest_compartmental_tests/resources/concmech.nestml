@@ -1,5 +1,5 @@
 
-neuron multichannel_test_model:
+model multichannel_test_model:
     parameters:
         e_AMPA real = 0 mV
         tau_r_AMPA real = 0.2 ms
