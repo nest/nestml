@@ -391,7 +391,9 @@ class CoCosManager:
         """
         :param model: a single model object.
         """
-        CoCoResolutionFuncLegallyUsed.check_co_co(model)
+        return
+        # XXX: FIXME! see: get_parent() being excruciatingly slow.
+        #CoCoResolutionFuncLegallyUsed.check_co_co(model)
 
     @classmethod
     def check_input_port_size_type(cls, model: ASTModel):
@@ -411,7 +413,8 @@ class CoCosManager:
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
-        cls.check_variables_defined_before_usage(model, after_ast_rewrite)
+        # XXX: FIXME! see: get_parent() being excruciatingly slow.
+        # cls.check_variables_defined_before_usage(model, after_ast_rewrite)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(model)

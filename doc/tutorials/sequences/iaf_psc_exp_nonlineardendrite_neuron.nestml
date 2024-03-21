@@ -24,7 +24,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
 
         # diff. eq. for membrane potential
         #recordable inline I_dend pA = convolve(I_kernel2, I_2) * pA
-        inline I_syn pA = convolve(I_kernel1, I_1) * pA + convolve(I_kernel3, I_3) * pA + I_e
+        inline I_syn pA = convolve(I_kernel1, I_1) * pA - convolve(I_kernel3, I_3) * pA + I_e
         V_m' = -(V_m - E_L)/tau_m + (I_syn + I_dend) / C_m
 
         # diff. eq. for dAP trace
@@ -43,13 +43,13 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         E_L        mV = 0mV                    # resting potential.
 
         # dendritic action potential
-        theta_dAP pA = 60pA                            # current threshold for a dendritic action potential
-        I_p pA = 250pA                                     # current clamp value for I_dAP during a dendritic action potential
-        tau_dAP ms = 60ms                                # time window over which the dendritic current clamp is active
+        theta_dAP pA = 60 pA                            # current threshold for a dendritic action potential
+        I_p pA = 250 pA                                     # current clamp value for I_dAP during a dendritic action potential
+        tau_dAP ms = 60 ms                                # time window over which the dendritic current clamp is active
         dAP_timeout_ticks integer = steps(tau_dAP)
 
         # refractory parameters
-        t_ref ms = 10ms                                                        # refractory period
+        t_ref ms = 10 ms                                                        # refractory period
         ref_timeout_ticks integer = steps(t_ref)
 
         I_dend_incr pA/ms = pA * exp(1) / tau_syn2
@@ -64,7 +64,7 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         spike
 
     onReceive(I_2):
-        I_dend$ += I_dend_incr
+        I_dend$ += I_2 * ms * I_dend_incr * 1E6 # XXX factor 1E6?!
 
     update:
         # solve ODEs
@@ -75,15 +75,22 @@ model iaf_psc_exp_nonlineardendrite_neuron:
             if dAP_counts == 0:
 
                 if active_dendrite == false:
+                    # starting dAP
                     dAP_trace += 1 pA
                     active_dendrite = true
                     active_dendrite_readout = 1.
                     I_dend = I_p
                     dAP_counts = dAP_timeout_ticks
                 else:
+                    # ending dAP
                     I_dend = 0 pA
                     active_dendrite = false
                     active_dendrite_readout = 0.
+
+                    # the following assignment to I_dend$ reproduces a bug in the original implementation
+                    c1 real = -resolution() * exp(-resolution() / tau_syn2) / tau_syn2**2
+                    c2 real = (-resolution() + tau_syn2)*exp(-resolution() / tau_syn2)/tau_syn2
+                    I_dend$ = I_p * c1 / (1 - c2) / ms
 
             else:
                 dAP_counts -= 1

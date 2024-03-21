@@ -66,6 +66,7 @@ class NESTCodeGeneratorUtils:
                           post_ports: Optional[List[str]] = None,
                           mod_ports: Optional[List[str]] = None,
                           uniq_id: Optional[str] = None,
+                          codegen_opts: Optional[dict] = None,
                           logging_level: str = "WARNING"):
         """Generate code for a given neuron and synapse model, passed as a string.
         NEST cannot yet unload or reload modules. This function implements a workaround using UUIDs to generate unique names.
@@ -119,27 +120,32 @@ class NESTCodeGeneratorUtils:
         # generate the code for neuron and optionally synapse
         module_name = "nestml_" + uniq_id + "_module"
         input_fns = [neuron_uniq_fn]
-        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+        _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                         "neuron_parent_class_include": "structural_plasticity_node.h"}
 
         mangled_neuron_name = neuron_model_name_uniq + "_nestml"
         if nestml_synapse_model:
             input_fns += [synapse_uniq_fn]
-            codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name_uniq,
-                                                     "synapse": synapse_model_name_uniq,
-                                                     "post_ports": post_ports,
-                                                     "vt_ports": mod_ports}]
+            _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name_uniq,
+                                                      "synapse": synapse_model_name_uniq,
+                                                      "post_ports": post_ports,
+                                                      "vt_ports": mod_ports}]
             mangled_neuron_name = neuron_model_name_uniq + "_nestml__with_" + synapse_model_name_uniq + "_nestml"
             mangled_synapse_name = synapse_model_name_uniq + "_nestml__with_" + neuron_model_name_uniq + "_nestml"
+
+        if codegen_opts:
+            _codegen_opts.update(codegen_opts)
 
         generate_nest_target(input_path=input_fns,
                              install_path=install_path,
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix="_nestml",
-                             codegen_opts=codegen_opts)
+                             codegen_opts=_codegen_opts)
 
+        # generated neuron + synapse
         if nestml_synapse_model:
             return module_name, mangled_neuron_name, mangled_synapse_name
-        else:
-            return module_name, mangled_neuron_name
+
+        # generated neuron only
+        return module_name, mangled_neuron_name
