@@ -451,9 +451,9 @@ void
 nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
   std::vector< double > v_comps(compartments_.size());
-  for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
+  for ( size_t i = 0; i < compartments_.size(); i++ )
   {
-    v_comps[( *compartment_it )->comp_index] = ( *compartment_it )->v_comp;
+    v_comps[i] = compartments_[i]->v_comp;
   }
   std::vector< std::pair< double, double > > comps_gi = neuron_currents.f_numstep( v_comps, lag );
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
