@@ -141,8 +141,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
-
-        return function_name + '()'
+        else:
+            return function_name + '()'
 
     def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []

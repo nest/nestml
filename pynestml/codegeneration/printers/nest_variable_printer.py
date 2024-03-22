@@ -55,6 +55,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable.
         :return: a nest processable format.
         """
+        array_index_access = ""
+        if self.print_as_arrays and self.array_index is not None:
+            array_index_access = "[" + str(self.array_index) + "]"
+
         assert isinstance(variable, ASTVariable)
 
         if isinstance(variable, ASTExternalVariable):
@@ -88,32 +92,35 @@ class NESTVariablePrinter(CppVariablePrinter):
             vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
-            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
-            else:
-                units_conversion_factor = 1
+#            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+#                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+#                print("BUFFER TYPE: " + str(symbol.get_type_symbol().unit.unit.physical_type))
+#            else:
+#                units_conversion_factor = 1
             s = ""
-            if not units_conversion_factor == 1:
-                s += "(" + str(units_conversion_factor) + " * "
-            s += "B_." + self._print_buffer_value(variable)
-            if not units_conversion_factor == 1:
-                s += ")"
+#            if not units_conversion_factor == 1:
+#                s += "(" + str(units_conversion_factor) + " * "
+            if not (self.print_as_arrays and self.array_index is not None):
+                s += "B_."
+            s += self._print_buffer_value(variable)
+#            if not units_conversion_factor == 1:
+#                s += ")"
             return s
 
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             if self.enforce_getter:
-                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()" + array_index_access
             # modification to not enforce getter function:
             else:
-                return self._print(variable, symbol, with_origin=False)
+                return self._print(variable, symbol, with_origin=False) + array_index_access
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
 
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
@@ -159,6 +166,9 @@ class NESTVariablePrinter(CppVariablePrinter):
                 var_name = var_name + "_" + str(vector_parameter)
 
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+        if self.print_as_arrays and self.array_index is not None:
+            return variable_symbol.get_symbol_name() + "[" + str(self.array_index) + "]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

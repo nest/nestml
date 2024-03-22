@@ -695,9 +695,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_parameter = None
         if ctx.sizeParameter is not None:
             size_parameter = self.visit(ctx.sizeParameter)
-        data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         signal_type = PortSignalType.CONTINUOUS
-        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
+        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=None,
                                                    input_qualifiers=None, signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))

@@ -65,3 +65,11 @@ class SimpleExpressionPrinter(ASTPrinter, metaclass=ABCMeta):
             The expression string.
         """
         raise Exception("Cannot call abstract method")
+
+    def set_array_index(self, index):
+        self._variable_printer.set_array_index(index)
+        self._function_call_printer.set_array_index(index)
+
+    def array_printing_toggle(self, array_printing=None):
+        self._variable_printer.array_printing_toggle(array_printing)
+        self._function_call_printer.array_printing_toggle(array_printing)

@@ -56,7 +56,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "ring_buffer.h"
 
 // compartmental model
-#include "{{neuronSpecificFileNamesCmSyns["compartmentcurrents"]}}.h"
+#include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 
 // Includes from libnestutil:
 #include "dict_util.h"
@@ -90,8 +90,6 @@ public:
   // tree structure indices
   Compartment{{cm_unique_suffix}}* parent;
   std::vector< Compartment{{cm_unique_suffix}} > children;
-  // vector for synapses
-  CompartmentCurrents{{cm_unique_suffix}} compartment_currents;
 
   // buffer for currents
   RingBuffer currents;
@@ -129,7 +127,8 @@ public:
   std::map< Name, double* > get_recordables();
 
   // matrix construction
-  void construct_matrix_element( const long lag );
+  void construct_matrix_element( std::pair< double, double > comp_gi, const long lag );
+  void execute_mechanism_stepfunctions( const long lag );
 
   // maxtrix inversion
   inline void gather_input( const std::pair< double, double >& in );
@@ -200,6 +199,8 @@ public:
   // constructor, destructor
   CompTree{{cm_unique_suffix}}();
   ~CompTree{{cm_unique_suffix}}(){};
+
+  NeuronCurrents{{cm_unique_suffix}} neuron_currents;
 
   // initialization functions for tree structure
   void add_compartment( const long parent_index );

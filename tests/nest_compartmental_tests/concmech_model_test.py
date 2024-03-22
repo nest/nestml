@@ -52,8 +52,8 @@ class TestCompartmentalConcmech:
     def test_concmech(self):
         cm = nest.Create('multichannel_test_model_nestml')
 
-        soma_params = {'C_m': 10.0, 'g_c': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 1.0, 'gbar_Ca_LVAst': 0.0}
-        dend_params = {'C_m': 0.1, 'g_c': 0.1, 'g_L': 0.1, 'e_L': -70.0}
+        soma_params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 1.0, 'gbar_Ca_LVAst': 0.0}
+        dend_params = {'C_m': 0.1, 'g_C': 0.1, 'g_L': 0.1, 'e_L': -70.0}
 
         # nest.AddCompartment(cm, 0, -1, soma_params)
         cm.compartments = [
