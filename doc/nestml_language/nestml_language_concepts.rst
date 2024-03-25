@@ -532,10 +532,10 @@ The following functions are predefined in NESTML and can be used out of the box:
      - Returns the rounded value of x. The type of x and the return type are Real.
    * - ``random_normal``
      - mean, std
-     - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
+     - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation". This function can only be used in ``update`` and ``equations`` block.
    * - ``random_uniform``
      - offset, scale
-     - Returns a sample from a uniform distribution in the interval [offset, offset + scale)
+     - Returns a sample from a uniform distribution in the interval [offset, offset + scale). This function can only be used in ``update`` and ``equations`` block.
    * - ``delta``
      - t
      - A Dirac delta impulse function at time t.
