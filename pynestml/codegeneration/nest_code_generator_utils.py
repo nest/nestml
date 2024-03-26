@@ -63,6 +63,7 @@ class NESTCodeGeneratorUtils:
                           nestml_neuron_model: str,
                           nestml_synapse_model: Optional[str] = None,
                           module_name: Optional[str] = None,
+                          target_path: str = "target",
                           post_ports: Optional[List[str]] = None,
                           mod_ports: Optional[List[str]] = None,
                           logging_level: str = "WARNING"):
@@ -119,16 +120,14 @@ class NESTCodeGeneratorUtils:
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
-        # generate the code for neuron and optionally synapse
-        if module_name:
-            module_name = "nestml_" + module_name + "_module"
-        else:
+        if not module_name:
             module_name = "nestml_module"
 
         generate_nest_target(input_path=input_fns,
                              install_path=install_path,
                              logging_level=logging_level,
                              module_name=module_name,
+                             target_path=target_path,
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
