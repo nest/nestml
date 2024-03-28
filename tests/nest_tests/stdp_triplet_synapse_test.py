@@ -194,7 +194,8 @@ def run_nest_simulation(neuron_model_name,
             for s in nest_modules_to_load:
                 nest.Install(s)
     except Exception:
-        pass  # will fail when run in a loop ("module is already loaded")
+        # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+        pass
 
     nest.SetKernelStatus({'print_time': False, 'local_num_threads': 1})
     nest.SetKernelStatus({'resolution': resolution})

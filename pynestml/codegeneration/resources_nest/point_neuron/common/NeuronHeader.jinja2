@@ -209,6 +209,13 @@ size_t access_counter )
 
   Receives: {% if has_spike_input %}Spike, {% endif %}{% if has_continuous_input %}Current,{% endif %} DataLoggingRequest
 */
+
+// Register the neuron model
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+void register_{{ neuronName }}( const std::string& name );
+{%- endif %}
+
 class {{neuronName}} : public nest::{{neuron_parent_class}}
 {
 public:

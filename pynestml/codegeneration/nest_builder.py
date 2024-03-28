@@ -41,7 +41,6 @@ def __add_library_to_sli(lib_path):
         lib_path = os.path.abspath(lib_path)
 
     system = platform.system()
-    lib_key = ""
 
     if system == "Linux":
         lib_key = "LD_LIBRARY_PATH"
@@ -51,8 +50,7 @@ def __add_library_to_sli(lib_path):
     if lib_key in os.environ:
         current = os.environ[lib_key].split(os.pathsep)
         if lib_path not in current:
-            current.append(lib_path)
-            os.environ[lib_key] += os.pathsep.join(current)
+            os.environ[lib_key] = os.pathsep.join([os.environ[lib_key], lib_path])
     else:
         os.environ[lib_key] = lib_path
 

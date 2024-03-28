@@ -48,7 +48,6 @@ class TestStaticSynapse:
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml")
-        nest.Install("nestmlmodule")
 
     @pytest.mark.parametrize("synapse_model_name", ["static_synapse_nestml", "noisy_synapse_nestml"])
     def test_static_synapse(self, synapse_model_name: str):
@@ -59,6 +58,11 @@ class TestStaticSynapse:
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.SetKernelStatus({"resolution": .1})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",

@@ -68,9 +68,9 @@ class NestFirFilterTest(unittest.TestCase):
         resolution = 0.1
 
         nest.set_verbosity("M_ALL")
-        nest.Install(module_name)
 
         nest.ResetKernel()
+        nest.Install(module_name)
 
         # Create a fir_filter node
         neuron = nest.Create(nestml_model_name, {"N": 256})

@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.10.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.13.0
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -447,7 +447,7 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.10.1")
+        self.checkVersion("4.13.0")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -506,32 +506,32 @@ class PyNestMLParser ( Parser ):
             self.state = 102
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.INTEGER_KEYWORD]:
+            if token in [10]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 96
                 localctx.isInt = self.match(PyNestMLParser.INTEGER_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.REAL_KEYWORD]:
+            elif token in [11]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 97
                 localctx.isReal = self.match(PyNestMLParser.REAL_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.STRING_KEYWORD]:
+            elif token in [12]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 98
                 localctx.isString = self.match(PyNestMLParser.STRING_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.BOOLEAN_KEYWORD]:
+            elif token in [13]:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 99
                 localctx.isBool = self.match(PyNestMLParser.BOOLEAN_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.VOID_KEYWORD]:
+            elif token in [14]:
                 self.enterOuterAlt(localctx, 5)
                 self.state = 100
                 localctx.isVoid = self.match(PyNestMLParser.VOID_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.LEFT_PAREN, PyNestMLParser.NAME, PyNestMLParser.UNSIGNED_INTEGER]:
+            elif token in [49, 88, 89]:
                 self.enterOuterAlt(localctx, 6)
                 self.state = 101
                 localctx.unit = self.unitType(0)
@@ -622,7 +622,7 @@ class PyNestMLParser ( Parser ):
             self.state = 113
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.LEFT_PAREN]:
+            if token in [49]:
                 self.state = 105
                 localctx.leftParentheses = self.match(PyNestMLParser.LEFT_PAREN)
                 self.state = 106
@@ -630,7 +630,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 107
                 localctx.rightParentheses = self.match(PyNestMLParser.RIGHT_PAREN)
                 pass
-            elif token in [PyNestMLParser.UNSIGNED_INTEGER]:
+            elif token in [89]:
                 self.state = 109
                 localctx.unitlessLiteral = self.match(PyNestMLParser.UNSIGNED_INTEGER)
                 self.state = 110
@@ -638,7 +638,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 111
                 localctx.right = self.unitType(2)
                 pass
-            elif token in [PyNestMLParser.NAME]:
+            elif token in [88]:
                 self.state = 112
                 localctx.unit = self.match(PyNestMLParser.NAME)
                 pass
@@ -668,11 +668,11 @@ class PyNestMLParser ( Parser ):
                         self.state = 118
                         self._errHandler.sync(self)
                         token = self._input.LA(1)
-                        if token in [PyNestMLParser.STAR]:
+                        if token in [77]:
                             self.state = 116
                             localctx.timesOp = self.match(PyNestMLParser.STAR)
                             pass
-                        elif token in [PyNestMLParser.FORWARD_SLASH]:
+                        elif token in [79]:
                             self.state = 117
                             localctx.divOp = self.match(PyNestMLParser.FORWARD_SLASH)
                             pass
@@ -749,10 +749,10 @@ class PyNestMLParser ( Parser ):
             self.state = 130
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.PLUS or _la==PyNestMLParser.MINUS:
+            if _la==51 or _la==75:
                 self.state = 129
                 _la = self._input.LA(1)
-                if not(_la==PyNestMLParser.PLUS or _la==PyNestMLParser.MINUS):
+                if not(_la==51 or _la==75):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
@@ -875,7 +875,7 @@ class PyNestMLParser ( Parser ):
             self.state = 145
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.LEFT_PAREN]:
+            if token in [49]:
                 self.state = 135
                 localctx.leftParentheses = self.match(PyNestMLParser.LEFT_PAREN)
                 self.state = 136
@@ -883,19 +883,19 @@ class PyNestMLParser ( Parser ):
                 self.state = 137
                 localctx.rightParentheses = self.match(PyNestMLParser.RIGHT_PAREN)
                 pass
-            elif token in [PyNestMLParser.PLUS, PyNestMLParser.TILDE, PyNestMLParser.MINUS]:
+            elif token in [51, 52, 75]:
                 self.state = 139
                 self.unaryOperator()
                 self.state = 140
                 localctx.term = self.expression(9)
                 pass
-            elif token in [PyNestMLParser.NOT_KEYWORD]:
+            elif token in [28]:
                 self.state = 142
                 localctx.logicalNot = self.match(PyNestMLParser.NOT_KEYWORD)
                 self.state = 143
                 localctx.term = self.expression(4)
                 pass
-            elif token in [PyNestMLParser.INF_KEYWORD, PyNestMLParser.BOOLEAN_LITERAL, PyNestMLParser.STRING_LITERAL, PyNestMLParser.NAME, PyNestMLParser.UNSIGNED_INTEGER, PyNestMLParser.FLOAT]:
+            elif token in [25, 86, 87, 88, 89, 90]:
                 self.state = 144
                 self.simpleExpression()
                 pass
@@ -939,15 +939,15 @@ class PyNestMLParser ( Parser ):
                         self.state = 154
                         self._errHandler.sync(self)
                         token = self._input.LA(1)
-                        if token in [PyNestMLParser.STAR]:
+                        if token in [77]:
                             self.state = 151
                             localctx.timesOp = self.match(PyNestMLParser.STAR)
                             pass
-                        elif token in [PyNestMLParser.FORWARD_SLASH]:
+                        elif token in [79]:
                             self.state = 152
                             localctx.divOp = self.match(PyNestMLParser.FORWARD_SLASH)
                             pass
-                        elif token in [PyNestMLParser.PERCENT]:
+                        elif token in [80]:
                             self.state = 153
                             localctx.moduloOp = self.match(PyNestMLParser.PERCENT)
                             pass
@@ -969,11 +969,11 @@ class PyNestMLParser ( Parser ):
                         self.state = 160
                         self._errHandler.sync(self)
                         token = self._input.LA(1)
-                        if token in [PyNestMLParser.PLUS]:
+                        if token in [51]:
                             self.state = 158
                             localctx.plusOp = self.match(PyNestMLParser.PLUS)
                             pass
-                        elif token in [PyNestMLParser.MINUS]:
+                        elif token in [75]:
                             self.state = 159
                             localctx.minusOp = self.match(PyNestMLParser.MINUS)
                             pass
@@ -1127,7 +1127,7 @@ class PyNestMLParser ( Parser ):
                 self.enterOuterAlt(localctx, 3)
                 self.state = 188
                 _la = self._input.LA(1)
-                if not(_la==PyNestMLParser.UNSIGNED_INTEGER or _la==PyNestMLParser.FLOAT):
+                if not(_la==89 or _la==90):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
@@ -1210,15 +1210,15 @@ class PyNestMLParser ( Parser ):
             self.state = 200
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.PLUS]:
+            if token in [51]:
                 self.state = 197
                 localctx.unaryPlus = self.match(PyNestMLParser.PLUS)
                 pass
-            elif token in [PyNestMLParser.MINUS]:
+            elif token in [75]:
                 self.state = 198
                 localctx.unaryMinus = self.match(PyNestMLParser.MINUS)
                 pass
-            elif token in [PyNestMLParser.TILDE]:
+            elif token in [52]:
                 self.state = 199
                 localctx.unaryTilde = self.match(PyNestMLParser.TILDE)
                 pass
@@ -1282,23 +1282,23 @@ class PyNestMLParser ( Parser ):
             self.state = 207
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.AMPERSAND]:
+            if token in [55]:
                 self.state = 202
                 localctx.bitAnd = self.match(PyNestMLParser.AMPERSAND)
                 pass
-            elif token in [PyNestMLParser.CARET]:
+            elif token in [54]:
                 self.state = 203
                 localctx.bitXor = self.match(PyNestMLParser.CARET)
                 pass
-            elif token in [PyNestMLParser.PIPE]:
+            elif token in [53]:
                 self.state = 204
                 localctx.bitOr = self.match(PyNestMLParser.PIPE)
                 pass
-            elif token in [PyNestMLParser.LEFT_LEFT_ANGLE]:
+            elif token in [61]:
                 self.state = 205
                 localctx.bitShiftLeft = self.match(PyNestMLParser.LEFT_LEFT_ANGLE)
                 pass
-            elif token in [PyNestMLParser.RIGHT_RIGHT_ANGLE]:
+            elif token in [62]:
                 self.state = 206
                 localctx.bitShiftRight = self.match(PyNestMLParser.RIGHT_RIGHT_ANGLE)
                 pass
@@ -1370,31 +1370,31 @@ class PyNestMLParser ( Parser ):
             self.state = 216
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.LEFT_ANGLE]:
+            if token in [63]:
                 self.state = 209
                 localctx.lt = self.match(PyNestMLParser.LEFT_ANGLE)
                 pass
-            elif token in [PyNestMLParser.LEFT_ANGLE_EQUALS]:
+            elif token in [65]:
                 self.state = 210
                 localctx.le = self.match(PyNestMLParser.LEFT_ANGLE_EQUALS)
                 pass
-            elif token in [PyNestMLParser.EQUALS_EQUALS]:
+            elif token in [70]:
                 self.state = 211
                 localctx.eq = self.match(PyNestMLParser.EQUALS_EQUALS)
                 pass
-            elif token in [PyNestMLParser.EXCLAMATION_EQUALS]:
+            elif token in [71]:
                 self.state = 212
                 localctx.ne = self.match(PyNestMLParser.EXCLAMATION_EQUALS)
                 pass
-            elif token in [PyNestMLParser.LEFT_ANGLE_RIGHT_ANGLE]:
+            elif token in [72]:
                 self.state = 213
                 localctx.ne2 = self.match(PyNestMLParser.LEFT_ANGLE_RIGHT_ANGLE)
                 pass
-            elif token in [PyNestMLParser.RIGHT_ANGLE_EQUALS]:
+            elif token in [73]:
                 self.state = 214
                 localctx.ge = self.match(PyNestMLParser.RIGHT_ANGLE_EQUALS)
                 pass
-            elif token in [PyNestMLParser.RIGHT_ANGLE]:
+            elif token in [64]:
                 self.state = 215
                 localctx.gt = self.match(PyNestMLParser.RIGHT_ANGLE)
                 pass
@@ -1446,11 +1446,11 @@ class PyNestMLParser ( Parser ):
             self.state = 220
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.AND_KEYWORD]:
+            if token in [26]:
                 self.state = 218
                 localctx.logicalAnd = self.match(PyNestMLParser.AND_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.OR_KEYWORD]:
+            elif token in [27]:
                 self.state = 219
                 localctx.logicalOr = self.match(PyNestMLParser.OR_KEYWORD)
                 pass
@@ -1602,13 +1602,13 @@ class PyNestMLParser ( Parser ):
             self.state = 245
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INF_KEYWORD) | (1 << PyNestMLParser.NOT_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN) | (1 << PyNestMLParser.PLUS) | (1 << PyNestMLParser.TILDE))) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & ((1 << (PyNestMLParser.MINUS - 75)) | (1 << (PyNestMLParser.BOOLEAN_LITERAL - 75)) | (1 << (PyNestMLParser.STRING_LITERAL - 75)) | (1 << (PyNestMLParser.NAME - 75)) | (1 << (PyNestMLParser.UNSIGNED_INTEGER - 75)) | (1 << (PyNestMLParser.FLOAT - 75)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 7318349696466944) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & 63489) != 0):
                 self.state = 237
                 self.expression(0)
                 self.state = 242
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==PyNestMLParser.COMMA:
+                while _la==74:
                     self.state = 238
                     self.match(PyNestMLParser.COMMA)
                     self.state = 239
@@ -1695,7 +1695,7 @@ class PyNestMLParser ( Parser ):
             self.state = 250
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.RECORDABLE_KEYWORD:
+            if _la==29:
                 self.state = 249
                 localctx.recordable = self.match(PyNestMLParser.RECORDABLE_KEYWORD)
 
@@ -1713,7 +1713,7 @@ class PyNestMLParser ( Parser ):
             self.state = 258
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.SEMICOLON:
+            if _la==84:
                 self.state = 257
                 self.match(PyNestMLParser.SEMICOLON)
 
@@ -1721,7 +1721,7 @@ class PyNestMLParser ( Parser ):
             self.state = 263
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.DECORATOR_HOMOGENEOUS) | (1 << PyNestMLParser.DECORATOR_HETEROGENEOUS) | (1 << PyNestMLParser.AT))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & 246290604621824) != 0):
                 self.state = 260
                 localctx.decorator = self.anyDecorator()
                 self.state = 265
@@ -1801,7 +1801,7 @@ class PyNestMLParser ( Parser ):
             self.state = 272
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.SEMICOLON:
+            if _la==84:
                 self.state = 271
                 self.match(PyNestMLParser.SEMICOLON)
 
@@ -1809,7 +1809,7 @@ class PyNestMLParser ( Parser ):
             self.state = 277
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.DECORATOR_HOMOGENEOUS) | (1 << PyNestMLParser.DECORATOR_HETEROGENEOUS) | (1 << PyNestMLParser.AT))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & 246290604621824) != 0):
                 self.state = 274
                 localctx.decorator = self.anyDecorator()
                 self.state = 279
@@ -1899,7 +1899,7 @@ class PyNestMLParser ( Parser ):
             self.state = 293
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.KERNEL_JOINING:
+            while _la==4:
                 self.state = 286
                 self.match(PyNestMLParser.KERNEL_JOINING)
                 self.state = 287
@@ -1915,7 +1915,7 @@ class PyNestMLParser ( Parser ):
             self.state = 297
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.SEMICOLON:
+            if _la==84:
                 self.state = 296
                 self.match(PyNestMLParser.SEMICOLON)
 
@@ -1986,7 +1986,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 306 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RETURN_KEYWORD) | (1 << PyNestMLParser.IF_KEYWORD) | (1 << PyNestMLParser.FOR_KEYWORD) | (1 << PyNestMLParser.WHILE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 543621120) != 0) or _la==88):
                     break
 
             self.state = 308
@@ -2035,12 +2035,12 @@ class PyNestMLParser ( Parser ):
             self.state = 312
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RETURN_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
+            if token in [16, 17, 29, 88]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 310
                 self.smallStmt()
                 pass
-            elif token in [PyNestMLParser.IF_KEYWORD, PyNestMLParser.FOR_KEYWORD, PyNestMLParser.WHILE_KEYWORD]:
+            elif token in [18, 21, 22]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 311
                 self.compoundStmt()
@@ -2096,17 +2096,17 @@ class PyNestMLParser ( Parser ):
             self.state = 317
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.IF_KEYWORD]:
+            if token in [18]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 314
                 self.ifStmt()
                 pass
-            elif token in [PyNestMLParser.FOR_KEYWORD]:
+            elif token in [21]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 315
                 self.forStmt()
                 pass
-            elif token in [PyNestMLParser.WHILE_KEYWORD]:
+            elif token in [22]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 316
                 self.whileStmt()
@@ -2261,23 +2261,23 @@ class PyNestMLParser ( Parser ):
             self.state = 333
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.EQUALS]:
+            if token in [76]:
                 self.state = 328
                 localctx.directAssignment = self.match(PyNestMLParser.EQUALS)
                 pass
-            elif token in [PyNestMLParser.PLUS_EQUALS]:
+            elif token in [66]:
                 self.state = 329
                 localctx.compoundSum = self.match(PyNestMLParser.PLUS_EQUALS)
                 pass
-            elif token in [PyNestMLParser.MINUS_EQUALS]:
+            elif token in [67]:
                 self.state = 330
                 localctx.compoundMinus = self.match(PyNestMLParser.MINUS_EQUALS)
                 pass
-            elif token in [PyNestMLParser.STAR_EQUALS]:
+            elif token in [68]:
                 self.state = 331
                 localctx.compoundProduct = self.match(PyNestMLParser.STAR_EQUALS)
                 pass
-            elif token in [PyNestMLParser.FORWARD_SLASH_EQUALS]:
+            elif token in [69]:
                 self.state = 332
                 localctx.compoundQuotient = self.match(PyNestMLParser.FORWARD_SLASH_EQUALS)
                 pass
@@ -2375,7 +2375,7 @@ class PyNestMLParser ( Parser ):
             self.state = 338
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.RECORDABLE_KEYWORD:
+            if _la==29:
                 self.state = 337
                 localctx.isRecordable = self.match(PyNestMLParser.RECORDABLE_KEYWORD)
 
@@ -2383,7 +2383,7 @@ class PyNestMLParser ( Parser ):
             self.state = 341
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.INLINE_KEYWORD:
+            if _la==16:
                 self.state = 340
                 localctx.isInlineExpression = self.match(PyNestMLParser.INLINE_KEYWORD)
 
@@ -2393,7 +2393,7 @@ class PyNestMLParser ( Parser ):
             self.state = 348
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.COMMA:
+            while _la==74:
                 self.state = 344
                 self.match(PyNestMLParser.COMMA)
                 self.state = 345
@@ -2407,7 +2407,7 @@ class PyNestMLParser ( Parser ):
             self.state = 354
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.EQUALS:
+            if _la==76:
                 self.state = 352
                 self.match(PyNestMLParser.EQUALS)
                 self.state = 353
@@ -2417,7 +2417,7 @@ class PyNestMLParser ( Parser ):
             self.state = 360
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.LEFT_LEFT_SQUARE:
+            if _la==59:
                 self.state = 356
                 self.match(PyNestMLParser.LEFT_LEFT_SQUARE)
                 self.state = 357
@@ -2429,7 +2429,7 @@ class PyNestMLParser ( Parser ):
             self.state = 365
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.DECORATOR_HOMOGENEOUS) | (1 << PyNestMLParser.DECORATOR_HETEROGENEOUS) | (1 << PyNestMLParser.AT))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & 246290604621824) != 0):
                 self.state = 362
                 localctx.decorator = self.anyDecorator()
                 self.state = 367
@@ -2537,17 +2537,17 @@ class PyNestMLParser ( Parser ):
             self.state = 378
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.DECORATOR_HOMOGENEOUS]:
+            if token in [45]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 371
                 self.match(PyNestMLParser.DECORATOR_HOMOGENEOUS)
                 pass
-            elif token in [PyNestMLParser.DECORATOR_HETEROGENEOUS]:
+            elif token in [46]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 372
                 self.match(PyNestMLParser.DECORATOR_HETEROGENEOUS)
                 pass
-            elif token in [PyNestMLParser.AT]:
+            elif token in [47]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 373
                 self.match(PyNestMLParser.AT)
@@ -2688,7 +2688,7 @@ class PyNestMLParser ( Parser ):
             self.state = 386
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INF_KEYWORD) | (1 << PyNestMLParser.NOT_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN) | (1 << PyNestMLParser.PLUS) | (1 << PyNestMLParser.TILDE))) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & ((1 << (PyNestMLParser.MINUS - 75)) | (1 << (PyNestMLParser.BOOLEAN_LITERAL - 75)) | (1 << (PyNestMLParser.STRING_LITERAL - 75)) | (1 << (PyNestMLParser.NAME - 75)) | (1 << (PyNestMLParser.UNSIGNED_INTEGER - 75)) | (1 << (PyNestMLParser.FLOAT - 75)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 7318349696466944) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & 63489) != 0):
                 self.state = 385
                 self.expression(0)
 
@@ -2748,7 +2748,7 @@ class PyNestMLParser ( Parser ):
             self.state = 392
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.ELIF_KEYWORD:
+            while _la==19:
                 self.state = 389
                 self.elifClause()
                 self.state = 394
@@ -2758,7 +2758,7 @@ class PyNestMLParser ( Parser ):
             self.state = 396
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.ELSE_KEYWORD:
+            if _la==20:
                 self.state = 395
                 self.elseClause()
 
@@ -3020,14 +3020,14 @@ class PyNestMLParser ( Parser ):
             self.state = 420
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.MINUS:
+            if _la==75:
                 self.state = 419
                 localctx.negative = self.match(PyNestMLParser.MINUS)
 
 
             self.state = 422
             _la = self._input.LA(1)
-            if not(_la==PyNestMLParser.UNSIGNED_INTEGER or _la==PyNestMLParser.FLOAT):
+            if not(_la==89 or _la==90):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -3157,15 +3157,15 @@ class PyNestMLParser ( Parser ):
                 self.state = 434
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [PyNestMLParser.NEURON_KEYWORD]:
+                if token in [31]:
                     self.state = 431
                     self.neuron()
                     pass
-                elif token in [PyNestMLParser.SYNAPSE_KEYWORD]:
+                elif token in [32]:
                     self.state = 432
                     self.synapse()
                     pass
-                elif token in [PyNestMLParser.NEWLINE]:
+                elif token in [9]:
                     self.state = 433
                     self.match(PyNestMLParser.NEWLINE)
                     pass
@@ -3175,7 +3175,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 436 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.NEURON_KEYWORD) | (1 << PyNestMLParser.SYNAPSE_KEYWORD))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 6442451456) != 0)):
                     break
 
             self.state = 438
@@ -3332,27 +3332,27 @@ class PyNestMLParser ( Parser ):
                 self.state = 453
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [PyNestMLParser.STATE_KEYWORD, PyNestMLParser.PARAMETERS_KEYWORD, PyNestMLParser.INTERNALS_KEYWORD]:
+                if token in [33, 34, 35]:
                     self.state = 447
                     self.blockWithVariables()
                     pass
-                elif token in [PyNestMLParser.EQUATIONS_KEYWORD]:
+                elif token in [37]:
                     self.state = 448
                     self.equationsBlock()
                     pass
-                elif token in [PyNestMLParser.INPUT_KEYWORD]:
+                elif token in [38]:
                     self.state = 449
                     self.inputBlock()
                     pass
-                elif token in [PyNestMLParser.OUTPUT_KEYWORD]:
+                elif token in [39]:
                     self.state = 450
                     self.outputBlock()
                     pass
-                elif token in [PyNestMLParser.UPDATE_KEYWORD]:
+                elif token in [36]:
                     self.state = 451
                     self.updateBlock()
                     pass
-                elif token in [PyNestMLParser.FUNCTION_KEYWORD]:
+                elif token in [15]:
                     self.state = 452
                     self.function()
                     pass
@@ -3362,7 +3362,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 455 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 1090921725952) != 0)):
                     break
 
             self.state = 457
@@ -3526,31 +3526,31 @@ class PyNestMLParser ( Parser ):
                 self.state = 473
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [PyNestMLParser.STATE_KEYWORD, PyNestMLParser.PARAMETERS_KEYWORD, PyNestMLParser.INTERNALS_KEYWORD]:
+                if token in [33, 34, 35]:
                     self.state = 466
                     self.blockWithVariables()
                     pass
-                elif token in [PyNestMLParser.EQUATIONS_KEYWORD]:
+                elif token in [37]:
                     self.state = 467
                     self.equationsBlock()
                     pass
-                elif token in [PyNestMLParser.INPUT_KEYWORD]:
+                elif token in [38]:
                     self.state = 468
                     self.inputBlock()
                     pass
-                elif token in [PyNestMLParser.OUTPUT_KEYWORD]:
+                elif token in [39]:
                     self.state = 469
                     self.outputBlock()
                     pass
-                elif token in [PyNestMLParser.FUNCTION_KEYWORD]:
+                elif token in [15]:
                     self.state = 470
                     self.function()
                     pass
-                elif token in [PyNestMLParser.ON_RECEIVE_KEYWORD]:
+                elif token in [41]:
                     self.state = 471
                     self.onReceiveBlock()
                     pass
-                elif token in [PyNestMLParser.UPDATE_KEYWORD]:
+                elif token in [36]:
                     self.state = 472
                     self.updateBlock()
                     pass
@@ -3560,7 +3560,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 475 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD) | (1 << PyNestMLParser.ON_RECEIVE_KEYWORD))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 3289944981504) != 0)):
                     break
 
             self.state = 477
@@ -3642,7 +3642,7 @@ class PyNestMLParser ( Parser ):
             self.state = 486
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.COMMA:
+            while _la==74:
                 self.state = 482
                 self.match(PyNestMLParser.COMMA)
                 self.state = 483
@@ -3724,7 +3724,7 @@ class PyNestMLParser ( Parser ):
             self.state = 493
             localctx.blockType = self._input.LT(1)
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD))) != 0)):
+            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 60129542144) != 0)):
                 localctx.blockType = self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -3744,7 +3744,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 500 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==PyNestMLParser.INLINE_KEYWORD or _la==PyNestMLParser.RECORDABLE_KEYWORD or _la==PyNestMLParser.NAME):
+                if not (_la==16 or _la==29 or _la==88):
                     break
 
             self.state = 502
@@ -3885,15 +3885,15 @@ class PyNestMLParser ( Parser ):
                 self.state = 515
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD]:
+                if token in [16, 29]:
                     self.state = 512
                     self.inlineExpression()
                     pass
-                elif token in [PyNestMLParser.NAME]:
+                elif token in [88]:
                     self.state = 513
                     self.odeEquation()
                     pass
-                elif token in [PyNestMLParser.KERNEL_KEYWORD]:
+                elif token in [30]:
                     self.state = 514
                     self.kernel()
                     pass
@@ -3903,7 +3903,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 517 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.KERNEL_KEYWORD))) != 0) or _la==PyNestMLParser.NAME):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 1610678272) != 0) or _la==88):
                     break
 
             self.state = 519
@@ -4001,7 +4001,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 529 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==PyNestMLParser.NAME):
+                if not (_la==88):
                     break
 
             self.state = 531
@@ -4077,7 +4077,7 @@ class PyNestMLParser ( Parser ):
             self.state = 538
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.LEFT_SQUARE_BRACKET:
+            if _la==56:
                 self.state = 534
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 535
@@ -4091,7 +4091,7 @@ class PyNestMLParser ( Parser ):
             self.state = 544
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.INHIBITORY_KEYWORD or _la==PyNestMLParser.EXCITATORY_KEYWORD:
+            while _la==43 or _la==44:
                 self.state = 541
                 self.inputQualifier()
                 self.state = 546
@@ -4170,7 +4170,7 @@ class PyNestMLParser ( Parser ):
             self.state = 555
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.LEFT_SQUARE_BRACKET:
+            if _la==56:
                 self.state = 551
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 552
@@ -4232,11 +4232,11 @@ class PyNestMLParser ( Parser ):
             self.state = 564
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.INHIBITORY_KEYWORD]:
+            if token in [43]:
                 self.state = 562
                 localctx.isInhibitory = self.match(PyNestMLParser.INHIBITORY_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.EXCITATORY_KEYWORD]:
+            elif token in [44]:
                 self.state = 563
                 localctx.isExcitatory = self.match(PyNestMLParser.EXCITATORY_KEYWORD)
                 pass
@@ -4314,11 +4314,11 @@ class PyNestMLParser ( Parser ):
             self.state = 572
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.SPIKE_KEYWORD]:
+            if token in [42]:
                 self.state = 570
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
+            elif token in [40]:
                 self.state = 571
                 localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
@@ -4410,13 +4410,13 @@ class PyNestMLParser ( Parser ):
             self.state = 588
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.NAME:
+            if _la==88:
                 self.state = 580
                 self.parameter()
                 self.state = 585
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==PyNestMLParser.COMMA:
+                while _la==74:
                     self.state = 581
                     self.match(PyNestMLParser.COMMA)
                     self.state = 582
@@ -4432,7 +4432,7 @@ class PyNestMLParser ( Parser ):
             self.state = 592
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.UNSIGNED_INTEGER:
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 562949953453056) != 0) or _la==88 or _la==89:
                 self.state = 591
                 localctx.returnType = self.dataType()
 
@@ -4551,7 +4551,7 @@ class PyNestMLParser ( Parser ):
             self.state = 602
             localctx.value = self._input.LT(1)
             _la = self._input.LA(1)
-            if not(_la==PyNestMLParser.INF_KEYWORD or ((((_la - 86)) & ~0x3f) == 0 and ((1 << (_la - 86)) & ((1 << (PyNestMLParser.BOOLEAN_LITERAL - 86)) | (1 << (PyNestMLParser.STRING_LITERAL - 86)) | (1 << (PyNestMLParser.UNSIGNED_INTEGER - 86)) | (1 << (PyNestMLParser.FLOAT - 86)))) != 0)):
+            if not(_la==25 or ((((_la - 86)) & ~0x3f) == 0 and ((1 << (_la - 86)) & 27) != 0)):
                 localctx.value = self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)

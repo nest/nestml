@@ -63,8 +63,6 @@ class TestGapJunction:
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-        nest.Install("nestml_gap_" + neuron_model + "_module")
-
         return neuron_model
 
     def _test_gap_junction_effect_on_membrane_potential(self, neuron_model, wfr_interpolation_order: int):
@@ -74,6 +72,7 @@ class TestGapJunction:
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        nest.Install("nestml_gap_" + neuron_model + "_module")
 
         nest.resolution = resolution
         nest.wfr_comm_interval = 2.         # [ms]
