@@ -36,9 +36,11 @@ class TestTimeVariable:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariableNeuron.nestml"))),
-                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariableSynapse.nestml")))]
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "models", "neurons", "iaf_psc_delta_neuron.nestml"))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariableSynapse.nestml"))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariablePrePostSynapse.nestml")))]
         target_path = "target"
-        logging_level = "INFO"
+        logging_level = "DEBUG"
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
@@ -47,7 +49,11 @@ class TestTimeVariable:
                              target_path=target_path,
                              logging_level=logging_level,
                              module_name=module_name,
-                             suffix=suffix)
+                             suffix=suffix,
+                            codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                                                    "synapse": "time_variable_pre_post_synapse",
+                                                                    "post_ports": ["post_spikes"]}]})
+
         nest.Install(module_name)
 
     def test_time_variable_neuron(self):
@@ -83,6 +89,41 @@ class TestTimeVariable:
 
         x = syn[0].get("x")
         y = syn[0].get("y")
+
+        np.testing.assert_allclose(x, sr.get("events")["times"][-2])
+        np.testing.assert_allclose(y, sr.get("events")["times"][-1])
+
+
+    def time_variable_pre_post_synapse(self):
+        """a synapse is updated when pre- and postsynaptic spikes arrive"""
+        nest.ResetKernel()
+        nrn = nest.Create("iaf_psc_delta__for_time_variable_pre_post_synapse_nestml", 2)
+        nrn[0].I_e = 1000.  # [pA]
+        nrn[1].I_e = 2000.  # [pA]
+        sr = nest.Create("spike_recorder")
+        nest.Connect(nrn[0], sr_pre)
+        nest.Connect(nrn[1], sr_post)
+        nest.Connect(nrn[0], nrn[1], syn_spec={"synapse_model": "time_variable_pre_post_synapse_nestml__with_iaf_psc_delta_nestml"})
+        syn = nest.GetConnections(nrn[0], nrn[1])
+        assert len(syn) == 1
+
+        T_sim = 50.  # [ms]
+        sim_interval = 1. # [ms]
+        x = []
+        y = []
+        while nest.biological_time < T_sim:
+            nest.Simulate(sim_interval)
+            x.append(syn[0].get("x"))
+            y.append(syn[0].get("y"))
+
+        assert len(sr_pre.get("events")["times"]) > 2, "Was expecting some more presynaptic spikes"
+        assert len(sr_post.get("events")["times"]) > 2, "Was expecting some more presynaptic spikes"
+
+        fig, ax = plt.subplots()
+        ax.plot(x)
+        ax.plot(y)
+        fig.savefig("/tmp/foo.png")
+
 
         np.testing.assert_allclose(x, sr.get("events")["times"][-2])
         np.testing.assert_allclose(y, sr.get("events")["times"][-1])
