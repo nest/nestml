@@ -71,6 +71,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "dict.h"
 #include "dictutils.h"
 
+#include <functional>
+
 
 namespace nest
 {
@@ -94,7 +96,7 @@ public:
   // buffer for currents
   RingBuffer currents;
   // voltage variable
-  double v_comp;
+  double* v_comp;
   // electrical parameters
   double ca; // compartment capacitance [uF]
   double gc; // coupling conductance with parent (meaningless if root) [uS]
@@ -102,20 +104,23 @@ public:
   double el; // leak current reversal potential [mV]
   // auxiliary variables for efficienchy
   double gg0;
-  double ca__div__dt;
-  double gl__div__2;
+  double* ca__div__dt;
+  double* gl__div__2;
   double gc__div__2;
-  double gl__times__el;
+  double* gl__times__el;
   // for numerical integration
-  double ff;
+  double* ff;
   double gg;
   double hh;
   // passage counter for recursion
   int n_passed;
 
   // constructor, destructor
-  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index );
-  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index, const DictionaryDatum& compartment_params );
+  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index);
+  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
+    double* v_comp_ref, double* ca__div__dt_ref, double* gl__div__2_ref, double* gl__times__el_ref, double* ff_ref);
+  Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index, const DictionaryDatum& compartment_params,
+    double* v_comp_ref, double* ca__div__dt_ref, double* gl__div__2_ref, double* gl__times__el_ref, double* ff_ref);
   ~Compartment{{cm_unique_suffix}}(){};
 
   // initialization
@@ -136,7 +141,6 @@ public:
   inline double calc_v( const double v_in );
 }; // Compartment
 
-
 /*
 Short helper functions for solving the matrix equation. Can hopefully be inlined
 */
@@ -151,11 +155,11 @@ nest::Compartment{{cm_unique_suffix}}::io()
 {
   // include inputs from child compartments
   gg -= xx_;
-  ff -= yy_;
+  *ff -= yy_;
 
   // output values
   double g_val( hh * hh / gg );
-  double f_val( ff * hh / gg );
+  double f_val( *ff * hh / gg );
 
   return std::make_pair( g_val, f_val );
 }
@@ -167,9 +171,9 @@ nest::Compartment{{cm_unique_suffix}}::calc_v( const double v_in )
   yy_ = 0.0;
 
   // compute voltage
-  v_comp = ( ff - v_in * hh ) / gg;
+  *v_comp = ( *ff - v_in * hh ) / gg;
 
-  return v_comp;
+  return *v_comp;
 }
 
 
@@ -194,6 +198,12 @@ private:
   void set_parents();
   void set_compartments();
   void set_leafs();
+
+  std::vector< double > v_comp_vec;
+  std::vector< double > ca__div__dt_vec;
+  std::vector< double > gl__div__2_vec;
+  std::vector< double > gl__times__el_vec;
+  std::vector< double > ff_vec;
 
 public:
   // constructor, destructor

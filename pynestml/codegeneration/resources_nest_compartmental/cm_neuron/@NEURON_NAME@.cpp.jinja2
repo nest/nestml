@@ -302,13 +302,13 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 
   for ( long lag = from; lag < to; ++lag )
   {
-    const double v_0_prev = c_tree_.get_root()->v_comp;
+    const double v_0_prev = *(c_tree_.get_root()->v_comp);
 
     c_tree_.construct_matrix( lag );
     c_tree_.solve_matrix();
 
     // threshold crossing
-    if ( c_tree_.get_root()->v_comp >= V_th_ && v_0_prev < V_th_ )
+    if ( *(c_tree_.get_root()->v_comp) >= V_th_ && v_0_prev < V_th_ )
     {
       set_spiketime( Time::step( origin.get_steps() + lag + 1 ) );
 
