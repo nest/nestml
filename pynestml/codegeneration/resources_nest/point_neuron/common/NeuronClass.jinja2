@@ -937,6 +937,7 @@ void
 {%- endfor %}
 
     const double t_sp_ms = t_sp.get_ms() - offset;
+    auto get_t = [t_sp_ms](){ return t_sp_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
     if ( n_incoming_ )
     {
