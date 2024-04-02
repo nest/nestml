@@ -251,6 +251,9 @@ class NESTCodeGenerator(CodeGenerator):
                      "synapses": synapses,
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
+        # NEST version
+        if self.option_exists("nest_version"):
+            namespace["nest_version"] = self.get_option("nest_version")
         return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:

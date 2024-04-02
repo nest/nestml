@@ -241,6 +241,11 @@ class TestNestIntegration:
         for i, I_stim in enumerate(I_stim_vec):
 
             nest.ResetKernel()
+            try:
+                nest.Install("nestml_allmodels_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
 

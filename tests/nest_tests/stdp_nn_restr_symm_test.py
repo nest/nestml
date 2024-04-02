@@ -148,7 +148,6 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_WARNING")
 
-        nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
         wr = nest.Create('weight_recorder')

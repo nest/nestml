@@ -41,23 +41,25 @@ class TestTimeVariable:
                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "TimeVariablePrePostSynapse.nestml")))]
         target_path = "target"
         logging_level = "DEBUG"
-        module_name = "nestmlmodule"
         suffix = "_nestml"
 
         nest.set_verbosity("M_ALL")
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix,
                             codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                                                     "synapse": "time_variable_pre_post_synapse",
                                                                     "post_ports": ["post_spikes"]}]})
 
-        nest.Install(module_name)
 
     def test_time_variable_neuron(self):
         nest.ResetKernel()
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
         nrn = nest.Create("time_variable_neuron_nestml")
         mm = nest.Create("multimeter")
         nest.SetStatus(mm, {"record_from": ["x", "y"]})
@@ -75,6 +77,11 @@ class TestTimeVariable:
     def test_time_variable_synapse(self):
         """a synapse is only updated when presynaptic spikes arrive"""
         nest.ResetKernel()
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
         nrn = nest.Create("iaf_psc_delta", 2)
         nrn[0].I_e = 1000.  # [pA]
         sr = nest.Create("spike_recorder")
