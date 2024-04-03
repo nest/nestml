@@ -40,7 +40,7 @@ neuron iaf_psc_exp_resolution_test:
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

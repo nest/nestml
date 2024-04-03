@@ -45,7 +45,7 @@ neuron iaf_psc_exp_multisynapse_neuron:
         spikes1 <- spike
         spikes2 <- spike
         spikes3 <- spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

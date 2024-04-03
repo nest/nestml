@@ -76,7 +76,7 @@ neuron izhikevich_psc_alpha:
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

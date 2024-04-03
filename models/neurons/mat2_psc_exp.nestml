@@ -83,7 +83,7 @@ neuron mat2_psc_exp:
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

@@ -144,7 +144,7 @@ neuron traub_cond_multisyn:
         NMDA <- spike
         GABA_A <- spike
         GABA_B <- spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

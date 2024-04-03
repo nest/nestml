@@ -117,7 +117,7 @@ neuron hh_cond_exp_traub:
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

@@ -43,7 +43,7 @@ neuron iaf_psc_exp_multisynapse_vectors_neuron:
 
     input:
         spikes[3] <- spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

@@ -58,7 +58,7 @@ neuron izhikevich:
 
     input:
         spikes <- spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

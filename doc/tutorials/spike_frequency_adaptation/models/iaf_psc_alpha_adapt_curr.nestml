@@ -94,7 +94,7 @@ neuron iaf_psc_alpha_adapt_curr:
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike

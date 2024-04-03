@@ -29,7 +29,7 @@ A neuron model written in NESTML can be configured to receive two distinct types
 
    input:
        AMPA_spikes <- spike
-       I_stim pA <- continuous
+       I_stim <- continuous
 
 The general syntax is:
 
@@ -108,7 +108,7 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
        V_m' = -V_m/tau_m + ... + I_stim
 
    input:
-       I_stim pA <- continuous
+       I_stim <- continuous
 
 
 Integrating spiking input

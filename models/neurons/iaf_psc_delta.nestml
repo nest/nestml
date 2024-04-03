@@ -79,7 +79,7 @@ neuron iaf_psc_delta:
 
     input:
         spikes <- spike
-        I_stim pA <- continuous
+        I_stim <- continuous
 
     output:
         spike
