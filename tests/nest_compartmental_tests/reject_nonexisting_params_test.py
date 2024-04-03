@@ -38,6 +38,7 @@ except BaseException as e:
     # always set TEST_PLOTS to False if matplotlib can not be imported
     TEST_PLOTS = False
 
+
 class TestNonExistingParamReject(unittest.TestCase):
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
