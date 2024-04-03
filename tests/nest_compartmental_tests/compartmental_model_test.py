@@ -530,22 +530,22 @@ class CMTest(unittest.TestCase):
             if var_nest == "v_comp0":
                 atol = 0.51
             elif var_nest == "v_comp1":
-                atol = 0.1
+                atol = 0.15
             else:
                 atol = 0.01
             self.assertTrue(np.allclose(
-                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=.51
+                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=atol
             ))
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
             if var_nest == "v_comp0":
                 atol = 0.51
             elif var_nest == "v_comp1":
-                atol = 0.1
+                atol = 0.15
             else:
                 atol = 0.01
             self.assertTrue(np.allclose(
-                res_pas_nest[var_nest], res_pas_nestml[var_nestml], atol=.51
+                res_pas_nest[var_nest], res_pas_nestml[var_nestml], atol=atol
             ))
 
         # check if synaptic conductances are equal
