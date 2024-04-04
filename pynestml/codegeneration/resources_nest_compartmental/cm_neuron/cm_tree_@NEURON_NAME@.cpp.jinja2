@@ -32,11 +32,11 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , gc( 0.01 )
   , gl( 0.1 )
   , el( -70. )
-  , gg0( 0.0 )
+  , gg0( nullptr )
   , ca__div__dt( nullptr )
   , gl__times__el( nullptr )
   , ff( nullptr )
-  , gg( 0.0 )
+  , gg( nullptr )
   , hh( 0.0 )
   , n_passed( 0 )
 {
@@ -44,7 +44,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 }
 
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
-    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* ff_ref )
+    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref )
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
@@ -55,11 +55,11 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , gc( 0.01 )
   , gl( 0.1 )
   , el( -70. )
-  , gg0( 0.0 )
+  , gg0( gg0_ref )
   , ca__div__dt( ca__div__dt_ref )
   , gl__times__el( gl__times__el_ref )
   , ff( ff_ref )
-  , gg( 0.0 )
+  , gg( gg_ref )
   , hh( 0.0 )
   , n_passed( 0 )
 {
@@ -68,7 +68,7 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
 nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
   const long parent_index,
   const DictionaryDatum& compartment_params,
-  double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* ff_ref)
+  double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref)
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
@@ -79,11 +79,11 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , gc( 0.01 )
   , gl( 0.1 )
   , el( -70. )
-  , gg0( 0.0 )
+  , gg0( gg0_ref )
   , ca__div__dt( ca__div__dt_ref )
   , gl__times__el( gl__times__el_ref )
   , ff( ff_ref )
-  , gg( 0.0 )
+  , gg( gg_ref )
   , hh( 0.0 )
   , n_passed( 0 )
 {
@@ -108,8 +108,7 @@ nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
   // used in vectorized passive loop
   *ca__div__dt = ca / dt;
   *gl__times__el = gl * el;
-  // not used in vectorized passive loop
-  gg0 = *ca__div__dt + gl;
+  *gg0 = *ca__div__dt + gl;
 
   // initialize the buffer
   currents.clear();
@@ -130,26 +129,26 @@ void
 nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( std::pair< double, double > comp_gi, const long lag )
 {
   // matrix diagonal element
-  gg = gg0;
+  // gg = gg0;
 
   if ( parent != nullptr )
   {
-    gg += gc;
+    *gg += gc;
     // matrix off diagonal element
     hh = -gc;
   }
 
   for ( auto child_it = children.begin(); child_it != children.end(); ++child_it )
   {
-    gg += ( *child_it ).gc;
+    *gg += ( *child_it ).gc;
   }
 
-  // add all currents to compartment
-  gg += comp_gi.first;
-  *ff += comp_gi.second;
+  // // add all currents to compartment
+  // gg += comp_gi.first;
+  // *ff += comp_gi.second;
 
-  // add input current
-  *ff += currents.get_value( lag );
+  // // add input current
+  // *ff += currents.get_value( lag );
 }
 
 
@@ -172,12 +171,14 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index )
   v_comp_vec.push_back(0.0);
   ca__div__dt_vec.push_back(0.0);
   gl__times__el_vec.push_back(0.0);
+  gg0_vec.push_back(0.0);
+  gg_vec.push_back(0.0);
   ff_vec.push_back(0.0);
   size_t comp_index = v_comp_vec.size()-1;
 
   Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}(
     size_, parent_index, &(v_comp_vec[comp_index]), &(ca__div__dt_vec[comp_index]),
-    &(gl__times__el_vec[comp_index]), &(ff_vec[comp_index])
+    &(gl__times__el_vec[comp_index]), &(gg0_vec[comp_index]), &(gg_vec[comp_index]), &(ff_vec[comp_index])
   );
 
   neuron_currents.add_compartment();
@@ -219,12 +220,14 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   v_comp_vec.push_back(0.0);
   ca__div__dt_vec.push_back(0.0);
   gl__times__el_vec.push_back(0.0);
+  gg0_vec.push_back(0.0);
+  gg_vec.push_back(0.0);
   ff_vec.push_back(0.0);
   size_t comp_index = v_comp_vec.size()-1;
 
   Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}(
     size_, parent_index, compartment_params, &(v_comp_vec[comp_index]), &(ca__div__dt_vec[comp_index]),
-    &(gl__times__el_vec[comp_index]), &(ff_vec[comp_index])
+    &(gl__times__el_vec[comp_index]), &(gg0_vec[comp_index]), &(gg_vec[comp_index]), &(ff_vec[comp_index])
   );
 
   neuron_currents.add_compartment(compartment_params);
@@ -378,6 +381,8 @@ nest::CompTree{{cm_unique_suffix}}::set_compartment_variables()
     compartments_[i]->v_comp = &(v_comp_vec[i]);
     compartments_[i]->ca__div__dt = &(ca__div__dt_vec[i]);
     compartments_[i]->gl__times__el = &(gl__times__el_vec[i]);
+    compartments_[i]->gg0 = &(gg0_vec[i]);
+    compartments_[i]->gg = &(gg_vec[i]);
     compartments_[i]->ff = &(ff_vec[i]);
   }
 }
@@ -487,11 +492,23 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartm
 void
 nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
+  // compute all channel currents, receptor currents, and input currents
   std::vector< std::pair< double, double > > comps_gi = neuron_currents.f_numstep( v_comp_vec, lag );
-  // right hand side
+
+  // passive currents left hand side
+  // gg_vec = gg0_vec;
+
   #pragma omp simd
   for( size_t i = 0; i < v_comp_vec.size(); i++ ){
+    // passive current left hand side
+    gg_vec[i] = gg0_vec[i];
+    // passive currents right hand side
     ff_vec[i] = ca__div__dt_vec[i] * v_comp_vec[i] + gl__times__el_vec[i];
+
+    // add all currents to compartment
+    gg_vec[i] += comps_gi[i].first;
+    ff_vec[i] += comps_gi[i].second;
+
   }
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
