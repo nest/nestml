@@ -18,11 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import uuid
 from typing import List, Optional
 
 import re
 import tempfile
+import uuid
 
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import BlockType
@@ -87,11 +87,9 @@ class NESTCodeGeneratorUtils:
 
         # update neuron model name inside the file
         neuron_model_name = re.findall(r"neuron [^:\s]*:", nestml_neuron_model)[0][7:-1]
-        nestml_model = re.sub(r"neuron [^:\s]*:",
-                              "neuron " + neuron_model_name + ":", nestml_neuron_model)
         neuron_fn = neuron_model_name + ".nestml"
         with open(neuron_fn, "w") as f:
-            print(nestml_model, file=f)
+            print(nestml_neuron_model, file=f)
 
         input_fns = [neuron_fn]
         codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
@@ -106,11 +104,9 @@ class NESTCodeGeneratorUtils:
 
             # update synapse model name inside the file
             synapse_model_name = re.findall(r"synapse [^:\s]*:", nestml_synapse_model)[0][8:-1]
-            nestml_model = re.sub(r"synapse [^:\s]*:",
-                                  "synapse " + synapse_model_name + ":", nestml_synapse_model)
             synapse_fn = synapse_model_name + ".nestml"
             with open(synapse_fn, "w") as f:
-                print(nestml_model, file=f)
+                print(nestml_synapse_model, file=f)
 
             input_fns += [synapse_fn]
             codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
