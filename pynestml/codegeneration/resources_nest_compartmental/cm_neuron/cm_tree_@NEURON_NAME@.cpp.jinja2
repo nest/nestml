@@ -345,7 +345,9 @@ nest::CompTree{{cm_unique_suffix}}::init_pointers()
 {
   set_parents();
   set_compartments();
+  set_compartment_variables();
   set_leafs();
+
 }
 
 /**
@@ -377,6 +379,22 @@ nest::CompTree{{cm_unique_suffix}}::set_compartments()
         ++compartment_idx_it )
   {
     compartments_.push_back( get_compartment( *compartment_idx_it ) );
+  }
+}
+
+/**
+ * Set pointer variables within a compartment
+ */
+void
+nest::CompTree{{cm_unique_suffix}}::set_compartment_variables()
+{
+  //reset compartment pointers due to unsafe pointers in vectors when resizing during compartment creation
+  for( size_t i = 0; i < v_comp_vec.size(); i++){
+    compartments_[i]->v_comp = &(v_comp_vec[i]);
+    compartments_[i]->ca__div__dt = &(ca__div__dt_vec[i]);
+    compartments_[i]->gl__div__2 = &(gl__div__2_vec[i]);
+    compartments_[i]->gl__times__el = &(gl__times__el_vec[i]);
+    compartments_[i]->ff = &(ff_vec[i]);
   }
 }
 
@@ -443,15 +461,6 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
   {
     std::string msg = "does not exist in tree, meaning that no compartments have been added";
     throw UnknownCompartment( 0, msg );
-  }
-
-  //reset compartment pointers due to unsave pointers in vectors when resizing during compartment creation
-  for( size_t i = 0; i < v_comp_vec.size(); i++){
-    compartments_[i]->v_comp = &(v_comp_vec[i]);
-    compartments_[i]->ca__div__dt = &(ca__div__dt_vec[i]);
-    compartments_[i]->gl__div__2 = &(gl__div__2_vec[i]);
-    compartments_[i]->gl__times__el = &(gl__times__el_vec[i]);
-    compartments_[i]->ff = &(ff_vec[i]);
   }
 
   // initialize the compartments
