@@ -173,6 +173,8 @@ nest::Compartment{{cm_unique_suffix}}::calc_v( const double v_in )
   // compute voltage
   *v_comp = ( *ff - v_in * hh ) / gg;
 
+  std::cout << comp_index << " : " << *v_comp << std::endl;
+
   return *v_comp;
 }
 
@@ -197,6 +199,7 @@ private:
   // functions for pointer initialization
   void set_parents();
   void set_compartments();
+  void set_compartment_variables();
   void set_leafs();
 
   std::vector< double > v_comp_vec;
