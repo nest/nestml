@@ -130,8 +130,7 @@ public:
   std::map< Name, double* > get_recordables();
 
   // matrix construction
-  void construct_matrix_element( std::pair< double, double > comp_gi, const long lag );
-  void execute_mechanism_stepfunctions( const long lag );
+  void construct_matrix_coupling_elements();
 
   // maxtrix inversion
   inline void gather_input( const std::pair< double, double >& in );
