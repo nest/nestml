@@ -359,6 +359,11 @@ class NestIntegrationTest(unittest.TestCase):
         for i, I_stim in enumerate(I_stim_vec):
 
             nest.ResetKernel()
+            try:
+                nest.Install("nestml_allmodels_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
             neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
             neuron2 = nest.Create(testant, params=custom_model_opts)
             if model_initial_state is not None:
@@ -463,6 +468,11 @@ class NestIntegrationTest(unittest.TestCase):
         spike_weights = [1., -1.]
 
         nest.ResetKernel()
+        try:
+            nest.Install("nestml_allmodels_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
         neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
         neuron2 = nest.Create(testant, params=custom_model_opts)
 

@@ -151,7 +151,6 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
 
         post_weights = {'parrot': []}
 
-        nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
         wr = nest.Create('weight_recorder')
