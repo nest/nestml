@@ -112,7 +112,7 @@ nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
 
   const double dt = Time::get_resolution().get_ms();
   *ca__div__dt = ca / dt;
-  *gl__div__2 = gl / 2.;
+  *gl__div__2 = gl;
   gg0 = *ca__div__dt + *gl__div__2;
   gc__div__2 = gc / 2.;
   *gl__times__el = gl * el;
@@ -138,27 +138,33 @@ nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( std::pair< doub
   // matrix diagonal element
   gg = gg0;
 
+  // if ( parent != nullptr )
+  // {
+  //   gg += gc__div__2;
+  //   // matrix off diagonal element
+  //   hh = -gc__div__2;
+  // }
   if ( parent != nullptr )
   {
-    gg += gc__div__2;
+    gg += gc;
     // matrix off diagonal element
-    hh = -gc__div__2;
+    hh = -gc;
   }
 
   for ( auto child_it = children.begin(); child_it != children.end(); ++child_it )
   {
-    gg += ( *child_it ).gc__div__2;
+    gg += ( *child_it ).gc;
   }
 
-  if ( parent != nullptr )
-  {
-    *ff -= gc__div__2 * ( *v_comp - *(parent->v_comp) );
-  }
+  // if ( parent != nullptr )
+  // {
+  //   *ff -= gc__div__2 * ( *v_comp - *(parent->v_comp) );
+  // }
 
-  for ( auto child_it = children.begin(); child_it != children.end(); ++child_it )
-  {
-    *ff -= ( *child_it ).gc__div__2 * ( *v_comp - *(( *child_it ).v_comp) );
-  }
+  // for ( auto child_it = children.begin(); child_it != children.end(); ++child_it )
+  // {
+  //   *ff -= ( *child_it ).gc__div__2 * ( *v_comp - *(( *child_it ).v_comp) );
+  // }
 
   // add all currents to compartment
   gg += comp_gi.first;
@@ -492,7 +498,8 @@ nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
   // right hand side
   #pragma omp simd
   for( size_t i = 0; i < v_comp_vec.size(); i++ ){
-    ff_vec[i] = ( ca__div__dt_vec[i] - gl__div__2_vec[i] ) * v_comp_vec[i] + gl__times__el_vec[i];
+    // ff_vec[i] = ( ca__div__dt_vec[i] - gl__div__2_vec[i] ) * v_comp_vec[i] + gl__times__el_vec[i];
+    ff_vec[i] = ca__div__dt_vec[i] * v_comp_vec[i] + gl__times__el_vec[i];
   }
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {

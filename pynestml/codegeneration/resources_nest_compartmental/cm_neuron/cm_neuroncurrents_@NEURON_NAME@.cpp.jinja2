@@ -314,12 +314,12 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
 
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
-            g_val[i] = - d_i_tot_dv[i] / 2.;
+            g_val[i] = - d_i_tot_dv[i];
         }
 
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
-            i_val[i] = this->i_tot_{{ion_channel_name}}[i] - d_i_tot_dv[i] * v_comp[i] / 2.;
+            i_val[i] = this->i_tot_{{ion_channel_name}}[i] - d_i_tot_dv[i] * v_comp[i];
         }
     return std::make_pair(g_val, i_val);
 
@@ -764,11 +764,11 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
       // for numerical integration
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ synapse_name }}_synapse_count; i++){
-      g_val[i] = - d_i_tot_dv[i] / 2.;
+      g_val[i] = - d_i_tot_dv[i];
   }
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ synapse_name }}_synapse_count; i++){
-      i_val[i] = this->i_tot_{{synapse_name}}[i] - d_i_tot_dv[i] * v_comp[i] / 2.;
+      i_val[i] = this->i_tot_{{synapse_name}}[i] - d_i_tot_dv[i] * v_comp[i];
   }
 
   return std::make_pair(g_val, i_val);
@@ -956,8 +956,8 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
       d_i_tot_dv[i] = {{ printer_no_origin.print_with_indices(continuous_info["inline_derivative"], "i") }};
 
       // for numerical integration
-      g_val[i] = - d_i_tot_dv[i] / 2.;
-      i_val[i] = this->i_tot_{{continuous_name}}[i] - d_i_tot_dv[i] * v_comp[i] / 2.;
+      g_val[i] = - d_i_tot_dv[i];
+      i_val[i] = this->i_tot_{{continuous_name}}[i] - d_i_tot_dv[i] * v_comp[i];
   }
 
   return std::make_pair(g_val, i_val);
