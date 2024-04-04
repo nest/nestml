@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import uuid
 from typing import List, Optional
 
 import re
@@ -121,7 +121,9 @@ class NESTCodeGeneratorUtils:
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
         if not module_name:
-            module_name = "nestml_module"
+            # generate unique ID
+            uniq_id = str(uuid.uuid4().hex)
+            module_name = "nestml_" + uniq_id + "_module"
 
         generate_nest_target(input_path=input_fns,
                              install_path=install_path,
