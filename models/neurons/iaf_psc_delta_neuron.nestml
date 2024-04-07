@@ -78,14 +78,18 @@ model iaf_psc_delta_neuron:
             # neuron not refractory, so evolve all ODEs (including V_m)
             integrate_odes()
 
-    onCondition(V_m >= V_th):
+    onCondition(not is_refractory and V_m >= V_th):
         # threshold crossing
-        refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         V_m = V_reset
+
+        if refr_T > 0 ms:
+            refr_t = refr_T    # start of the refractory period
+            is_refractory = true
+
         emit_spike()
 
     onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false
+

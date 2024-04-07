@@ -194,6 +194,7 @@ class SynapsePostNeuronTransformer(Transformer):
         return variables
 
     def get_all_variables_assigned_to(self, node):
+        r"""Return a list of all variables that are assigned to in ``node``."""
         class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
             _variables = []
 
@@ -257,20 +258,25 @@ class SynapsePostNeuronTransformer(Transformer):
         kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, synapse.get_equations_blocks())
         all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
 
-        # if any variable is assigned to in any block that is not connected to a postsynaptic port
-        strictly_synaptic_vars = []
+        # exclude certain variables from being moved:
+        # exclude any variable assigned to in any block that is not connected to a postsynaptic port
+        strictly_synaptic_vars = ["t"]      # "seed" this with the predefined variable t
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
                 if (not self.is_post_port(port.name, neuron.name, synapse.name)) or self.is_vt_port(port.name, neuron.name, synapse.name):
                     strictly_synaptic_vars += self.get_all_variables_assigned_to(synapse.get_on_receive_block(port.name))
 
+        # exclude all variables that are assigned to in the ``update`` block
         for update_block in synapse.get_update_blocks():
             strictly_synaptic_vars += self.get_all_variables_assigned_to(update_block)
 
-        convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(
-            synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
+        # exclude convolutions if they are not with a postsynaptic variable
+        convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
 
+        # exclude all variables that depend on the ones that are not to be moved
         strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, synapse)
+
+        # do set subtraction
         syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
 
         #

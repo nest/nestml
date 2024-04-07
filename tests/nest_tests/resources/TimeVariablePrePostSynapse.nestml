@@ -25,14 +25,16 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model time_variable_pre_post_synapse:
   state:
-    x ms = 0. ms
-    y ms = 0. ms
+    x ms = 0 ms
+    y ms = 0 ms
+    z ms = 0 ms
+    q ms = 0 ms
 
   onReceive(pre_spikes):
     y = t
 
   onReceive(post_spikes):
-    y = 3.14159 * t
+    z = t
 
   parameters:
     d ms = 1 ms @nest::delay
@@ -43,3 +45,4 @@ model time_variable_pre_post_synapse:
 
   update:
     x = t
+    q = x

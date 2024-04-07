@@ -1509,7 +1509,8 @@ class ASTUtils:
     @classmethod
     def get_declarations_from_block(cls, var_name: str, block: ASTBlock) -> List[ASTDeclaration]:
         """
-        Get declarations from the given block containing the given variable.
+        Get declarations from the given block containing the given variable on the left-hand side.
+
         :param var_name: variable name
         :param block: block to collect the variable declarations
         :return: a list of declarations
@@ -1538,51 +1539,26 @@ class ASTUtils:
         return decls
 
     @classmethod
-    def recursive_dependent_variables_search(cls, vars: List[str], node: ASTNode) -> List[str]:
+    def recursive_dependent_variables_search(cls, vars: List[str], model: ASTModel) -> List[str]:
         """
         Collect all the variable names used in the defining expressions of a list of variables.
         :param vars: list of variable names moved from synapse to neuron
-        :param node: ASTNode to perform the recursive search
+        :param model: ASTModel to perform the recursive search
         :return: list of variable names from the recursive search
         """
+
         for var in vars:
             assert type(var) is str
-        vars_used = []
-        vars_to_check = set([var for var in vars])
-        vars_checked = set()
-        while vars_to_check:
-            var = None
-            for _var in vars_to_check:
-                if not _var in vars_checked:
-                    var = _var
-                    break
 
-            if not var:
-                # all variables checked
-                break
+        vars_used = vars
+        i = 0
+        while i < len(vars_used):
+            new_vars = ASTUtils.get_dependent_variables(vars[i], model)
+            new_vars = list(set(new_vars) - set(vars_used))
+            vars_used.extend(new_vars)
+            i += 1
 
-            for equations_block in node.get_equations_blocks():
-                decls = cls.get_declarations_from_block(var, equations_block)
-
-                if decls:
-                    assert len(decls) == 1
-                    decl = decls[0]
-                    if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
-                            or type(decl) is ASTInlineExpression:
-                        vars_used.extend(cls.collect_variable_names_in_expression(decl.get_expression()))
-                    elif type(decl) is ASTOdeEquation:
-                        vars_used.extend(cls.collect_variable_names_in_expression(decl.get_rhs()))
-                    elif type(decl) is ASTKernel:
-                        for expr in decl.get_expressions():
-                            vars_used.extend(cls.collect_variable_names_in_expression(expr))
-                    else:
-                        raise Exception("Unknown type " + str(type(decl)))
-                    vars_used = [str(var) for var in vars_used]
-                    vars_to_check = vars_to_check.union(set(vars_used))
-
-            vars_checked.add(var)
-
-        return list(set(vars_checked))
+        return list(set(vars_used))
 
     @classmethod
     def remove_initial_values_for_kernels(cls, model: ASTModel) -> None:
@@ -1665,6 +1641,76 @@ class ASTUtils:
         args_str = "_".join(arg_names)
 
         return args_str
+
+    @classmethod
+    def get_dependent_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
+        r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side.
+        """
+        class GetDependentVariablesVisitor(ASTVisitor):
+            def __init__(self):
+                super().__init__()
+                self.vars = set()
+
+            def visit_declaration(self, node: ASTDeclaration) -> None:
+                if var in ASTUtils.get_all_variables_names_in_expression(node.get_expression()):
+                    self.vars.add(str(node.get_lhs()))
+
+            def visit_inline_expression(self, node: ASTInlineExpression) -> None:
+                if var in ASTUtils.get_all_variables_names_in_expression(node.get_expression()):
+                    self.vars.add(str(node.get_lhs()))
+
+            def visit_ode_equation(self, node: ASTOdeEquation) -> None:
+                if var in ASTUtils.get_all_variables_names_in_expression(node.get_rhs()):
+                    self.vars.add(str(node.get_lhs()))
+
+            def visit_kernel(self, node: ASTKernel) -> None:
+                for expr in node.get_expressions():
+                    if var in ASTUtils.get_all_variables_names_in_expression(expr):
+                        self.vars |= [str(s) for s in node.get_variable_names()]
+
+            def visit_assignment(self, node: ASTAssignment) -> None:
+                rhs_vars = ASTUtils.get_all_variables_names_in_expression(node.rhs)
+
+                if var in rhs_vars:
+                    self.vars.add(str(node.lhs))
+
+        visitor = GetDependentVariablesVisitor()
+        model.accept(visitor)
+
+        if var in visitor.vars:
+            visitor.vars.remove(var)
+
+        return visitor.vars
+
+    @classmethod
+    def get_all_variables_in_expression(cls, expr: ASTExpression) -> List[ASTVariable]:
+        r"""
+        """
+        class GetAllVariablesVisitor(ASTVisitor):
+            def __init__(self):
+                super().__init__()
+                self.vars = []
+
+            def visit_variable(self, node: ASTVariable):
+                self.vars.append(node)
+
+            def visit_simple_expression(self, node: ASTSimpleExpression):
+                if node.is_variable:
+                    self.vars.append(node)
+
+        visitor = GetAllVariablesVisitor()
+        visitor.visit(expr)
+
+        return visitor.vars
+
+    @classmethod
+    def get_all_variables_names_in_expression(cls, expr: ASTExpression) -> List[str]:
+        r"""
+        """
+        if not expr:
+            return []
+
+        return [str(var) for var in ASTUtils.get_all_variables_in_expression(expr)]
 
     @classmethod
     def create_integrate_odes_combinations(cls, model: ASTModel) -> None:
