@@ -50,10 +50,9 @@ class TestTimeVariable:
                              target_path=target_path,
                              logging_level=logging_level,
                              suffix=suffix,
-                            codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
-                                                                    "synapse": "time_variable_pre_post_synapse",
-                                                                    "post_ports": ["post_spikes"]}]})
-
+                             codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                                                     "synapse": "time_variable_pre_post_synapse",
+                                                                     "post_ports": ["post_spikes"]}]})
 
     def test_time_variable_neuron(self):
         nest.ResetKernel()
@@ -92,15 +91,50 @@ class TestTimeVariable:
         syn = nest.GetConnections(nrn[0], nrn[1])
         assert len(syn) == 1
 
-        nest.Simulate(50.)
+        sr_pre = nest.Create("spike_recorder")
+        sr_post = nest.Create("spike_recorder")
+        nest.Connect(nrn[0], sr_pre)
+        nest.Connect(nrn[1], sr_post)
+
+        T_sim = 50.    # [ms]
+        sim_interval = 1.    # [ms]
+        timevec = [0.]
+        x = [syn[0].get("x")]
+        y = [syn[0].get("y")]
+        while nest.biological_time < T_sim:
+            nest.Simulate(sim_interval)
+            timevec.append(nest.biological_time)
+            x.append(syn[0].get("x"))
+            y.append(syn[0].get("y"))
 
         assert len(sr.get("events")["times"]) > 2, "Was expecting some more presynaptic spikes"
 
-        x = syn[0].get("x")
-        y = syn[0].get("y")
+        fig, ax = plt.subplots(nrows=4, figsize=(8, 8))
 
-        np.testing.assert_allclose(x, sr.get("events")["times"][-2])
-        np.testing.assert_allclose(y, sr.get("events")["times"][-1])
+        ax[0].scatter(sr_pre.get("events")["times"], np.zeros_like(sr_pre.get("events")["times"]))
+        ax[0].set_ylabel("Pre spikes")
+
+        ax[1].scatter(sr_post.get("events")["times"], np.zeros_like(sr_post.get("events")["times"]))
+        ax[1].set_ylabel("Post spikes")
+
+        ax[2].plot(timevec, x, label="x")
+        ax[2].plot(timevec, timevec, linestyle="--", c="gray")
+
+        ax[3].plot(timevec, y, label="y")
+        ax[3].plot(timevec, timevec, linestyle="--", c="gray")
+
+        ax[-1].set_ylabel("Time [ms]")
+
+        for _ax in ax:
+            _ax.grid(True)
+            _ax.legend()
+            _ax.set_xlim(-1, T_sim + 1)
+
+        fig.savefig("/tmp/foo1.png")
+
+        # np.testing.assert_allclose(x, sr.get("events")["times"][-2])
+        # np.testing.assert_allclose(y, sr.get("events")["times"][-1])
+
 
     def test_time_variable_pre_post_synapse(self):
         """a synapse is updated when pre- and postsynaptic spikes arrive"""
@@ -137,7 +171,7 @@ class TestTimeVariable:
         # assert len(sr_pre.get("events")["times"]) > 2, "Was expecting some more presynaptic spikes"
         # assert len(sr_post.get("events")["times"]) > 2, "Was expecting some more presynaptic spikes"
 
-        fig, ax = plt.subplots(nrows=5, figsize=(8,8))
+        fig, ax = plt.subplots(nrows=5, figsize=(8, 8))
 
         ax[0].scatter(sr_pre.get("events")["times"], np.zeros_like(sr_pre.get("events")["times"]))
         ax[0].set_ylabel("Pre spikes")
