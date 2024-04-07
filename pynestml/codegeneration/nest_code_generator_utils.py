@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 from typing import List, Optional
 
 import re
@@ -87,11 +86,14 @@ class NESTCodeGeneratorUtils:
 
         # update neuron model name inside the file
         neuron_model_name = re.findall(r"model [^:\s]*:", nestml_neuron_model)[0][7:-1]
-        nestml_model = re.sub(r"model [^:\s]*:",
-                              "model " + neuron_model_name + ":", nestml_neuron_model)
         neuron_fn = neuron_model_name + ".nestml"
         with open(neuron_fn, "w") as f:
-            print(nestml_model, file=f)
+            print(nestml_neuron_model, file=f)
+
+        input_fns = [neuron_fn]
+        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+        mangled_neuron_name = neuron_model_name + "_nestml"
 
         input_fns = [neuron_fn]
         codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
@@ -106,12 +108,9 @@ class NESTCodeGeneratorUtils:
 
             # update synapse model name inside the file
             synapse_model_name = re.findall(r"model [^:\s]*:", nestml_synapse_model)[0][8:-1]
-            nestml_model = re.sub(r"model [^:\s]*:",
-                                  "model " + synapse_model_name + ":", nestml_synapse_model)
             synapse_fn = synapse_model_name + ".nestml"
             with open(synapse_fn, "w") as f:
-                print(nestml_model, file=f)
-
+                print(nestml_synapse_model, file=f)
             input_fns += [synapse_fn]
             codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
                                                      "synapse": synapse_model_name,
@@ -121,7 +120,9 @@ class NESTCodeGeneratorUtils:
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
         if not module_name:
-            module_name = "nestml_module"
+            # generate unique ID
+            uniq_id = str(uuid.uuid4().hex)
+            module_name = "nestml_" + uniq_id + "_module"
 
         generate_nest_target(input_path=input_fns,
                              install_path=install_path,
