@@ -38,4 +38,4 @@ model time_variable_synapse:
     pre_spikes <- spike
 
   update:
-    x = t + resolution() + 1 ms
+    x = t + resolution()
