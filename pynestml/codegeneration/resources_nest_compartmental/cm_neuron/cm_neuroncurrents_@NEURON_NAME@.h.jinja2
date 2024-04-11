@@ -446,24 +446,28 @@ private:
 {% with %}
   {%- for ion_channel_name, channel_info in chan_info.items() %}
   std::vector < double > {{ion_channel_name}}{{channel_suffix}}_shared_current;
+  std::vector < std::pair< std::size_t, int > > {{ion_channel_name}}{{channel_suffix}}_con_area;
   {% endfor -%}
 {% endwith %}
   // concentrations
 {% with %}
   {%- for concentration_name, concentration_info in conc_info.items() %}
   std::vector < double > {{concentration_name}}{{concentration_suffix}}_shared_concentration;
+  std::vector < std::pair< std::size_t, int > > {{concentration_name}}{{concentration_suffix}}_con_area;
   {% endfor -%}
 {% endwith %}
   // synapses
 {% with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
   std::vector < double > {{synapse_name}}{{synapse_suffix}}_shared_current;
+  std::vector < std::pair< std::size_t, int > > {{synapse_name}}{{synapse_suffix}}_con_area;
   {% endfor -%}
 {% endwith %}
 // continuous inputs
 {% with %}
   {%- for continuous_name, continuous_info in con_in_info.items() %}
   std::vector < double > {{continuous_name}}{{continuous_suffix}}_shared_current;
+  std::vector < std::pair< std::size_t, int > > {{continuous_name}}{{continuous_suffix}}_con_area;
   {% endfor -%}
 {% endwith %}
 
@@ -524,6 +528,55 @@ public:
     {{continuous_name}}{{continuous_suffix}}.pre_run_hook();
     {% endfor -%}
 {%- endif %}
+    int con_end_index;
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    if({{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count){
+        con_end_index = int({{ion_channel_name}}{{channel_suffix}}.compartment_association[0]);
+        {{ion_channel_name}}{{channel_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
+    }
+    for(std::size_t chan_id = 1; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
+        if(!({{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id] == size_t(int(chan_id) + con_end_index))){
+            con_end_index = int({{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]) - int(chan_id);
+            {{ion_channel_name}}{{channel_suffix}}_con_area.push_back(std::pair< std::size_t, int >(chan_id, con_end_index));
+        }
+    }
+    {% endfor -%}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    if({{concentration_name}}{{concentration_suffix}}.neuron_{{ concentration_name }}_concentration_count){
+        con_end_index = int({{concentration_name}}{{concentration_suffix}}.compartment_association[0]);
+        {{concentration_name}}{{concentration_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
+    }
+    for(std::size_t conc_id = 0; conc_id < {{concentration_name}}{{concentration_suffix}}.neuron_{{ concentration_name }}_concentration_count; conc_id++){
+        if(!({{concentration_name}}{{concentration_suffix}}.compartment_association[conc_id] == size_t(int(conc_id) + con_end_index))){
+            con_end_index = int({{concentration_name}}{{concentration_suffix}}.compartment_association[conc_id]) - int(conc_id);
+            {{concentration_name}}{{concentration_suffix}}_con_area.push_back(std::pair< std::size_t, int >(conc_id, con_end_index));
+        }
+    }
+    {% endfor -%}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    if({{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count){
+        con_end_index = int({{synapse_name}}{{synapse_suffix}}.compartment_association[0]);
+        {{synapse_name}}{{synapse_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
+    }
+    for(std::size_t syn_id = 0; syn_id < {{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count; syn_id++){
+        if(!({{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id] == size_t(int(syn_id) + con_end_index))){
+            con_end_index = int({{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]) - int(syn_id);
+            {{synapse_name}}{{synapse_suffix}}_con_area.push_back(std::pair< std::size_t, int >(syn_id, con_end_index));
+        }
+    }
+    {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    if({{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count){
+        con_end_index = int({{continuous_name}}{{continuous_suffix}}.compartment_association[0]);
+        {{continuous_name}}{{continuous_suffix}}_con_area.push_back(std::pair< std::size_t, int >(0, con_end_index));
+    }
+    for(std::size_t cont_id = 0; cont_id < {{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count; cont_id++){
+        if(!({{continuous_name}}{{continuous_suffix}}.compartment_association[cont_id] == size_t(int(cont_id) + con_end_index))){
+            con_end_index = int({{continuous_name}}{{continuous_suffix}}.compartment_association[cont_id]) - (cont_id);
+            {{continuous_name}}{{continuous_suffix}}_con_area.push_back(std::pair< std::size_t, int >(cont_id, con_end_index));
+        }
+    }
+    {% endfor -%}
   {% endwith -%}
   };
 
@@ -775,6 +828,7 @@ public:
   {% endwith -%}
 
     std::pair< std::vector< double >, std::vector< double > > gi_mech;
+    std::size_t con_area_count;
 
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
@@ -784,9 +838,28 @@ public:
                         {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
-    for(std::size_t chan_id = 0; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
-        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].first += gi_mech.first[chan_id];
-        comp_to_gi[{{ion_channel_name}}{{channel_suffix}}.compartment_association[chan_id]].second += gi_mech.second[chan_id];
+    con_area_count = {{ion_channel_name}}{{channel_suffix}}_con_area.size();
+    if(con_area_count > 0){
+        for(std::size_t con_area_index = 0; con_area_index < con_area_count-1; con_area_index++){
+            std::size_t con_area = {{ion_channel_name}}{{channel_suffix}}_con_area[con_area_index].first;
+            std::size_t next_con_area = {{ion_channel_name}}{{channel_suffix}}_con_area[con_area_index+1].first;
+            int offset = {{ion_channel_name}}{{channel_suffix}}_con_area[con_area_index].second;
+
+            #pragma omp simd
+            for(std::size_t chan_id = con_area; chan_id < next_con_area; chan_id++){
+                comp_to_gi[chan_id+offset].first += gi_mech.first[chan_id];
+                comp_to_gi[chan_id+offset].second += gi_mech.second[chan_id];
+            }
+        }
+
+        std::size_t con_area = {{ion_channel_name}}{{channel_suffix}}_con_area[con_area_count-1].first;
+        int offset = {{ion_channel_name}}{{channel_suffix}}_con_area[con_area_count-1].second;
+
+        #pragma omp simd
+        for(std::size_t chan_id = con_area; chan_id < {{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count; chan_id++){
+            comp_to_gi[chan_id+offset].first += gi_mech.first[chan_id];
+            comp_to_gi[chan_id+offset].second += gi_mech.second[chan_id];
+        }
     }
     {% endfor -%}
   {% endwith -%}
@@ -799,9 +872,28 @@ public:
                         {% endif %}{% for inline in synapse_info["Dependencies"]["channels"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if synapse_info["Dependencies"]["continuous"]|length %}
                         {% endif %}{% for inline in synapse_info["Dependencies"]["continuous"] %}, {{synapse_name}}{{synapse_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
-    for(std::size_t syn_id = 0; syn_id < {{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count; syn_id++){
-        comp_to_gi[{{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]].first += gi_mech.first[syn_id];
-        comp_to_gi[{{synapse_name}}{{synapse_suffix}}.compartment_association[syn_id]].second += gi_mech.second[syn_id];
+    con_area_count = {{synapse_name}}{{synapse_suffix}}_con_area.size();
+    if(con_area_count > 0){
+        for(std::size_t con_area_index = 0; con_area_index < con_area_count-1; con_area_index++){
+            std::size_t con_area = {{synapse_name}}{{synapse_suffix}}_con_area[con_area_index].first;
+            std::size_t next_con_area = {{synapse_name}}{{synapse_suffix}}_con_area[con_area_index+1].first;
+            int offset = {{synapse_name}}{{synapse_suffix}}_con_area[con_area_index].second;
+
+            #pragma omp simd
+            for(std::size_t syn_id = con_area; syn_id < next_con_area; syn_id++){
+                comp_to_gi[syn_id+offset].first += gi_mech.first[syn_id];
+                comp_to_gi[syn_id+offset].second += gi_mech.second[syn_id];
+            }
+        }
+
+        std::size_t con_area = {{synapse_name}}{{synapse_suffix}}_con_area[con_area_count-1].first;
+        int offset = {{synapse_name}}{{synapse_suffix}}_con_area[con_area_count-1].second;
+
+        #pragma omp simd
+        for(std::size_t syn_id = con_area; syn_id < {{synapse_name}}{{synapse_suffix}}.neuron_{{ synapse_name }}_synapse_count; syn_id++){
+            comp_to_gi[syn_id+offset].first += gi_mech.first[syn_id];
+            comp_to_gi[syn_id+offset].second += gi_mech.second[syn_id];
+        }
     }
     {% endfor -%}
   {% endwith -%}
@@ -814,9 +906,28 @@ public:
                         {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
-    for(std::size_t con_id = 0; con_id < {{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count; con_id++){
-        comp_to_gi[{{continuous_name}}{{continuous_suffix}}.compartment_association[con_id]].first += gi_mech.first[con_id];
-        comp_to_gi[{{continuous_name}}{{continuous_suffix}}.compartment_association[con_id]].second += gi_mech.second[con_id];
+    con_area_count = {{continuous_name}}{{continuous_suffix}}_con_area.size();
+    if(con_area_count > 0){
+        for(std::size_t con_area_index = 0; con_area_index < con_area_count-1; con_area_index++){
+            std::size_t con_area = {{continuous_name}}{{continuous_suffix}}_con_area[con_area_index].first;
+            std::size_t next_con_area = {{continuous_name}}{{continuous_suffix}}_con_area[con_area_index+1].first;
+            int offset = {{continuous_name}}{{continuous_suffix}}_con_area[con_area_index].second;
+
+            #pragma omp simd
+            for(std::size_t cont_id = con_area; cont_id < next_con_area; cont_id++){
+                comp_to_gi[cont_id+offset].first += gi_mech.first[cont_id];
+                comp_to_gi[cont_id+offset].second += gi_mech.second[cont_id];
+            }
+        }
+
+        std::size_t con_area = {{continuous_name}}{{continuous_suffix}}_con_area[con_area_count-1].first;
+        int offset = {{continuous_name}}{{continuous_suffix}}_con_area[con_area_count-1].second;
+
+        #pragma omp simd
+        for(std::size_t cont_id = con_area; cont_id < {{continuous_name}}{{continuous_suffix}}.neuron_{{ continuous_name }}_continuous_input_count; cont_id++){
+            comp_to_gi[cont_id+offset].first += gi_mech.first[cont_id];
+            comp_to_gi[cont_id+offset].second += gi_mech.second[cont_id];
+        }
     }
     {% endfor -%}
   {% endwith -%}

@@ -92,10 +92,18 @@ class NESTVariablePrinter(CppVariablePrinter):
             vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
 
         if symbol.is_buffer():
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
             s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
             if not (self.print_as_arrays and self.array_index is not None):
                 s += "B_."
             s += self._print_buffer_value(variable)
+            if not units_conversion_factor == 1:
+                s += ")"
             return s
 
         if symbol.is_inline_expression:

@@ -324,6 +324,7 @@ parser grammar PyNestMLParser;
   continuousInputPort:
     name = NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
+    dataType
     LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD NEWLINE;
 
 
