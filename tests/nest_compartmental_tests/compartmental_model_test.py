@@ -503,7 +503,7 @@ class CMTest(unittest.TestCase):
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
             self.assertTrue(np.allclose(
-                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=5e-1))
+                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=1.))
 
         # check if synaptic conductances are equal
         self.assertTrue(

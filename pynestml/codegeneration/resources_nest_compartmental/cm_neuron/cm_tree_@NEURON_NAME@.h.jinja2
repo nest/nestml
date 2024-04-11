@@ -103,14 +103,12 @@ public:
   double gl; // leak conductance of compartment [uS]
   double el; // leak current reversal potential [mV]
   // auxiliary variables for efficienchy
-  double gg0;
+  double* gg0;
   double* ca__div__dt;
-  double* gl__div__2;
-  double gc__div__2;
   double* gl__times__el;
   // for numerical integration
   double* ff;
-  double gg;
+  double* gg;
   double hh;
   // passage counter for recursion
   int n_passed;
@@ -118,9 +116,9 @@ public:
   // constructor, destructor
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index);
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
-    double* v_comp_ref, double* ca__div__dt_ref, double* gl__div__2_ref, double* gl__times__el_ref, double* ff_ref);
+    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref);
   Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index, const DictionaryDatum& compartment_params,
-    double* v_comp_ref, double* ca__div__dt_ref, double* gl__div__2_ref, double* gl__times__el_ref, double* ff_ref);
+    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref);
   ~Compartment{{cm_unique_suffix}}(){};
 
   // initialization
@@ -132,8 +130,7 @@ public:
   std::map< Name, double* > get_recordables();
 
   // matrix construction
-  void construct_matrix_element( std::pair< double, double > comp_gi, const long lag );
-  void execute_mechanism_stepfunctions( const long lag );
+  void construct_matrix_coupling_elements();
 
   // maxtrix inversion
   inline void gather_input( const std::pair< double, double >& in );
@@ -154,12 +151,12 @@ inline std::pair< double, double >
 nest::Compartment{{cm_unique_suffix}}::io()
 {
   // include inputs from child compartments
-  gg -= xx_;
+  *gg -= xx_;
   *ff -= yy_;
 
   // output values
-  double g_val( hh * hh / gg );
-  double f_val( *ff * hh / gg );
+  double g_val( hh * hh / *gg );
+  double f_val( *ff * hh / *gg );
 
   return std::make_pair( g_val, f_val );
 }
@@ -171,7 +168,7 @@ nest::Compartment{{cm_unique_suffix}}::calc_v( const double v_in )
   yy_ = 0.0;
 
   // compute voltage
-  *v_comp = ( *ff - v_in * hh ) / gg;
+  *v_comp = ( *ff - v_in * hh ) / *gg;
 
   return *v_comp;
 }
@@ -197,12 +194,15 @@ private:
   // functions for pointer initialization
   void set_parents();
   void set_compartments();
+  void set_compartment_variables();
   void set_leafs();
 
   std::vector< double > v_comp_vec;
   std::vector< double > ca__div__dt_vec;
   std::vector< double > gl__div__2_vec;
   std::vector< double > gl__times__el_vec;
+  std::vector< double > gg0_vec;
+  std::vector< double > gg_vec;
   std::vector< double > ff_vec;
 
 public:
