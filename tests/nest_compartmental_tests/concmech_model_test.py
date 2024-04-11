@@ -61,6 +61,9 @@ class TestCompartmentalConcmech(unittest.TestCase):
             f"    {target_path}"
         )
 
+        nest.ResetKernel()
+        nest.SetKernelStatus(dict(resolution=.1))
+
         generate_nest_compartmental_target(
             input_path=input_path,
             target_path="/tmp/nestml-component/",
@@ -74,7 +77,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
     def test_concmech(self):
         cm = nest.Create('multichannel_test_model_nestml')
 
-        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 1.0, 'gbar_Ca_LVAst': 0.0}
+        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 1.0, 'gbar_SK_E2': 1.0}
 
         cm.compartments = [
             {"parent_idx": -1, "params": params}
@@ -84,15 +87,44 @@ class TestCompartmentalConcmech(unittest.TestCase):
             {"comp_idx": 0, "receptor_type": "AMPA"}
         ]
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [100., 1000., 1100., 1200., 1300., 1400., 1500., 1600., 1700., 1800., 1900., 2000., 5000.]})
+        sg1 = nest.Create('spike_generator', 1, {'spike_times': [100.]})
 
         nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0'], 'interval': .1})
+        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0', 'i_tot_SK_E20'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
-        nest.Simulate(6000.)
+        nest.Simulate(1000.)
+
+        res = nest.GetStatus(mm, 'events')[0]
+
+        step_time_delta = res['times'][1]-res['times'][0]
+        data_array_index = int(200/step_time_delta)
+
+        expected_conc = 0.038956635041526334
+
+        if not res['c_Ca0'][data_array_index] == expected_conc:
+            self.fail("the concentration (left) is not as expected (right). ("+str(res['c_Ca0'][data_array_index])+"!="+str(expected_conc)+")")
+
+        fig, axs = plt.subplots(4)
+
+        axs[0].plot(res['times'], res['v_comp0'], c='b', label='V_m_0')
+        axs[1].plot(res['times'], res['c_Ca0'], c='b', label='c_Ca_0')
+        axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
+        axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
+
+        axs[0].set_title('V_m_0')
+        axs[1].set_title('c_Ca_0')
+        axs[2].set_title('i_Ca_HVA_0')
+        axs[3].set_title('i_tot_SK_E20')
+
+        axs[0].legend()
+        axs[1].legend()
+        axs[2].legend()
+        axs[3].legend()
+
+        plt.savefig("concmech test.png")
 
 
 if __name__ == "__main__":

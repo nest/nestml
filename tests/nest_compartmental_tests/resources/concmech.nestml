@@ -78,8 +78,8 @@ neuron multichannel_test_model:
         #z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
 
         # equations SK_E2
-        #inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
-        #z_SK_E2' = ( z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
+        inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
+        z_SK_E2' = ( z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
 
         # equations Ca concentration mechanism
         c_Ca' = (inf_Ca - c_Ca) / (tau_Ca*1s) + (gamma_Ca * (Ca_HVA + Ca_LVAst)) / 1s @mechanism::concentration
