@@ -125,9 +125,9 @@ class TestNestIntegration:
         self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
         self._test_model_equivalence_fI_curve("iaf_cond_beta", "iaf_cond_beta_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("izhikevich", "izhikevich_neuron_alt_int_nestml")
-        self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_alt_int_nestml")
-        self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_alt_int_nestml")
+        self._test_model_equivalence_subthreshold("izhikevich", "izhikevich_neuron_nestml")
+        self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_nestml")
+        self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_nestml")
 
         self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
         self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", tolerance=1E-5)
