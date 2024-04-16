@@ -474,6 +474,7 @@ def test_stdp_triplet_synapse_delay_1(spike_times_len):
     delay = 1.
     _test_stdp_triplet_synapse(delay, spike_times_len)
 
+
 logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/703")
 # @pytest.mark.xfail(strict=True, raises=Exception)
 # @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
@@ -484,6 +485,7 @@ def test_stdp_triplet_synapse_delay_5(spike_times_len):
     logging.warning("XXX: TODO: this test is disabled due to https://github.com/nest/nestml/issues/703")
     # delay = 5.
     # _test_stdp_triplet_synapse(delay, spike_times_len)
+
 
 logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/703")
 # @pytest.mark.xfail(strict=True, raises=Exception)
