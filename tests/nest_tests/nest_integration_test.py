@@ -125,9 +125,9 @@ class TestNestIntegration:
         self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
         self._test_model_equivalence_fI_curve("iaf_cond_beta", "iaf_cond_beta_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("izhikevich", "izhikevich_neuron_nestml")
-        self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_nestml")
-        self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_nestml")
+        self._test_model_equivalence_subthreshold("izhikevich", "izhikevich_neuron_alt_int_nestml")
+        self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_alt_int_nestml")
+        self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_alt_int_nestml")
 
         self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
         self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", tolerance=1E-5)
@@ -171,6 +171,8 @@ class TestNestIntegration:
 
             try:
                 nest.Install("nestml_allmodels_module")
+                nest.Install("nestml_alt_allmodels_module")
+                nest.Install("nestml_alt_int_allmodels_module")
             except Exception:
                 # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
                 pass
@@ -252,6 +254,8 @@ class TestNestIntegration:
 
             try:
                 nest.Install("nestml_allmodels_module")
+                nest.Install("nestml_alt_allmodels_module")
+                nest.Install("nestml_alt_int_allmodels_module")
             except Exception:
                 # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
                 pass
@@ -353,6 +357,8 @@ class TestNestIntegration:
 
         try:
             nest.Install("nestml_allmodels_module")
+            nest.Install("nestml_alt_allmodels_module")
+            nest.Install("nestml_alt_int_allmodels_module")
         except Exception:
             # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
