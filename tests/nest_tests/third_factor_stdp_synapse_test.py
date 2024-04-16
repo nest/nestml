@@ -39,15 +39,15 @@ except Exception:
 
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp_synapse"
-    synapse_model_name = "third_factor_stdp_synapse__with_iaf_psc_exp_dend"
+    neuron_model_name = "iaf_psc_exp_dend_neuron__with_third_factor_stdp_synapse"
+    synapse_model_name = "third_factor_stdp_synapse__with_iaf_psc_exp_dend_neuron"
 
     post_trace_var = "I_dend"
 
     def setUp(self):
         r"""Generate the neuron model code"""
 
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
                                                   "synapse": "third_factor_stdp_synapse",
                                                   "post_ports": ["post_spikes",
                                                                  ["I_post_dend", "I_dend"]]}]}
@@ -103,15 +103,17 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         nest_version = NESTTools.detect_nest_version()
 
-        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
-        nest.Install("nestml_jit_module")
+        nest.set_verbosity("M_ALL")
+        nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestml_jit_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
-
-        nest.set_verbosity("M_WARNING")
-        nest.SetKernelStatus({"resolution": resolution})
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",

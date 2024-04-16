@@ -136,21 +136,26 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
-        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        nest.set_verbosity("M_ALL")
+        nest.SetKernelStatus({'resolution': resolution})
+
         if sim_mdl:
-            nest.Install("nestml_jit_module")
+            try:
+                nest.Install("nestml_jit_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
+
         if sim_ref:
-            nest.Install("nestml_non_jit_module")
+            try:
+                nest.Install("nestml_non_jit_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
-
-        nest.set_verbosity("M_WARNING")
-
-        post_weights = {'parrot': []}
-
-        nest.SetKernelStatus({'resolution': resolution})
 
         wr = nest.Create('weight_recorder')
         wr_ref = nest.Create('weight_recorder')

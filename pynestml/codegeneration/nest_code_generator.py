@@ -307,8 +307,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-        ASTUtils.replace_inline_expressions_through_defining_expressions(
-            equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        ASTUtils.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
@@ -365,8 +364,7 @@ class NESTCodeGenerator(CodeGenerator):
         # Update the delay parameter parameters after symbol table update
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
-        spike_updates, post_spike_updates = self.get_spike_update_expressions(
-            neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+        spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
@@ -405,8 +403,7 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
-            spike_updates, _ = self.get_spike_update_expressions(
-                synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+            spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
             if not self.analytic_solver[synapse.get_name()] is None:
                 synapse = ASTUtils.add_declarations_to_internals(

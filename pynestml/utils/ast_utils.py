@@ -531,8 +531,6 @@ class ASTUtils:
         class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
                 if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
-                    for arg in node.args:
-                        print("FChecking " + str(arg.get_variable().get_complete_name()) + "  aginst " + str(state_var_name))
                     node.args = [arg for arg in node.args if not arg.get_variable().get_complete_name()]
 
         remove_state_var_from_integrate_odes_calls_visitor = RemoveStateVarFromIntegrateODEsCallsVisitor()
@@ -568,6 +566,31 @@ class ASTUtils:
                 return
 
             if not var.get_name() == "t" \
+               and not var.get_name().endswith(suffix):
+                symbol = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                if symbol:    # make sure it is not a unit (like "ms")
+                    var.set_name(var.get_name() + suffix)
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+
+    @classmethod
+    def add_suffix_to_variable_names2(cls, variable_names: List[str], astnode: Union[ASTNode, List], suffix: str):
+        r"""add suffix to variable names recursively throughout astnode"""
+
+        if not isinstance(astnode, ASTNode):
+            for node in astnode:
+                ASTUtils.add_suffix_to_variable_names2(variable_names, node, suffix)
+            return
+
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if var.get_name() in variable_names \
                and not var.get_name().endswith(suffix):
                 var.set_name(var.get_name() + suffix)
 
@@ -735,7 +758,7 @@ class ASTUtils:
 
     @classmethod
     def move_decls(cls, var_name, from_block, to_block, var_name_suffix: str, block_type: BlockType, mode="move") -> List[ASTDeclaration]:
-        """Move or copy declarations from ``from_block`` to ``to_block``."""
+        r"""Move or copy declarations from ``from_block`` to ``to_block``."""
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         assert mode in ["move", "copy"]
 
@@ -1550,10 +1573,32 @@ class ASTUtils:
         for var in vars:
             assert type(var) is str
 
-        vars_used = vars
+        vars_used = vars.copy()
         i = 0
         while i < len(vars_used):
-            new_vars = ASTUtils.get_dependent_variables(vars[i], model)
+            new_vars = ASTUtils.get_dependent_variables(vars_used[i], model)
+            new_vars = list(set(new_vars) - set(vars_used))
+            vars_used.extend(new_vars)
+            i += 1
+
+        return list(set(vars_used))
+
+    @classmethod
+    def recursive_necessary_variables_search(cls, vars: List[str], model: ASTModel) -> List[str]:
+        """
+        Collect all the variable names used in the defining expressions of a list of variables.
+        :param vars: list of variable names moved from synapse to neuron
+        :param model: ASTModel to perform the recursive search
+        :return: list of variable names from the recursive search
+        """
+
+        for var in vars:
+            assert type(var) is str
+
+        vars_used = vars.copy()
+        i = 0
+        while i < len(vars_used):
+            new_vars = ASTUtils.get_necessary_variables(vars_used[i], model)
             new_vars = list(set(new_vars) - set(vars_used))
             vars_used.extend(new_vars)
             i += 1
@@ -1643,9 +1688,47 @@ class ASTUtils:
         return args_str
 
     @classmethod
+    def get_necessary_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
+        r"""Return a list of all right-hand side variables in the model that a certain, given left-hand side variable ``var`` depends on."""
+        class GetNecessaryVariablesVisitor(ASTVisitor):
+            r"""N.B. use get_name() rather than get_complete_name() so we grab higher orders as well"""
+            def __init__(self):
+                super().__init__()
+                self.vars = set()
+
+            def visit_declaration(self, node: ASTDeclaration) -> None:
+                for lhs_var in node.get_variables():
+                    if var == lhs_var.get_name():
+                        self.vars |= set(ASTUtils.get_all_variables_names_in_expression(node.get_expression()))
+
+            def visit_inline_expression(self, node: ASTInlineExpression) -> None:
+                if var == node.get_variable_name():
+                    self.vars |= set(ASTUtils.get_all_variables_names_in_expression(node.get_expression()))
+
+            def visit_ode_equation(self, node: ASTOdeEquation) -> None:
+                if var == node.get_lhs().get_name():
+                    self.vars |= set(ASTUtils.get_all_variables_names_in_expression(node.get_rhs()))
+
+            def visit_kernel(self, node: ASTKernel) -> None:
+                for expr in node.get_expressions():
+                    if var in ASTUtils.get_all_variables_names_in_expression(expr):
+                        self.vars |= set([str(s) for s in node.get_variable_names()])
+
+            def visit_assignment(self, node: ASTAssignment) -> None:
+                if var == node.lhs.get_name():
+                    self.vars |= set(ASTUtils.get_all_variables_names_in_expression(node.get_expression()))
+
+        visitor = GetNecessaryVariablesVisitor()
+        model.accept(visitor)
+
+        if var in visitor.vars:
+            visitor.vars.remove(var)
+
+        return visitor.vars
+
+    @classmethod
     def get_dependent_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
-        r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side.
-        """
+        r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
         class GetDependentVariablesVisitor(ASTVisitor):
             def __init__(self):
                 super().__init__()
@@ -1653,20 +1736,21 @@ class ASTUtils:
 
             def visit_declaration(self, node: ASTDeclaration) -> None:
                 if var in ASTUtils.get_all_variables_names_in_expression(node.get_expression()):
-                    self.vars.add(str(node.get_lhs()))
+                    self.vars |= set([var.get_name() for var in node.get_variables()])
 
             def visit_inline_expression(self, node: ASTInlineExpression) -> None:
                 if var in ASTUtils.get_all_variables_names_in_expression(node.get_expression()):
-                    self.vars.add(str(node.get_lhs()))
+                    self.vars.add(node.get_variable_name())
 
             def visit_ode_equation(self, node: ASTOdeEquation) -> None:
                 if var in ASTUtils.get_all_variables_names_in_expression(node.get_rhs()):
-                    self.vars.add(str(node.get_lhs()))
+                    self.vars.add(node.get_lhs().get_name())
 
             def visit_kernel(self, node: ASTKernel) -> None:
                 for expr in node.get_expressions():
-                    if var in ASTUtils.get_all_variables_names_in_expression(expr):
-                        self.vars |= [str(s) for s in node.get_variable_names()]
+                    # exclude the special case "t" because a function-of-time kernel might depend on t
+                    if not var == "t" and var in ASTUtils.get_all_variables_names_in_expression(expr):
+                        self.vars |= set([var.get_name() for var in node.get_variables()])
 
             def visit_assignment(self, node: ASTAssignment) -> None:
                 rhs_vars = ASTUtils.get_all_variables_names_in_expression(node.rhs)
@@ -1689,28 +1773,33 @@ class ASTUtils:
         class GetAllVariablesVisitor(ASTVisitor):
             def __init__(self):
                 super().__init__()
-                self.vars = []
+                self.vars = set()
 
             def visit_variable(self, node: ASTVariable):
-                self.vars.append(node)
+                symbol = expr.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.VARIABLE)
+                if symbol:
+                    self.vars.add(node)
 
             def visit_simple_expression(self, node: ASTSimpleExpression):
-                if node.is_variable:
-                    self.vars.append(node)
+                if node.is_variable():
+                    symbol = expr.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                    if symbol:
+                        self.vars.add(node.get_variable())
 
         visitor = GetAllVariablesVisitor()
-        visitor.visit(expr)
+        expr.accept(visitor)
 
         return visitor.vars
 
     @classmethod
     def get_all_variables_names_in_expression(cls, expr: ASTExpression) -> List[str]:
         r"""
+        Get variable names of any order (foo, foo', foo'', etc. will result in "foo" being added to the list returned)
         """
         if not expr:
             return []
 
-        return [str(var) for var in ASTUtils.get_all_variables_in_expression(expr)]
+        return [var.get_name() for var in ASTUtils.get_all_variables_in_expression(expr)]
 
     @classmethod
     def create_integrate_odes_combinations(cls, model: ASTModel) -> None:
@@ -1773,7 +1862,6 @@ class ASTUtils:
 
         visitor = IntegrateODEsFunctionCallVisitor()
         model.accept(visitor)
-        print(visitor.calls)
 
         return visitor.calls
 
@@ -1846,6 +1934,7 @@ class ASTUtils:
                     if initial_value_expr:
                         expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
+
                 odetoolbox_indict["dynamics"].append(entry)
 
         # write a copy for each (kernel, spike buffer) combination
@@ -2036,8 +2125,7 @@ class ASTUtils:
         convolve_calls = ASTUtils.get_convolve_function_calls(equations_block)
         for convolve in convolve_calls:
             el = (convolve.get_args()[0], convolve.get_args()[1])
-            sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
-                convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
+            sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
             if sym is None:
                 raise Exception("No initial value(s) defined for kernel with variable \""
                                 + convolve.get_args()[0].get_variable().get_complete_name() + "\"")

@@ -169,6 +169,12 @@ class TestNestIntegration:
             if kernel_opts:
                 nest.SetKernelStatus(kernel_opts)
 
+            try:
+                nest.Install("nestml_allmodels_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
+
             neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
             neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
             if model_initial_state is not None:
@@ -241,13 +247,14 @@ class TestNestIntegration:
         for i, I_stim in enumerate(I_stim_vec):
 
             nest.ResetKernel()
+            if kernel_opts:
+                nest.SetKernelStatus(kernel_opts)
+
             try:
                 nest.Install("nestml_allmodels_module")
             except Exception:
                 # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
                 pass
-            if kernel_opts:
-                nest.SetKernelStatus(kernel_opts)
 
             neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
             neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
@@ -335,15 +342,14 @@ class TestNestIntegration:
                 plt.savefig("/tmp/nestml_models_library_[" + nest_model_name + "]_f-I_curve" + fname_snip + ".png")
                 plt.close(fig)
 
-    def _test_model_equivalence_psc(self, nest_model_name, testant, gsl_error_tol, tolerance=None, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, max_weight: float = 10., compare_V_m_traces: bool = True, kernel_opts=None, fname_snip="", syn_spec=None):
+    def _test_model_equivalence_psc(self, nest_model_name, nestml_model_name, gsl_error_tol, tolerance=None, tolerance_spiketimes=1E-9, nest_model_parameters=None, nestml_model_parameters=None, model_initial_state=None, max_weight: float = 10., compare_V_m_traces: bool = True, kernel_opts=None, fname_snip="", syn_spec=None):
+
+        spike_times = np.linspace(100, 200, 11)
+        spike_weights = np.linspace(1, max_weight, 11)
 
         nest.ResetKernel()
         if kernel_opts:
             nest.SetKernelStatus(kernel_opts)
-
-        spike_times = np.linspace(100, 200, 11)
-        spike_weights = np.linspace(1, max_weight, 11)
-        nest.ResetKernel()
 
         try:
             nest.Install("nestml_allmodels_module")
@@ -351,8 +357,8 @@ class TestNestIntegration:
             # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
 
-        neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
-        neuron2 = nest.Create(testant, params=custom_model_opts)
+        neuron1 = nest.Create(nest_model_name, params=nest_model_parameters)
+        neuron2 = nest.Create(nestml_model_name, params=nestml_model_parameters)
 
         if model_initial_state is not None:
             nest.SetStatus(neuron1, model_initial_state)
@@ -396,13 +402,13 @@ class TestNestIntegration:
             fig, ax = plt.subplots(3, 1)
             ax[0].plot(ts1, Vms1, label="Reference " + nest_model_name)
             ax[0].scatter(spike_recorder1.events["times"], Vms1[0] * np.ones_like(spike_recorder1.events["times"]))
-            ax[1].plot(ts2, Vms2, label="Testant " + testant)
+            ax[1].plot(ts2, Vms2, label="Testant " + nestml_model_name)
             ax[1].scatter(spike_recorder2.events["times"], Vms2[0] * np.ones_like(spike_recorder2.events["times"]))
             ax[2].semilogy(ts2, np.abs(Vms1 - Vms2), label="Error", color="red")
             for _ax in ax:
                 _ax.legend(loc="upper right")
                 _ax.grid()
-            plt.savefig("/tmp/nestml_nest_integration_test_psc_[" + nest_model_name + "]_[" + testant + "].png")
+            plt.savefig("/tmp/nestml_nest_integration_test_psc_[" + nest_model_name + "]_[" + nestml_model_name + "].png")
             plt.close(fig)
 
         np.testing.assert_allclose(ts1, ts2)

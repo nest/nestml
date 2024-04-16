@@ -44,19 +44,21 @@ class TestNestMultiSynapse:
             os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
-        module_name = "nestmlmodule"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
-        nest.Install(module_name)
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.resolution = 0.1
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # network construction
         neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
@@ -130,11 +132,15 @@ class TestNestMultiSynapse:
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-        nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install(module_name)
+        nest.set_verbosity("M_ALL")
         nest.resolution = 0.1
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # network construction
         neuron = nest.Create("iaf_psc_exp_multisynapse_vectors_neuron_nestml")

@@ -1,6 +1,6 @@
 """
-stdp_triplet_nn - Synapse type with triplet spike-timing dependent plasticity
-#############################################################################
+stdp_triplet_synapse - Synapse type with triplet spike-timing dependent plasticity
+##################################################################################
 
 Description
 +++++++++++
@@ -16,7 +16,7 @@ References
        of spike timing-dependent plasticity.  The Journal of Neuroscience
        26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
 """
-model stdp_triplet_nn_synapse:
+model stdp_triplet_synapse:
     state:
         w nS = 1 nS   # Synaptic weight
 
@@ -55,24 +55,24 @@ model stdp_triplet_nn_synapse:
         spike
 
     onReceive(post_spikes):
-        # increment post trace values
-        tr_o1 += 1
-        tr_o2 += 1
-
         # potentiate synapse
         #w_ nS = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
         w_ nS = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
         w = min(Wmax, w_)
 
-    onReceive(pre_spikes):
-        # increment pre trace values
-        tr_r1 += 1
-        tr_r2 += 1
+        # increment post trace values
+        tr_o1 += 1
+        tr_o2 += 1
 
+    onReceive(pre_spikes):
         # depress synapse
         #w_ nS = Wmax * ( w / Wmax  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
         w_ nS = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
         w = max(Wmin, w_)
+
+        # increment pre trace values
+        tr_r1 += 1
+        tr_r2 += 1
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
