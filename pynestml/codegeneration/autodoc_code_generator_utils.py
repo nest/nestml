@@ -102,8 +102,7 @@ class AutoDocCodeGeneratorUtils:
                           ("stdp_nn_pre_centered_synapse", "stdp_nn_pre_centered_synapse.nestml"),
                           ("stdp_nn_restr_symm_synapse", "stdp_nn_restr_symm_synapse.nestml"),
                           ("stdp_nn_symm_synapse", "stdp_nn_symm_synapse.nestml"),
-                          ("stdp_triplet_nn_synapse", "triplet_stdp_synapse.nestml"),
-                          ("stdp_triplet_synapse", "stdp_triplet_naive.nestml"),
+                          ("stdp_triplet_nn_synapse", "stdp_triplet_synapse.nestml"),
                           ("third_factor_stdp_synapse", "third_factor_stdp_synapse.nestml"),
                           ("neuromodulated_stdp_synapse", "neuromodulated_stdp_synapse.nestml")]
 

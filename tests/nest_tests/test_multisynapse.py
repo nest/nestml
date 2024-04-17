@@ -124,13 +124,11 @@ class TestNestMultiSynapse:
             os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse_vectors.nestml")))
         target_path = "target"
         logging_level = "DEBUG"
-        module_name = "nestml_module"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
 
         nest.ResetKernel()
