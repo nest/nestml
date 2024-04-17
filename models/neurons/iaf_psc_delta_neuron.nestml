@@ -21,15 +21,6 @@ The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
 [1]_.  A flow chart can be found in [2]_.
 
-Critical tests for the formulation of the neuron model are the
-comparisons of simulation results for different computation step
-sizes. sli/testsuite/nest contains a number of such tests.
-
-The iaf_psc_delta is the standard model used to check the consistency
-of the nest simulation kernel because it is at the same time complex
-enough to exhibit non-trivial dynamics and simple enough compute
-relevant measures analytically.
-
 
 References
 ++++++++++
@@ -87,14 +78,18 @@ model iaf_psc_delta_neuron:
             # neuron not refractory, so evolve all ODEs (including V_m)
             integrate_odes()
 
-    onCondition(V_m >= V_th):
+    onCondition(not is_refractory and V_m >= V_th):
         # threshold crossing
-        refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         V_m = V_reset
+
+        if refr_T > 0 ms:
+            refr_t = refr_T    # start of the refractory period
+            is_refractory = true
+
         emit_spike()
 
     onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false
+

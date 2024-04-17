@@ -18,23 +18,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-from pynestml.utils.model_parser import ModelParser
-
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-
-from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.model_parser import ModelParser
 
 
 class VectorCodeGenerationTest(unittest.TestCase):

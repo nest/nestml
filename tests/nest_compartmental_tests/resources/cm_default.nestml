@@ -15,11 +15,11 @@ model cm_default:
 
         ### ion channels ###
         # initial values state variables sodium channel
-        m_Na real = 0.0
-        h_Na real = 0.0
+        m_Na real = 0.01696863
+        h_Na real = 0.83381407
 
         # initial values state variables potassium channel
-        n_K real = 0.0
+        n_K real = 0.00014943
 
 
     parameters:

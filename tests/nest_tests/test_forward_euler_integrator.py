@@ -46,15 +46,17 @@ class TestForwardEulerIntegrator:
                              module_name="nestml" + numeric_solver.replace("-", "_") + "module",
                              codegen_opts={"numeric_solver": numeric_solver})
 
-        nest.Install("nestml" + numeric_solver.replace("-", "_") + "module")
+        return "nestml" + numeric_solver.replace("-", "_") + "module"
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_forward_euler_integrator(self):
-        self.generate_target("forward-Euler")
-        self.generate_target("rk45")
+        forward_euler_module_name = self.generate_target("forward-Euler")
+        rk45_module_name = self.generate_target("rk45")
 
         nest.ResetKernel()
+        nest.Install(forward_euler_module_name)
+        nest.Install(rk45_module_name)
         nest.resolution = .001
 
         nrn1 = nest.Create("izhikevich_neuron_rk45_nestml")

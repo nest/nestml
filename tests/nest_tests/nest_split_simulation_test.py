@@ -54,7 +54,6 @@ class NestSplitSimulationTest(unittest.TestCase):
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
                              suffix="_nestml")
-        nest.Install("nestmlmodule")
 
     def run_simulation(self, T_sim: float, split: bool):
         neuron_model_name = "iaf_psc_exp_neuron_nestml"
@@ -64,6 +63,7 @@ class NestSplitSimulationTest(unittest.TestCase):
         spike_weights = np.sign(np.random.rand(spike_times.size) - .5)
 
         nest.ResetKernel()
+        nest.Install("nestmlmodule")
         nest.SetKernelStatus({"resolution": .1})
         neuron = nest.Create(neuron_model_name)
 

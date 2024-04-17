@@ -91,10 +91,6 @@ class TestNestSTDPSynapse:
                              suffix="_nestml_non_jit",
                              codegen_opts=non_jit_codegen_opts)
 
-        # load the generated modules into NEST
-        nest.Install("nestml_jit_module")
-        nest.Install("nestml_non_jit_module")
-
     @pytest.mark.parametrize("delay", [1., 1.5])
     @pytest.mark.parametrize("resolution", [.1, .5, 1.])
     @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
@@ -150,13 +146,25 @@ class TestNestSTDPSynapse:
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
 
+        # load the generated modules into NEST
+        try:
+            nest.Install("nestml_jit_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
+        try:
+            nest.Install("nestml_non_jit_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
         # nest.set_verbosity("M_WARNING")
         nest.set_verbosity("M_ERROR")
 
-        nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
 
         wr = nest.Create("weight_recorder")

@@ -49,12 +49,7 @@ class TestNeuronPriority:
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
-                             module_name="nestml_module",
                              suffix="_nestml")
-        try:
-            nest.Install("nestml_module")
-        except Exception:
-            pass
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -95,7 +90,11 @@ class TestNeuronPriority:
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        nest.SetKernelStatus({'resolution': resolution})
+        nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            pass
 
         # create spike_generators with these times
         port1_sg = nest.Create("spike_generator",

@@ -253,6 +253,9 @@ class NESTCodeGenerator(CodeGenerator):
                      "synapses": synapses,
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
+        # NEST version
+        if self.option_exists("nest_version"):
+            namespace["nest_version"] = self.get_option("nest_version")
         return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
@@ -304,13 +307,12 @@ class NESTCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_blocks()[0]
 
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-        ASTUtils.replace_inline_expressions_through_defining_expressions(
-            equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        ASTUtils.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+        ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
         # Collect all equations with delay variables and replace ASTFunctionCall to ASTVariable wherever necessary
         equations_with_delay_vars_visitor = ASTEquationsWithDelayVarsVisitor()
@@ -365,8 +367,7 @@ class NESTCodeGenerator(CodeGenerator):
         # Update the delay parameter parameters after symbol table update
         ASTUtils.update_delay_parameter_in_state_vars(neuron, state_vars_before_update)
 
-        spike_updates, post_spike_updates = self.get_spike_update_expressions(
-            neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+        spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars
 
@@ -385,12 +386,12 @@ class NESTCodeGenerator(CodeGenerator):
 
             equations_block = synapse.get_equations_blocks()[0]
 
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
             ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
             ASTUtils.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
+            ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver
@@ -405,8 +406,7 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
-            spike_updates, _ = self.get_spike_update_expressions(
-                synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+            spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
             if not self.analytic_solver[synapse.get_name()] is None:
                 synapse = ASTUtils.add_declarations_to_internals(

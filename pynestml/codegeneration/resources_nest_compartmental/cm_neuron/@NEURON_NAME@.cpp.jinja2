@@ -20,10 +20,19 @@
  *
  */
 #include "{{neuronSpecificFileNamesCmSyns["main"]}}.h"
-
+#include "nest_impl.h"
 
 namespace nest
 {
+
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+void
+register_{{ neuronSpecificFileNamesCmSyns["main"] }}( const std::string& name )
+{
+  nest::register_node_model< {{ neuronSpecificFileNamesCmSyns["main"] }} >( name );
+}
+{%- endif %}
 
 /*
  * For some reason this code block is needed. However, I have found no
