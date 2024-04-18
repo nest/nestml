@@ -187,6 +187,10 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
+  {%- for variable_type, variable_info in channel_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
 {%- endfor %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
   {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}

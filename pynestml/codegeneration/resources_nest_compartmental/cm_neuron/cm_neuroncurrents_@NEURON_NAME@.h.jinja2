@@ -106,7 +106,8 @@ public:
     // function declarations
 
 {%- for function in channel_info["Functions"] %}
-    inline {{ function_declaration.FunctionDeclaration(function) }};
+    #pragma omp declare simd
+    __attribute__((always_inline)) inline {{ function_declaration.FunctionDeclaration(function) }};
 {%- endfor %}
 
     // root_inline getter
@@ -191,7 +192,8 @@ public:
 
     // function declarations
 {%- for function in concentration_info["Functions"] %}
-    inline {{ function_declaration.FunctionDeclaration(function) }};
+    #pragma omp declare simd
+    __attribute__((always_inline)) inline {{ function_declaration.FunctionDeclaration(function) }};
 {%- endfor %}
 
     // root_ode getter
@@ -299,7 +301,8 @@ public:
 
   // function declarations
   {%- for function in synapse_info["Functions"] %}
-  inline {{ function_declaration.FunctionDeclaration(function) -}};
+  #pragma omp declare simd
+    __attribute__((always_inline)) inline {{ function_declaration.FunctionDeclaration(function) -}};
 
   {% endfor %}
 
@@ -388,7 +391,8 @@ public:
 
   // function declarations
   {%- for function in continuous_info["Functions"] %}
-  inline {{ function_declaration.FunctionDeclaration(function) -}};
+    #pragma omp declare simd
+    __attribute__((always_inline)) inline {{ function_declaration.FunctionDeclaration(function) -}};
 
   {% endfor %}
 

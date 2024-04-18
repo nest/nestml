@@ -102,15 +102,15 @@ class TestCompartmentalConcmech(unittest.TestCase):
         step_time_delta = res['times'][1]-res['times'][0]
         data_array_index = int(200/step_time_delta)
 
-        expected_conc = 0.038956635041526334
+        expected_conc = 0.03559438228347359
 
         if not res['c_Ca0'][data_array_index] == expected_conc:
             self.fail("the concentration (left) is not as expected (right). ("+str(res['c_Ca0'][data_array_index])+"!="+str(expected_conc)+")")
 
         fig, axs = plt.subplots(4)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='b', label='V_m_0')
-        axs[1].plot(res['times'], res['c_Ca0'], c='b', label='c_Ca_0')
+        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
+        axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca_0')
         axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
         axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
 

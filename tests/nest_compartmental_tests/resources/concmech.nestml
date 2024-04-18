@@ -31,7 +31,7 @@ neuron multichannel_test_model:
         inf_Ca real = 0.0001
 
     state:
-        v_comp real = -7500.00000000
+        v_comp real = -75.00000000
 
         # state variables Ca_HVA
         h_Ca_HVA real = 0.69823671
