@@ -368,6 +368,22 @@ class ASTUtils:
         return int(vector_parameter.get_numeric_literal())
 
     @classmethod
+    def get_input_port_numeric_vector_size(cls, port: ASTInputPort) -> int:
+        """
+        Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
+        :param port: input port
+        :return: the size of the vector as a numerical value
+        """
+        size_parameter = port.get_size_parameter()
+        if size_parameter.is_variable():
+            symbol = port.get_scope().resolve_to_symbol(size_parameter.get_variable().get_name(),
+                                                        SymbolKind.VARIABLE)
+            return symbol.get_declaring_expression().get_numeric_literal()
+
+        assert size_parameter.is_numeric_literal()
+        return int(size_parameter.get_numeric_literal())
+
+    @classmethod
     def get_function_call(cls, ast, function_name):
         """
         Collects for a given name all function calls in a given meta_model node.

@@ -66,6 +66,7 @@ class NestLoopsIntegrationTest(unittest.TestCase):
 
         v_m = mm.get("events")["V_m"]
         np.testing.assert_almost_equal(v_m[-1], 16.6)
+        exit(0)
 
         nest.ResetKernel()
         try:

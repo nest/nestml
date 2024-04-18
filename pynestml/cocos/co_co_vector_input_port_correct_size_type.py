@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.utils.ast_utils import ASTUtils
+
 from pynestml.meta_model.ast_expression import ASTExpression
 
 from pynestml.cocos.co_co import CoCo
@@ -54,7 +56,7 @@ class InputPortsVisitor(ASTVisitor):
                 return
 
             # otherwise, it is a simple expression
-            if size_parameter.is_variable() or (size_parameter.is_numeric_literal() and not isinstance(size_parameter.get_numeric_literal(), int)):
+            if not isinstance(ASTUtils.get_input_port_numeric_vector_size(node), int):
                 code, message = Messages.get_input_port_size_not_integer(node.get_name())
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)

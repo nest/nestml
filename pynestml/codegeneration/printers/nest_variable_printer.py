@@ -155,9 +155,9 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable_symbol.is_spike_input_port():
             var_name = variable_symbol.get_symbol_name().upper()
             if variable.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
-                var_name = var_name + "_" + str(vector_parameter)
-
+                # vector_parameter = ASTUtils.get_numeric_vector_size(variable)
+                # var_name = var_name + "_" + str(vector_parameter)
+                var_name = var_name + "_idx"
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'

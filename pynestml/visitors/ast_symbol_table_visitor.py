@@ -626,6 +626,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.is_continuous() and node.has_datatype():
             type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
+        if node.has_size_parameter() and node.get_size_parameter().is_variable():
+            node.get_size_parameter().update_scope(node.get_scope())
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
                                 is_predefined=False, is_inline_expression=False, is_recordable=False,
