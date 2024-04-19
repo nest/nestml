@@ -11,7 +11,7 @@ Simulation loop
 
 Note that NEST Simulator uses a hybrid integration strategy [Hanuschkin2010]_; see :numref:`fig_integration_order`, panel A for a graphical depiction.
 
-At the end of each timestep, incoming spikes become visible in those variables that correspond to a convolution with the corresponding spiking input port. At the start of a timestep, the value is the one "just before" the update due to incoming spikes.
+At the end of each timestep, incoming spikes are processed and their effects become visible in those variables that correspond to a convolution with the corresponding spiking input port. At the start of a timestep, the value is the one "just before" the update due to incoming spikes.
 
 Then, the code is run corresponding to the NESTML ``update`` block.
 

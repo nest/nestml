@@ -664,10 +664,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-#ifdef DEBUG
-  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %} (dt = " << __resolution << ")" << std::endl;
-#endif
-
 {%- if purely_numeric_state_variables_moved %}
   // numeric state variables moved from synapse to neuron should always be integrated, regardless of calls to integrate_odes() in the neuron
   // make a temporary copy of the old values
