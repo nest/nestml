@@ -77,8 +77,8 @@ class ASTOnConditionBlock(ASTNode):
 
     def get_cond_expr(self) -> str:
         r"""
-        Returns the port name.
-        :return: the port name
+        Returns the conditional expression
+        :return: the conditional expression
         """
         return self.cond_expr
 

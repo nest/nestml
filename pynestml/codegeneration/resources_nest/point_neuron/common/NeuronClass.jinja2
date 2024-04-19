@@ -615,10 +615,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-#ifdef DEBUG
-  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << __resolution << std::endl;
-#endif
-
 {%- if use_gap_junctions %}
   const size_t interpolation_order = nest::kernel().simulation_manager.get_wfr_interpolation_order();
   const double wfr_tol = nest::kernel().simulation_manager.get_wfr_tol();
