@@ -62,18 +62,18 @@ function_call_printer._expression_printer = printer
 
 
 def get_first_statement_in_update_block(model):
-    if model.get_neuron_list()[0].get_update_blocks()[0]:
-        return model.get_neuron_list()[0].get_update_blocks()[0].get_block().get_stmts()[0]
+    if model.get_model_list()[0].get_update_blocks()[0]:
+        return model.get_model_list()[0].get_update_blocks()[0].get_block().get_stmts()[0]
     return None
 
 
 def get_first_declaration_in_state_block(model):
-    assert len(model.get_neuron_list()[0].get_state_blocks()) == 1
-    return model.get_neuron_list()[0].get_state_blocks()[0].get_declarations()[0]
+    assert len(model.get_model_list()[0].get_state_blocks()) == 1
+    return model.get_model_list()[0].get_state_blocks()[0].get_declarations()[0]
 
 
 def get_first_declared_function(model):
-    return model.get_neuron_list()[0].get_functions()[0]
+    return model.get_model_list()[0].get_functions()[0]
 
 
 def print_rhs_of_first_assignment_in_update_block(model):
@@ -109,7 +109,7 @@ class UnitSystemTest(unittest.TestCase):
 
     def test_expression_after_magnitude_conversion_in_direct_assignment(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DirectAssignmentWithDifferentButCompatibleUnits.nestml'))
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
@@ -117,7 +117,7 @@ class UnitSystemTest(unittest.TestCase):
         self.assertEqual(printed_rhs_expression, '(1000.0 * (10 * V))')
 
     def test_expression_after_nested_magnitude_conversion_in_direct_assignment(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DirectAssignmentWithDifferentButCompatibleNestedUnits.nestml'))
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
@@ -125,21 +125,21 @@ class UnitSystemTest(unittest.TestCase):
         self.assertEqual(printed_rhs_expression, '(1000.0 * (10 * V + (0.001 * (5 * mV)) + 20 * V + (1000.0 * (1 * kV))))')
 
     def test_expression_after_magnitude_conversion_in_compound_assignment(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CompoundAssignmentWithDifferentButCompatibleUnits.nestml'))
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
         self.assertEqual(printed_rhs_expression, '(0.001 * (1200 * mV))')
 
     def test_expression_after_magnitude_conversion_in_declaration(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DeclarationWithDifferentButCompatibleUnitMagnitude.nestml'))
         printed_rhs_expression = print_rhs_of_first_declaration_in_state_block(model)
         self.assertEqual(printed_rhs_expression, '(1000.0 * (10 * V))')
 
     def test_expression_after_type_conversion_in_declaration(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DeclarationWithDifferentButCompatibleUnits.nestml'))
         declaration = get_first_declaration_in_state_block(model)
@@ -147,30 +147,30 @@ class UnitSystemTest(unittest.TestCase):
         self.assertTrue(declaration.get_expression().type.unit.unit == u.mV)
 
     def test_declaration_with_same_variable_name_as_unit(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DeclarationWithSameVariableNameAsUnit.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.WARNING)), 3)
 
     def test_expression_after_magnitude_conversion_in_standalone_function_call(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'FunctionCallWithDifferentButCompatibleUnits.nestml'))
         printed_function_call = print_first_function_call_in_update_block(model)
         self.assertEqual(printed_function_call, 'foo((1000.0 * (10 * V)))')
 
     def test_expression_after_magnitude_conversion_in_rhs_function_call(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'RhsFunctionCallWithDifferentButCompatibleUnits.nestml'))
         printed_function_call = print_rhs_of_first_assignment_in_update_block(model)
         self.assertEqual(printed_function_call, 'foo((1000.0 * (10 * V)))')
 
     def test_return_stmt_after_magnitude_conversion_in_function_body(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'FunctionBodyReturnStatementWithDifferentButCompatibleUnits.nestml'))
         printed_return_stmt = print_first_return_statement_in_first_declared_function(model)

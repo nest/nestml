@@ -39,7 +39,7 @@ class TestStaticSynapse:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "noisy_synapse.nestml"),
                  os.path.join("models", "synapses", "static_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -53,7 +53,7 @@ class TestStaticSynapse:
     def test_static_synapse(self, synapse_model_name: str):
 
         sim_time = 50.
-        neuron_model_name = "iaf_psc_exp_nestml"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")

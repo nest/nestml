@@ -32,7 +32,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoElementNotDefined:
+model CoCoElementNotDefined:
     state:
         test integer = 0
         test1 integer = test +1 # all reference are defined and declared, thus everything correct

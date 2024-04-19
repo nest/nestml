@@ -23,7 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron test_random:
+model test_random:
     state:
         p mV = random_normal(500 mV, 25 mV)
         q real = random_normal(500, 25)

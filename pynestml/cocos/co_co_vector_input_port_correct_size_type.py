@@ -22,7 +22,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -33,7 +33,7 @@ class CoCoVectorInputPortsCorrectSizeType(CoCo):
     This CoCo checks if the size of the vector input port is of the type integer and its value is greater than 0.
     """
     @classmethod
-    def check_co_co(cls, node: ASTNeuron):
+    def check_co_co(cls, node: ASTModel):
         visitor = InputPortsVisitor()
         node.accept(visitor)
 
