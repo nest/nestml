@@ -809,7 +809,7 @@ public:
     const double _tr_t = __t_spike - __dendritic_delay;
 
     {
-        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model    // XXX: TODO: is this correct or should this be equal to ``_tr_t``, i.e. with dendritic delay subtracted?
+        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron. state_vars_that_need_continuous_buffering | length > 0 %}
         /**

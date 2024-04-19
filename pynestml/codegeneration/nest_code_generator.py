@@ -307,7 +307,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_blocks()[0]
 
-
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
         ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         ASTUtils.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
