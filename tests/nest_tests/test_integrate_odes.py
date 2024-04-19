@@ -26,6 +26,7 @@ import scipy
 import scipy.signal
 
 import nest
+
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -90,16 +91,20 @@ class TestIntegrateODEs:
         nest.Connect(sg, neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
         nest.Connect(mm, neuron)
         nest.Connect(neuron, spikedet)
+
+        # simulate
         nest.Simulate(sim_time)
+
+        # analyze
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        V_m = nest.GetStatus(mm, "events")[0]["V_m"]
+        I_exc = nest.GetStatus(mm, "events")[0]["I_syn_exc"]
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-            I_exc = nest.GetStatus(mm, "events")[0]["I_syn_exc"]
             ax2.plot(timevec, I_exc, label="I_exc")
             ax1.plot(timevec, V_m, label="V_m", alpha=.7, linestyle=":")
             ev = spikedet.events["times"]
@@ -138,16 +143,20 @@ class TestIntegrateODEs:
         mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
         nest.Connect(mm, neuron)
         nest.Connect(neuron, spikedet)
+
+        # simulate
         nest.Simulate(sim_time)
+
+        # analyze
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
+        test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
-            test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
             ax2.plot(timevec, test_2, label="test_2")
             ax1.plot(timevec, test_1, label="test_1", alpha=.7, linestyle=":")
 
@@ -185,16 +194,20 @@ class TestIntegrateODEs:
         mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
         nest.Connect(mm, neuron)
         nest.Connect(neuron, spikedet)
+
+        # simulate
         nest.Simulate(sim_time)
+
+        # analyze
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
+        test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
-            test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
             ax2.plot(timevec, test_2, label="test_2")
             ax1.plot(timevec, test_1, label="test_1", alpha=.7, linestyle=":")
 

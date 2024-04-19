@@ -528,6 +528,7 @@ class ASTUtils:
 
     @classmethod
     def remove_state_var_from_integrate_odes_calls(cls, model: ASTModel, state_var_name: str):
+        r"""Remove a state variable from the arguments to integrate_odes() calls in the model."""
 
         class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
@@ -1887,9 +1888,7 @@ class ASTUtils:
 
     @classmethod
     def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> None:
-        r"""
-
-        """
+        r"""Get a list of all unique ``integrate_odes()`` function calls in the model (i.e. each having a different set of parameters)."""
         model.integrate_odes_combinations = []
 
         class IntegrateODEsFunctionCallVisitor(ASTVisitor):
@@ -2518,20 +2517,17 @@ class ASTUtils:
 
     @classmethod
     def get_on_receive_blocks_by_input_port_name(cls, model: ASTModel, port_name: str) -> List[ASTOnReceiveBlock]:
-        r"""
-        Get the input port given the port name
-        :param input_block: block to be searched
-        :param port_name: name of the input port
-        :return: input port object
-        """
+        r"""Get the onReceive blocks in the model associated with a given input port."""
         blks = []
         for blk in model.get_on_receive_blocks():
             if blk.get_port_name() == port_name:
                 blks.append(blk)
+
         return blks
 
     @classmethod
     def initial_value_or_zero(cls, astnode: ASTModel, var):
         if ASTUtils.get_state_variable_by_name(astnode, var):
             return astnode.get_initial_value(var)
+
         return "0"
