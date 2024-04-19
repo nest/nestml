@@ -86,7 +86,7 @@ class NESTCodeGeneratorUtils:
                 nestml_neuron_model = nestml_model_file.read()
 
         # update neuron model name inside the file
-        neuron_model_name = re.findall(r"model [^:\s]*:", nestml_neuron_model)[0][7:-1]
+        neuron_model_name = re.findall(r"model [^:\s]*:", nestml_neuron_model)[0][6:-1]
         neuron_fn = neuron_model_name + ".nestml"
         with open(neuron_fn, "w") as f:
             print(nestml_neuron_model, file=f)
@@ -108,7 +108,7 @@ class NESTCodeGeneratorUtils:
                     nestml_synapse_model = nestml_model_file.read()
 
             # update synapse model name inside the file
-            synapse_model_name = re.findall(r"model [^:\s]*:", nestml_synapse_model)[0][8:-1]
+            synapse_model_name = re.findall(r"model [^:\s]*:", nestml_synapse_model)[0][6:-1]
             synapse_fn = synapse_model_name + ".nestml"
             with open(synapse_fn, "w") as f:
                 print(nestml_synapse_model, file=f)
