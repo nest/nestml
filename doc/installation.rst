@@ -91,7 +91,7 @@ Please make sure to have the latest conda version installed and to create a new 
 
    conda create --name wnestml
    conda activate wnestml
-   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost cmake
+   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost cmake make
    pip install nestml
 
 Test the path to ``c++``:
