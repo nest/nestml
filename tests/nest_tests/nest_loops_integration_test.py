@@ -68,6 +68,11 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         np.testing.assert_almost_equal(v_m[-1], 16.6)
 
         nest.ResetKernel()
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
         nrn = nest.Create("while_loop_nestml")
 
         mm = nest.Create("multimeter")

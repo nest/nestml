@@ -40,7 +40,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
                         reason="This test does not support NEST 2")
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"
@@ -63,7 +63,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
-        nrn = nest.Create("iaf_psc_exp_nestml")
+        nrn = nest.Create("iaf_psc_exp_neuron_nestml")
         mm = nest.Create("multimeter")
         mm.set({"record_from": ["V_m"]})
 
@@ -92,7 +92,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_custom_templates_with_synapse(self):
-        models = ["neurons/iaf_psc_delta.nestml", "synapses/stdp_triplet_naive.nestml"]
+        models = ["neurons/iaf_psc_delta_neuron.nestml", "synapses/stdp_triplet_synapse.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", fn)))) for fn in models]
         target_path = "target"
@@ -104,8 +104,8 @@ class NestCustomTemplatesTest(unittest.TestCase):
         codegen_opts = {
             "neuron_parent_class": "StructuralPlasticityNode",
             "neuron_parent_class_include": "structural_plasticity_node.h",
-            "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                      "synapse": "stdp_triplet",
+            "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                      "synapse": "stdp_triplet_synapse",
                                       "post_ports": ["post_spikes"]}],
             "templates": {
                 "path": "resources_nest/point_neuron",

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -30,7 +30,7 @@ class CoCoStateVariablesInitialized(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks if the coco applies for the node. All the variables declared in the state block
         must be initialized with a value.

@@ -21,6 +21,7 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -36,13 +37,12 @@ class CoCoInlineMaxOneLhs(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, model: ASTModel):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ast_neuron
+        :param model: a single model instance.
         """
-        node.accept(InlineMaxOneLhs())
+        model.accept(InlineMaxOneLhs())
 
 
 class InlineMaxOneLhs(ASTVisitor):

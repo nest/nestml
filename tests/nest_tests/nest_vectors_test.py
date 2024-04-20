@@ -41,18 +41,20 @@ class TestNestVectorsIntegration:
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml")))
         target_path = "target"
         logging_level = "INFO"
-        module_name = "nestmlmodule"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         neuron = nest.Create("vectors_nestml")
         multimeter = nest.Create("multimeter")
@@ -84,19 +86,22 @@ class TestNestVectorsIntegration:
             os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml")))
         target_path = "target"
         logging_level = "INFO"
-        module_name = "vectorsmodule"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install(module_name)
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         neuron = nest.Create("vector_resize_nestml", params={"N": 200})
         neuron.set(x=[1.0, 1.0, 4.0])
+
         nest.Simulate(10)

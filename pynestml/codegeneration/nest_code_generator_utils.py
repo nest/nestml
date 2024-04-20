@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 from typing import List, Optional
 
 import re
@@ -63,12 +62,12 @@ class NESTCodeGeneratorUtils:
     def generate_code_for(cls,
                           nestml_neuron_model: str,
                           nestml_synapse_model: Optional[str] = None,
+                          module_name: Optional[str] = None,
+                          target_path: str = "target",
                           post_ports: Optional[List[str]] = None,
                           mod_ports: Optional[List[str]] = None,
-                          uniq_id: Optional[str] = None,
                           logging_level: str = "WARNING"):
         """Generate code for a given neuron and synapse model, passed as a string.
-        NEST cannot yet unload or reload modules. This function implements a workaround using UUIDs to generate unique names.
         The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
 
         Returns
@@ -81,59 +80,56 @@ class NESTCodeGeneratorUtils:
         # generate temporary install directory
         install_path = tempfile.mkdtemp(prefix="nestml_target_")
 
-        # generate unique ID
-        if uniq_id is None:
-            uniq_id = str(uuid.uuid4().hex)
-
         # read neuron model from file?
-        if not "\n" in nestml_neuron_model and ".nestml" in nestml_neuron_model:
+        if "\n" not in nestml_neuron_model and ".nestml" in nestml_neuron_model:
             with open(nestml_neuron_model, "r") as nestml_model_file:
                 nestml_neuron_model = nestml_model_file.read()
 
         # update neuron model name inside the file
-        neuron_model_name_orig = re.findall(r"neuron\ [^:\s]*:", nestml_neuron_model)[0][7:-1]
-        neuron_model_name_uniq = neuron_model_name_orig + uniq_id
-        nestml_model = re.sub(r"neuron\ [^:\s]*:",
-                              "neuron " + neuron_model_name_uniq + ":", nestml_neuron_model)
-        neuron_uniq_fn = neuron_model_name_uniq + ".nestml"
-        with open(neuron_uniq_fn, "w") as f:
-            print(nestml_model, file=f)
+        neuron_model_name = re.findall(r"model [^:\s]*:", nestml_neuron_model)[0][6:-1]
+        neuron_fn = neuron_model_name + ".nestml"
+        with open(neuron_fn, "w") as f:
+            print(nestml_neuron_model, file=f)
+
+        input_fns = [neuron_fn]
+        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+        mangled_neuron_name = neuron_model_name + "_nestml"
+
+        input_fns = [neuron_fn]
+        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+        mangled_neuron_name = neuron_model_name + "_nestml"
 
         if nestml_synapse_model:
             # read synapse model from file?
-            if not "\n" in nestml_synapse_model and ".nestml" in nestml_synapse_model:
+            if "\n" not in nestml_synapse_model and ".nestml" in nestml_synapse_model:
                 with open(nestml_synapse_model, "r") as nestml_model_file:
                     nestml_synapse_model = nestml_model_file.read()
 
             # update synapse model name inside the file
-            synapse_model_name_orig = re.findall(r"synapse\ [^:\s]*:", nestml_synapse_model)[0][8:-1]
-            synapse_model_name_uniq = synapse_model_name_orig + uniq_id
-            nestml_model = re.sub(r"synapse\ [^:\s]*:",
-                                  "synapse " + synapse_model_name_uniq + ":", nestml_synapse_model)
-            synapse_uniq_fn = synapse_model_name_uniq + ".nestml"
-            with open(synapse_uniq_fn, "w") as f:
-                print(nestml_model, file=f)
-
-        # generate the code for neuron and optionally synapse
-        module_name = "nestml_" + uniq_id + "_module"
-        input_fns = [neuron_uniq_fn]
-        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                        "neuron_parent_class_include": "structural_plasticity_node.h"}
-
-        mangled_neuron_name = neuron_model_name_uniq + "_nestml"
-        if nestml_synapse_model:
-            input_fns += [synapse_uniq_fn]
-            codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name_uniq,
-                                                     "synapse": synapse_model_name_uniq,
+            synapse_model_name = re.findall(r"model [^:\s]*:", nestml_synapse_model)[0][6:-1]
+            synapse_fn = synapse_model_name + ".nestml"
+            with open(synapse_fn, "w") as f:
+                print(nestml_synapse_model, file=f)
+            input_fns += [synapse_fn]
+            codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
+                                                     "synapse": synapse_model_name,
                                                      "post_ports": post_ports,
                                                      "vt_ports": mod_ports}]
-            mangled_neuron_name = neuron_model_name_uniq + "_nestml__with_" + synapse_model_name_uniq + "_nestml"
-            mangled_synapse_name = synapse_model_name_uniq + "_nestml__with_" + neuron_model_name_uniq + "_nestml"
+            mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
+            mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
+
+        if not module_name:
+            # generate unique ID
+            uniq_id = str(uuid.uuid4().hex)
+            module_name = "nestml_" + uniq_id + "_module"
 
         generate_nest_target(input_path=input_fns,
                              install_path=install_path,
                              logging_level=logging_level,
                              module_name=module_name,
+                             target_path=target_path,
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
