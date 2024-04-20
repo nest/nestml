@@ -83,7 +83,9 @@ After installation, correct operation can be tested by:
 Anaconda installation
 ---------------------
 
-In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies. Note that if you are working with a basic version of Ubuntu or another Linux distribution (ex. a basic download for use in the Windows Linux Subsystem), you also need to include the ``make`` package in the install command. The ``cmake`` package will not function without this package installed (it is by default on full versions of Linux distributions). 
+In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies.
+
+Please make sure to have the latest conda version installed and to create a new environment with the command below, i.e. installing all packages together at the start versus installing one by one.
 
 .. code-block:: bash
 
