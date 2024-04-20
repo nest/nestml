@@ -80,7 +80,7 @@ jobs:
 
       # Install Java
       - name: Install Java 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '11.0.x'
@@ -151,7 +151,7 @@ jobs:
 
       # Install Java
       - name: Install Java 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '11.0.x'
