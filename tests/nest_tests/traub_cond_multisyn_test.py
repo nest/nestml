@@ -55,6 +55,7 @@ class NestWBCondExpTest(unittest.TestCase):
                              suffix=suffix,
                              module_name=module_name)
 
+        nest.ResetKernel()
         nest.Install("nestmlmodule")
         model = "traub_cond_multisyn_neuron_nestml"
 

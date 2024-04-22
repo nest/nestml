@@ -5,7 +5,7 @@ NESTML language concepts
 Structure and indentation
 -------------------------
 
-NESTML uses Python-like indentation to group statements into blocks. Leading whitespace (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Functions`, :ref:`Control structures`, or any of the block in :ref:`Block types`. As an example, the following model is written with our recommended indentation level of 4 spaces:
+NESTML uses Python-like indentation to group statements into blocks. Leading whitespace (spaces or tabs) determine the level of indentation. There is no prescribed indentation depth, as long as each individual block maintains a consistent level. To indicate the end of a block, the indentation of subsequent statements (after the block) must again be on the same indentation level as the code before the block has started. The different kinds of blocks can be :ref:`Functions`, :ref:`Control structures`, or any of the blocks in :ref:`Block types`. As an example, the following model is written with our recommended indentation level of 4 spaces:
 
 .. code-block:: nestml
 
@@ -89,7 +89,7 @@ Units can have at most one of the following magnitude prefixes:
 +----------+-----------+-----------------+----------+-----------+-----------------+
 | 10^-3    | milli     | m               | 10^3     | kilo      | k               |
 +----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-6    | micro     | mu              | 10^6     | mega      | M               |
+| 10^-6    | micro     | u               | 10^6     | mega      | M               |
 +----------+-----------+-----------------+----------+-----------+-----------------+
 | 10^-9    | nano      | n               | 10^9     | giga      | G               |
 +----------+-----------+-----------------+----------+-----------+-----------------+
@@ -457,7 +457,7 @@ e.g.
 Predefined functions
 ^^^^^^^^^^^^^^^^^^^^
 
-The following functions are predefined in NESTML and can be used out of the box. No functions can be defined in NESTML that have the same name.
+The following functions are predefined in NESTML and can be used out of the box. No user-defined functions can have the same name.
 
 .. list-table::
    :header-rows: 1
@@ -555,7 +555,7 @@ The following functions are predefined in NESTML and can be used out of the box.
 Predefined variables and constants
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following variables and constants are predefined in NESTML and can be used out of the box. No variables can be defined in NESTML that have the same name.
+The following variables and constants are predefined in NESTML and can be used out of the box. No user-defined variables can have the same name.
 
 .. list-table::
    :header-rows: 1
@@ -801,10 +801,10 @@ To structure NESTML files, all content is structured in blocks. Blocks begin wit
 Block types
 ~~~~~~~~~~~
 
-``model <name>`` - The top-level block of a model called ``<name>``. Within the top-level block, the following blocks may be defined:
+``model <name>`` - The top-level block of a model called ``<name>``. The model can either be a neuron or a synapse model. Within the top-level block, the following blocks may be defined:
 
 -  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same model. Parameters cannot be changed from within the model itself; for this, use state variables instead.
--  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run and derive from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
+-  ``internals`` - This block is composed of a list of implementation-dependent helper variables that are supposed to be constant during the simulation run and are derived from parameters. Therefore, their initialization expression can only reference parameters or other internal variables.
 -  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
@@ -964,7 +964,7 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
-The ``recordable`` keyword can be used to make inline available to recording devices:
+The ``recordable`` keyword can be used to make the variable in inline expressions available to recording devices:
 
 .. code-block:: nestml
 
@@ -1115,6 +1115,7 @@ During simulation, the simulation kernel (for example, NEST Simulator) is respon
 
 The recommended update sequence for a spiking neuron model is shown below (panel B), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
+.. _label:fig_integration_order
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order.png
    :alt: Four different conventions for integration sequence. Modified after [1]_, their Fig. 10.2.
 
@@ -1123,7 +1124,7 @@ The numeric results of a typical simulation run are shown below. Consider a leak
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order_example.png
    :alt: Numerical example for two different integration sequences.
 
-On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` blcok are run every timestep for a fixed resolution of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but because events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
+On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed resolution of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but because events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
 
 
 Guards

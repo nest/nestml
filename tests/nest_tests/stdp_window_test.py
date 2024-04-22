@@ -50,7 +50,7 @@ def nestml_generate_target():
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
-                         logging_level="DEBUG",
+                         logging_level="INFO",
                          suffix="_nestml",
                          codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                                                  "synapse": "stdp_synapse",
@@ -58,7 +58,6 @@ def nestml_generate_target():
                                                                 {"neuron": "izhikevich_neuron",
                                                                  "synapse": "stdp_synapse",
                                                                  "post_ports": ["post_spikes"]}]})
-    nest.Install("nestmlmodule")
 
 
 def run_stdp_network(pre_spike_time, post_spike_time,
@@ -76,6 +75,12 @@ def run_stdp_network(pre_spike_time, post_spike_time,
 
     nest.ResetKernel()
     nest.SetKernelStatus({"resolution": resolution})
+
+    try:
+        nest.Install("nestmlmodule")
+    except Exception:
+        # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+        pass
 
     wr = nest.Create("weight_recorder")
     if "__with" in synapse_model_name:

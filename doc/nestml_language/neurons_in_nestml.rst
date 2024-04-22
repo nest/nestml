@@ -110,16 +110,32 @@ To model the effect that an arriving spike has on the state of the neuron, a con
                         &= \sum_{i=1}^N w_i \cdot f(t - t_i)
    \end{align*}
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
    equations:
-       kernel G = exp(-t/tau_syn)
-       V_m' = -V_m/tau_m + convolve(G, spikes)
+       kernel G = exp(-t / tau_syn)
+       inline I_syn pA = convolve(G, spikes) * pA
+       V_m' = -V_m / tau_m + I_syn / C_m
 
-By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``.
-Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, an scalar quantity without a unit.
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the scalar convolution result with the unit literal. By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+
+The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
+
+.. code-block:: nestml
+
+   state:
+       I_syn pA = 0 pA
+
+   equations:
+       I_syn' = -I_syn / tau_syn
+       V_m' = -V_m / tau_m + I_syn / C_m
+
+   onReceive(spikes):
+       I_syn += spikes * pA * s
+
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
 
 
 (Re)setting synaptic integration state
@@ -250,7 +266,7 @@ In order to model an absolute refractory state, in which the neuron cannot fire 
            # neuron not refractory, so evolve all ODEs
            integrate_odes(V_m, I_syn)
 
-   onCondition(refr_t <= resolution() / 2):
+   onCondition(is_refractory and refr_t <= resolution() / 2):
        # end of refractory period
        refr_t = 0 ms
        is_refractory = false

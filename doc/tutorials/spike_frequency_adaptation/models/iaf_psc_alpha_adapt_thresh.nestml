@@ -112,7 +112,7 @@ model iaf_psc_alpha_adapt_thresh_neuron:
         Theta += Delta_Theta
         emit_spike()
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false

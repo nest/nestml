@@ -194,8 +194,9 @@ class SynapsePostNeuronTransformer(Transformer):
         return variables
 
     def get_all_variables_assigned_to(self, node):
+        r"""Return a list of all variables that are assigned to in ``node``."""
         class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
-            _variables = []
+            _variable_names = []
 
             def __init__(self, synapse):
                 super(ASTAssignedToVariablesFinderVisitor, self).__init__()
@@ -204,7 +205,8 @@ class SynapsePostNeuronTransformer(Transformer):
             def visit_assignment(self, node):
                 symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
                 assert symbol is not None  # should have been checked in a CoCo before
-                self._variables.append(symbol)
+                self._variable_names.append(node.get_variable().get_name())
+                # print("-------> adding " + node.get_variable().get_name())
 
         if node is None:
             return []
@@ -212,7 +214,7 @@ class SynapsePostNeuronTransformer(Transformer):
         visitor = ASTAssignedToVariablesFinderVisitor(node)
         node.accept(visitor)
 
-        return [v.name for v in visitor._variables]
+        return visitor._variable_names
 
     def transform_neuron_synapse_pair_(self, neuron, synapse):
         r"""
@@ -257,27 +259,32 @@ class SynapsePostNeuronTransformer(Transformer):
         kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, synapse.get_equations_blocks())
         all_state_vars += [var.name for k in kernel_buffers for var in k[0].variables]
 
-        # if any variable is assigned to in any block that is not connected to a postsynaptic port
-        strictly_synaptic_vars = []
+        # exclude certain variables from being moved:
+        # exclude any variable assigned to in any block that is not connected to a postsynaptic port
+        strictly_synaptic_vars = ["t"]      # "seed" this with the predefined variable t
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
-                if (not self.is_post_port(port.name, neuron.name, synapse.name)) or self.is_vt_port(port.name, neuron.name, synapse.name):
+                if not self.is_post_port(port.name, neuron.name, synapse.name):
                     strictly_synaptic_vars += self.get_all_variables_assigned_to(synapse.get_on_receive_block(port.name))
 
+        # exclude all variables that are assigned to in the ``update`` block
         for update_block in synapse.get_update_blocks():
             strictly_synaptic_vars += self.get_all_variables_assigned_to(update_block)
 
-        convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(
-            synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
+        # exclude convolutions if they are not with a postsynaptic variable
+        convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
 
+        # exclude all variables that depend on the ones that are not to be moved
         strictly_synaptic_vars_dependent = ASTUtils.recursive_dependent_variables_search(strictly_synaptic_vars, synapse)
+
+        # do set subtraction
         syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars) | set(strictly_synaptic_vars_dependent)))
 
         #
         #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
         #
 
-        recursive_vars_used = ASTUtils.recursive_dependent_variables_search(syn_to_neuron_state_vars, synapse)
+        recursive_vars_used = ASTUtils.recursive_necessary_variables_search(syn_to_neuron_state_vars, synapse)
         new_neuron.recursive_vars_used = recursive_vars_used
         new_neuron._transferred_variables = [neuron_state_var + var_name_suffix
                                              for neuron_state_var in syn_to_neuron_state_vars if new_synapse.get_kernel_by_name(neuron_state_var) is None]
@@ -301,19 +308,23 @@ class SynapsePostNeuronTransformer(Transformer):
 
         syn_to_neuron_params = [v for v in recursive_vars_used if v in all_declared_params]
 
-        # parameters used in the declarations of the state variables
         vars_used = []
         for var in syn_to_neuron_state_vars:
-            decls = ASTUtils.get_declarations_from_block(var, neuron.get_state_blocks()[0])
-            for decl in decls:
-                if decl.has_expression():
-                    vars_used.extend(ASTUtils.collect_variable_names_in_expression(decl.get_expression()))
+            # parameters used in the declarations of the state variables
+            for state_block in synapse.get_state_blocks():
+                decls = ASTUtils.get_declarations_from_block(var, state_block)
+                for decl in decls:
+                    if decl.has_expression():
+                        vars_used.extend(ASTUtils.collect_variable_names_in_expression(decl.get_expression()))
 
             # parameters used in equations
-            for equations_block in neuron.get_equations_blocks():
+            for equations_block in synapse.get_equations_blocks():
                 vars_used.extend(ASTUtils.collects_vars_used_in_equation(var, equations_block))
 
+        vars_used = list(set([str(var) for var in vars_used]))
+
         syn_to_neuron_params.extend([var for var in vars_used if var in all_declared_params])
+        syn_to_neuron_params = list(set(syn_to_neuron_params))
 
         Logger.log_message(None, -1, "Parameters that will be copied from synapse to neuron: " + str(syn_to_neuron_params),
                            None, LoggingLevel.INFO)
@@ -346,6 +357,12 @@ class SynapsePostNeuronTransformer(Transformer):
         if not new_neuron.get_equations_blocks():
             ASTUtils.create_equations_block(new_neuron)
 
+        post_port_names = []
+        for input_block in new_synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_post_port(port.name, neuron.name, synapse.name):
+                    post_port_names.append(port.name)
+
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
                                None, LoggingLevel.INFO)
@@ -354,7 +371,7 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            new_neuron.get_equations_blocks()[0],
                                                            var_name_suffix,
                                                            mode="move")
-            ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
+            ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
 
         #
@@ -402,6 +419,8 @@ class SynapsePostNeuronTransformer(Transformer):
         #    move statements in post receive block from synapse to new_neuron
         #
 
+        # XXX: TODO: do not use a new member variable (`extra_on_emit_spike_stmts_from_synapse`) for this, but add a new event handler block in the neuron
+
         # find all statements in post receive block
         collected_on_post_stmts = []
 
@@ -432,8 +451,9 @@ class SynapsePostNeuronTransformer(Transformer):
 
         # XXX: TODO: add parameters used in stmts to parameters to be copied
 
-        vars_used = list(set([v.name for v in vars_used]))
+        vars_used = list(set([str(v) for v in vars_used]))
         syn_to_neuron_params.extend([v for v in vars_used if v in [p + var_name_suffix for p in all_declared_params]])
+        syn_to_neuron_params = list(set(syn_to_neuron_params))
 
         #
         #   replace ``continuous`` type input ports that are connected to postsynaptic neuron with suffixed external variable references

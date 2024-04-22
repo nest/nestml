@@ -230,6 +230,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
+                     "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
 

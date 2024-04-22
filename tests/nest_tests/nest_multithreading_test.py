@@ -69,15 +69,19 @@ class TestNestMultithreading:
                              codegen_opts={"neuron_parent_class": "ArchivingNode",
                                            "neuron_parent_class_include": "archiving_node.h"})
 
-        nest.Install(self.neuron_module)
-        nest.Install(self.neuron_synapse_module)
-
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_neuron_multithreading(self, number_of_threads: int) -> None:
         nest.ResetKernel()
         nest.resolution = 0.1
         nest.local_num_threads = number_of_threads
+
+        try:
+            nest.Install(self.neuron_module)
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
         spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,
                                 35., 36., 38., 40., 42., 46., 51., 53., 54., 55., 56., 59., 63., 64.,
                                 65., 66., 68., 72., 73., 76., 79., 80., 83., 84., 86., 87., 90., 95.])
@@ -113,6 +117,12 @@ class TestNestMultithreading:
         nest.ResetKernel()
         nest.resolution = 0.1
         nest.local_num_threads = number_of_threads
+
+        try:
+            nest.Install(self.neuron_synapse_module)
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.neuron_synapse_synapse_model, "stdp_nestml_rec",

@@ -26,6 +26,7 @@ import scipy
 import scipy.signal
 
 import nest
+
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -62,9 +63,7 @@ class TestIntegrateODEs:
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "integrate_odes_nonlinear_test.nestml")))],
                              logging_level="INFO",
-                             module_name="nestml_module",
                              suffix="_nestml")
-        nest.Install("nestml_module")
 
     def test_convolutions_always_integrated(self):
         r"""Test that synaptic integration continues for iaf_psc_exp, even when neuron is refractory."""
@@ -76,6 +75,11 @@ class TestIntegrateODEs:
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # create the network
         sg = nest.Create("spike_generator",
@@ -87,16 +91,20 @@ class TestIntegrateODEs:
         nest.Connect(sg, neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
         nest.Connect(mm, neuron)
         nest.Connect(neuron, spikedet)
+
+        # simulate
         nest.Simulate(sim_time)
+
+        # analyze
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        V_m = nest.GetStatus(mm, "events")[0]["V_m"]
+        I_exc = nest.GetStatus(mm, "events")[0]["I_syn_exc"]
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-            I_exc = nest.GetStatus(mm, "events")[0]["I_syn_exc"]
             ax2.plot(timevec, I_exc, label="I_exc")
             ax1.plot(timevec, V_m, label="V_m", alpha=.7, linestyle=":")
             ev = spikedet.events["times"]
@@ -123,6 +131,11 @@ class TestIntegrateODEs:
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # create the network
         spikedet = nest.Create("spike_recorder")
@@ -130,16 +143,20 @@ class TestIntegrateODEs:
         mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
         nest.Connect(mm, neuron)
         nest.Connect(neuron, spikedet)
+
+        # simulate
         nest.Simulate(sim_time)
+
+        # analyze
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
+        test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
-            test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
             ax2.plot(timevec, test_2, label="test_2")
             ax1.plot(timevec, test_1, label="test_1", alpha=.7, linestyle=":")
 
@@ -165,6 +182,11 @@ class TestIntegrateODEs:
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # create the network
         spikedet = nest.Create("spike_recorder")
@@ -172,16 +194,20 @@ class TestIntegrateODEs:
         mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
         nest.Connect(mm, neuron)
         nest.Connect(neuron, spikedet)
+
+        # simulate
         nest.Simulate(sim_time)
+
+        # analyze
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
+        test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
+        test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
 
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            timevec = nest.GetStatus(mm, "events")[0]["times"]
-            test_1 = nest.GetStatus(mm, "events")[0]["test_1"]
-            test_2 = nest.GetStatus(mm, "events")[0]["test_2"]
             ax2.plot(timevec, test_2, label="test_2")
             ax1.plot(timevec, test_1, label="test_1", alpha=.7, linestyle=":")
 

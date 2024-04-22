@@ -83,7 +83,7 @@ model iaf_cond_exp_Istep_neuron:
         I_step_now = I_step[k_step]
         k_step += 1
 
-    onCondition(refr_t <= resolution() / 2):
+    onCondition(is_refractory and refr_t <= resolution() / 2):
         # end of refractory period
         refr_t = 0 ms
         is_refractory = false

@@ -57,6 +57,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from nestkernel:
 #include "exceptions.h"
 #include "kernel_manager.h"
+#include "nest_impl.h"
 #include "universal_data_logger_impl.h"
 
 // Includes from sli:
@@ -67,6 +68,15 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "lockptrdatum.h"
 
 #include "{{neuronName}}.h"
+
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+void
+register_{{ neuronName }}( const std::string& name )
+{
+  nest::register_node_model< {{ neuronName }} >( name );
+}
+{%- endif %}
 
 // ---------------------------------------------------------------------------
 //   Recordables map
@@ -604,10 +614,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%- endif %}
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
-#ifdef DEBUG
-  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << __resolution << std::endl;
-#endif
 
 {%- if use_gap_junctions %}
   const size_t interpolation_order = nest::kernel().simulation_manager.get_wfr_interpolation_order();

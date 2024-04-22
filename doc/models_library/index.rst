@@ -365,7 +365,7 @@ Source file: `stdp_nn_symm_synapse <https://www.github.com/nest/nestml/blob/mast
 
 stdp_triplet_nn - Synapse type with triplet spike-timing dependent plasticity
 
-Source file: `stdp_triplet_nn_synapse <https://www.github.com/nest/nestml/blob/master/models/synapses/triplet_stdp_synapse.nestml>`_
+Source file: `stdp_triplet_nn_synapse <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_triplet_synapse.nestml>`_
 
 
 :doc:`stdp_triplet_synapse <stdp_triplet_synapse>`
@@ -373,7 +373,7 @@ Source file: `stdp_triplet_nn_synapse <https://www.github.com/nest/nestml/blob/m
 
 stdp_triplet - Synapse type with triplet spike-timing dependent plasticity
 
-Source file: `stdp_triplet_synapse <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_triplet_naive.nestml>`_
+Source file: `stdp_triplet_synapse <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_triplet_synapse.nestml>`_
 
 
 :doc:`third_factor_stdp_synapse <third_factor_stdp_synapse>`
