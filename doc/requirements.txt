@@ -8,7 +8,7 @@ nbformat==5.8.0
 nbsphinx==0.9.1
 typing_extensions==4.5.0
 sphinx_rtd_theme==2.0.0
-nbclient==0.7.4
+nbclient==0.10.0
 sphinx-design
 
 # the following list is a direct copy from requirements.txt in the root directory (requirements for NESTML itself rather than for doc building)
