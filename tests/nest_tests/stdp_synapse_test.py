@@ -19,9 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Sequence
+
 import numpy as np
 import os
-import unittest
+import pytest
 
 import nest
 
@@ -41,26 +43,28 @@ sim_mdl = True
 sim_ref = True
 
 
-class NestSTDPSynapseTest(unittest.TestCase):
+class TestNestSTDPSynapse:
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
+    synapse_model_name = "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_synapse"
 
-    def setUp(self):
+    @pytest.fixture(autouse=True,
+                    scope="module")
+    def generate_model_code(self):
         """Generate the model code"""
 
-        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                      "synapse": "stdp",
+        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                      "synapse": "stdp_synapse",
                                                       "post_ports": ["post_spikes"]}]}
         if not NESTTools.detect_nest_version().startswith("v2"):
             jit_codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             jit_codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -80,43 +84,41 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",
                              suffix="_nestml_non_jit",
                              codegen_opts=non_jit_codegen_opts)
 
-    def test_nest_stdp_synapse(self):
-        fname_snip = ""
-
-        pre_spike_times = [1., 11., 21.]    # [ms]
-        post_spike_times = [6., 16., 26.]  # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-
-        pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-                                    35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-                                    65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-                                    99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
-                                    152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-        post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-                                     25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-                                     48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-                                     80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
-                                     116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
-                                     188., 194., 202., 245., 249., 289., 454.])
-
+    @pytest.mark.parametrize("delay", [1., 1.5])
+    @pytest.mark.parametrize("resolution", [.1, .5, 1.])
+    @pytest.mark.parametrize("pre_spike_times,post_spike_times", [
+        ([1., 11., 21.],
+         [6., 16., 26.]),
+        (np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100)))))),
+         np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))),
+        (np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
+                   35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
+                   65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
+                   99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
+                   152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.]),
+         np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
+                   25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
+                   48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
+                   80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
+                   116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
+                   188., 194., 202., 245., 249., 289., 454.])),
+        (np.array([1, 5, 6, 7, 9, 11, 12, 13, 14.5, 16.1]),
+         np.array([2, 3, 4, 8, 9, 10, 12, 13.2, 15.1, 16.4]))
+    ])
+    def test_nest_stdp_synapse(self, pre_spike_times: Sequence[float], post_spike_times: Sequence[float], resolution: float, delay: float, fname_snip: str = ""):
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
                               ref_synapse_model_name=self.ref_synapse_model_name,
-                              resolution=.5,  # [ms]
-                              delay=1.5,  # [ms]
+                              resolution=resolution,  # [ms]
+                              delay=delay,  # [ms]
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
                               fname_snip=fname_snip)
@@ -143,8 +145,19 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
-        nest.Install("nestml_jit_module")
-        nest.Install("nestml_non_jit_module")
+
+        # load the generated modules into NEST
+        try:
+            nest.Install("nestml_jit_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
+        try:
+            nest.Install("nestml_non_jit_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -152,9 +165,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
         # nest.set_verbosity("M_WARNING")
         nest.set_verbosity("M_ERROR")
 
-        post_weights = {"parrot": []}
-
-        nest.ResetKernel()
         nest.SetKernelStatus({"resolution": resolution})
 
         wr = nest.Create("weight_recorder")
@@ -166,7 +176,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
-                             params={"spike_times": pre_spike_times})
+                             params={"spike_times": pre_spike_times,
+                                     "allow_offgrid_times": True})
         post_sg = nest.Create("spike_generator",
                               params={"spike_times": post_spike_times,
                                       "allow_offgrid_times": True})
@@ -175,10 +186,12 @@ class NestSTDPSynapseTest(unittest.TestCase):
         if sim_mdl:
             pre_neuron = nest.Create("parrot_neuron")
             post_neuron = nest.Create(neuron_model_name)
+            nest.SetStatus(post_neuron, "tau_syn_exc", .2)  # [ms] -- very brief
 
         if sim_ref:
             pre_neuron_ref = nest.Create("parrot_neuron")
             post_neuron_ref = nest.Create(ref_neuron_model_name)
+            nest.SetStatus(post_neuron_ref, "tau_syn_exc", .2)  # [ms] -- very brief
 
         if sim_mdl:
             if NESTTools.detect_nest_version().startswith("v2"):
@@ -188,7 +201,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 spikedet_pre = nest.Create("spike_recorder")
                 spikedet_post = nest.Create("spike_recorder")
             mm = nest.Create("multimeter", params={"record_from": [
-                             "V_m", "post_trace__for_stdp_nestml"]})
+                             "V_m", "post_trace__for_stdp_synapse_nestml"]})
         if sim_ref:
             if NESTTools.detect_nest_version().startswith("v2"):
                 spikedet_pre_ref = nest.Create("spike_detector")
@@ -200,7 +213,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         if sim_mdl:
             nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 99999.})
             if NESTTools.detect_nest_version().startswith("v2"):
                 nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
             else:
@@ -210,7 +223,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
             nest.Connect(post_neuron, spikedet_post)
         if sim_ref:
             nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+            nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 99999.})
             if NESTTools.detect_nest_version().startswith("v2"):
                 nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
                              syn_spec={"model": ref_synapse_model_name})
@@ -251,7 +264,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
             if sim_mdl:
                 timevec = nest.GetStatus(mm, "events")[0]["times"]
                 V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-                ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="post_tr nestml")
+                ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_synapse_nestml"], label="post_tr nestml")
                 ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
             if sim_ref:
                 pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
@@ -323,7 +336,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                     else:
                         _lbl = None
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
-            ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_nestml"], label="nestml post tr")
+            ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["post_trace__for_stdp_synapse_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             if sim_mdl:

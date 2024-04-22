@@ -55,7 +55,7 @@ Parameters
     
     "tau_m", "ms", "5ms", "Membrane time constant"    
     "C_m", "pF", "100pF", "Capacitance of the membrane"    
-    "t_ref", "ms", "2ms", "Duration of absolute refractory period (no spiking)"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "E_L", "mV", "-70mV", "Resting potential"    
     "tau_syn_exc", "ms", "1ms", "Time constant of postsynaptic excitatory currents"    
     "tau_syn_inh", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"    
@@ -78,8 +78,9 @@ State variables
     
     "V_th_alpha_1", "mV", "0mV", "Two-timescale adaptive threshold"    
     "V_th_alpha_2", "mV", "0mV", "Two-timescale adaptive threshold"    
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_m", "mV", "E_L", "Absolute membrane potential."
+    "V_m", "mV", "E_L", "Absolute membrane potential."    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""
 
 
 
@@ -97,7 +98,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `mat2_psc_exp <https://github.com/nest/nestml/tree/master/models/neurons/mat2_psc_exp.nestml>`_.
+The model source code can be found in the NESTML models repository here: `mat2_psc_exp <https://github.com/nest/nestml/tree/master/models/neurons/mat2_psc_exp_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -107,4 +108,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:49.118418
+   Generated at 2023-11-16 11:40:53.782490

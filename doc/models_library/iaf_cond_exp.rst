@@ -36,14 +36,14 @@ Parameters
     :widths: auto
 
     
-    "V_th", "mV", "-55mV", "Threshold potential"    
-    "V_reset", "mV", "-60mV", "Reset potential"    
-    "t_ref", "ms", "2ms", "Refractory period"    
-    "g_L", "nS", "16.6667nS", "Leak conductance"    
     "C_m", "pF", "250pF", "Membrane capacitance"    
+    "g_L", "nS", "16.6667nS", "Leak conductance"    
+    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
+    "V_th", "mV", "-55mV", "Spike threshold potential"    
+    "V_reset", "mV", "-60mV", "Reset potential"    
     "E_exc", "mV", "0mV", "Excitatory reversal potential"    
     "E_inh", "mV", "-85mV", "Inhibitory reversal potential"    
-    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
     "tau_syn_exc", "ms", "0.2ms", "Synaptic time constant of excitatory synapse"    
     "tau_syn_inh", "ms", "2ms", "Synaptic time constant of inhibitory synapse"    
     "I_e", "pA", "0pA", "constant external input current"
@@ -58,8 +58,9 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_m", "mV", "E_L", "membrane potential"
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""
 
 
 
@@ -77,7 +78,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_cond_exp <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_exp.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_cond_exp <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_exp_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -87,4 +88,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.999982
+   Generated at 2023-11-16 11:40:54.122450

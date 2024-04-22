@@ -70,9 +70,6 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return r'\text{spike}'
 
-        if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return r'\text{deliver\_spike}'
-
         return r"\text{" + function_name + r"}"
 
     def print_function_call(self, function_call: ASTFunctionCall) -> str:

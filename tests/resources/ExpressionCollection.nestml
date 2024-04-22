@@ -6,23 +6,9 @@ ExpressionCollection.nestml
 Description
 +++++++++++
 
-This test neuron is used to test if parsing of expression works as required.
+This test model is used to test if parsing of expression works as required.
 
-For more details see ExpressionParserTest.py. It is used to test the following part of the grammar:
-
-expression : leftParentheses='(' term=expression rightParentheses=')'
-         | <assoc=right> left=expression powOp='**' right=expression
-         | unaryOperator term=expression
-         | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
-         | left=expression (plusOp='+'  | minusOp='-') right=expression
-         | left=expression bitOperator right=expression
-         | left=expression comparisonOperator right=expression
-         | logicalNot='not' term=expression
-         | left=expression logicalOperator right=expression
-         | condition=expression '?' ifTrue=expression ':' ifNot=expression
-         | simpleExpression
-         ;
-and the respective sub-rules.
+For more details see ExpressionParserTest.py.
 
 
 Copyright statement
@@ -45,7 +31,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron ExpressionCollection:
+model ExpressionCollection:
     state:
         r integer = 2 # counts number of tick during the refractory period
         I_syn_ex pA = -0.5 pA # inputs from the exc spikes
@@ -69,6 +55,9 @@ neuron ExpressionCollection:
         g_GABAA' nS/ms = 0.
         g_GABAB' nS/ms = 0.
 
+        # power operator
+        bar real = 1.5
+
     parameters:
         #neuron aeif_cond_alpha_neuron
         testA ms**2 = 1
@@ -83,6 +72,10 @@ neuron ExpressionCollection:
         test16 pA = 0pA
 
         beta real = 1.            # check for conflict with sympy built-in functions like beta()
+
+        # for power operator
+        expo1 integer = 3
+        expo2 mmol/pA = 2 mmol/pA
 
         #hh_cond_exp_traub_neuron
         test70 nS = 0nS # Inhibitory synaptic conductance
@@ -480,6 +473,10 @@ neuron ExpressionCollection:
         test77 real =  alpha_m_init / ( alpha_m_init + beta_m_init )
         test78 real = alpha_h_init / ( alpha_h_init + beta_h_init )
         test79 real =  alpha_n_init / ( alpha_n_init + beta_n_init )
+
+        bar = beta ** expo1
+        bar = beta ** expo2
+        bar = beta ** (expo1 + expo2)
 
         integrate_odes()
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...

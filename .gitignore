@@ -1,10 +1,19 @@
 .settings/
 target/
 .idea/
+.vscode
 .mypy_cache/
+.pytest_cache/
 build/
 buildNest/
 venv/
+spinnaker-install/
+spinnaker-target/
+report/
+reports/
+nestml-*/
+*.egg-info
+stash/
 
 
 __*
@@ -16,7 +25,7 @@ PyNESTML.egg-info/
 *.pyc
 
 !__init__.py
-
+!*.jinja2
 *.jar
 venv
 

@@ -69,6 +69,7 @@ State variables
 
     
     "V_m", "mV", "E_L", "membrane potential"    
+    "V_m_prev", "mV", "E_L", "membrane potential"    
     "g_ahp", "nS", "0nS", "AHP conductance"    
     "g_ahp", "nS / ms", "0nS / ms", "AHP conductance"
 
@@ -91,7 +92,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_chxk_2008 <https://github.com/nest/nestml/tree/master/models/neurons/iaf_chxk_2008.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_chxk_2008 <https://github.com/nest/nestml/tree/master/models/neurons/iaf_chxk_2008_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -101,4 +102,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.822099
+   Generated at 2023-11-16 11:40:53.989187

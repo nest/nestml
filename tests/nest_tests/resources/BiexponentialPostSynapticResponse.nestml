@@ -29,9 +29,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron biexp_postsynaptic_response:
+model biexp_postsynaptic_response_neuron:
     state:
-        r integer = 0         # counts number of tick during the refractory period
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
         g_in real = 0        # inputs from the inhibitory conductance
         g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
@@ -42,7 +43,7 @@ neuron biexp_postsynaptic_response:
         g_GABA real = 0
         g_GABA' 1/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
 
-        # n.b. no initial value for kernel that is a direct function of time
+        # n.b. no initial value for kernel ``g_gap`` that is a direct function of time
 
         V_m mV = E_L          # membrane potential
 
@@ -56,10 +57,10 @@ neuron biexp_postsynaptic_response:
         kernel g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
         kernel g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
 
-        inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
-        inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
-        inline I_syn_gap pA = (F_I + convolve(g_gap, spikeGap)) * (V_m - E_gap)
-        inline I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA)) * (V_m - E_gap)
+        inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc) * nS) * (V_m - E_ex)
+        inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh) * nS) * (V_m - E_in)
+        inline I_syn_gap pA = (F_I + convolve(g_gap, spikeGap) * nS) * (V_m - E_gap)
+        inline I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA) * nS) * (V_m - E_gap)
         inline I_leak pA = g_L * (V_m - E_L)
 
         V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_syn_gap - I_syn_GABA + I_e + I_stim) / C_m
@@ -67,7 +68,7 @@ neuron biexp_postsynaptic_response:
     parameters:
         E_L mV = -70.0mV # Leak reversal Potential (aka resting potential)
         C_m pF = 250.0pF # Capacity of the membrane
-        t_ref ms = 2.0ms # Refractory period
+        refr_T ms = 2.0ms # Refractory period
         V_th mV = -55.0mV      # Threshold Potential
         V_reset mV = -60.0mV   # Reset Potential
         E_ex mV = 0mV          # Excitatory reversal Potential
@@ -82,8 +83,6 @@ neuron biexp_postsynaptic_response:
 
         tau_syn_rise_gap ms = 10 ms    # Synaptic Time Constant Excitatory Synapse
         tau_syn_decay_gap ms = 11 ms   # Synaptic Time Constant for Inhibitory Synapse
-
-        #tau_syn_alpha ms = 1.5ms   # Synaptic Time Constant for Inhibitory Synapse
 
         I_e pA = 0pA            # Constant Current
         F_E nS = 0nS            # Constant External input conductance (excitatory).
@@ -108,24 +107,31 @@ neuron biexp_postsynaptic_response:
                              1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
         g_gap_const real = 1 / (exp(-t_peak_gap / tau_syn_decay_gap) - exp(-t_peak_gap / tau_syn_rise_gap))
 
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
-
     input:
-        spikeInh nS  <- spike
-        spikeExc nS  <- spike
-        spikeGap nS  <- spike
-        spikeGABA nS  <- spike
+        spikeInh <- spike
+        spikeExc <- spike
+        spikeGap <- spike
+        spikeGABA <- spike
         I_stim pA <- continuous
 
     output:
         spike
 
     update:
-        integrate_odes()
-        if r != 0: # not refractory
-            r =  r - 1
-            V_m = V_reset # clamp potential
-        elif V_m >= V_th:
-            r = RefractoryCounts
-            V_m = V_reset # clamp potential
-            emit_spike()
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve V_m
+            refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
+
+    onCondition(not is_refractory and V_m >= V_th):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        emit_spike()
+
+    onCondition(refr_t <= 0 ms):
+        # end of refractory period
+        is_refractory = false

@@ -36,25 +36,19 @@ try:
 except Exception:
     TEST_PLOTS = False
 
-sim_mdl = True
-sim_ref = False
-
 
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_dend__with_third_factor_stdp"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
-
-    synapse_model_name = "third_factor_stdp__with_iaf_psc_exp_dend"
-    ref_synapse_model_name = "third_factor_stdp_synapse"
+    neuron_model_name = "iaf_psc_exp_dend_neuron__with_third_factor_stdp_synapse"
+    synapse_model_name = "third_factor_stdp_synapse__with_iaf_psc_exp_dend_neuron"
 
     post_trace_var = "I_dend"
 
     def setUp(self):
         r"""Generate the neuron model code"""
 
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                  "synapse": "third_factor_stdp",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
+                                                  "synapse": "third_factor_stdp_synapse",
                                                   "post_ports": ["post_spikes",
                                                                  ["I_post_dend", "I_dend"]]}]}
 
@@ -63,7 +57,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = [os.path.join("models", "neurons", "iaf_psc_exp_dend.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_dend_neuron.nestml"),
                  os.path.join("models", "synapses", "third_factor_stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -77,19 +71,11 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         fname_snip = ""
 
-        pre_spike_times = [1., 11., 21.]    # [ms]
-        post_spike_times = [6., 16., 26.]  # [ms]
-
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
         post_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(500))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(500))))))      # [ms]
 
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
-                              ref_neuron_model_name=self.ref_neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
-                              ref_synapse_model_name=self.ref_synapse_model_name,
                               resolution=.5,  # [ms]
                               delay=1.5,  # [ms]
                               pre_spike_times=pre_spike_times,
@@ -98,9 +84,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                               fname_snip=fname_snip)
 
     def run_synapse_test(self, neuron_model_name,
-                         ref_neuron_model_name,
                          synapse_model_name,
-                         ref_synapse_model_name,
                          resolution=1.,  # [ms]
                          delay=1.,  # [ms]
                          sim_time=None,  # if None, computed from pre and post spike times
@@ -119,25 +103,21 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         nest_version = NESTTools.detect_nest_version()
 
-        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
-        nest.Install("nestml_jit_module")
+        nest.set_verbosity("M_ALL")
+        nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestml_jit_module")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        nest.set_verbosity("M_WARNING")
-
-        nest.ResetKernel()
-        nest.SetKernelStatus({"resolution": resolution})
-
         wr = nest.Create("weight_recorder")
-        wr_ref = nest.Create("weight_recorder")
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0, "lambda": .001})
-        if sim_ref:
-            nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
-                           {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0, "lambda": .001})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -147,66 +127,33 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                                       "allow_offgrid_times": True})
 
         # create parrot neurons and connect spike_generators
-        if sim_mdl:
-            pre_neuron = nest.Create("parrot_neuron")
-            post_neuron = nest.Create(neuron_model_name)
+        pre_neuron = nest.Create("parrot_neuron")
+        post_neuron = nest.Create(neuron_model_name)
 
-        if sim_ref:
-            pre_neuron_ref = nest.Create("parrot_neuron")
-            post_neuron_ref = nest.Create(ref_neuron_model_name)
+        if nest_version.startswith("v2"):
+            spikedet_pre = nest.Create("spike_detector")
+            spikedet_post = nest.Create("spike_detector")
+        else:
+            spikedet_pre = nest.Create("spike_recorder")
+            spikedet_post = nest.Create("spike_recorder")
+        mm = nest.Create("multimeter", params={"record_from": ["V_m", self.post_trace_var]})
 
-        if sim_mdl:
-            if nest_version.startswith("v2"):
-                spikedet_pre = nest.Create("spike_detector")
-                spikedet_post = nest.Create("spike_detector")
-            else:
-                spikedet_pre = nest.Create("spike_recorder")
-                spikedet_post = nest.Create("spike_recorder")
-            mm = nest.Create("multimeter", params={"record_from": ["V_m", self.post_trace_var]})
-        if sim_ref:
-            if nest_version.startswith("v2"):
-                spikedet_pre_ref = nest.Create("spike_detector")
-                spikedet_post_ref = nest.Create("spike_detector")
-            else:
-                spikedet_pre_ref = nest.Create("spike_recorder")
-                spikedet_post_ref = nest.Create("spike_recorder")
-            mm_ref = nest.Create("multimeter", params={"record_from": ["V_m"]})
-
-        if sim_mdl:
-            nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if nest_version.startswith("v2"):
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
-            else:
-                nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
-            nest.Connect(mm, post_neuron)
-            nest.Connect(pre_neuron, spikedet_pre)
-            nest.Connect(post_neuron, spikedet_post)
-        if sim_ref:
-            nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
-            nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-            if nest_version.startswith("v2"):
-                nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                             syn_spec={"model": ref_synapse_model_name})
-            else:
-                nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all",
-                             syn_spec={"synapse_model": ref_synapse_model_name})
-            nest.Connect(mm_ref, post_neuron_ref)
-            nest.Connect(pre_neuron_ref, spikedet_pre_ref)
-            nest.Connect(post_neuron_ref, spikedet_post_ref)
+        nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+        if nest_version.startswith("v2"):
+            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"model": "stdp_nestml_rec"})
+        else:
+            nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec"})
+        nest.Connect(mm, post_neuron)
+        nest.Connect(pre_neuron, spikedet_pre)
+        nest.Connect(post_neuron, spikedet_post)
 
         # get STDP synapse and weight before protocol
-        if sim_mdl:
-            syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
-        if sim_ref:
-            syn_ref = nest.GetConnections(source=pre_neuron_ref, synapse_model=ref_synapse_model_name)
+        syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
 
         t = 0.
         t_hist = []
-        if sim_mdl:
-            w_hist = []
-        if sim_ref:
-            w_hist_ref = []
+        w_hist = []
         state = 0
         while t <= sim_time:
             if t > sim_time / 6. and state == 0:
@@ -214,15 +161,15 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 state = 1
             if t > 2 * sim_time / 6 and state == 1:
                 nest.SetStatus(post_neuron, {"I_dend": 1.})
-            if t > 2 * sim_time / 3. and state == 1:
+            if t > 3 * sim_time / 6. and state == 1:
                 state = 2
+            if t > 5 * sim_time / 6. and state == 2:
+                nest.SetStatus(post_neuron, {"I_dend": 0.})
+                state = 3
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
-            if sim_ref:
-                w_hist_ref.append(nest.GetStatus(syn_ref)[0]["weight"])
-            if sim_mdl:
-                w_hist.append(nest.GetStatus(syn)[0]["w"])
+            w_hist.append(nest.GetStatus(syn)[0]["w"])
 
         third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
         timevec = nest.GetStatus(mm, "events")[0]["times"]
@@ -231,21 +178,14 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
-            if sim_mdl:
-                V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-                ax2.plot(timevec, third_factor_trace, label="I_dend_post")
-                ax1.plot(timevec, V_m, alpha=.7, linestyle=":")
-            if sim_ref:
-                pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
-                timevec_ = nest.GetStatus(mm_ref, "events")[0]["times"]
-                V_m_ = nest.GetStatus(mm_ref, "events")[0]["V_m"]
-                ax1.plot(timevec_, V_m_, label="nest ref", alpha=.7)
+            V_m = nest.GetStatus(mm, "events")[0]["V_m"]
+            ax2.plot(timevec, third_factor_trace, label="I_dend_post")
+            ax1.plot(timevec, V_m, alpha=.7, linestyle=":")
             ax1.set_ylabel("V_m")
 
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                # _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + "_V_m.png", dpi=300)
@@ -254,47 +194,24 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             fig, ax = plt.subplots(nrows=5)
             ax1, ax2, ax3, ax4, ax5 = ax
 
-            if sim_mdl:
-                pre_spike_times_ = nest.GetStatus(spikedet_pre, "events")[0]["times"]
-                print("Actual pre spike times: " + str(pre_spike_times_))
-            if sim_ref:
-                pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
-                print("Actual pre ref spike times: " + str(pre_ref_spike_times_))
+            pre_spike_times_ = nest.GetStatus(spikedet_pre, "events")[0]["times"]
+            print("Actual pre spike times: " + str(pre_spike_times_))
 
-            if sim_mdl:
-                n_spikes = len(pre_spike_times_)
-                for i in range(n_spikes):
-                    ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4)
+            n_spikes = len(pre_spike_times_)
+            for i in range(n_spikes):
+                ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4)
 
-            if sim_mdl:
-                post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
-                print("Actual post spike times: " + str(post_spike_times_))
-            if sim_ref:
-                post_ref_spike_times_ = nest.GetStatus(spikedet_post_ref, "events")[0]["times"]
-                print("Actual post ref spike times: " + str(post_ref_spike_times_))
-
-            if sim_ref:
-                n_spikes = len(pre_ref_spike_times_)
-                for i in range(n_spikes):
-                    ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1], linewidth=2, color="cyan", alpha=.4)
+            post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
+            print("Actual post spike times: " + str(post_spike_times_))
             ax1.set_ylabel("Pre spikes")
 
-            if sim_mdl:
-                n_spikes = len(post_spike_times_)
-                for i in range(n_spikes):
-                    if i == 0:
-                        _lbl = "nestml"
-                    else:
-                        _lbl = None
-                    ax[-4].plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
-            if sim_ref:
-                n_spikes = len(post_ref_spike_times_)
-                for i in range(n_spikes):
-                    if i == 0:
-                        _lbl = "nest ref"
-                    else:
-                        _lbl = None
-                    ax[-4].plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
+            n_spikes = len(post_spike_times_)
+            for i in range(n_spikes):
+                if i == 0:
+                    _lbl = "nestml"
+                else:
+                    _lbl = None
+                ax[-4].plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
             ax[-4].set_ylabel("Post spikes")
 
             ax[-3].plot(timevec, third_factor_trace)
@@ -304,25 +221,23 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             ax[-2].set_ylabel(u"Δw")
 
             ax[-1].plot(t_hist, w_hist, marker="o")
-            if sim_ref:
-                ax[-1].plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
             ax[-1].set_ylabel("w")
-
             ax[-1].set_xlabel("Time [ms]")
             for _ax in ax:
                 if not _ax == ax[-1]:
                     _ax.set_xticklabels([])
-                _ax.grid(which="major", axis="both")
-                _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
+                _ax.grid(True)
                 _ax.set_xlim(0., sim_time)
+
             fig.savefig("/tmp/stdp_third_factor_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
-        MAX_ABS_ERROR = 1E-6
-        idx = np.where(np.abs(third_factor_trace) < 1E-3)[0]  # find where third_factor_place is (almost) zero
+        idx = np.where(np.abs(third_factor_trace) < 1E-12)[0]  # find where third_factor_trace is (almost) zero
         times_dw_should_be_zero = timevec[idx]
-        for time_dw_should_be_zero in times_dw_should_be_zero:
+        assert len(times_dw_should_be_zero) > 0  # make sure we have > 0 datapoints to check
+        for time_dw_should_be_zero in times_dw_should_be_zero[1:]:
             _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
-            assert np.abs(np.diff(w_hist)[_idx]) < MAX_ABS_ERROR
+            np.testing.assert_allclose(t_hist[_idx], time_dw_should_be_zero)
+            np.testing.assert_allclose(0., np.abs(w_hist[_idx - 1] - w_hist[_idx]))   # make sure that weight does not change appreciably
 
-        assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"
+        assert np.any(np.abs(np.array(w_hist) - 1) > 0.), "No change in the weight!"

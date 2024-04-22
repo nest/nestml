@@ -53,6 +53,7 @@ Parameters
     "d", "real", "8.0", "after-spike reset value of U_m"    
     "V_m_init", "mV", "-65mV", "initial membrane potential"    
     "V_min", "mV", "-inf * mV", "Absolute lower value for the membrane potential."    
+    "V_th", "mV", "30mV", "Threshold potential"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -87,7 +88,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `izhikevich <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich.nestml>`_.
+The model source code can be found in the NESTML models repository here: `izhikevich <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -97,4 +98,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.970819
+   Generated at 2023-11-16 11:40:54.073555

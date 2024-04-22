@@ -58,11 +58,7 @@ def plot_fig(times, recordable_events_delay: dict, recordable_events: dict, file
 def run_simulation(neuron_model_name: str, module_name: str, recordables: List[str], delay: float):
     nest.set_verbosity("M_ALL")
     nest.ResetKernel()
-
-    try:
-        nest.Install(module_name)
-    except BaseException:
-        pass
+    nest.Install(module_name)
 
     neuron = nest.Create(neuron_model_name)
     neuron.set({"delay": delay})

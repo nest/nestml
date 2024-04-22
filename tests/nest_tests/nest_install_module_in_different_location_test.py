@@ -35,7 +35,7 @@ class NestInstallExistingModule(unittest.TestCase):
 
     def test_installing_module_outside_nest(self):
 
-        model_name = "iaf_psc_exp"
+        model_name = "iaf_psc_exp_neuron"
         module_name = f"{model_name}module"
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -47,7 +47,7 @@ class NestInstallExistingModule(unittest.TestCase):
         suffix = "_location_test"
         dev = True
         codegen_opts = {"templates": {
-            "path": "point_neuron",
+            "path": "resources_nest/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cpp.jinja2", "@NEURON_NAME@.h.jinja2"],
                 "synapse": ["@SYNAPSE_NAME@.h.jinja2"]

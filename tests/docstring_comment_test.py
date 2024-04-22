@@ -81,7 +81,7 @@ class DocstringCommentTest(unittest.TestCase):
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
 
-        assert len(ast.get_neuron_list()) == 1, "Neuron failed to load correctly"
+        assert len(ast.get_model_list()) == 1, "Model failed to load correctly"
 
 
 if __name__ == '__main__':

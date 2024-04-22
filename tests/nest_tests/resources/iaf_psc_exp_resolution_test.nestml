@@ -7,16 +7,17 @@ Description
 
 Used to test resolution() function.
 """
-neuron iaf_psc_exp_resolution_test:
+model iaf_psc_exp_resolution_test_neuron:
     state:
-        r integer = 0                          # counts number of tick during the refractory period
         V_m mV = E_L
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
         a ms = resolution()
 
     equations:
         kernel I_kernel_inh = exp(-t/tau_syn_inh)
         kernel I_kernel_exc = exp(-t/tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) + convolve(I_kernel_exc, exc_spikes) + I_e + I_stim
+        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) * pA + convolve(I_kernel_exc, exc_spikes) * pA + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
     parameters:
@@ -24,7 +25,7 @@ neuron iaf_psc_exp_resolution_test:
         tau_m ms = 10 ms          # Membrane time constant
         tau_syn_inh ms = 2 ms     # Time constant of synaptic current
         tau_syn_exc ms = 2 ms     # Time constant of synaptic current
-        t_ref ms = 2 ms           # Duration of refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         E_L  mV = -70 mV          # Resting potential
         V_reset mV = -70 mV       # Reset value of the membrane potential
         Theta   mV = -55 mV       # Threshold potential
@@ -34,12 +35,11 @@ neuron iaf_psc_exp_resolution_test:
         b ms = resolution()
 
     internals:
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
         c ms = resolution()
 
     input:
-        exc_spikes pA <- excitatory spike
-        inh_spikes pA <- inhibitory spike
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
     output:
@@ -47,12 +47,21 @@ neuron iaf_psc_exp_resolution_test:
 
     update:
         d ms = resolution()
-        if r == 0: # neuron not refractory, so evolve V
-            integrate_odes()
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
         else:
-            r = r - 1 # neuron is absolute refractory
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
 
-        if V_m >= Theta: # threshold crossing
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(not is_refractory and V_m >= Theta):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

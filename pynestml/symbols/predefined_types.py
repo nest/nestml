@@ -28,6 +28,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
 from pynestml.utils.type_dictionary import TypeDictionary
 from pynestml.utils.unit_type import UnitType
 
@@ -229,6 +230,15 @@ class PredefinedTypes:
         :rtype: type_symbol
         """
         return TemplateTypeSymbol(i)
+
+    @classmethod
+    def get_variadic_type(cls):
+        """
+        Returns a new type symbol for a variadic type (variable-length list of arguments).
+        :return: a new variadic type symbol
+        :rtype: type_symbol
+        """
+        return VariadicTypeSymbol()
 
     @classmethod
     def register_type(cls, symbol):

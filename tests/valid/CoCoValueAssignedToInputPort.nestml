@@ -31,9 +31,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoValueAssignedToInputPort:
+model CoCoValueAssignedToInputPort:
     input:
-        spikeInh integer <- inhibitory spike
+        spikeInh <- inhibitory spike
 
     update: # input port not assigned to, thus everything is correct
-        test integer = spikeInh + 10
+        test integer = spikeInh * s + 10

@@ -3,6 +3,10 @@ Release checklist
 
 Follow this checklist to successfully perform a NESTML release. Let's say that 5.0.0 is the currently-out release, and we want to publish 5.0.1.
 
+- Check that the latest NEST Simulator release version is added to the NESTML CI and that CI passes.
+
+- Check that lexer/parser are generated with the appropriate version of Antlr (antlr4-python-runtime and antlr4 lexer/parser generator versions have to agree).
+
 - Find out authors who contributed since the last release.
 
   ```bash
@@ -54,3 +58,4 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
 
 - Delete the release branch (in this example, `release-v5.0.1`).
 - Add the new tag ("v5.0.0") as an _active version_ in ReadTheDocs, and then change the _default version_ to this tag.
+- Create a PR updating ``doc/citing.rst``.

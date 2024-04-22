@@ -31,7 +31,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoEachBlockUnique:
+model CoCoEachBlockUnique:
     state:
         test1 integer = 0
 
@@ -39,7 +39,7 @@ neuron CoCoEachBlockUnique:
         test2 integer = 0
 
     input:
-        spike1 pA <- spike
+        spike1 <- spike
 
     input:
-        spike2 pA <- spike
+        spike2 <- spike

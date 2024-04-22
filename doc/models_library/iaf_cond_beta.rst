@@ -54,14 +54,14 @@ Parameters
     :widths: auto
 
     
-    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
     "C_m", "pF", "250pF", "Capacitance of the membrane"    
-    "t_ref", "ms", "2ms", "Refractory period"    
+    "g_L", "nS", "16.6667nS", "Leak conductance"    
+    "E_L", "mV", "-70mV", "Leak reversal potential (aka resting potential)"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "V_th", "mV", "-55mV", "Threshold potential"    
     "V_reset", "mV", "-60mV", "Reset potential"    
     "E_ex", "mV", "0mV", "Excitatory reversal potential"    
     "E_in", "mV", "-85mV", "Inhibitory reversal potential"    
-    "g_L", "nS", "16.6667nS", "Leak conductance"    
     "tau_syn_rise_I", "ms", "0.2ms", "Synaptic time constant excitatory synapse"    
     "tau_syn_decay_I", "ms", "2ms", "Synaptic time constant for inhibitory synapse"    
     "tau_syn_rise_E", "ms", "0.2ms", "Synaptic time constant excitatory synapse"    
@@ -80,8 +80,9 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_m", "mV", "E_L", "membrane potential"    
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "g_in", "real", "0", "inputs from the inhibitory conductance"    
     "g_in$", "real", "g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)", ""    
     "g_ex", "real", "0", "inputs from the excitatory conductance"    
@@ -103,7 +104,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_cond_beta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_beta.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_cond_beta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_beta_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -113,4 +114,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.761456
+   Generated at 2023-11-16 11:40:53.839983

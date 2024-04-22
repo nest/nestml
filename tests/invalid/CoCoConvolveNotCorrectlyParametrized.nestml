@@ -31,7 +31,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoConvolveNotCorrectlyParametrized:
+model CoCoConvolveNotCorrectlyParametrized:
     state:
         V_m mV = 10mV
 
@@ -39,4 +39,4 @@ neuron CoCoConvolveNotCorrectlyParametrized:
         inline testB pA = convolve(V_m+V_m, spikeExc)
 
     input:
-        spikeExc integer <- excitatory spike
+        spikeExc <- excitatory spike

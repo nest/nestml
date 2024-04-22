@@ -52,13 +52,9 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
-    def visitNeuron(self, ctx):
+    def visitModel(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
-
-    def visitSynapse(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
-                get_in_comment(ctx, self.__tokens))
 
     def visitOdeEquation(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
@@ -84,7 +80,11 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
-    def visitInputPort(self, ctx):
+    def visitSpikeInputPort(self, ctx):
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim))
+
+    def visitContinuousInputPort(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
@@ -101,6 +101,10 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
                 get_in_comment(ctx, self.__tokens, self.__strip_delim))
 
     def visitOnReceiveBlock(self, ctx):
+        return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
+                get_in_comment(ctx, self.__tokens))
+
+    def visitOnConditionBlock(self, ctx):
         return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
                 get_in_comment(ctx, self.__tokens))
 
@@ -251,7 +255,7 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
 
 def __no_definitions_before(ctx, tokens):
     """
-    This method indicates whether before the start of ctx, something has been defined, e.g. a different neuron.
+    This method indicates whether before the start of ctx, something has been defined, e.g. a different model.
     This method is used to identify the start of a model.
     :param ctx: a context
     :type ctx: ctx

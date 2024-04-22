@@ -56,16 +56,17 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 """
-neuron iaf_psc_alpha:
+model iaf_psc_alpha_neuron:
 
     state:
-        r integer = 0      # Counts number of tick during the refractory period
         V_m mV = E_L       # Membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
     equations:
         kernel I_kernel_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel I_kernel_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
-        inline I pA = convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes) + I_e + I_stim
+        inline I pA = (convolve(I_kernel_exc, exc_spikes) - convolve(I_kernel_inh, inh_spikes)) * pA + I_e + I_stim
         V_m' = -(V_m - E_L) / tau_m + I / C_m
 
     parameters:
@@ -73,7 +74,7 @@ neuron iaf_psc_alpha:
         tau_m   ms = 10 ms        # Membrane time constant
         tau_syn_inh ms = 2 ms     # Time constant of synaptic current
         tau_syn_exc ms = 2 ms     # Time constant of synaptic current
-        t_ref   ms = 2 ms         # Duration of refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         E_L     mV = -70 mV       # Resting potential
         V_reset mV = -70 mV       # Reset potential of the membrane
         V_th    mV = -55 mV       # Spike threshold
@@ -81,28 +82,33 @@ neuron iaf_psc_alpha:
         # constant external input current
         I_e pA = 0 pA
 
-    internals:
-        RefractoryCounts integer = steps(t_ref)    # refractory time in steps
-
     input:
-        exc_spikes pA <- excitatory spike
-        inh_spikes pA <- inhibitory spike
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
         I_stim pA <- continuous
 
     output:
         spike
 
     update:
-        if r == 0: # neuron not refractory
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
             integrate_odes()
-        else: # neuron is absolute refractory
-            r = r - 1
 
-        if V_m >= V_th: # threshold crossing
-            # A supra-threshold membrane potential should never be observable.
-            # The reset at the time of threshold crossing enables accurate
-            # integration independent of the computation step size, see [2,3] for
-            # details.
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(V_m >= V_th): # threshold crossing
+        # A supra-threshold membrane potential should never be observable.
+        # The reset at the time of threshold crossing enables accurate
+        # integration independent of the computation step size, see [2,3] for
+        # details.
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false
