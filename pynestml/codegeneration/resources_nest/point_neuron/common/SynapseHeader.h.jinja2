@@ -335,7 +335,7 @@ private:
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if not isHomogeneous  and not (variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable) %}
 {%-         include 'directives_cpp/MemberDeclaration.jinja2' %}
-{%-     else %}
+{%-     elif isHomogeneous %}
     // N.B. the parameter `{{ printer.print(variable) }}` is defined in the common properties class
 {%-     endif %}
 {%- endfor %}
@@ -378,8 +378,8 @@ private:
   // -------------------------------------------------------------------------
 
 {%  filter indent(2, True) -%}
-{%- for variable_symbol in synapse.get_state_symbols() %}
-{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
+{%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous %}
 {%-         if variable_symbol.get_symbol_name() == nest_codegen_opt_delay_variable and printer_no_origin.print(variable) != "delay" %}
