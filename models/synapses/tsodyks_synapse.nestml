@@ -58,7 +58,7 @@ References
        networks with frequency-dependent synapses. Journal of Neuroscience,
        20 RC50. URL: http://infoscience.epfl.ch/record/183402
 """
-synapse tsodyks_synapse:
+model tsodyks_synapse:
     state:
         x real = 1
         y real = 0
@@ -73,7 +73,7 @@ synapse tsodyks_synapse:
         U real = .5
 
     input:
-        pre_spikes real <- spike
+        pre_spikes <- spike
 
     output:
         spike
@@ -97,4 +97,4 @@ synapse tsodyks_synapse:
         y += delta_y_tsp
 
         # deliver spike to postsynaptic partner
-        deliver_spike(delta_y_tsp * w, d)
+        emit_spike(delta_y_tsp * w, d)
