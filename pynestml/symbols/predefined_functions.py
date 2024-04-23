@@ -45,7 +45,7 @@ class PredefinedFunctions:
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
-        RANDOM_POISSON        The callee name of the function used to generate a random Poissonian distributed variable with parameter `lmbda` (expected value).
+        RANDOM_POISSON        The callee name of the function used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
         RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
@@ -316,7 +316,7 @@ class PredefinedFunctions:
     @classmethod
     def __register_random_poisson_function(cls):
         """
-        Registers the random method as used to generate a random Poissonian distributed variable with parameter `lmbda` (expected value).
+        Registers the random method as used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
         """
         symbol = FunctionSymbol(name=cls.RANDOM_POISSON, param_types=[PredefinedTypes.get_real_type()],
                                 return_type=PredefinedTypes.get_integer_type(),
