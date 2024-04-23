@@ -156,15 +156,11 @@ In the neuron, no special output port is required; all state variables are acces
 
 NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`).
 
-In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
+In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be clamped at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp_triplet_synapse_test.png
 
-For a full example, please see the following files:
-
-* ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure) XXXXXXXXXXXXXXXX
-* ``models/neurons/iaf_psc_exp_dend_neuron.nestml`` (neuron model)
-* ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
+For a full example, please see :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`.
 
 
 Examples

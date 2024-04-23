@@ -96,7 +96,7 @@ class NESTCodeGeneratorUtils:
 
         input_fns = [neuron_fn]
         _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+                         "neuron_parent_class_include": "structural_plasticity_node.h"}
         mangled_neuron_name = neuron_model_name + "_nestml"
 
         if nestml_synapse_model:
@@ -112,9 +112,9 @@ class NESTCodeGeneratorUtils:
                 print(nestml_synapse_model, file=f)
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
-                                                     "synapse": synapse_model_name,
-                                                     "post_ports": post_ports,
-                                                     "vt_ports": mod_ports}]
+                                                      "synapse": synapse_model_name,
+                                                      "post_ports": post_ports,
+                                                      "vt_ports": mod_ports}]
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 
