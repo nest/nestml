@@ -83,13 +83,15 @@ After installation, correct operation can be tested by:
 Anaconda installation
 ---------------------
 
-In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies:
+In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies.
+
+Please make sure to have the latest conda version installed and to create a new environment with the command below, i.e. installing all packages together at the start versus installing one by one.
 
 .. code-block:: bash
 
    conda create --name wnestml
    conda activate wnestml
-   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost
+   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost cmake make
    pip install nestml
 
 Test the path to ``c++``:

@@ -134,8 +134,8 @@ class Logger:
             '(PyNestML.Logger) Wrong type of node provided (%s)!' % type(node)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
             '(PyNestML.Logger) Wrong type of error position provided (%s)!' % type(error_position)
-        from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-        if isinstance(node, ASTNeuronOrSynapse):
+        from pynestml.meta_model.ast_model import ASTModel
+        if isinstance(node, ASTModel):
             cls.log[cls.curr_message] = (
                 node.get_artifact_name(), node, log_level, code, error_position, message)
         elif cls.current_node is not None:

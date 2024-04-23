@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.13.0
+# Generated from PyNestMLParser.g4 by ANTLR 4.13.1
 from antlr4 import *
 if "." in __name__:
     from .PyNestMLParser import PyNestMLParser
@@ -169,28 +169,23 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#neuron.
-    def visitNeuron(self, ctx:PyNestMLParser.NeuronContext):
+    # Visit a parse tree produced by PyNestMLParser#model.
+    def visitModel(self, ctx:PyNestMLParser.ModelContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#neuronBody.
-    def visitNeuronBody(self, ctx:PyNestMLParser.NeuronBodyContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#synapse.
-    def visitSynapse(self, ctx:PyNestMLParser.SynapseContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#synapseBody.
-    def visitSynapseBody(self, ctx:PyNestMLParser.SynapseBodyContext):
+    # Visit a parse tree produced by PyNestMLParser#modelBody.
+    def visitModelBody(self, ctx:PyNestMLParser.ModelBodyContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNestMLParser#onReceiveBlock.
     def visitOnReceiveBlock(self, ctx:PyNestMLParser.OnReceiveBlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#onConditionBlock.
+    def visitOnConditionBlock(self, ctx:PyNestMLParser.OnConditionBlockContext):
         return self.visitChildren(ctx)
 
 

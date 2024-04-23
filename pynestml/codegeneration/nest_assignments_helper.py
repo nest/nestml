@@ -124,30 +124,6 @@ class NestAssignmentsHelper:
         return False
 
     @classmethod
-    def has_assignment_vector_input_port(cls, assignment: ASTAssignment) -> bool:
-        assert isinstance(assignment, ASTAssignment), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
-        for var in assignment.get_expression().get_variables():
-            symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-            if symbol is not None and symbol.is_spike_input_port() and symbol.has_vector_parameter():
-                return True
-
-        return False
-
-    @classmethod
-    def get_vector_input_port_indexes(cls, assignment: ASTAssignment) -> str:
-        assert isinstance(assignment, ASTAssignment), \
-            '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
-
-        index_str = ""
-        for var in assignment.get_expression().get_variables():
-            symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-            if symbol is not None and symbol.is_spike_input_port() and symbol.has_vector_parameter():
-                vector_parameter = ASTUtils.get_numeric_vector_size(var)
-                index_str += f"long {symbol.get_symbol_name()}_idx = {symbol.get_symbol_name().upper()}_{str(vector_parameter)}; \n"
-        return index_str
-
-    @classmethod
     def print_size_parameter(cls, assignment) -> str:
         """
         Prints in a nest processable format the size parameter of the assignment.

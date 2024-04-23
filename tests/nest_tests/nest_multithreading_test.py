@@ -32,13 +32,12 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 @pytest.mark.parametrize("number_of_threads", [1, 2, 4])
 class TestNestMultithreading:
     neuron_synapse_module = "nestml_stdp_module"
-    neuron_synapse_target = "/tmp/nestml-stdp"
-    neuron_synapse_neuron_model = "iaf_psc_exp_nestml__with_stdp_nestml"
-    neuron_synapse_synapse_model = "stdp_nestml__with_iaf_psc_exp_nestml"
+    neuron_synapse_neuron_model = "iaf_psc_exp_neuron_nestml__with_stdp_synapse_nestml"
+    neuron_synapse_synapse_model = "stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
     neuron_module = "nestml_module"
     neuron_target = "/tmp/nestml-iaf-psc"
-    neuron_model = "iaf_psc_exp__nestml"
+    neuron_model = "iaf_psc_exp_neuron__nestml"
 
     @pytest.fixture(autouse=True,
                     scope="session")
@@ -48,24 +47,22 @@ class TestNestMultithreading:
         # Neuron-Synapse model
         neuron_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models",
-                                          "neurons", "iaf_psc_exp.nestml")))
+                                          "neurons", "iaf_psc_exp_neuron.nestml")))
         synapse_path = os.path.join(
             os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models",
                                           "synapses", "stdp_synapse.nestml")))
         generate_nest_target(input_path=[neuron_path, synapse_path],
-                             target_path=self.neuron_synapse_target,
                              logging_level="INFO",
                              module_name=self.neuron_synapse_module,
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "stdp_synapse",
                                                                      "post_ports": ["post_spikes"]}]})
 
         # Neuron model
         generate_nest_target(input_path=neuron_path,
-                             target_path=self.neuron_target,
                              logging_level="INFO",
                              module_name=self.neuron_module,
                              suffix="__nestml",
@@ -76,13 +73,15 @@ class TestNestMultithreading:
                         reason="This test does not support NEST 2")
     def test_neuron_multithreading(self, number_of_threads: int) -> None:
         nest.ResetKernel()
+        nest.resolution = 0.1
+        nest.local_num_threads = number_of_threads
+
         try:
             nest.Install(self.neuron_module)
         except Exception:
             # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
-        nest.resolution = 0.1
-        nest.local_num_threads = number_of_threads
+
         spike_times = np.array([2., 4., 7., 8., 12., 13., 19., 23., 24., 28., 29., 30., 33., 34.,
                                 35., 36., 38., 40., 42., 46., 51., 53., 54., 55., 56., 59., 63., 64.,
                                 65., 66., 68., 72., 73., 76., 79., 80., 83., 84., 86., 87., 90., 95.])
@@ -103,7 +102,7 @@ class TestNestMultithreading:
         v_m = events["V_m"]
         senders = events["senders"]
         v_m_sender = v_m[senders == gid_post]
-        np.testing.assert_almost_equal(v_m_sender[-1], -69.97074345103816)
+        np.testing.assert_almost_equal(v_m_sender[-1], -69.97074345103812)
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -116,13 +115,14 @@ class TestNestMultithreading:
                                      48., 49., 50., 54., 56., 57., 59., 60., 61., 62., 67., 74.])
 
         nest.ResetKernel()
+        nest.resolution = 0.1
+        nest.local_num_threads = number_of_threads
+
         try:
             nest.Install(self.neuron_synapse_module)
         except Exception:
             # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
-        nest.resolution = 0.1
-        nest.local_num_threads = number_of_threads
 
         wr = nest.Create("weight_recorder")
         nest.CopyModel(self.neuron_synapse_synapse_model, "stdp_nestml_rec",
@@ -156,4 +156,4 @@ class TestNestMultithreading:
         senders = events["senders"]
         V_m = events["V_m"]
         V_m_sender = V_m[senders == gid_post]
-        np.testing.assert_almost_equal(V_m_sender[-1], -58.64615287)
+        np.testing.assert_almost_equal(V_m_sender[-1], -69.38156435373065)
