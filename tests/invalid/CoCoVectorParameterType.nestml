@@ -45,7 +45,5 @@ model CoCoVectorParameterType:
         size_y real = 5.
 
     update:
-        i real = 2.
-        v_m [i] = 11.2 mV
         v_m [0] = 11.2 mV
         v_m [-1] = 11.2 mV
