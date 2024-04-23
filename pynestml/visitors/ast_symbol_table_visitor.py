@@ -468,6 +468,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def visit_variable(self, node: ASTVariable):
         if node.get_vector_parameter() is not None:
             node.get_vector_parameter().update_scope(node.get_scope())
+            node.get_vector_parameter().accept(self)
 
     def visit_inline_expression(self, node):
         """

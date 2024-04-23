@@ -47,7 +47,7 @@ class TestInputPorts:
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-
+        nest.ResetKernel()
         nest.Install(module_name)
 
         neuron = nest.Create("input_ports_nestml")
@@ -116,5 +116,5 @@ class TestInputPorts:
                              logging_level=logging_level,
                              module_name=module_name,
                              suffix=suffix)
-
+        nest.ResetKernel()
         nest.Install(module_name)
