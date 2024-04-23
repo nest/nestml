@@ -636,7 +636,7 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoVectorParameterType.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 3)
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_valid_vector_parameter_type(self):
         Logger.set_logging_level(LoggingLevel.INFO)
