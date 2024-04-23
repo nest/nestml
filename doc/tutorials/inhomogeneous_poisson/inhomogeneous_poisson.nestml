@@ -23,7 +23,7 @@ References
 
 [2] https://nest-simulator.readthedocs.io/en/stable/models/inhomogeneous_poisson_generator.html
 """
-neuron inhomogeneous_poisson:
+model inhomogeneous_poisson_neuron:
 
     state:
         idx integer = 0
@@ -50,3 +50,4 @@ neuron inhomogeneous_poisson:
         if n_spikes_in_this_timestep > 0:
             emit_spike()
             # XXX: TODO: support multiplicity in spikes (see https://github.com/nest/nestml/issues/946)
+
