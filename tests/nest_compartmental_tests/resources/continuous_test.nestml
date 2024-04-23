@@ -1,0 +1,22 @@
+neuron continuous_test_model:
+    state:
+        v_comp real = 0
+
+    parameters:
+        e_AMPA real = 0 mV
+        tau_r_AMPA real = 0.2 ms
+        tau_d_AMPA real = 3.0 ms
+
+    equations:
+        inline con_in real = (I_stim*10) @mechanism::continuous_input
+
+        kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
+        inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp) @mechanism::receptor
+
+    internals:
+        tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln( tau_d_AMPA / tau_r_AMPA )
+        g_norm_AMPA real =  1. / ( -exp( -tp_AMPA / tau_r_AMPA ) + exp( -tp_AMPA / tau_d_AMPA ) )
+
+    input:
+        I_stim real <- continuous
+        spikes_AMPA <- spike
