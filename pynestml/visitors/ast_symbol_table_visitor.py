@@ -302,6 +302,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
             type_symbol = PredefinedTypes.get_type(type_name)
             vector_parameter = var.get_vector_parameter()
+            if vector_parameter:
+                vector_parameter.update_scope(node.get_scope())
+
             symbol = VariableSymbol(element_reference=node,
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
@@ -461,11 +464,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
         elif node.is_variable() or node.has_unit():
             assert node.get_scope() is not None
             node.get_variable().update_scope(node.get_scope())
-            if node.get_variable().get_vector_parameter() is not None:
+            if node.get_variable().has_vector_parameter():
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
-        if node.get_vector_parameter() is not None:
+        if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
 
     def visit_inline_expression(self, node):
