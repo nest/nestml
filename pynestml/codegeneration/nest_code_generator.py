@@ -654,11 +654,10 @@ class NESTCodeGenerator(CodeGenerator):
                     expr_ast.accept(marks_delay_vars_visitor)
 
                 # Check if the update expressions have vector variables and update the vector parameters
-                # XXX: NECESSARY?
-                # for eqn in neuron.equations_with_vector_vars:
-                #     for var in eqn.rhs.get_variables():
-                #         sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
-                #         expr_ast.accept(sets_vector_param_in_update_expr_visitor)
+                for eqn in neuron.equations_with_vector_vars:
+                    for var in eqn.rhs.get_variables():
+                        sets_vector_param_in_update_expr_visitor = ASTSetVectorParameterInUpdateExpressionVisitor(var)
+                        expr_ast.accept(sets_vector_param_in_update_expr_visitor)
 
             namespace["propagators"] = self.analytic_solver[neuron.get_name()]["propagators"]
 

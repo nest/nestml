@@ -309,8 +309,8 @@ class PredefinedFunctions:
         Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
         """
         symbol = FunctionSymbol(name=cls.RANDOM_NORMAL, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
-                                 return_type=PredefinedTypes.get_template_type(0),
-                                 element_reference=None, is_predefined=True)
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
         cls.name2function[cls.RANDOM_NORMAL] = symbol
 
     @classmethod
