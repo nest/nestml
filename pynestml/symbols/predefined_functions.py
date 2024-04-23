@@ -45,6 +45,7 @@ class PredefinedFunctions:
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_POISSON        The callee name of the function used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
         RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
@@ -76,6 +77,7 @@ class PredefinedFunctions:
     LOGGER_INFO = "info"
     LOGGER_WARNING = "warning"
     RANDOM_NORMAL = "random_normal"
+    RANDOM_POISSON = "random_poisson"
     RANDOM_UNIFORM = "random_uniform"
     EXPM1 = "expm1"
     CLIP = "clip"
@@ -113,6 +115,7 @@ class PredefinedFunctions:
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_normal_function()
+        cls.__register_random_poisson_function()
         cls.__register_random_uniform_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
@@ -309,6 +312,16 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.RANDOM_NORMAL] = symbol
+
+    @classmethod
+    def __register_random_poisson_function(cls):
+        """
+        Registers the random method as used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
+        """
+        symbol = FunctionSymbol(name=cls.RANDOM_POISSON, param_types=[PredefinedTypes.get_real_type()],
+                                return_type=PredefinedTypes.get_integer_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.RANDOM_POISSON] = symbol
 
     @classmethod
     def __register_random_uniform_function(cls):
