@@ -478,7 +478,7 @@ private:
 {%-   if port.has_vector_parameter() -%}
 {%      set size = utils.get_numeric_vector_size(port) | int %}
 {%-     for i in range(size) %}
-    {{port.get_symbol_name().upper()}}_{{i + 1}} = {{ns.count}},
+    {{port.get_symbol_name().upper()}}_{{i}} = {{ns.count}},
 {%-       set ns.count = ns.count + 1 -%}
 {%-     endfor %}
 {%-   else %}
@@ -988,7 +988,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {%-       else %}
 {%-       set size = utils.get_numeric_vector_size(port) %}
 {%-         for i in range(size)  %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i + 1}}" ] = {{ns.rport + i + 1}},
+    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i}}" ] = {{ns.rport + i + 1}},
 {%-         endfor %}
 {%-       endif %}
 {%-     endfor %}

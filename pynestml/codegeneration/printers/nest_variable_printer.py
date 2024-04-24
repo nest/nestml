@@ -156,7 +156,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():
                 if variable.get_vector_parameter().is_variable():
-                    var_name += "_1 + " + variable.get_vector_parameter().get_variable().get_name()
+                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"

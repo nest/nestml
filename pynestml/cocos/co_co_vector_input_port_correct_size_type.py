@@ -56,7 +56,7 @@ class InputPortsVisitor(ASTVisitor):
                 return
 
             # otherwise, it is a simple expression
-            if not isinstance(ASTUtils.get_input_port_numeric_vector_size(node), int):
+            if not isinstance(ASTUtils.get_numeric_vector_input_port_size(node), int):
                 code, message = Messages.get_input_port_size_not_integer(node.get_name())
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
