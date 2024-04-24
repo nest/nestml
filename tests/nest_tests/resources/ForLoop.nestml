@@ -33,8 +33,7 @@ model for_loop:
 
     update:
         k integer = 0
-        j integer
+        j integer = 0
         for j in 0 ... N step 1:
-            println("j: {j}")
             k = j / N
             V_m += 0.01 mV
