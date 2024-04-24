@@ -629,15 +629,12 @@ class ASTUtils:
     @classmethod
     def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
         for pair in codegen_opts_pairs:
-            print("Checking pair " + str(pair) + " for ne = " + str(neuron.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix)) + " syn = " + synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix))
-            if pair["neuron"] == neuron.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix) and pair["synapse"] == synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix):
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix):
                 return pair["post_ports"]
         return None
 
     @classmethod
     def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port):
-        print("post port names: " + str(post_port_names))
-        print("Searching for " + str(post_port))
         for pair in post_port_names:
             if pair[0] == post_port:
                 return pair[1]
