@@ -54,7 +54,6 @@ class TestInputPorts:
 
         # List of receptor types for the spiking input ports
         receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
-        print(receptor_types)
 
         spike_times = [
             [10., 44.],  # NMDA_SPIKES
@@ -118,3 +117,49 @@ class TestInputPorts:
                              suffix=suffix)
         nest.ResetKernel()
         nest.Install(module_name)
+
+        neuron = nest.Create("input_ports_loop_nestml")
+
+        # List of receptor types for the spiking input ports
+        receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
+
+        spike_times = [
+            [10., 39.],  # NMDA_SPIKES
+            [12., 37.],  # FOO_0
+            [14., 35.],  # FOO_1
+            [16., 33.],  # SPIKE_BUF_0
+            [18., 31.],  # SPIKE_BUF_1
+            [20., 29.],  # SPIKE_BUF_2
+            [22., 27.],  # SPIKE_BUF_3
+            [24., 25.],  # SPIKE_BUF_4
+        ]
+        sgs = nest.Create('spike_generator', len(spike_times))
+        for i, sg in enumerate(sgs):
+            sg.spike_times = spike_times[i]
+
+        nest.Connect(sgs[0], neuron,
+                     syn_spec={'receptor_type': receptor_types["NMDA_SPIKES"], 'weight': 1.0, 'delay': 1.0})
+        nest.Connect(sgs[1], neuron,
+                     syn_spec={'receptor_type': receptor_types["FOO_0"], 'weight': 1.0, 'delay': 1.0})
+        nest.Connect(sgs[2], neuron,
+                     syn_spec={'receptor_type': receptor_types["FOO_1"], 'weight': 1.0, 'delay': 1.0})
+        nest.Connect(sgs[3], neuron, syn_spec={'receptor_type': receptor_types["SPIKE_BUF_0"], 'weight': 1.0, 'delay': 1.0})
+        nest.Connect(sgs[4], neuron, syn_spec={'receptor_type': receptor_types["SPIKE_BUF_1"], 'weight': 1.0, 'delay': 1.0})
+        nest.Connect(sgs[5], neuron,
+                     syn_spec={'receptor_type': receptor_types["SPIKE_BUF_2"], 'weight': 1.0, 'delay': 1.0})
+        nest.Connect(sgs[6], neuron,
+                     syn_spec={'receptor_type': receptor_types["SPIKE_BUF_3"], 'weight': 2.0, 'delay': 1.0})
+        nest.Connect(sgs[7], neuron,
+                     syn_spec={'receptor_type': receptor_types["SPIKE_BUF_4"], 'weight': 3.0, 'delay': 1.0})
+
+        mm = nest.Create("multimeter", {"record_from": ["bar", "foo_spikes", "MY_SPIKES_IP_2", "MY_SPIKES_IP_3", "MY_SPIKES_IP_4", "MY_SPIKES_IP_5", "MY_SPIKES_IP_6"]})
+        nest.Connect(mm, neuron)
+
+        nest.Simulate(41.)
+
+        events = mm.get("events")
+        assert events["bar"][-1] == 2.0
+        assert events["foo_spikes"][-1] == 25.0
+        assert events["MY_SPIKES_IP_2"][-1] == 2.0
+        assert events["MY_SPIKES_IP_5"][-1] == 4.0
+        assert events["MY_SPIKES_IP_6"][-1] == 6.0

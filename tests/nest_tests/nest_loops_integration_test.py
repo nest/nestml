@@ -35,12 +35,8 @@ class NestLoopsIntegrationTest(unittest.TestCase):
     Tests the code generation and working of for and while loops from NESTML to NEST
     """
 
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
-    def test_for_and_while_loop(self):
-        files = ["ForLoop.nestml", "WhileLoop.nestml"]
-        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", s))) for s in
-                      files]
+    def test_for_loop(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "ForLoop.nestml")))
         target_path = "target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
@@ -66,8 +62,21 @@ class NestLoopsIntegrationTest(unittest.TestCase):
 
         v_m = mm.get("events")["V_m"]
         np.testing.assert_almost_equal(v_m[-1], 16.6)
-        exit(0)
 
+    def test_while_loop(self):
+        input_path = os.path.join(
+            os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "WhileLoop.nestml")))
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
+        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         try:
             nest.Install("nestmlmodule")
