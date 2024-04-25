@@ -50,17 +50,17 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        nest.Install(module_name)
 
         nrn = nest.Create("for_loop_nestml")
         mm = nest.Create("multimeter")
-        mm.set({"record_from": ["V_m"]})
+        nest.SetStatus(mm, {"record_from": ["V_m"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(5.0)
 
-        v_m = mm.get("events")["V_m"]
+        v_m = nest.GetStatus(mm, "events")[0]["V_m"]
         np.testing.assert_almost_equal(v_m[-1], 16.6)
 
     def test_while_loop(self):
@@ -68,7 +68,7 @@ class NestLoopsIntegrationTest(unittest.TestCase):
             os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "WhileLoop.nestml")))
         target_path = "target"
         logging_level = "INFO"
-        module_name = "nestmlmodule"
+        module_name = "while_nestmlmodule"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
@@ -79,17 +79,17 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         try:
-            nest.Install("nestmlmodule")
+            nest.Install(module_name)
         except Exception:
             # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
             pass
         nrn = nest.Create("while_loop_nestml")
 
         mm = nest.Create("multimeter")
-        mm.set({"record_from": ["y"]})
+        nest.SetStatus(mm, {"record_from": ["y"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(5.0)
-        y = mm.get("events")["y"]
+        y = nest.GetStatus(mm, "events")[0]["y"]
         np.testing.assert_almost_equal(y[-1], 5.011)
