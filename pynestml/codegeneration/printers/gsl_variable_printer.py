@@ -87,6 +87,6 @@ class GSLVariablePrinter(CppVariablePrinter):
                     var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
-            return "spike_inputs_grid_sum_[node." + var_name + " - MIN_SPIKE_RECEPTOR]"
+            return "spike_inputs_grid_sum_[node." + var_name + " - node.MIN_SPIKE_RECEPTOR]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
