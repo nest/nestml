@@ -26,7 +26,7 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class ASTNamespaceDecorator(ASTNode):
     r"""
-    Namespace decorator, for example "@nest::delay".
+    Namespace decorator, for example "@nest::abc".
     """
 
     def __init__(self, namespace: str = "", name: str = "", *args, **kwargs):

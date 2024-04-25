@@ -1270,11 +1270,6 @@ class Messages:
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
-    def get_nest_delay_decorator_not_found(cls):
-        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
-        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
-
-    @classmethod
     def get_input_port_size_not_integer(cls, port_name: str):
         message = "The size of the input port " + port_name + " is not of integer type."
         return MessageCode.INPUT_PORT_SIZE_NOT_INTEGER, message

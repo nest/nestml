@@ -27,7 +27,6 @@ import re
 import odetoolbox
 import pynestml
 
-from pynestml.cocos.co_co_nest_delay_decorator_specified import CoCoNESTDelayDecoratorSpecified
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -67,6 +66,7 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_toolbox_utils import ODEToolboxUtils
+from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
@@ -109,6 +109,8 @@ class NESTCodeGenerator(CodeGenerator):
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
+    - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
+    - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
     - **build_output_dir**: An optional string key representing the new path where the files corresponding to the output of the build phase will be created. This key requires that the ``redirect_build_output`` is set to ``True``.
 
@@ -137,7 +139,9 @@ class NESTCodeGenerator(CodeGenerator):
         },
         "nest_version": "",
         "solver": "analytic",
-        "numeric_solver": "rk45"
+        "numeric_solver": "rk45",
+        "delay_variable": "",
+        "weight_variable": ""
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -221,16 +225,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         return ret
 
-    def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
-        for synapse in synapses:
-            CoCoNESTDelayDecoratorSpecified.check_co_co(synapse)
-            if Logger.has_errors(synapse):
-                raise Exception("Error(s) occurred during code generation")
-
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
 
-        self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -568,6 +565,16 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace["numeric_update_expressions"][sym] = expr_ast
 
         namespace["spike_updates"] = synapse.spike_updates
+        
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+
+        # special case for NEST delay variable (state or parameter)
+        assert synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "For synapse '" + synapse_name_stripped + "', a delay variable or parameter has to be specified for the NEST target; see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay"
+        namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")
+
+        # special case for NEST weigth variable (state or parameter)
+        assert synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]), "For synapse '" + synapse_name_stripped + "', a weight variable or parameter has to be specified for the NEST target; see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+        namespace["nest_codegen_opt_weight_variable"] = self.get_option("weight_variable")
 
         return namespace
 

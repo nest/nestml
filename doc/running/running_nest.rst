@@ -1,5 +1,5 @@
 NEST Simulator target
----------------------
+=====================
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`, :ref:`vectors <Vectors>`, :ref:`delay differential equations <Delay Differential Equations>`, :ref:`guards <Guards>`
 
@@ -7,7 +7,7 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
 
 
 Simulation loop
-~~~~~~~~~~~~~~~
+---------------
 
 Note that NEST Simulator uses a hybrid integration strategy [Hanuschkin2010]_; see :numref:`fig_integration_order`, panel A for a graphical depiction.
 
@@ -19,13 +19,13 @@ At the end of the timestep, variables corresponding to convolutions are updated 
 
 
 Code generation options
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
 Setting and retrieving model properties
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------
 
 -  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
 -  Values can be set using the PyNEST API call ``node_collection.<variable> = <value>`` where ``<variable>`` is the name of the corresponding NESTML variable.
@@ -33,13 +33,13 @@ Setting and retrieving model properties
 
 
 Recording values with devices
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 
 
 Solver selection
-~~~~~~~~~~~~~~~~
+----------------
 
 Currently, there is support for GSL, forward Euler, and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
@@ -47,7 +47,7 @@ In the case that the model is solved with the GSL integrator, desired absolute e
 
 
 Manually building the extension module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 Sometimes it can be convenient to directly edit the generated code. To manually build and install the NEST extension module, go into the target directory and run:
 
@@ -61,13 +61,13 @@ where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home
 
 
 Custom templates
-~~~~~~~~~~~~~~~~
+----------------
 
 See :ref:`Running NESTML with custom templates`.
 
 
 Gap junctions (electrical synapses)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 Each neuron model can be endowed with gap junctions. The model does not need to be (necessarily) modified itself, but additional flags are passed during code generation that identify which model variables correspond to the membrane potential and the gap junction current. For instance, the code generator options can look as follows:
 
@@ -83,7 +83,7 @@ For a full example, please see `test_gap_junction.py <https://github.com/nest/ne
 
 
 Multiple input ports in NEST
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 See :ref:`Multiple input ports` to specify multiple input ports in a neuron.
 
@@ -175,16 +175,99 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
 
 Compatibility with different versions of NEST
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------
 
 To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
 
 - The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
 - ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
 - ``"v2.20.2"``: Latest NEST 2 release.
-- ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, ``"v3.3"``, ``"v3.4"``: NEST 3 release versions.
+- ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
 
 For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
 
+
+Synapse models in NEST
+----------------------
+
+Event-based updating
+~~~~~~~~~~~~~~~~~~~~
+
+NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
+
+The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
+
+Dendritic delay and synaptic weight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``, for example, given the following model:
+
+.. code:: nestml
+   state:
+       w real = 1.
+   parameters:
+       dend_delay ms = 1 ms
+the variables might be specified as:
+
+.. code-block:: python
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": "dend_delay",
+                                 "weight_variable": "w"})
+
+Generating code
+---------------
+
+When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :python:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp"}]})
+
+Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp",
+                                                           "post_ports": ["post_spikes",
+                                                                          ["I_post_dend", "I_dend"]]}]})
+
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+
+Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                           "synapse": "third_factor_stdp",
+                                                            "vt_ports": ["dopa_spikes"]}]})
+
+
+
+Implementation notes
+~~~~~~~~~~~~~~~~~~~~
+
+Note that ``access_counter`` now has an extra multiplicative factor equal to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+
+.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
+
+   Potjans et al. 2010
+
+Random numbers
+~~~~~~~~~~~~~~
+
+In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
+
+
+References
+----------
 
 .. [Hanuschkin2010] Alexander Hanuschkin and Susanne Kunkel and Moritz Helias and Abigail Morrison and Markus Diesmann. A General and Efficient Method for Incorporating Precise Spike Times in Globally Time-Driven Simulations. Frontiers in Neuroinformatics, 2010, Vol. 4
