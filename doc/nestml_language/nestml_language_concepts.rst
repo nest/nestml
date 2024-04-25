@@ -517,6 +517,9 @@ The following functions are predefined in NESTML and can be used out of the box.
    * - ``random_normal``
      - mean, std
      - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
+   * - ``random_poisson``
+     - rate
+     - Returns a sample from a Poissonian distribution with rate parameter (expected value) "rate".
    * - ``random_uniform``
      - offset, scale
      - Returns a sample from a uniform distribution in the interval [offset, offset + scale)
