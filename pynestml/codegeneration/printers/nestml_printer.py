@@ -43,7 +43,6 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
-from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -249,10 +248,7 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_invariant():
             ret += " [[" + self.print(node.get_invariant()) + "]]"
         for decorator in node.get_decorators():
-            if isinstance(decorator, ASTNamespaceDecorator):
-                ret += " @" + str(decorator.namespace) + "::" + str(decorator.name)
-            else:
-                ret += " @" + str(decorator)
+            ret += " @" + str(decorator)
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
 

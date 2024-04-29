@@ -11,8 +11,8 @@ model static_synapse:
     parameters:
         w real = 900    @homogeneous
         d ms = .9 ms    @heterogeneous
-        a real = 3.141592653589793  @nest::a @homogeneous
-        b real = 100.  @nest::b @heterogeneous
+        a real = 3.141592653589793  @homogeneous
+        b real = 100.  @heterogeneous
 
     input:
         pre_spikes <- spike

@@ -492,24 +492,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
         return model
 
-    def visitNamespaceDecoratorNamespace(self, ctx):
-        return str(ctx.NAME())
-
-    def visitNamespaceDecoratorName(self, ctx):
-        return str(ctx.NAME())
-
     def visitAnyDecorator(self, ctx):
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
         if ctx.getToken(PyNestMLLexer.DECORATOR_HETEROGENEOUS, 0) is not None:
             return PyNestMLLexer.DECORATOR_HETEROGENEOUS
         elif ctx.getToken(PyNestMLLexer.DECORATOR_HOMOGENEOUS, 0) is not None:
             return PyNestMLLexer.DECORATOR_HOMOGENEOUS
-        elif ctx.getToken(PyNestMLLexer.AT, 0) is not None:
-            namespaceDecoratorNamespace = self.visit(ctx.namespaceDecoratorNamespace()) if ctx.namespaceDecoratorNamespace() is not None else None
-            namespaceDecoratorName = self.visit(ctx.namespaceDecoratorName()) if ctx.namespaceDecoratorName() is not None else None
-            return ASTNodeFactory.create_ast_namespace_decorator(namespaceDecoratorNamespace, namespaceDecoratorName, source_position=create_source_pos(ctx))
-        else:
-            return None
+
+        return None
 
     # Visit a parse tree produced by PyNESTMLParser#modelBody.
     def visitModelBody(self, ctx):

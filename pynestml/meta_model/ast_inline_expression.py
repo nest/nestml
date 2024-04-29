@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTInlineExpression(ASTNode):
@@ -75,8 +74,7 @@ class ASTInlineExpression(ASTNode):
             expression_dup = self.expression.clone()
         decorators_dup = None
         if self.decorators:
-            decorators_dup = [dec.clone() if isinstance(dec, ASTNamespaceDecorator) else str(dec) for dec in
-                              self.decorators]
+            decorators_dup = [str(dec) for dec in self.decorators]
         dup = ASTInlineExpression(is_recordable=self.is_recordable,
                                   variable_name=self.variable_name,
                                   data_type=data_type_dup,
