@@ -6,5 +6,5 @@
 {%- if variable_symbol.has_vector_parameter() %}
 {{ raise('Vector parameters not supported in common properties dictionary.') }}
 {%- endif %}
-updateValue< {{ declarations.print_variable_type(variable_symbol) }} >(d, names::{{namespaceName}}, this->{{ printer_no_origin.print(variable) }} );
+updateValue< {{ declarations.print_variable_type(variable_symbol) }} >(d, nest::{{ synapseName }}_names::_{{ printer_no_origin.print(variable) }}, this->{{ printer_no_origin.print(variable) }} );
 

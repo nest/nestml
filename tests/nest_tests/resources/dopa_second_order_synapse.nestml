@@ -37,6 +37,7 @@ model dopa_second_order_synapse:
 
     parameters:
         tau_dopa ms = 100 ms
+        w real = 1
         d ms = 1 ms
 
     equations:

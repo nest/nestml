@@ -415,6 +415,7 @@ class NESTCodeGenerator(CodeGenerator):
         # special case for NEST delay variable (state or parameter)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
+        assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
         assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
         NESTCodeGeneratorUtils.set_nest_alternate_name(synapse, {ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]).get_name():  "get_delay()"})
 
@@ -577,9 +578,11 @@ class NESTCodeGenerator(CodeGenerator):
         assert synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "For synapse '" + synapse_name_stripped + "', a delay variable or parameter has to be specified for the NEST target; see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay"
         namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
 
-        # special case for NEST weigth variable (state or parameter)
-        assert synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]), "For synapse '" + synapse_name_stripped + "', a weight variable or parameter has to be specified for the NEST target; see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
-        namespace["nest_codegen_opt_weight_variable"] = self.get_option("weight_variable")[synapse_name_stripped]
+        # special case for NEST weight variable (state or parameter)
+        if synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):
+            namespace["nest_codegen_opt_weight_variable"] = self.get_option("weight_variable")[synapse_name_stripped]
+        else:
+            namespace["nest_codegen_opt_weight_variable"] = ""
 
         return namespace
 

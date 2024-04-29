@@ -132,10 +132,6 @@ public:
 {%- for parameter in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
 {%-     if isHomogeneous %}
-{%-         set namespaceName = parameter.get_namespace_decorator("nest") %}
-{%-         if namespaceName == '' %}
-{{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % printer.print(utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()))) }}
-{%-         endif %}
 {%-         set variable_symbol = parameter %}
 {%-         set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-         include "directives_cpp/CommonPropertiesDictionaryWriter.jinja2" %}
@@ -372,7 +368,7 @@ private:
   Parameters_ P_;  //!< Free parameters.
   State_      S_;  //!< Dynamic state.
   Variables_  V_;  //!< Internal Variables
-{%- if synapse.get_state_symbols()|length > 0 %}
+{%- if synapse.get_state_symbols()|length > 0 or synapse.get_parameter_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters and state variables
   // -------------------------------------------------------------------------
@@ -596,16 +592,26 @@ public:
 {%- endif %}    }
   };
 {%- if nest_codegen_opt_weight_variable | length > 0 and nest_codegen_opt_weight_variable != "weight" %}
+{%-     set variable = utils.get_variable_by_name(astnode, nest_codegen_opt_weight_variable) %}
+{%-    set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 
   /**
    *  special case for weights in NEST: only in case a NESTML state variable was specified in code generation options as ``weight_variable``
   **/
   inline void set_weight(double w)
   {
-{%-     set variable = utils.get_variable_by_name(astnode, nest_codegen_opt_weight_variable) %}
+{%-    if isHomogeneous %}
+    throw BadProperty(
+      "Setting of individual weights is not possible! The common weights can "
+      "be changed via "
+      "CopyModel()." );
+{%-     else %}
     {{ printer.print(variable) }} = w;
+{%-     endif %}
   }
 
+{%-    if not isHomogeneous %}
   /**
    *  special case for weights in NEST: only in case a NESTML state variable was specified in code generation options as ``weight_variable``
   **/
@@ -613,6 +619,7 @@ public:
   {
     return {{ printer.print(variable) }};
   }
+{%-     endif %}
 {%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
@@ -990,7 +997,7 @@ void
 {{synapseName}}< targetidentifierT >::set_status( const DictionaryDatum& __d,
   ConnectorModel& cm )
 {
-{%- if nest_codegen_opt_weight_variable != "weight" %}
+{%- if nest_codegen_opt_weight_variable|length > 0 and nest_codegen_opt_weight_variable != "weight" %}
   if (__d->known(nest::{{ synapseName }}_names::_{{ nest_codegen_opt_weight_variable }}) and __d->known(nest::names::weight))
   {
     throw BadProperty( "To prevent inconsistencies, please set either 'weight' or '{{ nest_codegen_opt_weight_variable }}' variable; not both at the same time." );
@@ -1047,7 +1054,6 @@ if (__d->known(nest::names::weight))
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     set namespaceName = variable_symbol.get_namespace_decorator('nest') %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous and not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
 {%-         if variable.get_name() == nest_codegen_opt_delay_variable %}
@@ -1112,12 +1118,13 @@ template < typename targetidentifierT >
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
+  // initial values for parameters
 {%- filter indent(2, True) %}
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     if not isHomogeneous %}
-{%-         if variable.get_name() != nest_codegen_opt_weight_variable and variable.get_name() != nest_codegen_opt_delay_variable %}
+{%-         if variable.get_name() != nest_codegen_opt_delay_variable %}
 {%-             include "directives_cpp/MemberInitialization.jinja2" %}
 {%-         endif %}
 {%-     endif %}
@@ -1175,9 +1182,12 @@ template < typename targetidentifierT >
   // special treatment of NEST delay
   set_delay(rhs.get_delay());
 {%- if nest_codegen_opt_weight_variable | length > 0 %}
-
+{%-     set variable_symbol = synapse.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
   // special treatment of NEST weight
   set_weight(rhs.get_weight());
+{%-     endif %}
 {%- endif %}
 }
 
