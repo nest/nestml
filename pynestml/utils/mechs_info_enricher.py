@@ -47,7 +47,7 @@ class MechsInfoEnricher:
     @classmethod
     def enrich_with_additional_info(cls, neuron: ASTNeuron, mechs_info: dict):
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
-        cls.common_subexpression_elimination(mechs_info)
+        #cls.common_subexpression_elimination(mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
         return mechs_info
 
@@ -141,10 +141,11 @@ class MechsInfoEnricher:
                     print(expr_str)
                     try:
                         sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
-                        cse_sympy_expression = sympy.simplify(sympy_expr)
-                        cse_sympy_expression = sympy.cse(cse_sympy_expression)
+                        #cse_sympy_expression = sympy.simplify(sympy_expr)
+                        cse_sympy_expression = sympy.cse(sympy_expr, optimizations=[])
                         print(str(cse_sympy_expression))
                         cse_expression = ModelParser.parse_expression(str(cse_sympy_expression[1][0]))
+                        #cse_expression = ModelParser.parse_expression(str(cse_sympy_expression[0]))
                         cse_expression.update_scope(expression.get_scope())
                         cse_expression.accept(ASTSymbolTableVisitor())
                         function_expression_collector.expressions[
