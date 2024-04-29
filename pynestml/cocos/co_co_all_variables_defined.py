@@ -60,6 +60,10 @@ class CoCoAllVariablesDefined(CoCo):
             for var in vars:
                 symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
 
+                if var.alternate_scope:
+                    # external reference resolved in a different scope
+                    continue
+
                 # test if the symbol has been defined at least
                 if symbol is None:
                     if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
@@ -96,7 +100,7 @@ class CoCoAllVariablesDefined(CoCo):
                     code, message = Messages.get_variable_not_defined(var.get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
-                    return
+                    raise Exception("Error(s) occurred during code generation")
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration

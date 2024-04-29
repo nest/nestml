@@ -1,10 +1,9 @@
 """
-delay_test_synapse_plastic
-##########################
+weight_test_assigned_synapse
+###########################
 """
-model delay_test_synapse_plastic:
+model weight_test_assigned_synapse:
   state:
-    x ms = 0 ms
     w real = 1    # Synaptic weight
     d ms = 1 ms    # Synaptic transmission delay
 
@@ -15,7 +14,5 @@ model delay_test_synapse_plastic:
     spike
 
   onReceive(pre_spikes):
+    w = 2
     emit_spike(w, d)
-
-  update:
-    x = d

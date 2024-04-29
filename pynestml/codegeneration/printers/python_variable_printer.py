@@ -25,7 +25,6 @@ from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -68,8 +67,8 @@ class PythonVariablePrinter(VariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
-        if isinstance(variable, ASTExternalVariable):
-            raise Exception("Python-standalone target does not support synapses")
+        if variable.get_alternate_name():
+            raise Exception("Python-standalone target does not support alternate names for variables")
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "math.e"
