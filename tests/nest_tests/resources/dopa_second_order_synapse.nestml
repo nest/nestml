@@ -37,7 +37,8 @@ model dopa_second_order_synapse:
 
     parameters:
         tau_dopa ms = 100 ms
-        d ms = 1 ms    @nest::delay
+        w real = 1
+        d ms = 1 ms
 
     equations:
         dopa_rate' = dopa_rate_d / ms

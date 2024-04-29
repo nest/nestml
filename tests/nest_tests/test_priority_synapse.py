@@ -59,7 +59,11 @@ class TestSynapsePriority:
                                                                      "post_ports": ["post_spikes"]},
                                                                     {"neuron": "iaf_psc_delta_neuron",
                                                                      "synapse": "event_inv_priority_test_synapse",
-                                                                     "post_ports": ["post_spikes"]}]})
+                                                                     "post_ports": ["post_spikes"]}],
+                                           "delay_variable": {"event_priority_test_synapse": "d",
+                                                              "event_inv_priority_test_synapse": "d"},
+                                           "weight_variable": {"event_priority_test_synapse": "w",
+                                                               "event_inv_priority_test_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")

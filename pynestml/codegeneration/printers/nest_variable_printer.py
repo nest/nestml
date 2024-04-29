@@ -27,7 +27,6 @@ from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorU
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -57,14 +56,9 @@ class NESTVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
-        if isinstance(variable, ASTExternalVariable):
-            _name = str(variable)
-            if variable.get_alternate_name():
-                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
-                return "__" + variable.get_alternate_name()
+        if variable.get_alternate_name():
+             return "__" + variable.get_alternate_name()
                 # return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
-
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"

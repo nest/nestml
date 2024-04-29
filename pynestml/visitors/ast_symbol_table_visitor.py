@@ -22,7 +22,6 @@
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
-from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -281,16 +280,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         init_value = node.get_expression(
         ) if self.block_type_stack.top() == BlockType.STATE else None
 
-        # split the decorators in the AST up into namespace decorators and other decorators
-        decorators = []
-        namespace_decorators = {}
-        for d in node.get_decorators():
-            if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(
-                    d.get_name())
-            else:
-                decorators.append(d)
-
         # now for each variable create a symbol and update the scope
         block_type = None
         if not self.block_type_stack.is_empty():
@@ -317,9 +306,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                     initial_value=init_value,
                                     vector_parameter=vector_parameter,
                                     variable_type=VariableType.VARIABLE,
-                                    decorators=decorators,
-                                    namespace_decorators=namespace_decorators
-                                    )
+                                    decorators=node.get_decorators())
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)
             var.set_type_symbol(type_symbol)
@@ -477,16 +464,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single inline expression.
         :type node: ASTInlineExpression
         """
-
-        # split the decorators in the AST up into namespace decorators and other decorators
-        decorators = []
-        namespace_decorators = {}
-        for d in node.get_decorators():
-            if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(
-                    d.get_name())
-            else:
-                decorators.append(d)
 
         data_type_visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(data_type_visitor)

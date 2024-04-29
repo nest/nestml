@@ -34,7 +34,8 @@ model event_priority_test_neuron:
         tr real = 1.
 
     parameters:
-        d ms = 1. ms  @nest::delay
+        w real = 1
+        d ms = 1 ms
 
     input:
         in_port1 <- spike
