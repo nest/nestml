@@ -45,6 +45,7 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
@@ -109,6 +110,10 @@ class ASTNodeFactory:
         # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
         return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations,
                                      source_position=source_position)
+
+    @classmethod
+    def create_ast_namespace_decorator(cls, namespace=None, name=None, source_position=None):
+        return ASTNamespaceDecorator(namespace, name, source_position=source_position)
 
     @classmethod
     def create_ast_on_receive_block(cls, block=None, port_name=None, const_parameters=None, source_position=None):

@@ -173,7 +173,15 @@ parser grammar PyNestMLParser;
 
   /** ...
   */
-  anyDecorator : DECORATOR_HOMOGENEOUS | DECORATOR_HETEROGENEOUS;
+  anyDecorator : DECORATOR_HOMOGENEOUS | DECORATOR_HETEROGENEOUS | AT namespaceDecoratorNamespace DOUBLE_COLON namespaceDecoratorName;
+
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute differentialOrder: The corresponding differential order, e.g. 2
+  */
+  namespaceDecoratorNamespace : name=NAME;
+  namespaceDecoratorName : name=NAME;
 
   /** ASTReturnStmt Models the return statement in a function.
     @expression An optional return expression, e.g., return tempVar
