@@ -178,5 +178,5 @@ class NESTCodeGeneratorUtils:
 
         if nestml_synapse_model:
             return module_name, mangled_neuron_name, mangled_synapse_name
-        else:
-            return module_name, mangled_neuron_name
+
+        return module_name, mangled_neuron_name

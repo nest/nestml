@@ -30,8 +30,6 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 from pynestml.codegeneration.nest_tools import NESTTools
 
 
-@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                    reason="This test does not support NEST 2")
 class TestWeightVariableSpecified:
     r"""Test that forgetting to specify the ``weight_variable`` when using a synapse results in failure to generate code."""
 
@@ -51,6 +49,8 @@ class TestWeightVariableSpecified:
                                            "delay_variable": {"stdp_synapse": "d"}})
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestSynapseWeightGetSet:
     """Check that we can get and set the weight parameter of a synapse"""
 
