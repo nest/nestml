@@ -139,6 +139,14 @@ class VariableSymbol(Symbol):
         """
         return self.decorators
 
+    def get_namespace_decorators(self):
+        return self.namespace_decorators
+
+    def get_namespace_decorator(self, namespace):
+        if namespace in self.namespace_decorators.keys():
+            return self.namespace_decorators[namespace]
+        return ''
+
     def has_vector_parameter(self):
         """
         Returns whether this variable symbol has a vector parameter.
