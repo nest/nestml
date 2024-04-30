@@ -191,6 +191,9 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
+  {%- for variable_type, variable_info in channel_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
 {%- endfor %}
 {%- for concentration_name, concentration_info in conc_info.items() %}
   {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
@@ -198,9 +201,48 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
 {%- endfor %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in syns_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in syns_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in con_in_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in con_in_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
 
   if(!comp_param_copy->empty()){
-    std::string msg = "Following parameters are invalid: \n";
+    std::string msg = "Following parameters are invalid: ";
     for(auto& param : *comp_param_copy){
         msg += param.first.toString();
         msg += "\n";
