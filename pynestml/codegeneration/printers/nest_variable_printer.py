@@ -57,8 +57,8 @@ class NESTVariablePrinter(CppVariablePrinter):
         assert isinstance(variable, ASTVariable)
 
         if variable.get_alternate_name():
-             return "__" + variable.get_alternate_name()
-                # return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
+            return variable.get_alternate_name()
+            # return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"
