@@ -88,12 +88,14 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
 
+  double v_comp_update;
   updateValue< double >( compartment_params, names::C_m, ca );
   updateValue< double >( compartment_params, names::g_C, gc );
   updateValue< double >( compartment_params, names::g_L, gl );
   updateValue< double >( compartment_params, names::e_L, el );
+  updateValue< double >( compartment_params, "V_comp", v_comp_update);
 
-  *v_comp = el;
+  *v_comp = v_comp_update;
 }
 
 void
@@ -182,6 +184,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   comp_param_copy->remove(names::g_C);
   comp_param_copy->remove(names::g_L);
   comp_param_copy->remove(names::e_L);
+  comp_param_copy->remove("V_comp");
 {%- for ion_channel_name, channel_info in chan_info.items() %}
   {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
