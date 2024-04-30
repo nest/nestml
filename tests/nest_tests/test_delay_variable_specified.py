@@ -49,6 +49,8 @@ class TestDelayVariableSpecified:
                                            "weight_variable": {"stdp_synapse": "w"}})
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestSynapseDelayGetSet:
     """Check that we can get and set the delay parameter of a synapse"""
 
