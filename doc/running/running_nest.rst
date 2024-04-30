@@ -18,10 +18,12 @@ Then, the code is run corresponding to the NESTML ``update`` block.
 At the end of the timestep, variables corresponding to convolutions are updated according to their ODE dynamics.
 
 
-Code generation options
------------------------
+Event-based updating of synapses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
+NEST synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
+
+The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
 
 
 Setting and retrieving model properties
@@ -58,12 +60,6 @@ Sometimes it can be convenient to directly edit the generated code. To manually 
    make install
 
 where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home/nest/work/nest-install``).
-
-
-Custom templates
-----------------
-
-See :ref:`Running NESTML with custom templates`.
 
 
 Gap junctions (electrical synapses)
@@ -174,49 +170,16 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
 
-Compatibility with different versions of NEST
----------------------------------------------
-
-To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
-
-- The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
-- ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
-- ``"v2.20.2"``: Latest NEST 2 release.
-- ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
-
-For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
-
-
-Synapse models in NEST
-----------------------
-
-Event-based updating
-~~~~~~~~~~~~~~~~~~~~
-
-NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
-The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
-
-Dendritic delay and synaptic weight
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``, for example, given the following model:
-
-.. code:: nestml
-   state:
-       w real = 1.
-   parameters:
-       dend_delay ms = 1 ms
-the variables might be specified as:
-
-.. code-block:: python
-   generate_target(...,
-                   codegen_opts={...,
-                                 "delay_variable": "dend_delay",
-                                 "weight_variable": "w"})
 
 Generating code
 ---------------
+
+.. note::
+
+   Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
+
+Generating code for plastic synapses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :python:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
 
@@ -251,18 +214,51 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
                                                             "vt_ports": ["dopa_spikes"]}]})
 
 
+Dendritic delay and synaptic weight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Implementation notes
-~~~~~~~~~~~~~~~~~~~~
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). As delays and weights are hard-wired into the NEST C++ base classes for the NESTML synapse classes, special annotations must be made in the NESTML model to indicate which state variables or parameters correspond to weight and delay. To indicate the correspondence, use the code generator options ``delay_variable`` and ``weight_variable``. For example, given the following model:
 
-Note that ``access_counter`` now has an extra multiplicative factor equal to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+.. code:: nestml
 
-.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
+   synapse my_synapse:
+       state:
+           w real = 1.
 
-   Potjans et al. 2010
+       parameters:
+           dend_delay ms = 1 ms
+
+the variables might be specified as:
+
+.. code-block:: python
+
+   generate_target(...,
+                   codegen_opts={...,
+                                 "delay_variable": {"my_synapse": "dend_delay"},
+                                 "weight_variable": {"my_synapse": "w"}})
+
+
+Custom templates
+~~~~~~~~~~~~~~~~
+
+See :ref:`Running NESTML with custom templates`.
+
+
+Compatibility with different versions of NEST
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To generate code that is compatible with particular versions of NEST Simulator, the code generator option  ``nest_version`` can be used. The option value is given as a string that corresponds to a git tag or git branch name. The following values are supported:
+
+- The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
+- ``"master"``: Latest NEST GitHub master branch version (https://github.com/nest/nest-simulator/).
+- ``"v2.20.2"``: Latest NEST 2 release.
+- ``"v3.0"``, ``"v3.1"``, ``"v3.2"``, etc.: NEST 3 release versions.
+
+For a list of the corresponding NEST Simulator repository tags, please see https://github.com/nest/nest-simulator/tags.
+
 
 Random numbers
-~~~~~~~~~~~~~~
+--------------
 
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
 
