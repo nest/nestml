@@ -589,9 +589,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         # special case for NEST weight variable (state or parameter)
         if synapse_name_stripped in self.get_option("weight_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):
-            namespace["nest_codegen_opt_weight_variable"] = self.get_option("weight_variable")[synapse_name_stripped]
+            namespace["synapse_weight_variable"] = self.get_option("weight_variable")[synapse_name_stripped]
         else:
-            namespace["nest_codegen_opt_weight_variable"] = ""
+            namespace["synapse_weight_variable"] = ""
 
         return namespace
 

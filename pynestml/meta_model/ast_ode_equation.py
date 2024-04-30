@@ -24,6 +24,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTOdeEquation(ASTNode):
@@ -69,7 +70,8 @@ class ASTOdeEquation(ASTNode):
         """
         decorators_dup = None
         if self.decorators:
-            decorators_dup = [str(dec) for dec in self.decorators]
+            decorators_dup = [dec.clone() if isinstance(dec, ASTNamespaceDecorator) else str(dec) for dec in
+                              self.decorators]
 
         dup = ASTOdeEquation(lhs=self.lhs.clone(),
                              rhs=self.rhs.clone(),
