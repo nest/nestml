@@ -69,9 +69,9 @@ neuron multichannel_test_model:
         h_Ca_LVAst' = ( h_inf_Ca_LVAst(v_comp) - h_Ca_LVAst ) / (tau_h_Ca_LVAst(v_comp)*1s)
 
         # equations NaTa_t
-        #inline NaTa_t real = gbar_NaTa_t * (h_NaTa_t*m_NaTa_t**3) * (e_NaTa_t - v_comp) @mechanism::channel
-        #m_NaTa_t' = ( m_inf_NaTa_t(v_comp) - m_NaTa_t ) / (tau_m_NaTa_t(v_comp)*1s)
-        #h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
+        inline NaTa_t real = gbar_NaTa_t * (h_NaTa_t*m_NaTa_t**3) * (e_NaTa_t - v_comp) @mechanism::channel
+        m_NaTa_t' = ( m_inf_NaTa_t(v_comp) - m_NaTa_t ) / (tau_m_NaTa_t(v_comp)*1s)
+        h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
 
         # equations SKv3_1
         #inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel

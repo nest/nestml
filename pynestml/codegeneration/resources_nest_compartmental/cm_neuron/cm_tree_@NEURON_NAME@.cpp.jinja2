@@ -88,12 +88,12 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
 
-  double v_comp_update;
+  double v_comp_update = el;
   updateValue< double >( compartment_params, names::C_m, ca );
   updateValue< double >( compartment_params, names::g_C, gc );
   updateValue< double >( compartment_params, names::g_L, gl );
   updateValue< double >( compartment_params, names::e_L, el );
-  updateValue< double >( compartment_params, "V_comp", v_comp_update);
+  if( compartment_params->known( "v_comp" ) ) updateValue< double >( compartment_params, "v_comp", v_comp_update);
 
   *v_comp = v_comp_update;
 }
@@ -184,7 +184,7 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   comp_param_copy->remove(names::g_C);
   comp_param_copy->remove(names::g_L);
   comp_param_copy->remove(names::e_L);
-  comp_param_copy->remove("V_comp");
+  comp_param_copy->remove("v_comp");
 {%- for ion_channel_name, channel_info in chan_info.items() %}
   {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -213,32 +213,32 @@ nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, co
   if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
   {%- endfor %}
 {%- endfor %}
-{%- for concentration_name, concentration_info in syns_info.items() %}
-  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+{%- for synapse_name, synapse_info in syns_info.items() %}
+  {%- for variable_type, variable_info in synapse_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
 {%- endfor %}
-{%- for concentration_name, concentration_info in syns_info.items() %}
-  {%- for variable_type, variable_info in concentration_info["States"].items() %}
+{%- for synapse_name, synapse_info in syns_info.items() %}
+  {%- for variable_type, variable_info in synapse_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
-  {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
+  {%- for variable_type, variable_info in synapse_info["ODEs"].items() %}
   if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
   {%- endfor %}
 {%- endfor %}
-{%- for concentration_name, concentration_info in con_in_info.items() %}
-  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+  {%- for variable_type, variable_info in continuous_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}
-  {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
+  {%- for variable_type, variable_info in continuous_info["ODEs"].items() %}
   if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
   {%- endfor %}
 {%- endfor %}
-{%- for concentration_name, concentration_info in con_in_info.items() %}
-  {%- for variable_type, variable_info in concentration_info["States"].items() %}
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+  {%- for variable_type, variable_info in continuous_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
   if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
   {%- endfor %}

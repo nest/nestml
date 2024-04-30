@@ -75,19 +75,17 @@ class TestInitialization(unittest.TestCase):
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1., 'e_L': -70.0, 'non_existing': 1.0}
 
         with pytest.raises(nest.NESTErrors.BadParameter):
-            cm = nest.Create('cm_default_nestml')
+            cm = nest.Create('multichannel_test_model_nestml')
             cm.compartments = [{"parent_idx": -1, "params": params}]
 
-    def test_existing_vars(self):
-        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1., 'e_L': -70.0, 'gbar_NaTa_t': 1000.0, 'h_NaTa_t': 1000.0,
-                  'e_AMPA': 1000.0, 'gamma_Ca': 1000.0, 'c_Ca': 1000.0, 'v_comp': 1000.0}
+    def test_existing_states(self):
+        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1., 'e_L': -70.0, 'gbar_NaTa_t': 1.0, 'h_NaTa_t': 1000.0, 'c_Ca': 1000.0, 'v_comp': 1000.0}
 
-        cm = nest.Create('cm_default_nestml')
+        cm = nest.Create('multichannel_test_model_nestml')
         cm.compartments = [{"parent_idx": -1, "params": params}]
 
         mm = nest.Create('multimeter', 1, {
-            'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0', 'i_tot_SK_E20', 'm_Ca_HVA0',
-                            'h_Ca_HVA0'], 'interval': .1})
+            'record_from': ['v_comp0', 'c_Ca0', 'h_NaTa_t0'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -95,35 +93,33 @@ class TestInitialization(unittest.TestCase):
 
         res = nest.GetStatus(mm, 'events')[0]
 
-        step_time_delta = res['times'][1] - res['times'][0]
-        data_array_index = int(200 / step_time_delta)
+        data_array_index = 0;
 
-        expected_conc = 0.03559438228347359
+        fig, axs = plt.subplots(3)
 
-        fig, axs = plt.subplots(5)
+        axs[0].plot(res['times'], res['v_comp0'], c='r', label='v_comp0')
+        axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca0')
+        axs[2].plot(res['times'], res['h_NaTa_t0'], c='b', label='h_NaTa_t0')
 
-        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca_0')
-        axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
-        axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
-        axs[4].plot(res['times'], res['m_Ca_HVA0'], c='g', label='gating var m')
-        axs[4].plot(res['times'], res['h_Ca_HVA0'], c='r', label='gating var h')
-
-        axs[0].set_title('V_m_0')
-        axs[1].set_title('c_Ca_0')
-        axs[2].set_title('i_Ca_HVA_0')
-        axs[3].set_title('i_tot_SK_E20')
-        axs[4].set_title('gating vars')
+        axs[0].set_title('v_comp0')
+        axs[1].set_title('c_Ca0')
+        axs[2].set_title('h_NaTa_t')
 
         axs[0].legend()
         axs[1].legend()
         axs[2].legend()
-        axs[3].legend()
-        axs[4].legend()
 
-        plt.savefig("concmech test.png")
+        plt.savefig("initialization test.png")
 
-        if not res['c_Ca0'][data_array_index] == expected_conc:
+        if not res['v_comp0'][data_array_index] > 50.0:
+            self.fail("the voltage (left) is not as expected (right). (" + str(
+                res['v_comp0'][data_array_index]) + "<" + str(50.0) + ")")
+
+        if not res['c_Ca0'][data_array_index] > 900.0:
             self.fail("the concentration (left) is not as expected (right). (" + str(
-                res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+                res['c_Ca0'][data_array_index]) + "<" + str(900.0) + ")")
+
+        if not res['h_NaTa_t0'][data_array_index] > 5.0:
+            self.fail("the gating variable state (left) is not as expected (right). (" + str(
+                res['h_NaTa_t0'][data_array_index]) + "<" + str(5.0) + ")")
 
