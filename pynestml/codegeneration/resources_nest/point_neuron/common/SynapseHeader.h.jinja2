@@ -716,8 +716,8 @@ public:
        *
        * Note that this also increases the access counter for these entries which is used to prune the history.
       **/
-      std::deque< histentry__{{paired_neuron_name}} >::iterator start;
-      std::deque< histentry__{{paired_neuron_name}} >::iterator finish;
+      std::deque< histentry__{{  paired_neuron_name  }} >::iterator start;
+      std::deque< histentry__{{  paired_neuron_name  }} >::iterator finish;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       double t0 = t_last_update_;
 {%- endif %}
@@ -728,17 +728,17 @@ public:
       while ( start != finish )
       {
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+{%-   if paired_neuron.state_vars_that_need_post_spike_buffering | length > 0 %}
         /**
-         * grab the postsynaptic continuous variable values from the postsynaptic neuron
+         * grab state variables from the postsynaptic neuron
         **/
-{%-   if paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
-        auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ - __dendritic_delay);
-{%-   endif %}
 
-{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
+{%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
 {%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
-        const double __{{ var_name }} = histentry.{{ var_name }};
+{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
+        const double __{{ var_name }} = start->{{ var_name_post }}_;
 {%-     endfor %}
+{%-   endif %}
 {%- endif %}
 
 {%  if vt_ports is defined and vt_ports|length > 0  %}
@@ -812,15 +812,17 @@ public:
     {
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron. state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+{%-   if paired_neuron.state_vars_that_need_post_spike_buffering | length > 0 %}
         /**
-         * grab the postsynaptic continuous variable values from the postsynaptic neuron
+         * grab state variables from the postsynaptic neuron
         **/
-{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 
+{%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
+{%-   endif %}
 {%- endif %}
 
 {%- filter indent(8, True) %}
@@ -856,15 +858,17 @@ public:
     {
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron. state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
+{%-   if paired_neuron.state_vars_that_need_post_spike_buffering | length > 0 %}
         /**
-         * grab the postsynaptic continuous variable values from the postsynaptic neuron
+         * grab state variables from the postsynaptic neuron
         **/
-{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 
+{%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
+{%-   endif %}
 {%- endif %}
 
 {%- filter indent(6, True) %}
