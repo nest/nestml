@@ -758,7 +758,7 @@ public:
         }
 
 #ifdef DEBUG
-        std::cout << "\tprocessing post spike at t = " << start->t_ << std::endl;
+        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
 #endif
 
         /**
@@ -820,7 +820,7 @@ public:
 
 {%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}(_tr_t);
 {%-     endfor %}
 {%-   endif %}
 {%- endif %}
@@ -866,7 +866,7 @@ public:
 
 {%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
+        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}(_tr_t);
 {%-     endfor %}
 {%-   endif %}
 {%- endif %}

@@ -1271,8 +1271,12 @@ void
 	generate getter functions for the transferred variables
 #}
 
-{%- for var in transferred_variables %}
+{%- for var in transferred_variables + state_vars_that_need_post_spike_buffering %}
 {%- with variable_symbol = transferred_variables_syms[var] %}
+
+{%- if not variable_symbol %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%- endif %}
 
 {%- if not var == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
@@ -1330,9 +1334,11 @@ double
         recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
-{%- set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
-{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- filter indent(8, True) %}
+{%-     set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
+{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
@@ -1384,19 +1390,22 @@ double
   **/
 
   {%- if analytic_state_variables_moved | length > 0 %}
-
-  const double old___h = V_.__h;
-  V_.__h = t;   // from time 0 to the requested time
-  assert(V_.__h > 0);
-  recompute_internal_variables(true);
+  if (t > 1E-12)
+  {
+    const double old___h = V_.__h;
+    V_.__h = t;   // from time 0 to the requested time
+    recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
+{%- filter indent(8, True) %}
 {%- set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
 {%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endfilter %}
 
-  V_.__h = old___h;
-  recompute_internal_variables(true);
+    V_.__h = old___h;
+    recompute_internal_variables(true);
+  }
 {%- endif %}
 
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};

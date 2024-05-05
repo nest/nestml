@@ -394,7 +394,7 @@ public:
 
   /* getters/setters for variables transferred from synapse */
 
-{%- for var in transferred_variables %}
+{%- for var in transferred_variables + state_vars_that_need_post_spike_buffering %}
   double get_{{var}}( double t, const bool before_increment = true );
 {%- endfor %}
 {%- endif %}
@@ -457,7 +457,7 @@ private:
   std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
-{%- for var in transferred_variables %}
+{%- for var in transferred_variables + state_vars_that_need_post_spike_buffering %}
   double {{var}}__iv;
 {%- endfor %}
 
