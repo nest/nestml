@@ -604,14 +604,14 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = self._get_model_namespace(neuron)
 
         if "paired_synapse" in dir(neuron):
-            if "state_vars_that_need_post_spike_buffering" in dir(neuron):
-                namespace["state_vars_that_need_post_spike_buffering"] = neuron.state_vars_that_need_post_spike_buffering
+            if "state_vars_that_need_continuous_buffering" in dir(neuron):
+                namespace["state_vars_that_need_continuous_buffering"] = neuron.state_vars_that_need_continuous_buffering
 
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
                 xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
-                namespace["state_vars_that_need_post_spike_buffering"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_post_spike_buffering]
+                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_continuous_buffering]
             else:
-                namespace["state_vars_that_need_post_spike_buffering"] = []
+                namespace["state_vars_that_need_continuous_buffering"] = []
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
             namespace["paired_synapse"] = neuron.paired_synapse.get_name()
             namespace["post_spike_updates"] = neuron.post_spike_updates

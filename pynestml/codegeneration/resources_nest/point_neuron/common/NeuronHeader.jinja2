@@ -173,18 +173,12 @@ public:
 {%- for var in analytic_state_variables_moved|sort %}
       double {{ var }},
 {%- endfor %}
-{%- for var in state_vars_that_need_post_spike_buffering|sort %}
-      double {{ var }},
-{%- endfor %}
       size_t access_counter )
   : t_( t )
 {%- for var in purely_numeric_state_variables_moved|sort %}
   , {{ var }}_( {{ var }} )
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-  , {{ var }}_( {{ var }} )
-{%- endfor %}
-{%- for var in state_vars_that_need_post_spike_buffering|sort %}
   , {{ var }}_( {{ var }} )
 {%- endfor %}
   , access_counter_( access_counter )
@@ -198,12 +192,26 @@ public:
 {%- for var in analytic_state_variables_moved|sort %}
   double {{ var }}_;
 {%- endfor %}
-{%- for var in state_vars_that_need_post_spike_buffering|sort %}
-  double {{ var }}_;
-{%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
 
+class continuous_variable_histentry_{{ neuronName }}
+{
+public:
+  continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} );
+
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }};
+{%-     endfor %}
+
+  double t_;              //!< point in time for history entry
+  size_t access_counter_;
+};
+{%- endif %}
 {%- endif %}
 
 /* BeginDocumentation
@@ -346,6 +354,25 @@ public:
    * with t > t_first_read.
    */
   void register_stdp_connection( double t_first_read, double delay );
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+  /**
+   * write_continuous_variable_history
+   */
+  void write_continuous_variable_history(nest::Time const &t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %});
+
+  void get_continuous_variable_history( double t1,
+    double t2,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish );
+
+  continuous_variable_histentry_{{ neuronName }} get_continuous_variable_history( double t );
+
+  std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
+{%- endif %}
 {%- endif %}
 {%- if neuron.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
@@ -394,7 +421,7 @@ public:
 
   /* getters/setters for variables transferred from synapse */
 
-{%- for var in transferred_variables + state_vars_that_need_post_spike_buffering %}
+{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
   double get_{{var}}( double t, const bool before_increment = true );
 {%- endfor %}
 {%- endif %}
@@ -457,7 +484,7 @@ private:
   std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
-{%- for var in transferred_variables + state_vars_that_need_post_spike_buffering %}
+{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
   double {{var}}__iv;
 {%- endfor %}
 

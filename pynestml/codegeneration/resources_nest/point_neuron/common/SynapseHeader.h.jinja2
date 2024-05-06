@@ -1,3 +1,4 @@
+#define DEBUG
 {#-
 SynapseHeader.h.jinja2
 
@@ -77,8 +78,6 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 /** @BeginDocumentation
 {{ synapse.print_comment() }}
 **/
-
-//#define DEBUG
 
 namespace nest
 {
@@ -727,18 +726,17 @@ public:
         &finish );
       while ( start != finish )
       {
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
-{%-   if paired_neuron.state_vars_that_need_post_spike_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
         /**
-         * grab state variables from the postsynaptic neuron
+         * grab state variables from the postsynaptic neuron at the time of the post spike
         **/
 
-{%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
+        auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ + __dendritic_delay);
+
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 {%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}
-{%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = start->{{ var_name_post }}_;
+        const double __{{ var_name }} = histentry.{{ var_name }};
 {%-     endfor %}
-{%-   endif %}
 {%- endif %}
 
 {%  if vt_ports is defined and vt_ports|length > 0  %}
@@ -812,17 +810,15 @@ public:
     {
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
-{%-   if paired_neuron.state_vars_that_need_post_spike_buffering | length > 0 %}
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
         /**
          * grab state variables from the postsynaptic neuron
         **/
 
-{%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}(_tr_t);
+        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
-{%-   endif %}
 {%- endif %}
 
 {%- filter indent(8, True) %}
@@ -859,14 +855,14 @@ public:
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
-{%-   if paired_neuron.state_vars_that_need_post_spike_buffering | length > 0 %}
+{%-   if paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
         /**
          * grab state variables from the postsynaptic neuron
         **/
 
-{%-     for var_name in paired_neuron.state_vars_that_need_post_spike_buffering %}
+{%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
-        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}(_tr_t);
+        const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
 {%-   endif %}
 {%- endif %}

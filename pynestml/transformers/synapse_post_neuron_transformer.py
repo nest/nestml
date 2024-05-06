@@ -377,20 +377,20 @@ class SynapsePostNeuronTransformer(Transformer):
         #   collect all ``continuous`` type input ports, the value of which is used in event handlers -- these have to be buffered in the hist_entry for each post spike in the postsynaptic history
         #
 
-        state_vars_that_need_post_spike_buffering = []
+        state_vars_that_need_continuous_buffering = []
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
                 if self.is_continuous_port(port.name, new_synapse):
-                    state_vars_that_need_post_spike_buffering.append(port.name)
+                    state_vars_that_need_continuous_buffering.append(port.name)
 
         # check that they are not used in the update block
         update_block_var_names = []
         for update_block in synapse.get_update_blocks():
             update_block_var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
 
-        assert all([var not in update_block_var_names for var in state_vars_that_need_post_spike_buffering])
+        assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering])
 
-        Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_post_spike_buffering), None, LoggingLevel.INFO)
+        Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering), None, LoggingLevel.INFO)
 
         #
         #   move state variable declarations from synapse to neuron
@@ -580,7 +580,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
         new_neuron.paired_synapse = new_synapse
-        new_neuron.state_vars_that_need_post_spike_buffering = state_vars_that_need_post_spike_buffering
+        new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
 
         #
         #    rename synapse
