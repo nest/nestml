@@ -25,7 +25,6 @@ from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -68,8 +67,8 @@ class PythonVariablePrinter(VariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
-        if isinstance(variable, ASTExternalVariable):
-            raise Exception("Python-standalone target does not support synapses")
+        if variable.get_alternate_name():
+            raise Exception("Python-standalone target does not support alternate names for variables")
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "math.e"
@@ -87,7 +86,7 @@ class PythonVariablePrinter(VariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -125,24 +124,6 @@ class PythonVariablePrinter(VariablePrinter):
             if symbol.is_state() and symbol.has_delay_parameter():
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
-
-    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
-        """
-        Converts the vector parameter into Python format
-        :param variable:
-        :return:
-        """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = vector_parameter.get_variable()
-        if vector_parameter_var:
-            vector_parameter_var.scope = variable.get_scope()
-
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                        SymbolKind.VARIABLE)
-            if symbol and symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-
-        return self._expression_printer.print(vector_parameter)
 
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
         variable_name = PythonVariablePrinter._print_python_name(variable.get_complete_name())

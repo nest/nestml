@@ -1,4 +1,4 @@
-//#define DEBUG
+#define DEBUG
 {#
 NeuronClass.jinja2
 
@@ -83,7 +83,6 @@ continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{
 {
 }
 {%- endif %}
-
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
@@ -1015,6 +1014,7 @@ const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
   return wfr_tol_exceeded;
 {%- endif %}
 }
+
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
 
 continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_variable_history( double t )
@@ -1022,9 +1022,9 @@ continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator runner;
   if ( continuous_variable_history_.empty() or t < 0.0 )
   {
-    std::cout << "\n\n\nXXX FIX ME\n\n\n";
-    return continuous_variable_histentry_{{ neuronName }}(0., {%-     for state_var in state_vars_that_need_continuous_buffering %}
-      0.{% if not loop.last %}, {% endif %}
+    return continuous_variable_histentry_{{ neuronName }}(0.,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      0.{% if not loop.last %},{% endif %}
 {%-     endfor %}); // XXX: TODO: return initial value
   }
   else
@@ -1042,8 +1042,9 @@ continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_
   }
 
   // if we get here, there is no entry at time t
-  std::cout << "\n\n\nXXX FIX ME\n\n\n";
-  return continuous_variable_histentry_{{ neuronName }}(0., {%-     for state_var in state_vars_that_need_continuous_buffering %}
+  std::cout << "\n\n\nXXX FIX ME: no entry at time t!\n\n\n";
+  return continuous_variable_histentry_{{ neuronName }}(0.,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
       0.{% if not loop.last %}, {% endif %}
 {%-     endfor %}); // XXX: TODO: return initial value
 }
@@ -1110,10 +1111,11 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %}) );
+#ifdef DEBUG
+  std::cout << "\thistory size = " << continuous_variable_history_.size() << std::endl;
+#endif
 }
 {%- endif %}
-
-
 
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
@@ -1286,6 +1288,9 @@ void
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
+      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+      // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
+
       if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
            and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
       {
@@ -1357,13 +1362,13 @@ void
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_
 {%- for var in purely_numeric_state_variables_moved|sort %}
-    , get_{{var}}()
+        , get_{{ var }}()
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-    , get_{{var}}()
+        , get_{{ var }}()
 {%- endfor %}
-, 0
- ) );
+      , 0 // access counter
+    ) );
   }
   else
   {
@@ -1390,6 +1395,10 @@ void
 
 {%- for var in transferred_variables %}
 {%- with variable_symbol = transferred_variables_syms[var] %}
+
+{%- if not variable_symbol %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%- endif %}
 
 {%- if not var == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
@@ -1447,9 +1456,11 @@ double
         recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
-{%- set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
-{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- filter indent(8, True) %}
+{%-     set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
+{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
@@ -1501,19 +1512,22 @@ double
   **/
 
   {%- if analytic_state_variables_moved | length > 0 %}
-
-  const double old___h = V_.__h;
-  V_.__h = t;   // from time 0 to the requested time
-  assert(V_.__h > 0);
-  recompute_internal_variables(true);
+  if (t > 1E-12)
+  {
+    const double old___h = V_.__h;
+    V_.__h = t;   // from time 0 to the requested time
+    recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
+{%- filter indent(8, True) %}
 {%- set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
 {%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endfilter %}
 
-  V_.__h = old___h;
-  recompute_internal_variables(true);
+    V_.__h = old___h;
+    recompute_internal_variables(true);
+  }
 {%- endif %}
 
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};

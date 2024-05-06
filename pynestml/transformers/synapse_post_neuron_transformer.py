@@ -52,6 +52,22 @@ class SynapsePostNeuronTransformer(Transformer):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
+        self._copy_custom_options(options)
+
+    def _copy_custom_options(self, options):
+        if options:
+            if "delay_variable" in options:
+                self._options["delay_variable"] = options["delay_variable"].copy()
+
+            if "weight_variable" in options:
+                self._options["weight_variable"] = options["weight_variable"].copy()
+
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
+        unused_options = super().set_options(options)
+        self._copy_custom_options(options)
+
+        return unused_options
 
     def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
         """
@@ -216,7 +232,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return visitor._variable_names
 
-    def transform_neuron_synapse_pair_(self, neuron, synapse):
+    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel):
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -262,6 +278,12 @@ class SynapsePostNeuronTransformer(Transformer):
         # exclude certain variables from being moved:
         # exclude any variable assigned to in any block that is not connected to a postsynaptic port
         strictly_synaptic_vars = ["t"]      # "seed" this with the predefined variable t
+        if self.option_exists("delay_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("delay_variable").keys() and self.get_option("delay_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
+            strictly_synaptic_vars.append(self.get_option("delay_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
+
+        if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
+            strictly_synaptic_vars.append(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
+
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
                 if not self.is_post_port(port.name, neuron.name, synapse.name):
@@ -302,7 +324,11 @@ class SynapsePostNeuronTransformer(Transformer):
         #   collect all the parameters
         #
 
-        all_declared_params = [s.get_variables() for s in new_synapse.get_parameters_blocks()[0].get_declarations()]
+        if new_synapse.get_parameters_blocks():
+            all_declared_params = [s.get_variables() for s in new_synapse.get_parameters_blocks()[0].get_declarations()]
+        else:
+            all_declared_params = []
+
         all_declared_params = sum(all_declared_params, [])
         all_declared_params = [var.name for var in all_declared_params]
 
@@ -348,30 +374,23 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(port.get_name(), neuron.name, synapse.name))
 
         #
-        #   collect all ``continuous`` type input ports, the value of which is used in the update or the onReceive(post_port) blocks (because they have to be buffered in the postsynaptic neuron)
+        #   collect all ``continuous`` type input ports, the value of which is used in event handlers -- these have to be buffered in the hist_entry for each post spike in the postsynaptic history
         #
 
-        continuous_post_vars_that_need_post_buffering = []
-
-        post_receive_blocks = []
+        state_vars_that_need_continuous_buffering = []
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
-                if self.is_post_port(port.name, new_neuron.name, new_synapse.name):
-                    post_receive_blocks.extend(ASTUtils.get_on_receive_blocks_by_input_port_name(synapse, port.name))
+                if self.is_continuous_port(port.name, new_synapse):
+                    state_vars_that_need_continuous_buffering.append(port.name)
 
-        for post_connected_continuous_input_port in post_connected_continuous_input_ports:
-            var_names = []
+        # check that they are not used in the update block
+        update_block_var_names = []
+        for update_block in synapse.get_update_blocks():
+            update_block_var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
 
-            for update_block in synapse.get_update_blocks():
-                var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
+        assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering])
 
-            for post_receive_block in post_receive_blocks:
-                var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(post_receive_block)])
-
-            if post_connected_continuous_input_port in var_names and not post_connected_continuous_input_port in continuous_post_vars_that_need_post_buffering:
-                continuous_post_vars_that_need_post_buffering.append(post_connected_continuous_input_port)
-
-        Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need continuous-time buffering: " + str(continuous_post_vars_that_need_post_buffering), None, LoggingLevel.INFO)
+        Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering), None, LoggingLevel.INFO)
 
         #
         #   move state variable declarations from synapse to neuron
@@ -504,7 +523,7 @@ class SynapsePostNeuronTransformer(Transformer):
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
             ASTUtils.replace_with_external_variable(state_var, new_synapse, "",
-                                                    new_synapse.get_equations_blocks()[0], state_var)
+                                                    new_neuron.get_scope(), alternate_name="__" + state_var)
         #
         #    replace .......
         #
@@ -549,7 +568,7 @@ class SynapsePostNeuronTransformer(Transformer):
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
             ASTUtils.replace_with_external_variable(
-                state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks()[0])
+                state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
         #
         #     rename neuron
@@ -561,7 +580,8 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
         new_neuron.paired_synapse = new_synapse
-        new_neuron.state_vars_that_need_continuous_buffering = continuous_post_vars_that_need_post_buffering
+        new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
+
         #
         #    rename synapse
         #

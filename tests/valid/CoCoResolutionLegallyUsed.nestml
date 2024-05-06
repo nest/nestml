@@ -31,7 +31,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model resolution_legally_used_synapse:
     parameters:
-        d ms = 1 ms  @nest::delay
+        d ms = 1 ms
+        w real = 1
         a ms = resolution()
 
     internals:

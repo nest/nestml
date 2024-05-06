@@ -37,7 +37,6 @@ from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
@@ -568,7 +567,7 @@ class ASTUtils:
                 return
 
             if not var.get_name() == "t" \
-               and not isinstance(var, ASTExternalVariable) \
+               and not var.get_alternate_name() \
                and not var.get_name().endswith(suffix):
                 symbol = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -594,7 +593,7 @@ class ASTUtils:
                 return
 
             if var.get_name() in variable_names \
-               and not isinstance(var, ASTExternalVariable) \
+               and not var.get_alternate_name() \
                and not var.get_name().endswith(suffix):
                 var.set_name(var.get_name() + suffix)
 
@@ -629,15 +628,15 @@ class ASTUtils:
     @classmethod
     def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
         for pair in codegen_opts_pairs:
-            print("Checking pair " + str(pair) + " for ne = " + str(neuron.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix)) + " syn = " + synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix))
-            if pair["neuron"] == neuron.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix) and pair["synapse"] == synapse.get_name().split("__with_")[0].removesuffix(FrontendConfiguration.suffix):
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+               and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+               and "post_ports" in pair.keys():
                 return pair["post_ports"]
-        return None
+
+        return []
 
     @classmethod
     def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port):
-        print("post port names: " + str(post_port_names))
-        print("Searching for " + str(post_port))
         for pair in post_port_names:
             if pair[0] == post_port:
                 return pair[1]
@@ -646,7 +645,7 @@ class ASTUtils:
     @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
         """
-        Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
+        Set alternate name on all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node, indicating that they are moved to the postsynaptic neuron.
         """
 
         def replace_var(_expr=None):
@@ -660,13 +659,15 @@ class ASTUtils:
             if var.get_name() != var_name:
                 return
 
-            ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
-                                              differential_order=var.get_differential_order(),
-                                              source_position=var.get_source_position())
+            ast_ext_var = ASTVariable(name=var_name + suffix,
+                                      alternate_name="((post_neuron_t*)(__target))->get_" + var.get_name() + suffix + "(_tr_t)",
+                                      alternate_scope=new_scope,
+                                      differential_order=var.get_differential_order(),
+                                      source_position=var.get_source_position())
+
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
-            ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 

@@ -24,10 +24,13 @@ from typing import List, Optional
 import re
 import tempfile
 import uuid
+from pynestml.meta_model.ast_node import ASTNode
 
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class NESTCodeGeneratorUtils:
@@ -58,6 +61,47 @@ class NESTCodeGeneratorUtils:
             return "B_.%s"
 
         return ""
+
+    @classmethod
+    def set_nest_alternate_name(cls, astnode: ASTNode, decorator_replacements):
+        """Set alternate name for variables"""
+        class VariableNameAlternateNameVisitor(ASTVisitor):
+
+            def _do_replace(self, var):
+                sym = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+
+                if not sym:
+                    return
+
+                if var.get_name() in decorator_replacements.keys():
+                    var.set_alternate_name(decorator_replacements[var.get_name()])
+
+            def visit_simple_expression(self, node):
+                if node.is_variable():
+                    var = node.get_variable()
+                    self._do_replace(var)
+
+            def visit_declaration(self, node):
+                for var in node.get_variables():
+                    if var.get_name() in decorator_replacements.keys():
+                        self._do_replace(var)
+
+            def visit_assignment(self, node):
+                var = node.get_variable()
+                if var.get_name() in decorator_replacements.keys():
+                    self._do_replace(var)
+
+            def visit_expression(self, node):
+                for var in node.get_variables():
+                    if var.get_name() in decorator_replacements.keys():
+                        self._do_replace(var)
+
+            def visit_ode_equation(self, node):
+                var = node.lhs
+                if var.get_name() in decorator_replacements.keys():
+                    self._do_replace(var)
+
+        astnode.accept(VariableNameAlternateNameVisitor())
 
     @classmethod
     def generate_code_for(cls,
@@ -96,7 +140,7 @@ class NESTCodeGeneratorUtils:
 
         input_fns = [neuron_fn]
         _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+                         "neuron_parent_class_include": "structural_plasticity_node.h"}
         mangled_neuron_name = neuron_model_name + "_nestml"
 
         if nestml_synapse_model:
@@ -112,9 +156,9 @@ class NESTCodeGeneratorUtils:
                 print(nestml_synapse_model, file=f)
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
-                                                     "synapse": synapse_model_name,
-                                                     "post_ports": post_ports,
-                                                     "vt_ports": mod_ports}]
+                                                      "synapse": synapse_model_name,
+                                                      "post_ports": post_ports,
+                                                      "vt_ports": mod_ports}]
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
 

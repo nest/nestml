@@ -36,7 +36,8 @@ model time_variable_pre_post_synapse:
     z = t
 
   parameters:
-    d ms = 1 ms @nest::delay
+    w real = 1
+    d ms = 1 ms
 
   input:
     pre_spikes <- spike

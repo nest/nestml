@@ -63,6 +63,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes for random number generator
 {%- if nest_version.startswith("v2") %}
 #include "normal_randomdev.h"
+#include "poisson_randomdev.h"
 #include "uniform_randomdev.h"
 {%- else %}
 #include <random>
@@ -162,23 +163,23 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 {%- if paired_synapse is defined %}
 
 // entry in the spiking history
-class histentry__{{neuronName}}
+class histentry__{{ neuronName }}
 {
 public:
-  histentry__{{neuronName}}( double t,
-{%- for var in purely_numeric_state_variables_moved|sort%}
-double {{var}},
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort%}
-double {{var}},
-{%- endfor %}
-size_t access_counter )
-  : t_( t )
+  histentry__{{ neuronName }}( double t,
 {%- for var in purely_numeric_state_variables_moved|sort %}
-  , {{var}}_( {{var}} )
+      double {{var}},
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-  , {{var}}_( {{var}} )
+      double {{ var }},
+{%- endfor %}
+      size_t access_counter )
+  : t_( t )
+{%- for var in purely_numeric_state_variables_moved|sort %}
+  , {{ var }}_( {{ var }} )
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+  , {{ var }}_( {{ var }} )
 {%- endfor %}
   , access_counter_( access_counter )
   {
@@ -186,10 +187,10 @@ size_t access_counter )
 
   double t_;              //!< point in time when spike occurred (in ms)
 {%- for var in purely_numeric_state_variables_moved|sort %}
-   double {{var}}_;
+  double {{ var }}_;
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-   double {{var}}_;
+  double {{ var }}_;
 {%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
@@ -211,7 +212,6 @@ public:
   size_t access_counter_;
 };
 {%- endif %}
-
 {%- endif %}
 
 /* BeginDocumentation
@@ -373,7 +373,6 @@ public:
 
   std::deque< continuous_variable_histentry_{{ neuronName }} > continuous_variable_history_;
 {%- endif %}
-
 {%- endif %}
 {%- if neuron.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
@@ -422,7 +421,7 @@ public:
 
   /* getters/setters for variables transferred from synapse */
 
-{%- for var in transferred_variables %}
+{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
   double get_{{var}}( double t, const bool before_increment = true );
 {%- endfor %}
 {%- endif %}
@@ -485,7 +484,7 @@ private:
   std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
-{%- for var in transferred_variables %}
+{%- for var in transferred_variables + state_vars_that_need_continuous_buffering %}
   double {{var}}__iv;
 {%- endfor %}
 
@@ -908,8 +907,10 @@ private:
 
 {%- if nest_version.startswith("v2") %}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+  librandom::PoissonRandomDev poisson_dev_; //!< random deviate generator
 {%- else %}
   nest::normal_distribution normal_dev_; //!< random deviate generator
+  nest::poisson_distribution poisson_dev_; //!< random deviate generator
 {%- endif %}
 {%- endif %}
 {%- if has_delay_variables %}

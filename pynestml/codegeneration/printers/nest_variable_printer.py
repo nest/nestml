@@ -27,7 +27,6 @@ from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorU
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
-from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -57,14 +56,8 @@ class NESTVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
-        if isinstance(variable, ASTExternalVariable):
-            _name = str(variable)
-            if variable.get_alternate_name():
-                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
-                return "__" + variable.get_alternate_name()
-                # return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
-
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
+        if variable.get_alternate_name():
+            return variable.get_alternate_name()
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"
@@ -86,7 +79,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -127,24 +120,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             return "get_delayed_" + variable.get_name() + "()"
 
         return ""
-
-    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
-        """
-        Converts the vector parameter into NEST processable format
-        :param variable:
-        :return:
-        """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = vector_parameter.get_variable()
-        if vector_parameter_var:
-            vector_parameter_var.scope = variable.get_scope()
-
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                        SymbolKind.VARIABLE)
-            if symbol and symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-
-        return self._expression_printer.print(vector_parameter)
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """

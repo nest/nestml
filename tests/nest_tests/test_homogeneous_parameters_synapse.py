@@ -54,7 +54,9 @@ class TestHomogeneousParametersSynapse:
         generate_nest_target(input_path=input_path,
                              logging_level="INFO",
                              module_name="nestmlmodule",
-                             suffix="_nestml")
+                             suffix="_nestml",
+                             codegen_opts={"delay_variable": {"static_synapse": "d"},
+                                           "weight_variable": {"static_synapse": "w"}})
 
     def test_homogeneous_parameters_synapse(self):
 
@@ -67,6 +69,8 @@ class TestHomogeneousParametersSynapse:
         nest.SetKernelStatus({"resolution": .1})
         nest.Install("nestmlmodule")
 
+        nest.CopyModel(synapse_model_name, "my_synapse_model", {"w": 1., "a": 42.})
+
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
                              params={"spike_times": 10. * (1 + np.arange(sim_time))})
@@ -75,7 +79,7 @@ class TestHomogeneousParametersSynapse:
         post_neuron = nest.Create(neuron_model_name)
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one")
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": synapse_model_name})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "my_synapse_model"})
 
         V_m_before_sim = post_neuron.V_m
 

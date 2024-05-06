@@ -156,15 +156,11 @@ In the neuron, no special output port is required; all state variables are acces
 
 NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`).
 
-In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
+In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be clamped at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp_triplet_synapse_test.png
 
-For a full example, please see the following files:
-
-* ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure) XXXXXXXXXXXXXXXX
-* ``models/neurons/iaf_psc_exp_dend_neuron.nestml`` (neuron model)
-* ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
+For a full example, please see :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`.
 
 
 Examples
@@ -486,82 +482,6 @@ Further integration with NEST Simulator is planned, to achieve a just-in-time co
    :align: center
 
    Code generator options instruct the target platform code generator (in this case, NEST) how to process the models.
-
-
-
-The NEST target
----------------
-
-Event-based updating
-~~~~~~~~~~~~~~~~~~~~
-
-NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
-The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
-
-
-Dendritic delay
-~~~~~~~~~~~~~~~
-
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). To indicate that a given parameter is specifying this NEST-specific delay value, use an annotation:
-
-.. code:: nestml
-
-   parameters:
-       dend_delay ms = 1 ms     @nest::delay
-
-
-Generating code
----------------
-
-When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :python:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp"}]})
-
-Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                           "post_ports": ["post_spikes",
-                                                                          ["I_post_dend", "I_dend"]]}]})
-
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
-
-Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                            "vt_ports": ["dopa_spikes"]}]})
-
-
-
-Implementation notes
-~~~~~~~~~~~~~~~~~~~~
-
-Note that ``access_counter`` now has an extra multiplicative factor equal to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
-
-.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
-
-   Potjans et al. 2010
-
-Random numbers
-~~~~~~~~~~~~~~
-
-In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
-
 
 
 References

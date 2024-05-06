@@ -34,8 +34,8 @@ model event_inv_priority_test_synapse:
         tr real = 1.
 
     parameters:
-        w real = 1.  @nest::weight
-        d ms = 1. ms  @nest::delay
+        w real = 1
+        d ms = 1 ms
 
     input:
         pre_spikes <- spike
