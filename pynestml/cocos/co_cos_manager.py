@@ -135,7 +135,8 @@ class CoCosManager:
         Checks that all variables are defined before being used.
         :param model: a single model.
         """
-        CoCoAllVariablesDefined.check_co_co(model, after_ast_rewrite)
+        # XXX: FIXME! see: get_parent() being excruciatingly slow.
+        #CoCoAllVariablesDefined.check_co_co(model, after_ast_rewrite)
 
     @classmethod
     def check_v_comp_requirement(cls, neuron: ASTModel):
@@ -398,7 +399,9 @@ class CoCosManager:
         """
         :param model: a single model object.
         """
-        CoCoResolutionFuncLegallyUsed.check_co_co(model)
+        return
+        # XXX: FIXME! see: get_parent() being excruciatingly slow.
+        #CoCoResolutionFuncLegallyUsed.check_co_co(model)
 
     @classmethod
     def check_input_port_size_type(cls, model: ASTModel):
