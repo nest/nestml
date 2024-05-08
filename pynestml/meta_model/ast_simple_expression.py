@@ -19,10 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.cloning_helpers import clone_numeric_literal
 
@@ -272,31 +273,22 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.string
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_function_call():
-            if self.get_function_call() is ast:
-                return self
-            if self.get_function_call().get_parent(ast) is not None:
-                return self.get_function_call().get_parent(ast)
-        if self.variable is not None:
-            if self.variable is ast:
-                return self
-            if self.variable.get_parent(ast) is not None:
-                return self.variable.get_parent(ast)
-        return None
+            return [self.get_function_call()]
 
-    def set_variable(self, variable):
-        """
-        Updates the variable of this node.
-        :param variable: a single variable
-        :type variable: ASTVariable
+        if self.variable:
+            return [self.variable]
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         assert (variable is None or isinstance(variable, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(variable)

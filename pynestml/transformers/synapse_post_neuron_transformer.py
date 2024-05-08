@@ -38,6 +38,7 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.string_utils import removesuffix
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -172,7 +173,7 @@ class SynapsePostNeuronTransformer(Transformer):
                         found_parent_assignment = False
                         node_ = node
                         while not found_parent_assignment:
-                            node_ = self.parent_node.get_parent(node_)
+                            node_ = node_.get_parent()
                             # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                             if isinstance(node_, ASTInlineExpression):
                                 found_parent_assignment = True
@@ -226,7 +227,9 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse = synapse.clone()
 
         new_neuron.accept(ASTSymbolTableVisitor())
+        new_neuron.accept(ASTParentVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())
+        new_synapse.accept(ASTParentVisitor())
 
         assert len(new_neuron.get_equations_blocks()) <= 1, "Only one equations block per neuron supported for now."
         assert len(new_synapse.get_equations_blocks()) <= 1, "Only one equations block per synapse supported for now."
@@ -545,6 +548,8 @@ class SynapsePostNeuronTransformer(Transformer):
         ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)
         new_synapse.accept(ast_symbol_table_visitor)
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.accept(ASTParentVisitor())
 
         ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 

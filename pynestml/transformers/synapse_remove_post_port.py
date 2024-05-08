@@ -28,6 +28,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
@@ -153,6 +154,8 @@ class SynapseRemovePostPortTransformer(Transformer):
 
         new_neuron.accept(ASTSymbolTableVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.accept(ASTParentVisitor())
 
         ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 

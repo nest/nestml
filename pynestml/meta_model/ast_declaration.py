@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
@@ -58,7 +59,7 @@ class ASTDeclaration(ASTNode):
         invariant = None
     """
 
-    def __init__(self, is_recordable: bool = False, is_inline_expression: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
+    def __init__(self, is_recordable: bool = False, is_inline_expression: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[Union[ASTSimpleExpression, ASTExpression]] = None,
                  expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, decorators=None, *args, **kwargs):
         """
         Standard constructor.
@@ -148,37 +149,31 @@ class ASTDeclaration(ASTNode):
         """
         return self.data_type
 
-    def has_size_parameter(self):
+    def has_size_parameter(self) -> bool:
         """
         Returns whether the declaration has a size parameter or not.
         :return: True if has size parameter, else False.
-        :rtype: bool
-        """
-        return self.size_parameter is not None
-
-    def get_size_parameter(self):
-        """
-        Returns the size parameter.
-        :return: the size parameter.
-        :rtype: str
         """
         return self.size_parameter
 
-    def set_size_parameter(self, _parameter):
+    def get_size_parameter(self) -> Optional[Union[ASTSimpleExpression, ASTExpression]]:
+        """
+        Returns the size parameter.
+        :return: the size parameter.
+        """
+        return self.size_parameter
+
+    def set_size_parameter(self, _parameter: Optional[Union[ASTSimpleExpression, ASTExpression]]):
         """
         Updates the current size parameter to a new value.
         :param _parameter: the size parameter
-        :type _parameter: str
         """
-        assert (_parameter is not None and isinstance(_parameter, str)), \
-            '(PyNestML.AST.Declaration) No or wrong type of size parameter provided (%s)!' % type(_parameter)
         self.size_parameter = _parameter
 
-    def has_expression(self):
+    def has_expression(self) -> bool:
         """
         Returns whether the declaration has a right-hand side rhs or not.
         :return: True if right-hand side rhs declared, else False.
-        :rtype: bool
         """
         return self.expression is not None
 
@@ -210,60 +205,55 @@ class ASTDeclaration(ASTNode):
         """
         return self.invariant
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for var in self.get_variables():
-            if var is ast:
-                return self
-            if var.get_parent(ast) is not None:
-                return var.get_parent(ast)
-        if self.get_data_type() is ast:
-            return self
-        if self.get_data_type().get_parent(ast) is not None:
-            return self.get_data_type().get_parent(ast)
-        if self.has_expression():
-            if self.get_expression() is ast:
-                return self
-            if self.get_expression().get_parent(ast) is not None:
-                return self.get_expression().get_parent(ast)
-        if self.has_invariant():
-            if self.get_invariant() is ast:
-                return self
-            if self.get_invariant().get_parent(ast) is not None:
-                return self.get_invariant().get_parent(ast)
-        return None
+        children = []
+        children.extend(self.get_variables())
+        if self.get_data_type():
+            children.append(self.get_data_type())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.has_expression():
+            children.append(self.get_expression())
+
+        if self.has_invariant():
+            children.append(self.get_invariant())
+
+        if self.has_size_parameter():
+            children.append(self.get_size_parameter())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTDeclaration):
             return False
+
         if not (self.is_inline_expression == other.is_inline_expression and self.is_recordable == other.is_recordable):
             return False
+
         if self.get_size_parameter() != other.get_size_parameter():
             return False
+
         if len(self.get_variables()) != len(other.get_variables()):
             return False
+
         my_vars = self.get_variables()
         your_vars = other.get_variables()
         for i in range(0, len(my_vars)):
             # caution, here the order is also checked
             if not my_vars[i].equals(your_vars[i]):
                 return False
+
         if self.has_invariant() + other.has_invariant() == 1:
             return False
+
         if self.has_invariant() and other.has_invariant() and not self.get_invariant().equals(other.get_invariant()):
             return False
+
         return self.get_data_type().equals(other.get_data_type()) and self.get_expression().equals(
             other.get_expression())
