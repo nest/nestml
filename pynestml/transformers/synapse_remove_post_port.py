@@ -152,10 +152,13 @@ class SynapseRemovePostPortTransformer(Transformer):
         #    add modified versions of neuron and synapse to list
         #
 
+        new_neuron.parent_ = None    # set root element
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.parent_ = None    # set root element
+        new_synapse.accept(ASTParentVisitor())
+
         new_neuron.accept(ASTSymbolTableVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())
-        new_neuron.accept(ASTParentVisitor())
-        new_synapse.accept(ASTParentVisitor())
 
         ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 

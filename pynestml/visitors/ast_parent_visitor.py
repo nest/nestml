@@ -19,32 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_model_body import ASTModelBody
-from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
-from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbol_table.scope import Scope, ScopeType
-from pynestml.symbols.function_symbol import FunctionSymbol
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_types import PredefinedTypes
-from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
-from pynestml.utils.stack import Stack
-from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTParentVisitor(ASTVisitor):
     r"""
-    For each node in the AST, assign its ``parent_`` attribute; in other words, make it a doubly-linked tree.
+    For each node in the AST, assign its ``parent_`` attribute; in other words, make the AST a doubly-linked tree.
     """
 
     def __init__(self):
