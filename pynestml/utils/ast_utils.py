@@ -418,6 +418,10 @@ class ASTUtils:
                                                                       ASTSourceLocation.get_added_source_position())
             internal.update_scope(model.get_scope())
             model.get_body().get_body_elements().append(internal)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -433,6 +437,10 @@ class ASTUtils:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             model.get_body().get_body_elements().append(state)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -637,6 +645,8 @@ class ASTUtils:
                                               source_position=var.get_source_position())
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
+
+            ast_ext_var.parent_ = _expr
 
             ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor

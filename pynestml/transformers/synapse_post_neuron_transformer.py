@@ -226,10 +226,12 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
 
-        new_neuron.accept(ASTSymbolTableVisitor())
+        new_neuron.parent_ = None    # set root element
         new_neuron.accept(ASTParentVisitor())
-        new_synapse.accept(ASTSymbolTableVisitor())
+        new_synapse.parent_ = None    # set root element
         new_synapse.accept(ASTParentVisitor())
+        new_neuron.accept(ASTSymbolTableVisitor())
+        new_synapse.accept(ASTSymbolTableVisitor())
 
         assert len(new_neuron.get_equations_blocks()) <= 1, "Only one equations block per neuron supported for now."
         assert len(new_synapse.get_equations_blocks()) <= 1, "Only one equations block per synapse supported for now."
@@ -544,12 +546,12 @@ class SynapsePostNeuronTransformer(Transformer):
         #    add modified versions of neuron and synapse to list
         #
 
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.accept(ASTParentVisitor())
         ast_symbol_table_visitor = ASTSymbolTableVisitor()
         ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)
         new_synapse.accept(ast_symbol_table_visitor)
-        new_neuron.accept(ASTParentVisitor())
-        new_synapse.accept(ASTParentVisitor())
 
         ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 

@@ -55,12 +55,3 @@ class ASTParentVisitor(ASTVisitor):
         children = node.get_children()
         for child in children:
             child.parent_ = node
-        # queue = [node]
-        # while queue:
-        #     node = queue.pop(0)   # pop from the front of the queue -- breadth first search
-
-        #     children = node.get_children()
-        #     for child in children:
-        #         child.parent_ = node
-
-        #     queue.extend(children)

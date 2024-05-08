@@ -475,7 +475,7 @@ class ASTModel(ASTNode):
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
         declaration.accept(symtable_vistor)
-        self.get_internals_blocks().accept(ASTParentVisitor())
+        self.get_internals_blocks()[0].accept(ASTParentVisitor())
         symtable_vistor.block_type_stack.pop()
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
@@ -494,7 +494,7 @@ class ASTModel(ASTNode):
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.STATE)
         declaration.accept(symtable_vistor)
-        self.get_state_blocks().accept(ASTParentVisitor())
+        self.get_state_blocks()[0].accept(ASTParentVisitor())
         symtable_vistor.block_type_stack.pop()
         from pynestml.symbols.symbol import SymbolKind
         assert declaration.get_variables()[0].get_scope().resolve_to_symbol(

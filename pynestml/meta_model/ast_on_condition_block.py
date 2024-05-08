@@ -87,7 +87,14 @@ class ASTOnConditionBlock(ASTNode):
         Returns the children of this node, if any.
         :return: List of children of this node.
         """
-        return [self.get_block()]
+        children = []
+        if self.cond_expr:
+            children.append(self.cond_expr)
+
+        if self.get_block():
+            children.append(self.get_block())
+
+        return children
 
     def equals(self, other: ASTNode) -> bool:
         r"""

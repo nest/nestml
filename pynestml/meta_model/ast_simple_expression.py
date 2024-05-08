@@ -286,9 +286,11 @@ class ASTSimpleExpression(ASTExpressionNode):
 
         return []
 
-    def equals(self, other: ASTNode) -> bool:
-        r"""
-        The equality method.
+    def set_variable(self, variable):
+        """
+        Updates the variable of this node.
+        :param variable: a single variable
+        :type variable: ASTVariable
         """
         assert (variable is None or isinstance(variable, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(variable)
@@ -304,33 +306,39 @@ class ASTSimpleExpression(ASTExpressionNode):
             '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(function_call)
         self.function_call = function_call
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return:True if equal, otherwise False.
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTSimpleExpression):
             return False
+
         if self.is_function_call() + other.is_function_call() == 1:
             return False
+
         if self.is_function_call() and other.is_function_call() and not self.get_function_call().equals(
                 other.get_function_call()):
             return False
+
         if self.get_numeric_literal() != other.get_numeric_literal():
             return False
+
         if self.is_boolean_false != other.is_boolean_false or self.is_boolean_true != other.is_boolean_true:
             return False
+
         if self.is_variable() + other.is_variable() == 1:
             return False
+
         if self.is_variable() and other.is_variable() and not self.get_variable().equals(other.get_variable()):
             return False
+
         if self.is_inf_literal != other.is_inf_literal:
             return False
+
         if self.is_string() + other.is_string() == 1:
             return False
+
         if self.get_string() != other.get_string():
             return False
+
         return True
