@@ -577,7 +577,7 @@ void {{neuronName}}::pre_run_hook()
 {%- endif %}
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::pre_run_hook()" << std::endl;
+  std::cout << "[neuron " << this << "] {{neuronName}}::pre_run_hook()" << std::endl;
 #endif
   B_.logger_.init();
 
@@ -633,7 +633,7 @@ void {{neuronName}}::pre_run_hook()
 void {{neuronName}}::update_delay_variables()
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::update_delay_variables()" << std::endl;
+  std::cout << "[neuron " << this << "] {{neuronName}}::update_delay_variables()" << std::endl;
 #endif
 {%-   for variable_symbol in neuron.get_state_symbols() %}
 {%-       if variable_symbol.has_delay_parameter() %}
@@ -657,7 +657,7 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 {%- if use_gap_junctions %}
 bool {{neuronName}}::update_( nest::Time const& origin, const long from, const long to, const bool called_from_wfr_update )
 {%- else %}
-void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
+void {{neuronName}}::update(nest::Time const & origin, const long from, const long to)
 {%- endif %}
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
@@ -697,7 +697,7 @@ const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
 #ifdef DEBUG
-  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << get_t() << std::endl;
+  std::cout << "[neuron " << this << "] In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << get_t() << std::endl;
 #endif
 
 {%- if use_gap_junctions %}
@@ -980,7 +980,10 @@ const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
 {%-     endif %}
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
-    write_continuous_variable_history( nest::Time::step( origin.get_steps() + lag + 1 ),
+#ifdef DEBUG
+std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
+#endif
+    write_continuous_variable_history( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
 {%-     for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
 {%-         set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
@@ -1041,7 +1044,23 @@ continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_
   }
 
   // if we get here, there is no entry at time t
-  std::cout << "\n\n\nXXX FIX ME: no entry at time t!\n\n\n";
+  std::cout << "[neuron " << this << "] XXX FIX ME: no entry at time t = " << t << "! Size = " << continuous_variable_history_.size() << ", first t = " << continuous_variable_history_.begin()->t_ << ", last t = " << std::prev(continuous_variable_history_.end())->t_  <<  "\n";
+
+  size_t i = 0;
+  runner = continuous_variable_history_.begin();
+  while ( runner != continuous_variable_history_.end() )
+  {
+    std::cout << "[neuron " << this << "] \t" << i << "\t" << runner->t_ << "\n";
+    ++runner;
+    ++i;
+  }
+
+
+
+
+
+
+
   return continuous_variable_histentry_{{ neuronName }}(0.,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
       0.{% if not loop.last %}, {% endif %}
@@ -1054,7 +1073,7 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_continuous_variable_history()" << std::endl;
+  std::cout << "[neuron " << this << "] {{neuronName}}::get_continuous_variable_history()" << std::endl;
 #endif
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
@@ -1089,14 +1108,15 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
 {%-     endfor %})
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::write_continuous_variable_history()" << std::endl;
+  std::cout << "[neuron " << this << "] {{neuronName}}::write_continuous_variable_history()" << std::endl;
 #endif
   const double t_ms = t.get_ms();
 
   // prune all entries from history which are no longer needed except the penultimate one. we might still need it.
+  auto orig = continuous_variable_history_.size();
   while ( continuous_variable_history_.size() > 1 )
   {
-    if ( continuous_variable_history_.front().access_counter_ >= n_incoming_ )
+    if ( continuous_variable_history_.front().access_counter_ >= 10 * n_incoming_ )
     {
       continuous_variable_history_.pop_front();
     }
@@ -1106,12 +1126,16 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
     }
   }
 
+  if (continuous_variable_history_.size() != orig) {
+    std::cout << "[neuron " << this << "] \tpruning history, original size = " << orig << ", new size = " <<  continuous_variable_history_.size() << "\n";
+  }
+
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %}) );
 #ifdef DEBUG
-  std::cout << "\thistory size = " << continuous_variable_history_.size() << std::endl;
+  std::cout << "[neuron " << this << "] \thistory size = " << continuous_variable_history_.size() << std::endl;
 #endif
 }
 {%- endif %}
@@ -1127,7 +1151,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::handle()" << std::endl;
+  std::cout << "[neuron " << this << "] {{neuronName}}::handle()" << std::endl;
 #endif
   assert(e.get_delay_steps() > 0);
   assert( e.get_rport() < B_.spike_inputs_.size() );
@@ -1163,7 +1187,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::handle(CurrentEvent)" << std::endl;
+  std::cout << "[neuron " << this << "] {{neuronName}}::handle(CurrentEvent)" << std::endl;
 #endif
   assert(e.get_delay_steps() > 0);
 

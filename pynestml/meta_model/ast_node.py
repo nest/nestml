@@ -74,25 +74,18 @@ class ASTNode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def equals(self, other):
+    def equals(self, other) -> bool:
         """
         The equals operation.
-        :param other: a different object.
-        :type other: object
+        :param other: a different AST node.
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         pass
 
-    # todo: we can do this with a visitor instead of hard coding grammar traversals all over the place
-    @abstractmethod
-    def get_parent(self, ast):
+    def get_parent(self):
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        Get the parent of this node.
+        :return: The parent node
         """
         pass
 

@@ -725,11 +725,13 @@ public:
         &finish );
       while ( start != finish )
       {
+        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
+
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
         /**
          * grab state variables from the postsynaptic neuron at the time of the post spike
         **/
-
+      std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + __dendritic_delay << "\n";
         auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ + __dendritic_delay);
 
 {%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
@@ -754,9 +756,6 @@ public:
           break;  // this would in any case have been the last post spike to be processed
         }
 
-#ifdef DEBUG
-        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
-#endif
 
         /**
          * update synapse internal state from `t_lastspike_` to `start->t_`
