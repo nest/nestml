@@ -39,4 +39,5 @@ class Transformer(WithOptions, metaclass=ABCMeta):
 
     @abstractmethod
     def transform(self, model: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+        r"""Transform a model or a list of models. Return an updated model or list of models."""
         assert False

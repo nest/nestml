@@ -182,10 +182,14 @@ class ASTModelBody(ASTNode):
         return None
 
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
+        r"""
+        XXX: TODO: sorting based on priority
+        """
         on_condition_blocks = []
         for elem in self.get_body_elements():
             if isinstance(elem, ASTOnConditionBlock):
                 on_condition_blocks.append(elem)
+
         return on_condition_blocks
 
     def get_equations_blocks(self) -> List[ASTEquationsBlock]:

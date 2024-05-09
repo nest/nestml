@@ -220,10 +220,8 @@ class Neuron_{{neuronName}}(Neuron):
   # -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
 {%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives_py/MemberVariableGetterSetter.jinja2" %}
-{%-   endif %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -313,13 +311,6 @@ class Neuron_{{neuronName}}(Neuron):
 {%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
 {%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
 {%- endwith %}
-
-    # -------------------------------------------------------------------------
-    #     process spikes from buffers
-    # -------------------------------------------------------------------------
-{%- filter indent(4, True) -%}
-{%-     include "directives_py/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
 
     # -------------------------------------------------------------------------
     #     begin NESTML generated code for the onReceive block(s)

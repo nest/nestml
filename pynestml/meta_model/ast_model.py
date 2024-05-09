@@ -670,8 +670,10 @@ class ASTModel(ASTNode):
         return self.get_body().get_on_receive_block(port_name)
 
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
+        r"""See ASTModelBody.get_on_condition_blocks() for the documentation for this function."""
         if not self.get_body():
             return []
+
         return self.get_body().get_on_condition_blocks()
 
     def get_on_condition_block(self, port_name: str) -> Optional[ASTOnConditionBlock]:
