@@ -557,6 +557,18 @@ class ASTUtils:
         model.accept(remove_state_var_from_integrate_odes_calls_visitor)
 
     @classmethod
+    def add_state_var_to_integrate_odes_calls(cls, model: ASTModel, var: ASTExpression):
+        r"""Add a state variable to the arguments to each integrate_odes() calls in the model."""
+
+        class AddStateVarToIntegrateODEsCallsVisitor(ASTVisitor):
+            def visit_function_call(self, node: ASTFunctionCall):
+                if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+                    expr = ASTNodeFactory.create_ast_simple_expression(variable=var.clone())
+                    node.args.append(expr)
+
+        model.accept(AddStateVarToIntegrateODEsCallsVisitor())
+
+    @classmethod
     def resolve_variables_to_expressions(cls, astnode, analytic_state_variables_moved):
         """receives a list of variable names (as strings) and returns a list of ASTExpressions containing each ASTVariable"""
         expressions = []
@@ -564,7 +576,19 @@ class ASTUtils:
         for var_name in analytic_state_variables_moved:
             node = ASTUtils.get_variable_by_name(astnode, var_name)
             assert node is not None
-            expressions.append(ASTNodeFactory.create_ast_expression(False, None, False, ASTNodeFactory.create_ast_simple_expression(variable=node)))
+            expressions.append(ASTNodeFactory.create_ast_expression(expression=ASTNodeFactory.create_ast_simple_expression(variable=node)))
+
+        return expressions
+
+    @classmethod
+    def resolve_variables_to_simple_expressions(cls, model, vars):
+        """receives a list of variable names (as strings) and returns a list of ASTSimpleExpressions containing each ASTVariable"""
+        expressions = []
+
+        for var_name in vars:
+            node = ASTUtils.get_variable_by_name(model, var_name)
+            assert node is not None
+            expressions.append(ASTNodeFactory.create_ast_simple_expression(variable=node))
 
         return expressions
 
@@ -1113,45 +1137,80 @@ class ASTUtils:
         return False
 
     @classmethod
-    def add_assignment_to_update_block(cls, assignment: ASTAssignment, neuron: ASTModel) -> ASTModel:
+    def add_assignment_to_update_block(cls, assignment: ASTAssignment, model: ASTModel) -> ASTModel:
         """
-        Adds a single assignment to the end of the update block of the handed over neuron. At most one update block should be present.
+        Adds a single assignment to the end of the update block of the handed over model. At most one update block should be present.
 
         :param assignment: a single assignment
-        :param neuron: a single neuron instance
-        :return: the modified neuron
+        :param model: a single model instance
+        :return: the modified model
         """
-        assert len(neuron.get_update_blocks()) <= 1, "At most one update block should be present"
+        assert len(model.get_update_blocks()) <= 1, "At most one update block should be present"
         small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=assignment,
                                                           source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                               source_position=ASTSourceLocation.get_added_source_position())
-        if not neuron.get_update_blocks():
-            neuron.create_empty_update_block()
-        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        return neuron
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+        model.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
 
     @classmethod
-    def add_declaration_to_update_block(cls, declaration: ASTDeclaration, neuron: ASTModel) -> ASTModel:
+    def add_function_call_to_update_block(cls, function_call: ASTFunctionCall, model: ASTModel) -> ASTModel:
         """
-        Adds a single declaration to the end of the update block of the handed over neuron.
+        Adds a single assignment to the end of the update block of the handed over model.
+
+        :param function_call: a single function call
+        :param neuron: a single model instance
+        :return: the modified model
+        """
+        assert len(model.get_update_blocks()) <= 1, "At most one update block should be present"
+
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+
+        small_stmt = ASTNodeFactory.create_ast_small_stmt(function_call=function_call,
+                                                          source_position=ASTSourceLocation.get_added_source_position())
+        stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
+                                              source_position=ASTSourceLocation.get_added_source_position())
+        model.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
+
+    @classmethod
+    def add_declaration_to_update_block(cls, declaration: ASTDeclaration, model: ASTModel) -> ASTModel:
+        """
+        Adds a single declaration to the end of the update block of the handed over model.
         :param declaration: ASTDeclaration node to add
-        :param neuron: a single neuron instance
-        :return: a modified neuron
+        :param model: a single model instance
+        :return: a modified model
         """
-        assert len(neuron.get_update_blocks()) <= 1, "At most one update block should be present"
+        assert len(model.get_update_blocks()) <= 1, "At most one update block should be present"
         small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=declaration,
                                                           source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                               source_position=ASTSourceLocation.get_added_source_position())
-        if not neuron.get_update_blocks():
-            neuron.create_empty_update_block()
-        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        return neuron
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+        model.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
 
     @classmethod
     def add_state_updates(cls, neuron: ASTModel, update_expressions: Mapping[str, str]) -> ASTModel:
@@ -1165,6 +1224,7 @@ class ASTUtils:
         for variable, update_expression in update_expressions.items():
             declaration_statement = variable + '__tmp real = ' + update_expression
             cls.add_declaration_to_update_block(ModelParser.parse_declaration(declaration_statement), neuron)
+
         for variable, update_expression in update_expressions.items():
             cls.add_assignment_to_update_block(ModelParser.parse_assignment(variable + ' = ' + variable + '__tmp'),
                                                neuron)

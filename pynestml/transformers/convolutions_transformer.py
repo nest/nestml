@@ -35,6 +35,7 @@ from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToo
 from pynestml.codegeneration.printers.unitless_sympy_simple_expression_printer import UnitlessSympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -47,6 +48,7 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
@@ -84,6 +86,61 @@ class ConvolutionsTransformer(Transformer):
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
 
+    def add_kernel_variables_to_integrate_odes_calls(self, model, solvers_json):
+        for solver_dict in solvers_json:
+            if solver_dict is None:
+                continue
+
+            for var_name, expr in solver_dict["initial_values"].items():
+                var = ASTUtils.get_variable_by_name(model, var_name)
+                ASTUtils.add_state_var_to_integrate_odes_calls(model, var)
+
+        model.accept(ASTParentVisitor())
+
+
+    def add_integrate_odes_call_for_kernel_variables(self, model, solvers_json):
+        var_names = []
+        for solver_dict in solvers_json:
+            if solver_dict is None:
+                continue
+
+            for var_name, expr in solver_dict["initial_values"].items():
+                var_names.append(var_name)
+
+        args = ASTUtils.resolve_variables_to_simple_expressions(model, var_names)
+        ast_function_call = ASTNodeFactory.create_ast_function_call("integrate_odes", args)
+        ASTUtils.add_function_call_to_update_block(ast_function_call, model)
+        model.accept(ASTParentVisitor())
+
+    def add_temporary_kernel_variables_copy(self, model, solvers_json):
+        var_names = []
+        for solver_dict in solvers_json:
+            if solver_dict is None:
+                continue
+
+            for var_name, expr in solver_dict["initial_values"].items():
+                var_names.append(var_name)
+
+        scope = model.get_update_blocks()[0].scope
+
+        for var_name in var_names:
+            var = ASTNodeFactory.create_ast_variable(var_name + "__tmp", type_symbol=RealTypeSymbol)
+            var.scope = scope
+            expr = ASTNodeFactory.create_ast_simple_expression(variable=ASTUtils.get_variable_by_name(model, var_name))
+            ast_declaration = ASTNodeFactory.create_ast_declaration(variables=[var],
+                                                                    data_type=ASTDataType(is_real=True),
+                                                    expression=expr, source_position=ASTSourceLocation.get_added_source_position())
+            ast_declaration.update_scope(scope)
+            ast_small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=ast_declaration)
+            ast_small_stmt.update_scope(scope)
+            ast_stmt = ASTNodeFactory.create_ast_stmt(small_stmt=ast_small_stmt)
+            ast_stmt.update_scope(scope)
+
+            model.get_update_blocks()[0].get_block().stmts.insert(0, ast_stmt)
+
+        model.accept(ASTParentVisitor())
+        model.accept(ASTSymbolTableVisitor())
+
     def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
         r"""Transform a model or a list of models. Return an updated model or list of models."""
         for model in models:
@@ -105,6 +162,11 @@ class ConvolutionsTransformer(Transformer):
             self.create_spike_update_event_handlers(model, solvers_json, kernel_buffers)
             self.replace_convolve_calls_with_buffers_(model)
             self.remove_kernel_definitions_from_equations_blocks(model)
+            self.add_kernel_variables_to_integrate_odes_calls(model, solvers_json)
+            self.add_temporary_kernel_variables_copy(model, solvers_json)
+            self.add_integrate_odes_call_for_kernel_variables(model, solvers_json)
+            self.add_kernel_equations(model, solvers_json)
+
             print("-------- MODEL AFTER TRANSFORM ------------")
             print(model)
             print("-------------------------------------------")
