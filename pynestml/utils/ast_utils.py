@@ -456,6 +456,9 @@ class ASTUtils:
             block = ASTNodeFactory.create_ast_equations_block(list(),
                                                               ASTSourceLocation.get_added_source_position())
             model.get_body().get_body_elements().append(block)
+
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
