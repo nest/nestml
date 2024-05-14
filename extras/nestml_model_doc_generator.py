@@ -41,12 +41,14 @@ class NESTMLModelDocGenerator:
 
     def __init__(self):
         self.model_doc_rst = ""
+        self.base_dir = os.path.join("doc", "models_library")
+        os.mkdir(self.base_dir)
 
     def generate_all_models(self):
         codegen_opts = {}
 
         generate_nest_target(input_path=["models/neurons"],
-                             target_path="/tmp/nestml-autodoc",
+                             target_path=os.path.join(self.base_dir, "nestml-autodoc-target"),
                              logging_level="DEBUG",
                              module_name="nestml_autodoc_module",
                              suffix="_nestml",
@@ -141,7 +143,7 @@ class NESTMLModelDocGenerator:
 
         ax[-1].set_xlabel("Time [ms]")
 
-        plt.savefig("/tmp/nestml_current_pulse_response_[" + model_name + "].png")
+        plt.savefig(os.path.join(self.base_dir, "nestml_current_pulse_response_[" + model_name + "].png"))
         plt.close(fig)
 
 
@@ -149,7 +151,7 @@ class NESTMLModelDocGenerator:
         r"""Make f-I curve"""
         t_stop = 1000.  # [ms]
 
-        I_stim_vec = np.linspace(10E-12, 1E-9, 20)  # [A] XXX: should be 100 points
+        I_stim_vec = np.linspace(10E-12, 1E-9, 100)  # [A]
         rate = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):
             nest.ResetKernel()
@@ -195,7 +197,7 @@ class NESTMLModelDocGenerator:
             ax[0].set_xlabel(r"$I_\text{stim}$ [pA]")
             plt.tight_layout()
 
-            plt.savefig("/tmp/nestml_fI_curve_[" + model_name + "]" + fname_snip + ".png")
+            plt.savefig(os.path.join(self.base_dir, "nestml_fI_curve_[" + model_name + "]" + fname_snip + ".png"))
             plt.close(fig)
 
     def _test_model_psp(self, model_name, max_weight: float = 10., model_opts=None,
@@ -245,7 +247,7 @@ class NESTMLModelDocGenerator:
             ax[0].set_ylabel("$V_m$ [mV]")
             plt.tight_layout()
 
-            plt.savefig("/tmp/nestml_psp_[" + model_name + "]" + fname_snip + ".png")
+            plt.savefig(os.path.join(self.base_dir, "nestml_psp_[" + model_name + "]" + fname_snip + ".png"))
             plt.close(fig)
 
     def generate_synapse_models_documentation(self, models):
