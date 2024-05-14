@@ -42,7 +42,10 @@ class NESTMLModelDocGenerator:
     def __init__(self):
         self.model_doc_rst = ""
         self.base_dir = os.path.join("doc", "models_library")
-        os.mkdir(self.base_dir)
+        try:
+            os.mkdir(self.base_dir)
+        except:
+            pass
 
     def generate_all_models(self):
         codegen_opts = {}
@@ -65,7 +68,6 @@ class NESTMLModelDocGenerator:
         self._test("iaf_cond_exp_neuron_nestml")
         self._test("iaf_cond_alpha_neuron_nestml")
         self._test("iaf_cond_beta_neuron_nestml")
-        #self._test("hill_tononi_neuron_nestml")
         self._test("izhikevich_neuron_nestml")
         self._test("hh_psc_alpha_neuron_nestml")
         self._test("aeif_cond_exp_neuron_nestml")
@@ -81,7 +83,7 @@ class NESTMLModelDocGenerator:
         all_nestml_synapse_models = sorted([s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"])
         self.model_doc_rst += self.generate_synapse_models_documentation(all_nestml_synapse_models)
 
-        with open("models_library.rst", "w") as f:
+        with open(os.path.join(self.base_dir, "models_library.rst"), "w") as f:
             f.write(self.model_doc_rst)
 
     def _test(self, model_name):
@@ -303,37 +305,37 @@ class NESTMLModelDocGenerator:
             s += "\n"
             s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
                  "/nestml_psp_[" + \
-                 model_name + "]_small.png\n"
+                 model_name + "_nestml]_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
             s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
                  "/nestml_current_pulse_response_[" + \
-                 model_name + "]_small.png\n"
+                 model_name + "_nestml]_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
             s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
                  "/nestml_fI_curve_[" + \
-                 model_name + "]_small.png\n"
+                 model_name + "_nestml]_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
 
-            with open(model_name + "_characterisation.rst", "w") as f:
+            with open(os.path.join(self.base_dir, model_name + "_characterisation.rst"), "w") as f:
                 s_ = "Synaptic response\n-----------------\n\n"
                 s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
                       "/nestml_psp_[" + \
-                      model_name + "].png\n"
+                      model_name + "_nestml].png\n"
                 s_ += "   :alt: " + model_name + " postsynaptic response\n"
                 s_ += "\n"
                 s_ += "Response to pulse current injection\n---------\n\n"
                 s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
                       "/nestml_current_pulse_response_[" + \
-                      model_name + "].png\n"
+                      model_name + "_nestml].png\n"
                 s_ += "   :alt: " + model_name + " current pulse response\n"
                 s_ += "\n"
                 s_ += "f-I curve\n---------\n\n"
                 s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
                       "/nestml_fI_curve_[" + \
-                      model_name + "].png\n"
+                      model_name + "_nestml].png\n"
                 s_ += "   :alt: " + model_name + " f-I curve\n"
                 s_ += "\n"
                 f.write(s_)
