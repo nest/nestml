@@ -38,7 +38,6 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
-from pynestml.utils.string_utils import removesuffix
 
 
 class AutoDocCodeGenerator(CodeGenerator):
@@ -89,7 +88,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param neuron: a single neuron object.
         """
         nestml_model_doc = self._template_neuron_nestml_model.render(self.setup_neuron_model_generation_helpers(neuron))
-        neuron_name = removesuffix(neuron.get_name(), "_neuron")
+        neuron_name = neuron.get_name()
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_name)) + '.rst',
                   'w+') as f:
             f.write(str(nestml_model_doc))
@@ -116,7 +115,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neuron'] = neuron
-        namespace['neuronName'] = removesuffix(str(neuron.get_name()), "_neuron")
+        namespace['neuronName'] = neuron.get_name()
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
