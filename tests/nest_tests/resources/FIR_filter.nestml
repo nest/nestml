@@ -29,7 +29,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron fir_filter:
+model fir_filter:
     state:
         # FIR filter output (to be recorded by NEST multimeter)
         y real = 0.
@@ -43,11 +43,11 @@ neuron fir_filter:
         h[N] real = 1.   # filter coefficients
 
     input:
-        spike_in real <- spike
+        spike_in <- spike
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in
+        x[i] = spike_in * s
 
         # compute the new value of y
         j integer = 0

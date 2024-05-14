@@ -79,7 +79,7 @@ class VariableSymbol(Symbol):
         ode_declaration       Used to store the corresponding ode declaration.
         is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value         Indicates the initial value if such is declared.
-        variable_type         The type of the variable, either a kernel, or buffer or function. Type: VariableType
+        variable_type         The type of the variable, either a buffer or function. Type: VariableType
     """
 
     def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
@@ -160,7 +160,7 @@ class VariableSymbol(Symbol):
         Returns whether this variable has a delay value associated with it.
         :return: bool
         """
-        return self.delay_parameter is not None and type(self.delay_parameter) == str
+        return self.delay_parameter is not None and isinstance(self.delay_parameter, str)
 
     def get_block_type(self):
         """
@@ -345,9 +345,9 @@ class VariableSymbol(Symbol):
 
     def get_ode_or_kernel(self):
         """
-        Returns the ODE or kernel defining the value of this variable symbol.
+        Returns the ODE defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression or ASTSimpleExpression or ASTKernel
+        :rtype: ASTExpression or ASTSimpleExpression
         """
         return self.ode_or_kernel
 
@@ -425,7 +425,7 @@ class VariableSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return (type(self) != type(other)
+        return (isinstance(other, type(self))
                 and self.get_referenced_object() == other.get_referenced_object()
                 and self.get_symbol_name() == other.get_symbol_name()
                 and self.get_corresponding_scope() == other.get_corresponding_scope()

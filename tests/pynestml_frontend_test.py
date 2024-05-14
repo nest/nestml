@@ -42,9 +42,8 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
     def test_codegeneration_autodoc(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join(os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+                                                 os.path.join(os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         params = list()
-        params.append("nestml")
         params.append("--input_path")
         params.append(path)
         params.append("--target_platform")
@@ -56,10 +55,8 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append("--store_log")
         params.append("--dev")
 
-        exit_code = None
-        with patch.object(sys, "argv", params):
-            exit_code = main()
-        self.assertTrue(exit_code == 0)
+        FrontendConfiguration.parse_config(params)
+        assert len(FrontendConfiguration.paths_to_compilation_units) == 1
 
     def test_module_name_parsing_right_module_name_specified(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, "models"))))

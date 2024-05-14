@@ -10,11 +10,11 @@ Modeling neurons in NESTML
 Writing the NESTML model
 ########################
 
-The top-level element of the model is ``neuron``, followed by a name. All other blocks appear inside of here.
+The top-level element of the model is ``model``, followed by a name. All other blocks appear inside of here.
 
 .. code-block:: nestml
 
-   neuron hodkin_huxley:
+   model hodkin_huxley_neuron:
        # [...]
 
 Neuronal interactions
@@ -28,22 +28,24 @@ A neuron model written in NESTML can be configured to receive two distinct types
 .. code-block:: nestml
 
    input:
+       AMPA_spikes <- spike
        I_stim pA <- continuous
-       AMPA_spikes pA <- spike
 
 The general syntax is:
 
 ::
 
-    port_name dataType <- inputQualifier* (spike | continuous)
+    port_name <- inputQualifier spike
+    port_name dataType <- continuous
 
+The spiking input ports are declared without a data type, whereas the continuous input ports must have a data type.
 For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
 
 .. code-block:: nestml
 
    input:
        # [...]
-       all_spikes pA <- spike
+       all_spikes <- spike
 
 In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
 
@@ -51,8 +53,8 @@ In this case, all spike events will be processed through the ``all_spikes`` inpu
 
    input:
        # [...]
-       AMPA_spikes pA <- excitatory spike
-       GABA_spikes pA <- inhibitory spike
+       AMPA_spikes <- excitatory spike
+       GABA_spikes <- inhibitory spike
 
 In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
 
@@ -70,6 +72,7 @@ It is equivalent if either both `inhibitory` and `excitatory` are given, or neit
      - ... should not be negative. It is added to the buffer with non-negative magnitude :math:`w`.
    * - ``inhibitory``
      - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
+
 
 
 Integrating current input
@@ -93,25 +96,46 @@ Spikes arriving at the input port of a neuron can be written as a spike train :m
 
 .. math::
 
-   \large s(t) = \sum_{i=1}^N \delta(t - t_i)
+   \large s(t) = \sum_{i=1}^N w_i \cdot \delta(t - t_i)
+
+where :math:`w_i` is the weight of spike :math:`i`.
 
 To model the effect that an arriving spike has on the state of the neuron, a convolution with a kernel can be used. The kernel defines the postsynaptic response kernel, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Kernel functions` for how to define a kernel.) The convolution of the kernel with the spike train is defined as follows:
 
 .. math::
 
-   \large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)
+   \begin{align*}
+   \large (f \ast s)(t) &= \int s(u) f(t-u) du \\
+                        &= \sum_{i=1}^N \int w_i \cdot \delta(u-t_i) f(t-u) du \\
+                        &= \sum_{i=1}^N w_i \cdot f(t - t_i)
+   \end{align*}
 
-where :math:`w_i` is the weight of spike :math:`i`.
-
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
    equations:
-       kernel G = exp(-t/tau_syn)
-       V_m' = -V_m/tau_m + convolve(G, spikes)
+       kernel G = exp(-t / tau_syn)
+       inline I_syn pA = convolve(G, spikes) * pA
+       V_m' = -V_m / tau_m + I_syn / C_m
 
-The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the scalar convolution result with the unit literal. By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+
+The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
+
+.. code-block:: nestml
+
+   state:
+       I_syn pA = 0 pA
+
+   equations:
+       I_syn' = -I_syn / tau_syn
+       V_m' = -V_m / tau_m + I_syn / C_m
+
+   onReceive(spikes):
+       I_syn += spikes * pA * s
+
+Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
 
 
 (Re)setting synaptic integration state
@@ -165,9 +189,9 @@ If there is more than one line specifying a `spike` or `continuous` port with th
 .. code-block:: nestml
 
    input:
-       spikes1 nS <- spike
-       spikes2 nS <- spike
-       spikes3 nS <- spike
+       spikes1 <- spike
+       spikes2 <- spike
+       spikes3 <- spike
 
 For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
 
@@ -177,7 +201,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-ker
        kernel I_kernel1 = exp(-t / tau_syn1)
        kernel I_kernel2 = exp(-t / tau_syn2)
        kernel I_kernel3 = -exp(-t / tau_syn3)
-       inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+       inline I_syn pA = (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)) * pA
        V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
 
 
@@ -190,18 +214,18 @@ The input ports can also be defined as vectors. For example,
 
    neuron multi_synapse_vectors:
        input:
-           AMPA_spikes pA <- excitatory spike
-           GABA_spikes pA <- inhibitory spike
-           NMDA_spikes pA <- spike
-           foo[2] pA <- spike
-           exc_spikes[3] pA <- excitatory spike
-           inh_spikes[3] pA <- inhibitory spike
+           AMPA_spikes <- excitatory spike
+           GABA_spikes <- inhibitory spike
+           NMDA_spikes <- spike
+           foo[2] <- spike
+           exc_spikes[3] <- excitatory spike
+           inh_spikes[3] <- inhibitory spike
 
        equations:
            kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)
            kernel I_kernel_inh = exp(-1 / tau_syn_inh * t)
-           inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1])
-           inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1])
+           inline I_syn_exc pA = convolve(I_kernel_exc, exc_spikes[1]) * pA
+           inline I_syn_inh pA = convolve(I_kernel_inh, inh_spikes[1]) * pA
 
 
 In this example, the spiking input ports ``foo``, ``exc_spikes``, and ``inh_spikes`` are defined as vectors. The integer surrounded by ``[`` and ``]`` determines the size of the vector. The size of the input port must always be a positive-valued integer.
@@ -215,11 +239,34 @@ Output
 ``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 
+Implementing refractoriness
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generating code
-###############
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (say, ``refr_T``) can be introduced, that defines the duration of the refractory period. A new state variable, ``refr_t``, then specifies the time of the refractory period that has already elapsed, and a second boolean state variable ``is_refactory`` identifies whether or not we are in the refractory state. In the initial state, the neuron is not refractory and the timer is set to zero. When a spike is emitted, the boolean flag is set to true and the timer is set to ``refr_T``. Using a separate flag allows us to freely formulate a condition on ending the timer without having to worry about special (for instance, negative) values representing a non-refactory condition. This is hazardous because of an imprecise floating point representation of real numbers. The check against :math:`\Delta t/2` instead of checking against 0 additionally guards against accumulated discretization errors. Integrating the ODE for :math:`V_\text{m}` is disabled while the flag is set to true. When the timer reaches zero, the flag is set to false. In the ``update`` block, the timer is decremented each timestep. An ``onCondition`` is formulated on ending the refractory period, which allows the time at which the condition becomes true to be determined precisely (whereas it would be aliased to the nearest simulation timestep interval if the condition had been checked in ``update``).
 
-Co-generation of neuron and synapse
------------------------------------
+.. code-block:: nestml
 
-The ``update`` block in a NESTML model is translated into the ``update`` method in NEST.
+   parameters:
+       refr_T ms = 5 ms
+
+   state:
+       refr_t ms = 0 ms    # Refractory period timer
+       is_refractory boolean = false
+
+   equations:
+       I_syn' = ...
+       V_m' = ...
+
+   update:
+       if is_refractory:
+           # neuron is absolute refractory, do not evolve V_m
+           refr_t -= resolution()
+           integrate_odes(I_syn)
+       else:
+           # neuron not refractory, so evolve all ODEs
+           integrate_odes(V_m, I_syn)
+
+   onCondition(is_refractory and refr_t <= resolution() / 2):
+       # end of refractory period
+       refr_t = 0 ms
+       is_refractory = false

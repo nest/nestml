@@ -55,25 +55,10 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
             return '(({!s}) + ({!s}) * ' + 'normal_dev_( nest::get_vp_specific_rng( ' + 'get_thread() ) ))'
 
+        if function_name == PredefinedFunctions.RANDOM_POISSON:
+            return '([&]() -> int {{ nest::poisson_distribution::param_type poisson_params({!s}); int sample = poisson_dev_( nest::get_vp_specific_rng( get_thread() ), poisson_params); return sample; }})()'   # double curly braces {{ }} due to passing through str.format() later
+
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
             return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + 'get_thread() )->drand())'
-
-        if function_name == PredefinedFunctions.EMIT_SPIKE:
-            return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
-                   'nest::SpikeEvent se;\n' \
-                   'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-
-        if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return '''
-        set_delay( {1!s} );
-        const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
-        set_delay_steps(__delay_steps);
-        e.set_receiver( *__target );
-  e.set_weight( {0!s} );
-  // use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
-  e.set_delay_steps( get_delay_steps() );
-  e.set_rport( get_rport() );
-e();
-'''
 
         return super()._print_function_call_format_string(function_call)

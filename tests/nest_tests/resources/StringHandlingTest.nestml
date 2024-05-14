@@ -1,0 +1,46 @@
+"""
+StringHandlingTest.nestml
+#########################
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+model string_handling_test:
+    state:
+        s1 string = "abc"
+        s2 string = "def"
+        b1 boolean = false
+        b2 boolean = false
+
+    parameters:
+        s3 string = "ghi"
+        s4 string = "klm"
+
+    internals:
+        s5 string = "ghi"
+
+    update:
+        s7 string = s1 + s2
+        if s7 == "abcdef":
+            b1 = true
+
+        if s3 + s4 == s5 + "klm":
+            b2 = true

@@ -20,6 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_stmt import ASTStmt
@@ -32,7 +34,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.either import Either
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.stack import Stack
@@ -52,18 +53,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.block_type_stack = Stack()
         self.after_ast_rewrite_ = False
 
-    def visit_neuron(self, node):
+    def visit_model(self, node: ASTModel) -> None:
         """
-        Private method: Used to visit a single neuron and create the corresponding global as well as local scopes.
-        :return: a single neuron.
-        :rtype: ast_neuron
+        Used to visit a single model and create the corresponding global as well as local scopes.
         """
-        # set current processed neuron
         Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.DEBUG)
-        scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
+        scope = Scope(scope_type=ScopeType.GLOBAL,
+                      source_position=node.get_source_position())
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
@@ -77,9 +76,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for symbol in types.keys():
             node.get_scope().add_symbol(types[symbol])
 
-    def endvisit_neuron(self, node):
+    def endvisit_model(self, node: ASTModel):
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
+        CoCosManager.post_symbol_table_builder_checks(
+            node, after_ast_rewrite=self.after_ast_rewrite_)
 
         # update the equations
         for equation_block in node.get_equations_blocks():
@@ -87,61 +87,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         Logger.set_current_node(None)
 
-    def visit_neuron_or_synapse_body(self, node):
+    def visit_model_body(self, node: ASTModelBody):
         """
-        Private method: Used to visit a single neuron body and create the corresponding scope.
+        Private method: Used to visit a single model body and create the corresponding scope.
         :param node: a single body element.
-        :type node: ast_body
         """
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
-
-    def visit_synapse(self, node):
-        """
-        Private method: Used to visit a single synapse and create the corresponding global as well as local scopes.
-        :return: a single synapse.
-        :rtype: ast_synapse
-        """
-        # set current processed synapse
-        # Logger.set_current_synapse(node)
-        Logger.set_current_node(node)
-        code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.DEBUG)
-        # before starting the work on the synapse, make everything which was implicit explicit
-        # but if we have a model without an equations block, just skip this step
-        scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
-
-        node.update_scope(scope)
-        node.get_body().update_scope(scope)
-        # now first, we add all predefined elements to the scope
-        variables = PredefinedVariables.get_variables()
-        functions = PredefinedFunctions.get_function_symbols()
-        types = PredefinedTypes.get_types()
-        for symbol in variables.keys():
-            node.get_scope().add_symbol(variables[symbol])
-        for symbol in functions.keys():
-            node.get_scope().add_symbol(functions[symbol])
-        for symbol in types.keys():
-            node.get_scope().add_symbol(types[symbol])
-
-    def endvisit_synapse(self, node):
-        # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node)
-        Logger.set_current_node(None)
-
-    def endvisit_synapse_body(self, node):
-        return
-
-    def visit_synapse_body(self, node):
-        """
-        Private method: Used to visit a single synapse body and create the corresponding scope.
-        :param node: a single body element.
-        :type node: ast_body
-        """
-        for synapseBodyElement in node.get_body_elements():
-            synapseBodyElement.update_scope(node.get_scope())
-        return
 
     def visit_function(self, node):
         """
@@ -149,7 +101,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a function block object.
         :type node: ast_function
         """
-        self.block_type_stack.push(BlockType.LOCAL)  # before entering, update the current node type
+        self.block_type_stack.push(
+            BlockType.LOCAL)  # before entering, update the current node type
         symbol = FunctionSymbol(scope=node.get_scope(), element_reference=node, param_types=list(),
                                 name=node.get_name(), is_predefined=False, return_type=None)
         # put it on the stack for the endvisit method
@@ -195,7 +148,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.has_return_type():
             data_type_visitor = ASTDataTypeVisitor()
             node.get_return_type().accept(data_type_visitor)
-            symbol.set_return_type(PredefinedTypes.get_type(data_type_visitor.result))
+            symbol.set_return_type(
+                PredefinedTypes.get_type(data_type_visitor.result))
         else:
             symbol.set_return_type(PredefinedTypes.get_void_type())
         self.block_type_stack.pop()  # before leaving update the type
@@ -231,6 +185,22 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_block().update_scope(scope)
 
     def endvisit_on_receive_block(self, node=None):
+        self.block_type_stack.pop()
+
+    def visit_on_condition_block(self, node):
+        """
+        Private method: Used to visit a single onCondition block and create the corresponding scope.
+        :param node: an onCondition block object.
+        :type node: ASTOnConditionBlock
+        """
+        self.block_type_stack.push(BlockType.LOCAL)
+        scope = Scope(scope_type=ScopeType.ON_CONDITION, enclosing_scope=node.get_scope(),
+                      source_position=node.get_source_position())
+        node.get_scope().add_scope(scope)
+        node.get_block().update_scope(scope)
+        node.get_cond_expr().update_scope(node.get_scope())
+
+    def endvisit_on_condition_block(self, node=None):
         self.block_type_stack.pop()
 
     def visit_block(self, node):
@@ -308,14 +278,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
-        init_value = node.get_expression() if self.block_type_stack.top() == BlockType.STATE else None
+        init_value = node.get_expression(
+        ) if self.block_type_stack.top() == BlockType.STATE else None
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []
         namespace_decorators = {}
         for d in node.get_decorators():
             if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(d.get_name())
+                namespace_decorators[str(d.get_namespace())] = str(
+                    d.get_name())
             else:
                 decorators.append(d)
 
@@ -330,6 +302,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
             type_symbol = PredefinedTypes.get_type(type_name)
             vector_parameter = var.get_vector_parameter()
+            if vector_parameter:
+                vector_parameter.update_scope(node.get_scope())
+
             symbol = VariableSymbol(element_reference=node,
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
@@ -347,7 +322,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                     )
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)
-            var.set_type_symbol(Either.value(type_symbol))
+            var.set_type_symbol(type_symbol)
         # the data type
         node.get_data_type().update_scope(node.get_scope())
         # the rhs update
@@ -489,11 +464,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
         elif node.is_variable() or node.has_unit():
             assert node.get_scope() is not None
             node.get_variable().update_scope(node.get_scope())
-            if node.get_variable().get_vector_parameter() is not None:
+            if node.get_variable().has_vector_parameter():
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
-        if node.get_vector_parameter() is not None:
+        if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
 
     def visit_inline_expression(self, node):
@@ -502,6 +477,17 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single inline expression.
         :type node: ASTInlineExpression
         """
+
+        # split the decorators in the AST up into namespace decorators and other decorators
+        decorators = []
+        namespace_decorators = {}
+        for d in node.get_decorators():
+            if isinstance(d, ASTNamespaceDecorator):
+                namespace_decorators[str(d.get_namespace())] = str(
+                    d.get_name())
+            else:
+                decorators.append(d)
+
         data_type_visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(data_type_visitor)
         type_symbol = PredefinedTypes.get_type(data_type_visitor.result)
@@ -593,20 +579,21 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input port.
         :type node: ASTInputPort
         """
-        if not node.has_datatype():
-            code, message = Messages.get_input_port_type_not_defined(node.get_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        else:
-            node.get_datatype().update_scope(node.get_scope())
+        if node.is_continuous():
+            if not node.has_datatype():
+                code, message = Messages.get_input_port_type_not_defined(node.get_name())
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
+            else:
+                node.get_datatype().update_scope(node.get_scope())
 
         for qual in node.get_input_qualifiers():
             qual.update_scope(node.get_scope())
 
     def endvisit_input_port(self, node):
-        if not node.has_datatype():
-            return
-        type_symbol = node.get_datatype().get_type_symbol()
+        type_symbol = PredefinedTypes.get_type("s")**-1
+        if node.is_continuous() and node.has_datatype():
+            type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),

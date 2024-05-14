@@ -11,52 +11,57 @@ For more information about the model, see iaf_psc_exp in the ``models`` director
 
 For more information about "multisynapse" models, please refer to the NESTML documentation.
 """
-neuron iaf_psc_exp_multisynapse_neuron:
+model iaf_psc_exp_multisynapse_neuron:
     state:
-        r integer = 0                # counts number of tick during the refractory period
         V_m mV = E_L  # membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
 
     equations:
-        kernel I_kernel1 = exp(-1/tau_syn1*t)
-        kernel I_kernel2 = exp(-1/tau_syn2*t)
-        kernel I_kernel3 = -exp(-1/tau_syn3*t)
+        kernel I_kernel1 = delta(t)
+        kernel I_kernel2 = (e / tau_syn2) * t * exp(-t / tau_syn2)
+        kernel I_kernel3 = -exp(-t / tau_syn3)
 
-        inline I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)
+        recordable inline I_syn pA = (convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3)) * pA
 
         V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
         tau_m ms = 10 ms          # Membrane time constant
-        tau_syn1 ms = .2ms        # Time constant of synaptic current.
         tau_syn2 ms = 2ms         # Time constant of synaptic current.
         tau_syn3 ms = 20ms        # Time constant of synaptic current.
-        t_ref ms = 2 ms           # Duration of refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         E_L mV = -70 mV           # Resting potential
         V_reset mV = -70 mV       # Reset value of the membrane potential
         V_th mV = -55 mV          # Spike threshold potential
         I_e pA = 0 pA             # External current.
 
-    internals:
-        # refractory time in steps
-        RefractoryCounts integer = steps(t_ref)
-
     input:
-        spikes1 pA <- spike
-        spikes2 pA <- spike
-        spikes3 pA <- spike
+        spikes1 <- spike
+        spikes2 <- spike
+        spikes3 <- spike
         I_stim pA <- continuous
 
     output:
         spike
 
     update:
-        if r == 0: # neuron not refractory, so evolve V_m
-            integrate_odes()
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
         else:
-            r = r - 1 # neuron is absolute refractory
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
 
-        if V_m >= V_th: # threshold crossing
-            r = RefractoryCounts
-            V_m = V_reset
-            emit_spike()
+    onCondition(not is_refractory and V_m >= V_th):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

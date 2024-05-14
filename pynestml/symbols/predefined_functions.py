@@ -25,7 +25,7 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 
 
 class PredefinedFunctions:
-    """
+    r"""
     This class is used to represent all predefined functions of NESTML.
 
     Attributes:
@@ -45,6 +45,7 @@ class PredefinedFunctions:
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_POISSON        The callee name of the function used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
         RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
@@ -53,37 +54,43 @@ class PredefinedFunctions:
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
         ABS                   The callee name of the abs function.
+        CEIL                  The callee name of the ceil function.
+        FLOOR                 The callee name of the floor function.
+        ROUND                 The callee name of the round function.
         INTEGRATE_ODES        The callee name of the integrate_odes function.
         CONVOLVE              The callee name of the convolve function.
-        name2function         A dict of function symbols as currently defined.
     """
-    TIME_RESOLUTION = 'resolution'
-    TIME_STEPS = 'steps'
-    EMIT_SPIKE = 'emit_spike'
-    PRINT = 'print'
-    PRINTLN = 'println'
-    EXP = 'exp'
-    LN = 'ln'
-    LOG10 = 'log10'
-    COSH = 'cosh'
-    SINH = 'sinh'
-    TANH = 'tanh'
-    ERF = 'erf'
-    ERFC = 'erfc'
-    LOGGER_INFO = 'info'
-    LOGGER_WARNING = 'warning'
-    RANDOM_NORMAL = 'random_normal'
-    RANDOM_UNIFORM = 'random_uniform'
-    EXPM1 = 'expm1'
-    DELTA = 'delta'
-    CLIP = 'clip'
-    POW = 'pow'
-    MAX = 'max'
-    MIN = 'min'
-    ABS = 'abs'
-    INTEGRATE_ODES = 'integrate_odes'
-    CONVOLVE = 'convolve'
-    DELIVER_SPIKE = 'deliver_spike'
+
+    TIME_RESOLUTION = "resolution"
+    TIME_STEPS = "steps"
+    EMIT_SPIKE = "emit_spike"
+    PRINT = "print"
+    PRINTLN = "println"
+    EXP = "exp"
+    LN = "ln"
+    LOG10 = "log10"
+    COSH = "cosh"
+    SINH = "sinh"
+    ERF = "erf"
+    ERFC = "erfc"
+    TANH = "tanh"
+    LOGGER_INFO = "info"
+    LOGGER_WARNING = "warning"
+    RANDOM_NORMAL = "random_normal"
+    RANDOM_POISSON = "random_poisson"
+    RANDOM_UNIFORM = "random_uniform"
+    EXPM1 = "expm1"
+    CLIP = "clip"
+    POW = "pow"
+    MAX = "max"
+    MIN = "min"
+    ABS = "abs"
+    CEIL = "ceil"
+    FLOOR = "floor"
+    ROUND = "round"
+    DELTA = "delta"
+    INTEGRATE_ODES = "integrate_odes"
+    CONVOLVE = "convolve"
     name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
@@ -108,6 +115,7 @@ class PredefinedFunctions:
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_normal_function()
+        cls.__register_random_poisson_function()
         cls.__register_random_uniform_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
@@ -116,10 +124,11 @@ class PredefinedFunctions:
         cls.__register_max_function()
         cls.__register_min_function()
         cls.__register_abs_function()
-        cls.__register_integrated_odes_function()
+        cls.__register_integrate_odes_function()
+        cls.__register_ceil_function()
+        cls.__register_floor_function()
+        cls.__register_round_function()
         cls.__register_convolve()
-        cls.__register_deliver_spike()
-        return
 
     @classmethod
     def register_function(cls, name, params, return_type, element_reference):
@@ -134,20 +143,19 @@ class PredefinedFunctions:
         Registers the time-resolution.
         """
         params = list()
-        params.append(PredefinedTypes.get_type('ms'))
+        params.append(PredefinedTypes.get_type("ms"))
         symbol = FunctionSymbol(name=cls.TIME_STEPS, param_types=params,
                                 return_type=PredefinedTypes.get_integer_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.TIME_STEPS] = symbol
-        return
 
     @classmethod
     def __register_emit_spike_function(cls):
         """
         Registers the emit-spike function.
         """
-        symbol = FunctionSymbol(name=cls.EMIT_SPIKE, param_types=list(),
-                                return_type=PredefinedTypes.get_real_type(),
+        symbol = FunctionSymbol(name=cls.EMIT_SPIKE, param_types=[PredefinedTypes.get_variadic_type()],
+                                return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EMIT_SPIKE] = symbol
 
@@ -306,6 +314,16 @@ class PredefinedFunctions:
         cls.name2function[cls.RANDOM_NORMAL] = symbol
 
     @classmethod
+    def __register_random_poisson_function(cls):
+        """
+        Registers the random method as used to generate a random Poissonian distributed variable with the rate parameter `lmbda` (expected value).
+        """
+        symbol = FunctionSymbol(name=cls.RANDOM_POISSON, param_types=[PredefinedTypes.get_real_type()],
+                                return_type=PredefinedTypes.get_integer_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.RANDOM_POISSON] = symbol
+
+    @classmethod
     def __register_random_uniform_function(cls):
         """
         Registers the random method as used to generate a random sample from a uniform distribution in the interval [offset, offset + scale).
@@ -321,7 +339,7 @@ class PredefinedFunctions:
         Registers the time resolution function.
         """
         symbol = FunctionSymbol(name=cls.TIME_RESOLUTION, param_types=list(),
-                                return_type=PredefinedTypes.get_type('ms'),
+                                return_type=PredefinedTypes.get_type("ms"),
                                 element_reference=None, is_predefined=True, scope=None)
         cls.name2function[cls.TIME_RESOLUTION] = symbol
 
@@ -418,28 +436,52 @@ class PredefinedFunctions:
         cls.name2function[cls.ABS] = symbol
 
     @classmethod
-    def __register_integrated_odes_function(cls):
+    def __register_ceil_function(cls):
         """
-        Registers the integrate-odes function.
+        Registers the ceil function.
         """
         params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.CEIL, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.CEIL] = symbol
+
+    @classmethod
+    def __register_floor_function(cls):
+        """
+        Registers the floor function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.FLOOR, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.FLOOR] = symbol
+
+    @classmethod
+    def __register_round_function(cls):
+        """
+        Registers the round function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.ROUND, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ROUND] = symbol
+
+    @classmethod
+    def __register_integrate_odes_function(cls):
+        """
+        Registers the integrate_odes() function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_variadic_type())
         symbol = FunctionSymbol(name=cls.INTEGRATE_ODES, param_types=params,
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.INTEGRATE_ODES] = symbol
-
-    @classmethod
-    def __register_deliver_spike(cls):
-        """
-        Registers the deliver-spike function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_type('ms'))
-        symbol = FunctionSymbol(name=cls.DELIVER_SPIKE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.DELIVER_SPIKE] = symbol
 
     @classmethod
     def __register_convolve(cls):
@@ -464,17 +506,18 @@ class PredefinedFunctions:
         return cls.name2function
 
     @classmethod
-    def get_function(cls, name):
+    def get_function(cls, name: str):
         """
         Returns a copy of a element in the set of defined functions if one exists, otherwise None
+
         :param name: the name of the function symbol
-        :type name: str
         :return: a copy of the element if such exists in the dict, otherwise None
         :rtype: None or FunctionSymbol
         """
         assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided (%s)!' % type(name)
+            "(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided (%s)!" % type(name)
+
         if name in cls.name2function.keys():
             return cls.name2function[name]
-        else:
-            return None
+
+        return None

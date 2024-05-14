@@ -22,6 +22,10 @@ larger or equal to the absolute refractory time. If equal, the
 refractoriness of the model if equivalent to the other models of NEST.
 
 .. note::
+   This neuron model can only be used in combination with a fixed
+   simulation resolution (timestep size).
+
+.. note::
    If tau_m is very close to tau_syn_exc or tau_syn_inh, numerical problems
    may arise due to singularities in the propagator matrics. If this is
    the case, replace equal-valued parameters by a single parameter.
@@ -98,7 +102,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_psc_exp_htum <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_htum.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_psc_exp_htum <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_exp_htum_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -108,4 +112,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-03-22 17:48:48.961309
+   Generated at 2023-11-16 11:40:53.874736

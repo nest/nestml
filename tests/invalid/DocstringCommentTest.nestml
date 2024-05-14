@@ -6,7 +6,7 @@ DocstringCommentTest.nestml
 Description
 +++++++++++
 
-This model is used to test whether docstring comments are detected at any place other than just before the neuron keyword.
+This model is used to test whether docstring comments are detected at any place other than just before the model keyword.
 
 Negative case.
 
@@ -31,7 +31,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron docstringCommentTest:
+model docstringCommentTest:
     state:
         """hello"""
         # foo

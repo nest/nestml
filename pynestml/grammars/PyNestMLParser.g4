@@ -121,9 +121,9 @@ parser grammar PyNestMLParser;
   * Equations-Language
   *********************************************************************************************************************/
 
-  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)? NEWLINE;
+  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)? decorator=anyDecorator* NEWLINE;
 
-  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)? NEWLINE;
+  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)? decorator=anyDecorator* NEWLINE;
 
   kernel : KERNEL_KEYWORD variable EQUALS expression (KERNEL_JOINING variable EQUALS expression)* SEMICOLON? NEWLINE;
 
@@ -209,22 +209,22 @@ parser grammar PyNestMLParser;
   * NestML: language root element
   *********************************************************************************************************************/
 
-  /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
-    @attribute neuron: A list of processed models.
+  /** ASTNestMLCompilationUnit represents a collection of models.
+    @attribute model: A list of processed models.
   */
-  nestMLCompilationUnit: (neuron | synapse | NEWLINE)+ EOF;
+  nestMLCompilationUnit: ( model | NEWLINE )+ EOF;
 
 /*********************************************************************************************************************
-  * NestML neuron
+  * NestML model and model blocks
   *********************************************************************************************************************/
 
-  /** ASTNeuron Represents a single neuron.
-    @attribute Name:    The name of the neuron, e.g., ht_neuron.
-    @attribute body:    The body of the neuron consisting of several sub-blocks.
+  /** ASTModel Represents a single dynamical system model, such as a neuron or a synapse.
+    @attribute Name:    The name of the model, e.g., ht_neuron.
+    @attribute body:    The body of the model consisting of several sub-blocks.
   */
-  neuron : NEURON_KEYWORD NAME neuronBody;
+  model : MODEL_KEYWORD NAME modelBody;
 
-  /** ASTBody The body of the neuron, e.g. internal, state, parameter...
+  /** ASTBody The body of the model, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
     @attribute equationsBlock: A block of ode declarations.
     @attribute inputBlock: A block of input port declarations.
@@ -232,34 +232,19 @@ parser grammar PyNestMLParser;
     @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute function: A block declaring a user-defined function.
   */
-  neuronBody: COLON
-         NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)+ DEDENT;
-/*********************************************************************************************************************
-  * NestML synapse
-  *********************************************************************************************************************/
-
-  /** ASTSynapse Represents a single synapse.
-    @attribute Name:    The name of the synapse, e.g., ht_synapse.
-    @attribute body:    The body of the synapse consisting of several sub-blocks.
-  */
-  synapse : SYNAPSE_KEYWORD NAME COLON synapseBody;
-
-  /** ASTBody The body of the synapse, e.g. internal, state, parameter...
-    @attribute blockWithVariables: A single block of variables, e.g. the state block.
-    @attribute updateBlock: A single update block containing the dynamic behavior.
-    @attribute equationsBlock: A block of ode declarations.
-    @attribute inputBlock: A block of input buffer declarations.
-    @attribute outputBlock: A block of output declarations.
-    @attribute function: A block declaring a used-defined function.
-    @attribute onReceive: A block declaring an event handler.
-  */
-  synapseBody:
-         NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )+ DEDENT;
+  modelBody: COLON
+         NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
 
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
    */
   onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON
+                block;
+
+  /** ASTOnConditionBlock
+     @attribute block implementation of the dynamics
+   */
+  onConditionBlock: ON_CONDITION_KEYWORD LEFT_PAREN condition=expression (COMMA constParameter)* RIGHT_PAREN COLON
                 block;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
@@ -285,16 +270,12 @@ parser grammar PyNestMLParser;
   updateBlock: UPDATE_KEYWORD COLON
                 block;
 
-  /** ASTEquationsBlock A block declaring equations, kernels and inline expressions:
-      equations:
-          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-          V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
+  /** ASTEquationsBlock A block declaring equations and inline expressions.
      @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
-     @attribute kernel:      A single kernel statement, e.g., kernel V_m = ....
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   NEWLINE INDENT (inlineExpression | odeEquation | kernel)+ DEDENT;
+                   NEWLINE INDENT ( inlineExpression | odeEquation | kernel )+ DEDENT;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
@@ -303,23 +284,30 @@ parser grammar PyNestMLParser;
     @attribute inputPort: A list of input ports.
   */
   inputBlock: INPUT_KEYWORD COLON
-              NEWLINE INDENT inputPort+ DEDENT;
+              NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
-      spike_in <- excitatory spike
+      spike_in[3] <- excitatory spike
+      I_stim[3] pA <- continuous
     @attribute name: The name of the input port.
-    @attribute sizeParameter: Optional size parameter for multisynapse neuron.
+    @attribute sizeParameter: Optional size parameter for model with multiple input ports.
     @attribute datatype: Optional data type of the port.
     @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous-time input.
   */
-  inputPort:
+  spikeInputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
-    (dataType)?
     LEFT_ANGLE_MINUS inputQualifier*
-    (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD) NEWLINE;
+    SPIKE_KEYWORD NEWLINE;
+
+  continuousInputPort:
+    name = NAME
+    (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
+    dataType
+    LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD NEWLINE;
+
 
   /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
     @attribute isInhibitory: Indicates that this spiking input port is inhibitory.

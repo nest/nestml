@@ -1,11 +1,11 @@
 """
-third_factor_stdp - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
-#################################################################################################################
+third_factor_stdp_synapse - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
+#########################################################################################################################
 
 Description
 +++++++++++
 
-third_factor_stdp is a synapse with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression. Examples::
+third_factor_stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression. Examples::
 
 Multiplicative STDP [2]  mu_plus = mu_minus = 1
 Additive STDP       [3]  mu_plus = mu_minus = 0
@@ -36,7 +36,7 @@ References
     Stable Hebbian learning from spike timing-dependent
     plasticity, Journal of Neuroscience, 20:23,8812--8821
 """
-synapse third_factor_stdp:
+model third_factor_stdp_synapse:
     state:
         w real = 1.   # Synaptic weight
 
@@ -60,8 +60,8 @@ synapse third_factor_stdp:
         inline post_trace real = convolve(post_trace_kernel, post_spikes)
 
     input:
-        pre_spikes real <- spike
-        post_spikes real <- spike
+        pre_spikes <- spike
+        post_spikes <- spike
         I_post_dend pA <- continuous
 
     output:
@@ -82,4 +82,4 @@ synapse third_factor_stdp:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, d)
+        emit_spike(w, d)
