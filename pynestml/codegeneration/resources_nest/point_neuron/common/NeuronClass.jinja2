@@ -1044,8 +1044,10 @@ continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_
   }
 
   // if we get here, there is no entry at time t
+  // XXX: this case should never happen?!
   std::cout << "[neuron " << this << "] XXX FIX ME: no entry at time t = " << t << "! Size = " << continuous_variable_history_.size() << ", first t = " << continuous_variable_history_.begin()->t_ << ", last t = " << std::prev(continuous_variable_history_.end())->t_  <<  "\n";
 
+/*// print the whole deque
   size_t i = 0;
   runner = continuous_variable_history_.begin();
   while ( runner != continuous_variable_history_.end() )
@@ -1053,13 +1055,7 @@ continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_
     std::cout << "[neuron " << this << "] \t" << i << "\t" << runner->t_ << "\n";
     ++runner;
     ++i;
-  }
-
-
-
-
-
-
+  }*/
 
   return continuous_variable_histentry_{{ neuronName }}(0.,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
@@ -1116,7 +1112,7 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
   auto orig = continuous_variable_history_.size();
   while ( continuous_variable_history_.size() > 1 )
   {
-    if ( continuous_variable_history_.front().access_counter_ >= 10 * n_incoming_ )
+    if ( continuous_variable_history_.front().access_counter_ >= 2 * n_incoming_ ) // XXX there shouldn't be a factor here!!!
     {
       continuous_variable_history_.pop_front();
     }
@@ -1126,9 +1122,11 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
     }
   }
 
+#ifdef DEBUG
   if (continuous_variable_history_.size() != orig) {
     std::cout << "[neuron " << this << "] \tpruning history, original size = " << orig << ", new size = " <<  continuous_variable_history_.size() << "\n";
   }
+#endif
 
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
