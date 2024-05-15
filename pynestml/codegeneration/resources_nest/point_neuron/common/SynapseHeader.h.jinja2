@@ -299,7 +299,8 @@ private:
 {%-     endfilter %}
 {%- else %}
     //! Symbolic indices to the elements of the state vector y
-    enum StateVecElems{
+    enum StateVecElems
+    {
 {# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver#}
 {%-   if uses_numeric_solver %}
       // numeric solver state variables
@@ -753,7 +754,6 @@ public:
 
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     double timestep = 0;
-
     {
       // get spike history in relevant range (t1, t2] from post-synaptic neuron
       std::deque< histentry__{{paired_neuron}} >::iterator start;
@@ -810,9 +810,9 @@ public:
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
-/**
- *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
-**/
+  /**
+   *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+  **/
 
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-         with ast = dynamics.get_block() %}
@@ -865,13 +865,12 @@ public:
      *  update all convolutions with pre spikes
     **/
 
-{# {%- for inputLine in synapse.get_spike_buffers() %} #}
 {%- for spike_updates_for_port in spike_updates.values() %}
-{%-     for spike_update in spike_updates_for_port -%}
-    // XXX: TODO: increment with initial value instead of 1
-    {{ printer.print(spike_update.get_variable()) }} += 1.;
+{%-     for spike_update in spike_updates_for_port %}
+    {{ printer.print(spike_update.get_variable()) }} += 1.;    // XXX: TODO: increment with initial value instead of 1
 {%-     endfor %}
 {%- endfor %}
+
 
     /**
      *  in case pre and post spike time coincide and pre update takes priority
@@ -885,7 +884,7 @@ public:
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
 /**
- *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+ *  NESTML generated onReceive code block for postsynaptic port "{{ post_port }}" begins here!
 **/
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-         with ast = dynamics.get_block() %}
@@ -954,14 +953,8 @@ void
   {
     // there is at least 1 dopa spike in (t0, t1]
     // propagate up to first dopa spike
-#ifdef DEBUG
-  std::cout << "\t\tHandling (1) spike at t = " << vt_spikes[ vt_spikes_idx_ +1].spike_time_ << "\n";
-#endif
     update_internal_state_(t0, vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ - t0, cp );
     ++vt_spikes_idx_;
-#ifdef DEBUG
-std::cout<<"\t\tIncrementing n_ from " << S_.n << " to " ;
-#endif
     /**
      *  NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}" begins here!
     **/
@@ -972,17 +965,11 @@ std::cout<<"\t\tIncrementing n_ from " << S_.n << " to " ;
 {%-         include "directives_cpp/Block.jinja2" %}
 {%-     endwith %}
 {%- endfilter %}
-#ifdef DEBUG
-std::cout << S_.n << "\n";
-#endif
     // process remaining dopa spikes in (t0, t1]
     double cd;
     while ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
       and ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
     {
-#ifdef DEBUG
-  std::cout << "\t\tHandling (2) spike at t = " << vt_spikes[ vt_spikes_idx_ ].spike_time_ << "\n";
-#endif
       // propagate up to next dopa spike
       update_internal_state_(vt_spikes[ vt_spikes_idx_ ].spike_time_,
                              vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ - vt_spikes[ vt_spikes_idx_ ].spike_time_,
@@ -990,20 +977,18 @@ std::cout << S_.n << "\n";
       ++vt_spikes_idx_;
 
       /**
-       *  NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}" begins here!
+       *  Begin NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}"
       **/
-#ifdef DEBUG
-std::cout<<"\t\tIncrementing n_ from " << S_.n << " to " ;
-#endif
 {%- filter indent(6, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
 {%-     with ast = dynamics.get_block() %}
 {%-         include "directives_cpp/Block.jinja2" %}
 {%-     endwith %}
 {%- endfilter %}
-#ifdef DEBUG
-std::cout << S_.n << "\n";
-#endif
+
+      /**
+       *  End NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}"
+      **/
     }
 
     // propagate up to t1
@@ -1164,6 +1149,7 @@ get_{{ printer_no_origin.print(variable) }}()
 {%- endfor %});
 
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
+  V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 }
 
@@ -1265,38 +1251,28 @@ template < typename targetidentifierT >
 inline void
 {{synapseName}}< targetidentifierT >::update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp)
 {
-  if (timestep < 1E-12)
-  {
+    if (timestep < 1E-12)
+    {
 #ifdef DEBUG
-    std::cout << "\tupdate_internal_state_() called with dt < 1E-12; skipping update\n" ;
+        std::cout << "\tupdate_internal_state_() called with dt < 1E-12; skipping update\n" ;
 #endif
-    return;
-  }
+        return;
+    }
 
-  const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
-  auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+    const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
+    auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 #ifdef DEBUG
-  std::cout<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
+    std::cout<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
 #endif
-  const double old___h = V_.__h;
-  V_.__h = timestep;
-  recompute_internal_variables();
-{#{%- filter indent(2, True) %}#}
-{#{%- with analytic_state_variables_ = analytic_state_variables %}#}
-{#{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}#}
-{#{%- endwith %}#}
-{#{%- if uses_numeric_solver %}#}
-{#{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}#}
-{#{%- endif %}#}
-{#{%- with analytic_state_variables_ = analytic_state_variables %}#}
-{#{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}#}
-{#{%- endwith %}#}
-{#{%- endfilter %}#}
-{#    V_.__h = old___h;#}
-{#    recompute_internal_variables();  // XXX: can be skipped?#}
 
-    // NESTML generated code for the update block:
+    V_.__h = timestep;
+    assert(V_.__h > 0);
+    recompute_internal_variables();
+
+    /**
+     * Begin NESTML generated code for the update block
+    **/
 
 {%- if synapse.get_update_blocks() %}
 {%-     filter indent(2) %}
@@ -1312,8 +1288,12 @@ inline void
 {%-     endfilter %}
 {%- endif %}
 
+    /**
+     * End NESTML generated code for the update block
+    **/
+
 {%- if vt_ports is defined and vt_ports|length > 0  %}
-  t_last_update_ = t_start + timestep;
+    t_last_update_ = t_start + timestep;
 {%- endif %}
 }
 

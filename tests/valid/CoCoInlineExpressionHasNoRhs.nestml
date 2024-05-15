@@ -31,6 +31,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoInlineExpressionHasNoRhs:
+model CoCoInlineExpressionHasNoRhs:
     equations:
         inline V_rest mV  = 10mV # a rhs is defined, thus everything is correct

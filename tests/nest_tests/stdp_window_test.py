@@ -44,19 +44,19 @@ def nestml_generate_target():
     r"""Generate the neuron model code"""
 
     # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-    files = [os.path.join("models", "neurons", "iaf_psc_delta.nestml"),
-             os.path.join("models", "neurons", "izhikevich.nestml"),
+    files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml"),
+             os.path.join("models", "neurons", "izhikevich_neuron.nestml"),
              os.path.join("models", "synapses", "stdp_synapse.nestml")]
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
                          logging_level="INFO",
                          suffix="_nestml",
-                         codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                                 "synapse": "stdp",
+                         codegen_opts={"neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                                                 "synapse": "stdp_synapse",
                                                                  "post_ports": ["post_spikes"]},
-                                                                {"neuron": "izhikevich",
-                                                                 "synapse": "stdp",
+                                                                {"neuron": "izhikevich_neuron",
+                                                                 "synapse": "stdp_synapse",
                                                                  "post_ports": ["post_spikes"]}]})
 
 
@@ -74,12 +74,13 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     nest.set_verbosity("M_ALL")
 
     nest.ResetKernel()
+    nest.SetKernelStatus({"resolution": resolution})
+
     try:
         nest.Install("nestmlmodule")
     except Exception:
         # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
         pass
-    nest.SetKernelStatus({"resolution": resolution})
 
     wr = nest.Create("weight_recorder")
     if "__with" in synapse_model_name:
@@ -139,8 +140,8 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     return dt, dw
 
 
-@pytest.mark.parametrize("neuron_model_name,synapse_model_name", [("iaf_psc_delta_nestml__with_stdp_nestml", "stdp_nestml__with_iaf_psc_delta_nestml"),
-                                                                  ("izhikevich_nestml__with_stdp_nestml", "stdp_nestml__with_izhikevich_nestml")])
+@pytest.mark.parametrize("neuron_model_name,synapse_model_name", [("iaf_psc_delta_neuron_nestml__with_stdp_synapse_nestml", "stdp_synapse_nestml__with_iaf_psc_delta_neuron_nestml"),
+                                                                  ("izhikevich_neuron_nestml__with_stdp_synapse_nestml", "stdp_synapse_nestml__with_izhikevich_neuron_nestml")])
 def test_nest_stdp_synapse(neuron_model_name: str, synapse_model_name: str, fname_snip: str = ""):
     fname_snip += "_[neuron=" + neuron_model_name + "]"
     fname_snip += "_[synapse=" + synapse_model_name + "]"
