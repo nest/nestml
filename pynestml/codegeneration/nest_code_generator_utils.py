@@ -66,6 +66,7 @@ class NESTCodeGeneratorUtils:
                           target_path: str = "target",
                           post_ports: Optional[List[str]] = None,
                           mod_ports: Optional[List[str]] = None,
+                          codegen_opts: Optional[dict] = None,
                           logging_level: str = "WARNING"):
         """Generate code for a given neuron and synapse model, passed as a string.
         The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
@@ -92,13 +93,8 @@ class NESTCodeGeneratorUtils:
             print(nestml_neuron_model, file=f)
 
         input_fns = [neuron_fn]
-        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                        "neuron_parent_class_include": "structural_plasticity_node.h"}
-        mangled_neuron_name = neuron_model_name + "_nestml"
-
-        input_fns = [neuron_fn]
-        codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
-                        "neuron_parent_class_include": "structural_plasticity_node.h"}
+        _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
+                         "neuron_parent_class_include": "structural_plasticity_node.h"}
         mangled_neuron_name = neuron_model_name + "_nestml"
 
         if nestml_synapse_model:
@@ -113,12 +109,15 @@ class NESTCodeGeneratorUtils:
             with open(synapse_fn, "w") as f:
                 print(nestml_synapse_model, file=f)
             input_fns += [synapse_fn]
-            codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
-                                                     "synapse": synapse_model_name,
-                                                     "post_ports": post_ports,
-                                                     "vt_ports": mod_ports}]
+            _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
+                                                      "synapse": synapse_model_name,
+                                                      "post_ports": post_ports,
+                                                      "vt_ports": mod_ports}]
             mangled_neuron_name = neuron_model_name + "_nestml__with_" + synapse_model_name + "_nestml"
             mangled_synapse_name = synapse_model_name + "_nestml__with_" + neuron_model_name + "_nestml"
+
+        if codegen_opts:
+            _codegen_opts.update(codegen_opts)
 
         if not module_name:
             # generate unique ID
@@ -131,9 +130,9 @@ class NESTCodeGeneratorUtils:
                              module_name=module_name,
                              target_path=target_path,
                              suffix="_nestml",
-                             codegen_opts=codegen_opts)
+                             codegen_opts=_codegen_opts)
 
         if nestml_synapse_model:
             return module_name, mangled_neuron_name, mangled_synapse_name
-        else:
-            return module_name, mangled_neuron_name
+
+        return module_name, mangled_neuron_name
