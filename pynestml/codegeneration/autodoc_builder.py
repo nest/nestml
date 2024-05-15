@@ -353,23 +353,4 @@ class AutodocBuilder(Builder):
                     s_ += "\n"
                     f.write(s_)
 
-        """for model_name in untested_models:
-            model_fname = model_name + ".nestml"
-
-            s += "\n"
-            s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
-            s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
-
-            model_doc_title = get_model_doc_title(os.path.join("models", "neurons", model_fname))
-            if model_doc_title.startswith(model_name):
-                model_doc_title = model_doc_title.removeprefix(model_name)
-                model_doc_title = model_doc_title.removeprefix(" - ")
-
-            s += "\n" + model_doc_title + "\n"
-
-            s += "\n"
-            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" \
-                 + model_fname + ">`_\n"
-            s += "\n" """
-
         return s
