@@ -69,6 +69,19 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "volume_transmitter.h"
 {%- endif %}
 
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+
+#ifndef HAVE_GSL
+#error "The GSL library is required for the Runge-Kutta solver."
+#endif
+
+// External includes:
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv.h>
+{%-     endif %}
+{%- endif %}
 
 // Includes from sli:
 #include "dictdatum.h"
@@ -299,12 +312,13 @@ private:
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
 
-    // state variables from state block
-{%-   filter indent(4,True) %}
-{%-   for variable in synapse.get_state_symbols() %}
-{%-     include "directives_cpp/MemberDeclaration.jinja2" %}
-{%-   endfor %}
-{%-   endfilter %}
+{#    // state variables from state block#}
+{#{%-   filter indent(4,True) %}#}
+{#{%-   for variable_symbol in synapse.get_state_symbols() %}#}
+{#{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}#}
+{#{%-     include "directives_cpp/MemberDeclaration.jinja2" %}#}
+{#{%-   endfor %}#}
+{#{%-   endfilter %}#}
 {%- endif %}
 
     State_() {};
@@ -372,9 +386,40 @@ private:
 {%- endfor %}
   };
 
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+   struct Buffers_
+  {
+
+    // -----------------------------------------------------------------------
+    //   GSL ODE solver data structures
+    // -----------------------------------------------------------------------
+
+    gsl_odeiv_step* __s;    //!< stepping function
+    gsl_odeiv_control* __c; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* __e;  //!< evolution function
+    gsl_odeiv_system __sys; //!< struct describing system
+
+    // __integration_step should be reset with the neuron on ResetNetwork,
+    // but remain unchanged during calibration. Since it is initialized with
+    // step_, and the resolution cannot change after nodes have been created,
+    // it is safe to place both here.
+    double __step;             //!< step size in ms
+    double __integration_step; //!< current integration time step, updated by GSL
+
+    Buffers_() {};
+  };
+{%-     endif %}
+{%- endif %}
+
   Parameters_ P_;  //!< Free parameters.
   State_      S_;  //!< Dynamic state.
   Variables_  V_;  //!< Internal Variables
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
+  Buffers_    B_;  //!< Buffers.
+{%-     endif %}
+{%- endif %}
 {%- if synapse.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for state block
@@ -436,6 +481,8 @@ private:
   update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
 
   void recompute_internal_variables();
+
+   std::string get_name() const;
 
 public:
   // this line determines which common properties to use
@@ -1138,6 +1185,13 @@ void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 {%- endfilter %}
 }
 
+template < typename targetidentifierT >
+std::string {{synapseName}}< targetidentifierT >::get_name() const
+{
+  std::string s ("{{ synapseName }}");
+  return s;
+}
+
 /**
  * constructor
 **/
@@ -1145,7 +1199,13 @@ template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+{%- if uses_numeric_solver %}
+{%-     if numeric_solver == "rk45" %}
 
+  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
+  P_.__gsl_error_tol = 1e-3;
+{%-     endif %}
+{%- endif %}
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
@@ -1222,19 +1282,19 @@ inline void
   const double old___h = V_.__h;
   V_.__h = timestep;
   recompute_internal_variables();
-{%- filter indent(2, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-{%- if uses_numeric_solver %}
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-{%- with analytic_state_variables_ = analytic_state_variables %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
-    V_.__h = old___h;
-    recompute_internal_variables();  // XXX: can be skipped?
+{#{%- filter indent(2, True) %}#}
+{#{%- with analytic_state_variables_ = analytic_state_variables %}#}
+{#{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}#}
+{#{%- endwith %}#}
+{#{%- if uses_numeric_solver %}#}
+{#{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}#}
+{#{%- endif %}#}
+{#{%- with analytic_state_variables_ = analytic_state_variables %}#}
+{#{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}#}
+{#{%- endwith %}#}
+{#{%- endfilter %}#}
+{#    V_.__h = old___h;#}
+{#    recompute_internal_variables();  // XXX: can be skipped?#}
 
     // NESTML generated code for the update block:
 

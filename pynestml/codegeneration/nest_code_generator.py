@@ -559,6 +559,9 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.update_scope(synapse.get_equations_blocks()[0].get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace["numeric_update_expressions"][sym] = expr_ast
+            ASTUtils.assign_numeric_non_numeric_state_variables(synapse, namespace["numeric_state_variables"], namespace[
+                "numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace[
+                                                                    "update_expressions"] if "update_expressions" in namespace.keys() else None)
 
         namespace["spike_updates"] = synapse.spike_updates
 
