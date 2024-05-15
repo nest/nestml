@@ -73,7 +73,7 @@ class SynapseProcessing(MechanismProcessing):
             for kernel_var, spikes_var in kernel_arg_pairs:
                 kernel_name = kernel_var.get_name()
                 spikes_name = spikes_var.get_name()
-                convolution_name = info_collector.construct_kernel_X_spike_buf_name(
+                convolution_name = info_collector.construct_kernel_spike_buf_name(
                     kernel_name, spikes_name, 0)
                 syns_info[synapse_name]["convolutions"][convolution_name] = {
                     "kernel": {
@@ -196,7 +196,7 @@ class SynapseProcessing(MechanismProcessing):
                 expr = ASTUtils.get_expr_from_kernel_var(
                     kernel, kernel_var.get_complete_name())
                 kernel_order = kernel_var.get_differential_order()
-                kernel_X_spike_buf_name_ticks = ASTUtils.construct_kernel_X_spike_buf_name(
+                kernel_X_spike_buf_name_ticks = ASTUtils.construct_kernel_spike_buf_name(
                     kernel_var.get_name(), spike_input_port.get_name(), kernel_order, diff_order_symbol="'")
 
                 ASTUtils.replace_rhs_variables(expr, kernel_buffers)
@@ -207,7 +207,7 @@ class SynapseProcessing(MechanismProcessing):
                 # order (e.g. none for kernel function f(t) = ...; 1 for kernel
                 # ODE f'(t) = ...; 2 for f''(t) = ... and so on)
                 for order in range(kernel_order):
-                    iv_sym_name_ode_toolbox = ASTUtils.construct_kernel_X_spike_buf_name(
+                    iv_sym_name_ode_toolbox = ASTUtils.construct_kernel_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
                     symbol_name_ = kernel_var.get_name() + "'" * order
                     symbol = equations_block.get_scope().resolve_to_symbol(

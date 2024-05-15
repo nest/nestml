@@ -21,11 +21,13 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from pynestml.meta_model.ast_data_type import ASTDataType
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.port_signal_type import PortSignalType
 
 
@@ -58,7 +60,7 @@ class ASTInputPort(ASTNode):
     def __init__(self,
                  name: str,
                  signal_type: PortSignalType,
-                 size_parameter: Optional[str] = None,
+                 size_parameter: Optional[Union[ASTSimpleExpression, ASTExpression]] = None,
                  data_type: Optional[ASTDataType] = None,
                  input_qualifiers: Optional[List[ASTInputQualifier]] = None,
                  *args, **kwargs):
@@ -118,9 +120,9 @@ class ASTInputPort(ASTNode):
         Returns whether a size parameter has been defined.
         :return: True if size has been used, otherwise False.
         """
-        return self.size_parameter is not None
+        return self.size_parameter
 
-    def get_size_parameter(self) -> str:
+    def get_size_parameter(self) -> Optional[Union[ASTSimpleExpression, ASTExpression]]:
         r"""
         Returns the size parameter.
         :return: the size parameter.
@@ -195,48 +197,53 @@ class ASTInputPort(ASTNode):
         """
         return self.data_type
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+    def get_children(self) -> List[ASTNode]:
         r"""
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :return: AST if this or one of the child nodes contains the handed over element.
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
+        children = []
         if self.has_datatype():
-            if self.get_datatype() is ast:
-                return self
-            if self.get_datatype().get_parent(ast) is not None:
-                return self.get_datatype().get_parent(ast)
-        for qual in self.get_input_qualifiers():
-            if qual is ast:
-                return self
-            if qual.get_parent(ast) is not None:
-                return qual.get_parent(ast)
-        return None
+            children.append(self.get_datatype())
 
-    def equals(self, other: Any) -> bool:
+        for qual in self.get_input_qualifiers():
+            children.append(qual)
+
+        if self.get_size_parameter():
+            children.append(self.get_size_parameter())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
         r"""
-        The equals method.
-        :param other: a different object.
-        :return: True if equal,otherwise False.
+        The equality method.
         """
         if not isinstance(other, ASTInputPort):
             return False
+
         if self.get_name() != other.get_name():
             return False
+
         if self.has_size_parameter() + other.has_size_parameter() == 1:
             return False
+
         if (self.has_size_parameter() and other.has_size_parameter()
                 and self.get_input_qualifiers() != other.get_size_parameter()):
             return False
+
         if self.has_datatype() + other.has_datatype() == 1:
             return False
+
         if self.has_datatype() and other.has_datatype() and not self.get_datatype().equals(other.get_datatype()):
             return False
+
         if len(self.get_input_qualifiers()) != len(other.get_input_qualifiers()):
             return False
+
         my_input_qualifiers = self.get_input_qualifiers()
         your_input_qualifiers = other.get_input_qualifiers()
         for i in range(0, len(my_input_qualifiers)):
             if not my_input_qualifiers[i].equals(your_input_qualifiers[i]):
                 return False
+
         return self.is_spike() == other.is_spike() and self.is_continuous() == other.is_continuous()

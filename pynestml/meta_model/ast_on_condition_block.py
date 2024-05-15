@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Mapping
+from typing import Any, List, Optional, Mapping
 
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -82,25 +82,23 @@ class ASTOnConditionBlock(ASTNode):
         """
         return self.cond_expr
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+    def get_children(self) -> List[ASTNode]:
         r"""
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :return: AST if this or one of the child nodes contains the handed over element.
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        if self.get_block() is ast:
-            return self
+        children = []
+        if self.cond_expr:
+            children.append(self.cond_expr)
 
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
+        if self.get_block():
+            children.append(self.get_block())
 
-        return None
+        return children
 
-    def equals(self, other: Any) -> bool:
+    def equals(self, other: ASTNode) -> bool:
         r"""
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
+        The equality method.
         """
         if not isinstance(other, ASTOnConditionBlock):
             return False

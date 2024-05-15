@@ -44,7 +44,7 @@ class CoCoSimpleDeltaFunction(CoCo):
         def check_simple_delta(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "delta":
                 deltafunc = _expr.get_function_call()
-                parent = model.get_parent(_expr)
+                parent = _expr.get_parent()
 
                 # check the argument
                 if not (len(deltafunc.get_args()) == 1

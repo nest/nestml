@@ -207,7 +207,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
                     kernel_name = kernel_var.get_name()
                     spike_input_port = self.input_port_name_to_input_port[spike_var.get_name(
                     )]
-                    kernel_variable_name = self.construct_kernel_X_spike_buf_name(
+                    kernel_variable_name = self.construct_kernel_spike_buf_name(
                         kernel_name, spike_input_port, order)
                     results.append(kernel_variable_name)
 
@@ -338,12 +338,3 @@ class ASTSynapseInformationCollector(ASTVisitor):
     def endvisit_expression(self, node):
         self.inside_expression = False
         self.current_expression = None
-
-    # this method was copied over from ast_transformer
-    # in order to avoid a circular dependency
-    @staticmethod
-    def construct_kernel_X_spike_buf_name(kernel_var_name: str, spike_input_port, order: int, diff_order_symbol="__d"):
-        assert type(kernel_var_name) is str
-        assert type(order) is int
-        assert type(diff_order_symbol) is str
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order

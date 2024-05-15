@@ -815,17 +815,6 @@ public:
     }
 
     /**
-     *  update all convolutions with pre spikes
-    **/
-
-{%- for spike_updates_for_port in spike_updates.values() %}
-{%-     for spike_update in spike_updates_for_port %}
-    {{ printer.print(spike_update.get_variable()) }} += 1.;    // XXX: TODO: increment with initial value instead of 1
-{%-     endfor %}
-{%- endfor %}
-
-
-    /**
      *  in case pre and post spike time coincide and pre update takes priority
     **/
 
@@ -989,14 +978,12 @@ void
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
-{%-         include "directives_cpp/WriteInDictionary.jinja2" %}
-{%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+{%-     include "directives_cpp/WriteInDictionary.jinja2" %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
 // special treatment for variable marked with @nest::name decorator
-{%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
-{%-             if not variable_symbol.is_internals() %}
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         if not variable_symbol.is_internals() %}
 def<{{declarations.print_variable_type(variable_symbol)}}>(__d, names::{{nest_namespace_name}}, get_{{printer_no_origin.print(variable)}}());
-{%-             endif %}
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
@@ -1024,24 +1011,22 @@ void
 {%- filter indent(2,True) %}
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
-{%-         include "directives_cpp/ReadFromDictionaryToTmp.jinja2" %}
-{%-         if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
+{%-     include "directives_cpp/ReadFromDictionaryToTmp.jinja2" %}
+{%-     if variable_symbol.get_namespace_decorator("nest")|length > 0 %}
 // special treatment for variables marked with @nest::name decorator
-{%-             set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
+{%-         set nest_namespace_name = variable_symbol.get_namespace_decorator("nest") %}
 {#- -------- XXX: TODO: this is almost the content of directives_cpp/ReadFromDictionaryToTmp.jinja2 verbatim, refactor this ----------  #}
-{%-             if not variable_symbol.is_inline_expression and not variable_symbol.is_state() %}
+{%-         if not variable_symbol.is_inline_expression and not variable_symbol.is_state() %}
 tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
 updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer_no_origin.print(variable) }});
-{%-             elif not variable_symbol.is_inline_expression and variable_symbol.is_state() %}
+{%-         elif not variable_symbol.is_inline_expression and variable_symbol.is_state() %}
 tmp_{{ printer_no_origin.print(variable) }} = get_{{ printer_no_origin.print(variable) }}();
 updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ nest_namespace_name }}", tmp_{{ printer_no_origin.print(variable) }});
-{%-             else %}
+{%-         else %}
   // ignores '{{ printer_no_origin.print(variable) }}' {{ declarations.print_variable_type(variable_symbol) }}' since it is an function and setter isn't defined
-{%-             endif %}
-{#- -------------------------------------------------------------------------------------------------------------------------------- #}
 {%-         endif %}
-{%-      endif %}
+{#- -------------------------------------------------------------------------------------------------------------------------------- #}
+{%-     endif %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -1069,11 +1054,9 @@ updateValue<{{ declarations.print_variable_type(variable_symbol) }}>(__d, "{{ ne
   // set state
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) %}
-{%-         filter indent(2,True) %}
-{%-             include "directives_cpp/AssignTmpDictionaryValue.jinja2" %}
-{%-         endfilter %}
-{%-     endif %}
+{%-     filter indent(2,True) %}
+{%-         include "directives_cpp/AssignTmpDictionaryValue.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
 
   // check invariants

@@ -19,8 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ast_node import ASTNode
+from typing import List
+
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
+from pynestml.meta_model.ast_node import ASTNode
 
 
 class ASTInlineExpression(ASTNode):
@@ -128,31 +130,23 @@ class ASTInlineExpression(ASTNode):
         """
         return self.expression
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.get_data_type() is ast:
-            return self
-        if self.get_data_type().get_parent(ast) is not None:
-            return self.get_data_type().get_parent(ast)
-        if self.get_expression() is ast:
-            return self
-        if self.get_expression().get_parent(ast) is not None:
-            return self.get_expression().get_parent(ast)
-        return None
+        children = []
+        if self.get_data_type():
+            children.append(self.get_data_type())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.get_expression():
+            children.append(self.get_expression())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTInlineExpression):
             return False

@@ -29,7 +29,6 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.messages import MessageCode
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_input_port import ASTInputPort
 
 
 class LoggingLevel(Enum):

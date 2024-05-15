@@ -50,7 +50,7 @@ class VectorDeclarationVisitor(ASTVisitor):
     def visit_variable(self, node: ASTVariable):
         vector_parameter = node.get_vector_parameter()
         if vector_parameter is not None:
-            if isinstance(self._neuron.get_parent(node), ASTDeclaration):
+            if isinstance(node.get_parent(), ASTDeclaration):
                 # node is being declared: size should be >= 1
                 min_index = 1
 

@@ -44,17 +44,17 @@ sim_ref = True
 
 class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_restr_symm_synapse_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
+    neuron_model_name = "iaf_psc_alpha_neuron_nestml__with_stdp_nn_restr_symm_synapse_nestml"
+    ref_neuron_model_name = "iaf_psc_alpha_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
+    synapse_model_name = "stdp_nn_restr_symm_synapse_nestml__with_iaf_psc_alpha_neuron_nestml"
     ref_synapse_model_name = "stdp_nn_restr_synapse"
 
     def setUp(self):
         r"""Generate the neuron model code"""
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_alpha_neuron.nestml"),
                  os.path.join("models", "synapses", "stdp_nn_restr_symm_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -65,13 +65,13 @@ class NestSTDPNNRestrSymmSynapseTest(unittest.TestCase):
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_alpha_neuron",
                                                                      "synapse": "stdp_nn_restr_symm_synapse",
                                                                      "post_ports": ["post_spikes"]}]})
 
         # generate the "non-jit" model, that relies on ArchivingNode
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_alpha_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",

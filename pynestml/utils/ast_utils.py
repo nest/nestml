@@ -418,6 +418,10 @@ class ASTUtils:
                                                                       ASTSourceLocation.get_added_source_position())
             internal.update_scope(model.get_scope())
             model.get_body().get_body_elements().append(internal)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -433,6 +437,10 @@ class ASTUtils:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             model.get_body().get_body_elements().append(state)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -448,6 +456,20 @@ class ASTUtils:
             block = ASTNodeFactory.create_ast_equations_block(list(),
                                                               ASTSourceLocation.get_added_source_position())
             model.get_body().get_body_elements().append(block)
+
+        model.accept(ASTParentVisitor())
+
+        return model
+
+    @classmethod
+    def create_on_receive_block(cls, model: ASTModel, block: ASTBlock, input_port_name: str) -> ASTModel:
+        """
+        Creates a single onReceive block in the handed over model.
+        :param model: a single model
+        :return: the modified model
+        """
+        # local import since otherwise circular dependency
+
         return model
 
     @classmethod
@@ -538,6 +560,18 @@ class ASTUtils:
         model.accept(remove_state_var_from_integrate_odes_calls_visitor)
 
     @classmethod
+    def add_state_var_to_integrate_odes_calls(cls, model: ASTModel, var: ASTExpression):
+        r"""Add a state variable to the arguments to each integrate_odes() calls in the model."""
+
+        class AddStateVarToIntegrateODEsCallsVisitor(ASTVisitor):
+            def visit_function_call(self, node: ASTFunctionCall):
+                if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+                    expr = ASTNodeFactory.create_ast_simple_expression(variable=var.clone())
+                    node.args.append(expr)
+
+        model.accept(AddStateVarToIntegrateODEsCallsVisitor())
+
+    @classmethod
     def resolve_variables_to_expressions(cls, astnode, analytic_state_variables_moved):
         """receives a list of variable names (as strings) and returns a list of ASTExpressions containing each ASTVariable"""
         expressions = []
@@ -545,7 +579,19 @@ class ASTUtils:
         for var_name in analytic_state_variables_moved:
             node = ASTUtils.get_variable_by_name(astnode, var_name)
             assert node is not None
-            expressions.append(ASTNodeFactory.create_ast_expression(False, None, False, ASTNodeFactory.create_ast_simple_expression(variable=node)))
+            expressions.append(ASTNodeFactory.create_ast_expression(expression=ASTNodeFactory.create_ast_simple_expression(variable=node)))
+
+        return expressions
+
+    @classmethod
+    def resolve_variables_to_simple_expressions(cls, model, vars):
+        """receives a list of variable names (as strings) and returns a list of ASTSimpleExpressions containing each ASTVariable"""
+        expressions = []
+
+        for var_name in vars:
+            node = ASTUtils.get_variable_by_name(model, var_name)
+            assert node is not None
+            expressions.append(ASTNodeFactory.create_ast_simple_expression(variable=node))
 
         return expressions
 
@@ -638,24 +684,26 @@ class ASTUtils:
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
+            ast_ext_var.parent_ = _expr
+
             ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 Logger.log_message(None, -1, "ASTSimpleExpression replacement made (var = " + str(
-                    ast_ext_var.get_name()) + ") in expression: " + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
+                    ast_ext_var.get_name()) + ") in expression: " + str(_expr.get_parent()), None, LoggingLevel.INFO)
                 _expr.set_variable(ast_ext_var)
                 return
 
             if isinstance(_expr, ASTVariable):
-                if isinstance(node.get_parent(_expr), ASTAssignment):
-                    node.get_parent(_expr).lhs = ast_ext_var
+                if isinstance(_expr.get_parent(), ASTAssignment):
+                    _expr.get_parent().lhs = ast_ext_var
                     Logger.log_message(None, -1, "ASTVariable replacement made in expression: "
-                                       + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
-                elif isinstance(node.get_parent(_expr), ASTSimpleExpression) and node.get_parent(_expr).is_variable():
-                    node.get_parent(_expr).set_variable(ast_ext_var)
-                elif isinstance(node.get_parent(_expr), ASTDeclaration):
+                                       + str(_expr.get_parent()), None, LoggingLevel.INFO)
+                elif isinstance(_expr.get_parent(), ASTSimpleExpression) and _expr.get_parent().is_variable():
+                    _expr.get_parent().set_variable(ast_ext_var)
+                elif isinstance(_expr.get_parent(), ASTDeclaration):
                     # variable could occur on the left-hand side; ignore. Only replace if it occurs on the right-hand side.
                     pass
                 else:
@@ -664,12 +712,14 @@ class ASTUtils:
                     raise Exception()
                 return
 
-            p = node.get_parent(var)
+            p = var.get_parent()
             Logger.log_message(None, -1, "Error: unhandled use of variable "
                                + var_name + " in expression " + str(p), None, LoggingLevel.INFO)
             raise Exception()
 
         node.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        node.accept(ASTParentVisitor())
 
     @classmethod
     def add_suffix_to_decl_lhs(cls, decl, suffix: str):
@@ -742,7 +792,7 @@ class ASTUtils:
                         found_parent_assignment = False
                         node_ = node
                         while not found_parent_assignment:
-                            node_ = self.parent_node.get_parent(node_)
+                            node_ = node_.get_parent()
                             # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                             if isinstance(node_, ASTInlineExpression):
                                 found_parent_assignment = True
@@ -789,6 +839,9 @@ class ASTUtils:
                 ast_symbol_table_visitor.block_type_stack.push(block_type)
                 decl.accept(ast_symbol_table_visitor)
                 ast_symbol_table_visitor.block_type_stack.pop()
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        to_block.accept(ASTParentVisitor())
 
         return decls
 
@@ -1008,11 +1061,16 @@ class ASTUtils:
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
         neuron.add_to_internals_block(ast_declaration)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        neuron.accept(ASTParentVisitor())
+
         ast_declaration.update_scope(neuron.get_internals_blocks()[0].get_scope())
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.INTERNALS)
         ast_declaration.accept(symtable_visitor)
         symtable_visitor.block_type_stack.pop()
+
         return neuron
 
     @classmethod
@@ -1050,6 +1108,9 @@ class ASTUtils:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
         neuron.add_to_state_block(ast_declaration)
 
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        neuron.accept(ASTParentVisitor())
+
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.STATE)
         ast_declaration.accept(symtable_visitor)
@@ -1079,45 +1140,80 @@ class ASTUtils:
         return False
 
     @classmethod
-    def add_assignment_to_update_block(cls, assignment: ASTAssignment, neuron: ASTModel) -> ASTModel:
+    def add_assignment_to_update_block(cls, assignment: ASTAssignment, model: ASTModel) -> ASTModel:
         """
-        Adds a single assignment to the end of the update block of the handed over neuron. At most one update block should be present.
+        Adds a single assignment to the end of the update block of the handed over model. At most one update block should be present.
 
         :param assignment: a single assignment
-        :param neuron: a single neuron instance
-        :return: the modified neuron
+        :param model: a single model instance
+        :return: the modified model
         """
-        assert len(neuron.get_update_blocks()) <= 1, "At most one update block should be present"
+        assert len(model.get_update_blocks()) <= 1, "At most one update block should be present"
         small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=assignment,
                                                           source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                               source_position=ASTSourceLocation.get_added_source_position())
-        if not neuron.get_update_blocks():
-            neuron.create_empty_update_block()
-        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        return neuron
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+        model.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
 
     @classmethod
-    def add_declaration_to_update_block(cls, declaration: ASTDeclaration, neuron: ASTModel) -> ASTModel:
+    def add_function_call_to_update_block(cls, function_call: ASTFunctionCall, model: ASTModel) -> ASTModel:
         """
-        Adds a single declaration to the end of the update block of the handed over neuron.
+        Adds a single assignment to the end of the update block of the handed over model.
+
+        :param function_call: a single function call
+        :param neuron: a single model instance
+        :return: the modified model
+        """
+        assert len(model.get_update_blocks()) <= 1, "At most one update block should be present"
+
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+
+        small_stmt = ASTNodeFactory.create_ast_small_stmt(function_call=function_call,
+                                                          source_position=ASTSourceLocation.get_added_source_position())
+        stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
+                                              source_position=ASTSourceLocation.get_added_source_position())
+        model.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
+
+    @classmethod
+    def add_declaration_to_update_block(cls, declaration: ASTDeclaration, model: ASTModel) -> ASTModel:
+        """
+        Adds a single declaration to the end of the update block of the handed over model.
         :param declaration: ASTDeclaration node to add
-        :param neuron: a single neuron instance
-        :return: a modified neuron
+        :param model: a single model instance
+        :return: a modified model
         """
-        assert len(neuron.get_update_blocks()) <= 1, "At most one update block should be present"
+        assert len(model.get_update_blocks()) <= 1, "At most one update block should be present"
         small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=declaration,
                                                           source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                               source_position=ASTSourceLocation.get_added_source_position())
-        if not neuron.get_update_blocks():
-            neuron.create_empty_update_block()
-        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        return neuron
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+        model.get_update_blocks()[0].get_block().get_stmts().append(stmt)
+        small_stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+        stmt.update_scope(model.get_update_blocks()[0].get_block().get_scope())
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
 
     @classmethod
     def add_state_updates(cls, neuron: ASTModel, update_expressions: Mapping[str, str]) -> ASTModel:
@@ -1131,6 +1227,7 @@ class ASTUtils:
         for variable, update_expression in update_expressions.items():
             declaration_statement = variable + '__tmp real = ' + update_expression
             cls.add_declaration_to_update_block(ModelParser.parse_declaration(declaration_statement), neuron)
+
         for variable, update_expression in update_expressions.items():
             cls.add_assignment_to_update_block(ModelParser.parse_assignment(variable + ' = ' + variable + '__tmp'),
                                                neuron)
@@ -1239,7 +1336,7 @@ class ASTUtils:
 
     @classmethod
     def get_expr_from_kernel_var(cls, kernel: ASTKernel, var_name: str) -> Union[ASTExpression, ASTSimpleExpression]:
-        """
+        r"""
         Get the expression using the kernel variable
         """
         assert isinstance(var_name, str)
@@ -1255,121 +1352,8 @@ class ASTUtils:
         return var_names
 
     @classmethod
-    def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
-                                          diff_order_symbol="__d"):
-        """
-        Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
-
-        For example, if the kernel is
-        .. code-block::
-            kernel I_kernel = exp(-t / tau_x)
-
-        and the input port is
-        .. code-block::
-            pre_spikes nS <- spike
-
-        then the constructed variable will be 'I_kernel__X__pre_pikes'
-        """
-        assert type(kernel_var_name) is str
-        assert type(order) is int
-        assert type(diff_order_symbol) is str
-
-        if isinstance(spike_input_port, ASTSimpleExpression):
-            spike_input_port = spike_input_port.get_variable()
-
-        if not isinstance(spike_input_port, str):
-            spike_input_port_name = spike_input_port.get_name()
-        else:
-            spike_input_port_name = spike_input_port
-
-        if isinstance(spike_input_port, ASTVariable):
-            if spike_input_port.has_vector_parameter():
-                spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
-
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
-
-    @classmethod
-    def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
-                             spike_buf: ASTInputPort):
-        """
-        Replace variable names in definitions of kernel dynamics
-        :param expr: expression in which to replace the variables
-        :param variable_name_to_replace: variable name to replace in the expression
-        :param kernel_var: kernel variable instance
-        :param spike_buf: input port instance
-        :return:
-        """
-        def replace_kernel_var(node):
-            if type(node) is ASTSimpleExpression \
-                    and node.is_variable() \
-                    and node.get_variable().get_name() == variable_name_to_replace:
-                var_order = node.get_variable().get_differential_order()
-                new_variable_name = cls.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
-                new_variable = ASTVariable(new_variable_name, var_order)
-                new_variable.set_source_position(node.get_variable().get_source_position())
-                node.set_variable(new_variable)
-
-        expr.accept(ASTHigherOrderVisitor(visit_funcs=replace_kernel_var))
-
-    @classmethod
-    def replace_rhs_variables(cls, expr: ASTExpression, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
-        """
-        Replace variable names in definitions of kernel dynamics.
-
-        Say that the kernel is
-
-        .. code-block::
-
-            G = -G / tau
-
-        Its variable symbol might be replaced by "G__X__spikesEx":
-
-        .. code-block::
-
-            G__X__spikesEx = -G / tau
-
-        This function updates the right-hand side of `expr` so that it would also read (in this example):
-
-        .. code-block::
-
-            G__X__spikesEx = -G__X__spikesEx / tau
-
-        These equations will later on be fed to ode-toolbox, so we use the symbol "'" to indicate differential order.
-
-        Note that for kernels/systems of ODE of dimension > 1, all variable orders and all variables for this kernel will already be present in `kernel_buffers`.
-        """
-        for kernel, spike_buf in kernel_buffers:
-            for kernel_var in kernel.get_variables():
-                variable_name_to_replace = kernel_var.get_name()
-                cls.replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace,
-                                         kernel_var=kernel_var, spike_buf=spike_buf)
-
-    @classmethod
-    def is_delta_kernel(cls, kernel: ASTKernel) -> bool:
-        """
-        Catches definition of kernel, or reference (function call or variable name) of a delta kernel function.
-        """
-        if type(kernel) is ASTKernel:
-            if not len(kernel.get_variables()) == 1:
-                # delta kernel not allowed if more than one variable is defined in this kernel
-                return False
-            expr = kernel.get_expressions()[0]
-        else:
-            expr = kernel
-
-        rhs_is_delta_kernel = type(expr) is ASTSimpleExpression \
-            and expr.is_function_call() \
-            and expr.get_function_call().get_scope().resolve_to_symbol(expr.get_function_call().get_name(), SymbolKind.FUNCTION).equals(PredefinedFunctions.name2function["delta"])
-        rhs_is_multiplied_delta_kernel = type(expr) is ASTExpression \
-            and type(expr.get_rhs()) is ASTSimpleExpression \
-            and expr.get_rhs().is_function_call() \
-            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION).equals(PredefinedFunctions.name2function["delta"])
-        return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
-
-    @classmethod
     def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> ASTInputPort:
-        """
+        r"""
         Get the input port given the port name
         :param input_block: block to be searched
         :param port_name: name of the input port
@@ -1384,8 +1368,10 @@ class ASTUtils:
                     port_name, port_index = port_name.split("_")
                     assert int(port_index) > 0
                     assert int(port_index) <= size_parameter
+
                 if input_port.name == port_name:
                     return input_port
+
         return None
 
     @classmethod
@@ -1401,6 +1387,7 @@ class ASTUtils:
                 for var in decl.get_variables():
                     if var.get_name() == var_name:
                         return decl
+
         return None
 
     @classmethod
@@ -1605,37 +1592,6 @@ class ASTUtils:
             i += 1
 
         return list(set(vars_used))
-
-    @classmethod
-    def remove_initial_values_for_kernels(cls, model: ASTModel) -> None:
-        """
-        Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ODE-toolbox.
-        """
-        symbols_to_remove = set()
-        for equations_block in model.get_equations_blocks():
-            for kernel in equations_block.get_kernels():
-                for kernel_var in kernel.get_variables():
-                    kernel_var_order = kernel_var.get_differential_order()
-                    for order in range(kernel_var_order):
-                        symbol_name = kernel_var.get_name() + "'" * order
-                        symbols_to_remove.add(symbol_name)
-
-        decl_to_remove = set()
-        for symbol_name in symbols_to_remove:
-            for state_block in model.get_state_blocks():
-                for decl in state_block.get_declarations():
-                    if len(decl.get_variables()) == 1:
-                        if decl.get_variables()[0].get_name() == symbol_name:
-                            decl_to_remove.add(decl)
-                    else:
-                        for var in decl.get_variables():
-                            if var.get_name() == symbol_name:
-                                decl.variables.remove(var)
-
-        for decl in decl_to_remove:
-            for state_block in model.get_state_blocks():
-                if decl in state_block.get_declarations():
-                    state_block.get_declarations().remove(decl)
 
     @classmethod
     def update_initial_values_for_odes(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
@@ -1865,53 +1821,12 @@ class ASTUtils:
         return visitor.calls
 
     @classmethod
-    def create_initial_values_for_kernels(cls, model: ASTModel, solver_dicts: List[Dict], kernels: List[ASTKernel]) -> None:
-        r"""
-        Add the variables used in kernels from the ode-toolbox result dictionary as ODEs in NESTML AST
+    def transform_odes_to_json(cls,
+                               model: ASTModel,
+                               parameters_blocks: Sequence[ASTBlockWithVariables],
+                               printer: ASTPrinter) -> Dict:
         """
-        for solver_dict in solver_dicts:
-            if solver_dict is None:
-                continue
-
-            for var_name in solver_dict["initial_values"].keys():
-                if cls.variable_in_kernels(var_name, kernels):
-                    # original initial value expressions should have been removed to make place for ode-toolbox results
-                    assert not cls.declaration_in_state_block(model, var_name)
-
-        for solver_dict in solver_dicts:
-            if solver_dict is None:
-                continue
-
-            for var_name, expr in solver_dict["initial_values"].items():
-                # overwrite is allowed because initial values might be repeated between numeric and analytic solver
-                if cls.variable_in_kernels(var_name, kernels):
-                    spike_in_port_name = var_name.split("__X__")[1]
-                    spike_in_port_name = spike_in_port_name.split("__d")[0]
-                    spike_in_port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), spike_in_port_name)
-                    type_str = "real"
-                    if spike_in_port:
-                        differential_order: int = len(re.findall("__d", var_name))
-                        if differential_order:
-                            type_str = "(s**-" + str(differential_order) + ")"
-
-                    expr = "0 " + type_str    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is 0 (property of the convolution)
-                    if not cls.declaration_in_state_block(model, var_name):
-                        cls.add_declaration_to_state_block(model, var_name, expr, type_str)
-
-    @classmethod
-    def transform_ode_and_kernels_to_json(cls, model: ASTModel, parameters_blocks: Sequence[ASTBlockWithVariables],
-                                          kernel_buffers: Mapping[ASTKernel, ASTInputPort], printer: ASTPrinter) -> Dict:
-        """
-        Converts AST node to a JSON representation suitable for passing to ode-toolbox.
-
-        Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
-
-         .. code-block::
-
-           convolve(G, exc_spikes)
-           convolve(G, inh_spikes)
-
-        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
+        Converts to a JSON representation suitable for passing to ode-toolbox.
         """
         odetoolbox_indict = {}
 
@@ -1933,37 +1848,6 @@ class ASTUtils:
                     if initial_value_expr:
                         expr = printer.print(initial_value_expr)
                         entry["initial_values"][cls.to_ode_toolbox_name(iv_symbol_name)] = expr
-
-                odetoolbox_indict["dynamics"].append(entry)
-
-        # write a copy for each (kernel, spike buffer) combination
-        for kernel, spike_input_port in kernel_buffers:
-
-            if cls.is_delta_kernel(kernel):
-                # delta function -- skip passing this to ode-toolbox
-                continue
-
-            for kernel_var in kernel.get_variables():
-                expr = cls.get_expr_from_kernel_var(kernel, kernel_var.get_complete_name())
-                kernel_order = kernel_var.get_differential_order()
-                kernel_X_spike_buf_name_ticks = cls.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'")
-
-                cls.replace_rhs_variables(expr, kernel_buffers)
-
-                entry = {"expression": kernel_X_spike_buf_name_ticks + " = " + str(expr), "initial_values": {}}
-
-                # initial values need to be declared for order 1 up to kernel order (e.g. none for kernel function
-                # f(t) = ...; 1 for kernel ODE f'(t) = ...; 2 for f''(t) = ... and so on)
-                for order in range(kernel_order):
-                    iv_sym_name_ode_toolbox = cls.construct_kernel_X_spike_buf_name(
-                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
-                    symbol_name_ = kernel_var.get_name() + "'" * order
-                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
-                    assert symbol is not None, "Could not find initial value for variable " + symbol_name_
-                    initial_value_expr = symbol.get_declaring_expression()
-                    assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][iv_sym_name_ode_toolbox] = printer.print(initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
 
@@ -2057,52 +1941,6 @@ class ASTUtils:
         return definitions
 
     @classmethod
-    def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:
-        r"""
-        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
-        """
-        delta_factors = {}
-
-        for ode_eq in equations_block.get_ode_equations():
-            var = ode_eq.get_lhs()
-            expr = ode_eq.get_rhs()
-            conv_calls = ASTUtils.get_convolve_function_calls(expr)
-            for conv_call in conv_calls:
-                assert len(
-                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
-                kernel = conv_call.args[0]
-                if cls.is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
-                    inport = conv_call.args[1].get_variable()
-                    expr_str = str(expr)
-                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str, global_dict=odetoolbox.Shape._sympy_globals)
-                    sympy_expr = sympy.expand(sympy_expr)
-                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call), global_dict=odetoolbox.Shape._sympy_globals)
-                    factor_str = []
-                    for term in sympy.Add.make_args(sympy_expr):
-                        if term.find(sympy_conv_expr):
-                            factor_str.append(str(term.replace(sympy_conv_expr, 1)))
-                    factor_str = " + ".join(factor_str)
-                    delta_factors[(var, inport)] = factor_str
-
-        return delta_factors
-
-    @classmethod
-    def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> ASTDeclaration:
-        r"""
-        Removes all kernels in equations blocks.
-        """
-        for equations_block in model.get_equations_blocks():
-            decl_to_remove = set()
-            for decl in equations_block.get_declarations():
-                if type(decl) is ASTKernel:
-                    decl_to_remove.add(decl)
-
-            for decl in decl_to_remove:
-                equations_block.get_declarations().remove(decl)
-
-        return decl_to_remove
-
-    @classmethod
     def add_timestep_symbol(cls, model: ASTModel) -> None:
         """
         Add timestep variable to the internals block
@@ -2113,70 +1951,6 @@ class ASTUtils:
         assert not "__h" in [sym.name for sym in model.get_internal_symbols(
         )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         model.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
-
-    @classmethod
-    def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:
-        """
-        For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel, spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.
-        """
-
-        kernel_buffers = set()
-        convolve_calls = ASTUtils.get_convolve_function_calls(equations_block)
-        for convolve in convolve_calls:
-            el = (convolve.get_args()[0], convolve.get_args()[1])
-            sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
-            if sym is None:
-                raise Exception("No initial value(s) defined for kernel with variable \""
-                                + convolve.get_args()[0].get_variable().get_complete_name() + "\"")
-            if sym.block_type == BlockType.INPUT:
-                # swap the order
-                el = (el[1], el[0])
-
-            # find the corresponding kernel object
-            var = el[0].get_variable()
-            assert var is not None
-            kernel = model.get_kernel_by_name(var.get_name())
-            assert kernel is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(
-                el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
-
-            el = (kernel, el[1])
-            kernel_buffers.add(el)
-
-        return kernel_buffers
-
-    @classmethod
-    def replace_convolution_aliasing_inlines(cls, neuron: ASTModel) -> None:
-        """
-        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
-        """
-        def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
-            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                var = _expr.get_variable()
-                if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
-                                               differential_order=0)
-                    ast_variable.set_source_position(var.get_source_position())
-                    _expr.set_variable(ast_variable)
-
-            elif isinstance(_expr, ASTVariable):
-                var = _expr
-                if var.get_name() == replace_var_name:
-                    var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
-                    var.set_differential_order(0)
-
-        for equation_block in neuron.get_equations_blocks():
-            for decl in equation_block.get_declarations():
-                if isinstance(decl, ASTInlineExpression):
-                    expr = decl.get_expression()
-                    if isinstance(expr, ASTExpression):
-                        expr = expr.get_lhs()
-
-                    if isinstance(expr, ASTSimpleExpression) \
-                            and '__X__' in str(expr) \
-                            and expr.get_variable():
-                        replace_with_var_name = expr.get_variable().get_name()
-                        neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
-                            x, decl.get_variable_name(), replace_with_var_name)))
 
     @classmethod
     def replace_variable_names_in_expressions(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
@@ -2205,42 +1979,6 @@ class ASTUtils:
             return replace_var(x)
 
         model.accept(ASTHigherOrderVisitor(func))
-
-    @classmethod
-    def replace_convolve_calls_with_buffers_(cls, model: ASTModel, equations_block: ASTEquationsBlock) -> None:
-        r"""
-        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
-        """
-
-        def replace_function_call_through_var(_expr=None):
-            if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
-                convolve = _expr.get_function_call()
-                el = (convolve.get_args()[0], convolve.get_args()[1])
-                sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
-                    convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
-                if sym.block_type == BlockType.INPUT:
-                    # swap elements
-                    el = (el[1], el[0])
-                var = el[0].get_variable()
-                spike_input_port = el[1].get_variable()
-                kernel = model.get_kernel_by_name(var.get_name())
-
-                _expr.set_function_call(None)
-                buffer_var = cls.construct_kernel_X_spike_buf_name(
-                    var.get_name(), spike_input_port, var.get_differential_order() - 1)
-                if cls.is_delta_kernel(kernel):
-                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
-                    _expr.set_variable(None)
-                    _expr.set_numeric_literal(0)
-                else:
-                    ast_variable = ASTVariable(buffer_var)
-                    ast_variable.set_source_position(_expr.get_source_position())
-                    _expr.set_variable(ast_variable)
-
-        def func(x):
-            return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
-
-        equations_block.accept(ASTHigherOrderVisitor(func))
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):
@@ -2290,7 +2028,7 @@ class ASTUtils:
     @classmethod
     def get_convolve_function_calls(cls, nodes: Union[ASTNode, List[ASTNode]]):
         """
-        Returns all sum function calls in the handed over meta_model node or one of its children.
+        Returns all convolve function calls in the handed over node.
         :param nodes: a single or list of AST nodes.
         """
         if isinstance(nodes, ASTNode):
@@ -2303,13 +2041,12 @@ class ASTUtils:
         return function_calls
 
     @classmethod
-    def contains_convolve_function_call(cls, ast: ASTNode) -> bool:
+    def contains_convolve_function_call(cls, node: ASTNode) -> bool:
         """
-        Indicates whether _ast or one of its child nodes contains a sum call.
-        :param ast: a single meta_model
+        Indicates whether the node contains any convolve function call.
         :return: True if sum is contained, otherwise False.
         """
-        return len(cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)) > 0
+        return len(cls.get_function_calls(node, PredefinedFunctions.CONVOLVE)) > 0
 
     @classmethod
     def get_function_calls(cls, ast_node: ASTNode, function_list: List[str]) -> List[ASTFunctionCall]:
@@ -2433,13 +2170,6 @@ class ASTUtils:
         if numeric_update_expressions:
             for expr in numeric_update_expressions.values():
                 expr.accept(visitor)
-
-        for update_expr_list in neuron.spike_updates.values():
-            for update_expr in update_expr_list:
-                update_expr.accept(visitor)
-
-        for update_expr in neuron.post_spike_updates.values():
-            update_expr.accept(visitor)
 
         for node in neuron.equations_with_delay_vars + neuron.equations_with_vector_vars:
             node.accept(visitor)

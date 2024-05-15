@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
 
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -156,43 +157,28 @@ class ASTSmallStmt(ASTNode):
         """
         return self.return_stmt
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_assignment():
-            if self.get_assignment() is ast:
-                return self
-            if self.get_assignment().get_parent(ast) is not None:
-                return self.get_assignment().get_parent(ast)
-        if self.is_function_call():
-            if self.get_function_call() is ast:
-                return self
-            if self.get_function_call().get_parent(ast) is not None:
-                return self.get_function_call().get_parent(ast)
-        if self.is_declaration():
-            if self.get_declaration() is ast:
-                return self
-            if self.get_declaration().get_parent(ast) is not None:
-                return self.get_declaration().get_parent(ast)
-        if self.is_return_stmt():
-            if self.get_return_stmt() is ast:
-                return self
-            if self.get_return_stmt().get_parent(ast) is not None:
-                return self.get_return_stmt().get_parent(ast)
-        return None
+            return [self.get_assignment()]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object
-        :type other: object
-        :return: True if equals, otherwise False.
-        :rtype: bool
+        if self.is_function_call():
+            return [self.get_function_call()]
+
+        if self.is_declaration():
+            return [self.get_declaration()]
+
+        if self.is_return_stmt():
+            return [self.get_return_stmt()]
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTSmallStmt):
             return False
