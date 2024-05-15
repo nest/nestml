@@ -107,56 +107,58 @@ class AutodocBuilder(Builder):
         t_stop = 100.  # [ms]
         t_pulse_start = 10. # [ms]
         t_pulse_stop = 90. # [ms]
-
-        fig, ax = plt.subplots(2, 1)
         I_stim_vec = np.linspace(I_min, I_max, N)
-        for i, I_stim in enumerate(I_stim_vec):
-            nest.ResetKernel()
-            nest.Install("nestml_autodoc_module")
-            nest.SetKernelStatus({"resolution": .01})    # aeif_cond_exp model requires resolution <= 0.01 ms
 
-            neuron = nest.Create(model_name, params=model_opts)
-            if model_initial_state is not None:
-                nest.SetStatus(neuron, model_initial_state)
+        for figsize, fname_snip in zip([(8, 5), (4, 3)], ["", "_small"]):
+            fig, ax = plt.subplots(2, 1, height_ratios=[2, 1], figsize=figsize)
 
-            dc = nest.Create("dc_generator", params={"amplitude": 0.})
-            nest.Connect(dc, neuron)
+            for i, I_stim in enumerate(I_stim_vec):
+                nest.ResetKernel()
+                nest.Install("nestml_autodoc_module")
+                nest.SetKernelStatus({"resolution": .01})    # aeif_cond_exp model requires resolution <= 0.01 ms
 
-            V_m_specifier = "V_m"
-            multimeter = nest.Create("multimeter")
-            nest.SetStatus(multimeter, {"record_from": [V_m_specifier]})
-            nest.Connect(multimeter, neuron)
+                neuron = nest.Create(model_name, params=model_opts)
+                if model_initial_state is not None:
+                    nest.SetStatus(neuron, model_initial_state)
 
-            sr = nest.Create("spike_recorder")
-            nest.Connect(neuron, sr)
+                dc = nest.Create("dc_generator", params={"amplitude": 0.})
+                nest.Connect(dc, neuron)
 
-            nest.Simulate(t_pulse_start)
-            dc.amplitude = I_stim * 1E12  # 1E12: convert A to pA
+                V_m_specifier = "V_m"
+                multimeter = nest.Create("multimeter")
+                nest.SetStatus(multimeter, {"record_from": [V_m_specifier]})
+                nest.Connect(multimeter, neuron)
 
-            nest.Simulate(t_pulse_stop)
-            dc.amplitude = 0.
+                sr = nest.Create("spike_recorder")
+                nest.Connect(neuron, sr)
 
-            nest.Simulate(t_stop - t_pulse_stop)
+                nest.Simulate(t_pulse_start)
+                dc.amplitude = I_stim * 1E12  # 1E12: convert A to pA
 
-            dmm = nest.GetStatus(multimeter)[0]
-            Vms = dmm["events"][V_m_specifier]
-            ts = dmm["events"]["times"]
+                nest.Simulate(t_pulse_stop)
+                dc.amplitude = 0.
 
-            ax[0].plot(ts, Vms, label=str(I_stim * 1E12))
-            ax[0].set_ylabel(r"$V_m$")
-            ax[1].plot([0, t_pulse_start, t_pulse_start+1E-12, t_pulse_stop, t_pulse_stop+1E-12, t_stop], [0, 0, I_stim * 1E12, I_stim * 1E12, 0, 0], label=str(I_stim * 1E12))
-            ax[1].set_ylabel(r"$I_\text{stim}$")
+                nest.Simulate(t_stop - t_pulse_stop)
 
-        for _ax in ax:
-            #_ax.legend(loc="upper right")
-            _ax.grid()
-            _ax.ticklabel_format(useOffset=False)  # Disable offset on current axis
+                dmm = nest.GetStatus(multimeter)[0]
+                Vms = dmm["events"][V_m_specifier]
+                ts = dmm["events"]["times"]
 
-        ax[-1].set_xlabel("Time [ms]")
+                ax[0].plot(ts, Vms, label=str(I_stim * 1E12))
+                ax[0].set_ylabel(r"$V_m$")
+                ax[1].plot([0, t_pulse_start, t_pulse_start+1E-12, t_pulse_stop, t_pulse_stop+1E-12, t_stop], [0, 0, I_stim * 1E12, I_stim * 1E12, 0, 0], label=str(I_stim * 1E12))
+                ax[1].set_ylabel(r"$I_\text{stim}$")
 
-        plt.savefig(os.path.join(self.target_path, "nestml_current_pulse_response_[" + model_name + "].png"))
-        plt.close(fig)
+            for _ax in ax:
+                #_ax.legend(loc="upper right")
+                _ax.grid()
+                _ax.ticklabel_format(useOffset=False)  # Disable offset on current axis
 
+            ax[-1].set_xlabel("Time [ms]")
+
+            plt.tight_layout()
+            plt.savefig(os.path.join(self.target_path, "nestml_current_pulse_response_[" + model_name + "]" + fname_snip + ".png"))
+            plt.close(fig)
 
     def _test_model_fI_curve(self, model_name, model_opts=None, model_initial_state=None):
         r"""Make f-I curve"""
