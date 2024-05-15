@@ -88,7 +88,10 @@ class ASTNode(metaclass=ABCMeta):
         Get the parent of this node.
         :return: The parent node
         """
-        assert "parent_" in dir(self), "Need to ensure ASTParentVisitor has been run on the AST"
+        assert "parent_" in dir(self), "No parent known, please ensure ASTParentVisitor has been run on the AST"
+
+        if self.parent_:
+            assert self in self.parent_.get_children(), "Doubly linked tree is inconsistent: please ensure ASTParentVisitor has been run on the AST"
 
         return self.parent_
 
