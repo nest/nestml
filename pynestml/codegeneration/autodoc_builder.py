@@ -60,7 +60,6 @@ class AutodocBuilder(Builder):
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-
     def generate_model_docs(self):
         self.model_doc_rst += "Models library\n==============\n\n"
         self.model_doc_rst += "Neuron models\n~~~~~~~~~~~~~\n\n"
@@ -98,15 +97,14 @@ class AutodocBuilder(Builder):
         self._test_model_current_pulse(model_name)
         self._test_model_fI_curve(model_name)
 
-
     def _test_model_current_pulse(self, model_name, I_min=-100E-12, I_max=500E-12, N=6,
-                             model_opts=None, model_initial_state=None):
+                                  model_opts=None, model_initial_state=None):
         r"""Make current pulse curve"""
         import nest
 
         t_stop = 100.  # [ms]
-        t_pulse_start = 10. # [ms]
-        t_pulse_stop = 90. # [ms]
+        t_pulse_start = 10.  # [ms]
+        t_pulse_stop = 90.  # [ms]
         I_stim_vec = np.linspace(I_min, I_max, N)
 
         for figsize, fname_snip in zip([(8, 5), (4, 3)], ["", "_small"]):
@@ -146,11 +144,10 @@ class AutodocBuilder(Builder):
 
                 ax[0].plot(ts, Vms, label=str(I_stim * 1E12))
                 ax[0].set_ylabel(r"$V_m$")
-                ax[1].plot([0, t_pulse_start, t_pulse_start+1E-12, t_pulse_stop, t_pulse_stop+1E-12, t_stop], [0, 0, I_stim * 1E12, I_stim * 1E12, 0, 0], label=str(I_stim * 1E12))
+                ax[1].plot([0, t_pulse_start, t_pulse_start + 1E-12, t_pulse_stop, t_pulse_stop + 1E-12, t_stop], [0, 0, I_stim * 1E12, I_stim * 1E12, 0, 0], label=str(I_stim * 1E12))
                 ax[1].set_ylabel(r"$I_\text{stim}$")
 
             for _ax in ax:
-                #_ax.legend(loc="upper right")
                 _ax.set_xlim(0., nest.biological_time)
                 _ax.grid()
                 _ax.ticklabel_format(useOffset=False)  # Disable offset on current axis
@@ -376,4 +373,3 @@ class AutodocBuilder(Builder):
             s += "\n" """
 
         return s
-
