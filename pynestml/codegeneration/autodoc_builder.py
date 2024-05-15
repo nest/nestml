@@ -151,6 +151,7 @@ class AutodocBuilder(Builder):
 
             for _ax in ax:
                 #_ax.legend(loc="upper right")
+                _ax.set_xlim(0., nest.biological_time)
                 _ax.grid()
                 _ax.ticklabel_format(useOffset=False)  # Disable offset on current axis
 
@@ -318,17 +319,17 @@ class AutodocBuilder(Builder):
             if model_name in self._characterised_models:
                 s += ".. list-table::\n"
                 s += "\n"
-                s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                s += "   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                     "/nestml_psp_[" + \
                     model_name + "_nestml]_small.png\n"
                 s += "          :alt: " + model_name + "\n"
                 s += "\n"
-                s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                s += "     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                     "/nestml_current_pulse_response_[" + \
                     model_name + "_nestml]_small.png\n"
                 s += "          :alt: " + model_name + "\n"
                 s += "\n"
-                s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                s += "     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                     "/nestml_fI_curve_[" + \
                     model_name + "_nestml]_small.png\n"
                 s += "          :alt: " + model_name + "\n"
@@ -336,19 +337,19 @@ class AutodocBuilder(Builder):
 
                 with open(os.path.join(self.target_path, model_name + "_characterisation.rst"), "w") as f:
                     s_ = "Synaptic response\n-----------------\n\n"
-                    s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                    s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                         "/nestml_psp_[" + \
                         model_name + "_nestml].png\n"
                     s_ += "   :alt: " + model_name + " postsynaptic response\n"
                     s_ += "\n"
                     s_ += "Response to pulse current injection\n---------\n\n"
-                    s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                    s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                         "/nestml_current_pulse_response_[" + \
                         model_name + "_nestml].png\n"
                     s_ += "   :alt: " + model_name + " current pulse response\n"
                     s_ += "\n"
                     s_ += "f-I curve\n---------\n\n"
-                    s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                    s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                         "/nestml_fI_curve_[" + \
                         model_name + "_nestml].png\n"
                     s_ += "   :alt: " + model_name + " f-I curve\n"

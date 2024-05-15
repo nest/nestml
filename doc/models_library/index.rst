@@ -22,13 +22,13 @@ Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[aeif_cond_exp_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[aeif_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[aeif_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
 
@@ -49,13 +49,13 @@ Source file: `hh_cond_exp_traub_neuron.nestml <https://www.github.com/nest/nestm
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hh_cond_exp_traub_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hh_cond_exp_traub_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hh_cond_exp_traub_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
 
@@ -76,13 +76,13 @@ Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blo
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hh_psc_alpha_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hh_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hh_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
 
@@ -103,13 +103,13 @@ Source file: `iaf_chxk_2008_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_chxk_2008_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_chxk_2008_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_chxk_2008_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
 
@@ -122,13 +122,13 @@ Source file: `iaf_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/b
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_alpha_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
 
@@ -141,13 +141,13 @@ Source file: `iaf_cond_beta_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_beta_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_beta_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_beta_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
 
@@ -160,13 +160,13 @@ Source file: `iaf_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blo
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_exp_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
 
@@ -179,13 +179,13 @@ Source file: `iaf_cond_exp_sfa_rr_neuron.nestml <https://www.github.com/nest/nes
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
 
@@ -198,13 +198,13 @@ Source file: `iaf_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_psc_alpha_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_psc_alpha_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
 
@@ -217,13 +217,13 @@ Source file: `iaf_psc_delta_neuron.nestml <https://www.github.com/nest/nestml/bl
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_psc_delta_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_psc_delta_neuron_nestml]_small.png
           :alt: iaf_psc_delta_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_psc_delta_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_psc_delta_neuron_nestml]_small.png
           :alt: iaf_psc_delta_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_psc_delta_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_psc_delta_neuron_nestml]_small.png
           :alt: iaf_psc_delta_neuron
 
 
@@ -252,13 +252,13 @@ Source file: `iaf_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blob
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_psc_exp_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_psc_exp_neuron_nestml]_small.png
           :alt: iaf_psc_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_psc_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_psc_exp_neuron_nestml]_small.png
           :alt: iaf_psc_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_psc_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_psc_exp_neuron_nestml]_small.png
           :alt: iaf_psc_exp_neuron
 
 
@@ -279,13 +279,13 @@ Source file: `izhikevich_neuron.nestml <https://www.github.com/nest/nestml/blob/
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[izhikevich_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[izhikevich_neuron_nestml]_small.png
           :alt: izhikevich_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[izhikevich_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[izhikevich_neuron_nestml]_small.png
           :alt: izhikevich_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[izhikevich_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[izhikevich_neuron_nestml]_small.png
           :alt: izhikevich_neuron
 
 
@@ -306,13 +306,13 @@ Source file: `mat2_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blo
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[mat2_psc_exp_neuron_nestml]_small.png
+   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[mat2_psc_exp_neuron_nestml]_small.png
           :alt: mat2_psc_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[mat2_psc_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[mat2_psc_exp_neuron_nestml]_small.png
           :alt: mat2_psc_exp_neuron
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[mat2_psc_exp_neuron_nestml]_small.png
+     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[mat2_psc_exp_neuron_nestml]_small.png
           :alt: mat2_psc_exp_neuron
 
 
