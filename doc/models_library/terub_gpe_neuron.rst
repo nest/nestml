@@ -106,12 +106,9 @@ Source code
 
 The model source code can be found in the NESTML models repository here: `terub_gpe_neuron <https://github.com/nest/nestml/tree/master/models/neurons/terub_gpe_neuron.nestml>`_.
 
-Characterisation
-++++++++++++++++
-
 .. include:: terub_gpe_neuron_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.471829
+   Generated at 2024-05-15 21:29:42.950549

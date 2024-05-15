@@ -90,12 +90,9 @@ Source code
 
 The model source code can be found in the NESTML models repository here: `traub_psc_alpha_neuron <https://github.com/nest/nestml/tree/master/models/neurons/traub_psc_alpha_neuron.nestml>`_.
 
-Characterisation
-++++++++++++++++
-
 .. include:: traub_psc_alpha_neuron_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.429011
+   Generated at 2024-05-15 21:29:42.908318

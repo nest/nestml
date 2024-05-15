@@ -94,12 +94,9 @@ Source code
 
 The model source code can be found in the NESTML models repository here: `iaf_chxk_2008_neuron <https://github.com/nest/nestml/tree/master/models/neurons/iaf_chxk_2008_neuron.nestml>`_.
 
-Characterisation
-++++++++++++++++
-
 .. include:: iaf_chxk_2008_neuron_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.508748
+   Generated at 2024-05-15 21:29:42.986522

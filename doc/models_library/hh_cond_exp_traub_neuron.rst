@@ -124,12 +124,9 @@ Source code
 
 The model source code can be found in the NESTML models repository here: `hh_cond_exp_traub_neuron <https://github.com/nest/nestml/tree/master/models/neurons/hh_cond_exp_traub_neuron.nestml>`_.
 
-Characterisation
-++++++++++++++++
-
 .. include:: hh_cond_exp_traub_neuron_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.514592
+   Generated at 2024-05-15 21:29:42.992254

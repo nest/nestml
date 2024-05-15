@@ -336,19 +336,19 @@ class AutodocBuilder(Builder):
                 s += "\n"
 
                 with open(os.path.join(self.target_path, model_name + "_characterisation.rst"), "w") as f:
-                    s_ = "Synaptic response\n-----------------\n\n"
+                    s_ = "Synaptic response\n+++++++++++++++++\n\n"
                     s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                         "/nestml_psp_[" + \
                         model_name + "_nestml].png\n"
                     s_ += "   :alt: " + model_name + " postsynaptic response\n"
                     s_ += "\n"
-                    s_ += "Response to pulse current injection\n---------\n\n"
+                    s_ += "Response to pulse current injection\n+++++++++++++++++\n\n"
                     s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                         "/nestml_current_pulse_response_[" + \
                         model_name + "_nestml].png\n"
                     s_ += "   :alt: " + model_name + " current pulse response\n"
                     s_ += "\n"
-                    s_ += "f-I curve\n---------\n\n"
+                    s_ += "f-I curve\n+++++++++++++++++\n\n"
                     s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library" \
                         "/nestml_fI_curve_[" + \
                         model_name + "_nestml].png\n"

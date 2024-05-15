@@ -90,12 +90,9 @@ Source code
 
 The model source code can be found in the NESTML models repository here: `izhikevich_neuron <https://github.com/nest/nestml/tree/master/models/neurons/izhikevich_neuron.nestml>`_.
 
-Characterisation
-++++++++++++++++
-
 .. include:: izhikevich_neuron_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.525078
+   Generated at 2024-05-15 21:29:43.002564

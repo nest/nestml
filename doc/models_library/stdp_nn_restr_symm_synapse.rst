@@ -84,12 +84,9 @@ Source code
 The model source code can be found in the NESTML models repository here: `stdp_nn_restr_symm_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
 
 
-Characterisation
-++++++++++++++++
-
 .. include:: stdp_nn_restr_symm_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.540403
+   Generated at 2024-05-15 21:29:43.013290

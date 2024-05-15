@@ -144,12 +144,9 @@ Source code
 
 The model source code can be found in the NESTML models repository here: `hill_tononi_neuron <https://github.com/nest/nestml/tree/master/models/neurons/hill_tononi_neuron.nestml>`_.
 
-Characterisation
-++++++++++++++++
-
 .. include:: hill_tononi_neuron_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.398727
+   Generated at 2024-05-15 21:29:42.878650

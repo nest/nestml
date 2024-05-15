@@ -29,12 +29,9 @@ Source code
 The model source code can be found in the NESTML models repository here: `noisy_synapse <https://github.com/nest/nestml/tree/master/models/synapses/noisy_synapse.nestml>`_.
 
 
-Characterisation
-++++++++++++++++
-
 .. include:: noisy_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2024-05-15 19:15:17.537979
+   Generated at 2024-05-15 21:29:43.011921
