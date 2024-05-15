@@ -136,7 +136,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%-     if ports[0].has_vector_parameter() %}
 {%-     set size = utils.get_numeric_vector_size(ports[0]) %}
 {%-         for i in range(size) %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i+1) }}
+  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }}
 {%-         set ns.rport = ns.rport + 1 %}
 {%-         endfor %}
 {%-     else %}
@@ -150,7 +150,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   std::string {{neuronName}}::get_var_name(size_t elem, std::string var_name)
   {
     std::stringstream n;
-    n << var_name << elem + 1;
+    n << var_name << elem;
     return n.str();
   }
 

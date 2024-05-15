@@ -341,7 +341,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_numeric_vector_size(cls, variable: VariableSymbol) -> int:
+    def get_numeric_vector_size(cls, variable: ASTVariable) -> int:
         """
         Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
         :param variable: vector variable
@@ -354,6 +354,22 @@ class ASTUtils:
 
         assert vector_parameter.is_numeric_literal()
         return int(vector_parameter.get_numeric_literal())
+
+    @classmethod
+    def get_numeric_vector_input_port_size(cls, port: ASTInputPort) -> int:
+        """
+        Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
+        :param port: input port
+        :return: the size of the vector as a numerical value
+        """
+        size_parameter = port.get_size_parameter()
+        if size_parameter.is_variable():
+            symbol = port.get_scope().resolve_to_symbol(size_parameter.get_variable().get_name(),
+                                                        SymbolKind.VARIABLE)
+            return symbol.get_declaring_expression().get_numeric_literal()
+
+        assert size_parameter.is_numeric_literal()
+        return int(size_parameter.get_numeric_literal())
 
     @classmethod
     def get_function_call(cls, ast, function_name):
@@ -1382,7 +1398,7 @@ class ASTUtils:
                     if isinstance(size_parameter, ASTSimpleExpression):
                         size_parameter = size_parameter.get_numeric_literal()
                     port_name, port_index = port_name.split("_")
-                    assert int(port_index) > 0
+                    assert int(port_index) >= 0
                     assert int(port_index) <= size_parameter
                 if input_port.name == port_name:
                     return input_port

@@ -140,7 +140,7 @@ For the example mentioned :ref:`here <Multiple input ports with vectors>`, the `
    neuron = nest.Create("multi_synapse_vectors")
    receptor_types = nest.GetStatus(neuron, "receptor_types")
 
-The name of the receptors of the input ports are denoted by suffixing the ``vector index + 1`` to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO_1``.
+The name of the receptors of the input ports are denoted by suffixing the ``vector index`` to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO_0``.
 
 The above code querying for ``receptor_types`` gives a list of port names and NEST ``rport`` numbers as shown below:
 
@@ -155,21 +155,21 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 1
    * - NMDA_spikes
      - 2
-   * - FOO_1
+   * - FOO_0
      - 3
-   * - FOO_2
+   * - FOO_1
      - 4
+   * - EXC_SPIKES_0
+     - 5
    * - EXC_SPIKES_1
-     - 5
+     - 6
    * - EXC_SPIKES_2
-     - 6
-   * - EXC_SPIKES_3
      - 7
-   * - INH_SPIKES_1
+   * - INH_SPIKES_0
      - 5
-   * - INH_SPIKES_2
+   * - INH_SPIKES_1
      - 6
-   * - INH_SPIKES_3
+   * - INH_SPIKES_2
      - 7
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
