@@ -12,17 +12,6 @@ aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
 
 Source file: `aeif_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/aeif_cond_alpha_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[aeif_cond_alpha_neuron_nestml]_small.png
-          :alt: aeif_cond_alpha_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[aeif_cond_alpha_neuron_nestml]_small.png
-          :alt: aeif_cond_alpha_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[aeif_cond_alpha_neuron_nestml]_small.png
-          :alt: aeif_cond_alpha_neuron
-
 
 :doc:`aeif_cond_exp_neuron <aeif_cond_exp_neuron>`
 --------------------------------------------------
@@ -49,17 +38,6 @@ Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/bl
 hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 
 Source file: `hh_cond_exp_destexhe_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_cond_exp_destexhe_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hh_cond_exp_destexhe_neuron_nestml]_small.png
-          :alt: hh_cond_exp_destexhe_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hh_cond_exp_destexhe_neuron_nestml]_small.png
-          :alt: hh_cond_exp_destexhe_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hh_cond_exp_destexhe_neuron_nestml]_small.png
-          :alt: hh_cond_exp_destexhe_neuron
 
 
 :doc:`hh_cond_exp_traub_neuron <hh_cond_exp_traub_neuron>`
@@ -88,17 +66,6 @@ hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
 
 Source file: `hh_moto_5ht_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hh_moto_5ht_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hh_moto_5ht_neuron_nestml]_small.png
-          :alt: hh_moto_5ht_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hh_moto_5ht_neuron_nestml]_small.png
-          :alt: hh_moto_5ht_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hh_moto_5ht_neuron_nestml]_small.png
-          :alt: hh_moto_5ht_neuron
-
 
 :doc:`hh_psc_alpha_neuron <hh_psc_alpha_neuron>`
 ------------------------------------------------
@@ -125,17 +92,6 @@ Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blo
 hill_tononi - Neuron model after Hill & Tononi (2005)
 
 Source file: `hill_tononi_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/hill_tononi_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[hill_tononi_neuron_nestml]_small.png
-          :alt: hill_tononi_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[hill_tononi_neuron_nestml]_small.png
-          :alt: hill_tononi_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[hill_tononi_neuron_nestml]_small.png
-          :alt: hill_tononi_neuron
 
 
 :doc:`iaf_chxk_2008_neuron <iaf_chxk_2008_neuron>`
@@ -278,17 +234,6 @@ iaf_psc_exp_dend - Leaky integrate-and-fire neuron model with exponential PSCs
 
 Source file: `iaf_psc_exp_dend_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_dend_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_psc_exp_dend_neuron_nestml]_small.png
-          :alt: iaf_psc_exp_dend_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_psc_exp_dend_neuron_nestml]_small.png
-          :alt: iaf_psc_exp_dend_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_psc_exp_dend_neuron_nestml]_small.png
-          :alt: iaf_psc_exp_dend_neuron
-
 
 :doc:`iaf_psc_exp_htum_neuron <iaf_psc_exp_htum_neuron>`
 --------------------------------------------------------
@@ -296,17 +241,6 @@ Source file: `iaf_psc_exp_dend_neuron.nestml <https://www.github.com/nest/nestml
 iaf_psc_exp_htum - Leaky integrate-and-fire model with separate relative and absolute refractory period
 
 Source file: `iaf_psc_exp_htum_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_htum_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[iaf_psc_exp_htum_neuron_nestml]_small.png
-          :alt: iaf_psc_exp_htum_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[iaf_psc_exp_htum_neuron_nestml]_small.png
-          :alt: iaf_psc_exp_htum_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[iaf_psc_exp_htum_neuron_nestml]_small.png
-          :alt: iaf_psc_exp_htum_neuron
 
 
 :doc:`iaf_psc_exp_neuron <iaf_psc_exp_neuron>`
@@ -335,17 +269,6 @@ ignore_and_fire - Neuron generating spikes at fixed intervals irrespective of in
 
 Source file: `ignore_and_fire_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/ignore_and_fire_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[ignore_and_fire_neuron_nestml]_small.png
-          :alt: ignore_and_fire_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[ignore_and_fire_neuron_nestml]_small.png
-          :alt: ignore_and_fire_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[ignore_and_fire_neuron_nestml]_small.png
-          :alt: ignore_and_fire_neuron
-
 
 :doc:`izhikevich_neuron <izhikevich_neuron>`
 --------------------------------------------
@@ -372,17 +295,6 @@ Source file: `izhikevich_neuron.nestml <https://www.github.com/nest/nestml/blob/
 izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
 
 Source file: `izhikevich_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/izhikevich_psc_alpha_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[izhikevich_psc_alpha_neuron_nestml]_small.png
-          :alt: izhikevich_psc_alpha_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[izhikevich_psc_alpha_neuron_nestml]_small.png
-          :alt: izhikevich_psc_alpha_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[izhikevich_psc_alpha_neuron_nestml]_small.png
-          :alt: izhikevich_psc_alpha_neuron
 
 
 :doc:`mat2_psc_exp_neuron <mat2_psc_exp_neuron>`
@@ -411,17 +323,6 @@ terub_gpe - Terman Rubin neuron model
 
 Source file: `terub_gpe_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/terub_gpe_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[terub_gpe_neuron_nestml]_small.png
-          :alt: terub_gpe_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[terub_gpe_neuron_nestml]_small.png
-          :alt: terub_gpe_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[terub_gpe_neuron_nestml]_small.png
-          :alt: terub_gpe_neuron
-
 
 :doc:`terub_stn_neuron <terub_stn_neuron>`
 ------------------------------------------
@@ -429,17 +330,6 @@ Source file: `terub_gpe_neuron.nestml <https://www.github.com/nest/nestml/blob/m
 terub_stn - Terman Rubin neuron model
 
 Source file: `terub_stn_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/terub_stn_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[terub_stn_neuron_nestml]_small.png
-          :alt: terub_stn_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[terub_stn_neuron_nestml]_small.png
-          :alt: terub_stn_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[terub_stn_neuron_nestml]_small.png
-          :alt: terub_stn_neuron
 
 
 :doc:`traub_cond_multisyn_neuron <traub_cond_multisyn_neuron>`
@@ -449,17 +339,6 @@ traub_cond_multisyn - Traub model according to Borgers 2017
 
 Source file: `traub_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_cond_multisyn_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[traub_cond_multisyn_neuron_nestml]_small.png
-          :alt: traub_cond_multisyn_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[traub_cond_multisyn_neuron_nestml]_small.png
-          :alt: traub_cond_multisyn_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[traub_cond_multisyn_neuron_nestml]_small.png
-          :alt: traub_cond_multisyn_neuron
-
 
 :doc:`traub_psc_alpha_neuron <traub_psc_alpha_neuron>`
 ------------------------------------------------------
@@ -467,17 +346,6 @@ Source file: `traub_cond_multisyn_neuron.nestml <https://www.github.com/nest/nes
 traub_psc_alpha - Traub model according to Borgers 2017
 
 Source file: `traub_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_psc_alpha_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[traub_psc_alpha_neuron_nestml]_small.png
-          :alt: traub_psc_alpha_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[traub_psc_alpha_neuron_nestml]_small.png
-          :alt: traub_psc_alpha_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[traub_psc_alpha_neuron_nestml]_small.png
-          :alt: traub_psc_alpha_neuron
 
 
 :doc:`wb_cond_exp_neuron <wb_cond_exp_neuron>`
@@ -487,17 +355,6 @@ wb_cond_exp - Wang-Buzsaki model
 
 Source file: `wb_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_exp_neuron.nestml>`_
 
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[wb_cond_exp_neuron_nestml]_small.png
-          :alt: wb_cond_exp_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[wb_cond_exp_neuron_nestml]_small.png
-          :alt: wb_cond_exp_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[wb_cond_exp_neuron_nestml]_small.png
-          :alt: wb_cond_exp_neuron
-
 
 :doc:`wb_cond_multisyn_neuron <wb_cond_multisyn_neuron>`
 --------------------------------------------------------
@@ -505,17 +362,6 @@ Source file: `wb_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blob
 wb_cond_multisyn - Wang-Buzsaki model with multiple synapses
 
 Source file: `wb_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_multisyn_neuron.nestml>`_
-
-.. list-table::
-
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_psp_[wb_cond_multisyn_neuron_nestml]_small.png
-          :alt: wb_cond_multisyn_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_current_pulse_response_[wb_cond_multisyn_neuron_nestml]_small.png
-          :alt: wb_cond_multisyn_neuron
-
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_fI_curve_[wb_cond_multisyn_neuron_nestml]_small.png
-          :alt: wb_cond_multisyn_neuron
 
 Synapse models
 ~~~~~~~~~~~~~~

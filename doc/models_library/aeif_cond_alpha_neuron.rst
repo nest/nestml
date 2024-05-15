@@ -50,22 +50,22 @@ Parameters
     :widths: auto
 
     
-    "C_m", "pF", "281.0pF", "membrane parametersMembrane Capacitance"    
+    "C_m", "pF", "281.0pF", "Membrane Capacitance"    
     "refr_T", "ms", "2ms", "Duration of refractory period"    
     "V_reset", "mV", "-60.0mV", "Reset Potential"    
     "g_L", "nS", "30.0nS", "Leak Conductance"    
     "E_L", "mV", "-70.6mV", "Leak reversal Potential (aka resting potential)"    
-    "a", "nS", "4nS", "spike adaptation parametersSubthreshold adaptation"    
+    "a", "nS", "4nS", "Subthreshold adaptation"    
     "b", "pA", "80.5pA", "Spike-triggered adaptation"    
     "Delta_T", "mV", "2.0mV", "Slope factor"    
     "tau_w", "ms", "144.0ms", "Adaptation time constant"    
     "V_th", "mV", "-50.4mV", "Threshold Potential"    
     "V_peak", "mV", "0mV", "Spike detection threshold"    
-    "E_exc", "mV", "0mV", "synaptic parametersExcitatory reversal Potential"    
+    "E_exc", "mV", "0mV", "Excitatory reversal Potential"    
     "tau_syn_exc", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
     "E_inh", "mV", "-85.0mV", "Inhibitory reversal Potential"    
     "tau_syn_inh", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
-    "I_e", "pA", "0pA", "constant external input current"
+    "I_e", "pA", "0pA", "Constant external input current"
 
 
 
@@ -111,4 +111,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2024-05-14 22:18:47.103370
+   Generated at 2024-05-15 18:24:06.108649
