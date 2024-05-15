@@ -138,6 +138,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():
                 if variable.get_vector_parameter().is_variable():
+                    # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
                     var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
