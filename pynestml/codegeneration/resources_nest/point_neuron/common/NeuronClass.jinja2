@@ -353,12 +353,6 @@ void {{neuronName}}::init_state_internal_()
 
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  calibrate();
-{%- else %}
-  pre_run_hook();
-{%- endif %}
-
 {%- if numeric_solver == "rk45" %}
   // by default, integrate all variables
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
