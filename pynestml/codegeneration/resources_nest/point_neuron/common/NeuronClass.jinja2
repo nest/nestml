@@ -1041,11 +1041,7 @@ continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_
   }
 
   // if we get here, there is no entry at time t
-  std::cout << "\n\n\nXXX FIX ME: no entry at time t!\n\n\n";
-  return continuous_variable_histentry_{{ neuronName }}(0.,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-      0.{% if not loop.last %}, {% endif %}
-{%-     endfor %}); // XXX: TODO: return initial value
+  assert(0);
 }
 
 void {{neuronName}}::get_continuous_variable_history( double t1,
