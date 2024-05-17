@@ -325,7 +325,7 @@ class ASTExpression(ASTExpressionNode):
             return [self.get_expression()]
 
         if self.is_unary_operator():
-            return [self.get_unary_operator()]
+            return [self.get_unary_operator(), self.get_rhs()]
 
         if self.is_compound_expression():
             children = []

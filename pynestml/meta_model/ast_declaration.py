@@ -154,7 +154,7 @@ class ASTDeclaration(ASTNode):
         Returns whether the declaration has a size parameter or not.
         :return: True if has size parameter, else False.
         """
-        return self.size_parameter
+        return self.size_parameter is not None
 
     def get_size_parameter(self) -> Optional[Union[ASTSimpleExpression, ASTExpression]]:
         """
