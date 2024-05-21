@@ -52,10 +52,8 @@ enum ScalParamIndexes {
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-   if variable_symbol.get_symbol_name() != "__h" %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   i_{{ printer_no_origin.print(variable) }},
-{%- endif %}  
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}
@@ -95,10 +93,8 @@ const std::string {{ neuronName }}_scal_param_name[N_SCAL_PARAM] = {
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_internal_symbols() %}
-{%-   if variable_symbol.get_symbol_name() != "__h" %}
 {%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   "{{ printer_no_origin.print(variable) }}",
-{%- endif %}
 {%- endfor %}
 
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}

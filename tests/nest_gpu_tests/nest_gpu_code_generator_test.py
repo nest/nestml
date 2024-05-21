@@ -27,7 +27,7 @@ class TestNESTGPUCodeGenerator:
     Tests code generation for the NEST GPU target.
     """
 
-    def test_nest_gpu_code_generator(self):
+    def test_nest_gpu_code_generator_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         target_path = "target_gpu"

@@ -41,6 +41,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *  Generated from NESTML at time: {{now}}
 **/
+{%- if uses_numeric_solver %}
 #ifndef {{neuronName.upper()}}
 #define {{neuronName.upper()}}
 
@@ -66,3 +67,4 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 		   float *param, {{neuronName}}_rk5 data_struct);
 
 #endif
+{%- endif %}

@@ -23,7 +23,7 @@
 
 
 
-
+{%- if uses_numeric_solver %}
 #ifndef {{ neuronName.upper() }}_KERNEL_H
 #define {{ neuronName.upper() }}_KERNEL_H
 
@@ -103,3 +103,4 @@ void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
 
 
 #endif
+{%- endif %}

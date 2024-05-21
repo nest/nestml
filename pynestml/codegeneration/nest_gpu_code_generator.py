@@ -80,7 +80,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             "path": "resources_nest_gpu/point_neuron",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.cu.jinja2", "@NEURON_NAME@.h.jinja2"]
-                #"@NEURON_NAME@_kernel.h.jinja2", "@NEURON_NAME@_rk5.h.jinja2"],
             },
             "module_templates": []
         },
@@ -114,7 +113,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         self.setup_template_env()
         self.setup_printers()
-        # TODO: setup the printers and reference converters
 
     def setup_printers(self):
         super().setup_printers()
@@ -212,8 +210,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         code_block = "\n" \
                      f"    {neuron.get_name()}.h\n" \
                      f"    {neuron.get_name()}.cu\n"
-                    #  f"    {neuron.get_name()}_kernel.h\n" \
-                    #  f"    {neuron.get_name()}_rk5.h\n" \
         replace_text_between_tags(cmakelists_path, code_block,
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")

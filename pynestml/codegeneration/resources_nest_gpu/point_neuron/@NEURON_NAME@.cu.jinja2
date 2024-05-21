@@ -24,10 +24,6 @@
 #include <cmath>
 #include <iostream>
 #include "{{ neuronName }}.h"
-{%- if not uses_numeric_solver %}
-#include "{{ neuronName }}_kernel.h"
-#include "rk5.h"
-{%- endif %}
 #include "spike_buffer.h"
 
 {%- import 'directives/SetScalParamAndVar.jinja2' as set_scal_param_var with context %}
@@ -35,22 +31,17 @@
 {%- if not uses_numeric_solver %}
 using namespace {{ neuronName }}_ns;
 
-{# {%- include "directives/DefineVariables.jinja2" %} #}
-
 __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
 				      int n_param, float h)
 {
   int i_neuron = threadIdx.x + blockIdx.x * blockDim.x;
   if (i_neuron < n_node) {
     float *param = param_arr + n_param*i_neuron;
-
 {%- filter indent(4,True) %}
 {%- for internals_block in neuron.get_internals_blocks() %}
 {%-     for decl in internals_block.get_declarations() %}
 {%-         for variable in decl.get_variables() %}
-{%-           if variable.get_name() != "__h" %}
 {%-             include "directives/MemberInitialization.jinja2" %}
-{%-           endif %}
 {%-         endfor %}
 {%-     endfor %}
 {%- endfor %}
@@ -94,7 +85,6 @@ __global__ void {{ neuronName }}_Update(int n_node, int i_node_0, float *var_arr
 {%- if uses_numeric_solver %}
 namespace {{neuronName}}_ns
 {
-{# {%- include "directives/DefineVariables.jinja2" %} #}
 
 __device__
 void NodeInit(int n_var, int n_param, double x, float *y, float *param,

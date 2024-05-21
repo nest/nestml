@@ -59,9 +59,6 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
-        # if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
-        #     return "get_t()"
-
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
@@ -71,23 +68,6 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                error_position=variable.get_source_position())
             return ""
-
-        # vector_param = ""
-        # if self.with_vector_parameter and symbol.has_vector_parameter():
-        #     vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
-
-        if symbol.is_buffer():
-            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
-            else:
-                units_conversion_factor = 1
-            s = ""
-            if not units_conversion_factor == 1:
-                s += "(" + str(units_conversion_factor) + " * "
-            s += self._print_buffer_value(variable)
-            if not units_conversion_factor == 1:
-                s += ")"
-            return s
 
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
@@ -99,23 +79,6 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
             return self._print(variable, symbol, with_origin=self.with_origin)
 
         return self._print(variable, symbol, with_origin=self.with_origin)
-
-    def _print_buffer_value(self, variable: ASTVariable) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-        if variable_symbol.is_spike_input_port():
-            var_name = variable_symbol.get_symbol_name().upper()
-            if variable.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
-                var_name = var_name + "_" + str(vector_parameter)
-
-            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
-
-        return variable_symbol.get_symbol_name()
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())
