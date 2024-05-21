@@ -23,27 +23,19 @@ import os
 import shutil
 from typing import Dict, Sequence, Optional, Mapping, Any
 
-from pynestml.codegeneration.printers.cpp_function_call_printer import CppFunctionCallPrinter
+from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
-
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
-
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
-
-from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_function_call_printer import NESTGPUFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gpu_numeric_function_call_printer import NESTGPUNumericFunctionPrinter
 from pynestml.codegeneration.printers.nest_gpu_numeric_variable_printer import NESTGPUNumericVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_variable_printer import NESTGPUVariablePrinter
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
-
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_neuron import ASTNeuron
 
 
 def replace_text_between_tags(filepath, replace_str, begin_tag="// <<BEGIN_NESTML_GENERATED>>",
@@ -76,6 +68,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
+        "neuron_models": [],
+        "synapse_models": [],
         "templates": {
             "path": "resources_nest_gpu/point_neuron",
             "model_templates": {
@@ -149,24 +143,26 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
-    def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
+    def generate_module_code(self, models: Sequence[ASTModel]):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
+
         for neuron in neurons:
             self.copy_models_from_target_path(neuron)
             self.add_model_name_to_neuron_header(neuron)
             self.add_model_to_neuron_class(neuron)
             self.add_files_to_makefile(neuron)
 
-    def copy_models_from_target_path(self, neuron: ASTNeuron):
+    def copy_models_from_target_path(self, neuron: ASTModel):
         """Copies all the files related to the neuron model to the NEST GPU src directory"""
         file_match_str = f"*{neuron.get_name()}*"
         dst_path = os.path.join(self.nest_gpu_path, "src")
         for file in glob.glob(os.path.join(FrontendConfiguration.get_target_path(), file_match_str)):
             shutil.copy(file, dst_path)
 
-    def add_model_name_to_neuron_header(self, neuron: ASTNeuron):
+    def add_model_name_to_neuron_header(self, neuron: ASTModel):
         """
         Modifies the ``neuron_models.h`` file to add the newly generated model's header files
         """
@@ -179,7 +175,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         replace_str = "\n, \"" + neuron.get_name() + "\"\n"
         replace_text_between_tags(neuron_models_h_path, replace_str, rfind=True)
 
-    def add_model_to_neuron_class(self, neuron: ASTNeuron):
+    def add_model_to_neuron_class(self, neuron: ASTModel):
         """
         Modifies the ``neuron_models.cu`` file to add the newly generated model's .cu file
         """
@@ -200,7 +196,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                      " }\n"
         replace_text_between_tags(neuron_models_cu_path, code_block, rfind=True)
 
-    def add_files_to_makefile(self, neuron: ASTNeuron):
+    def add_files_to_makefile(self, neuron: ASTModel):
         """
         Modifies the Makefile in NEST GPU repository to compile the newly generated models.
         """
@@ -214,7 +210,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
 
-    def add_model_header_to_rk5_interface(self, neuron: ASTNeuron):
+    def add_model_header_to_rk5_interface(self, neuron: ASTModel):
         """
         Modifies the rk5_interface.h header file to add the model rk5 header file. This is only for 
         neuron models with a numeric solver.
@@ -226,7 +222,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         replace_text_between_tags(rk5_interface_path, code_block)
 
-    def _get_neuron_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
+    def _get_neuron_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode)
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer

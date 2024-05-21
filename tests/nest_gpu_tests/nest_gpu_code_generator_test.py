@@ -29,7 +29,7 @@ class TestNESTGPUCodeGenerator:
 
     def test_nest_gpu_code_generator_analytic(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "target_gpu"
         logging_level = "INFO"
         suffix = "_nestml"
@@ -39,7 +39,7 @@ class TestNESTGPUCodeGenerator:
 
     def test_nest_gpu_code_generator_numeric(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "aeif_cond_alpha.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "aeif_cond_alpha_neuron.nestml"))))
         target_path = "target_gpu_numeric"
         logging_level = "INFO"
         suffix = "_nestml"
