@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import List, Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -74,27 +74,29 @@ class ASTStmt(ASTNode):
 
         return dup
 
-    def get_parent(self, ast: ASTNode=None) -> Optional[ASTNode]:
-        """
-        Returns the parent node of a handed over AST object.
-        """
-        if self.small_stmt is ast:
-            return self
-        if self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
-            return self.small_stmt.get_parent(ast)
-        if self.compound_stmt is ast:
-            return self
-        if self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
-            return self.compound_stmt.get_parent(ast)
-        return None
-
     def is_small_stmt(self):
         return self.small_stmt is not None
 
     def is_compound_stmt(self):
         return self.compound_stmt is not None
 
-    def equals(self, other=None):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
+        """
+        if self.small_stmt:
+            return [self.small_stmt]
+
+        if self.compound_stmt:
+            return [self.compound_stmt]
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
+        """
         if not isinstance(other, ASTStmt):
             return False
         if self.is_small_stmt() and other.is_small_stmt():

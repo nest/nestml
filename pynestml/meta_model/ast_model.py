@@ -471,9 +471,11 @@ class ASTModel(ASTNode):
         self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks()[0].get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
         declaration.accept(symtable_vistor)
+        self.get_internals_blocks()[0].accept(ASTParentVisitor())
         symtable_vistor.block_type_stack.pop()
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
@@ -488,10 +490,11 @@ class ASTModel(ASTNode):
         self.get_state_blocks()[0].get_declarations().append(declaration)
         declaration.update_scope(self.get_state_blocks()[0].get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.STATE)
         declaration.accept(symtable_vistor)
+        self.get_state_blocks()[0].accept(ASTParentVisitor())
         symtable_vistor.block_type_stack.pop()
         from pynestml.symbols.symbol import SymbolKind
         assert declaration.get_variables()[0].get_scope().resolve_to_symbol(
@@ -513,16 +516,6 @@ class ASTModel(ASTNode):
             ret += prefix + comment + '\n'
 
         return ret
-
-    def equals(self, other: ASTNode) -> bool:
-        """
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
-        """
-        if not isinstance(other, ASTModel):
-            return False
-        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
 
     def get_initial_value(self, variable_name: str):
         assert type(variable_name) is str
@@ -652,19 +645,6 @@ class ASTModel(ASTNode):
 
         return False
 
-    def get_parent(self, ast) -> Optional[ASTNode]:
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        """
-        if self.get_body() is ast:
-            return self
-        if self.get_body().get_parent(ast) is not None:
-            return self.get_body().get_parent(ast)
-        return None
-
     def set_default_delay(self, var, expr, dtype):
         self._default_delay_variable = var
         self._default_delay_expression = expr
@@ -712,3 +692,18 @@ class ASTModel(ASTNode):
                                                        or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
+
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
+        """
+        return [self.get_body()]
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
+        """
+        if not isinstance(other, ASTModel):
+            return False
+        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
