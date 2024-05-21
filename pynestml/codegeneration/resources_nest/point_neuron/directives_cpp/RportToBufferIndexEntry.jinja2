@@ -1,5 +1,5 @@
-{%- macro RportToBufferIndexEntry(ports, rport, index=0) -%}
-{%- if index > 0 -%}
+{%- macro RportToBufferIndexEntry(ports, rport, index=-1) -%}
+{%- if index >= 0 -%}
 {%- set name = "{}_" ~ index|string %}
 {%- else -%}
 {%- set name = "{}" %}

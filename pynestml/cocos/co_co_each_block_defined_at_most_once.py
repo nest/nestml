@@ -22,8 +22,7 @@
 from typing import Union
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -44,7 +43,7 @@ class CoCoEachBlockDefinedAtMostOnce(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: Union[ASTNeuron, ASTSynapse]):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks whether each block is define at most once.
         :param node: a single neuron or synapse.

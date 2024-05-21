@@ -62,13 +62,12 @@ Parameters
     
     "tau_m", "ms", "10ms", "Membrane time constant"    
     "C_m", "pF", "250pF", "Capacity of the membrane"    
-    "t_ref", "ms", "2ms", "Duration of refractory period"    
+    "refr_T", "ms", "2ms", "Duration of refractory period"    
     "tau_syn", "ms", "2ms", "Time constant of synaptic current"    
     "E_L", "mV", "-70mV", "Resting membrane potential"    
     "V_reset", "mV", "-70mV", "Reset potential of the membrane"    
     "V_th", "mV", "-55mV", "Spike threshold"    
     "V_min", "mV", "-inf * 1mV", "Absolute lower value for the membrane potential"    
-    "with_refr_input", "boolean", "false", "If true, do not discard input during refractory period."    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -81,9 +80,9 @@ State variables
     :widths: auto
 
     
-    "refr_spikes_buffer", "mV", "0mV", ""    
-    "r", "integer", "0", "Counts number of tick during the refractory period"    
-    "V_m", "mV", "E_L", "Membrane potential"
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""
 
 
 
@@ -94,14 +93,14 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \text{convolve}(G, spikes) \cdot (\frac{ \mathrm{mV} } { \mathrm{ms} }) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -(V_{m} - E_{L}) } { \tau_{m} } + \text{convolve}(K_{\delta}, spikes) \cdot (\frac{ \mathrm{mV} } { \mathrm{ms} }) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
 
 
 
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_psc_delta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_delta.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_psc_delta <https://github.com/nest/nestml/tree/master/models/neurons/iaf_psc_delta_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -111,4 +110,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.459765
+   Generated at 2023-11-16 11:40:54.305247

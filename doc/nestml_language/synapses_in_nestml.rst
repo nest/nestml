@@ -23,11 +23,11 @@ Note that the synaptic strength ("weight") variable is of type real; if the type
 Writing the NESTML model
 ########################
 
-The top-level element of the model is ``synapse``, followed by a name. All other blocks appear inside of here.
+The top-level element of the model is ``model``, followed by a name. All other blocks appear inside of here.
 
 .. code-block:: nestml
 
-   synapse stdp:
+   model stdp_synapse:
        # [...]
 
 Input and output ports
@@ -41,13 +41,14 @@ Depending on whether the plasticity rule depends only on pre-, or on both pre- a
        pre_spikes <- spike
        post_spikes <- spike
 
-   output: spike
+   output:
+       spike
 
 
 Presynaptic spike event handler
 -------------------------------
 
-It is the responsibility of the event handler for the spiking input port to submit the event to the (spiking) output port. This can be done using the predefined ``deliver_spike(w, d)`` function, which takes two parameters: a weight ``w`` and delay ``d``.
+Typically, it is the responsibility of the event handler for the spiking input port to create an event at the (spiking) output port. This can be done using the predefined ``emit_spike(w, d)`` function, which for synapses is expected to take two parameters: a weight ``w`` and delay ``d``.
 
 The corresponding event handler has the general structure:
 
@@ -56,9 +57,9 @@ The corresponding event handler has the general structure:
    onReceive(pre_spikes):
        print("Info: processing a presynaptic spike at time t = {t}")
        # ... plasticity dynamics go here ...
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
-The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
+The statements in the event handler will be executed when the event occurs. The weight and delay could be defined as follows:
 
 .. code-block:: nestml
 
@@ -68,7 +69,7 @@ The statements in the event handler will be executed sequentially when the event
    parameters:
        d ms = 1 ms
 
-If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``deliver_spike()`` with the updated weight.
+If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``emit_spike()`` with the updated weight.
 
 State variables (in particular, synaptic "trace" variables as often used in plasticity models) can be updated in the event handler as follows:
 
@@ -162,7 +163,7 @@ In this example, the ``I_dend`` state variable of the neuron will be simply an e
 For a full example, please see the following files:
 
 * ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure)
-* ``models/neurons/iaf_psc_exp_dend.nestml`` (neuron model)
+* ``models/neurons/iaf_psc_exp_dend_neuron.nestml`` (neuron model)
 * ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
 
 
@@ -266,7 +267,7 @@ Our update rule for depression is:
        w = max(Wmin, w_)
 
        # deliver spike to postsynaptic partner
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
 Finally, all remaining parameters are defined:
 
@@ -328,7 +329,7 @@ Resetting to 1 can then be done by assignment in the pre- and post-event handler
 
 The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
 
-The full model can be downloaded here: `stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm_synapse.nestml>`_.
 
 
 Presynaptic centered
@@ -348,11 +349,11 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
    onReceive(pre_spikes):
        tr_pre += 1
        w = ...  # depression step (omitted)
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
 The remainder of the model is the same as the all-to-all STDP synapse.
 
-The full model can be downloaded here: `stdp_nn_pre_centered.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered.nestml>`_.
+The full model can be downloaded here: `stdp_nn_pre_centered_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
 Restricted symmetric
@@ -387,7 +388,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
 
 The remainder of the model is the same as the :ref:`Presynaptic centered` variant.
 
-The full model can be downloaded here: `stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_restr_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
 
 
 Triplet-rule STDP synapse
@@ -446,7 +447,7 @@ The weight update rules can then be expressed in terms of the traces and paramet
        w = max(Wmin, w_)
 
        # deliver spike to postsynaptic partner
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
 
 Generating code
@@ -468,7 +469,7 @@ To indicate which neurons will be connected to by which synapses during simulati
 .. code-block:: json
 
    {
-     "neuron_synapse_pairs": [["iaf_psc_exp", "stdp"]]
+     "neuron_synapse_pairs": [["iaf_psc_exp_neuron", "stdp_synapse"]]
    }
 
 This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_code_generator_opts_triplet.json``:

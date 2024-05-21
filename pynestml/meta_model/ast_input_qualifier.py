@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
 
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -72,24 +73,18 @@ class ASTInputQualifier(ASTNode):
 
         return dup
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: ASTNode
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: Optional[ASTNode]
-        """
-        return None
+        return []
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTInputQualifier):
             return False
+
         return self.is_excitatory == other.is_excitatory and self.is_inhibitory == other.is_inhibitory

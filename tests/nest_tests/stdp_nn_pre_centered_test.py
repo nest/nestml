@@ -44,18 +44,18 @@ sim_ref = True
 
 class NestSTDPNNSynapseTest(unittest.TestCase):
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nn_pre_centered_nestml"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_stdp_nn_pre_centered_synapse_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
 
-    synapse_model_name = "stdp_nn_pre_centered_nestml__with_iaf_psc_exp_nestml"
+    synapse_model_name = "stdp_nn_pre_centered_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
     ref_synapse_model_name = "stdp_nn_pre_centered_synapse"
 
     def setUp(self):
         r"""Generate the neuron model code"""
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-                 os.path.join("models", "synapses", "stdp_nn_pre_centered.nestml")]
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+                 os.path.join("models", "synapses", "stdp_nn_pre_centered_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -65,20 +65,19 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "stdp_nn_pre_centered",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "stdp_nn_pre_centered_synapse",
                                                                      "post_ports": ["post_spikes"]}]})
 
         # generate the "non-jit" model, that relies on ArchivingNode
-
-    generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                  os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
-                         target_path="/tmp/nestml-non-jit",
-                         logging_level="INFO",
-                         module_name="nestml_non_jit_module",
-                         suffix="_nestml_non_jit",
-                         codegen_opts={"neuron_parent_class": "ArchivingNode",
-                                       "neuron_parent_class_include": "archiving_node.h"})
+        generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                         os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
+                             target_path="/tmp/nestml-non-jit",
+                             logging_level="INFO",
+                             module_name="nestml_non_jit_module",
+                             suffix="_nestml_non_jit",
+                             codegen_opts={"neuron_parent_class": "ArchivingNode",
+                                           "neuron_parent_class_include": "archiving_node.h"})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -137,21 +136,26 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
         if sim_time is None:
             sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
 
-        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        nest.set_verbosity("M_ALL")
+
         if sim_mdl:
-            nest.Install("nestml_jit_module")
+            try:
+                nest.Install("nestml_jit_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
+
         if sim_ref:
-            nest.Install("nestml_non_jit_module")
+            try:
+                nest.Install("nestml_non_jit_module")
+            except Exception:
+                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+                pass
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        nest.set_verbosity("M_WARNING")
-
-        post_weights = {'parrot': []}
-
-        nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
         wr = nest.Create('weight_recorder')
@@ -183,7 +187,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
             spikedet_pre = nest.Create("spike_recorder")
             spikedet_post = nest.Create("spike_recorder")
             mm = nest.Create("multimeter", params={"record_from": [
-                "V_m", "post_trace__for_stdp_nn_pre_centered_nestml"]})
+                "V_m", "post_trace__for_stdp_nn_pre_centered_synapse_nestml"]})
         if sim_ref:
             spikedet_pre_ref = nest.Create("spike_recorder")
             spikedet_post_ref = nest.Create("spike_recorder")
@@ -284,7 +288,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                     ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
             if sim_mdl:
                 ax2.plot(nest.GetStatus(mm, "events")[0]["times"], nest.GetStatus(mm, "events")[
-                    0]["post_trace__for_stdp_nn_pre_centered_nestml"], label="nestml post tr")
+                    0]["post_trace__for_stdp_nn_pre_centered_synapse_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
             if sim_mdl:

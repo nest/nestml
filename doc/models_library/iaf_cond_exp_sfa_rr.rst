@@ -46,7 +46,7 @@ Parameters
     
     "V_th", "mV", "-57.0mV", "Threshold potential"    
     "V_reset", "mV", "-70.0mV", "Reset potential"    
-    "t_ref", "ms", "0.5ms", "Refractory period"    
+    "refr_T", "ms", "0.5ms", "Duration of refractory period"    
     "g_L", "nS", "28.95nS", "Leak conductance"    
     "C_m", "pF", "289.5pF", "Membrane capacitance"    
     "E_exc", "mV", "0mV", "Excitatory reversal potential"    
@@ -72,8 +72,9 @@ State variables
     :widths: auto
 
     
-    "r", "integer", "0", "counts number of tick during the refractory period"    
     "V_m", "mV", "E_L", "membrane potential"    
+    "refr_t", "ms", "0ms", "Refractory period timer"    
+    "is_refractory", "boolean", "false", ""    
     "g_sfa", "nS", "0nS", "inputs from the sfa conductance"    
     "g_rr", "nS", "0nS", "inputs from the rr conductance"
 
@@ -99,7 +100,7 @@ Equations
 Source code
 +++++++++++
 
-The model source code can be found in the NESTML models repository here: `iaf_cond_exp_sfa_rr <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_exp_sfa_rr.nestml>`_.
+The model source code can be found in the NESTML models repository here: `iaf_cond_exp_sfa_rr <https://github.com/nest/nestml/tree/master/models/neurons/iaf_cond_exp_sfa_rr_neuron.nestml>`_.
 
 Characterisation
 ++++++++++++++++
@@ -109,4 +110,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2023-08-22 14:29:44.534151
+   Generated at 2023-11-16 11:40:53.920345

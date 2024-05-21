@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -35,13 +37,12 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, model: ASTModel):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ast_neuron
+        :param model: a single neuron instance.
         """
-        node.accept(NumericNumeratorVisitor())
+        model.accept(NumericNumeratorVisitor())
 
 
 class NumericNumeratorVisitor(ASTVisitor):
