@@ -126,7 +126,7 @@ class AutodocBuilder(Builder):
                 V_m_specifier = "V_m"
                 multimeter = nest.Create("multimeter")
                 nest.SetStatus(multimeter, {"record_from": [V_m_specifier],
-                                            "interval": nest.resolution}})
+                                            "interval": nest.resolution})
                 nest.Connect(multimeter, neuron)
 
                 sr = nest.Create("spike_recorder")
