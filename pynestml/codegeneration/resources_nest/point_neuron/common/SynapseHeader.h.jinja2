@@ -1,3 +1,4 @@
+#define DEBUG 1
 {#-
 SynapseHeader.h.jinja2
 
@@ -642,7 +643,7 @@ public:
       dynamic_cast<{{paired_neuron_name}}&>(t);
     }
     catch (std::bad_cast &exp) {
-      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron_name}}'.\n";
+      std::cerr << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron_name}}'.\n";
       exit(1);
     }
 {%- endif %}
@@ -679,7 +680,7 @@ public:
 
     const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
 #ifdef DEBUG
-    std::cout << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
+    std::cerr << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
 #endif
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
@@ -755,7 +756,7 @@ public:
         }
 
 #ifdef DEBUG
-        std::cout << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
+        std::cerr << "\tprocessing post spike at t = " << start->t_ + __dendritic_delay << std::endl;
 #endif
 
         /**
@@ -930,7 +931,7 @@ void
     const {{synapseName}}CommonSynapseProperties& cp )
 {
 #ifdef DEBUG
-  std::cout << "\tIn process_{{vt_port}}_spikes_(): t0 = " << t0 << ", t1 = " << t1 << "\n";
+  std::cerr << "\tIn process_{{vt_port}}_spikes_(): t0 = " << t0 << ", t1 = " << t1 << "\n";
 #endif
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
@@ -985,7 +986,7 @@ void
   else
   {
 #ifdef DEBUG
-  std::cout << "\t\t4: updating internal state from t0 = " << t0 << " to t1 = " << t1 << "\n";
+  std::cerr << "\t\t4: updating internal state from t0 = " << t0 << " to t1 = " << t1 << "\n";
 #endif
 
     // no dopamine spikes in (t0, t1]
@@ -1230,7 +1231,7 @@ inline void
     if (timestep < 1E-12)
     {
 #ifdef DEBUG
-        std::cout << "\tupdate_internal_state_() called with dt < 1E-12; skipping update\n" ;
+        std::cerr << "\tupdate_internal_state_() called with dt < 1E-12; skipping update\n" ;
 #endif
         return;
     }
@@ -1239,7 +1240,7 @@ inline void
     auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 #ifdef DEBUG
-    std::cout<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
+    std::cerr<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
 #endif
 
     V_.__h = timestep;
@@ -1293,7 +1294,7 @@ inline void
 {
   // propagate all state variables in the synapse to time t_trig
 #ifdef DEBUG
-    std::cout << "\n{{synapseName}}::trigger_update_weight(): t = " << t_trig << std::endl;
+    std::cerr << "\n{{synapseName}}::trigger_update_weight(): t = " << t_trig << std::endl;
 #endif
   // purely dendritic delay
   double dendritic_delay = get_delay();
@@ -1316,7 +1317,7 @@ inline void
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "\tprocessing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
+    std::cerr << "\tprocessing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
 #endif
 
     /**
@@ -1329,7 +1330,7 @@ inline void
 
     const double _tr_t = start->t_;
 #ifdef DEBUG
-        std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
+        std::cerr << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
 #endif
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
@@ -1347,7 +1348,7 @@ inline void
 {%- endfilter %}
 
 #ifdef DEBUG
-      std::cout << " to " << S_.c << std::endl;
+      std::cerr << " to " << S_.c << std::endl;
 #endif
     /**
      * internal state has now been fully updated to `start->t_ + dendritic_delay`
@@ -1369,7 +1370,7 @@ inline void
 {%- endfor %}
 
 #ifdef DEBUG
-    //std::cout << "{{synapseName}}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
+    //std::cerr << "{{synapseName}}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
 #endif
 
  /* update_internal_state_(t_lastspike_,
