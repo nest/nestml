@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from typing import Optional, List
 
 from abc import ABCMeta, abstractmethod
 
 from pynestml.symbol_table.scope import Scope
-
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
@@ -74,25 +75,31 @@ class ASTNode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def equals(self, other):
+    def equals(self, other: ASTNode) -> bool:
         """
         The equals operation.
-        :param other: a different object.
-        :type other: object
+        :param other: a different AST node.
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         pass
 
-    # todo: we can do this with a visitor instead of hard coding grammar traversals all over the place
-    @abstractmethod
-    def get_parent(self, ast):
+    def get_parent(self) -> Optional[ASTNode]:
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        Get the parent of this node.
+        :return: The parent node
+        """
+        assert "parent_" in dir(self), "No parent known, please ensure ASTParentVisitor has been run on the AST"
+
+        if self.parent_:
+            assert self in self.parent_.get_children(), "Doubly linked tree is inconsistent: please ensure ASTParentVisitor has been run on the AST"
+
+        return self.parent_
+
+    @abstractmethod
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         pass
 
