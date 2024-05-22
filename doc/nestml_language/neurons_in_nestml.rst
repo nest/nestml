@@ -10,11 +10,11 @@ Modeling neurons in NESTML
 Writing the NESTML model
 ########################
 
-The top-level element of the model is ``neuron``, followed by a name. All other blocks appear inside of here.
+The top-level element of the model is ``model``, followed by a name. All other blocks appear inside of here.
 
 .. code-block:: nestml
 
-   neuron hodkin_huxley:
+   model hodkin_huxley_neuron:
        # [...]
 
 Neuronal interactions

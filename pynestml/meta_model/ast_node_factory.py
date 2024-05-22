@@ -151,9 +151,9 @@ class ASTNodeFactory:
                                is_inline_expression: bool=False,
                                variables=None,  # type: list
                                data_type=None,  # type: ASTDataType
-                               size_parameter=None,  # type: str
-                               expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
-                               invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
+                               size_parameter=None,  # type: Optional[Union[ASTSimpleExpression, ASTExpression]]
+                               expression=None,  # type: Optional[Union[ASTSimpleExpression, ASTExpression]]
+                               invariant=None,  # type: Optional[Union[ASTSimpleExpression, ASTExpression]]
                                source_position=None,  # type: ASTSourceLocation
                                decorators=None,  # type: list
                                ) -> ASTDeclaration:

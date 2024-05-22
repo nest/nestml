@@ -23,7 +23,7 @@ One variable in the model represents the local membrane potential in a compartme
 
 .. code-block:: nestml
     
-   neuron <neuron_name>:
+   model <neuron_name>:
        state:
            v_comp real = 0   # rhs value is irrelevant
 
@@ -35,7 +35,7 @@ Next, define one or more channels. An ion-channel is described in the following 
 
 .. code-block:: nestml
     
-   neuron <neuron_name>:
+   model <neuron_name>:
         equations:
             inline <current_equation_name> real = \
                 <some equation based on state variables, parameters, membrane potential and other equation names> \
@@ -49,7 +49,7 @@ As an example for a HH-type channel:
 
 .. code-block:: nestml
     
-   neuron <neuron_name>:
+   model <neuron_name>:
        parameters:
           gbar_Ca_HVA real = 0.00
           e_Ca_HVA real = 50.00
@@ -89,7 +89,7 @@ The concentration-model description looks very similar:
 
 .. code-block:: nestml
     
-   neuron <neuron_name>:
+   model <neuron_name>:
        equations:
            <some_state_variable>' = <ODE right-hand-side for some_state_variable> @mechanism::concentration
 
@@ -97,7 +97,7 @@ As an example a description of a calcium concentration model where we pretend th
 
 .. code-block:: nestml
 
-    neuron <neuron_name>:
+    model <neuron_name>:
         state:
             c_Ca real = 0.0001
 
@@ -120,7 +120,7 @@ Here synapse models are based on convolutions over a buffer of incoming spikes. 
 
 .. code-block:: nestml
 
-    neuron <neuron_name>:
+    model <neuron_name>:
         equations:
             inline <current_equation_name> real = \
                 <some equation based on state variables, parameters, membrane potential and other equation names \
