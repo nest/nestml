@@ -25,11 +25,17 @@ Source file: `aeif_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/bl
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[aeif_cond_exp_neuron_nestml]_small.png
           :alt: aeif_cond_exp_neuron
+
+          Firing rate vs. current
 
 
 :doc:`hh_cond_exp_destexhe_neuron <hh_cond_exp_destexhe_neuron>`
@@ -52,11 +58,17 @@ Source file: `hh_cond_exp_traub_neuron.nestml <https://www.github.com/nest/nestm
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[hh_cond_exp_traub_neuron_nestml]_small.png
           :alt: hh_cond_exp_traub_neuron
+
+          Firing rate vs. current
 
 
 :doc:`hh_moto_5ht_neuron <hh_moto_5ht_neuron>`
@@ -79,11 +91,17 @@ Source file: `hh_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/blo
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[hh_psc_alpha_neuron_nestml]_small.png
           :alt: hh_psc_alpha_neuron
+
+          Firing rate vs. current
 
 
 :doc:`hill_tononi_neuron <hill_tononi_neuron>`
@@ -106,11 +124,17 @@ Source file: `iaf_chxk_2008_neuron.nestml <https://www.github.com/nest/nestml/bl
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_chxk_2008_neuron_nestml]_small.png
           :alt: iaf_chxk_2008_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_cond_alpha_neuron <iaf_cond_alpha_neuron>`
@@ -125,11 +149,17 @@ Source file: `iaf_cond_alpha_neuron.nestml <https://www.github.com/nest/nestml/b
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_alpha_neuron_nestml]_small.png
           :alt: iaf_cond_alpha_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_cond_beta_neuron <iaf_cond_beta_neuron>`
@@ -144,11 +174,17 @@ Source file: `iaf_cond_beta_neuron.nestml <https://www.github.com/nest/nestml/bl
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_beta_neuron_nestml]_small.png
           :alt: iaf_cond_beta_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_cond_exp_neuron <iaf_cond_exp_neuron>`
@@ -163,11 +199,17 @@ Source file: `iaf_cond_exp_neuron.nestml <https://www.github.com/nest/nestml/blo
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_exp_neuron_nestml]_small.png
           :alt: iaf_cond_exp_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_cond_exp_sfa_rr_neuron <iaf_cond_exp_sfa_rr_neuron>`
@@ -182,11 +224,17 @@ Source file: `iaf_cond_exp_sfa_rr_neuron.nestml <https://www.github.com/nest/nes
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_cond_exp_sfa_rr_neuron_nestml]_small.png
           :alt: iaf_cond_exp_sfa_rr_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_psc_alpha_neuron <iaf_psc_alpha_neuron>`
@@ -201,11 +249,17 @@ Source file: `iaf_psc_alpha_neuron.nestml <https://www.github.com/nest/nestml/bl
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_psc_alpha_neuron_nestml]_small.png
           :alt: iaf_psc_alpha_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_psc_delta_neuron <iaf_psc_delta_neuron>`
@@ -220,11 +274,17 @@ Source file: `iaf_psc_delta_neuron.nestml <https://www.github.com/nest/nestml/bl
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_psc_delta_neuron_nestml]_small.png
           :alt: iaf_psc_delta_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_psc_delta_neuron_nestml]_small.png
           :alt: iaf_psc_delta_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_psc_delta_neuron_nestml]_small.png
           :alt: iaf_psc_delta_neuron
+
+          Firing rate vs. current
 
 
 :doc:`iaf_psc_exp_dend_neuron <iaf_psc_exp_dend_neuron>`
@@ -255,11 +315,17 @@ Source file: `iaf_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blob
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[iaf_psc_exp_neuron_nestml]_small.png
           :alt: iaf_psc_exp_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[iaf_psc_exp_neuron_nestml]_small.png
           :alt: iaf_psc_exp_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[iaf_psc_exp_neuron_nestml]_small.png
           :alt: iaf_psc_exp_neuron
+
+          Firing rate vs. current
 
 
 :doc:`ignore_and_fire_neuron <ignore_and_fire_neuron>`
@@ -282,11 +348,17 @@ Source file: `izhikevich_neuron.nestml <https://www.github.com/nest/nestml/blob/
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[izhikevich_neuron_nestml]_small.png
           :alt: izhikevich_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[izhikevich_neuron_nestml]_small.png
           :alt: izhikevich_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[izhikevich_neuron_nestml]_small.png
           :alt: izhikevich_neuron
+
+          Firing rate vs. current
 
 
 :doc:`izhikevich_psc_alpha_neuron <izhikevich_psc_alpha_neuron>`
@@ -309,11 +381,17 @@ Source file: `mat2_psc_exp_neuron.nestml <https://www.github.com/nest/nestml/blo
    * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_psp_[mat2_psc_exp_neuron_nestml]_small.png
           :alt: mat2_psc_exp_neuron
 
+          Post-synaptic potential
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_current_pulse_response_[mat2_psc_exp_neuron_nestml]_small.png
           :alt: mat2_psc_exp_neuron
 
+          Step current response
+
      - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/model_doc_gen/doc/models_library/nestml_fI_curve_[mat2_psc_exp_neuron_nestml]_small.png
           :alt: mat2_psc_exp_neuron
+
+          Firing rate vs. current
 
 
 :doc:`terub_gpe_neuron <terub_gpe_neuron>`

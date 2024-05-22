@@ -66,4 +66,4 @@ The model source code can be found in the NESTML models repository here: `stdp_t
 
 .. footer::
 
-   Generated at 2024-05-15 21:29:43.015011
+   Generated at 2024-05-22 14:51:14.677173

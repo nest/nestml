@@ -95,4 +95,4 @@ The model source code can be found in the NESTML models repository here: `izhike
 
 .. footer::
 
-   Generated at 2024-05-15 21:29:43.002564
+   Generated at 2024-05-22 14:51:14.664250

@@ -109,4 +109,4 @@ The model source code can be found in the NESTML models repository here: `aeif_c
 
 .. footer::
 
-   Generated at 2024-05-15 21:29:42.822289
+   Generated at 2024-05-22 14:51:14.484055

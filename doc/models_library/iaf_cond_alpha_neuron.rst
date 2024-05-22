@@ -95,4 +95,4 @@ The model source code can be found in the NESTML models repository here: `iaf_co
 
 .. footer::
 
-   Generated at 2024-05-15 21:29:42.936077
+   Generated at 2024-05-22 14:51:14.597480
