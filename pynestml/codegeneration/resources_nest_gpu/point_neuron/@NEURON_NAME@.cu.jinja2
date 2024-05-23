@@ -28,8 +28,22 @@
 
 {%- import 'directives/SetScalParamAndVar.jinja2' as set_scal_param_var with context %}
 
-{%- if not uses_numeric_solver %}
+{%- if uses_analytic_solver %}
 using namespace {{ neuronName }}_ns;
+
+// -------------------------------------------------------------------------
+//   Methods corresponding to event handlers
+// -------------------------------------------------------------------------
+
+{%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set ast = blk.get_block() %}
+void on_receive_block_{{ blk.get_port_name() }}()
+{
+{%-     filter indent(2, True) -%}
+{%-         include "directives/Block.jinja2" %}
+{%-     endfilter %}
+}
+{% endfor %}
 
 __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
 				      int n_param, float h)
@@ -57,7 +71,24 @@ __global__ void {{ neuronName }}_Update(int n_node, int i_node_0, float *var_arr
   if (i_neuron < n_node) {
     float *var = var_arr + n_var*i_neuron;
     float *param = param_arr + n_param*i_neuron;
+    /**
+     * subthreshold updates of the convolution variables
+     *
+     * step 1: regardless of whether and how integrate_odes() will be called, update variables due to convolutions
+    **/
 
+{%-     for variable_name in analytic_state_variables %}
+{%-         if "__X__" in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
+const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
+{%-         endif %}
+{%-     endfor %}
+
+    /**
+     * Begin NESTML generated code for the update block(s)
+    **/
 {%- if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in neuron.get_update_blocks() %}
@@ -70,6 +101,52 @@ __global__ void {{ neuronName }}_Update(int n_node, int i_node_0, float *var_arr
 {%-             include "directives/Block.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
+{%- endif %}
+
+    /**
+     * Begin NESTML generated code for the onReceive block(s)
+    **/
+{%  for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = blk.get_port_name() %}
+    if (var[i_{{ inport }}])
+    {
+      on_receive_block_{{ blk.get_port_name() }}();
+      var[i_{{ inport }}] = 0; // reset the value
+    }
+{%- endfor %}
+
+    /**
+     * subthreshold updates of the convolution variables
+     *
+     * step 2: regardless of whether and how integrate_odes() was called, update variables due to convolutions. Set to the updated values at the end of the timestep.
+    **/
+{%-     for variable_name in analytic_state_variables %}
+{%-         if "__X__" in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
+    {{ printer.print(var_ast) }} = {{variable_name}}__tmp_;
+{%-         endif %}
+{%-     endfor %}
+
+    /**
+     * Begin NESTML generated code for the onCondition block(s)
+    **/
+{% if neuron.get_on_condition_blocks() %}
+{%-     for block in neuron.get_on_condition_blocks() %}
+    if ({{ printer.print(block.get_cond_expr()) }})
+    {
+{%-         set ast = block.get_block() %}
+{%-         if ast.print_comment('*') | length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-         endif %}
+{%-         filter indent(6) %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endfilter %}
+    }
+{%-     endfor %}
 {%- endif %}
   }
 }
@@ -208,8 +285,12 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   BaseNeuron::Init(i_node_0, n_node, 2 /*n_port*/, i_group, seed);
   node_type_ = i_{{ neuronName }}_model;
 
+  // State variables
   n_scal_var_ = N_SCAL_VAR;
-  n_var_ = n_scal_var_;
+  n_port_var_ = N_PORT_VAR;
+  n_var_ = n_scal_var_ + n_port_var_;
+
+  // Parameters
   n_scal_param_ = N_SCAL_PARAM;
   n_param_ = n_scal_param_;
 {%- if uses_numeric_solver %}
@@ -277,7 +358,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 {%- endif %}
 
   // process the input spikes
-  port_input_arr_ = GetVarArr() + GetScalVarIdx("{{ printer_no_origin.print(utils.get_first_spike_port_from_spike_updates(neuron)) }}");
+  port_input_arr_ = GetVarArr() + n_scal_var_ + GetPortVarIdx("{{ utils.get_first_excitatory_port(neuron) }}");
   port_input_arr_step_ = n_var_;
   port_input_port_step_ = 1;
 

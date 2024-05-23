@@ -21,9 +21,14 @@
 import glob
 import os
 import shutil
-from typing import Dict, Sequence, Optional, Mapping, Any
+from typing import Dict, Sequence, Optional, Mapping, Any, List, Tuple
 
-from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
+from pynestml.utils.ast_utils import ASTUtils
+
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+
+from pynestml.meta_model.ast_assignment import ASTAssignment
+
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
@@ -95,7 +100,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             self.set_options({"nest_gpu_path": self.nest_gpu_path})
             Logger.log_message(None, -1, "The NEST-GPU path was automatically detected as: " + self.nest_gpu_path, None,
                                LoggingLevel.INFO)
-        
+
         # make sure NEST GPU code generator contains all options that are present in the NEST code generator, like gap junctions flags needed by the template
         for k, v in NESTCodeGenerator._default_options.items():
             if not k in self._options.keys():
@@ -143,12 +148,21 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
-    def generate_module_code(self, models: Sequence[ASTModel]):
+    # def add_auxiliary_variables_for_input_ports(self, neuron: ASTModel):
+    #     for port in neuron.get_input_ports():
+    #         var_name = port.get_symbol_name()
+    #         type_str = "real"
+    #         expr = "0 " + type_str
+    #         ASTUtils.add_declaration_to_state_block(neuron, var_name, expr, type_str)
+    #
+    # def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
+    #     self.add_auxiliary_variables_for_input_ports(neuron)
+    #     return super().analyse_neuron(neuron)
+
+    def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
-
         for neuron in neurons:
             self.copy_models_from_target_path(neuron)
             self.add_model_name_to_neuron_header(neuron)
@@ -226,5 +240,5 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         namespace = super()._get_neuron_model_namespace(astnode)
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer
-        
+
         return namespace
