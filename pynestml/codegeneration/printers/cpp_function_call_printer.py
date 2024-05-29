@@ -32,6 +32,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
@@ -97,8 +98,11 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return 'std::abs({!s})'
 
         if function_name == PredefinedFunctions.EXP:
-            #return 'std::exp({!s})'
-            return 'fastexp::IEEE<double, 2>::evaluate({!s})'
+            if "fastexp" in FrontendConfiguration.get_codegen_opts():
+                if FrontendConfiguration.get_codegen_opts()["fastexp"]:
+                    return 'fastexp::IEEE<double, 2>::evaluate({!s})'
+
+            return 'std::exp({!s})'
 
         if function_name == PredefinedFunctions.LN:
             return 'std::log({!s})'
