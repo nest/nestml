@@ -97,7 +97,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return 'std::abs({!s})'
 
         if function_name == PredefinedFunctions.EXP:
-            return 'std::exp({!s})'
+            #return 'std::exp({!s})'
+            return 'fastexp::IEEE<double, 2>::evaluate({!s})'
 
         if function_name == PredefinedFunctions.LN:
             return 'std::log({!s})'

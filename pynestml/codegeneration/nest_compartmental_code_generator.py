@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import shutil
 from typing import Any, Dict, List, Mapping, Optional
 
 import datetime
@@ -105,6 +105,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
                     "cm_tree_@NEURON_NAME@.h.jinja2"]},
             "module_templates": ["setup"]},
+        "externals": {
+            "path": "resources_nest_compartmental/external",
+            "files": [
+                "ieee.h"]},
         "nest_version": "",
         "compartmental_variable_name": "v_comp"}
 
@@ -196,9 +200,26 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             self,
             neurons: List[ASTNeuron],
             synapses: List[ASTSynapse] = None) -> None:
+        self.place_externals()
         self.analyse_transform_neurons(neurons)
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
+
+    def place_externals(self):
+        files = self.get_option("externals")["files"]
+        for f in files:
+            origin_path = self.get_option("externals")["path"]
+            origin_path = os.path.join(origin_path, f)
+            abs_origin_path = os.path.join(os.path.dirname(__file__), origin_path)
+
+            target_path = os.path.join(
+                FrontendConfiguration.get_target_path(), f)
+
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+
+            shutil.copyfile(abs_origin_path, target_path)
+
+
 
     def generate_module_code(self, neurons: List[ASTNeuron]) -> None:
         """t

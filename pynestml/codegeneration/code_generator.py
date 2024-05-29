@@ -197,6 +197,7 @@ class CodeGenerator(WithOptions):
 
         for _model_templ in model_templates:
             templ_file_name = os.path.basename(_model_templ.filename)
+            print(_model_templ.filename)
             if len(templ_file_name.split(".")) < 2:
                 msg = f"Template file name '{templ_file_name}' should be of the form 'PREFIX@NEURON_NAME@SUFFIX.[FILE_EXTENSION.]jinja2' "
                 raise Exception(msg)
