@@ -36,6 +36,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
@@ -78,6 +79,8 @@ class TestSymbolTableBuilder:
             SymbolTable.initialize_symbol_table(ast.get_source_position())
             symbol_table_visitor = ASTSymbolTableVisitor()
             for model in ast.get_model_list():
+                model.parent_ = None    # set root element
+                model.accept(ASTParentVisitor())
                 model.accept(symbol_table_visitor)
                 SymbolTable.add_model_scope(name=model.get_name(), scope=model.get_scope())
 

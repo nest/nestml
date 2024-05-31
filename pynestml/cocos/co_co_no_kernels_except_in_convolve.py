@@ -93,11 +93,11 @@ class KernelUsageVisitor(ASTVisitor):
             if not symbol.is_kernel():
                 continue
             if node.get_complete_name() == kernelName:
-                parent = self.__neuron_node.get_parent(node)
+                parent = node.get_parent()
                 if parent is not None:
                     if isinstance(parent, ASTKernel):
                         continue
-                    grandparent = self.__neuron_node.get_parent(parent)
+                    grandparent = parent.get_parent()
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
                         grandparent_func_name = grandparent.get_name()
                         if grandparent_func_name == 'convolve':

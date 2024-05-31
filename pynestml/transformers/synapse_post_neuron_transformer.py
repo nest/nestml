@@ -38,6 +38,7 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.string_utils import removesuffix
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -188,7 +189,7 @@ class SynapsePostNeuronTransformer(Transformer):
                         found_parent_assignment = False
                         node_ = node
                         while not found_parent_assignment:
-                            node_ = self.parent_node.get_parent(node_)
+                            node_ = node_.get_parent()
                             # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                             if isinstance(node_, ASTInlineExpression):
                                 found_parent_assignment = True
@@ -241,6 +242,10 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
 
+        new_neuron.parent_ = None    # set root element
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.parent_ = None    # set root element
+        new_synapse.accept(ASTParentVisitor())
         new_neuron.accept(ASTSymbolTableVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())
 
@@ -567,6 +572,8 @@ class SynapsePostNeuronTransformer(Transformer):
         #    add modified versions of neuron and synapse to list
         #
 
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.accept(ASTParentVisitor())
         ast_symbol_table_visitor = ASTSymbolTableVisitor()
         ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)

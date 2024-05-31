@@ -1,12 +1,12 @@
 """
-InputPorts.nestml
-#################
+input_ports_in_loop.nestml
+##########################
 
 
 Description
 +++++++++++
 
-This test is used to test the declaration of both vectorized and non-vectorized input ports.
+This test is used to test the usage of both vectorized and non-vectorized input ports in loops
 
 
 Copyright statement
@@ -29,22 +29,33 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model input_ports:
+model input_ports_loop:
     state:
-        bar pA = 0 pA
-        foo_spikes pA = 0 pA
-        my_spikes_ip pA = 0 pA
+        bar real = 0
+        foo_spikes real = 0
+        my_spikes_ip[N_spikes] real = 0
+
+    parameters:
+        N_buf integer = 5
+        N_spikes integer = 10
 
     input:
-        AMPA_spikes <- excitatory spike
-        GABA_spikes <- inhibitory spike
         NMDA_spikes <- spike
         foo[2] <- spike
-        my_spikes[3] <- excitatory spike
-        my_spikes2[3] <- inhibitory spike
-        I_stim pA <- continuous
+        spike_buf[N_buf] <- spike
 
     update:
-        bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)
-        foo_spikes += (foo[1] + 5.5 * foo[2]) * (pA * s)
-        my_spikes_ip += (my_spikes[1] + my_spikes[2] - my_spikes2[2]) * (pA * s)
+        bar += NMDA_spikes * s
+
+        # foo spikes
+        i integer = 0
+        for i in 0 ... (N_buf) step 1:
+            foo_spikes += 2.5 * foo[i] * s
+
+        # spike_buf spikes
+        j integer = 0
+        k integer = 0
+        while j < N_buf and k < N_spikes:
+            my_spikes_ip[k+2] += spike_buf[j] * s
+            j += 1
+            k += 1
