@@ -115,6 +115,12 @@ namespace {{names_namespace}}
 {%- endif %}
 }
 
+{%- if uses_numeric_solver %}
+{%- for s in utils.create_integrate_odes_combinations(astnode) %}
+extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%- endfor %}
+{%- endif %}
+
 class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
 public:
 
@@ -235,6 +241,12 @@ public:
 
 {%- endif %}
 };
+
+{%  if uses_numeric_solver %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(synapse) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-     endfor %}
+{%- endif %}
 
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
@@ -420,7 +432,11 @@ private:
 {%-     if numeric_solver == "rk45" %}
   Buffers_    B_;  //!< Buffers.
 {%-     endif %}
+{%-     for s in utils.create_integrate_odes_combinations(astnode) %}
+  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+{%-     endfor %}
 {%- endif %}
+
 {%- if synapse.get_state_symbols()|length > 0 %}
   // -------------------------------------------------------------------------
   //   Getters/setters for state block

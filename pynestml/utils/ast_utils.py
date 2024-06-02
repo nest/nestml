@@ -2454,10 +2454,11 @@ class ASTUtils:
             for update_expr in update_expr_list:
                 update_expr.accept(visitor)
 
-        if isinstance(model, ASTNeuron):
+        if "post_spike_updates" in dir(model):
             for update_expr in model.post_spike_updates.values():
                 update_expr.accept(visitor)
 
+        if "equations_with_delay_vars" in dir(model):
             for node in model.equations_with_delay_vars + model.equations_with_vector_vars:
                 node.accept(visitor)
 
