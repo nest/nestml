@@ -440,9 +440,6 @@ class ASTUtils:
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
 
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        model.accept(ASTSymbolTableVisitor())
-
         return model
 
     @classmethod
@@ -461,9 +458,6 @@ class ASTUtils:
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
-
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        model.accept(ASTSymbolTableVisitor())
 
         return model
 
@@ -484,9 +478,6 @@ class ASTUtils:
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
 
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        model.accept(ASTSymbolTableVisitor())
-
         return model
 
     @classmethod
@@ -505,9 +496,6 @@ class ASTUtils:
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
-
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        model.accept(ASTSymbolTableVisitor())
 
         return model
 

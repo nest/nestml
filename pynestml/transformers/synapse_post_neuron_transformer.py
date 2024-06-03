@@ -346,9 +346,11 @@ class SynapsePostNeuronTransformer(Transformer):
 
         if not new_synapse.get_equations_blocks():
             ASTUtils.create_equations_block(new_synapse)
+            new_synapse.accept(ASTSymbolTableVisitor())
 
         if not new_neuron.get_equations_blocks():
             ASTUtils.create_equations_block(new_neuron)
+            new_synapse.accept(ASTSymbolTableVisitor())
 
         post_port_names = []
         for input_block in new_synapse.get_input_blocks():
@@ -373,6 +375,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         if syn_to_neuron_state_vars and not new_neuron.get_state_blocks():
             ASTUtils.create_state_block(new_neuron)
+            new_neuron.accept(ASTSymbolTableVisitor())
 
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var),
@@ -477,6 +480,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         if not new_neuron.get_parameters_blocks():
             ASTUtils.create_parameters_block(new_neuron)
+            new_neuron.accept(ASTSymbolTableVisitor())
 
         Logger.log_message(None, -1, "Copying parameters from synapse to neuron...", None, LoggingLevel.INFO)
         for param_var in syn_to_neuron_params:
