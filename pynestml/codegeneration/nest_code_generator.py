@@ -613,8 +613,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
+        namespace["analytic_state_variables_moved"] = []
         if namespace["uses_analytic_solver"]:
-            namespace["analytic_state_variables_moved"] = []
             if "paired_synapse" in dir(neuron):
                 namespace["analytic_state_variables"] = []
                 for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
