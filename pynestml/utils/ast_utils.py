@@ -432,10 +432,10 @@ class ASTUtils:
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_internals_blocks():
-            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
-                                                                      ASTSourceLocation.get_added_source_position())
-            internal.update_scope(model.get_scope())
-            model.get_body().get_body_elements().append(internal)
+            block = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
+                                                                   ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -451,10 +451,11 @@ class ASTUtils:
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if not model.get_internals_blocks():
-            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
+        if not model.get_state_blocks():
+            block = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
-            model.get_body().get_body_elements().append(state)
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -471,9 +472,10 @@ class ASTUtils:
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_parameters_blocks():
-            state = ASTNodeFactory.create_ast_block_with_variables(False, True, False, list(),
+            block = ASTNodeFactory.create_ast_block_with_variables(False, True, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
-            model.get_body().get_body_elements().append(state)
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -492,6 +494,7 @@ class ASTUtils:
         if not model.get_equations_blocks():
             block = ASTNodeFactory.create_ast_equations_block(list(),
                                                               ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
             model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
