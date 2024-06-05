@@ -119,22 +119,24 @@ class NESTCodeGeneratorUtils:
         -------
         If a synapse is specified, returns a tuple (module_name, mangled_neuron_name, mangled_synapse_name) containing the names that can be used in ``nest.Install()``, ``nest.Create()`` and ``nest.Connect()`` calls. If no synapse is specified, returns a tuple (module_name, mangled_neuron_name).
         """
-
         from pynestml.frontend.pynestml_frontend import generate_nest_target
 
         # generate temporary install directory
         install_path = tempfile.mkdtemp(prefix="nestml_target_")
 
         # read neuron model from file?
-        if "\n" not in nestml_neuron_model and ".nestml" in nestml_neuron_model:
+        neuron_model_is_file_name: bool = "\n" not in nestml_neuron_model and ".nestml" in nestml_neuron_model
+        if neuron_model_is_file_name:
+            neuron_fn = nestml_neuron_model
             with open(nestml_neuron_model, "r") as nestml_model_file:
                 nestml_neuron_model = nestml_model_file.read()
 
         # update neuron model name inside the file
         neuron_model_name = re.findall(r"model [^:\s]*:", nestml_neuron_model)[0][6:-1]
-        neuron_fn = neuron_model_name + ".nestml"
-        with open(neuron_fn, "w") as f:
-            print(nestml_neuron_model, file=f)
+        if not neuron_model_is_file_name:
+            neuron_fn = neuron_model_name + ".nestml"
+            with open(neuron_fn, "w") as f:
+                print(nestml_neuron_model, file=f)
 
         input_fns = [neuron_fn]
         _codegen_opts = {"neuron_parent_class": "StructuralPlasticityNode",
@@ -143,15 +145,19 @@ class NESTCodeGeneratorUtils:
 
         if nestml_synapse_model:
             # read synapse model from file?
-            if "\n" not in nestml_synapse_model and ".nestml" in nestml_synapse_model:
+            synapse_model_is_file_name: bool = "\n" not in nestml_synapse_model and ".nestml" in nestml_synapse_model
+            if synapse_model_is_file_name:
+                synapse_fn = nestml_synapse_model
                 with open(nestml_synapse_model, "r") as nestml_model_file:
                     nestml_synapse_model = nestml_model_file.read()
 
             # update synapse model name inside the file
             synapse_model_name = re.findall(r"model [^:\s]*:", nestml_synapse_model)[0][6:-1]
-            synapse_fn = synapse_model_name + ".nestml"
-            with open(synapse_fn, "w") as f:
-                print(nestml_synapse_model, file=f)
+            if not synapse_model_is_file_name:
+                synapse_fn = synapse_model_name + ".nestml"
+                with open(synapse_fn, "w") as f:
+                    print(nestml_synapse_model, file=f)
+
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
                                                       "synapse": synapse_model_name,
