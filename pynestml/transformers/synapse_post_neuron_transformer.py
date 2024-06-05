@@ -491,7 +491,7 @@ class SynapsePostNeuronTransformer(Transformer):
         #
 
         Logger.log_message(
-            None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with suffixed external variable references", None, LoggingLevel.INFO)
+            None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with external variable references", None, LoggingLevel.INFO)
         post_connected_continuous_input_ports = []
         post_variable_names = []
         for input_block in synapse.get_input_blocks():
@@ -503,8 +503,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, "",
-                                                    new_neuron.get_scope(), alternate_name)
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_neuron.get_scope(), alternate_name)
 
         #
         #    copy parameters
@@ -539,8 +538,7 @@ class SynapsePostNeuronTransformer(Transformer):
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(
-                state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
         #
         #     rename neuron

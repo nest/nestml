@@ -42,7 +42,6 @@ from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCo
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
-from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
@@ -75,13 +74,6 @@ class CoCosManager:
     """
     This class provides a set of context conditions which have to hold for each model instance.
     """
-    @classmethod
-    def check_nest_synapse_delay_not_assigned_to_visitor(cls, model: ASTModel):
-        r"""
-        Checks for the handed over model that delay parameter is not assigned to.
-        """
-        CoCoNESTSynapseDelayNotAssignedTo.check_co_co(model)
-
     @classmethod
     def check_function_defined(cls, model: ASTModel):
         """

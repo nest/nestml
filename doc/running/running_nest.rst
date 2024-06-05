@@ -21,9 +21,9 @@ At the end of the timestep, variables corresponding to convolutions are updated 
 Event-based updating of synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NEST synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
 The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
+
+Synapses in NEST are not allowed to have any nonlinear time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid. Linear ODEs are allowed, because they admit an analytical solution, which can be updated in a single step from the previous event time to the current event time. However, nonlinear dynamics are not allowed because they would require a numeric solver evaluating the dynamics on a regular time grid.
 
 
 Setting and retrieving model properties
