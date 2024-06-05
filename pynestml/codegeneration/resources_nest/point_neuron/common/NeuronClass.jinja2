@@ -171,9 +171,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
   void {{neuronName}}::insert_recordables(size_t first)
   {
-#ifdef DEBUG
-    std::cerr << "{{neuronName}}::insert_recordables()" << std::endl;
-#endif
 {%- for variable in neuron.get_vector_state_symbols() %}
 {%-   set node = utils.get_state_variable_by_name(astnode, variable.get_symbol_name()) %}
       for (size_t i = 0; i < {{vector_size_parameter.VectorSizeParameter(variable, true)}}; i++)
@@ -249,9 +246,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::{{neuronName}}()" << std::endl;
-#endif
   init_state_internal_();
 
 {%- if has_state_vectors %}
@@ -274,9 +268,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
   {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this)
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::{{neuronName}}(copy constr)" << std::endl;
-#endif
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
 {%-   set node = utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()) %}
@@ -315,10 +306,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   {{var_name}}__iv = {{printer.print(var)}};
 {%- endfor %}
 {%- endif %}
-
-#ifdef DEBUG
-  std::cerr << "\t--> END OF {{neuronName}}::{{neuronName}}(copy constr)" << std::endl;
-#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -327,9 +314,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 
 {{neuronName}}::~{{neuronName}}()
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::~{{neuronName}}()" << std::endl;
-#endif
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
   // GSL structs may not have been allocated, so we need to protect destruction
@@ -359,9 +343,6 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if nest_version.startswith("v2") %}
 void {{neuronName}}::init_state_(const Node& proto)
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::init_state_()" << std::endl;
-#endif
   const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
 }
@@ -370,9 +351,6 @@ void {{neuronName}}::init_state_(const Node& proto)
 {%- if not nest_version.startswith("v2") %}
 void {{neuronName}}::calibrate_time( const nest::TimeConverter& tc )
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::calibrate_time()" << std::endl;
-#endif
   LOG( nest::M_WARNING,
     "{{neuronName}}",
     "Simulation resolution has changed. Internal state and parameters of the model have been reset!" );
@@ -383,10 +361,6 @@ void {{neuronName}}::calibrate_time( const nest::TimeConverter& tc )
 {%- endif %}
 void {{neuronName}}::init_state_internal_()
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::init_state_internal_()" << std::endl;
-#endif
-
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 {%- if numeric_solver == "rk45" %}
@@ -438,10 +412,6 @@ void {{neuronName}}::init_state_internal_()
 
 void {{neuronName}}::init_buffers_()
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::init_buffers_()" << std::endl;
-#endif
-
 {%- if use_gap_junctions %}
   // resize interpolation_coefficients depending on interpolation order
   const size_t buffer_size =
@@ -528,9 +498,6 @@ void {{neuronName}}::init_buffers_()
 
 void {{neuronName}}::recompute_internal_variables(bool exclude_timestep)
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::recompute_internal_variables()" << std::endl;
-#endif
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   if (exclude_timestep)
@@ -560,9 +527,6 @@ void {{neuronName}}::recompute_internal_variables(bool exclude_timestep)
 {%- endfor %}
 {%- endfilter %}
   }
-#ifdef DEBUG
-  std::cerr << "\t --> END OF {{neuronName}}::recompute_internal_variables()" << std::endl;
-#endif
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -571,9 +535,6 @@ void {{neuronName}}::calibrate()
 void {{neuronName}}::pre_run_hook()
 {%- endif %}
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::pre_run_hook()" << std::endl;
-#endif
   B_.logger_.init();
 
   // parameters might have changed -- recompute internals
@@ -627,9 +588,6 @@ void {{neuronName}}::pre_run_hook()
 {%- if has_delay_variables %}
 void {{neuronName}}::update_delay_variables()
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::update_delay_variables()" << std::endl;
-#endif
 {%-   for variable_symbol in neuron.get_state_symbols() %}
 {%-       if variable_symbol.has_delay_parameter() %}
 {%-           set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -690,11 +648,6 @@ const double {{ variable_name }}__tmp = {{ printer.print(var_ast) }};
 {% endif %}
 
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
-
-#ifdef DEBUG
-  std::cerr << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << get_t() << std::endl;
-  std::cerr << "\tS_.syn_kernel__X__synaptic_spikes__d = " << S_.syn_kernel__X__synaptic_spikes__d << ", S_.syn_kernel__X__synaptic_spikes = " << S_.syn_kernel__X__synaptic_spikes << ", S_.I_dAP = " << S_.I_dAP << ", S_.V_m = " << S_.V_m << "\n";
-#endif
 
 {%- if use_gap_junctions %}
     // B_.lag is needed by GSL stepping function to determine the current section
@@ -1045,9 +998,6 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::get_continuous_variable_history()" << std::endl;
-#endif
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
   {
@@ -1080,9 +1030,6 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %})
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::write_continuous_variable_history()" << std::endl;
-#endif
   const double t_ms = t.get_ms();
 
   // prune all entries from history which are no longer needed except the penultimate one. we might still need it.
@@ -1102,9 +1049,6 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %}) );
-#ifdef DEBUG
-  std::cerr << "\thistory size = " << continuous_variable_history_.size() << std::endl;
-#endif
 }
 {%- endif %}
 
@@ -1118,9 +1062,6 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 {% if has_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::handle()" << std::endl;
-#endif
   assert(e.get_delay_steps() > 0);
   assert( e.get_rport() < B_.spike_inputs_.size() );
 
@@ -1154,9 +1095,6 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::handle(CurrentEvent)" << std::endl;
-#endif
   assert(e.get_delay_steps() > 0);
 
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
@@ -1200,9 +1138,6 @@ inline double
 void
 {{neuronName}}::register_stdp_connection( double t_first_read, double delay )
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::register_stdp_connection()" << std::endl;
-#endif
   // Mark all entries in the deque, which we will not read in future as read by
   // this input input, so that we safely increment the incoming number of
   // connections afterwards without leaving spikes in the history.
@@ -1227,9 +1162,6 @@ void
   std::deque< histentry__{{neuronName}} >::iterator* start,
   std::deque< histentry__{{neuronName}} >::iterator* finish )
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::get_history__()" << std::endl;
-#endif
   *finish = history_.end();
   if ( history_.empty() )
   {
@@ -1255,10 +1187,6 @@ void
 void
 {{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::set_spiketime()" << std::endl;
-#endif
-
   {{neuron_parent_class}}::set_spiketime( t_sp, offset );
 
   unsigned int num_transferred_variables = 0;
@@ -1371,10 +1299,6 @@ void
 void
 {{neuronName}}::clear_history()
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::clear_history()" << std::endl;
-#endif
-
   last_spike_ = -1.0;
   history_.clear();
 }
@@ -1398,16 +1322,9 @@ void
 double
 {{neuronName}}::get_{{var}}( double t, const bool before_increment )
 {
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
-#endif
-
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
-#ifdef DEBUG
-    std::cerr << "{{neuronName}}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
-#endif
     // return initial value
     return {{var}}__iv;
   }
@@ -1423,10 +1340,6 @@ double
   {
     if ( t - history_[ i ].t_ >= eps )
     {
-#ifdef DEBUG
-      std::cerr<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
-#endif
-
 {%- for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
@@ -1459,9 +1372,6 @@ double
 
 {%- endif %}
 
-#ifdef DEBUG
-      std::cerr << "{{neuronName}}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
-#endif
       return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
     }
     --i;
@@ -1474,17 +1384,11 @@ double
     {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 
-#ifdef DEBUG
-    std::cerr << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
-#endif
     return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
   }
 
   // this case occurs when the trace was requested at a time before the first spike in the history
   // return initial value propagated in time
-#ifdef DEBUG
-  std::cerr << "{{neuronName}}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
-#endif
 
   if (t == 0.)
   {
@@ -1533,10 +1437,6 @@ double
 {%- if use_gap_junctions %}
 void {{neuronName}}::handle( nest::GapJunctionEvent& e )
 {
-#ifdef DEBUG
-  std::cerr << "Handling GapJunctionEvent\n";
-#endif
-
   const double weight = e.get_weight();
 
   B_.sumj_g_ij_ += weight;
