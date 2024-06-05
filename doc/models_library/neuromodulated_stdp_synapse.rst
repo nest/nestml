@@ -67,12 +67,9 @@ Source code
 The model source code can be found in the NESTML models repository here: `neuromodulated_stdp_synapse <https://github.com/nest/nestml/tree/master/models/synapses/neuromodulated_stdp_synapse.nestml>`_.
 
 
-Characterisation
-++++++++++++++++
-
 .. include:: neuromodulated_stdp_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-11-16 11:40:54.345553
+   Generated at 2024-05-22 14:51:14.674282

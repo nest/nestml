@@ -38,11 +38,14 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
-from pynestml.utils.string_utils import removesuffix
 
 
 class AutoDocCodeGenerator(CodeGenerator):
+    r"""
+    The "autodoc" code generator generates human-readable documentation for each neuron and synapse model. The documentation consists of files in reStructuredText format.
 
+    In addition, supported models can be characterised by current injection, measuring the PSP, f-I curve, etc. These characterisations are run using NEST. Figures are saved in PNG format.
+    """
     def __init__(self):
         # setup the template environment
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_autodoc')))
@@ -89,7 +92,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param neuron: a single neuron object.
         """
         nestml_model_doc = self._template_neuron_nestml_model.render(self.setup_neuron_model_generation_helpers(neuron))
-        neuron_name = removesuffix(neuron.get_name(), "_neuron")
+        neuron_name = neuron.get_name()
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_name)) + '.rst',
                   'w+') as f:
             f.write(str(nestml_model_doc))
@@ -116,7 +119,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neuron'] = neuron
-        namespace['neuronName'] = removesuffix(str(neuron.get_name()), "_neuron")
+        namespace['neuronName'] = neuron.get_name()
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
