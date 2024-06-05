@@ -19,11 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 import sympy
 
 from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
+from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class ChanInfoEnricher(MechsInfoEnricher):

@@ -1,7 +1,7 @@
 Installing NESTML
 =================
 
-Please note that only Python 3.9 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
+Please note that only Python 3.8 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
 Installing the latest release from PyPI
 ---------------------------------------
@@ -16,7 +16,31 @@ NESTML can then be installed into your local user directory via:
 
 .. code-block:: bash
 
-   pip install --pre nestml
+   pip install nestml
+
+
+Installing the latest release from PPA (Linux)
+----------------------------------------------
+
+NESTML can be installed via the ``apt`` package manager. This requires superuser (sudo) access. First, add the NEST PPA:
+
+.. code-block:: bash
+
+   sudo add-apt-repository ppa:nest-simulator/nest
+
+Then update the index and install the necessary packages:
+
+.. code-block:: bash
+
+   sudo apt update
+   sudo apt install nest python3-nestml
+   python3 -m pip install --upgrade odetoolbox pygsl antlr4-python3-runtime==4.10
+
+Before running NEST or NESTML, make sure the correct environment variables are set by running the following command:
+
+.. code-block:: bash
+
+   source /usr/bin/nest_vars.sh
 
 
 Installing the latest development version from GitHub
@@ -59,13 +83,15 @@ After installation, correct operation can be tested by:
 Anaconda installation
 ---------------------
 
-In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies:
+In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies.
+
+Please make sure to have the latest conda version installed and to create a new environment with the command below, i.e. installing all packages together at the start versus installing one by one.
 
 .. code-block:: bash
 
    conda create --name wnestml
    conda activate wnestml
-   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython
+   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost cmake make
    pip install nestml
 
 Test the path to ``c++``:

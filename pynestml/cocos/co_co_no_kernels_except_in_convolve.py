@@ -19,11 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -44,16 +47,15 @@ class CoCoNoKernelsExceptInConvolve(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, model: ASTModel):
         """
-        Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ast_neuron
+        Ensures the coco for the handed over model.
+        :param node: a single model instance.
         """
         kernel_collector_visitor = KernelCollectingVisitor()
-        kernel_names = kernel_collector_visitor.collect_kernels(neuron=node)
+        kernel_names = kernel_collector_visitor.collect_kernels(model)
         kernel_usage_visitor = KernelUsageVisitor(_kernels=kernel_names)
-        kernel_usage_visitor.work_on(node)
+        kernel_usage_visitor.work_on(model)
 
 
 class KernelUsageVisitor(ASTVisitor):
@@ -91,11 +93,11 @@ class KernelUsageVisitor(ASTVisitor):
             if not symbol.is_kernel():
                 continue
             if node.get_complete_name() == kernelName:
-                parent = self.__neuron_node.get_parent(node)
+                parent = node.get_parent()
                 if parent is not None:
                     if isinstance(parent, ASTKernel):
                         continue
-                    grandparent = self.__neuron_node.get_parent(parent)
+                    grandparent = parent.get_parent()
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
                         grandparent_func_name = grandparent.get_name()
                         if grandparent_func_name == 'convolve':
@@ -113,16 +115,14 @@ class KernelCollectingVisitor(ASTVisitor):
         super(KernelCollectingVisitor, self).__init__()
         self.kernel_names = None
 
-    def collect_kernels(self, neuron):
+    def collect_kernels(self, model: ASTModel) -> List[str]:
         """
         Collects all kernels in the model.
-        :param neuron: a single neuron instance
-        :type neuron: ast_neuron
+        :param neuron: a single model instance
         :return: a list of kernels.
-        :rtype: list(str)
         """
         self.kernel_names = list()
-        neuron.accept(self)
+        model.accept(self)
         return self.kernel_names
 
     def visit_kernel(self, node):

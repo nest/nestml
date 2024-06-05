@@ -20,26 +20,25 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
+
 import copy
 
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.utils.ast_mechanism_information_collector import ASTMechanismInformationCollector
-
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
-
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.utils.ast_mechanism_information_collector import ASTMechanismInformationCollector
+from pynestml.utils.ast_utils import ASTUtils
+
 from odetoolbox import analysis
 
-from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
-
-class MechanismProcessing(object):
+class MechanismProcessing:
     """Manages the collection of basic information necesary for all types of mechanisms and uses the
     collect_information_for_specific_mech_types interface that needs to be implemented by the specific mechanism type
     processing classes"""
@@ -138,23 +137,21 @@ class MechanismProcessing(object):
         return mechs_info
 
     @classmethod
-    def get_mechs_info(cls, neuron: ASTNeuron):
+    def get_mechs_info(cls, neuron: ASTModel):
         """
         returns previously generated mechs_info
         as a deep copy so it can't be changed externally
         via object references
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
         """
 
         return copy.deepcopy(cls.mechs_info[neuron][cls.mechType])
 
     @classmethod
-    def check_co_co(cls, neuron: ASTNeuron):
+    def check_co_co(cls, neuron: ASTModel):
         """
         Checks if mechanism conditions apply for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
         """
 
         # make sure we only run this a single time

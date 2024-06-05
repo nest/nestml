@@ -11,10 +11,10 @@ jobs:
   link_checker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.5.4
+        uses: lycheeverse/lychee-action@v1.10.0
         with:
           args: --verbose --no-progress **/*.md **/*.html **/*.rst
           fail: true
@@ -26,13 +26,13 @@ jobs:
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup Python version
-      - name: Setup Python 3.9
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -57,13 +57,13 @@ jobs:
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup Python version
-      - name: Setup Python 3.9
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -80,7 +80,7 @@ jobs:
 
       # Install Java
       - name: Install Java 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '11.0.x'
@@ -89,9 +89,9 @@ jobs:
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          wget http://www.antlr.org/download/antlr-4.10-complete.jar
+          wget http://www.antlr.org/download/antlr-4.13.1-complete.jar
           echo \#\!/bin/bash > antlr4
-          echo java -cp \"`pwd`/antlr-4.10-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo java -cp \"`pwd`/antlr-4.13.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
           echo PATH=$PATH:`pwd` >> $GITHUB_ENV
@@ -99,7 +99,7 @@ jobs:
       # Install NESTML
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -123,18 +123,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.6", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.7", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup Python version
-      - name: Setup Python 3.9
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -151,7 +151,7 @@ jobs:
 
       # Install Java
       - name: Install Java 11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '11.0.x'
@@ -160,9 +160,9 @@ jobs:
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          wget http://www.antlr.org/download/antlr-4.10-complete.jar
+          wget http://www.antlr.org/download/antlr-4.13.1-complete.jar
           echo \#\!/bin/bash > antlr4
-          echo java -cp \"`pwd`/antlr-4.10-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo java -cp \"`pwd`/antlr-4.13.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
           echo PATH=$PATH:`pwd` >> $GITHUB_ENV
@@ -188,7 +188,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -242,8 +242,13 @@ jobs:
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
           for fn in $ipynb_fns; do
+              echo "Now running Jupyter notebook: ${fn}"
               cd `dirname ${fn}`
-              ipython3 ${fn} || rc=1
+              ipython3 ${fn}
+              if [ $? -ne 0 ]; then
+                  echo "Error running Jupyter notebook: ${fn}"
+                  rc=1
+              fi
           done;
           cd $GITHUB_WORKSPACE
           exit $rc
@@ -259,13 +264,13 @@ jobs:
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup Python version
-      - name: Setup Python 3.9
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -301,7 +306,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install

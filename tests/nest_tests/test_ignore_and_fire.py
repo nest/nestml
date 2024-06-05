@@ -40,18 +40,18 @@ except Exception:
 
 class TestIgnoreAndFire:
 
-    neuron_model_name = "ignore_and_fire_nestml__with_stdp_nestml"
-    synapse_model_name = "stdp_nestml__with_ignore_and_fire_nestml"
+    neuron_model_name = "ignore_and_fire_neuron_nestml__with_stdp_synapse_nestml"
+    synapse_model_name = "stdp_synapse_nestml__with_ignore_and_fire_neuron_nestml"
 
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         """Generate the model code"""
 
-        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire",
-                                                  "synapse": "stdp",
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "ignore_and_fire_neuron",
+                                                  "synapse": "stdp_synapse",
                                                   "post_ports": ["post_spikes"]}]}
 
-        files = [os.path.join("models", "neurons", "ignore_and_fire.nestml"),
+        files = [os.path.join("models", "neurons", "ignore_and_fire_neuron.nestml"),
                  os.path.join("models", "synapses", "stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
@@ -59,7 +59,6 @@ class TestIgnoreAndFire:
                              logging_level="DEBUG",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
-        nest.Install("nestmlmodule")
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
@@ -69,6 +68,11 @@ class TestIgnoreAndFire:
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
         nest.SetKernelStatus({"resolution": resolution})
 
         pre_neuron = nest.Create(self.neuron_model_name)

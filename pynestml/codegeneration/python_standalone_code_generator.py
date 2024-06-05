@@ -19,18 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, Mapping, Optional, Sequence, Union
-
-import os
+from typing import Any, Dict, Mapping, Optional
 
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.python_expression_printer import PythonExpressionPrinter
 from pynestml.codegeneration.printers.python_stepping_function_function_call_printer import PythonSteppingFunctionFunctionCallPrinter
 from pynestml.codegeneration.printers.python_stepping_function_variable_printer import PythonSteppingFunctionVariablePrinter
 from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.printers.python_type_symbol_printer import PythonTypeSymbolPrinter
 from pynestml.codegeneration.printers.python_standalone_printer import PythonStandalonePrinter
@@ -45,6 +41,8 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
     Options:
 
+    - **neuron_models**: List of neuron model names. Instructs the code generator that models with these names are neuron models.
+    - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **templates**: Path containing jinja templates used to generate code.
@@ -70,7 +68,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super(NESTCodeGenerator, self).__init__("python_standalone", PythonStandaloneCodeGenerator._default_options | (options if options else {}))
+        super(NESTCodeGenerator, self).__init__("python_standalone", {**PythonStandaloneCodeGenerator._default_options, **(options if options else {})})
 
         # make sure Python standalone code generator contains all options that are present in the NEST code generator, like gap junctions flags needed by the template
         for k, v in NESTCodeGenerator._default_options.items():
@@ -121,7 +119,7 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
         self._gsl_variable_printer._expression_printer = self._gsl_printer
 
-    def _get_model_namespace(self, astnode: ASTNeuronOrSynapse) -> Dict:
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
         namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
         namespace["gsl_printer"] = self._gsl_printer
