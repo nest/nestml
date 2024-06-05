@@ -503,7 +503,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_neuron.get_scope(), alternate_name)
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_synapse.get_equations_blocks()[0].get_scope(), alternate_name)
 
         #
         #    copy parameters
@@ -534,11 +534,13 @@ class SynapsePostNeuronTransformer(Transformer):
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
         #
 
+        new_neuron.accept(ASTSymbolTableVisitor())
+
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks()[0].get_scope())
 
         #
         #     rename neuron

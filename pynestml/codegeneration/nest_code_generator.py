@@ -249,6 +249,11 @@ class NESTCodeGenerator(CodeGenerator):
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
+        print("XXXXXXXX")
+        from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+        for synapse in synapses:
+            CoCoAllVariablesDefined().check_co_co(synapse)
+        print("YYYYYYYYY")
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
