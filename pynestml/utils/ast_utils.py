@@ -693,7 +693,7 @@ class ASTUtils:
                 ast_ext_var.set_alternate_name(alternate_name)
 
             ast_ext_var.parent_ = _expr
-            ast_ext_var.update_alt_scope(new_scope)
+            # ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
