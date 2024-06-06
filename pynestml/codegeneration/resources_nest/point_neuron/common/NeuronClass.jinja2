@@ -1250,7 +1250,7 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-{%-     filter indent(10, True) -%}
+{%-     filter indent(6, True) -%}
 {#          emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
@@ -1266,9 +1266,11 @@ void
       * print extra on-emit statements transferred from synapse
     **/
 
+{%-     filter indent(4, True) %}
 {%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
 {%-         include "directives_cpp/Statement.jinja2" %}
 {%-     endfor %}
+{%-     endfilter %}
 
     /**
       * print updates due to convolutions

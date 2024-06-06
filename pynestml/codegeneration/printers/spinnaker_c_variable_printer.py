@@ -27,6 +27,7 @@ from pynestml.codegeneration.spinnaker_code_generator_utils import SPINNAKERCode
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.expression_printer import ExpressionPrinter
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -56,8 +57,8 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
-        if variable.get_alternate_name():
-            raise Exception("SpiNNaker does not suport alternate names for variables")
+        if isinstance(variable, ASTExternalVariable):
+            raise Exception("SpiNNaker does not suport external variables")
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"

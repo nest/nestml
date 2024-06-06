@@ -27,6 +27,7 @@ import re
 import odetoolbox
 import pynestml
 
+from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -167,6 +168,14 @@ class NESTCodeGenerator(CodeGenerator):
         self.setup_template_env()
         self.setup_printers()
 
+    def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
+        for synapse in synapses:
+            synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+            delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+            CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
+            if Logger.has_errors(synapse):
+                raise Exception("Error(s) occurred during code generation")
+
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
 
@@ -227,9 +236,19 @@ class NESTCodeGenerator(CodeGenerator):
 
         return ret
 
+    def generate_synapse_code(self, synapse: ASTModel) -> None:
+        # special case for delay variable
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+        variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
+        self._nest_variable_printer.variables_special_cases = variables_special_cases
+        self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
+
+        super().generate_synapse_code(synapse)
+
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
 
+        self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -419,7 +438,6 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.update_blocktype_for_common_parameters(synapse)
         assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
         assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
-        NESTCodeGeneratorUtils.set_nest_alternate_name(synapse, {ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]).get_name():  "get_delay()"})
 
         return spike_updates
 

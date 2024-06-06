@@ -223,7 +223,6 @@ class SynapsePostNeuronTransformer(Transformer):
                 symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
                 assert symbol is not None  # should have been checked in a CoCo before
                 self._variable_names.append(node.get_variable().get_name())
-                # print("-------> adding " + node.get_variable().get_name())
 
         if node is None:
             return []
@@ -428,6 +427,7 @@ class SynapsePostNeuronTransformer(Transformer):
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
                                None, LoggingLevel.INFO)
+            # move the ODE so a solver will be generated for it by ODE-toolbox
             decls = ASTUtils.equations_from_block_to_block(state_var,
                                                            new_synapse.get_equations_blocks()[0],
                                                            new_neuron.get_equations_blocks()[0],
@@ -436,6 +436,8 @@ class SynapsePostNeuronTransformer(Transformer):
             ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
             ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
+            # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
+            # for now, moved variables are integrated separately in time in set_spiketime()
 
         #
         #    move initial values for equations
@@ -523,12 +525,11 @@ class SynapsePostNeuronTransformer(Transformer):
         #
 
         Logger.log_message(
-            None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with suffixed external variable references", None, LoggingLevel.INFO)
+            None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with external variable references", None, LoggingLevel.INFO)
 
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, "",
-                                                    new_neuron.get_scope(), alternate_name="__" + state_var)
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_synapse.get_equations_blocks()[0].get_scope(), alternate_name)
         #
         #    replace .......
         #
@@ -568,12 +569,16 @@ class SynapsePostNeuronTransformer(Transformer):
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
         #
 
+        # make sure the moved symbols can be resolved in the scope of the neuron (that's where ``ASTExternalVariable._altscope`` will be pointing to)
+        ast_symbol_table_visitor = ASTSymbolTableVisitor()
+        ast_symbol_table_visitor.after_ast_rewrite_ = True
+        new_neuron.accept(ast_symbol_table_visitor)
+
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(
-                state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks()[0].get_scope())
 
         #
         #     rename neuron
