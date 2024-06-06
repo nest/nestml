@@ -223,7 +223,6 @@ class SynapsePostNeuronTransformer(Transformer):
                 symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
                 assert symbol is not None  # should have been checked in a CoCo before
                 self._variable_names.append(node.get_variable().get_name())
-                # print("-------> adding " + node.get_variable().get_name())
 
         if node is None:
             return []
@@ -397,6 +396,7 @@ class SynapsePostNeuronTransformer(Transformer):
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
                                None, LoggingLevel.INFO)
+            # move the ODE so a solver will be generated for it by ODE-toolbox
             decls = ASTUtils.equations_from_block_to_block(state_var,
                                                            new_synapse.get_equations_blocks()[0],
                                                            new_neuron.get_equations_blocks()[0],
@@ -404,6 +404,8 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            mode="move")
             ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
+            # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
+            # for now, moved variables are integrated separately in time in set_spiketime()
 
         #
         #    move initial values for equations
@@ -535,7 +537,9 @@ class SynapsePostNeuronTransformer(Transformer):
         #
 
         # make sure the moved symbols can be resolved in the scope of the neuron (that's where ``ASTExternalVariable._altscope`` will be pointing to)
-        new_neuron.accept(ASTSymbolTableVisitor())
+        ast_symbol_table_visitor = ASTSymbolTableVisitor()
+        ast_symbol_table_visitor.after_ast_rewrite_ = True
+        new_neuron.accept(ast_symbol_table_visitor)
 
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)

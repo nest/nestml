@@ -551,7 +551,7 @@ class ASTUtils:
 
     @classmethod
     def remove_state_var_from_integrate_odes_calls(cls, model: ASTModel, state_var_name: str):
-        r"""Remove a state variable from the arguments to integrate_odes() calls in the model."""
+        r"""Remove a state variable from the arguments (where it exists) of each integrate_odes() call in the model."""
 
         class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
