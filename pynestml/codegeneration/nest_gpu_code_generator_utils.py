@@ -33,11 +33,13 @@ class NESTGPUCodeGeneratorUtils:
         :param variable_symbol: a single variable symbol.
         :return: the corresponding prefix
         """
-        if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION] or variable_symbol.is_spike_input_port():
+        if variable_symbol.block_type in [BlockType.STATE, BlockType.EQUATION]:
             if "_is_numeric" in dir(variable) and variable._is_numeric:
                 return 'y[%s]'
-
             return 'var[%s]'
+
+        if variable_symbol.is_spike_input_port():
+            return 'var[N_SCAL_VAR + %s]'
 
         if variable_symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS] or variable_symbol.is_continuous_input_port():
             return 'param[%s]'

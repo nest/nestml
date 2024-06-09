@@ -31,31 +31,20 @@
 {%- if uses_analytic_solver %}
 using namespace {{ neuronName }}_ns;
 
-// -------------------------------------------------------------------------
-//   Methods corresponding to event handlers
-// -------------------------------------------------------------------------
-
-{%- for blk in neuron.get_on_receive_blocks() %}
-{%-     set ast = blk.get_block() %}
-void on_receive_block_{{ blk.get_port_name() }}()
-{
-{%-     filter indent(2, True) -%}
-{%-         include "directives/Block.jinja2" %}
-{%-     endfilter %}
-}
-{% endfor %}
-
 __global__ void {{ neuronName }}_Calibrate(int n_node, float *param_arr,
 				      int n_param, float h)
 {
   int i_neuron = threadIdx.x + blockIdx.x * blockDim.x;
   if (i_neuron < n_node) {
     float *param = param_arr + n_param*i_neuron;
+    param[i___h] = h; // as ms
 {%- filter indent(4,True) %}
 {%- for internals_block in neuron.get_internals_blocks() %}
 {%-     for decl in internals_block.get_declarations() %}
 {%-         for variable in decl.get_variables() %}
+{%-           if variable.get_name() != "__h" %}
 {%-             include "directives/MemberInitialization.jinja2" %}
+{%-           endif %}
 {%-         endfor %}
 {%-     endfor %}
 {%- endfor %}
@@ -108,10 +97,13 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
-    if (var[i_{{ inport }}])
+    if (var[N_SCAL_VAR + i_{{ inport }}])
     {
-      on_receive_block_{{ blk.get_port_name() }}();
-      var[i_{{ inport }}] = 0; // reset the value
+{%-     set ast = blk.get_block() %}
+{%-     filter indent(6, True) -%}
+{%-         include "directives/Block.jinja2" %}
+{%-     endfilter %}      
+      var[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
     }
 {%- endfor %}
 
@@ -282,7 +274,7 @@ using namespace {{ neuronName }}_ns;
 int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 			 int i_group, unsigned long long *seed)
 {
-  BaseNeuron::Init(i_node_0, n_node, 2 /*n_port*/, i_group, seed);
+  BaseNeuron::Init(i_node_0, n_node, {{neuron.get_spike_input_ports() | length}} /*n_port*/, i_group, seed);
   node_type_ = i_{{ neuronName }}_model;
 
   // State variables
@@ -305,6 +297,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 
   scal_var_name_ = {{ neuronName }}_scal_var_name;
   scal_param_name_ = {{ neuronName }}_scal_param_name;
+  port_var_name_ = {{ neuronName }}_port_var_name;
 
 {%- if uses_numeric_solver %}
   group_param_name_ = {{neuronName}}_group_param_name;

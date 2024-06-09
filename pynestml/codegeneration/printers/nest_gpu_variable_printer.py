@@ -69,6 +69,19 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
                                error_position=variable.get_source_position())
             return ""
 
+        if symbol.is_buffer():
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = NESTUnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += self._print(variable, symbol, with_origin=self.with_origin)
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
+
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             return "get_" + self._print(variable, symbol, with_origin=False) + "()"
