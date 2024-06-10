@@ -1061,11 +1061,6 @@ void
 {
   {{neuron_parent_class}}::set_spiketime( t_sp, offset );
 
-  unsigned int num_transferred_variables = 0;
-{%-     for var in transferred_variables %}
-  ++num_transferred_variables; {# XXX: TODO: make this into a const member variable #}
-{%-     endfor %}
-
   const double t_sp_ms = t_sp.get_ms() - offset;
 
   if ( n_incoming_ )
@@ -1079,7 +1074,7 @@ void
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
-      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+      if ( history_.front().access_counter_ >= n_incoming_
            and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
       {
         history_.pop_front();
