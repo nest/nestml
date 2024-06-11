@@ -391,7 +391,8 @@ inline void set_{{ variable.get_name() }}(const {{ declarations.print_variable_t
 {
   set_weight(__v);
 }
-{%-         endif %}
+
+{%         endif %}
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
@@ -1295,7 +1296,7 @@ inline void
 {%- endfor %}
 
     /**
-     * update synapse internal state from `t_last_update_` to `start->t_`
+     * update synapse internal state from `t_last_update_` to `start->t_ + dendritic_delay`
     **/
 
     update_internal_state_(t_last_update_,
@@ -1336,10 +1337,10 @@ inline void
 {%- set vt_port = vt_ports[0] %}
   process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
-
-  update_internal_state_(t_lastspike_,
-                         t_trig - t_lastspike_,
-                         cp);
+  // N.B. call to update_internal state is not needed; this is already taken care of by ``process_{{vt_port}}_spikes_()``
+  // update_internal_state_(t_lastspike_,
+  //                        t_trig - t_lastspike_,
+  //                        cp);
 
   vt_spikes_idx_ = 0;
   t_lastspike_ = t_trig;
