@@ -642,10 +642,10 @@ public:
 
 {%- if paired_neuron is defined %}
     try {
-      dynamic_cast<{{paired_neuron_name}}&>(t);
+      dynamic_cast< {{ paired_neuron_name }}& >(t);
     }
     catch (std::bad_cast &exp) {
-      std::cerr << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron_name}}'.\n";
+      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{ paired_neuron_name }}'.\n";
       exit(1);
     }
 {%- endif %}
@@ -681,6 +681,9 @@ public:
     };
 
     const double __t_spike = e.get_stamp().get_ms();    // time of the presynaptic spike [ms]
+#ifdef DEBUG
+    std::cout << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
+#endif
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
   // get history of volume transmitter spikes
@@ -689,7 +692,7 @@ public:
 {%- endif %}
     // use accessor functions (inherited from Connection< >) to obtain delay and target
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
-    {{paired_neuron_name}}* __target = static_cast<{{paired_neuron_name}}*>(get_target(tid));
+    {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
     assert(__target);
 {%- else %}
     Node* __target = get_target( tid );
@@ -753,6 +756,10 @@ public:
           pre_before_post_flag = true;
           break;  // this would in any case have been the last post spike to be processed
         }
+
+#ifdef DEBUG
+        std::cout << "\tprocessing post spike at t = " << start->t_ << std::endl;
+#endif
 
         /**
          * update synapse internal state from `t_lastspike_` to `start->t_`
@@ -925,6 +932,9 @@ void
     double t1,
     const {{synapseName}}CommonSynapseProperties& cp )
 {
+#ifdef DEBUG
+  std::cout << "\tIn process_{{vt_port}}_spikes_(): t0 = " << t0 << ", t1 = " << t1 << "\n";
+#endif
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
@@ -1279,9 +1289,9 @@ inline void
   double dendritic_delay = get_delay();
 
   // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
-  std::deque< histentry__{{paired_neuron_name}} >::iterator start;
-  std::deque< histentry__{{paired_neuron_name}} >::iterator finish;
-  static_cast<{{paired_neuron_name}}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+  std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
+  std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
+  static_cast<{{ paired_neuron_name }}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;

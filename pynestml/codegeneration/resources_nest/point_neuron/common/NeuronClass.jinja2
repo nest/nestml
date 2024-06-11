@@ -1,4 +1,3 @@
-#define DEBUG
 {#
 NeuronClass.jinja2
 
@@ -68,9 +67,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "lockptrdatum.h"
 
 #include "{{neuronName}}.h"
+
+// uncomment the next line to enable printing of detailed debug information
+// #define DEBUG
+
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
-
-
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}

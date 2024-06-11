@@ -69,7 +69,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'simple_print_test.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 12)
+            self.assertEqual(reader.read().count('std::cout'), 3)
 
     def test_print_statement_with_variables(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -91,9 +91,9 @@ class PrintCodeGeneratorTest(unittest.TestCase):
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_variables.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 13)
+            self.assertEqual(reader.read().count('std::cout'), 4)
 
-    def wtest_print_variables_with_different_units(self):
+    def test_print_variables_with_different_units(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             'resources', 'PrintVariablesWithDifferentButCompatibleUnits.nestml'))))
 
@@ -113,7 +113,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_variable.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 12)
+            self.assertEqual(reader.read().count('std::cout'), 3)
 
     def test_print_statment_in_function(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -135,7 +135,7 @@ class PrintCodeGeneratorTest(unittest.TestCase):
 
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_function.cpp')))), 'r') as reader:
-            self.assertEqual(reader.read().count('std::cout'), 12)
+            self.assertEqual(reader.read().count('std::cout'), 3)
 
     def tearDown(self):
         import shutil
