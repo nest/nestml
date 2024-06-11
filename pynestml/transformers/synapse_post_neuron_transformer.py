@@ -530,15 +530,6 @@ class SynapsePostNeuronTransformer(Transformer):
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
             ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_synapse.get_equations_blocks()[0].get_scope(), alternate_name)
-        #
-        #    replace .......
-        #
-
-        # print(new_synapse)
-
-        # ASTUtils.replace_post_moved_variable_names(new_synapse, post_connected_continuous_input_ports, post_variable_names)
-
-        # print(new_synapse)
 
         #
         #    copy parameters

@@ -592,7 +592,6 @@ class ASTUtils:
                 return
 
             if not var.get_name() == "t" \
-               and not var.get_alternate_name() \
                and not var.get_name().endswith(suffix):
                 symbol = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -618,7 +617,6 @@ class ASTUtils:
                 return
 
             if var.get_name() in variable_names \
-               and not var.get_alternate_name() \
                and not var.get_name().endswith(suffix):
                 var.set_name(var.get_name() + suffix)
 

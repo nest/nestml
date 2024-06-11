@@ -220,4 +220,4 @@ class ASTVariable(ASTNode):
         if not isinstance(other, ASTVariable):
             return False
 
-        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order() and self.get_alternate_name() == other.get_alternate_name()
+        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
