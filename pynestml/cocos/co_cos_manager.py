@@ -74,7 +74,6 @@ class CoCosManager:
     """
     This class provides a set of context conditions which have to hold for each model instance.
     """
-
     @classmethod
     def check_function_defined(cls, model: ASTModel):
         """

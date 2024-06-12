@@ -69,7 +69,9 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "neuromodulated_stdp_synapse",
                                                                      "post_ports": ["post_spikes"],
-                                                                     "vt_ports": ["mod_spikes"]}]})
+                                                                     "vt_ports": ["mod_spikes"]}],
+                                           "delay_variable": {"neuromodulated_stdp_synapse": "d"},
+                                           "weight_variable": {"neuromodulated_stdp_synapse": "w"}})
 
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                       os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),

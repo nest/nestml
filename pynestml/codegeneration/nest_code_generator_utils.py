@@ -23,10 +23,13 @@ from typing import List, Optional
 import re
 import tempfile
 import uuid
+from pynestml.meta_model.ast_node import ASTNode
 
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class NESTCodeGeneratorUtils:

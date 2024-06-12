@@ -113,7 +113,6 @@ class MessageCode(Enum):
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
     DELAY_VARIABLE = 84
-    NEST_DELAY_DECORATOR_NOT_FOUND = 85
     INPUT_PORT_SIZE_NOT_INTEGER = 86
     INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO = 87
     INSTALL_PATH_INFO = 88
@@ -1268,11 +1267,6 @@ class Messages:
             synapse_name, buffers)
         message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
-
-    @classmethod
-    def get_nest_delay_decorator_not_found(cls):
-        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
-        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
 
     @classmethod
     def get_input_port_size_not_integer(cls, port_name: str):

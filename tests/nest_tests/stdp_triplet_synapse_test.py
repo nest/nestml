@@ -55,7 +55,9 @@ def nestml_generate_target():
                                        "neuron_parent_class_include": "structural_plasticity_node.h",
                                        "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                                                  "synapse": "stdp_triplet_synapse",
-                                                                 "post_ports": ["post_spikes"]}]})
+                                                                 "post_ports": ["post_spikes"]}],
+                                       "delay_variable": {"stdp_triplet_synapse": "d"},
+                                       "weight_variable": {"stdp_triplet_synapse": "w"}})
 
 
 def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):

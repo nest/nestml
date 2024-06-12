@@ -551,7 +551,7 @@ class ASTUtils:
 
     @classmethod
     def remove_state_var_from_integrate_odes_calls(cls, model: ASTModel, state_var_name: str):
-        r"""Remove a state variable from the arguments to integrate_odes() calls in the model."""
+        r"""Remove a state variable from the arguments (where it exists) of each integrate_odes() call in the model."""
 
         class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
@@ -641,7 +641,7 @@ class ASTUtils:
 
     @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
-        """
+        r"""
         Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
         """
 
@@ -659,11 +659,11 @@ class ASTUtils:
             ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
                                               differential_order=var.get_differential_order(),
                                               source_position=var.get_source_position())
+
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
             ast_ext_var.parent_ = _expr
-
             ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())

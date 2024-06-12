@@ -57,7 +57,7 @@ model stdp_nn_pre_centered_synapse:
         post_trace real = 0.
 
     parameters:
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        d ms = 1 ms    # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms

@@ -24,6 +24,7 @@ from typing import Any, List, Optional
 from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
@@ -43,7 +44,7 @@ class ASTVariable(ASTNode):
 
     def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
                  vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
-        """
+        r"""
         Standard constructor.
         :param name: the name of the variable
         :type name: str
