@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# concmech_model_test.py
+# interaction_with_disabled_mechanism_test.py
 #
 # This file is part of NEST.
 #
