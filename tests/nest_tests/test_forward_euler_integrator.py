@@ -37,7 +37,7 @@ class TestForwardEulerIntegrator:
     def generate_target(self, numeric_solver: str):
         r"""Generate the neuron model code"""
 
-        files = [os.path.join("models", "neurons", "izhikevich.nestml")]
+        files = [os.path.join("models", "neurons", "izhikevich_neuron.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -46,19 +46,21 @@ class TestForwardEulerIntegrator:
                              module_name="nestml" + numeric_solver.replace("-", "_") + "module",
                              codegen_opts={"numeric_solver": numeric_solver})
 
-        nest.Install("nestml" + numeric_solver.replace("-", "_") + "module")
+        return "nestml" + numeric_solver.replace("-", "_") + "module"
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_forward_euler_integrator(self):
-        self.generate_target("forward-Euler")
-        self.generate_target("rk45")
+        forward_euler_module_name = self.generate_target("forward-Euler")
+        rk45_module_name = self.generate_target("rk45")
 
         nest.ResetKernel()
+        nest.Install(forward_euler_module_name)
+        nest.Install(rk45_module_name)
         nest.resolution = .001
 
-        nrn1 = nest.Create("izhikevich_rk45_nestml")
-        nrn2 = nest.Create("izhikevich_forward_Euler_nestml")
+        nrn1 = nest.Create("izhikevich_neuron_rk45_nestml")
+        nrn2 = nest.Create("izhikevich_neuron_forward_Euler_nestml")
 
         nrn1.I_e = 10.
         nrn2.I_e = 10.

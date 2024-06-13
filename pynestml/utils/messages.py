@@ -49,7 +49,6 @@ class MessageCode(Enum):
     VARIABLE_USED_BEFORE_DECLARATION = 16
     VARIABLE_DEFINED_RECURSIVELY = 17
     VALUE_ASSIGNED_TO_BUFFER = 18
-    ARG_NOT_KERNEL_OR_EQUATION = 19
     ARG_NOT_SPIKE_INPUT = 20
     NUMERATOR_NOT_ONE = 21
     ORDER_NOT_DECLARED = 22
@@ -87,13 +86,12 @@ class MessageCode(Enum):
     NOT_NEUROSCIENCE_UNIT = 54
     INTERNAL_WARNING = 55
     OPERATION_NOT_DEFINED = 56
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 57
     INPUT_PATH_NOT_FOUND = 58
     LEXER_ERROR = 59
     PARSER_ERROR = 60
     UNKNOWN_TARGET = 61
     VARIABLE_WITH_SAME_NAME_AS_UNIT = 62
-    ANALYSING_TRANSFORMING_NEURON = 63
+    ANALYSING_TRANSFORMING_MODEL = 63
     ODE_NEEDS_CONSISTENT_UNITS = 64
     TEMPLATED_ARG_TYPES_INCONSISTENT = 65
     MODULE_NAME_INFO = 66
@@ -115,13 +113,13 @@ class MessageCode(Enum):
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
     DELAY_VARIABLE = 84
-    NEST_DELAY_DECORATOR_NOT_FOUND = 85
     INPUT_PORT_SIZE_NOT_INTEGER = 86
     INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO = 87
     INSTALL_PATH_INFO = 88
     CREATING_INSTALL_PATH = 89
     CREATING_TARGET_PATH = 90
-    ASSIGNING_TO_INLINE = 91
+    INTEGRATE_ODES_WRONG_ARG = 91
+    ASSIGNING_TO_INLINE = 92
     CM_NO_GATING_VARIABLES = 100
     CM_FUNCTION_MISSING = 101
     CM_VARIABLES_NOT_DECLARED = 102
@@ -218,7 +216,7 @@ class Messages:
     @classmethod
     def get_start_building_symbol_table(cls):
         """
-        Returns a message that the building for a neuron has been started.
+        Returns a message that the building for a model has been started.
         :return: a message
         :rtype: (MessageCode,str)
         """
@@ -402,15 +400,12 @@ class Messages:
         return MessageCode.START_PROCESSING_MODEL, message
 
     @classmethod
-    def get_code_generated(cls, model_name, path):
+    def get_code_generated(cls, model_name: str, path: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that code has been successfully generated for a neuron in a certain path.
-        :param model_name: the name of the neuron.
-        :type model_name: str
+        Returns a message indicating that code has been successfully generated for a model in a certain path.
+        :param model_name: the name of the model.
         :param path: the path to the file
-        :type path: str
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (model_name is not None and isinstance(model_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
@@ -421,13 +416,11 @@ class Messages:
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
-    def get_module_generated(cls, path):
+    def get_module_generated(cls, path: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that a module has been successfully generated.
         :param path: the path to the generated file
-        :type path: str
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
@@ -740,8 +733,8 @@ class Messages:
     @classmethod
     def get_compilation_unit_name_collision(cls, name, art1, art2):
         """
-        Indicates that a name collision with the same neuron inside two artifacts.
-        :param name: the name of the neuron which leads to collision
+        Indicates that a name collision with the same model inside two artifacts.
+        :param name: the name of the model which leads to collision
         :type name: str
         :param art1: the first artifact name
         :type art1: str
@@ -925,76 +918,6 @@ class Messages:
         return MessageCode.SYMBOL_NOT_RESOLVED, message
 
     @classmethod
-    def get_neuron_solved_by_solver(cls, name):
-        """
-        Indicates that a neuron will be solved by the GSL solver inside the model printing process without any
-        modifications to the initial model.
-        :param name: the name of the neuron
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'The neuron \'%s\' will be solved numerically with GSL solver without modification!' % name
-        return MessageCode.NEURON_SOLVED_BY_GSL, message
-
-    @classmethod
-    def get_synapse_solved_by_solver(cls, name):
-        """
-        Indicates that a synapse will be solved by the GSL solver inside the model printing process without any
-        modifications to the initial model.
-        :param name: the name of the synapse
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'The synapse \'%s\' will be solved numerically with GSL solver without modification!' % name
-        return MessageCode.SYNAPSE_SOLVED_BY_GSL, message
-
-    @classmethod
-    def get_could_not_be_solved(cls):
-        """
-        Indicates that the set of equations could not be solved and will remain unchanged.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'Equations or kernels could not be solved. The model remains unchanged!'
-        return MessageCode.NEURON_ANALYZED, message
-
-    @classmethod
-    def get_equations_solved_exactly(cls):
-        """
-        Indicates that all equations of the neuron are solved exactly by the solver script.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'Equations are solved exactly!'
-        return MessageCode.NEURON_ANALYZED, message
-
-    @classmethod
-    def get_equations_solved_by_gls(cls):
-        """
-        Indicates that the set of ODEs as contained in the model will be solved by the gnu scientific library toolchain.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'Kernels will be solved with GLS!'
-        return MessageCode.NEURON_ANALYZED, message
-
-    @classmethod
-    def get_ode_solution_not_used(cls):
-        """
-        Indicates that an ode has been defined in the model but is not used as part of the neurons solution.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'The model has defined an ODE. But its solution is not used in the update state.'
-        return MessageCode.NEURON_ANALYZED, message
-
-    @classmethod
     def get_unit_does_not_exist(cls, name):
         """
         Indicates that a unit does not exist.
@@ -1024,12 +947,7 @@ class Messages:
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
     @classmethod
-    def get_ode_needs_consistent_units(
-            cls,
-            name,
-            differential_order,
-            lhs_type,
-            rhs_type):
+    def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'ODE definition for \''
@@ -1068,26 +986,25 @@ class Messages:
         return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
 
     @classmethod
-    def get_analysing_transforming_neuron(cls, name):
+    def get_analysing_transforming_model(cls, name):
         """
         Indicates start of code generation
-        :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
+        :param name: the name of the model
+        :type name: ASTModel
+        :return: a code, message tuple
         :rtype: (MessageCode,str)
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Analysing/transforming neuron \'%s\'' % name
-        return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+        message = 'Analysing/transforming model \'%s\'' % name
+        return MessageCode.ANALYSING_TRANSFORMING_MODEL, message
 
     @classmethod
     def get_assigning_to_inline(cls):
         """
         Cannot assign to inline expression
         :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
+        :return: a code, message tuple
         :rtype: (MessageCode,str)
         """
         message = "Cannot assign to inline expression."
@@ -1097,9 +1014,9 @@ class Messages:
     def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
         """
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
-        :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
+        :param name: the name of the model
+        :type name: ASTModel
+        :return: a code, message tuple
         :rtype: (MessageCode,str)
         """
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
@@ -1113,7 +1030,7 @@ class Messages:
         """
         Delta function cannot be mixed with expressions.
         """
-        message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this kernel is used"
+        message = "delta function cannot be mixed with expressions"
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
 
     @classmethod
@@ -1352,11 +1269,6 @@ class Messages:
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
-    def get_nest_delay_decorator_not_found(cls):
-        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
-        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
-
-    @classmethod
     def get_input_port_size_not_integer(cls, port_name: str):
         message = "The size of the input port " + port_name + " is not of integer type."
         return MessageCode.INPUT_PORT_SIZE_NOT_INTEGER, message
@@ -1387,11 +1299,15 @@ class Messages:
         return MessageCode.CREATING_INSTALL_PATH, message
 
     @classmethod
-    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info):
+    def get_integrate_odes_wrong_arg(cls, arg: str):
+        message = "Parameter provided to integrate_odes() function is not a state variable: '" + arg + "'"
+        return MessageCode.INTEGRATE_ODES_WRONG_ARG, message
+
+    @classmethod
+    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info):
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
         message += "syns_info:\n" + syns_info + "\n"
         message += "conc_info:\n" + conc_info + "\n"
-        message += "con_in_info:\n" + con_in_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message

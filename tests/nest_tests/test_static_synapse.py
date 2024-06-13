@@ -39,7 +39,7 @@ class TestStaticSynapse:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("models", "synapses", "noisy_synapse.nestml"),
                  os.path.join("models", "synapses", "static_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -47,18 +47,26 @@ class TestStaticSynapse:
         generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
-                             suffix="_nestml")
-        nest.Install("nestmlmodule")
+                             suffix="_nestml",
+                             codegen_opts={"delay_variable": {"static_synapse": "d",
+                                                              "noisy_synapse": "d"},
+                                           "weight_variable": {"static_synapse": "w",
+                                                               "noisy_synapse": "w"}})
 
     @pytest.mark.parametrize("synapse_model_name", ["static_synapse_nestml", "noisy_synapse_nestml"])
     def test_static_synapse(self, synapse_model_name: str):
 
         sim_time = 50.
-        neuron_model_name = "iaf_psc_exp_nestml"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.SetKernelStatus({"resolution": .1})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -77,6 +85,7 @@ class TestStaticSynapse:
         V_m_before_sim = post_neuron.V_m
 
         syn = nest.GetConnections(source=pre_neuron, synapse_model="syn_nestml_rec")
+        assert syn.weight == 1.
 
         nest.Simulate(sim_time)
 

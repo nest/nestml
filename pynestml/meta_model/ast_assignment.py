@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import List, Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -124,34 +124,27 @@ class ASTAssignment(ASTNode):
         """
         return self.rhs
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.get_variable() is ast:
-            return self
-        if self.get_expression() is ast:
-            return self
-        if self.get_variable().get_parent(ast) is not None:
-            return self.get_variable().get_parent(ast)
-        if self.get_expression().get_parent(ast) is not None:
-            return self.get_expression().get_parent(ast)
-        return None
+        children = []
+        if self.get_variable():
+            children.append(self.get_variable())
 
-    def equals(self, other):
-        """
-        The equals operation.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.get_expression():
+            children.append(self.get_expression())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTAssignment):
             return False
+
         return (self.get_variable().equals(other.get_variable())
                 and self.is_compound_quotient == other.is_compound_quotient
                 and self.is_compound_product == other.is_compound_product
@@ -159,26 +152,6 @@ class ASTAssignment(ASTNode):
                 and self.is_compound_sum == other.is_compound_sum
                 and self.is_direct_assignment == other.is_direct_assignment
                 and self.get_expression().equals(other.get_expression()))
-
-    def deconstruct_compound_assignment(self):
-        """
-        From lhs and rhs it constructs a new expression which corresponds to direct assignment.
-        E.g.: a += b*c -> a = a + b*c
-        :return: the rhs for an equivalent direct assignment.
-        :rtype: ast_expression
-        """
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        # TODO: get rid of this through polymorphism?
-        assert not self.is_direct_assignment, "Can only be invoked on a compound assignment."
-
-        operator = self.extract_operator_from_compound_assignment()
-        lhs_variable = self.get_lhs_variable_as_expression()
-        rhs_in_brackets = self.get_bracketed_rhs_expression()
-        result = self.construct_equivalent_direct_assignment_rhs(operator, lhs_variable, rhs_in_brackets)
-        # create symbols for the new Expression:
-        visitor = ASTSymbolTableVisitor()
-        result.accept(visitor)
-        return result
 
     def get_lhs_variable_as_expression(self):
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory

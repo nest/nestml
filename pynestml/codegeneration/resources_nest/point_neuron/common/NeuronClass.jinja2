@@ -57,6 +57,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from nestkernel:
 #include "exceptions.h"
 #include "kernel_manager.h"
+#include "nest_impl.h"
 #include "universal_data_logger_impl.h"
 
 // Includes from sli:
@@ -67,6 +68,15 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "lockptrdatum.h"
 
 #include "{{neuronName}}.h"
+
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
+        or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
+void
+register_{{ neuronName }}( const std::string& name )
+{
+  nest::register_node_model< {{ neuronName }} >( name );
+}
+{%- endif %}
 
 // ---------------------------------------------------------------------------
 //   Recordables map
@@ -126,7 +136,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%-     if ports[0].has_vector_parameter() %}
 {%-     set size = utils.get_numeric_vector_size(ports[0]) %}
 {%-         for i in range(size) %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i+1) }}
+  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }}
 {%-         set ns.rport = ns.rport + 1 %}
 {%-         endfor %}
 {%-     else %}
@@ -140,7 +150,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   std::string {{neuronName}}::get_var_name(size_t elem, std::string var_name)
   {
     std::stringstream n;
-    n << var_name << elem + 1;
+    n << var_name << elem;
     return n.str();
   }
 
@@ -186,6 +196,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if neuron.get_spike_input_ports()|length > 0 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -201,6 +213,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%- if neuron.get_spike_input_ports()|length > 0 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
+  , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -237,7 +251,8 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 // ---------------------------------------------------------------------------
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
-  {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
+  {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this)
+{
 
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
@@ -338,12 +353,10 @@ void {{neuronName}}::init_state_internal_()
 
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-{%- if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-
+{%- if numeric_solver == "rk45" %}
+  // by default, integrate all variables
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
-{%-     endif %}
 {%- endif %}
 
 {%- if parameter_vars_with_iv|length > 0 %}
@@ -356,6 +369,7 @@ void {{neuronName}}::init_state_internal_()
 {%- endfilter %}
 {%- endif %}
 
+  V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 
 {%- if neuron.get_state_symbols()|length > 0 %}
@@ -367,7 +381,6 @@ void {{neuronName}}::init_state_internal_()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
-
 
 {%- if paired_synapse is defined %}
   // state variables for archiving state for paired synapse
@@ -409,7 +422,9 @@ void {{neuronName}}::init_buffers_()
   // spike input buffers
   get_spike_inputs_().clear();
   get_spike_inputs_grid_sum_().clear();
-{%- endif %}
+  get_spike_input_received_().clear();
+  get_spike_input_received_grid_sum_().clear();
+{% endif %}
 {%- if neuron.get_continuous_input_ports() | length > 0 %}
 
   // continuous time input buffers
@@ -465,7 +480,7 @@ void {{neuronName}}::init_buffers_()
     gsl_odeiv_evolve_reset( B_.__e );
   }
 
-  B_.__sys.function = {{neuronName}}_dynamics;
+  // B_.__sys.function = {{neuronName}}_dynamics; // will be set just prior to the call to gsl_odeiv_evolve_apply()
   B_.__sys.jacobian = nullptr;
   B_.__sys.dimension = State_::STATE_VEC_SIZE;
   B_.__sys.params = reinterpret_cast< void* >( this );
@@ -475,10 +490,12 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 }
 
-void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
+void {{neuronName}}::recompute_internal_variables(bool exclude_timestep)
+{
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-  if (exclude_timestep) {
+  if (exclude_timestep)
+  {
 {%- filter indent(4,True) %}
 {%- for internals_block in neuron.get_internals_blocks() %}
 {%-     for decl in internals_block.get_declarations() %}
@@ -507,19 +524,23 @@ void {{neuronName}}::recompute_internal_variables(bool exclude_timestep) {
 }
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-void {{neuronName}}::calibrate() {
+void {{neuronName}}::calibrate()
 {%- else %}
-void {{neuronName}}::pre_run_hook() {
+void {{neuronName}}::pre_run_hook()
 {%- endif %}
+{
   B_.logger_.init();
 
   // parameters might have changed -- recompute internals
+  V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 
   // buffers B_
 {%- if ((neuron.get_spike_input_ports())|length > 0) %}
   B_.spike_inputs_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
+  B_.spike_input_received_.resize(NUM_SPIKE_RECEPTORS);
+  B_.spike_input_received_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
 {%-   endif %}
 }
 {%- if neuron.get_functions()|length > 0 %}
@@ -528,34 +549,44 @@ void {{neuronName}}::pre_run_hook() {
 //   Functions defined in the NESTML model
 // ---------------------------------------------------------------------------
 
-{%- for function in neuron.get_functions() %}
+{%-     for function in neuron.get_functions() %}
 {{ function_declaration.FunctionDeclaration(function, neuronName + "::") }}
 {
-{%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives_cpp/Block.jinja2" %}
-{%-   endwith %}
-{%-   endfilter %}
+{%-         filter indent(2,True) %}
+{%-             with ast = function.get_block() %}
+{%-                 include "directives_cpp/Block.jinja2" %}
+{%-             endwith %}
+{%-         endfilter %}
 }
-{%- endfor %}
+{%-     endfor %}
 {%- endif %}
 
 // ---------------------------------------------------------------------------
 //   Update and spike handling functions
 // ---------------------------------------------------------------------------
 
-{% if uses_numeric_solver %}
-{%- include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
-{% endif %}
+{%  if uses_numeric_solver %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-     endfor %}
+
+{%-     if paired_synapse is defined %}
+{#          for neuron-synapse co-generation: separate integrator for the emulated integrate_odes() calls below in this template #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-     endif %}
+
+{%- endif %}
 
 {%- if has_delay_variables %}
 void {{neuronName}}::update_delay_variables()
 {
 {%-   for variable_symbol in neuron.get_state_symbols() %}
-{%-     if variable_symbol.has_delay_parameter() %}
-{%-       set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-       include "directives_cpp/UpdateDelayVariables.jinja2" %}
-{%-     endif %}
+{%-       if variable_symbol.has_delay_parameter() %}
+{%-           set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-           include "directives_cpp/UpdateDelayVariables.jinja2" %}
+{%-       endif %}
 {%-   endfor %}
 }
 
@@ -592,23 +623,20 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   double y_i = 0.0, y_ip1 = 0.0, hf_i = 0.0, hf_ip1 = 0.0;
 {%- endif %}
 
-{% if propagators_are_state_dependent %}
-  // the propagators are state dependent; update them!
-  recompute_internal_variables();
-{%- endif %}
-
   for ( long lag = from ; lag < to ; ++lag )
   {
+{% if propagators_are_state_dependent %}
+  // the propagators are state dependent; update them!
+  V_.__h = nest::Time::get_resolution().get_ms();
+  recompute_internal_variables();
+
+{% endif %}
+
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
 {%- if use_gap_junctions %}
     // B_.lag is needed by GSL stepping function to determine the current section
     B_.lag_ = lag;
-
-
-
-
-
 
 {%- if not gap_junction_membrane_potential_variable_is_numeric %}
 {#      in case V_m is solved analytically, need to compute __I_gap here so dV_m/dt can be computed below #}
@@ -640,12 +668,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   }
 {%- endif %}
 
-
-
-
-
-
-
     if ( called_from_wfr_update )
     {
       y_i = {{ gap_junction_membrane_potential_variable_cpp }};
@@ -673,11 +695,122 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     }
 
 {%- endif %}
+    /**
+     * buffer spikes from spiking input ports
+    **/
 
     for (long i = 0; i < NUM_SPIKE_RECEPTORS; ++i)
     {
-        get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
+      get_spike_inputs_grid_sum_()[i] = get_spike_inputs_()[i].get_value(lag);
+      get_spike_input_received_grid_sum_()[i] = get_spike_input_received_()[i].get_value(lag);
     }
+
+{%- if has_delay_variables %}
+    /**
+     * delay variables
+    **/
+
+    update_delay_variables();
+{%- endif %}
+
+    /**
+     * subthreshold updates of the convolution variables
+     *
+     * step 1: regardless of whether and how integrate_odes() will be called, update variables due to convolutions
+    **/
+
+{%- if uses_analytic_solver %}
+{%-     for variable_name in analytic_state_variables: %}
+{%-         if "__X__" in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
+{%-             if use_gap_junctions %}
+const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
+{%-             else %}
+const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
+{%-             endif %}
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
+
+    /**
+     * Begin NESTML generated code for the update block(s)
+    **/
+{%  if neuron.get_update_blocks() %}
+{%-     filter indent(2) %}
+{%-         for block in neuron.get_update_blocks() %}
+{%-             set ast = block.get_block() %}
+{%-             if ast.print_comment('*')|length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-             endif %}
+{%-             include "directives_cpp/Block.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+    /**
+     * Begin NESTML generated code for the onReceive block(s)
+    **/
+{%  for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = blk.get_port_name() %}
+    if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
+    {
+      // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;  // no need to reset the flag -- reading from the RingBuffer into the "grid_sum" variables resets the RingBuffer entries
+      on_receive_block_{{ blk.get_port_name() }}();
+    }
+{%- endfor %}
+
+    /**
+     * subthreshold updates of the convolution variables
+     *
+     * step 2: regardless of whether and how integrate_odes() was called, update variables due to convolutions. Set to the updated values at the end of the timestep.
+    **/
+{%  if uses_analytic_solver %}
+{%-     for variable_name in analytic_state_variables: %}
+{%-         if "__X__" in variable_name %}
+{%-             set update_expr = update_expressions[variable_name] %}
+{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
+    {{ printer.print(var_ast) }} = {{variable_name}}__tmp_;
+{%-         endif %}
+{%-     endfor %}
+{%- endif %}
+
+
+    /**
+     * spike updates due to convolutions
+    **/
+{%  filter indent(4) %}
+{%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
+{%- endfilter %}
+
+    /**
+     * Begin NESTML generated code for the onCondition block(s)
+    **/
+{% if neuron.get_on_condition_blocks() %}
+{%-     for block in neuron.get_on_condition_blocks() %}
+    if ({{ printer.print(block.get_cond_expr()) }})
+    {
+{%-         set ast = block.get_block() %}
+{%-         if ast.print_comment('*') | length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-         endif %}
+{%-         filter indent(6) %}
+{%-             include "directives_cpp/Block.jinja2" %}
+{%-         endfilter %}
+    }
+{%-     endfor %}
+{%- endif %}
+
+    /**
+     * handle continuous input ports
+    **/
 
 {%- for inputPort in neuron.get_continuous_input_ports() %}
 {%-   if use_gap_junctions %}
@@ -693,27 +826,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
 {%-   endif %}
 {%- endfor %}
-
-{%- if has_delay_variables %}
-    update_delay_variables();
-{%- endif %}
-
-    // NESTML generated code for the update block
-
-{%- if neuron.get_update_blocks() %}
-{%-     filter indent(2) %}
-{%-         for block in neuron.get_update_blocks() %}
-{%-             set ast = block.get_block() %}
-{%-             if ast.print_comment('*')|length > 1 %}
-/*
- {{ast.print_comment('*')}}
- */
-{%-             endif %}
-{%-             include "directives_cpp/Block.jinja2" %}
-{%-         endfor %}
-{%-     endfilter %}
-{%- endif %}
-
 
 {%- if use_gap_junctions %}
     if ( called_from_wfr_update )
@@ -845,6 +957,9 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
   B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     weight * e.get_multiplicity() );
+  B_.spike_input_received_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
+    e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+    1. );
 }
 {%- endif %}
 
@@ -865,17 +980,32 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
 }
 {%- endif %}
 
+// -------------------------------------------------------------------------
+//   Methods corresponding to event handlers
+// -------------------------------------------------------------------------
 
+{%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set ast = blk.get_block() %}
+void
+{{neuronName}}::on_receive_block_{{ blk.get_port_name() }}()
+{
+{%-     filter indent(2, True) -%}
+{%-         include "directives_cpp/Block.jinja2" %}
+{%-     endfilter %}
+}
+
+{% endfor %}
 
 {%- if paired_synapse is defined %}
-
+// -------------------------------------------------------------------------
+//   Methods for neuron/synapse co-generation
+// -------------------------------------------------------------------------
 
 inline double
 {{neuronName}}::get_spiketime_ms() const
 {
   return last_spike_;
 }
-
 
 void
 {{neuronName}}::register_stdp_connection( double t_first_read, double delay )
@@ -929,117 +1059,101 @@ void
 void
 {{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
 {
-    {{neuron_parent_class}}::set_spiketime( t_sp, offset );
+  {{neuron_parent_class}}::set_spiketime( t_sp, offset );
 
-    unsigned int num_transferred_variables = 0;
-{%- for var in transferred_variables %}
-    ++num_transferred_variables;
-{%- endfor %}
+  unsigned int num_transferred_variables = 0;
+{%-     for var in transferred_variables %}
+  ++num_transferred_variables; {# XXX: TODO: make this into a const member variable #}
+{%-     endfor %}
 
-    const double t_sp_ms = t_sp.get_ms() - offset;
+  const double t_sp_ms = t_sp.get_ms() - offset;
 
-    if ( n_incoming_ )
+  if ( n_incoming_ )
+  {
+    // prune all spikes from history which are no longer needed
+    // only remove a spike if:
+    // - its access counter indicates it has been read out by all connected
+    //     STDP synapses, and
+    // - there is another, later spike, that is strictly more than
+    //     (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
+    while ( history_.size() > 1 )
     {
-        // prune all spikes from history which are no longer needed
-        // only remove a spike if:
-        // - its access counter indicates it has been read out by all connected
-        //     STDP synapses, and
-        // - there is another, later spike, that is strictly more than
-        //     (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
-        while ( history_.size() > 1 )
-        {
-            const double next_t_sp = history_[ 1 ].t_;
-            if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
-                 and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
-            {
-                history_.pop_front();
-            }
-            else
-            {
-                break;
-            }
-        }
+      const double next_t_sp = history_[ 1 ].t_;
+      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+      // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
 
-        if (history_.size() > 0) {
-            assert(history_.back().t_ == last_spike_);
-
-{%- for var in purely_numeric_state_variables_moved|sort %}
-            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
-            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
-{%- endfor %}
-        }
-        else {
-{%- for var in purely_numeric_state_variables_moved|sort %}
-            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
-            {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = 0.; // initial value for convolution is always 0
-{%- endfor %}
-        }
-
-
-        /**
-         * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
-        **/
-
-        const double old___h = V_.__h;
-        V_.__h = t_sp_ms - last_spike_;
-        if (V_.__h > 1E-12) {
-          recompute_internal_variables(true);
-{#
-  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-#}
-
-{%- filter indent(6, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-
-{%- if uses_numeric_solver %}
-// update only synapse->neuron moved variables; back-up and restore the rest
-double ode_state_bak[State_::STATE_VEC_SIZE];
-
-{%-   for variable_name in numeric_state_variables %}
-  ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
-{%-     endfor %}
-
-{%- if uses_numeric_solver %}
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-
-// restore non-synapse->neuron-moved variables
-{%-   for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
-{%-     endfor %}
-
-// restore variables solved analytically
-{%-   for variable_name in numeric_state_variables %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
-{%-     endfor %}
-{%- endif %}
-
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-
-{%- endfilter %}
-        V_.__h = old___h;
-        recompute_internal_variables(true);
+      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+           and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        history_.pop_front();
       }
+      else
+      {
+        break;
+      }
+    }
 
-        /**
-         * apply spike updates
-        **/
+    if (history_.size() > 0)
+    {
+      assert(history_.back().t_ == last_spike_);
 
-{%- for stmt in spike_update_stmts %}
-        {{printer.print(stmt)}};
-{%- endfor %}
+{%-     for var in purely_numeric_state_variables_moved|sort %}
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+{%-     endfor %}
+{%-     for var in analytic_state_variables_moved|sort %}
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+{%-     endfor %}
+    }
+    else
+    {
+{%-     for var in purely_numeric_state_variables_moved|sort %}
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
+{%-     endfor %}
+{%-     for var in analytic_state_variables_moved|sort %}
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
+{%-     endfor %}
+    }
 
-{%- for _, spike_update in post_spike_updates.items() %}
-        {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
-{%- endfor %}
+    /**
+      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
+      *
+      * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+    **/
+
+    const double old___h = V_.__h;
+    V_.__h = t_sp_ms - last_spike_;
+    if (V_.__h > 1E-12)
+    {
+      recompute_internal_variables(true);
+
+{%-     filter indent(6, True) -%}
+{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-     endfilter %}
+
+      V_.__h = old___h;
+      recompute_internal_variables(true);
+    }
+
+    /**
+      * print extra on-emit statements transferred from synapse
+    **/
+
+{%-     filter indent(4, True) %}
+{%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
+{%-         include "directives_cpp/Statement.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
+
+    /**
+      * print updates due to convolutions
+    **/
+
+{%-     for _, spike_update in post_spike_updates.items() %}
+    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
+{%-     endfor %}
 
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_
@@ -1098,7 +1212,8 @@ double
   // search for the latest post spike in the history buffer that came strictly before `t`
   int i = history_.size() - 1;
   double eps = 0.;
-  if ( before_increment ) {
+  if ( before_increment )
+  {
    eps = nest::kernel().connection_manager.get_stdp_eps();
   }
   while ( i >= 0 )
@@ -1118,6 +1233,8 @@ double
 
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
+       *
+       * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
       **/
 
       if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
@@ -1126,37 +1243,11 @@ double
         V_.__h = t - history_[i].t_;
         assert(V_.__h > 0);
         recompute_internal_variables(true);
-{#
-  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-#}
 
-{%- filter indent(6, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-
-{%- if purely_numeric_state_variables_moved|length > 0 %}
-double ode_state_tmp[STATE_VEC_SIZE];
-
-for (int i = 0; i < STATE_VEC_SIZE; ++i) {
-  ode_state_tmp[i] = S_.ode_state[i];
-}
-
-{%- if uses_numeric_solver %}
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-
-{%- for variable_name in numeric_state_variables_moved|sort %}
-{%- if not variable_name in analytic_state_variables_moved %}
-S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
+{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
@@ -1192,7 +1283,8 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   std::cout << "{{neuronName}}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
 #endif
 
-  if (t == 0.) {
+  if (t == 0.)
+  {
     return 0.;  // initial value for convolution is always 0
   }
 
@@ -1204,42 +1296,22 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
 
-  // propagate in time
+  /**
+   * update state variables transferred from synapse from initial condition to `t`
+   *
+   * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
+  **/
+
   const double old___h = V_.__h;
   V_.__h = t;   // from time 0 to the requested time
   assert(V_.__h > 0);
   recompute_internal_variables(true);
-{#
-  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
-#}
-{%- filter indent(2, True) %}
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
 
-{%- if purely_numeric_state_variables_moved|length > 0 %}
-double ode_state_tmp[STATE_VEC_SIZE];
+{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
-for (int i = 0; i < STATE_VEC_SIZE; ++i) {
-    ode_state_tmp[i] = S_.ode_state[i];
-}
-
-{%- if uses_numeric_solver %}
-{%-     include "directives_cpp/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-
-{%- for variable_name in numeric_state_variables_moved|sort %}
-{%- if not variable_name in analytic_state_variables_moved %}
-  S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-
-{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
-{%-     include "directives_cpp/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-
-{%- endfilter %}
   V_.__h = old___h;
   recompute_internal_variables(true);
 

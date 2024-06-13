@@ -23,7 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron print_variable:
+model print_variable:
     state:
         V_m V = -50 mV
         V_thr MA*Ohm = -70 mV

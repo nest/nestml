@@ -21,6 +21,7 @@
 
 import numpy as np
 import os
+import copy
 import pytest
 import unittest
 
@@ -66,7 +67,7 @@ dend_params_active = {
     'C_m': 1.929929,  # pF
     'g_C': 1.255439494,  # nS
     'g_L': 0.192992878,  # nS
-    'e_L': -70.0,  # mV
+    'e_L': -75.0,  # mV
     # E-type specific
     'gbar_Na': 17.203212493,  # nS
     'e_Na': 60.,  # mV
@@ -98,8 +99,7 @@ class CMTest(unittest.TestCase):
 
         print(
             f"Compiled nestml model 'cm_main_cm_default_nestml' not found, installing in:"
-            f"    {target_path}"
-        )
+            f"    {target_path}")
 
         generate_nest_compartmental_target(
             input_path=input_path,
@@ -141,25 +141,42 @@ class CMTest(unittest.TestCase):
             ]
         else:
             return [
-                'v_comp0', 'v_comp1',
-                'm_Na_0', 'h_Na_0', 'n_K_0', 'm_Na_1', 'h_Na_1', 'n_K_1',
-                'g_r_AN_AMPA_1', 'g_d_AN_AMPA_1', 'g_r_AN_NMDA_1', 'g_d_AN_NMDA_1'
-            ]
+                'v_comp0',
+                'v_comp1',
+                'm_Na_0',
+                'h_Na_0',
+                'n_K_0',
+                'm_Na_1',
+                'h_Na_1',
+                'n_K_1',
+                'g_r_AN_AMPA_1',
+                'g_d_AN_AMPA_1',
+                'g_r_AN_NMDA_1',
+                'g_d_AN_NMDA_1']
 
     def run_model(self):
         self.reset_nest()
         cm_act, cm_pas = self.get_model()
 
+        # accomodate new initialization convention in NEST 3.6
+        soma_params_ = copy.deepcopy(soma_params)
+        dend_params_passive_ = copy.deepcopy(dend_params_passive)
+        dend_params_active_ = copy.deepcopy(dend_params_active)
+        if not self.nestml_flag:
+            soma_params_["v_comp"] = soma_params_["e_L"]
+            dend_params_passive_["v_comp"] = dend_params_passive_["e_L"]
+            dend_params_active_["v_comp"] = dend_params_active_["e_L"]
+
         # create a neuron model with a passive dendritic compartment
         cm_pas.compartments = [
-            {"parent_idx": -1, "params": soma_params},
-            {"parent_idx": 0, "params": dend_params_passive}
+            {"parent_idx": -1, "params": soma_params_},
+            {"parent_idx": 0, "params": dend_params_passive_}
         ]
 
         # create a neuron model with an active dendritic compartment
         cm_act.compartments = [
-            {"parent_idx": -1, "params": soma_params},
-            {"parent_idx": 0, "params": dend_params_active}
+            {"parent_idx": -1, "params": soma_params_},
+            {"parent_idx": 0, "params": dend_params_active_}
         ]
 
         # set spike thresholds
@@ -225,8 +242,12 @@ class CMTest(unittest.TestCase):
 
         # create multimeters to record state variables
         rec_list = self.get_rec_list()
-        mm_pas = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': dt})
-        mm_act = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': dt})
+        mm_pas = nest.Create(
+            'multimeter', 1, {
+                'record_from': rec_list, 'interval': dt})
+        mm_act = nest.Create(
+            'multimeter', 1, {
+                'record_from': rec_list, 'interval': dt})
         # connect the multimeters to the respective neurons
         nest.Connect(mm_pas, cm_pas)
         nest.Connect(mm_act, cm_act)
@@ -264,6 +285,8 @@ class CMTest(unittest.TestCase):
                 label='passive dend')
             ax_soma.plot(res_act_nest['times'], res_act_nest['v_comp0'],
                          c='b', ls='--', lw=2., label='active dend')
+            ax_soma.plot(res_act_nestml['times'], res_act_nestml['v_comp0'],
+                         c='r', ls=':', lw=2., label='active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
             ax_soma.set_ylabel(r'$v_{soma}$ (mV)')
             ax_soma.set_ylim((-90., 40.))
@@ -438,7 +461,8 @@ class CMTest(unittest.TestCase):
             ax_dend.set_ylim((0., 1.))
             if w_legends:
                 ax_dend.legend(loc=0)
-            plt.savefig("compartmental_model_test - channel state variables.png")
+            plt.savefig(
+                "compartmental_model_test - channel state variables.png")
 
             plt.figure('dendritic synapse conductances', figsize=(3, 6))
             # NEST
@@ -497,13 +521,32 @@ class CMTest(unittest.TestCase):
                 ax_dend.legend(loc=0)
 
             plt.tight_layout()
-            plt.savefig("compartmental_model_test - dendritic synapse conductances.png")
+            plt.savefig(
+                "compartmental_model_test - dendritic synapse conductances.png")
 
         # check if voltages, ion channels state variables are equal
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
+            if var_nest == "v_comp0":
+                atol = 0.51
+            elif var_nest == "v_comp1":
+                atol = 0.15
+            else:
+                atol = 0.01
             self.assertTrue(np.allclose(
-                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=1.))
+                res_act_nest[var_nest], res_act_nestml[var_nestml], atol=atol
+            ))
+        for var_nest, var_nestml in zip(
+                recordables_nest[:8], recordables_nestml[:8]):
+            if var_nest == "v_comp0":
+                atol = 0.51
+            elif var_nest == "v_comp1":
+                atol = 0.15
+            else:
+                atol = 0.01
+            self.assertTrue(np.allclose(
+                res_pas_nest[var_nest], res_pas_nestml[var_nestml], atol=atol
+            ))
 
         # check if synaptic conductances are equal
         self.assertTrue(

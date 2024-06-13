@@ -32,9 +32,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoVectorInNonVectorDeclaration:
+model CoCoVectorInNonVectorDeclaration:
     state:
         g_ex [ten] mV = 10mV
         g_in mV = 10mV + g_ex
+
     parameters:
         ten integer = 10

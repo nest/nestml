@@ -1,4 +1,4 @@
-neuron izhikevich_tutorial:
+model izhikevich_tutorial_neuron:
 
     state:
         v mV = -65 mV    # Membrane potential in mV
@@ -24,12 +24,14 @@ neuron izhikevich_tutorial:
     update:
         integrate_odes()
 
+    onReceive(spikes):
         # add synaptic current
         v += spikes * mV * s
 
+    onCondition(v >= 30mV):
         # TODO: implement threshold crossing check
 
-        # use an if-conditional block. The NESTML syntax looks like:
+        # use an if-condition block. The NESTML syntax looks like:
         # if a >= b:
         #     a += b
         #     b = a

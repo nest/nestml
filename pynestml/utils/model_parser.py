@@ -48,18 +48,16 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
@@ -73,12 +71,13 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class ModelParser:
     @classmethod
-    def parse_model(cls, file_path=None):
+    def parse_file(cls, file_path=None):
         """
         Parses a handed over model and returns the meta_model representation of it.
         :param file_path: the path to the file which shall be parsed.
@@ -133,18 +132,20 @@ class ModelParser:
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
 
+        # create links back from children in the tree to their parents
+        for model in ast.get_model_list():
+            model.parent_ = None   # root node has no parent
+            model.accept(ASTParentVisitor())
+
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
-        for neuron in ast.get_neuron_list():
-            neuron.accept(ASTSymbolTableVisitor())
-            SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
-        for synapse in ast.get_synapse_list():
-            synapse.accept(ASTSymbolTableVisitor())
-            SymbolTable.add_synapse_scope(synapse.get_name(), synapse.get_scope())
+        for model in ast.get_model_list():
+            model.accept(ASTSymbolTableVisitor())
+            SymbolTable.add_model_scope(model.get_name(), model.get_scope())
 
         # store source paths
-        for neuron in ast.get_neuron_list():
-            neuron.file_path = file_path
+        for model in ast.get_model_list():
+            model.file_path = file_path
         ast.file_path = file_path
 
         return ast
@@ -206,7 +207,7 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_neuron_or_synapse_body(cls, string: str) -> ASTNeuronOrSynapseBody:
+    def parse_model_body(cls, string: str) -> ASTModelBody:
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.body())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
@@ -341,18 +342,10 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_neuron(cls, string):
-        # type: (str) -> ASTNeuron
+    def parse_model(cls, string):
+        # type: (str) -> ASTModel
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.neuron())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
-    def parse_synapse(cls, string):
-        # type: (str) -> ASTSynapse
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.synapse())
+        ret = builder.visit(parser.model())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

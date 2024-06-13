@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Mapping, Optional
 import datetime
 import os
 
-from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
+from jinja2 import TemplateRuntimeError
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -48,9 +48,8 @@ from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
@@ -197,14 +196,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return ret
 
-    def generate_code(
-            self,
-            neurons: List[ASTNeuron],
-            synapses: List[ASTSynapse] = None) -> None:
+    def generate_code(self, models: List[ASTModel]) -> None:
         self.place_externals()
-        self.analyse_transform_neurons(neurons)
-        self.generate_neurons(neurons)
-        self.generate_module_code(neurons)
+        self.analyse_transform_neurons(models)
+        self.generate_neurons(models)
+        self.generate_module_code(models)
 
     def place_externals(self):
         files = self.get_option("externals")["files"]
@@ -220,13 +216,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
             shutil.copyfile(abs_origin_path, target_path)
 
-
-
-    def generate_module_code(self, neurons: List[ASTNeuron]) -> None:
+    def generate_module_code(self, neurons: List[ASTModel]) -> None:
         """t
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
-        :type neurons: list(ASTNeuron)
         """
         namespace = self._get_module_namespace(neurons)
         if not os.path.exists(FrontendConfiguration.get_target_path()):
@@ -252,13 +245,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
-    def _get_module_namespace(self, neurons: List[ASTNeuron]) -> Dict:
+    def _get_module_namespace(self, neurons: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
+                     "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
 
@@ -297,20 +291,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()
 
-    def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
+    def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            code, message = Messages.get_analysing_transforming_neuron(
+            code, message = Messages.get_analysing_transforming_model(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
 
     def create_ode_indict(self,
-                          neuron: ASTNeuron,
+                          neuron: ASTModel,
                           parameters_block: ASTBlockWithVariables,
                           kernel_buffers: Mapping[ASTKernel,
                                                   ASTInputPort]):
@@ -321,7 +315,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         return odetoolbox_indict
 
     def ode_solve_analytically(self,
-                               neuron: ASTNeuron,
+                               neuron: ASTModel,
                                parameters_block: ASTBlockWithVariables,
                                kernel_buffers: Mapping[ASTKernel,
                                                        ASTInputPort]):
@@ -345,7 +339,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return full_solver_result, analytic_solver
 
-    def ode_toolbox_analysis(self, neuron: ASTNeuron,
+    def ode_toolbox_analysis(self, neuron: ASTModel,
                              kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
@@ -390,7 +384,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return analytic_solver, numeric_solver
 
-    def find_non_equations_state_variables(self, neuron: ASTNeuron):
+    def find_non_equations_state_variables(self, neuron: ASTModel):
         assert len(neuron.get_state_blocks()) == 1, "Only one state block supported for now"
         assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
 
@@ -424,7 +418,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     non_equations_state_variables.append(var)
         return non_equations_state_variables
 
-    def analyse_neuron(self, neuron: ASTNeuron) -> List[ASTAssignment]:
+    def analyse_neuron(self, neuron: ASTModel) -> List[ASTAssignment]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
@@ -457,7 +451,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # goes through all convolve() inside equations block
         # extracts what kernel is paired with what spike buffer
         # returns pairs (kernel, spike_buffer)
-        kernel_buffers = ASTUtils.generate_kernel_buffers_(
+        kernel_buffers = ASTUtils.generate_kernel_buffers(
             neuron, equations_block)
 
         # replace convolve(g_E, spikes_exc) with g_E__X__spikes_exc[__d]
@@ -583,7 +577,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 FrontendConfiguration.get_target_path(),
                 compute_prefix(file_name_no_extension))) + "." + file_extension
 
-    def getUniqueSuffix(self, neuron: ASTNeuron) -> str:
+    def getUniqueSuffix(self, neuron: ASTModel) -> str:
         ret = neuron.get_name().capitalize()
         underscore_pos = ret.find("_")
         while underscore_pos != -1:
@@ -591,7 +585,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
@@ -767,11 +761,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         Update symbol table and scope.
         """
-        SymbolTable.delete_neuron_scope(neuron.get_name())
+        SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
-        SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:
         """
@@ -814,7 +808,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def get_spike_update_expressions(
             self,
-            neuron: ASTNeuron,
+            neuron: ASTModel,
             kernel_buffers,
             solver_dicts,
             delta_factors) -> List[ASTAssignment]:
@@ -887,7 +881,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def transform_ode_and_kernels_to_json(
             self,
-            neuron: ASTNeuron,
+            neuron: ASTModel,
             parameters_block,
             kernel_buffers):
         """

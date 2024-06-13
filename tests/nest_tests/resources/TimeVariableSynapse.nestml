@@ -1,4 +1,4 @@
-""" 
+"""
 TimeVariableSynapse.nestml
 ##########################
 
@@ -23,7 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-synapse time_variable_synapse:
+model time_variable_synapse:
   state:
     x ms = 0. ms
     y ms = 0. ms
@@ -32,10 +32,11 @@ synapse time_variable_synapse:
     y = t
 
   parameters:
-    d ms = 1 ms @nest::delay
+    w real = 1
+    d ms = 1 ms
 
   input:
     pre_spikes <- spike
 
   update:
-    x = t
+    x = t + resolution()

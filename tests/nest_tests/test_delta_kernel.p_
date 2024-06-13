@@ -1,0 +1,91 @@
+# -*- coding: utf-8 -*-
+#
+# test_delta_kernel.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import nest
+import numpy as np
+import os
+import pytest
+
+from pynestml.codegeneration.nest_tools import NESTTools
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
+
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
+class TestDeltaKernel:
+    r"""XXX TODO: this test is temporarily disabled (see https://github.com/nest/nestml/issues/1020)"""
+    def test_delta_kernel(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(
+            os.path.dirname(__file__), "resources", "test_delta_kernel_neuron.nestml")))
+        target_path = "target"
+        logging_level = "DEBUG"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        # generate_nest_target(input_path,
+        #                      target_path=target_path,
+        #                      logging_level=logging_level,
+        #                      module_name=module_name,
+        #                      suffix=suffix)
+
+        nest.ResetKernel()
+        nest.Install(module_name)
+        nest.set_verbosity("M_ALL")
+        nest.resolution = 0.1
+
+        # network construction
+        neuron = nest.Create("test_delta_kernel_neuron_nestml")
+
+        sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
+        nest.Connect(sg, neuron, syn_spec={"weight": 1000., "delay": 0.1})
+
+        mm = nest.Create("multimeter", params={"record_from": ["x"],
+                                               "interval": nest.resolution})
+        nest.Connect(mm, neuron)
+
+        # simulate
+        nest.Simulate(50.)
+
+        conn = nest.GetConnections(source=sg,
+                                   target=neuron)
+
+        conn.weight = -1000.
+
+        nest.Simulate(50.)
+
+        # analysis
+        if TEST_PLOTS:
+            fig, ax = plt.subplots()
+
+            ax.plot(mm.get()["events"]["times"], mm.get()["events"]["x"])
+
+            fig.savefig("/tmp/test_delta_kernel.png")
+
+        # testing
+        np.testing.assert_allclose(np.amax(mm.get()["events"]["x"]), 1000.)
+        np.testing.assert_allclose(np.amin(mm.get()["events"]["x"]), -1000., rtol=5E-3)
