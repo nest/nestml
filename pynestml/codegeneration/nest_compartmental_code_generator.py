@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import shutil
-from typing import Any, Dict, List, Mapping, Optional
+
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import datetime
 import os
@@ -111,7 +112,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 "ieee.h"]},
         "nest_version": "",
         "compartmental_variable_name": "v_comp",
-        "fastexp": True}
+        "fastexp": True,
+        "neuron_synapse_pairs": []}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
@@ -199,11 +201,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def generate_code(
             self,
-            neurons: List[ASTNeuron],
-            synapses: List[ASTSynapse] = None) -> None:
+            models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+        neurons = [model for model in models if isinstance(model, ASTNeuron)]
+        synapses = [model for model in models if isinstance(model, ASTSynapse)]
         self.place_externals()
         self.analyse_transform_neurons(neurons)
+        self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
+        self.generate_synapses(synapses)
         self.generate_module_code(neurons)
 
     def place_externals(self):

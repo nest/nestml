@@ -47,7 +47,7 @@ def nestml_generate_target():
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
     generate_nest_target(input_path=input_path,
-                         target_path="/tmp/nestml-triplet-stdp",
+                         #target_path="/tmp/nestml-triplet-stdp",
                          logging_level="INFO",
                          module_name="nestml_triplet_pair_module",
                          suffix="_nestml",

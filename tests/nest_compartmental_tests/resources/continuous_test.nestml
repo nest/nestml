@@ -20,3 +20,6 @@ neuron continuous_test_model:
     input:
         I_stim real <- continuous
         spikes_AMPA <- spike
+
+    update:
+        integrate_odes()

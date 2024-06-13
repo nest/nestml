@@ -77,7 +77,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-    if target_name.upper() == "NEST":
+    if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # co-generate neuron and synapse
@@ -357,6 +357,8 @@ def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], ta
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
+    if codegen_opts == None:
+        codegen_opts: Mapping[str, Any] = {"fastexp": True}
     if not "fastexp" in codegen_opts:
         codegen_opts["fastexp"] = True
     generate_target(input_path, target_platform="NEST_compartmental", target_path=target_path,
@@ -474,6 +476,7 @@ def process():
     models, errors_occurred = get_parsed_models()
 
     if not errors_occurred:
+        #breakpoint()
         models = transform_models(transformers, models)
         generate_code(code_generator, models)
 
