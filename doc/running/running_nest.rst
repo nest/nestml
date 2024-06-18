@@ -215,6 +215,7 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
                                                            "synapse": "third_factor_stdp",
                                                             "vt_ports": ["dopa_spikes"]}]})
 
+
 Third-factor plasticity
 ~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -1253,6 +1253,7 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
+
 {%-     filter indent(6, True) -%}
 {#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
