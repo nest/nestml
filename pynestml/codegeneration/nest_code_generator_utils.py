@@ -63,47 +63,6 @@ class NESTCodeGeneratorUtils:
         return ""
 
     @classmethod
-    def set_nest_alternate_name(cls, astnode: ASTNode, decorator_replacements):
-        """Set alternate name for variables"""
-        class VariableNameAlternateNameVisitor(ASTVisitor):
-
-            def _do_replace(self, var):
-                sym = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-
-                if not sym:
-                    return
-
-                if var.get_name() in decorator_replacements.keys():
-                    var.set_alternate_name(decorator_replacements[var.get_name()])
-
-            def visit_simple_expression(self, node):
-                if node.is_variable():
-                    var = node.get_variable()
-                    self._do_replace(var)
-
-            def visit_declaration(self, node):
-                for var in node.get_variables():
-                    if var.get_name() in decorator_replacements.keys():
-                        self._do_replace(var)
-
-            def visit_assignment(self, node):
-                var = node.get_variable()
-                if var.get_name() in decorator_replacements.keys():
-                    self._do_replace(var)
-
-            def visit_expression(self, node):
-                for var in node.get_variables():
-                    if var.get_name() in decorator_replacements.keys():
-                        self._do_replace(var)
-
-            def visit_ode_equation(self, node):
-                var = node.lhs
-                if var.get_name() in decorator_replacements.keys():
-                    self._do_replace(var)
-
-        astnode.accept(VariableNameAlternateNameVisitor())
-
-    @classmethod
     def generate_code_for(cls,
                           nestml_neuron_model: str,
                           nestml_synapse_model: Optional[str] = None,

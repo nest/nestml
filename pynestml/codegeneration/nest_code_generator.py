@@ -248,6 +248,7 @@ class NESTCodeGenerator(CodeGenerator):
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
 
+        self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -437,7 +438,6 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.update_blocktype_for_common_parameters(synapse)
         assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
         assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
-        NESTCodeGeneratorUtils.set_nest_alternate_name(synapse, {ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]).get_name():  "get_delay()"})
 
         return spike_updates
 

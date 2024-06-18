@@ -78,6 +78,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {{ synapse.print_comment() }}
 **/
 
+//#define DEBUG
+
 namespace nest
 {
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
@@ -370,7 +372,6 @@ private:
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters and state variables
   // -------------------------------------------------------------------------
-
 {%  filter indent(2, True) -%}
 {%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -378,7 +379,7 @@ private:
 {%-     if not isHomogeneous %}
 {%-         if variable.get_name() != nest_codegen_opt_delay_variable and variable.get_name() != synapse_weight_variable %}
 {%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
-{%-         elif variable.get_name() == synapse_weight_variable and variable.get_name() != "weight" %}
+{%          elif variable.get_name() == synapse_weight_variable and variable.get_name() != "weight" %}
 {#              weight is its own special case in NEST #}
 inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ variable.get_name() }}() const
 {
@@ -639,10 +640,10 @@ public:
 
 {%- if paired_neuron is defined %}
     try {
-      dynamic_cast<{{paired_neuron_name}}&>(t);
+      dynamic_cast< {{ paired_neuron_name }}& >(t);
     }
     catch (std::bad_cast &exp) {
-      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron_name}}'.\n";
+      std::cerr << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{ paired_neuron_name }}'.\n";
       exit(1);
     }
 {%- endif %}
@@ -689,7 +690,7 @@ public:
 {%- endif %}
     // use accessor functions (inherited from Connection< >) to obtain delay and target
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
-    {{paired_neuron_name}}* __target = static_cast<{{paired_neuron_name}}*>(get_target(tid));
+    {{ paired_neuron_name }}* __target = static_cast< {{ paired_neuron_name }}* >(get_target(tid));
     assert(__target);
 {%- else %}
     Node* __target = get_target( tid );
@@ -760,6 +761,9 @@ public:
           break;  // this would in any case have been the last post spike to be processed
         }
 
+#ifdef DEBUG
+        std::cout << "\tprocessing post spike at t = " << start->t_ << std::endl;
+#endif
 
         /**
          * update synapse internal state from `t_lastspike_` to `start->t_`
@@ -987,10 +991,6 @@ void
   }
   else
   {
-#ifdef DEBUG
-  std::cout << "\t\t4: updating internal state from t0 = " << t0 << " to t1 = " << t1 << "\n";
-#endif
-
     // no dopamine spikes in (t0, t1]
     update_internal_state_( t0, t1 - t0, cp );
   }
@@ -1232,18 +1232,11 @@ inline void
 {
     if (timestep < 1E-12)
     {
-#ifdef DEBUG
-        std::cout << "\tupdate_internal_state_() called with dt < 1E-12; skipping update\n" ;
-#endif
         return;
     }
 
     const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
     auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
-
-#ifdef DEBUG
-    std::cout<< "\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
-#endif
 
     V_.__h = timestep;
     assert(V_.__h > 0);
@@ -1295,16 +1288,14 @@ inline void
 {%- endif %}
 {
   // propagate all state variables in the synapse to time t_trig
-#ifdef DEBUG
-    std::cout << "\n{{synapseName}}::trigger_update_weight(): t = " << t_trig << std::endl;
-#endif
+
   // purely dendritic delay
   double dendritic_delay = get_delay();
 
   // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
-  std::deque< histentry__{{paired_neuron_name}} >::iterator start;
-  std::deque< histentry__{{paired_neuron_name}} >::iterator finish;
-  static_cast<{{paired_neuron_name}}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+  std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
+  std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
+  static_cast<{{ paired_neuron_name }}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
@@ -1318,12 +1309,8 @@ inline void
     process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
 {%- endfor %}
 
-#ifdef DEBUG
-    std::cout << "\tprocessing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
-#endif
-
     /**
-     * update synapse internal state from `t_last_update_` to `start->t_`
+     * update synapse internal state from `t_last_update_` to `start->t_ + dendritic_delay`
     **/
 
     update_internal_state_(t_last_update_,
@@ -1331,9 +1318,6 @@ inline void
                            cp);
 
     const double _tr_t = start->t_;
-#ifdef DEBUG
-        std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
-#endif
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -1349,9 +1333,6 @@ inline void
 {%- endif %}
 {%- endfilter %}
 
-#ifdef DEBUG
-      std::cout << " to " << S_.c << std::endl;
-#endif
     /**
      * internal state has now been fully updated to `start->t_ + dendritic_delay`
     **/
@@ -1370,14 +1351,10 @@ inline void
 {%- set vt_port = vt_ports[0] %}
   process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
-
-#ifdef DEBUG
-    //std::cout << "{{synapseName}}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
-#endif
-
- /* update_internal_state_(t_lastspike_,
-                         t_trig - t_lastspike_,
-                         cp);*/
+  // N.B. call to update_internal state is not needed; this is already taken care of by ``process_{{vt_port}}_spikes_()``
+  // update_internal_state_(t_lastspike_,
+  //                        t_trig - t_lastspike_,
+  //                        cp);
 
   vt_spikes_idx_ = 0;
   t_lastspike_ = t_trig;

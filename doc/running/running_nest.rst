@@ -216,6 +216,14 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
                                                             "vt_ports": ["dopa_spikes"]}]})
 
 
+Third-factor plasticity
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Note that when a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron (see :ref:`Third-factor plasticity <synapses_in_nestml#third-factor-plasticity>`), a corresponding buffer is allocated in each neuron which retains the recent history of the connected state variables. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal.
+
+The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
+
+
 Dendritic delay and synaptic weight
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -269,3 +277,5 @@ References
 ----------
 
 .. [Hanuschkin2010] Alexander Hanuschkin and Susanne Kunkel and Moritz Helias and Abigail Morrison and Markus Diesmann. A General and Efficient Method for Incorporating Precise Spike Times in Globally Time-Driven Simulations. Frontiers in Neuroinformatics, 2010, Vol. 4
+
+.. [Stapmanns2021] Jonas Stapmanns, Jan Hahne, Moritz Helias, Matthias Bolten, Markus Diesmann and David Dahmen. Event-Based Update of Synapses in Voltage-Based Learning Rules. Frontiers in Neuroinformatics, Volume 15, 10 June 2021

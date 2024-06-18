@@ -37,6 +37,7 @@ from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
@@ -591,7 +592,6 @@ class ASTUtils:
                 return
 
             if not var.get_name() == "t" \
-               and not var.get_alternate_name() \
                and not var.get_name().endswith(suffix):
                 symbol = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
@@ -617,7 +617,6 @@ class ASTUtils:
                 return
 
             if var.get_name() in variable_names \
-               and not var.get_alternate_name() \
                and not var.get_name().endswith(suffix):
                 var.set_name(var.get_name() + suffix)
 
@@ -667,7 +666,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
+    def replace_with_external_variable(cls, var_name, node: ASTNode, suffix: str, new_scope, alternate_name=None):
         r"""
         Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
         """

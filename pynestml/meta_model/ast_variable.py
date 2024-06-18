@@ -53,8 +53,6 @@ class ASTVariable(ASTNode):
         :param type_symbol: the type of the variable
         :param vector_parameter: the vector parameter of the variable
         :param delay_parameter: the delay value to be used in the differential equation
-        :param alternate_name: alternate name that aliases the variable, e.g. for references to variables in other models
-        :param alternate_scope: the variable scope in which to resolve the variable ``alternate_name``
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
@@ -69,8 +67,6 @@ class ASTVariable(ASTNode):
         self.vector_parameter = vector_parameter
         self.is_homogeneous = is_homogeneous
         self.delay_parameter = delay_parameter
-        self.alternate_name = alternate_name
-        self.alternate_scope = alternate_scope
 
     def clone(self):
         r"""
@@ -81,7 +77,6 @@ class ASTVariable(ASTNode):
                            type_symbol=self.type_symbol,
                            vector_parameter=self.vector_parameter,
                            delay_parameter=self.delay_parameter,
-                           alternate_name=self.alternate_name,
                            # ASTNode common attriutes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
