@@ -107,6 +107,8 @@ class NestCustomTemplatesTest(unittest.TestCase):
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
                                       "synapse": "stdp_triplet_synapse",
                                       "post_ports": ["post_spikes"]}],
+            "delay_variable": {"stdp_triplet_synapse": "d"},
+            "weight_variable": {"stdp_triplet_synapse": "w"},
             "templates": {
                 "path": "resources_nest/point_neuron",
                 "model_templates": {

@@ -35,7 +35,7 @@ References
 """
 model stdp_synapse:
     state:
-        w real = 1.    @nest::weight   # Synaptic weight
+        w real = 1    # Synaptic weight
         pre_trace real = 0.
         post_trace real = 0.
 

@@ -75,12 +75,9 @@ Source code
 The model source code can be found in the NESTML models repository here: `third_factor_stdp_synapse <https://github.com/nest/nestml/tree/master/models/synapses/third_factor_stdp_synapse.nestml>`_.
 
 
-Characterisation
-++++++++++++++++
-
 .. include:: third_factor_stdp_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-11-16 11:40:54.330550
+   Generated at 2024-05-22 14:51:14.672974

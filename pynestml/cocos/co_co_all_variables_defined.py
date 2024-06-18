@@ -96,7 +96,7 @@ class CoCoAllVariablesDefined(CoCo):
                     code, message = Messages.get_variable_not_defined(var.get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
-                    return
+                    continue
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration

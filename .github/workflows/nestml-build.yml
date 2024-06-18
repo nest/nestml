@@ -227,7 +227,7 @@ jobs:
           done;
           exit $rc
 
-      # Run only the nest_integration_test for the NEST versions other than master and 2.20.2
+      # Run only the nest integration tests for NEST versions other than master and 2.20.2
       - name: Run integration tests
         if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
         env:
@@ -242,8 +242,13 @@ jobs:
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
           for fn in $ipynb_fns; do
+              echo "Now running Jupyter notebook: ${fn}"
               cd `dirname ${fn}`
-              ipython3 ${fn} || rc=1
+              ipython3 ${fn}
+              if [ $? -ne 0 ]; then
+                  echo "Error running Jupyter notebook: ${fn}"
+                  rc=1
+              fi
           done;
           cd $GITHUB_WORKSPACE
           exit $rc
