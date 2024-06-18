@@ -372,7 +372,6 @@ private:
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters and state variables
   // -------------------------------------------------------------------------
-
 {%  filter indent(2, True) -%}
 {%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -380,7 +379,7 @@ private:
 {%-     if not isHomogeneous %}
 {%-         if variable.get_name() != nest_codegen_opt_delay_variable and variable.get_name() != synapse_weight_variable %}
 {%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
-{%-         elif variable.get_name() == synapse_weight_variable and variable.get_name() != "weight" %}
+{%          elif variable.get_name() == synapse_weight_variable and variable.get_name() != "weight" %}
 {#              weight is its own special case in NEST #}
 inline {{ declarations.print_variable_type(variable_symbol) }} get_{{ variable.get_name() }}() const
 {
@@ -645,7 +644,7 @@ public:
       dynamic_cast< {{ paired_neuron_name }}& >(t);
     }
     catch (std::bad_cast &exp) {
-      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{ paired_neuron_name }}'.\n";
+      std::cerr << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{ paired_neuron_name }}'.\n";
       exit(1);
     }
 {%- endif %}
