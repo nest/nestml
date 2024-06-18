@@ -425,10 +425,10 @@ class ASTUtils:
 
     @classmethod
     def create_internal_block(cls, model: ASTModel):
-        """
-        Creates a single internal block in the handed over model.
+        r"""
+        Create an internals block in the handed over model if it does not yet exist.
         :param model: a single model
-        :return: the modified model
+        :return: the modified model (the model is also changed in-place)
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_internals_blocks():
@@ -444,10 +444,10 @@ class ASTUtils:
 
     @classmethod
     def create_state_block(cls, model: ASTModel):
-        """
-        Creates a single internals block in the handed over model.
-        :param neuron: a single model
-        :return: the modified model
+        r"""
+        Create a state block in the handed over model if it does not yet exist.
+        :param model: a single model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -464,10 +464,10 @@ class ASTUtils:
 
     @classmethod
     def create_parameters_block(cls, model: ASTModel):
-        """
-        Creates a single parameters block in the handed over model.
-        :param neuron: a single model
-        :return: the modified model
+        r"""
+        Create a parameters block in the handed over model if it does not yet exist.
+        :param model: a single model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -484,10 +484,10 @@ class ASTUtils:
 
     @classmethod
     def create_equations_block(cls, model: ASTModel) -> ASTModel:
-        """
-        Creates a single equations block in the handed over model.
+        r"""
+        Create an equations block in the handed over model if it does not yet exist.
         :param model: a single model
-        :return: the modified model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
