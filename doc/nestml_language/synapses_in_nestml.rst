@@ -23,11 +23,11 @@ Note that the synaptic strength ("weight") variable is of type real; if the type
 Writing the NESTML model
 ########################
 
-The top-level element of the model is ``synapse``, followed by a name. All other blocks appear inside of here.
+The top-level element of the model is ``model``, followed by a name. All other blocks appear inside of here.
 
 .. code-block:: nestml
 
-   synapse stdp:
+   model stdp_synapse:
        # [...]
 
 Input and output ports

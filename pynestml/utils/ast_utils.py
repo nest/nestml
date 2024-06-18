@@ -341,7 +341,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_numeric_vector_size(cls, variable: VariableSymbol) -> int:
+    def get_numeric_vector_size(cls, variable: ASTVariable) -> int:
         """
         Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
         :param variable: vector variable
@@ -354,6 +354,22 @@ class ASTUtils:
 
         assert vector_parameter.is_numeric_literal()
         return int(vector_parameter.get_numeric_literal())
+
+    @classmethod
+    def get_numeric_vector_input_port_size(cls, port: ASTInputPort) -> int:
+        """
+        Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
+        :param port: input port
+        :return: the size of the vector as a numerical value
+        """
+        size_parameter = port.get_size_parameter()
+        if size_parameter.is_variable():
+            symbol = port.get_scope().resolve_to_symbol(size_parameter.get_variable().get_name(),
+                                                        SymbolKind.VARIABLE)
+            return symbol.get_declaring_expression().get_numeric_literal()
+
+        assert size_parameter.is_numeric_literal()
+        return int(size_parameter.get_numeric_literal())
 
     @classmethod
     def get_function_call(cls, ast, function_name):
@@ -418,6 +434,10 @@ class ASTUtils:
                                                                       ASTSourceLocation.get_added_source_position())
             internal.update_scope(model.get_scope())
             model.get_body().get_body_elements().append(internal)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -433,6 +453,10 @@ class ASTUtils:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             model.get_body().get_body_elements().append(state)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -527,7 +551,7 @@ class ASTUtils:
 
     @classmethod
     def remove_state_var_from_integrate_odes_calls(cls, model: ASTModel, state_var_name: str):
-        r"""Remove a state variable from the arguments to integrate_odes() calls in the model."""
+        r"""Remove a state variable from the arguments (where it exists) of each integrate_odes() call in the model."""
 
         class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
@@ -644,8 +668,8 @@ class ASTUtils:
 
     @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
-        """
-        Set alternate name on all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node, indicating that they are moved to the postsynaptic neuron.
+        r"""
+        Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
         """
 
         def replace_var(_expr=None):
@@ -659,32 +683,32 @@ class ASTUtils:
             if var.get_name() != var_name:
                 return
 
-            ast_ext_var = ASTVariable(name=var_name + suffix,
-                                      alternate_name="((post_neuron_t*)(__target))->get_" + var.get_name() + suffix + "(_tr_t)",
-                                      alternate_scope=new_scope,
-                                      differential_order=var.get_differential_order(),
-                                      source_position=var.get_source_position())
+            ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
+                                              differential_order=var.get_differential_order(),
+                                              source_position=var.get_source_position())
 
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
+            ast_ext_var.parent_ = _expr
+            ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 Logger.log_message(None, -1, "ASTSimpleExpression replacement made (var = " + str(
-                    ast_ext_var.get_name()) + ") in expression: " + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
+                    ast_ext_var.get_name()) + ") in expression: " + str(_expr.get_parent()), None, LoggingLevel.INFO)
                 _expr.set_variable(ast_ext_var)
                 return
 
             if isinstance(_expr, ASTVariable):
-                if isinstance(node.get_parent(_expr), ASTAssignment):
-                    node.get_parent(_expr).lhs = ast_ext_var
+                if isinstance(_expr.get_parent(), ASTAssignment):
+                    _expr.get_parent().lhs = ast_ext_var
                     Logger.log_message(None, -1, "ASTVariable replacement made in expression: "
-                                       + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
-                elif isinstance(node.get_parent(_expr), ASTSimpleExpression) and node.get_parent(_expr).is_variable():
-                    node.get_parent(_expr).set_variable(ast_ext_var)
-                elif isinstance(node.get_parent(_expr), ASTDeclaration):
+                                       + str(_expr.get_parent()), None, LoggingLevel.INFO)
+                elif isinstance(_expr.get_parent(), ASTSimpleExpression) and _expr.get_parent().is_variable():
+                    _expr.get_parent().set_variable(ast_ext_var)
+                elif isinstance(_expr.get_parent(), ASTDeclaration):
                     # variable could occur on the left-hand side; ignore. Only replace if it occurs on the right-hand side.
                     pass
                 else:
@@ -693,12 +717,14 @@ class ASTUtils:
                     raise Exception()
                 return
 
-            p = node.get_parent(var)
+            p = var.get_parent()
             Logger.log_message(None, -1, "Error: unhandled use of variable "
                                + var_name + " in expression " + str(p), None, LoggingLevel.INFO)
             raise Exception()
 
         node.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        node.accept(ASTParentVisitor())
 
     @classmethod
     def add_suffix_to_decl_lhs(cls, decl, suffix: str):
@@ -771,7 +797,7 @@ class ASTUtils:
                         found_parent_assignment = False
                         node_ = node
                         while not found_parent_assignment:
-                            node_ = self.parent_node.get_parent(node_)
+                            node_ = node_.get_parent()
                             # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                             if isinstance(node_, ASTInlineExpression):
                                 found_parent_assignment = True
@@ -818,6 +844,9 @@ class ASTUtils:
                 ast_symbol_table_visitor.block_type_stack.push(block_type)
                 decl.accept(ast_symbol_table_visitor)
                 ast_symbol_table_visitor.block_type_stack.pop()
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        to_block.accept(ASTParentVisitor())
 
         return decls
 
@@ -1037,11 +1066,16 @@ class ASTUtils:
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
         neuron.add_to_internals_block(ast_declaration)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        neuron.accept(ASTParentVisitor())
+
         ast_declaration.update_scope(neuron.get_internals_blocks()[0].get_scope())
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.INTERNALS)
         ast_declaration.accept(symtable_visitor)
         symtable_visitor.block_type_stack.pop()
+
         return neuron
 
     @classmethod
@@ -1078,6 +1112,9 @@ class ASTUtils:
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
         neuron.add_to_state_block(ast_declaration)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        neuron.accept(ASTParentVisitor())
 
         symtable_visitor = ASTSymbolTableVisitor()
         symtable_visitor.block_type_stack.push(BlockType.STATE)
@@ -1411,7 +1448,7 @@ class ASTUtils:
                     if isinstance(size_parameter, ASTSimpleExpression):
                         size_parameter = size_parameter.get_numeric_literal()
                     port_name, port_index = port_name.split("_")
-                    assert int(port_index) > 0
+                    assert int(port_index) >= 0
                     assert int(port_index) <= size_parameter
                 if input_port.name == port_name:
                     return input_port

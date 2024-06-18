@@ -150,7 +150,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
 {%-     if ports[0].has_vector_parameter() %}
 {%-     set size = utils.get_numeric_vector_size(ports[0]) %}
 {%-         for i in range(size) %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i+1) }}
+  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }}
 {%-         set ns.rport = ns.rport + 1 %}
 {%-         endfor %}
 {%-     else %}
@@ -164,7 +164,7 @@ std::vector< std::tuple< int, int > > {{neuronName}}::rport_to_nestml_buffer_idx
   std::string {{neuronName}}::get_var_name(size_t elem, std::string var_name)
   {
     std::stringstream n;
-    n << var_name << elem + 1;
+    n << var_name << elem;
     return n.str();
   }
 
@@ -387,12 +387,6 @@ void {{neuronName}}::init_state_internal_()
 #endif
 
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  calibrate();
-{%- else %}
-  pre_run_hook();
-{%- endif %}
 
 {%- if numeric_solver == "rk45" %}
   // by default, integrate all variables
@@ -1352,9 +1346,9 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-{%-     filter indent(10, True) -%}
-{#          emulate a call to ``integrate_odes(analytic_state_variables_moved)`` #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, analytic_state_variables_moved) %}
+{%-     filter indent(6, True) -%}
+{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%-     endfilter %}
@@ -1368,9 +1362,11 @@ void
       * print extra on-emit statements transferred from synapse
     **/
 
+{%-     filter indent(4, True) %}
 {%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
 {%-         include "directives_cpp/Statement.jinja2" %}
 {%-     endfor %}
+{%-     endfilter %}
 
     /**
       * print updates due to convolutions

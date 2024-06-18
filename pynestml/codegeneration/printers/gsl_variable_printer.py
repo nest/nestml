@@ -82,10 +82,12 @@ class GSLVariablePrinter(CppVariablePrinter):
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
             var_name = variable_symbol.get_symbol_name().upper()
-            if variable_symbol.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable_symbol)
-                var_name = var_name + "_" + str(vector_parameter)
-
+            if variable.has_vector_parameter():
+                if variable.get_vector_parameter().is_variable():
+                    # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
+                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
+                else:
+                    var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[node." + var_name + " - node.MIN_SPIKE_RECEPTOR]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'

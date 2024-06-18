@@ -21,9 +21,11 @@ At the end of the timestep, variables corresponding to convolutions are updated 
 Event-based updating of synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NEST synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
 The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
+
+Synapses in NEST are not allowed to have any nonlinear time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid. Linear ODEs are allowed, because they admit an analytical solution, which can be updated in a single step from the previous event time to the current event time. However, nonlinear dynamics are not allowed because they would require a numeric solver evaluating the dynamics on a regular time grid.
+
+If ODE-toolbox is not successful in finding the propagator solver to a system of ODEs that is, however, solvable, the propagators may be entered "by hand" in the ``update`` block of the model. This block may contain any series of statements to update the state of the system from the current timestep to the next, for example, multiplications of state variables by the propagators.
 
 
 Setting and retrieving model properties
@@ -136,7 +138,7 @@ For the example mentioned :ref:`here <Multiple input ports with vectors>`, the `
    neuron = nest.Create("multi_synapse_vectors")
    receptor_types = nest.GetStatus(neuron, "receptor_types")
 
-The name of the receptors of the input ports are denoted by suffixing the ``vector index + 1`` to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO_1``.
+The name of the receptors of the input ports are denoted by suffixing the ``vector index`` to the port name. For instance, the receptor name for ``foo[0]`` would be ``FOO_0``.
 
 The above code querying for ``receptor_types`` gives a list of port names and NEST ``rport`` numbers as shown below:
 
@@ -151,21 +153,21 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 1
    * - NMDA_spikes
      - 2
-   * - FOO_1
+   * - FOO_0
      - 3
-   * - FOO_2
+   * - FOO_1
      - 4
+   * - EXC_SPIKES_0
+     - 5
    * - EXC_SPIKES_1
-     - 5
+     - 6
    * - EXC_SPIKES_2
-     - 6
-   * - EXC_SPIKES_3
      - 7
-   * - INH_SPIKES_1
+   * - INH_SPIKES_0
      - 5
-   * - INH_SPIKES_2
+   * - INH_SPIKES_1
      - 6
-   * - INH_SPIKES_3
+   * - INH_SPIKES_2
      - 7
 
 For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https://github.com/nest/nestml/blob/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse_vectors.nestml>`_ for the neuron model and ``test_multisynapse_with_vector_input_ports`` in `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test.
@@ -203,7 +205,7 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
 
-Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
+Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword ``"vt_ports"`` can be used here.
 
 .. code-block:: python
 

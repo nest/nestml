@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from copy import copy
 
@@ -43,7 +43,7 @@ class ASTVariable(ASTNode):
     """
 
     def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
-                 vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, alternate_name: Optional[str] = None, alternate_scope: Optional[Scope] = None, *args, **kwargs):
+                 vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
         r"""
         Standard constructor.
         :param name: the name of the variable
@@ -190,14 +190,6 @@ class ASTVariable(ASTNode):
         assert (delay is not None), '(PyNestML.AST.Variable) No delay parameter provided'
         self.delay_parameter = delay
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :return: AST if this or one of the child nodes contains the handed over element.
-        """
-        return None
-
     def is_unit_variable(self) -> bool:
         r"""
         Provided on-the-fly information whether this variable represents a unit-variable, e.g., nS.
@@ -209,17 +201,6 @@ class ASTVariable(ASTNode):
             return True
         return False
 
-    def equals(self, other: Any) -> bool:
-        r"""
-        The equals method.
-        :param other: a different object.
-        :return: True if equals, otherwise False.
-        """
-        if not isinstance(other, ASTVariable):
-            return False
-
-        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order() and self.get_alternate_name() == other.get_alternate_name()
-
     def is_delay_variable(self) -> bool:
         """
         Returns whether it is a delay variable or not
@@ -227,8 +208,21 @@ class ASTVariable(ASTNode):
         """
         return self.get_delay_parameter() is not None
 
-    def set_alternate_name(self, alternate_name: Optional[str]):
-        self.alternate_name = alternate_name
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
+        """
+        if self.has_vector_parameter():
+            return [self.get_vector_parameter()]
 
-    def get_alternate_name(self):
-        return self.alternate_name
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
+        """
+        if not isinstance(other, ASTVariable):
+            return False
+
+        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
