@@ -34,10 +34,12 @@ from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
@@ -423,17 +425,17 @@ class ASTUtils:
 
     @classmethod
     def create_internal_block(cls, model: ASTModel):
-        """
-        Creates a single internal block in the handed over model.
+        r"""
+        Create an internals block in the handed over model if it does not yet exist.
         :param model: a single model
-        :return: the modified model
+        :return: the modified model (the model is also changed in-place)
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_internals_blocks():
-            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
-                                                                      ASTSourceLocation.get_added_source_position())
-            internal.update_scope(model.get_scope())
-            model.get_body().get_body_elements().append(internal)
+            block = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
+                                                                   ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -442,17 +444,38 @@ class ASTUtils:
 
     @classmethod
     def create_state_block(cls, model: ASTModel):
-        """
-        Creates a single internals block in the handed over model.
-        :param neuron: a single model
-        :return: the modified model
+        r"""
+        Create a state block in the handed over model if it does not yet exist.
+        :param model: a single model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if not model.get_internals_blocks():
-            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
+        if not model.get_state_blocks():
+            block = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
-            model.get_body().get_body_elements().append(state)
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
+
+    @classmethod
+    def create_parameters_block(cls, model: ASTModel):
+        r"""
+        Create a parameters block in the handed over model if it does not yet exist.
+        :param model: a single model
+        :return: the modified model (the model is also changed in-place)
+        """
+        # local import since otherwise circular dependency
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        if not model.get_parameters_blocks():
+            block = ASTNodeFactory.create_ast_block_with_variables(False, True, False, list(),
+                                                                   ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -461,17 +484,22 @@ class ASTUtils:
 
     @classmethod
     def create_equations_block(cls, model: ASTModel) -> ASTModel:
-        """
-        Creates a single equations block in the handed over model.
+        r"""
+        Create an equations block in the handed over model if it does not yet exist.
         :param model: a single model
-        :return: the modified model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_equations_blocks():
             block = ASTNodeFactory.create_ast_equations_block(list(),
                                                               ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
             model.get_body().get_body_elements().append(block)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -482,10 +510,11 @@ class ASTUtils:
         """
         if not variable.get_declaring_expression():
             return False
-        else:
-            for func in variable.get_declaring_expression().get_function_calls():
-                if func.get_name() == PredefinedFunctions.CONVOLVE:
-                    return True
+
+        for func in variable.get_declaring_expression().get_function_calls():
+            if func.get_name() == PredefinedFunctions.CONVOLVE:
+                return True
+
         return False
 
     @classmethod
@@ -663,22 +692,19 @@ class ASTUtils:
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
-            ast_ext_var.parent_ = _expr
             ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                Logger.log_message(None, -1, "ASTSimpleExpression replacement made (var = " + str(
-                    ast_ext_var.get_name()) + ") in expression: " + str(_expr.get_parent()), None, LoggingLevel.INFO)
                 _expr.set_variable(ast_ext_var)
+                ast_ext_var.parent_ = _expr
                 return
 
             if isinstance(_expr, ASTVariable):
+                ast_ext_var.parent_ = _expr.get_parent()
                 if isinstance(_expr.get_parent(), ASTAssignment):
                     _expr.get_parent().lhs = ast_ext_var
-                    Logger.log_message(None, -1, "ASTVariable replacement made in expression: "
-                                       + str(_expr.get_parent()), None, LoggingLevel.INFO)
                 elif isinstance(_expr.get_parent(), ASTSimpleExpression) and _expr.get_parent().is_variable():
                     _expr.get_parent().set_variable(ast_ext_var)
                 elif isinstance(_expr.get_parent(), ASTDeclaration):
@@ -1767,6 +1793,21 @@ class ASTUtils:
         return visitor.vars
 
     @classmethod
+    def get_all_variables_assigned_to(cls, node: ASTNode):
+        class GetDependentVariablesVisitor(ASTVisitor):
+            def __init__(self):
+                super().__init__()
+                self.vars = set()
+
+            def visit_assignment(self, node: ASTAssignment) -> None:
+                self.vars.add(node.lhs.get_name())
+
+        visitor = GetDependentVariablesVisitor()
+        node.accept(visitor)
+
+        return visitor.vars
+
+    @classmethod
     def get_dependent_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
         r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
         class GetDependentVariablesVisitor(ASTVisitor):
@@ -1797,6 +1838,18 @@ class ASTUtils:
 
                 if var in rhs_vars:
                     self.vars.add(str(node.lhs))
+
+            def _visit_if_clause(self, node: ASTIfClause) -> None:
+                cond_vars = ASTUtils.get_all_variables_names_in_expression(node.condition)
+                if var in cond_vars:
+                    # collect all variables assigned to in the if-block -- they all depend on ``var``
+                    self.vars |= ASTUtils.get_all_variables_assigned_to(node.block)
+
+            def visit_if_clause(self, node: ASTIfClause) -> None:
+                self._visit_if_clause(node)
+
+            def visit_elif_clause(self, node: ASTElifClause) -> None:
+                self._visit_if_clause(node)
 
         visitor = GetDependentVariablesVisitor()
         model.accept(visitor)
