@@ -53,6 +53,9 @@ class WithOptions:
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
         r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
+        if not options:
+            return {}
+
         unhandled_options = {}
         for k in options.keys():
             if k in self.__class__._default_options:

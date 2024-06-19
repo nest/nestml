@@ -60,7 +60,7 @@ class CoCosTest(unittest.TestCase):
                         'invalid')),
                 'CoCoCmVariablesDeclared.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 4)
+            model.get_model_list()[0], LoggingLevel.ERROR)), 5)
 
     def test_valid_cm_variables_declared(self):
         Logger.set_logging_level(LoggingLevel.INFO)

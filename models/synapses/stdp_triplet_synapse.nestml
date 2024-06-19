@@ -26,7 +26,7 @@ model stdp_triplet_synapse:
         tr_o2 real = 0.
 
     parameters:
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        d ms = 1 ms     # Synaptic transmission delay
 
         tau_plus ms = 16.8 ms  # time constant for tr_r1
         tau_x ms = 101 ms  # time constant for tr_r2

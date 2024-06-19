@@ -353,12 +353,6 @@ void {{neuronName}}::init_state_internal_()
 
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  calibrate();
-{%- else %}
-  pre_run_hook();
-{%- endif %}
-
 {%- if numeric_solver == "rk45" %}
   // by default, integrate all variables
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
@@ -576,7 +570,7 @@ void {{neuronName}}::pre_run_hook()
 {%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
 {%-     endfor %}
 
-{%-     if paired_synapse is defined %}
+{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {#          for neuron-synapse co-generation: separate integrator for the emulated integrate_odes() calls below in this template #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
@@ -1085,6 +1079,9 @@ void
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
+      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+      // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
+
       if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
            and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
       {
@@ -1129,7 +1126,7 @@ void
     {
       recompute_internal_variables(true);
 
-{%-     filter indent(10, True) -%}
+{%-     filter indent(6, True) -%}
 {#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
@@ -1144,9 +1141,11 @@ void
       * print extra on-emit statements transferred from synapse
     **/
 
+{%-     filter indent(4, True) %}
 {%-     for stmt in extra_on_emit_spike_stmts_from_synapse %}
 {%-         include "directives_cpp/Statement.jinja2" %}
 {%-     endfor %}
+{%-     endfilter %}
 
     /**
       * print updates due to convolutions

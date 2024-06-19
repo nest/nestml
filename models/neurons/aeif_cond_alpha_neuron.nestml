@@ -63,13 +63,15 @@ model aeif_cond_alpha_neuron:
 
     parameters:
         # membrane parameters
+
         C_m pF = 281.0 pF         # Membrane Capacitance
-        refr_T ms = 2 ms         # Duration of refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         V_reset mV = -60.0 mV     # Reset Potential
         g_L nS = 30.0 nS          # Leak Conductance
         E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
 
         # spike adaptation parameters
+
         a nS = 4 nS               # Subthreshold adaptation
         b pA = 80.5 pA            # Spike-triggered adaptation
         Delta_T mV = 2.0 mV       # Slope factor
@@ -78,12 +80,13 @@ model aeif_cond_alpha_neuron:
         V_peak mV = 0 mV          # Spike detection threshold
 
         # synaptic parameters
+
         E_exc mV = 0 mV            # Excitatory reversal Potential
         tau_syn_exc ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
         E_inh mV = -85.0 mV        # Inhibitory reversal Potential
         tau_syn_inh ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
 
-        # constant external input current
+        # Constant external input current
         I_e pA = 0 pA
 
     internals:

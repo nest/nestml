@@ -8,8 +8,8 @@ A synapse where the synaptic strength (weight) does not evolve with simulated ti
 """
 model static_synapse:
     parameters:
-        w real = 1  @nest::weight   # Synaptic weight
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        w real = 1    # Synaptic weight
+        d ms = 1 ms    # Synaptic transmission delay
 
     input:
         pre_spikes <- spike

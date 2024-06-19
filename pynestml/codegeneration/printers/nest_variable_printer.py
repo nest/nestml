@@ -43,11 +43,12 @@ class NESTVariablePrinter(CppVariablePrinter):
     Variable printer for C++ syntax and the NEST API.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, enforce_getter: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, enforce_getter: bool = True, variables_special_cases: Optional[Dict[str, str]] = None) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
         self.enforce_getter = enforce_getter
+        self.variables_special_cases = variables_special_cases
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -57,6 +58,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(variable, ASTVariable)
 
+        # print special cases such as synaptic delay variable
+        if self.variables_special_cases and variable.get_name() in self.variables_special_cases.keys():
+            return self.variables_special_cases[variable.get_name()]
+
+        # print external variables (such as a variable in the synapse that needs to call the getter method on the postsynaptic partner)
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
@@ -68,10 +74,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"
 
-        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-
         if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
             return "get_t()"
+
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol is None:
             # test if variable name can be resolved to a type
