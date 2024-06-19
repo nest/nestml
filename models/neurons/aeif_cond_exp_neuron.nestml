@@ -90,7 +90,7 @@ model aeif_cond_exp_neuron:
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
-        I_stim <- continuous
+        I_stim real <- continuous
 
     output:
         spike

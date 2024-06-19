@@ -22,14 +22,6 @@
 from collections import defaultdict
 
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
-from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor

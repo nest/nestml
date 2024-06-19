@@ -103,10 +103,10 @@ class CMTest(unittest.TestCase):
 
         generate_nest_compartmental_target(
             input_path=input_path,
-            target_path="/tmp/nestml-component/",
+            target_path=target_path,
             module_name="cm_defaultmodule",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="ERROR"
         )
 
     def get_model(self, reinstall_flag=True):

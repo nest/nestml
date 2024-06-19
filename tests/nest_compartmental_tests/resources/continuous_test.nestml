@@ -1,4 +1,4 @@
-neuron continuous_test_model:
+model continuous_test_model:
     state:
         v_comp real = 0
 
