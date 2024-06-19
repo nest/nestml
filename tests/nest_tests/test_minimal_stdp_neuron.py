@@ -50,9 +50,11 @@ class TestMinimalSTDPNeuron:
     def generate_model_code(self):
         """Generate the model code"""
 
-        jit_codegen_opts = {"neuron_synapse_pairs": [{"neuron": "minimal_neuron",
-                                                      "synapse": "stdp_synapse",
-                                                      "post_ports": ["post_spikes"]}]}
+        codegen_opts = {"neuron_synapse_pairs": [{"neuron": "minimal_neuron",
+                                                  "synapse": "stdp_synapse",
+                                                  "post_ports": ["post_spikes"]}],
+                        "delay_variable": {"stdp_synapse": "d"},
+                        "weight_variable": {"stdp_synapse": "w"}}
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
         files = [os.path.join("tests", "nest_tests", "resources", "minimal_neuron.nestml"),
@@ -62,7 +64,7 @@ class TestMinimalSTDPNeuron:
         generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
                              suffix="_nestml",
-                             codegen_opts=jit_codegen_opts)
+                             codegen_opts=codegen_opts)
 
     def test_minimal_stdp_neuron(self):
         pass
