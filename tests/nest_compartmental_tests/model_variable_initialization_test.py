@@ -93,7 +93,7 @@ class TestInitialization(unittest.TestCase):
 
         res = nest.GetStatus(mm, 'events')[0]
 
-        data_array_index = 0;
+        data_array_index = 0
 
         fig, axs = plt.subplots(3)
 
@@ -122,4 +122,3 @@ class TestInitialization(unittest.TestCase):
         if not res['h_NaTa_t0'][data_array_index] > 5.0:
             self.fail("the gating variable state (left) is not as expected (right). (" + str(
                 res['h_NaTa_t0'][data_array_index]) + "<" + str(5.0) + ")")
-

@@ -99,8 +99,8 @@ class TestCompartmentalMechDisabled(unittest.TestCase):
 
         res = nest.GetStatus(mm, 'events')[0]
 
-        step_time_delta = res['times'][1]-res['times'][0]
-        data_array_index = int(200/step_time_delta)
+        step_time_delta = res['times'][1] - res['times'][0]
+        data_array_index = int(200 / step_time_delta)
 
         expected_conc = 2.8159902294145262e-05
 
@@ -124,7 +124,7 @@ class TestCompartmentalMechDisabled(unittest.TestCase):
         plt.savefig("interaction with disabled mechanism test.png")
 
         if not res['c_Ca0'][data_array_index] == expected_conc:
-            self.fail("the concentration (left) is not as expected (right). ("+str(res['c_Ca0'][data_array_index])+"!="+str(expected_conc)+")")
+            self.fail("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
 
 
 if __name__ == "__main__":
