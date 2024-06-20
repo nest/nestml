@@ -35,17 +35,16 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 class TestBuiltInAndNESTMLPlasticSynapse:
     r"""Test that synaptic plasticity works with both a NEST built-in plastic synapse and a NESTML custom plastic synapse attached to the same neuron."""
 
-    neuron_model = "iaf_psc_exp_nonlineardendrite"
-    synapse_model = "stdsp_synapse_no_permanence"
+    neuron_model = "iaf_psc_exp_nonlineardendrite_neuron"
+    synapse_model = "stdsp_no_permanence_synapse"
 
     def setup_nest(self):
-        files = [f"{TestBuiltInAndNESTMLPlasticSynapse.neuron_model}_alternate.nestml",
+        files = [f"{TestBuiltInAndNESTMLPlasticSynapse.neuron_model}.nestml",
                  f"{TestBuiltInAndNESTMLPlasticSynapse.synapse_model}.nestml"]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", s)) for s in files]
 
         generate_nest_target(
             input_path=input_path,
-            target_path="module",
             logging_level="DEBUG",
             module_name=f"nestml_{TestBuiltInAndNESTMLPlasticSynapse.neuron_model}_{TestBuiltInAndNESTMLPlasticSynapse.synapse_model}_module",
             suffix="_nestml",
@@ -57,11 +56,10 @@ class TestBuiltInAndNESTMLPlasticSynapse:
                         "post_ports": ["post_spikes", ["z_post", "z"]],
                     }
                 ],
-            },
+                "delay_variable": {"stdsp_no_permanence_synapse": "d"},
+                "weight_variable": {"stdsp_no_permanence_synapse": "w"}
+            }
         )
-
-        # install custom neuron models
-        nest.Install(f"nestml_{TestBuiltInAndNESTMLPlasticSynapse.neuron_model}_{TestBuiltInAndNESTMLPlasticSynapse.synapse_model}_module")
 
     def _test_plasticity(self, neuron_model, synapse_model):
 
@@ -73,6 +71,7 @@ class TestBuiltInAndNESTMLPlasticSynapse:
         initial_weight = 123.
 
         nest.ResetKernel()
+        nest.Install(f"nestml_{TestBuiltInAndNESTMLPlasticSynapse.neuron_model}_{TestBuiltInAndNESTMLPlasticSynapse.synapse_model}_module")
 
         # create pre and post neurons
         pre_neuron = nest.Create(neuron_model)

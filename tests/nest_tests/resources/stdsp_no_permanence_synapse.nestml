@@ -1,12 +1,36 @@
+"""
+stdsp_no_permanence_synapse.nestml
+##################################
 
-synapse stdsp_synapse_no_permanence:
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+model stdsp_no_permanence_synapse:
 
   state:
-    w real = 1.  @nest::weight
-    t_last_pre_spike ms = -1ms
+    w real = 1
+    t_last_pre_spike ms = -1 ms
 
   parameters:
-    d ms = 2.0 ms  @nest::delay # !!! cannot have a variable called "delay"
+    d ms = 2.0 ms
     lambda real = .01
     lambda_minus real = .01
     tau_tr_pre ms = 20 ms
@@ -54,5 +78,7 @@ synapse stdsp_synapse_no_permanence:
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner
-    deliver_spike(w, d)
+    emit_spike(w, d)
 
+  update:
+    integrate_odes()
