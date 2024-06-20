@@ -2574,3 +2574,50 @@ class ASTUtils:
             return astnode.get_initial_value(var)
 
         return "0"
+
+
+    @classmethod
+    def get_first_spike_port_from_spike_updates(cls, neuron: ASTModel) -> ASTVariable:
+        # Get the first variable in the sorted spike update expressions list
+        for update_expr in dict(sorted(neuron.spike_updates.items())).values():
+            for expr in update_expr:
+                return expr.get_variable()
+        return None
+
+    @classmethod
+    def get_first_excitatory_port(cls, neuron: ASTModel) -> str:
+        for port in neuron.get_spike_input_ports():
+            if port.is_excitatory():
+                return port.get_symbol_name()
+
+        # There is no port marked excitatory, return the first port name
+        return neuron.get_spike_input_ports()[0].get_symbol_name()
+
+    # @classmethod
+    # def get_port_qualifier_by_port_name(cls, neuron: ASTModel, port_name: str):
+    #     for port in neuron.get_input_blocks()[0].get_input_ports():
+    #         if port.get
+
+    @classmethod
+    def get_exc_spike_variable(cls, neuron: ASTModel) -> ASTVariable:
+        for block in neuron.get_on_receive_blocks():
+            port_name = block.get_port_name()
+
+
+    @classmethod
+    def is_declaring_expression_parameter(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_parameters():
+                    return True
+        return False
+        
+    @classmethod
+    def is_declaring_expression_state_varible(cls, expr: ASTExpression) -> bool:
+        if isinstance(expr, ASTSimpleExpression):
+            if expr.is_variable():
+                symbol = expr.get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol and symbol.is_state():
+                    return True
+        return False
