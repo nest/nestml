@@ -723,7 +723,7 @@ public:
       // history[0, ..., t_last_spike - dendritic_delay] have been
       // incremented by Archiving_Node::register_stdp_connection(). See bug #218 for
       // details.
-      __target->get_history__( t_lastspike_ - __dendritic_delay,
+      __target->get_history_nestml_( t_lastspike_ - __dendritic_delay,
         __t_spike - __dendritic_delay,
         &start,
         &finish );
@@ -1269,7 +1269,7 @@ inline void
   // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
   std::deque< histentry__{{paired_neuron}} >::iterator start;
   std::deque< histentry__{{paired_neuron}} >::iterator finish;
-  static_cast<{{paired_neuron}}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+  static_cast<{{paired_neuron}}*>(get_target(t))->get_history_nestml_( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;

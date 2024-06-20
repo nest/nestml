@@ -91,7 +91,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     Options:
 
-    - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
+    - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. To generate a model that has the smallest memory footprint, use ``"StructuralPlasticityNode"``. To ensure compatibility with the NEST built-in plastic synapses (like the ``stdp_synapse``), choose ``"ArchivingNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **neuron_models**: List of neuron model names. Instructs the code generator that models with these names are neuron models.
@@ -169,6 +169,7 @@ class NESTCodeGenerator(CodeGenerator):
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for synapse in synapses:
             synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+            assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a ``delay_variable`` for the synapse '" + synapse_name_stripped + "'"
             delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
             CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
             if Logger.has_errors(synapse):
