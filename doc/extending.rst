@@ -36,7 +36,7 @@ The default directory can be changed by specifying code generator options that o
 
 .. code-block:: bash
 
-   nestml --input_path models/neurons/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
+   nestml --input_path models/neurons/iaf_psc_exp_neuron.nestml --codegen_opts /home/nest/work/codegen_options.json
 
 An example ``codegen_options.json`` file for NEST could look as follows:
 

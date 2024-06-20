@@ -1,0 +1,93 @@
+"""
+iaf_psc_exp_dend - Leaky integrate-and-fire neuron model with exponential PSCs
+#########################################################################
+
+Description
++++++++++++
+
+iaf_psc_exp is an implementation of a leaky integrate-and-fire model
+with exponential-kernel postsynaptic currents (PSCs) according to [1]_.
+Thus, postsynaptic currents have an infinitely short rise time.
+
+The threshold crossing is followed by an absolute refractory period (t_ref)
+during which the membrane potential is clamped to the resting potential
+and spiking is prohibited.
+
+.. note::
+   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   may arise due to singularities in the propagator matrics. If this is
+   the case, replace equal-valued parameters by a single parameter.
+
+   For details, please see ``IAF_neurons_singularity.ipynb`` in
+   the NEST source code (``docs/model_details``).
+
+
+References
+++++++++++
+
+.. [1] Tsodyks M, Uziel A, Markram H (2000). Synchrony generation in recurrent
+       networks with frequency-dependent synapses. The Journal of Neuroscience,
+       20,RC50:1-5. URL: https://infoscience.epfl.ch/record/183402
+
+
+See also
+++++++++
+
+iaf_cond_exp
+"""
+model iaf_psc_exp_dend_neuron:
+
+    state:
+        V_m mV = E_L              # Membrane potential
+        I_dend pA = 0 pA          # Third factor, to be read out by synapse during weight update
+        refr_t ms = 0 ms          # Refractory period timer
+        is_refractory boolean = false
+
+    equations:
+        kernel I_kernel_inh = exp(-t/tau_syn_inh)
+        kernel I_kernel_exc = exp(-t/tau_syn_exc)
+        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+
+    parameters:
+        C_m pF = 250 pF           # Capacity of the membrane
+        tau_m ms = 10 ms          # Membrane time constant
+        tau_syn_inh ms = 2 ms     # Time constant of inhibitory synaptic current
+        tau_syn_exc ms = 2 ms     # Time constant of excitatory synaptic current
+        refr_T ms = 2 ms          # Duration of refractory period
+        E_L mV = -70 mV           # Resting potential
+        V_reset mV = -70 mV       # Reset potential of the membrane
+        V_th mV = -55 mV          # Spike threshold potential
+
+        # constant external input current
+        I_e pA = 0 pA
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        I_dend *= .95 # I_dend is always evolved, even when refractory
+
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve V_m
+            refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
+
+    onCondition(not is_refractory and V_m >= V_th): # threshold crossing
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

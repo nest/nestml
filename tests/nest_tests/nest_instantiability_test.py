@@ -51,8 +51,6 @@ class NestInstantiabilityTest(unittest.TestCase):
         nestml_unit_test_models = [
             neuron_model_name for neuron_model_name in _neuron_models if neuron_model_name.endswith("_nestml")]
 
-        nest.ResetKernel()
-
         for neuron_model in nestml_unit_test_models:
             print("Instantiating neuron model: " + str(neuron_model))
             nest.Create(neuron_model)

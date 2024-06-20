@@ -83,13 +83,13 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
 
     def test(self):
         Logger.init_logger(LoggingLevel.INFO)
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
-        Logger.set_current_node(model.get_neuron_list()[0])
+        Logger.set_current_node(model.get_model_list()[0])
         model.accept(ExpressionTestVisitor())
         Logger.set_current_node(None)
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
+        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0],
                                                                           LoggingLevel.ERROR)), 0)
 
 

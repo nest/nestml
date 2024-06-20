@@ -38,3 +38,5 @@ class ASTSetVectorParameterInUpdateExpressionVisitor(ASTVisitor):
         """
         if node.get_name() == self.var.get_name():
             node.set_vector_parameter(self.var.get_vector_parameter())
+            if self.var.get_vector_parameter():
+                self.var.get_vector_parameter().update_scope(node.get_scope())

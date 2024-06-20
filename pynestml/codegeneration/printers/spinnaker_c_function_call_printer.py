@@ -48,7 +48,7 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             # context dependent; we assume the template contains the necessary definitions
-            return 'neuron->this_h'
+            return 'parameter->__h'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             raise Exception("time_steps() function not yet implemented")

@@ -23,11 +23,11 @@ Note that the synaptic strength ("weight") variable is of type real; if the type
 Writing the NESTML model
 ########################
 
-The top-level element of the model is ``synapse``, followed by a name. All other blocks appear inside of here.
+The top-level element of the model is ``model``, followed by a name. All other blocks appear inside of here.
 
 .. code-block:: nestml
 
-   synapse stdp:
+   model stdp_synapse:
        # [...]
 
 Input and output ports
@@ -41,13 +41,14 @@ Depending on whether the plasticity rule depends only on pre-, or on both pre- a
        pre_spikes <- spike
        post_spikes <- spike
 
-   output: spike
+   output:
+       spike
 
 
 Presynaptic spike event handler
 -------------------------------
 
-It is the responsibility of the event handler for the spiking input port to submit the event to the (spiking) output port. This can be done using the predefined ``deliver_spike(w, d)`` function, which takes two parameters: a weight ``w`` and delay ``d``.
+Typically, it is the responsibility of the event handler for the spiking input port to create an event at the (spiking) output port. This can be done using the predefined ``emit_spike(w, d)`` function, which for synapses is expected to take two parameters: a weight ``w`` and delay ``d``.
 
 The corresponding event handler has the general structure:
 
@@ -56,9 +57,9 @@ The corresponding event handler has the general structure:
    onReceive(pre_spikes):
        print("Info: processing a presynaptic spike at time t = {t}")
        # ... plasticity dynamics go here ...
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
-The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
+The statements in the event handler will be executed when the event occurs. The weight and delay could be defined as follows:
 
 .. code-block:: nestml
 
@@ -68,7 +69,7 @@ The statements in the event handler will be executed sequentially when the event
    parameters:
        d ms = 1 ms
 
-If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``deliver_spike()`` with the updated weight.
+If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``emit_spike()`` with the updated weight.
 
 State variables (in particular, synaptic "trace" variables as often used in plasticity models) can be updated in the event handler as follows:
 
@@ -162,7 +163,7 @@ In this example, the ``I_dend`` state variable of the neuron will be simply an e
 For a full example, please see the following files:
 
 * ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure)
-* ``models/neurons/iaf_psc_exp_dend.nestml`` (neuron model)
+* ``models/neurons/iaf_psc_exp_dend_neuron.nestml`` (neuron model)
 * ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
 
 
@@ -266,7 +267,7 @@ Our update rule for depression is:
        w = max(Wmin, w_)
 
        # deliver spike to postsynaptic partner
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
 Finally, all remaining parameters are defined:
 
@@ -328,7 +329,7 @@ Resetting to 1 can then be done by assignment in the pre- and post-event handler
 
 The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
 
-The full model can be downloaded here: `stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm_synapse.nestml>`_.
 
 
 Presynaptic centered
@@ -348,11 +349,11 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
    onReceive(pre_spikes):
        tr_pre += 1
        w = ...  # depression step (omitted)
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
 The remainder of the model is the same as the all-to-all STDP synapse.
 
-The full model can be downloaded here: `stdp_nn_pre_centered.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered.nestml>`_.
+The full model can be downloaded here: `stdp_nn_pre_centered_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
 Restricted symmetric
@@ -387,7 +388,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
 
 The remainder of the model is the same as the :ref:`Presynaptic centered` variant.
 
-The full model can be downloaded here: `stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_restr_symm_synapse.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_.
 
 
 Triplet-rule STDP synapse
@@ -446,7 +447,7 @@ The weight update rules can then be expressed in terms of the traces and paramet
        w = max(Wmin, w_)
 
        # deliver spike to postsynaptic partner
-       deliver_spike(w, d)
+       emit_spike(w, d)
 
 
 Generating code
@@ -468,7 +469,7 @@ To indicate which neurons will be connected to by which synapses during simulati
 .. code-block:: json
 
    {
-     "neuron_synapse_pairs": [["iaf_psc_exp", "stdp"]]
+     "neuron_synapse_pairs": [["iaf_psc_exp_neuron", "stdp_synapse"]]
    }
 
 This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_code_generator_opts_triplet.json``:
@@ -485,82 +486,6 @@ Further integration with NEST Simulator is planned, to achieve a just-in-time co
    :align: center
 
    Code generator options instruct the target platform code generator (in this case, NEST) how to process the models.
-
-
-
-The NEST target
----------------
-
-Event-based updating
-~~~~~~~~~~~~~~~~~~~~
-
-NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
-The synapse is allowed to contain an ``update`` block. Statements in the ``update`` block are executed whenever the internal state of the synapse is updated from one timepoint to the next; these updates are typically triggered by incoming spikes. The NESTML ``resolution()`` function will return the time that has elapsed since the last event was handled.
-
-
-Dendritic delay
-~~~~~~~~~~~~~~~
-
-In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). To indicate that a given parameter is specifying this NEST-specific delay value, use an annotation:
-
-.. code:: nestml
-
-   parameters:
-       dend_delay ms = 1 ms     @nest::delay
-
-
-Generating code
----------------
-
-When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :python:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp"}]})
-
-Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                           "post_ports": ["post_spikes",
-                                                                          ["I_post_dend", "I_dend"]]}]})
-
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
-
-Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
-
-.. code-block:: python
-
-   generate_target(...,
-                   codegen_opts={...,
-                                 "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                           "synapse": "third_factor_stdp",
-                                                            "vt_ports": ["dopa_spikes"]}]})
-
-
-
-Implementation notes
-~~~~~~~~~~~~~~~~~~~~
-
-Note that ``access_counter`` now has an extra multiplicative factor equal to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
-
-.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
-
-   Potjans et al. 2010
-
-Random numbers
-~~~~~~~~~~~~~~
-
-In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
-
 
 
 References
