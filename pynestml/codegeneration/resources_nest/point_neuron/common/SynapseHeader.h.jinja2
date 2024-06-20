@@ -78,7 +78,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {{ synapse.print_comment() }}
 **/
 
-//#define DEBUG
+// uncomment the next line to enable printing of detailed debug information
+// #define DEBUG
 
 namespace nest
 {
@@ -658,15 +659,7 @@ public:
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
-
-
-
-
-
-
-
-
-
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
 void get_entry_from_continuous_variable_history(double t,
                                                 std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& start,
                                                 std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& finish,
@@ -678,7 +671,7 @@ void get_entry_from_continuous_variable_history(double t,
     // return initial value
     histentry.t_ = 0.;
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
-    histentry.{{ state_var }} = 0.; // XXX: TODO: initial value
+    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }};
 {%-     endfor %}
     return;
   }
@@ -693,6 +686,14 @@ void get_entry_from_continuous_variable_history(double t,
         return;
       }
       ++runner;
+    }
+  }
+
+  // if we get here, there is no entry at time t -- something is wrong!
+  assert(0);
+}
+{%- endif %}
+
     }
   }
 
@@ -794,8 +795,8 @@ void get_entry_from_continuous_variable_history(double t,
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
       std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
 
-      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_ - __dendritic_delay,
-        __t_spike - __dendritic_delay,
+      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_ ,
+        __t_spike,
         &continuous_history_start,
         &continuous_history_finish );
 {%- endif %}
@@ -819,9 +820,9 @@ void get_entry_from_continuous_variable_history(double t,
 #endif
         continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
-      0.{% if not loop.last %},{% endif %}
-{%-     endfor %}); // XXX: TODO: return initial value
-        get_entry_from_continuous_variable_history(start->t_ - __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
+      {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
+{%-     endfor %});
+        get_entry_from_continuous_variable_history(start->t_ + __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
 {%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 {%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}

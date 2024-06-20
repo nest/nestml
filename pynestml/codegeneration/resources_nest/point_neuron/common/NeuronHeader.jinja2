@@ -120,9 +120,9 @@ namespace {{names_namespace}}
 }
 
 
-{% if uses_numeric_solver %}
+{%  if uses_numeric_solver %}
 
-{%- for s in utils.create_integrate_odes_combinations(astnode) %}
+{%-     for s in utils.create_integrate_odes_combinations(astnode) %}
 /**
  * Function computing right-hand side of ODE for GSL solver.
  * @note Must be declared here so we can befriend it in class.
@@ -136,9 +136,9 @@ namespace {{names_namespace}}
  * Integrate the variables: {{ s }}
 **/
 extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
-{%- endfor %}
+{%-     endfor %}
 
-{%-     if paired_synapse is defined %}
+{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {#  for neuron-synapse co-generation: separate integrator for the emulated/dummy integrate_odes() below in NeuronClass.jinja2 #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}

@@ -397,18 +397,6 @@ class SynapsePostNeuronTransformer(Transformer):
         Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering), None, LoggingLevel.INFO)
 
         #
-        #   move state variable declarations from synapse to neuron
-        #
-
-        for state_var in syn_to_neuron_state_vars:
-            decls = ASTUtils.move_decls(state_var,
-                                        neuron.get_state_blocks()[0],
-                                        synapse.get_state_blocks()[0],
-                                        var_name_suffix,
-                                        block_type=BlockType.STATE)
-            ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
-
-        #
         #   move defining equations for variables from synapse to neuron
         #
 
@@ -442,6 +430,9 @@ class SynapsePostNeuronTransformer(Transformer):
         #
         #    move initial values for equations
         #
+
+        if syn_to_neuron_state_vars and not new_neuron.get_state_blocks():
+            ASTUtils.create_state_block(new_neuron)
 
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var),
@@ -504,10 +495,10 @@ class SynapsePostNeuronTransformer(Transformer):
 
                                 collected_on_post_stmts.append(stmt)
 
-                                stmt.scope = new_neuron.get_update_blocks()[0].scope
-                                stmt.small_stmt.scope = new_neuron.get_update_blocks()[0].scope
-                                stmt.small_stmt.get_assignment().scope = new_neuron.get_update_blocks()[0].scope
-                                stmt.small_stmt.get_assignment().get_variable().scope = new_neuron.get_update_blocks()[0].scope
+                                stmt.scope = new_neuron.scope
+                                stmt.small_stmt.scope = new_neuron.scope
+                                stmt.small_stmt.get_assignment().scope = new_neuron.scope
+                                stmt.small_stmt.get_assignment().get_variable().scope = new_neuron.scope
 
                         for stmt in collected_on_post_stmts:
                             stmts.pop(stmts.index(stmt))
@@ -543,6 +534,9 @@ class SynapsePostNeuronTransformer(Transformer):
         #
         #    copy parameters
         #
+
+        if not new_neuron.get_parameters_blocks():
+            ASTUtils.create_parameters_block(new_neuron)
 
         Logger.log_message(None, -1, "Copying parameters from synapse to neuron...", None, LoggingLevel.INFO)
         for param_var in syn_to_neuron_params:
