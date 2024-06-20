@@ -965,39 +965,12 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
 
-continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_variable_history( double t )
-{
-  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator runner;
-  if ( continuous_variable_history_.empty() or t < 0.0 )
-  {
-    return continuous_variable_histentry_{{ neuronName }}(0.,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-      0.{% if not loop.last %},{% endif %}
-{%-     endfor %}); // XXX: TODO: return initial value
-  }
-  else
-  {
-    runner = continuous_variable_history_.begin();
-    while ( runner != continuous_variable_history_.end() )
-    {
-      if ( fabs( t - runner->t_ ) < nest::kernel().connection_manager.get_stdp_eps() )
-      {
-        return *runner;
-      }
-      ( runner->access_counter_ )++;
-      ++runner;
-    }
-  }
-
-  // if we get here, there is no entry at time t
-  assert(0);
-}
-
 void {{neuronName}}::get_continuous_variable_history( double t1,
   double t2,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
+std::cout << "history size = " << continuous_variable_history_.size() <<"\n";
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
   {

@@ -585,6 +585,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.set_name(new_neuron_name)
         new_neuron.paired_synapse = new_synapse
         new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
+        import pdb;pdb.set_trace()
 
         #
         #    rename synapse
