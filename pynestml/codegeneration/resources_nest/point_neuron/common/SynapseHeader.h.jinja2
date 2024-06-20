@@ -670,7 +670,7 @@ void get_entry_from_continuous_variable_history(double t,
     // return initial value
     histentry.t_ = 0.;
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
-    histentry.{{ state_var }} = 0.; // XXX: TODO: initial value
+    histentry.{{ state_var }} = {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }};
 {%-     endfor %}
     return;
   }
@@ -784,8 +784,8 @@ void get_entry_from_continuous_variable_history(double t,
 #endif
         continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
-      0.{% if not loop.last %},{% endif %}
-{%-     endfor %}); // XXX: TODO: return initial value
+      {{ state_vars_that_need_continuous_buffering_transformed_iv[state_var] }}{% if not loop.last %},{% endif %}
+{%-     endfor %});
         get_entry_from_continuous_variable_history(start->t_ + __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
 {%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}

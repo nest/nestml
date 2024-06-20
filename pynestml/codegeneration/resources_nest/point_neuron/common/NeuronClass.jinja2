@@ -970,7 +970,6 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
-std::cout << "history size = " << continuous_variable_history_.size() <<"\n";
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
   {
