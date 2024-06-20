@@ -659,6 +659,7 @@ public:
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
 void get_entry_from_continuous_variable_history(double t,
                                                 std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& start,
                                                 std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& finish,
@@ -691,6 +692,7 @@ void get_entry_from_continuous_variable_history(double t,
   // if we get here, there is no entry at time t -- something is wrong!
   assert(0);
 }
+{%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 {%-   if not (nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
