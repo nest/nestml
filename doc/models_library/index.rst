@@ -444,3 +444,66 @@ Source file: `wb_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml
 Synapse models
 ~~~~~~~~~~~~~~
 
+
+:doc:`neuromodulated_stdp_synapse <neuromodulated_stdp_synapse>`
+----------------------------------------------------------------
+
+neuromodulated_stdp - Synapse model for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine
+
+Source file: `neuromodulated_stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/neuromodulated_stdp_synapse.nestml>`_
+
+
+:doc:`noisy_synapse <noisy_synapse>`
+------------------------------------
+
+Static synapse with Gaussian noise
+
+Source file: `noisy_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/noisy_synapse.nestml>`_
+
+
+:doc:`static_synapse <static_synapse>`
+--------------------------------------
+
+Static synapse
+
+Source file: `static_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/static_synapse.nestml>`_
+
+
+:doc:`stdp_nn_pre_centered_synapse <stdp_nn_pre_centered_synapse>`
+------------------------------------------------------------------
+
+stdp_nn_pre_centered - Synapse type for spike-timing dependent plasticity, with nearest-neighbour spike pairing
+
+Source file: `stdp_nn_pre_centered_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_
+
+
+:doc:`stdp_nn_restr_symm_synapse <stdp_nn_restr_symm_synapse>`
+--------------------------------------------------------------
+
+Synapse type for spike-timing dependent plasticity with restricted symmetric nearest-neighbour spike pairing scheme
+
+Source file: `stdp_nn_restr_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_restr_symm_synapse.nestml>`_
+
+
+:doc:`stdp_nn_symm_synapse <stdp_nn_symm_synapse>`
+--------------------------------------------------
+
+Synapse type for spike-timing dependent plasticity with symmetric nearest-neighbour spike pairing scheme
+
+Source file: `stdp_nn_symm_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_nn_symm_synapse.nestml>`_
+
+
+:doc:`stdp_synapse <stdp_synapse>`
+----------------------------------
+
+stdp - Synapse model for spike-timing dependent plasticity
+
+Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_synapse.nestml>`_
+
+
+:doc:`stdp_triplet_synapse <stdp_triplet_synapse>`
+--------------------------------------------------
+
+Synapse type with triplet spike-timing dependent plasticity
+
+Source file: `stdp_triplet_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_triplet_synapse.nestml>`_

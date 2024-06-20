@@ -658,6 +658,75 @@ public:
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
+
+
+
+
+
+
+
+
+
+void get_entry_from_continuous_variable_history(double t,
+                                                std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& start,
+                                                std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator& finish,
+                                                continuous_variable_histentry_{{ paired_neuron_name }}& histentry)
+{
+  std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator runner;
+  if ( start == finish or t < 0.0 )
+  {
+    // return initial value
+    histentry.t_ = 0.;
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+    histentry.{{ state_var }} = 0.; // XXX: TODO: initial value
+{%-     endfor %}
+    return;
+  }
+  else
+  {
+    runner = start;
+    while ( runner != finish )
+    {
+      if ( fabs( t - runner->t_ ) < nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        histentry = *runner;
+        return;
+      }
+      ++runner;
+    }
+  }
+
+  // if we get here, there is no entry at time t
+  // std::cout << "[neuron " << this << "] XXX FIX ME: no entry at time t = " << t << "! Size = " << continuous_variable_history_.size() << ", first t = " << continuous_variable_history_.begin()->t_ << ", last t = " << std::prev(continuous_variable_history_.end())->t_  <<  "\n";
+
+/*// print the whole deque
+  size_t i = 0;
+  runner = continuous_variable_history_.begin();
+  while ( runner != continuous_variable_history_.end() )
+  {
+    std::cout << "[neuron " << this << "] \t" << i << "\t" << runner->t_ << "\n";
+    ++runner;
+    ++i;
+  }*/
+
+  assert(0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 {%-   if not (nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
   bool
@@ -715,11 +784,22 @@ public:
        *
        * Note that this also increases the access counter for these entries which is used to prune the history.
       **/
-      std::deque< histentry__{{  paired_neuron_name  }} >::iterator start;
-      std::deque< histentry__{{  paired_neuron_name  }} >::iterator finish;
+      std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
+      std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       double t0 = t_last_update_;
 {%- endif %}
+
+{%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
+      std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_start;
+      std::deque< continuous_variable_histentry_{{ paired_neuron_name }} >::iterator continuous_history_finish;
+
+      ((post_neuron_t*)(__target))->get_continuous_variable_history( t_lastspike_ - __dendritic_delay,
+        __t_spike - __dendritic_delay,
+        &continuous_history_start,
+        &continuous_history_finish );
+{%- endif %}
+
       __target->get_history__( t_lastspike_ - __dendritic_delay,
         __t_spike - __dendritic_delay,
         &start,
@@ -737,7 +817,11 @@ public:
 #ifdef DEBUG
       std::cout << "Grabbing continuous_variable_history at t = " << start->t_ + __dendritic_delay << "\n";
 #endif
-        auto histentry = ((post_neuron_t*)(__target))->get_continuous_variable_history(start->t_ + __dendritic_delay);
+        continuous_variable_histentry_{{ paired_neuron_name }} histentry(0.,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      0.{% if not loop.last %},{% endif %}
+{%-     endfor %}); // XXX: TODO: return initial value
+        get_entry_from_continuous_variable_history(start->t_ - __dendritic_delay, continuous_history_start, continuous_history_finish, histentry);
 
 {%-     for var_name in paired_neuron.state_vars_that_need_continuous_buffering %}
 {%-         set var = utils.get_parameter_variable_by_name(astnode, var_name) %}

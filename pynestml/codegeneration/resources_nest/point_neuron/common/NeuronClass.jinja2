@@ -977,47 +977,6 @@ std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(ne
 }
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
-
-continuous_variable_histentry_{{ neuronName }} {{ neuronName }}::get_continuous_variable_history( double t )
-{
-  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator runner;
-  if ( continuous_variable_history_.empty() or t < 0.0 )
-  {
-    return continuous_variable_histentry_{{ neuronName }}(0.,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
-      0.{% if not loop.last %},{% endif %}
-{%-     endfor %}); // XXX: TODO: return initial value
-  }
-  else
-  {
-    runner = continuous_variable_history_.begin();
-    while ( runner != continuous_variable_history_.end() )
-    {
-      if ( fabs( t - runner->t_ ) < nest::kernel().connection_manager.get_stdp_eps() )
-      {
-        return *runner;
-      }
-      ( runner->access_counter_ )++;
-      ++runner;
-    }
-  }
-
-  // if we get here, there is no entry at time t
-  assert(0);
-  std::cout << "[neuron " << this << "] XXX FIX ME: no entry at time t = " << t << "! Size = " << continuous_variable_history_.size() << ", first t = " << continuous_variable_history_.begin()->t_ << ", last t = " << std::prev(continuous_variable_history_.end())->t_  <<  "\n";
-
-/*// print the whole deque
-  size_t i = 0;
-  runner = continuous_variable_history_.begin();
-  while ( runner != continuous_variable_history_.end() )
-  {
-    std::cout << "[neuron " << this << "] \t" << i << "\t" << runner->t_ << "\n";
-    ++runner;
-    ++i;
-  }*/
-
-}
-
 void {{neuronName}}::get_continuous_variable_history( double t1,
   double t2,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
@@ -1067,7 +1026,7 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
   auto orig = continuous_variable_history_.size();
   while ( continuous_variable_history_.size() > 1 )
   {
-    if ( continuous_variable_history_.front().access_counter_ >= 2 * n_incoming_ ) // XXX there shouldn't be a factor here!!!
+    if ( continuous_variable_history_.front().access_counter_ >= n_incoming_ )
     {
       continuous_variable_history_.pop_front();
     }
