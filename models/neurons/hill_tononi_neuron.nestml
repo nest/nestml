@@ -186,7 +186,7 @@ model hill_tononi_neuron:
         NMDA <- spike
         GABA_A <- spike
         GABA_B <- spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

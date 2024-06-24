@@ -59,7 +59,7 @@ model izhikevich_neuron:
 
     input:
         spikes <- spike
-        I_stim real <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

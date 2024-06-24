@@ -112,7 +112,7 @@ model biexp_postsynaptic_response_neuron:
         spikeExc <- spike
         spikeGap <- spike
         spikeGABA <- spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

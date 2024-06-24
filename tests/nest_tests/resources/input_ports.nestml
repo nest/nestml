@@ -42,7 +42,7 @@ model input_ports:
         foo[2] <- spike
         my_spikes[3] <- excitatory spike
         my_spikes2[3] <- inhibitory spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     update:
         bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)

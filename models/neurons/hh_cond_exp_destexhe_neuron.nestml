@@ -130,7 +130,7 @@ model hh_cond_exp_destexhe_neuron:
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

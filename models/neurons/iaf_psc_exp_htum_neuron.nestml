@@ -100,7 +100,7 @@ model iaf_psc_exp_htum_neuron:
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

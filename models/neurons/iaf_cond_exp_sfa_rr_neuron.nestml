@@ -81,7 +81,7 @@ model iaf_cond_exp_sfa_rr_neuron:
     input:
         inh_spikes <- inhibitory spike
         exc_spikes <- excitatory spike
-        I_stim  <- continuous
+        I_stim pA <- continuous
 
     output:
         spike

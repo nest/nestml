@@ -49,7 +49,7 @@ model recordable_variables:
 
     input:
         spikes <- spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     update:
         integrate_odes()
