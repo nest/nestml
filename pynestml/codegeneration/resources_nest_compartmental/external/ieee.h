@@ -1,3 +1,27 @@
+/*
+MIT License
+
+Copyright (c) 2018 simonpf
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #ifndef FASTEXP_IEEE_H
 #define FASTEXP_IEEE_H
 
@@ -7,43 +31,7 @@ namespace fastexp
     template<typename Real> struct Info;
 
     template<typename Real, size_t degree>
-    /*struct IEEE {
-        static Real evaluate(Real x) {
-            using unsigned_t = typename Info<Real>::unsigned_t;
-            constexpr unsigned_t shift = static_cast<unsigned_t>(1) << Info<Real>::shift;
 
-            x *= Info<Real>::log2e;
-            Real xi = floor(x);
-            Real xf = x - xi;
-
-            Real k = PolynomialFit<Real, degree, 0>::evaluate(xf) + 1.0;
-            Real e = k;
-
-
-            e += shift * xi;
-
-
-            return e;
-        }
-    };*/
-    /*struct IEEE {
-        static Real evaluate(Real x) {
-            using unsigned_t = typename Info<Real>::unsigned_t;
-            constexpr unsigned_t shift = static_cast<unsigned_t>(1) << Info<Real>::shift;
-
-            x *= Info<Real>::log2e;
-            Real xi = floor(x);
-            Real xf = x - xi;
-
-            Real k = PolynomialFit<Real, degree, 0>::evaluate(xf) + 1.0;
-            unsigned_t e = reinterpret_cast<const unsigned_t &>(k);
-            unsigned_t xi_int;
-            std::copy((&xi).begin, (&xi).end(), (&xi_int).begin());
-            //std::cout << std::to_string(xi) << "->" << std::to_string(xi_int) << std::endl;
-            e += shift * xi_int;
-            return reinterpret_cast<Real &>(e);
-        }
-    };*/
     struct IEEE {
         static uint64_t FloatToBinaryIntegerRepresentation(double f){
             // Step 1: Extract the raw binary representation of the float
@@ -79,19 +67,6 @@ namespace fastexp
             if(sign){
                 integer_part = uint64max - integer_part + 1;
             }
-            /*
-            std::bitset<64> braw_bits(raw_bits);
-            std::bitset<64> bexponent(exponent);
-            std::bitset<64> bsignificand(significand);
-            std::bitset<64> bbias(bias);
-            std::bitset<64> bactual_exponent(actual_exponent);
-
-            std::cout << "raw_bits: " << braw_bits << std::endl;
-            std::cout << "exponent: " << bexponent << std::endl;
-            std::cout << "significand: " << bsignificand << std::endl;
-            std::cout << "bias: " << bbias << std::endl;
-            std::cout << "raw_bits: " << bactual_exponent << std::endl;
-            */
 
             return integer_part;
         }
@@ -107,12 +82,7 @@ namespace fastexp
             Real k = PolynomialFit<Real, degree, 0>::evaluate(xf) + 1.0;
             unsigned_t e = reinterpret_cast<const unsigned_t &>(k);
             unsigned_t ut = FloatToBinaryIntegerRepresentation(xi);//static_cast<unsigned_t>(xi);
-            /*
-            std::cout << "xi: " << std::to_string(xi) << " ut: " << std::to_string(ut) << std::endl;
-            std::bitset<64> bxi(xi);
-            std::bitset<64> but(ut);
-            std::cout << "bxi: " << bxi << " but: " << but << std::endl;
-            */
+
             unsigned_t sut = shift * ut;
             unsigned_t eTmp = sut+e;
             return reinterpret_cast<Real &>(eTmp);
