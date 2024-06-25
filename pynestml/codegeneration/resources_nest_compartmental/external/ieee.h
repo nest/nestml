@@ -27,8 +27,9 @@ Modifications:
     the GNU General Public License (GPL).
 
     The following changes have been made:
-    - Replaced the c++ standart library static cast function by a manual static cast
-      function for better vectorization compatibility.
+    - Replaced the c++ standard library static cast function by a specific
+      FloatToBinaryIntegerRepresentation cast function for better vectorization
+      compatibility.
 
     Copyright (C) 2004 The NEST Initiative
 
