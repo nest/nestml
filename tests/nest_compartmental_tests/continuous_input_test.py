@@ -116,7 +116,6 @@ class TestContinuousInput(unittest.TestCase):
         axs[1].legend()
 
         plt.savefig("continuous input test.png")
-        plt.show()
 
         step_time_delta = res['times'][1] - res['times'][0]
         data_array_index = int(212 / step_time_delta)

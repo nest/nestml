@@ -110,7 +110,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 "ieee.h"]},
         "nest_version": "",
         "compartmental_variable_name": "v_comp",
-        "fastexp": True}
+        "fastexp": False}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
