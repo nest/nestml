@@ -63,9 +63,6 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
             return 'neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);\n' \
                    'send_spike(timer_count, time, neuron_index)'
 
-        if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return "// Probably dont need to actively deliver spike"
-
         return super().print_function_call(node)
 
     def _print_function_call_format_string(self, function_call: ASTFunctionCall) -> str:
