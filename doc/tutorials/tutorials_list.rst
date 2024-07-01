@@ -33,6 +33,10 @@ Creating synapse models
 
   A triplet STDP rule is sensitive to third-order correlations of pre- and postsynaptic spike times, and accounts better for experimentally seen dependence on timing and frequency.
 
+* :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`
+
+  An STDP rule that is modulated by a "third factor", in this case the dendritic action potential current of the postsynaptic neuron with an active dendrite.
+
 * :doc:`Dopamine-modulated STDP synapse </tutorials/stdp_dopa_synapse/stdp_dopa_synapse>`
 
   Adding dopamine modulation to the weight update rule of an STDP synapse allows it to be used in reinforcement learning tasks. This allows a network to learn which of the many cues and actions preceding a reward should be credited for the reward.

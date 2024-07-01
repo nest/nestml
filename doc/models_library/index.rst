@@ -444,7 +444,6 @@ Source file: `wb_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml
 Synapse models
 ~~~~~~~~~~~~~~
 
-
 :doc:`neuromodulated_stdp_synapse <neuromodulated_stdp_synapse>`
 ----------------------------------------------------------------
 
@@ -507,12 +506,3 @@ Source file: `stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/maste
 Synapse type with triplet spike-timing dependent plasticity
 
 Source file: `stdp_triplet_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/stdp_triplet_synapse.nestml>`_
-
-
-:doc:`third_factor_stdp_synapse <third_factor_stdp_synapse>`
-------------------------------------------------------------
-
-Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
-
-Source file: `third_factor_stdp_synapse.nestml <https://www.github.com/nest/nestml/blob/master/models/synapses/third_factor_stdp_synapse.nestml>`_
-
