@@ -106,6 +106,15 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.LOG10:
             return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
 
+        if function_name == PredefinedFunctions.COS:
+            return 'cos({!s})'
+
+        if function_name == PredefinedFunctions.SIN:
+            return 'sin({!s})'
+
+        if function_name == PredefinedFunctions.TAN:
+            return 'tan({!s})'
+
         if function_name == PredefinedFunctions.COSH:
             return '(HALF * (expk({!s}) + expk(-{!s})))'
 
