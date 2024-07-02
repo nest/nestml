@@ -43,6 +43,17 @@ class FunctionCallPrinter(ASTPrinter, metaclass=ABCMeta):
 
     def __init__(self, expression_printer: ExpressionPrinter):
         self._expression_printer = expression_printer
+        self.array_index = "0"
+        self.print_as_arrays = False
+
+    def set_array_index(self, index):
+        self.array_index = index
+
+    def array_printing_toggle(self, array_printing=None):
+        if array_printing is None:
+            self.print_as_arrays = not self.print_as_arrays
+        else:
+            self.print_as_arrays = array_printing
 
     @abstractmethod
     def print_function_call(self, node: ASTFunctionCall) -> str:

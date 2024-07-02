@@ -1304,10 +1304,11 @@ class Messages:
         return MessageCode.INTEGRATE_ODES_WRONG_ARG, message
 
     @classmethod
-    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info):
+    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info):
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
         message += "syns_info:\n" + syns_info + "\n"
         message += "conc_info:\n" + conc_info + "\n"
+        message += "con_in_info:\n" + con_in_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message

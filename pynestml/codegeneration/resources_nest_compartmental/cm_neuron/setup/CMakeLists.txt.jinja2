@@ -59,7 +59,7 @@ set( MODULE_NAME ${SHORT_NAME} )
 set( MODULE_SOURCES
     {{moduleName}}.h {{moduleName}}.cpp
     {%- for neuron in neurons %}
-    {{perNeuronFileNamesCm[neuron.get_name()]["compartmentcurrents"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["compartmentcurrents"]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["neuroncurrents"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["neuroncurrents"]}}.h
     {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h
     {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.h
     {% endfor -%}
@@ -255,7 +255,7 @@ if ( BUILD_SHARED_LIBS )
     add_library( ${MODULE_NAME}_module MODULE ${MODULE_SOURCES} )
     set_target_properties( ${MODULE_NAME}_module
         PROPERTIES
-        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE"
+        COMPILE_FLAGS "${NEST_CXXFLAGS} -DLTX_MODULE -march=native -ffast-math"
         LINK_FLAGS "${NEST_LIBS}"
         PREFIX ""
         OUTPUT_NAME ${MODULE_NAME} )

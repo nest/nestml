@@ -246,3 +246,20 @@ class CppExpressionPrinter(ExpressionPrinter):
             return self._print_logical_operator_expression(node)
 
         raise RuntimeError("Cannot determine binary operator!")
+
+    def set_array_index(self, index):
+        """
+        Toggel on and set index to print if index was passed to the function
+        Only has an effect on the NESTVariablePrinter
+        """
+        self._simple_expression_printer.set_array_index(index)
+
+    def array_printing_toggle(self, array_printing=None):
+        self._simple_expression_printer.array_printing_toggle(array_printing)
+
+    def print_with_indices(self, node: ASTNode, index) -> str:
+        self.array_printing_toggle(True)
+        self.set_array_index(index)
+        str_expression = self.print(node)
+        self.array_printing_toggle(False)
+        return str_expression

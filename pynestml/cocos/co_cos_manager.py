@@ -25,6 +25,7 @@ from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
+from pynestml.cocos.co_co_cm_continuous_input_model import CoCoCmContinuousInputModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
@@ -148,6 +149,7 @@ class CoCosManager:
         CoCoCmChannelModel.check_co_co(neuron)
         CoCoCmConcentrationModel.check_co_co(neuron)
         CoCoCmSynapseModel.check_co_co(neuron)
+        CoCoCmContinuousInputModel.check_co_co(neuron)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, model: ASTModel):
