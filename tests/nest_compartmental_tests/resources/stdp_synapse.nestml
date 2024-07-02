@@ -52,7 +52,7 @@ synapse stdp:
 
     equations:
         pre_trace' = -pre_trace / tau_tr_pre
-        post_trace' = -post_trace / tau_tr_post
+        post_trace' = -post_trace*pre_trace / tau_tr_post
 
     input:
         pre_spikes <- spike

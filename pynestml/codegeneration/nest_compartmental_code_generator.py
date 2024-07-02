@@ -28,6 +28,7 @@ import os
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -132,6 +133,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.numeric_solver = {}
         # those state variables not defined as an ODE in the equations block
         self.non_equations_state_variables = {}
+        self._nest_code_generator = NESTCodeGenerator()
 
         self.setup_template_env()
 
@@ -206,9 +208,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         synapses = [model for model in models if isinstance(model, ASTSynapse)]
         self.place_externals()
         self.analyse_transform_neurons(neurons)
-        self.analyse_transform_synapses(synapses)
+        self._nest_code_generator.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
-        self.generate_synapses(synapses)
+        self._nest_code_generator.generate_synapses(synapses)
+        #self.generate_synapses(synapses)
         self.generate_module_code(neurons)
 
     def place_externals(self):

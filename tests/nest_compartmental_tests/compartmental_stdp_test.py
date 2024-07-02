@@ -70,8 +70,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         generate_nest_compartmental_target(
             input_path=[neuron_input_path, synapse_input_path],
-            target_path="/tmp/nestml-component/",
-            module_name="concmech_mockup_module",
+            target_path=target_path,
+            module_name="cm_stdp_module",
             suffix="_nestml",
             logging_level="INFO",
             codegen_opts={"neuron_synapse_pairs": [{"neuron": "continuous_test_model",
