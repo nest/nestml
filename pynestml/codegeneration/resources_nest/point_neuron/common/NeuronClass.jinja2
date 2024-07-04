@@ -69,20 +69,22 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{neuronName}}.h"
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %} )
+{%-         endfor %} )
 : t_( t )
 , access_counter_ ( 0 )
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
 , {{ state_var }}( {{ state_var }} )
-{%-     endfor %}
+{%-         endfor %}
 {
 }
+{%-     endif %}
 {%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
@@ -929,12 +931,14 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-     endif %}
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
     write_continuous_variable_history( nest::Time::step( origin.get_steps() + lag + 1 ),
-{%-     for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
-{%-         set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
+{%-         for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
+{%-             set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
-{%-     endfor %}
+{%-         endfor %}
     );
+{%-     endif %}
 {%- endif %}
   }
 
@@ -964,7 +968,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 }
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
-
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 void {{neuronName}}::get_continuous_variable_history( double t1,
   double t2,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
@@ -998,9 +1002,9 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
 }
 
 void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %})
+{%-         endfor %})
 {
   const double t_ms = t.get_ms();
 
@@ -1018,10 +1022,11 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
   }
 
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %}) );
+{%-         endfor %}) );
 }
+{%-     endif %}
 {%- endif %}
 
 // Do not move this function as inline to h-file. It depends on
@@ -1198,10 +1203,10 @@ void
       assert(history_.back().t_ == last_spike_);
 
 {%-     for var in purely_numeric_state_variables_moved|sort %}
-      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
 {%-     endfor %}
 {%-     for var in analytic_state_variables_moved|sort %}
-      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
 {%-     endfor %}
     }
     else
@@ -1248,21 +1253,31 @@ void
 {%-     endfilter %}
 
     /**
-      * print updates due to convolutions
+     * updates due to convolutions
     **/
 
 {%-     for _, spike_update in post_spike_updates.items() %}
     {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
 {%-     endfor %}
 
+    /**
+     * push back history
+    **/
+
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_
-{%- for var in purely_numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved | sort %}
         , get_{{ var }}()
 {%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
+{%- for var in analytic_state_variables_moved | sort %}
         , get_{{ var }}()
 {%- endfor %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for var_name_post in state_vars_that_need_continuous_buffering | sort %}
+{%-         set var_name = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name_post) %}
+        , get_{{ var_name }}()
+{%-     endfor %}
+{%- endif %}
       , 0 // access counter
     ) );
   }
