@@ -579,6 +579,8 @@ The following variables and constants are predefined in NESTML and can be used o
      - The current simulation time (read only)
    * - ``e``
      - Euler's constant (2.718...)
+   * - ``pi``
+     - pi (3.14159...)
    * - ``inf``
      - Floating point infinity
 
