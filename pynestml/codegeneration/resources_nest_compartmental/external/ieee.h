@@ -50,6 +50,9 @@ Modifications:
 #ifndef FASTEXP_IEEE_H
 #define FASTEXP_IEEE_H
 
+#include <cmath>
+#include "product.h"
+
 namespace fastexp
 {
     template<typename Real, size_t degree, size_t i = 0> struct PolynomialFit;
@@ -97,6 +100,7 @@ namespace fastexp
         }
 
         static Real evaluate(Real x) {
+            //if(x < 1.0 && x > -1.0) return std::exp(x);
             using unsigned_t = typename Info<Real>::unsigned_t;
             constexpr unsigned_t shift = static_cast<unsigned_t>(1) << Info<Real>::shift;
 

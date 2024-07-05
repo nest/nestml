@@ -107,7 +107,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         "externals": {
             "path": "resources_nest_compartmental/external",
             "files": [
-                "ieee.h"]},
+                "ieee.h",
+                "product.h"]},
         "nest_version": "",
         "compartmental_variable_name": "v_comp",
         "fastexp": False}

@@ -66,10 +66,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         generate_nest_compartmental_target(
             input_path=input_path,
-            target_path="/tmp/nestml-component/",
+            target_path=target_path,
             module_name="concmech_mockup_module",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="DEBUG",
+            codegen_opts={"fastexp": True}
         )
 
         nest.Install("concmech_mockup_module.so")

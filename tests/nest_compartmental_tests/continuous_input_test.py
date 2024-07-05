@@ -68,7 +68,8 @@ class TestContinuousInput(unittest.TestCase):
             target_path="/tmp/nestml-component/",
             module_name="continuous_test_module",
             suffix="_nestml",
-            logging_level="DEBUG"
+            logging_level="DEBUG",
+            codegen_opts={"fastexp": True}
         )
 
         nest.Install("continuous_test_module.so")
