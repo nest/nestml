@@ -79,7 +79,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
 // uncomment the next line to enable printing of detailed debug information
-#define DEBUG
+// #define DEBUG
 
 namespace nest
 {
@@ -695,40 +695,6 @@ void get_entry_from_continuous_variable_history(double t,
 }
 {%-     endif %}
 {%- endif %}
-
-    }
-  }
-
-  // if we get here, there is no entry at time t
-  // std::cout << "[neuron " << this << "] XXX FIX ME: no entry at time t = " << t << "! Size = " << continuous_variable_history_.size() << ", first t = " << continuous_variable_history_.begin()->t_ << ", last t = " << std::prev(continuous_variable_history_.end())->t_  <<  "\n";
-
-/*// print the whole deque
-  size_t i = 0;
-  runner = continuous_variable_history_.begin();
-  while ( runner != continuous_variable_history_.end() )
-  {
-    std::cout << "[neuron " << this << "] \t" << i << "\t" << runner->t_ << "\n";
-    ++runner;
-    ++i;
-  }*/
-
-  assert(0);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
 {%-   if not (nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
