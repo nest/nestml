@@ -390,9 +390,7 @@ class CoCosManager:
         """
         :param model: a single model object.
         """
-        return
-        # XXX: FIXME! see: get_parent() being excruciatingly slow.
-        #CoCoResolutionFuncLegallyUsed.check_co_co(model)
+        CoCoResolutionFuncLegallyUsed.check_co_co(model)
 
     @classmethod
     def check_input_port_size_type(cls, model: ASTModel):
