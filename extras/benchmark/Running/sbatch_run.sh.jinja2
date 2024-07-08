@@ -10,7 +10,12 @@
 #SBTACH --exclusive
 #SBATCH --output={{combination["output_file"]}}
 #SBATCH --error={{combination["error_file"]}}
+#SBATCH --disable-perfparanoid
+
+ml AMD-uProf
 
 export OMP_PROC_BIND=TRUE
+export PROGRAM="python3 Running/examples/brunel_alpha_nest.py --simulated_neuron {{combination["simulated_neuron"]}} --network_scale {{combination["network_scale"]}} --nodes {{ combination["nodes"] }} --threads {{combination["threads"]}}  --iteration {{combination["iteration"]}} --benchmarkPath {{combination["benchmarkPath"]}}"
 
-srun python3 Running/examples/brunel_alpha_nest.py --simulated_neuron {{combination["simulated_neuron"]}} --network_scale {{combination["network_scale"]}} --nodes {{ combination["nodes"] }} --threads {{combination["threads"]}}  --iteration {{combination["iteration"]}} --benchmarkPath {{combination["benchmarkPath"]}}
+srun AMDuProfCLI collect --config tbp --mpi -o cpuprof $PROGRAM
+# srun python3 Running/examples/brunel_alpha_nest.py --simulated_neuron {{combination["simulated_neuron"]}} --network_scale {{combination["network_scale"]}} --nodes {{ combination["nodes"] }} --threads {{combination["threads"]}}  --iteration {{combination["iteration"]}} --benchmarkPath {{combination["benchmarkPath"]}}

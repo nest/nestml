@@ -40,12 +40,13 @@ colors = {
 
 # MPI scaling
 DEBUG = True
-ITERATIONS = 2  # XXXXXXXXXXXX: was 10
+ITERATIONS = 1  # XXXXXXXXXXXX: was 10
 NUMTHREADS = 128  # Total number of threads per node
 NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX: was 10 and 30000
 
 # MPI Strong scaling
-MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
+# MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
+MPI_SCALES = [2]
 MPI_STRONG_SCALE_NEURONS = NETWORKSCALES[-1]
 STRONGSCALINGMPIFOLDERNAME = "timings_strong_scaling_mpi"
 
@@ -147,19 +148,35 @@ def extract_value_from_filename(filename, key):
 def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.figure()
     neurons = []
+
+    # Compute max simulation time between MPI ranks and add it to the data
     for neuron, values in sim_data.items():
         neurons.append(neuron)
         x = sorted(values.keys(), key=lambda k: int(k))
-        for threads in x:
-            _ = [print(iteration_data['time_simulate']) for iteration_data in values[threads].values()]
-        for threads in x:
-            _ = [print(iteration_data['biological_time']) for iteration_data in values[threads].values()]
+        for nodes in x:
+            for it_data in values[nodes].values():
+                max_time_simulate = np.max([rank_data["time_simulate"] for rank_data in it_data.values()])
+                biological_time = it_data[0]["biological_time"]
+
+                rss_sum = np.sum([rank_data["memory_benchmark"]["rss"] for rank_data in it_data.values()])
+                vmsize_sum = np.sum([rank_data["memory_benchmark"]["vmsize"] for rank_data in it_data.values()])
+                vmpeak_sum = np.sum([rank_data["memory_benchmark"]["vmpeak"] for rank_data in it_data.values()])
+
+                it_data["memory_benchmark"] = {}
+                it_data["max_time_simulate"] = max_time_simulate
+                it_data["biological_time"] = biological_time
+                it_data["memory_benchmark"]["rss"] = rss_sum
+                it_data["memory_benchmark"]["vmsize"] = vmsize_sum
+                it_data["memory_benchmark"]["vmpeak"] = vmpeak_sum
+    
+    for neuron, values in sim_data.items():
+        x = sorted(values.keys(), key=lambda k: int(k))
         y = np.array([np.mean(
-            [iteration_data['time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             values[threads].values()]) for threads in x])
+            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+             values[nodes].values()]) for nodes in x])
         y_std = np.array([np.std(
-            [iteration_data['time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             values[threads].values()]) for threads in x])
+            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+             values[nodes].values()]) for nodes in x])
 
         x = np.array([int(val) for val in x], dtype=int)
         plt.errorbar(x, y, yerr=y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-', marker='o',
@@ -182,16 +199,16 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         x = sorted(values.keys(), key=lambda k: int(k))
         # Real Time Factor
         reference_y = np.array([np.mean(
-            [iteration_data['time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             referenceValues[threads].values()]) for threads in x])
+            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+             referenceValues[nodes].values()]) for nodes in x])
         y = np.array([np.mean(
-            [iteration_data['time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             values[threads].values()]) for threads in x])
+            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+             values[nodes].values()]) for nodes in x])
         y_factor = y / reference_y  # Calculate the factor of y in comparison to the reference value
 
         y_std = np.array([np.std(
-            [iteration_data['time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             values[threads].values()]) for threads in x])
+            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
+             values[nodes].values()]) for nodes in x])
         y_factor_std = y_std / reference_y  # Calculate the standard deviation of the factor
 
         x = np.array([int(val) for val in x], dtype=int)
@@ -209,6 +226,61 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.png'))
 
+    # Memory benchmark
+    # fig, ax = plt.subplots(1,1)
+    plot_lines = []
+    linestyles = {
+        "rss": "--",
+        "vmsize": "-.",
+        "vmpeak": ":"
+    }
+    for neuron, values in sim_data.items():
+        x = sorted(values.keys(), key=lambda k: int(k))
+        rss = np.array([np.mean(
+            [iteration_data["memory_benchmark"]["rss"] / (1024 * 1024) for iteration_data in
+             values[nodes].values()]) for nodes in x])
+        rss_std = np.array([np.std(
+            [iteration_data["memory_benchmark"]["rss"] / (1024 * 1024) for iteration_data in
+             values[nodes].values()]) for nodes in x])
+        
+        vmsize = np.array([np.mean(
+            [iteration_data["memory_benchmark"]["vmsize"] / (1024 * 1024) for iteration_data in
+             values[nodes].values()]) for nodes in x])
+        vmsize_std = np.array([np.std(
+            [iteration_data["memory_benchmark"]["vmsize"] / (1024 * 1024) for iteration_data in
+             values[nodes].values()]) for nodes in x])
+
+        vmpeak = np.array([np.mean(
+            [iteration_data["memory_benchmark"]["vmpeak"] / (1024 * 1024) for iteration_data in
+             values[nodes].values()]) for nodes in x])
+        vmpeak_std = np.array([np.std(
+            [iteration_data["memory_benchmark"]["vmpeak"] / (1024 * 1024) for iteration_data in
+             values[nodes].values()]) for nodes in x])
+
+
+        x = np.array([int(val) for val in x], dtype=int)
+        line1 = plt.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label="rss",
+                     ecolor='gray', capsize=2)
+        line2 = plt.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
+                     ecolor='gray', capsize=2)
+        line3 = plt.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
+                     ecolor='gray', capsize=2)
+        
+        plot_lines.append([line1, line2, line3])
+
+    legend1 = plt.legend(plot_lines[0], list(linestyles.keys()), loc=1)
+    plt.legend([l[0] for l in plot_lines], list(legend.values()), loc=4)
+    plt.gca().add_artist(legend1)
+    plt.xlabel('Number of nodes')
+    plt.ylabel('Memory (GB)')
+    plt.xscale('log')
+    # plt.yscale('log')
+    plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
+
+
 
 def process_data(dir_name: str):
     scaling_data = {}
@@ -217,10 +289,11 @@ def process_data(dir_name: str):
             simulated_neuron = extract_value_from_filename(filename, "simulated_neuron")
             nodes = int(extract_value_from_filename(filename, "nodes"))
             iteration = int(extract_value_from_filename(filename, "iteration"))
+            rank = int(extract_value_from_filename(filename, "rank"))
             with open(os.path.join(output_folder, dir_name, filename), "r") as f:
                 data = f.read()
                 json_data = clean_json_content(data)
-                scaling_data.setdefault(simulated_neuron, {}).setdefault(nodes, {}).setdefault(iteration, json_data)
+                scaling_data.setdefault(simulated_neuron, {}).setdefault(nodes, {}).setdefault(iteration, {}).setdefault(rank, json_data)
                 f.close()
 
     return scaling_data
@@ -304,11 +377,11 @@ if __name__ == "__main__":
         deleteDat()
         for i in range(ITERATIONS):
             start_strong_scaling_benchmark_mpi(i)
-            start_weak_scaling_benchmark_mpi(i)
+            # start_weak_scaling_benchmark_mpi(i)
 
     check_for_completion()
     log("Finished")
     deleteDat()
 
     plot_strong_scaling_benchmark()
-    plot_weak_scaling_benchmark()
+    # plot_weak_scaling_benchmark()

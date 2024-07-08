@@ -444,22 +444,59 @@ def convert_np_arrays_to_lists(obj):
     else:
         return obj
 
+def _VmB(VmKey):
+    r"""This code is from beNNch, https://github.com/INM-6/beNNch-models/, 2024-05-18"""
+    _proc_status = '/proc/%d/status' % os.getpid()
+    _scale = {'kB': 1024.0, 'mB': 1024.0 * 1024.0, 'KB': 1024.0, 'MB': 1024.0 * 1024.0}
+    # get pseudo file  /proc/<pid>/status
+    try:
+        t = open(_proc_status)
+        v = t.read()
+        t.close()
+    except:
+        return 0.0  # non-Linux?
+    # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
+    i = v.index(VmKey)
+    v = v[i:].split(None, 3)  # whitespace
+    if len(v) < 3:
+        return 0.0  # invalid format?
+    # convert Vm value to bytes
+    return float(v[1]) * _scale[v[2]]
+
+
+def get_vmsize(since=0.0):
+    """Return memory usage in bytes."""
+    return _VmB('VmSize:') - since
+
+
+def get_rss(since=0.0):
+    """Return resident memory usage in bytes."""
+    return _VmB('VmRSS:') - since
+
+
+def get_vmpeak(since=0.0):
+    """Return peak memory usage in bytes."""
+    return _VmB('VmPeak:') - since
+
 
 if args.benchmarkPath != "":
     path = args.benchmarkPath
     status = nest.GetKernelStatus()
+    status["memory_benchmark"] = {"rss": get_rss(),
+                                  "vmsize": get_vmsize(),
+                                  "vmpeak": get_vmpeak()}
     status = convert_np_arrays_to_lists(status)
     if not os.path.exists(path):
         os.makedirs(path)
-    with open(f"{path}/timing_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[threads={args.threads}]_[nodes={args.nodes}].json", "w") as f:
+    with open(f"{path}/timing_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}].json", "w") as f:
         json.dump(status, f)
         f.close()
 
     nest.raster_plot.from_device(espikes, hist=True)
-    plt.savefig(f"{path}/raster_plot_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[threads={args.threads}]_[nodes={args.nodes}].png")
+    plt.savefig(f"{path}/raster_plot_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}].png")
     plt.close()
 
     fig, ax = plt.subplots()
     ax.plot(e_mm.get()["events"]["times"], e_mm.get()["events"]["V_m"])
-    plt.savefig(f"{path}/V_m_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[threads={args.threads}]_[nodes={args.nodes}].png")
+    plt.savefig(f"{path}/V_m_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}].png")
     plt.close()
