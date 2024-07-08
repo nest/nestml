@@ -70,7 +70,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
             module_name="concmech_mockup_module",
             suffix="_nestml",
             logging_level="DEBUG",
-            codegen_opts={"fastexp": True}
+            codegen_opts={"fastexp": False}
         )
 
         nest.Install("concmech_mockup_module.so")
