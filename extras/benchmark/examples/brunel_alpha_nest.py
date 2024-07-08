@@ -51,6 +51,7 @@ References
 import time
 import sys
 import matplotlib.pyplot as plt
+from datetime import datetime
 import nest
 import nest.raster_plot
 import numpy as np
@@ -58,6 +59,122 @@ import scipy.special as sp
 import json
 import argparse
 import os
+
+
+
+
+
+
+
+###############################################################################
+# Helper functions 
+
+def convert_np_arrays_to_lists(obj):
+    if isinstance(obj, dict):
+        return {k: convert_np_arrays_to_lists(v) for k, v in obj.items()}
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj
+
+###############################################################################
+# Helper functions for memory benchmarking
+
+def _VmB(VmKey):
+    r"""This code is from beNNch, https://github.com/INM-6/beNNch-models/, 2024-05-18"""
+    _proc_status = '/proc/%d/status' % os.getpid()
+    _scale = {'kB': 1024.0, 'mB': 1024.0 * 1024.0, 'KB': 1024.0, 'MB': 1024.0 * 1024.0}
+    # get pseudo file  /proc/<pid>/status
+    try:
+        t = open(_proc_status)
+        v = t.read()
+        t.close()
+    except:
+        return 0.0  # non-Linux?
+    # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
+    i = v.index(VmKey)
+    v = v[i:].split(None, 3)  # whitespace
+    if len(v) < 3:
+        return 0.0  # invalid format?
+    # convert Vm value to bytes
+    return float(v[1]) * _scale[v[2]]
+
+
+def get_vmsize(since=0.0):
+    """Return memory usage in bytes."""
+    return _VmB('VmSize:') - since
+
+
+def get_rss(since=0.0):
+    """Return resident memory usage in bytes."""
+    return _VmB('VmRSS:') - since
+
+
+def get_vmpeak(since=0.0):
+    """Return peak memory usage in bytes."""
+    return _VmB('VmPeak:') - since
+
+
+###############################################################################
+# Helper functions for ISIs/CV
+
+def compute_cv(spike_train):
+    """
+    Compute the coefficient of variation (CV) for a single spike train.
+    
+    Parameters:
+    spike_train (list or numpy array): Timestamps of spikes in the spike train.
+    
+    Returns:
+    float: Coefficient of variation (CV) of the inter-spike intervals.
+    """
+    # Calculate inter-spike intervals (ISI)
+    isi = np.diff(spike_train)
+    
+    # Calculate mean and standard deviation of ISI
+    mean_isi = np.mean(isi)
+    std_isi = np.std(isi)
+    
+    # Calculate coefficient of variation
+    cv = std_isi / mean_isi
+    
+    return cv
+
+def compute_cv_for_neurons(spike_trains):
+    cvs = []
+    for spike_train in spike_trains:
+        if len(spike_train):
+            cvs.append(compute_cv(spike_train))
+
+    return np.mean(cvs)
+
+
+def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
+    """
+    Plots the distribution of interspike intervals given a list of lists of spike times.
+    
+    Parameters:
+    spike_times_list (list of lists): Each inner list contains spike times for one neuron or trial.
+    """
+    # Calculate interspike intervals for each list of spike times
+    interspike_intervals = []
+    for spike_times in spike_times_list:
+        intervals = np.diff(spike_times)
+        interspike_intervals.extend(intervals)
+    
+    # Plot the distribution of interspike intervals
+    plt.figure(figsize=(10, 6))
+    plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
+    plt.xlabel('Interspike Interval (ms)')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of Interspike Intervals')
+    plt.grid(True)
+    plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".png")
+
+    np.savetxt(f"{path}/isi_distribution_" + fname_snip + "_isi_list.txt", interspike_intervals)
+
+
+
 
 
 ###############################################################################
@@ -113,7 +230,7 @@ startbuild = time.time()
 # Assigning the simulation parameters to variables.
 
 dt = 0.1  # the resolution in ms
-simtime = 100.0 # 1000.0  # Simulation time in ms
+simtime = 1000.0  # Simulation time in ms
 delay = 1.5  # synaptic delay in ms
 
 ###############################################################################
@@ -133,7 +250,7 @@ NE = 4 * order  # number of excitatory neurons
 NI = 1 * order  # number of inhibitory neurons
 N_neurons = NE + NI  # number of neurons in total
 print(f"Number of neurons : {N_neurons}")
-N_rec = 50  # record from 50 neurons
+N_rec = 1000  # record from this many neurons
 
 ###############################################################################
 # Definition of connectivity parameters
@@ -234,6 +351,12 @@ nest.resolution = dt
 nest.print_time = True
 nest.overwrite_files = True
 
+
+current_time_ms = int(datetime.now().timestamp() * 1000) % 2**31           # Get the current time in milliseconds since the Unix epoch, modulo max nr of RNG seed bits in NEST (32)
+nest.rng_seed = current_time_ms
+
+
+
 try:
     nest.Install("nestmlmodule")
 except:
@@ -256,6 +379,7 @@ nodes_ex = nest.Create(modelName, NE, params=neuron_params)
 nodes_in = nest.Create(modelName, NI, params=neuron_params)
 noise = nest.Create("poisson_generator", params={"rate": p_rate})
 espikes = nest.Create("spike_recorder")
+espikes_ascii = nest.Create("spike_recorder")
 ispikes = nest.Create("spike_recorder")
 
 e_mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
@@ -266,7 +390,7 @@ e_mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
 # `record_to` to *"ascii"* ensures that the spikes will be recorded to a file,
 # whose name starts with the string assigned to the property `label`.
 
-espikes.set(label="brunel-py-ex", record_to="ascii")
+espikes_ascii.set(label="brunel-py-ex", record_to="ascii")
 ispikes.set(label="brunel-py-in", record_to="ascii")
 
 print("Connecting devices")
@@ -279,23 +403,21 @@ print("Connecting devices")
 # the excitatory and one for the inhibitory connections giving the
 # previously defined weights and equal delays.
 
-wr = nest.Create("weight_recorder")
-
 if "lastic" in modelName:
     # use plastic synapses
     print("Using NESTML STDP synapse")
     if "iaf_psc_alpha" in args.simulated_neuron:
-        nest.CopyModel("stdp_synapse_Nestml_Plastic__with_iaf_psc_alpha_neuron_Nestml_Plastic", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0., "weight_recorder": wr})
+        nest.CopyModel("stdp_synapse_Nestml_Plastic__with_iaf_psc_alpha_neuron_Nestml_Plastic", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0.})
     else:
         if "noco" in args.simulated_neuron:
-            nest.CopyModel("stdp_synapse_Nestml_Plastic_noco__with_aeif_psc_alpha_neuron_Nestml_Plastic_noco", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0., "weight_recorder": wr})
+            nest.CopyModel("stdp_synapse_Nestml_Plastic_noco__with_aeif_psc_alpha_neuron_Nestml_Plastic_noco", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0.})
         else:
-            nest.CopyModel("stdp_synapse_Nestml_Plastic__with_aeif_psc_alpha_neuron_Nestml_Plastic", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0., "weight_recorder": wr})
+            nest.CopyModel("stdp_synapse_Nestml_Plastic__with_aeif_psc_alpha_neuron_Nestml_Plastic", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0.})
 
 else:
     # use static synapses
     print("Using NEST built in STDP synapse")
-    nest.CopyModel("stdp_synapse", "excitatory", {"weight": J_ex, "delay": delay, "lambda": 0., "weight_recorder": wr})
+    nest.CopyModel("stdp_synapse", "excitatory", {"weight": J_ex, "delay": delay, "lambda": 0.})
     # nest.CopyModel("static_synapse", "excitatory", {"weight": J_ex, "delay": delay})
 
 
@@ -339,6 +461,7 @@ print("Local exc neurons: ", len(local_neurons_ex))
 print("Local inh neurons: ", len(local_neurons_in))
 
 nest.Connect(local_neurons_ex[:N_rec], espikes, syn_spec="excitatory_static")
+nest.Connect(local_neurons_ex[:N_rec], espikes_ascii, syn_spec="excitatory_static")
 nest.Connect(local_neurons_in[:N_rec], ispikes, syn_spec="excitatory_static")
 
 print("Connecting network")
@@ -417,6 +540,13 @@ build_time = endbuild - startbuild
 sim_time = endsimulate - endbuild
 
 ###############################################################################
+# analysis
+
+exc_spikes = [espikes.events["times"][espikes.events["senders"] == neuron_idx] for neuron_idx in np.unique(espikes.events["senders"])]
+cv_exc = compute_cv_for_neurons(exc_spikes)
+
+
+###############################################################################
 # Printing the network properties, firing rates and building times.
 
 print("Brunel network simulation (Python)")
@@ -425,78 +555,44 @@ print(f"                CI: {CI}")
 print(f"Number of synapses: {num_synapses}")
 print(f"       Excitatory : {num_synapses_ex}")
 print(f"       Inhibitory : {num_synapses_in}")
-# TODO:compare on different sizes
+print(f"Excitatory CV     : {cv_exc:.2f}")
 print(f"Excitatory rate   : {rate_ex:.2f} Hz")
 print(f"Inhibitory rate   : {rate_in:.2f} Hz")
 
 print(f"Building time     : {build_time:.2f} s")
 print(f"Simulation time   : {sim_time:.2f} s")
 
-###############################################################################
-# Plot a raster of the excitatory neurons and a histogram.
-
-
-def convert_np_arrays_to_lists(obj):
-    if isinstance(obj, dict):
-        return {k: convert_np_arrays_to_lists(v) for k, v in obj.items()}
-    elif isinstance(obj, np.ndarray):
-        return obj.tolist()
-    else:
-        return obj
-
-def _VmB(VmKey):
-    r"""This code is from beNNch, https://github.com/INM-6/beNNch-models/, 2024-05-18"""
-    _proc_status = '/proc/%d/status' % os.getpid()
-    _scale = {'kB': 1024.0, 'mB': 1024.0 * 1024.0, 'KB': 1024.0, 'MB': 1024.0 * 1024.0}
-    # get pseudo file  /proc/<pid>/status
-    try:
-        t = open(_proc_status)
-        v = t.read()
-        t.close()
-    except:
-        return 0.0  # non-Linux?
-    # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
-    i = v.index(VmKey)
-    v = v[i:].split(None, 3)  # whitespace
-    if len(v) < 3:
-        return 0.0  # invalid format?
-    # convert Vm value to bytes
-    return float(v[1]) * _scale[v[2]]
-
-
-def get_vmsize(since=0.0):
-    """Return memory usage in bytes."""
-    return _VmB('VmSize:') - since
-
-
-def get_rss(since=0.0):
-    """Return resident memory usage in bytes."""
-    return _VmB('VmRSS:') - since
-
-
-def get_vmpeak(since=0.0):
-    """Return peak memory usage in bytes."""
-    return _VmB('VmPeak:') - since
-
-
 if args.benchmarkPath != "":
     path = args.benchmarkPath
     status = nest.GetKernelStatus()
+    status = convert_np_arrays_to_lists(status)
     status["memory_benchmark"] = {"rss": get_rss(),
                                   "vmsize": get_vmsize(),
                                   "vmpeak": get_vmpeak()}
-    status = convert_np_arrays_to_lists(status)
+    status["num_synapses"] = num_synapses  #len(conns)
+    status["firing_rate_exc"] = rate_ex
+    status["firing_rate_inh"] = rate_in
+    status["build_time"] = build_time
+    status["sim_time"] = sim_time
+    status["cv_exc"] = cv_exc
+
     if not os.path.exists(path):
         os.makedirs(path)
-    with open(f"{path}/timing_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}].json", "w") as f:
-        json.dump(status, f)
+
+    fname_snip = "[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}]"
+
+    with open(f"{path}/timing_{fname_snip}.json", "w") as f:
+        json.dump(status, f, indent=4)
         f.close()
 
     nest.raster_plot.from_device(espikes, hist=True)
-    plt.savefig(f"{path}/raster_plot_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}].png")
+    plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
     plt.close()
 
     fig, ax = plt.subplots()
     ax.plot(e_mm.get()["events"]["times"], e_mm.get()["events"]["V_m"])
-    plt.savefig(f"{path}/V_m_[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}].png")
+    plt.savefig(f"{path}/V_m_{fname_snip}.png")
     plt.close()
+
+    plot_interspike_intervals(exc_spikes, path, fname_snip=fname_snip)
+
