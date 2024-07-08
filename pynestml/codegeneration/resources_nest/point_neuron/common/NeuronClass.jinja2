@@ -546,6 +546,9 @@ void {{neuronName}}::calibrate()
 void {{neuronName}}::pre_run_hook()
 {%- endif %}
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::pre_run_hook()" << std::endl;
+#endif
   B_.logger_.init();
 
   // parameters might have changed -- recompute internals
@@ -599,6 +602,9 @@ void {{neuronName}}::pre_run_hook()
 {%- if has_delay_variables %}
 void {{neuronName}}::update_delay_variables()
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::update_delay_variables()" << std::endl;
+#endif
 {%-   for variable_symbol in neuron.get_state_symbols() %}
 {%-       if variable_symbol.has_delay_parameter() %}
 {%-           set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
@@ -621,7 +627,7 @@ double {{neuronName}}::get_delayed_{{variable.get_symbol_name()}}() const
 {%- if use_gap_junctions %}
 bool {{neuronName}}::update_( nest::Time const& origin, const long from, const long to, const bool called_from_wfr_update )
 {%- else %}
-void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
+void {{neuronName}}::update(nest::Time const & origin, const long from, const long to)
 {%- endif %}
 {
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
@@ -650,6 +656,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {% endif %}
 
     auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
+
+#ifdef DEBUG
+  std::cout << "In {{neuronName}}::update{% if use_gap_junctions %}_{% endif %}: t = " << get_t() << std::endl;
+#endif
 
 {%- if use_gap_junctions %}
     // B_.lag is needed by GSL stepping function to determine the current section
@@ -932,7 +942,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
-    write_continuous_variable_history( nest::Time::step( origin.get_steps() + lag + 1 ),
+#ifdef DEBUG
+std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
+#endif
+    write_continuous_variable_history( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
 {%-         for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
 {%-             set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
@@ -974,6 +987,9 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_continuous_variable_history()" << std::endl;
+#endif
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
   {
@@ -1006,9 +1022,13 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-         endfor %})
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::write_continuous_variable_history()" << std::endl;
+#endif
   const double t_ms = t.get_ms();
 
   // prune all entries from history which are no longer needed except the penultimate one. we might still need it.
+  auto orig = continuous_variable_history_.size();
   while ( continuous_variable_history_.size() > 1 )
   {
     if ( continuous_variable_history_.front().access_counter_ >= n_incoming_ )
@@ -1021,10 +1041,19 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
     }
   }
 
+#ifdef DEBUG
+  if (continuous_variable_history_.size() != orig) {
+    std::cout << "[neuron " << this << "] \tpruning history, original size = " << orig << ", new size = " <<  continuous_variable_history_.size() << "\n";
+  }
+#endif
+
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
 {%-         for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-         endfor %}) );
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] \thistory size = " << continuous_variable_history_.size() << std::endl;
+#endif
 }
 {%-     endif %}
 {%- endif %}
@@ -1039,6 +1068,9 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 {% if has_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{neuronName}}::handle()" << std::endl;
+#endif
   assert(e.get_delay_steps() > 0);
   assert( e.get_rport() < B_.spike_inputs_.size() );
 
@@ -1072,6 +1104,9 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{neuronName}}::handle(CurrentEvent)" << std::endl;
+#endif
   assert(e.get_delay_steps() > 0);
 
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
@@ -1106,15 +1141,12 @@ void
 //   Methods for neuron/synapse co-generation
 // -------------------------------------------------------------------------
 
-inline double
-{{neuronName}}::get_spiketime_ms() const
-{
-  return last_spike_;
-}
-
 void
 {{neuronName}}::register_stdp_connection( double t_first_read, double delay )
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::register_stdp_connection()" << std::endl;
+#endif
   // Mark all entries in the deque, which we will not read in future as read by
   // this input input, so that we safely increment the incoming number of
   // connections afterwards without leaving spikes in the history.
@@ -1139,6 +1171,9 @@ void
   std::deque< histentry__{{neuronName}} >::iterator* start,
   std::deque< histentry__{{neuronName}} >::iterator* finish )
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_history__()" << std::endl;
+#endif
   *finish = history_.end();
   if ( history_.empty() )
   {
@@ -1164,30 +1199,25 @@ void
 void
 {{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
 {
-  {{neuron_parent_class}}::set_spiketime( t_sp, offset );
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::set_spiketime()" << std::endl;
+#endif
 
-  unsigned int num_transferred_variables = 0;
-{%-     for var in transferred_variables %}
-  ++num_transferred_variables; {# XXX: TODO: make this into a const member variable #}
-{%-     endfor %}
+  {{neuron_parent_class}}::set_spiketime( t_sp, offset );
 
   const double t_sp_ms = t_sp.get_ms() - offset;
 
   if ( n_incoming_ )
   {
-    // prune all spikes from history which are no longer needed
-    // only remove a spike if:
-    // - its access counter indicates it has been read out by all connected
-    //     STDP synapses, and
-    // - there is another, later spike, that is strictly more than
-    //     (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
+    // Prune all spikes from history which are no longer needed. Only remove a spike if:
+    // - its access counter indicates it has been read out by all connected STDP synapses, and
+    // - there is another, later spike, that is strictly more than (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
+    // for access counter logic, see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
-      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
-      // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
 
-      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+      if ( history_.front().access_counter_ >= n_incoming_
            and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
       {
         history_.pop_front();
@@ -1218,7 +1248,7 @@ void
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
 {%-     endfor %}
     }
-
+{%-     if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
       * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
       *
@@ -1230,7 +1260,6 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-
 {%-     filter indent(6, True) -%}
 {#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
@@ -1241,7 +1270,7 @@ void
       V_.__h = old___h;
       recompute_internal_variables(true);
     }
-
+{%- endif %}
     /**
       * print extra on-emit statements transferred from synapse
     **/
@@ -1312,21 +1341,21 @@ void
 {%- endif %}
 
 double
-{{neuronName}}::get_{{var}}( double t, const bool before_increment )
+{{ neuronName }}::get_{{ var }}( double t, const bool before_increment )
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
+  std::cout << "{{ neuronName }}::get_{{var}}: getting value at t = " << t << std::endl;
 #endif
 
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
 #ifdef DEBUG
-    std::cout << "{{neuronName}}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
+    std::cout << "{{ neuronName }}::get_{{ var }}: \thistory empty, returning initial value = " << {{ var }}__iv << std::endl;
 #endif
 
     // return initial value
-    return {{var}}__iv;
+    return {{ var }}__iv;
   }
 
   // search for the latest post spike in the history buffer that came strictly before `t`
@@ -1341,7 +1370,7 @@ double
     if ( t - history_[ i ].t_ >= eps )
     {
 #ifdef DEBUG
-      std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+      std::cout<<"{{neuronName}}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
@@ -1350,7 +1379,7 @@ double
 {%- for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
-
+{%- if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1374,7 +1403,7 @@ double
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
-
+{%- endif %}
 #ifdef DEBUG
       std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
@@ -1420,7 +1449,7 @@ double
 {%- for var_ in analytic_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
-
+{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
   /**
    * update state variables transferred from synapse from initial condition to `t`
    *
@@ -1443,7 +1472,7 @@ double
     V_.__h = old___h;
     recompute_internal_variables(true);
   }
-
+{%- endif %}
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }
 {%- endwith -%}
