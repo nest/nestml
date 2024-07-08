@@ -261,8 +261,6 @@ class NESTCodeGenerator(CodeGenerator):
                 synapse.continuous_post_ports = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
                 synapse.paired_neuron.continuous_post_ports = synapse.continuous_post_ports
 
-
-
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
