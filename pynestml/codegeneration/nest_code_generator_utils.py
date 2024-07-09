@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import List, Optional
 
 import re
@@ -72,6 +73,7 @@ class NESTCodeGeneratorUtils:
                           codegen_opts: Optional[dict] = None,
                           logging_level: str = "WARNING"):
         """Generate code for a given neuron and synapse model, passed as a string.
+
         The neuron and synapse models can be passed directly as strings in NESTML syntax, or as filenames, in which case the NESTML model is loaded from the given filename.
 
         Returns

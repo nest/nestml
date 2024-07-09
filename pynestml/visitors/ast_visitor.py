@@ -45,6 +45,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
@@ -730,11 +731,10 @@ class ASTVisitor:
         self.get_real_self().traverse(_node)
         self.get_real_self().endvisit(_node)
 
-    def visit(self, node):
+    def visit(self, node: ASTNode):
         """
         Dispatcher for visitor pattern.
-        :param node: The ASTElement to visit
-        :type node:  ASTElement or inherited
+        :param node: The ASTNode to visit
         """
         if isinstance(node, ASTArithmeticOperator):
             self.visit_arithmetic_operator(node)
