@@ -225,7 +225,7 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
 
 .. code:: nestml
 
-   synapse my_synapse:
+   model my_synapse:
        state:
            w real = 1.
 
