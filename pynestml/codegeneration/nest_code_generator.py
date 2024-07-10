@@ -256,7 +256,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         for synapse in synapses:
 
-            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
+            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys() and "paired_neuron" in dir(synapse):
                 post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(synapse.paired_neuron, synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
                 synapse.continuous_post_ports = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
                 synapse.paired_neuron.continuous_post_ports = synapse.continuous_post_ports
