@@ -321,14 +321,9 @@ public:
   // support for spike archiving
 
   /**
-   * \fn void get_history(long t1, long t2,
-   * std::deque<Archiver::histentry__>::iterator* start,
-   * std::deque<Archiver::histentry__>::iterator* finish)
-   * return the spike times (in steps) of spikes which occurred in the range
-   * (t1,t2].
-   * XXX: two underscores to differentiate it from nest::Node::get_history()
+   * Return the spike times (in steps) of spikes which occurred in the range (t1,t2].
    */
-  void get_history__( double t1,
+  void get_history_nestml_( double t1,
     double t2,
     std::deque< histentry__{{neuronName}} >::iterator* start,
     std::deque< histentry__{{neuronName}} >::iterator* finish );
@@ -445,10 +440,10 @@ private:
 
   double max_delay_;
 
-  double last_spike_;
+  double last_spike_nestml_;
 
   // spiking history needed by stdp synapses
-  std::deque< histentry__{{neuronName}} > history_;
+  std::deque< histentry__{{neuronName}} > history_nestml_;
 
   // cache for initial values
 {%- for var in transferred_variables %}
