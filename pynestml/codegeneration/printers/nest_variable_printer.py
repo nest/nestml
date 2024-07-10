@@ -80,7 +80,10 @@ class NESTVariablePrinter(CppVariablePrinter):
             return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
-            return "numerics::e"
+            return "numerics::e"    # from nest::
+
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "numerics::pi"    # from nest::
 
         if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
             return "get_t()"
