@@ -104,14 +104,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
                     "cm_tree_@NEURON_NAME@.h.jinja2"]},
             "module_templates": ["setup"]},
-        "externals": {
-            "path": "resources_nest_compartmental/external",
-            "files": [
-                "ieee.h",
-                "product.h"]},
         "nest_version": "",
-        "compartmental_variable_name": "v_comp",
-        "fastexp": False}
+        "compartmental_variable_name": "v_comp",}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
@@ -198,24 +192,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         return ret
 
     def generate_code(self, models: List[ASTModel]) -> None:
-        self.place_externals()
         self.analyse_transform_neurons(models)
         self.generate_neurons(models)
         self.generate_module_code(models)
-
-    def place_externals(self):
-        files = self.get_option("externals")["files"]
-        for f in files:
-            origin_path = self.get_option("externals")["path"]
-            origin_path = os.path.join(origin_path, f)
-            abs_origin_path = os.path.join(os.path.dirname(__file__), origin_path)
-
-            target_path = os.path.join(
-                FrontendConfiguration.get_target_path(), f)
-
-            os.makedirs(os.path.dirname(target_path), exist_ok=True)
-
-            shutil.copyfile(abs_origin_path, target_path)
 
     def generate_module_code(self, neurons: List[ASTModel]) -> None:
         """t
