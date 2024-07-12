@@ -8,45 +8,56 @@ import matplotlib.pyplot as plt
 from jinja2 import Environment, FileSystemLoader
 import numpy as np
 import os
+from datetime import datetime
 
 parser = argparse.ArgumentParser(description='Run a Benchmark with NEST')
 parser.add_argument('--noRunSim', action="store_false", help='Run the Benchmark with NEST Simulator')
+parser.add_argument('--enable_profiling', action="store_true", help="Run the Benchmark with profiling enabled with AMDuProf")
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 PATHTOFILE = os.path.join(current_dir, "examples/brunel_alpha_nest.py")
 
+# Command line args
+args = parser.parse_args()
+runSim = args.noRunSim
+enable_profile = args.enable_profiling
+
 # for aeif_psc_alpha neurons
 BASELINENEURON = "aeif_psc_alpha"
 NEURONMODELS = [
-    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic",
+    # "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic",
     "aeif_psc_alpha_neuron_Nestml",
     BASELINENEURON,
-    "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco"
+    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco"
 ]
 
 legend = {
-    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML neur, NESTML syn",
+    # "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML neur, NESTML syn",
     "aeif_psc_alpha_neuron_Nestml": "NESTML neur, NEST syn",
     BASELINENEURON: "NEST neur + syn",
-    "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
+    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
 }
 
 colors = {
     BASELINENEURON: 0,
-    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": 1,
+    # "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": 1,
     "aeif_psc_alpha_neuron_Nestml": 2,
-    "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": 3
+    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": 3
 }
 
 # MPI scaling
 DEBUG = True
-ITERATIONS = 1  # XXXXXXXXXXXX: was 10
 NUMTHREADS = 128  # Total number of threads per node
 NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX: was 10 and 30000
 
 # MPI Strong scaling
-# MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
-MPI_SCALES = [2]
+if enable_profile:
+    MPI_SCALES = [2]
+    ITERATIONS = 1
+else:
+    MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
+    ITERATIONS = 2  # XXXXXXXXXXXX: was 10
+
 MPI_STRONG_SCALE_NEURONS = NETWORKSCALES[-1]
 STRONGSCALINGMPIFOLDERNAME = "timings_strong_scaling_mpi"
 
@@ -74,6 +85,7 @@ def render_sbatch_template(combination, filename):
     namespace["ntasks_per_node"] = 2
     namespace["cpus_per_task"] = int(combination["threads"] / 2)
     namespace["combination"] = combination
+    namespace["enable_profile"] = enable_profile
     file = template.render(namespace)
     log("Rendering template: " + template.filename)
 
@@ -94,7 +106,8 @@ def start_strong_scaling_benchmark_mpi(iteration):
             "iteration": iteration,
             "output_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{iteration}_%j.out",
             "error_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{iteration}_%j.err",
-            "benchmarkPath": dirname
+            "benchmarkPath": dirname,
+            "rng_seed": int(datetime.now().timestamp() * 1000) % 2**31,
         } for neuronmodel in NEURONMODELS for compute_nodes in MPI_SCALES]
 
     for combination in combinations:
@@ -122,7 +135,8 @@ def start_weak_scaling_benchmark_mpi(iteration):
             "iteration": iteration,
             "output_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{MPI_WEAK_SCALE_NEURONS * compute_nodes}_{iteration}_%j.out",
             "error_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{MPI_WEAK_SCALE_NEURONS * compute_nodes}_{iteration}_%j.err",
-            "benchmarkPath": dirname
+            "benchmarkPath": dirname,
+            "rng_seed": int(datetime.now().timestamp() * 1000) % 2**31,
         } for neuronmodel in NEURONMODELS for compute_nodes in MPI_SCALES]
     for combination in combinations:
         print("RUNNING FOR " + str(combination))
@@ -227,7 +241,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.png'))
 
     # Memory benchmark
-    # fig, ax = plt.subplots(1,1)
+    plt.figure()
     plot_lines = []
     linestyles = {
         "rss": "--",
@@ -237,26 +251,27 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     for neuron, values in sim_data.items():
         x = sorted(values.keys(), key=lambda k: int(k))
         rss = np.array([np.mean(
-            [iteration_data["memory_benchmark"]["rss"] / (1024 * 1024) for iteration_data in
+            [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024)  for iteration_data in
              values[nodes].values()]) for nodes in x])
         rss_std = np.array([np.std(
-            [iteration_data["memory_benchmark"]["rss"] / (1024 * 1024) for iteration_data in
+            [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
         
         vmsize = np.array([np.mean(
-            [iteration_data["memory_benchmark"]["vmsize"] / (1024 * 1024) for iteration_data in
+            [(iteration_data["memory_benchmark"]["vmsize"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
         vmsize_std = np.array([np.std(
-            [iteration_data["memory_benchmark"]["vmsize"] / (1024 * 1024) for iteration_data in
+            [(iteration_data["memory_benchmark"]["vmsize"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
 
         vmpeak = np.array([np.mean(
-            [iteration_data["memory_benchmark"]["vmpeak"] / (1024 * 1024) for iteration_data in
+            [(iteration_data["memory_benchmark"]["vmpeak"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
         vmpeak_std = np.array([np.std(
-            [iteration_data["memory_benchmark"]["vmpeak"] / (1024 * 1024) for iteration_data in
+            [(iteration_data["memory_benchmark"]["vmpeak"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
 
+        print(rss, vmsize, vmpeak)
 
         x = np.array([int(val) for val in x], dtype=int)
         line1 = plt.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label="rss",
@@ -268,16 +283,18 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         
         plot_lines.append([line1, line2, line3])
 
-    legend1 = plt.legend(plot_lines[0], list(linestyles.keys()), loc=1)
-    plt.legend([l[0] for l in plot_lines], list(legend.values()), loc=4)
-    plt.gca().add_artist(legend1)
+    # Create a legend for the linestyles
+    linestyle_legend = plt.legend(plot_lines[0], list(linestyles.keys()), loc='upper left')
+    plt.gca().add_artist(linestyle_legend)
+
+    # Create a legend for the neurons
+    neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
+    plt.legend(neuron_handles, list(legend.values()), loc='upper right')
     plt.xlabel('Number of nodes')
     plt.ylabel('Memory (GB)')
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
-    plt.legend()
-    plt.tight_layout()
     plt.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
 
 
@@ -357,9 +374,6 @@ def clean_json_content(content):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
-    runSim = args.noRunSim
-
     os.makedirs(output_folder, exist_ok=True)
     os.makedirs(os.path.join(output_folder, STRONGSCALINGMPIFOLDERNAME), exist_ok=True)
     os.makedirs(os.path.join(output_folder, WEAKSCALINGMPIFOLDERNAME), exist_ok=True)

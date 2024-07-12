@@ -51,7 +51,6 @@ References
 import time
 import sys
 import matplotlib.pyplot as plt
-from datetime import datetime
 import nest
 import nest.raster_plot
 import numpy as np
@@ -191,7 +190,7 @@ parser.add_argument('--network_scale', type=int, default=2500, help='Number of n
 parser.add_argument('--nodes', type=int, default=2, required=False, help='Number of compute nodes to use')
 parser.add_argument('--threads', type=int, default=4, help='Number of threads to use')
 parser.add_argument('--iteration', type=int, help='iteration number used for the benchmark')
-
+parser.add_argument('--rng_seed', type=int, help='random seed')
 args = parser.parse_args()
 
 
@@ -250,7 +249,8 @@ NE = 4 * order  # number of excitatory neurons
 NI = 1 * order  # number of inhibitory neurons
 N_neurons = NE + NI  # number of neurons in total
 print(f"Number of neurons : {N_neurons}")
-N_rec = 1000  # record from this many neurons
+N_rec = 100  # record from this many neurons
+N_rec_isi = 500
 
 ###############################################################################
 # Definition of connectivity parameters
@@ -352,8 +352,8 @@ nest.print_time = True
 nest.overwrite_files = True
 
 
-current_time_ms = int(datetime.now().timestamp() * 1000) % 2**31           # Get the current time in milliseconds since the Unix epoch, modulo max nr of RNG seed bits in NEST (32)
-nest.rng_seed = current_time_ms
+# current_time_ms = int(datetime.now().timestamp() * 1000) % 2**31           # Get the current time in milliseconds since the Unix epoch, modulo max nr of RNG seed bits in NEST (32)
+nest.rng_seed = args.rng_seed
 
 
 
@@ -443,9 +443,6 @@ nest.Connect(noise, nodes_in, syn_spec="excitatory_static")
 # Here the same shortcut for the specification of the synapse as defined
 # above is used.
 
-
-nest.Connect(e_mm, nodes_ex[0], syn_spec="excitatory_static")
-
 if args.nodes > 1:
     local_neurons_ex = nest.GetLocalNodeCollection(nodes_ex)
     local_neurons_in = nest.GetLocalNodeCollection(nodes_in)
@@ -460,9 +457,11 @@ else:
 print("Local exc neurons: ", len(local_neurons_ex))
 print("Local inh neurons: ", len(local_neurons_in))
 
-nest.Connect(local_neurons_ex[:N_rec], espikes, syn_spec="excitatory_static")
+nest.Connect(local_neurons_ex[:N_rec_isi], espikes, syn_spec="excitatory_static")
 nest.Connect(local_neurons_ex[:N_rec], espikes_ascii, syn_spec="excitatory_static")
 nest.Connect(local_neurons_in[:N_rec], ispikes, syn_spec="excitatory_static")
+
+nest.Connect(e_mm, local_neurons_ex[0], syn_spec="excitatory_static")
 
 print("Connecting network")
 
@@ -511,7 +510,7 @@ endsimulate = time.time()
 # Reading out the total number of spikes received from the spike recorder
 # connected to the excitatory population and the inhibitory population.
 
-events_ex = espikes.n_events
+events_ex = espikes_ascii.n_events
 events_in = ispikes.n_events
 
 ###############################################################################
@@ -579,7 +578,7 @@ if args.benchmarkPath != "":
     if not os.path.exists(path):
         os.makedirs(path)
 
-    fname_snip = "[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}]"
+    fname_snip = f"[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}]"
 
     with open(f"{path}/timing_{fname_snip}.json", "w") as f:
         json.dump(status, f, indent=4)
