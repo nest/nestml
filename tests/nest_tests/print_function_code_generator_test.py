@@ -136,7 +136,3 @@ class PrintCodeGeneratorTest(unittest.TestCase):
         with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
                 os.pardir, 'target', 'print_test_function.cpp')))), 'r') as reader:
             self.assertEqual(reader.read().count('std::cout'), 3)
-
-    def tearDown(self):
-        import shutil
-        shutil.rmtree(self.target_path)

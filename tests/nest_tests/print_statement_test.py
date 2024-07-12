@@ -44,7 +44,3 @@ class PrintStatementTest(unittest.TestCase):
         self.assertEqual(matches[0], "print: This is a simple print statement\n")
         self.assertEqual(matches[1], "print: Membrane voltage: -0.05 V, threshold: -7e-08 MA Ohm, and V_rel: -50 mV\n")
         self.assertEqual(matches[2], "print: Numeric state variable: 0.048731\n")
-
-    def tearDown(self) -> None:
-        if os.path.exists(self.output_path):
-            os.remove(self.output_path)
