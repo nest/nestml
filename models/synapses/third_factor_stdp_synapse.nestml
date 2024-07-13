@@ -41,7 +41,7 @@ model third_factor_stdp_synapse:
         w real = 1.   # Synaptic weight
 
     parameters:
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
+        d ms = 1 ms    # Synaptic transmission delay
         lambda real = .01
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms

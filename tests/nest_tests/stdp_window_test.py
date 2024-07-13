@@ -57,7 +57,9 @@ def nestml_generate_target():
                                                                  "post_ports": ["post_spikes"]},
                                                                 {"neuron": "izhikevich_neuron",
                                                                  "synapse": "stdp_synapse",
-                                                                 "post_ports": ["post_spikes"]}]})
+                                                                 "post_ports": ["post_spikes"]}],
+                                       "delay_variable": {"stdp_synapse": "d"},
+                                       "weight_variable": {"stdp_synapse": "w"}})
 
 
 def run_stdp_network(pre_spike_time, post_spike_time,
@@ -85,12 +87,11 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     wr = nest.Create("weight_recorder")
     if "__with" in synapse_model_name:
         weight_variable_name = "w"
-        nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "d": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
     else:
         weight_variable_name = "weight"
-        nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+
+    nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
+                   {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
 
     # create spike_generators with these times
     pre_sg = nest.Create("spike_generator",
