@@ -1312,8 +1312,9 @@ void
 
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
+        , 0 // access counter
 {%- for var in purely_numeric_state_variables_moved|sort %}
-    , get_{{var}}()
+        , get_{{var}}()
 {%- endfor %}
 {%- for var in analytic_state_variables_moved | sort %}
         , get_{{ var }}()
@@ -1324,7 +1325,6 @@ void
         , get_{{ var_name }}()
 {%-     endfor %}
 {%- endif %}
-      , 0 // access counter
     ) );
   }
   else

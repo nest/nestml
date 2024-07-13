@@ -171,20 +171,22 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 class histentry__{{ neuronName }}
 {
 public:
-  histentry__{{ neuronName }}( double t,
+  histentry__{{ neuronName }}( double t
+      , size_t access_counter
 {%- for var in purely_numeric_state_variables_moved|sort %}
-      double {{var}},
+      , double {{ var }}
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-      double {{ var }},
+      , double {{ var }}
 {%- endfor %}
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
 {%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
-      double {{ state_var }},
+      , double {{ state_var }}
 {%-     endfor %}
 {%- endif %}
-      size_t access_counter )
+  )
   : t_( t )
+  , access_counter_( access_counter )
 {%- for var in purely_numeric_state_variables_moved|sort %}
   , {{ var }}_( {{ var }} )
 {%- endfor %}
@@ -196,11 +198,11 @@ public:
   , {{ state_var }}_( {{ state_var }} )
 {%-     endfor %}
 {%- endif %}
-  , access_counter_( access_counter )
   {
   }
 
   double t_;              //!< point in time when spike occurred (in ms)
+  size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 
 {%- for var in purely_numeric_state_variables_moved|sort %}
   double {{ var }}_;
@@ -215,8 +217,6 @@ public:
   double {{ state_var }}_;
 {%-     endfor %}
 {%- endif %}
-
-  size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
 {%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
@@ -228,12 +228,12 @@ public:
       double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %} );
 
+  double t_;              //!< point in time for history entry
+  size_t access_counter_;
+
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
   double {{ state_var }};
 {%-     endfor %}
-
-  double t_;              //!< point in time for history entry
-  size_t access_counter_;
 };
 {%- endif %}
 {%- endif %}
@@ -487,6 +487,11 @@ protected:
    * record spike history
    */
   void set_spiketime( nest::Time const& t_sp, double offset = 0.0 );
+
+  /**
+   * return most recent spike time in ms
+   */
+  inline double get_spiketime_ms() const;
 
   /**
    * clear spike history
