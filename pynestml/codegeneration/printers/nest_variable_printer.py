@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+from typing import Dict, Optional
+
 from pynestml.utils.ast_utils import ASTUtils
 
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
@@ -66,9 +68,15 @@ class NESTVariablePrinter(CppVariablePrinter):
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
+                if not variable._altscope:
+                    # get the value from the postsynaptic partner continuous-time buffer (for post_connected_continuous_input_ports); this has been buffered in a local temp variable starting with "__"
+                    return variable.get_alternate_name()
+
+                # get the value from the postsynaptic partner (without time specified)
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
                 return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
+            # get the value from the postsynaptic partner (with time specified)
             return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
