@@ -38,7 +38,7 @@ class TestNestDesktopCodeGenerator:
         Test to generate the json file for NEST Desktop target for the given neuron model
         """
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
+            os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "target_iaf"
         target_platform = "NEST_DESKTOP"
         generate_target(input_path=input_path,
@@ -47,17 +47,17 @@ class TestNestDesktopCodeGenerator:
                         logging_level="INFO")
 
         # Read the parameters from the generated json file and match them with the actual values
-        with open(os.path.join(target_path, "iaf_psc_exp.json")) as f:
+        with open(os.path.join(target_path, "iaf_psc_exp_neuron.json")) as f:
             data = f.read()
         json_data = json.loads(data)
         actual_params = {"C_m": "250.0",
                          "tau_m": "10.0",
                          "tau_syn_inh": "2.0",
                          "tau_syn_exc": "2.0",
-                         "t_ref": "2.0",
+                         "refr_T": "2.0",
                          "E_L": "-70.0",
-                         "V_reset": "0.0",
-                         "Theta": "15.0",
+                         "V_reset": "-70.0",
+                         "V_th": "-55.0",
                          "I_e": "0.0"}
         for param_data in json_data["params"]:
             _id = param_data["id"]

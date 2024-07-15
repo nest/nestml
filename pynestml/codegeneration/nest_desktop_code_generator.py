@@ -22,9 +22,9 @@ import os
 from typing import Sequence, Union, Optional, Mapping, Any, Dict
 
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 
 
 class NESTDesktopCodeGenerator(CodeGenerator):
@@ -32,8 +32,10 @@ class NESTDesktopCodeGenerator(CodeGenerator):
     Code generator for NEST Desktop
     """
     _default_options = {
+        "neuron_models": [],
+        "synapse_models": [],
         "templates": {
-            "path": "",
+            "path": "resources_nest_desktop",
             "model_templates": {
                 "neuron": ["@NEURON_NAME@.json.jinja2"],
             }
@@ -45,19 +47,17 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         super().__init__(self._target, options)
         self.setup_template_env()
 
-    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+    def generate_code(self, models: Sequence[ASTModel]) -> None:
         """
         Generate the .json files for the given neuron and synapse models
         :param models: list of neuron models
         """
-        if not os.path.isdir(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-        neurons = [model for model in models if isinstance(model, ASTNeuron)]
-        synapses = [model for model in models if isinstance(model, ASTSynapse)]
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"),
+                                                                          synapse_models=self.get_option("synapse_models"))
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
 
-    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
