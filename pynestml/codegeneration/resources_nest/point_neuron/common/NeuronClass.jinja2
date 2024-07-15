@@ -354,9 +354,9 @@ void {{neuronName}}::init_state_internal_()
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 {%- if numeric_solver == "rk45" %}
-  // by default, integrate all variables
-  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
-  P_.__gsl_error_tol = 1e-3;
+  // by default, integrate all variables with a conservative tolerance, in the sense that we err on the side of integrating very precisely at the expense of extra computation
+  P_.__gsl_abs_error_tol = 1e-6;
+  P_.__gsl_rel_error_tol = 1e-6;
 {%- endif %}
 
 {%- if parameter_vars_with_iv|length > 0 %}
@@ -464,11 +464,24 @@ void {{neuronName}}::init_buffers_()
 
   if ( not B_.__c )
   {
-    B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
+{%- if gsl_adaptive_step_size_controller == "with_respect_to_solution" %}
+    B_.__c = gsl_odeiv_control_y_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+{%- elif gsl_adaptive_step_size_controller == "with_respect_to_derivative" %}
+    B_.__c = gsl_odeiv_control_yp_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+{%- else %}
+{{ raise('Unknown GSL adaptive step size controller value') }}
+{%- endif %}
   }
   else
   {
-    gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
+{%- if gsl_adaptive_step_size_controller == "with_respect_to_solution" %}
+    gsl_odeiv_control_init( B_.__c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 1.0, 0.0 );
+{%- elif gsl_adaptive_step_size_controller == "with_respect_to_derivative" %}
+    gsl_odeiv_control_init( B_.__c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 0.0, 1.0 );
+{%- else %}
+{{ raise('Unknown GSL adaptive step size controller value') }}
+{%- endif %}
+
   }
 
   if ( not B_.__e )
