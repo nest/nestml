@@ -354,6 +354,7 @@ nest.overwrite_files = True
 
 # current_time_ms = int(datetime.now().timestamp() * 1000) % 2**31           # Get the current time in milliseconds since the Unix epoch, modulo max nr of RNG seed bits in NEST (32)
 nest.rng_seed = args.rng_seed
+print("The RNG seed is: " + str(nest.rng_seed))
 
 
 
@@ -405,7 +406,7 @@ print("Connecting devices")
 
 if "lastic" in modelName:
     # use plastic synapses
-    print("Using NESTML STDP synapse")
+    print("Using NESTML STDP synapse, model: " + args.simulated_neuron)
     if "iaf_psc_alpha" in args.simulated_neuron:
         nest.CopyModel("stdp_synapse_Nestml_Plastic__with_iaf_psc_alpha_neuron_Nestml_Plastic", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0.})
     else:
