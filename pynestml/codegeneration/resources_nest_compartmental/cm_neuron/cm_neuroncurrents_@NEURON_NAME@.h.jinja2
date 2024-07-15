@@ -26,9 +26,9 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
 #include <vector>
+#include <cmath>
 
 #include "ring_buffer.h"
-#include "ieee.h"
 
 {% macro render_variable_type(variable) -%}
 {%- with -%}
@@ -480,22 +480,6 @@ private:
 
 public:
   NeuronCurrents{{cm_unique_suffix}}(){};
-{#-
-  explicit NeuronCurrents{{cm_unique_suffix}}(const DictionaryDatum& compartment_params)
-  {
-  {%- with %}
-    {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}{{cm_unique_suffix}}( compartment_params );
-    {% endfor -%}
-  {% endwith -%}
-
-  {%- with %}
-    {%- for concentration_name, concentration_info in conc_info.items() %}
-    {{ concentration_name }}{{concentration_suffix}} = {{ concentration_name }}{{cm_unique_suffix}}( compartment_params );
-    {% endfor -%}
-  {% endwith -%}
-  };
-#}
   ~NeuronCurrents{{cm_unique_suffix}}(){};
 
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}

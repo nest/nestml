@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# continuous_input_test.py
+# interaction_with_disabled_mechanism_test.py
 #
 # This file is part of NEST.
 #
@@ -26,6 +26,7 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 # set to `True` to plot simulation traces
@@ -38,14 +39,14 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
-class TestContinuousInput(unittest.TestCase):
+class TestCompartmentalMechDisabled(unittest.TestCase):
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
         tests_path = os.path.realpath(os.path.dirname(__file__))
         input_path = os.path.join(
             tests_path,
             "resources",
-            "continuous_test.nestml"
+            "concmech.nestml"
         )
         target_path = os.path.join(
             tests_path,
@@ -66,36 +67,34 @@ class TestContinuousInput(unittest.TestCase):
         generate_nest_compartmental_target(
             input_path=input_path,
             target_path="/tmp/nestml-component/",
-            module_name="continuous_test_module",
+            module_name="concmech_mockup_module",
             suffix="_nestml",
             logging_level="DEBUG"
         )
 
-        nest.Install("continuous_test_module.so")
+        nest.Install("concmech_mockup_module.so")
 
-    def test_continuous_input(self):
-        cm = nest.Create('continuous_test_model_nestml')
+    def test_interaction_with_disabled(self):
+        """We test the interaction of active mechanisms (the concentration in this case) with disabled mechanisms
+        (zero key parameters) by just comparing the concentration value at a certain critical point in
+        time to a previously achieved value at this point"""
+        cm = nest.Create('multichannel_test_model_nestml')
 
-        soma_params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0}
+        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 0.0, 'gbar_SK_E2': 1.0}
 
         cm.compartments = [
-            {"parent_idx": -1, "params": soma_params}
+            {"parent_idx": -1, "params": params}
         ]
 
         cm.receptors = [
-            {"comp_idx": 0, "receptor_type": "con_in"},
             {"comp_idx": 0, "receptor_type": "AMPA"}
         ]
 
-        dcg = nest.Create("ac_generator", {"amplitude": 2.0, "start": 200, "stop": 800, "frequency": 20})
+        sg1 = nest.Create('spike_generator', 1, {'spike_times': [100.]})
 
-        nest.Connect(dcg, cm, syn_spec={"synapse_model": "static_synapse", "weight": 1.0, "delay": 0.1, "receptor_type": 0})
+        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [205]})
-
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 3.0, 'delay': 0.5, 'receptor_type': 1})
-
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'i_tot_con_in0', 'i_tot_AMPA0'], 'interval': .1})
+        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0', 'i_tot_SK_E20'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -103,23 +102,33 @@ class TestContinuousInput(unittest.TestCase):
 
         res = nest.GetStatus(mm, 'events')[0]
 
-        fig, axs = plt.subplots(2)
+        step_time_delta = res['times'][1] - res['times'][0]
+        data_array_index = int(200 / step_time_delta)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='b', label='V_m_0')
-        axs[1].plot(res['times'], res['i_tot_con_in0'], c='r', label='continuous')
-        axs[1].plot(res['times'], res['i_tot_AMPA0'], c='g', label='synapse')
+        expected_conc = 2.8159902294145262e-05
+
+        fig, axs = plt.subplots(4)
+
+        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
+        axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca_0')
+        axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
+        axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
 
         axs[0].set_title('V_m_0')
-        axs[1].set_title('inputs')
+        axs[1].set_title('c_Ca_0')
+        axs[2].set_title('i_Ca_HVA_0')
+        axs[3].set_title('i_tot_SK_E20')
 
         axs[0].legend()
         axs[1].legend()
+        axs[2].legend()
+        axs[3].legend()
 
-        plt.savefig("continuous input test.png")
+        plt.savefig("interaction with disabled mechanism test.png")
 
-        step_time_delta = res['times'][1] - res['times'][0]
-        data_array_index = int(212 / step_time_delta)
+        if not res['c_Ca0'][data_array_index] == expected_conc:
+            self.fail("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
 
-        if not res['i_tot_con_in0'][data_array_index] > 19.9 and res['i_tot_con_in0'][data_array_index] < 20.1:
-            self.fail("the current (left) is not close enough to expected (right). (" + str(
-                res['i_tot_con_in0'][data_array_index]) + " != " + "20.0 +- 0.1" + ")")
+
+if __name__ == "__main__":
+    unittest.main()

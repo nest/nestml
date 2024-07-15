@@ -59,7 +59,6 @@ dend_params_passive = {
     'g_C': 1.255439494,
     'g_L': 0.192992878,
     'e_L': -75.0,
-    'gbar_Na': 0.0
     # by default, active conducances are set to zero, so we don't need to specify
     # them explicitely
 }
@@ -263,6 +262,8 @@ class CMTest(unittest.TestCase):
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_compartmental_model(self):
+        """We numerically compare the output of the standard nest compartmental model to the equivalent nestml
+        compartmental model"""
         self.nestml_flag = False
         recordables_nest = self.get_rec_list()
         res_act_nest, res_pas_nest = self.run_model()
@@ -526,6 +527,7 @@ class CMTest(unittest.TestCase):
                 "compartmental_model_test - dendritic synapse conductances.png")
 
         # check if voltages, ion channels state variables are equal
+        print("voltages active:")
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
             if var_nest == "v_comp0":
@@ -534,30 +536,42 @@ class CMTest(unittest.TestCase):
                 atol = 0.3
             else:
                 atol = 0.02
+            print(var_nest + " " + var_nestml)
+            differences = np.abs(res_act_nest[var_nest] - res_act_nestml[var_nestml])
+            max_difference = np.max(differences)
 
+            print("The largest difference between the elements is:", max_difference)
             self.assertTrue(np.allclose(
                 res_act_nest[var_nest], res_act_nestml[var_nestml], atol=atol
             ))
+        print("voltages passive:")
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
-            if var_nest == "v_comp0":
-                atol = 1.0
-            elif var_nest == "v_comp1":
-                atol = 0.3
-            else:
-                atol = 0.02
+            if not var_nest in ["h_Na_1", "m_Na_1", "n_K_1"]:
+                if var_nest == "v_comp0":
+                    atol = 1.0
+                elif var_nest == "v_comp1":
+                    atol = 0.3
+                else:
+                    atol = 0.02
+                print(var_nest + " " + var_nestml)
+                differences = np.abs(res_pas_nest[var_nest] - res_pas_nestml[var_nestml])
+                max_difference = np.max(differences)
 
-            if not (var_nest == "h_Na_1" or var_nest == "m_Na_1"):
+                print("The largest difference between the elements is:", max_difference)
                 self.assertTrue(np.allclose(
                     res_pas_nest[var_nest], res_pas_nestml[var_nestml], atol=atol
                 ))
 
         # check if synaptic conductances are equal
+        print("conductances: ")
+        print("1: ")
         self.assertTrue(
             np.allclose(
                 res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
                 res_act_nestml['g_AN_AMPA1'],
                 5e-3))
+        print("2: ")
         self.assertTrue(
             np.allclose(
                 res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],

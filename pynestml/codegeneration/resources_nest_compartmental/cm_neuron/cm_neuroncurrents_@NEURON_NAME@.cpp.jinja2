@@ -22,6 +22,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- import 'directives_cpp/FunctionDeclaration.jinja2' as function_declaration with context %}
 #include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 
+#define NEAR_ZERO 1e-9
+
 {%- set current_conductance_name_prefix = "g" %}
 {%- set current_equilibrium_name_prefix = "e" %}
 {% macro render_dynamic_channel_variable_name(variable_type, ion_channel_name) -%}
@@ -139,7 +141,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             channel_contributing = false;
         }
         {% endif %}
@@ -181,7 +183,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
     bool channel_contributing = true;
     {%- for key_zero_param in channel_info["RootInlineKeyZeros"] %}
     if( channel_params->known( "{{key_zero_param}}" ) ){
-        if(getValue< double >( channel_params, "{{key_zero_param}}" ) <= 1e-9){
+        if(std::abs(getValue< double >( channel_params, "{{key_zero_param}}" )) <= NEAR_ZERO){
             channel_contributing = false;
         }
     }else{
@@ -189,7 +191,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             channel_contributing = false;
         }
         {% endif %}
@@ -367,7 +369,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             concentration_contributing = false;
         }
         {% endif %}
@@ -408,7 +410,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
     bool concentration_contributing = true;
     {%- for key_zero_param in concentration_info["RootInlineKeyZeros"] %}
     if( concentration_params->known( "{{key_zero_param}}" ) ){
-        if(getValue< double >( concentration_params, "{{key_zero_param}}" ) <= 1e-9){
+        if(std::abs(getValue< double >( concentration_params, "{{key_zero_param}}" )) <= NEAR_ZERO){
             concentration_contributing = false;
         }
     }else{
@@ -416,7 +418,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if({{ printer_no_origin.print(rhs_expression) }} <= 1e-9){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             concentration_contributing = false;
         }
         {% endif %}
@@ -1026,9 +1028,3 @@ std::vector< double > nest::{{continuous_name}}{{cm_unique_suffix}}::distribute_
 
 // {{continuous_name}} continuous input end ///////////////////////////////////////////////////////////
 {%- endfor %}
-
-
-
-
-
-

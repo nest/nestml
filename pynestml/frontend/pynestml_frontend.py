@@ -360,10 +360,6 @@ def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], ta
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
-    if codegen_opts is None:
-        codegen_opts: Mapping[str, Any] = {"fastexp": False}
-    if not "fastexp" in codegen_opts:
-        codegen_opts["fastexp"] = False
     generate_target(input_path, target_platform="NEST_compartmental", target_path=target_path,
                     logging_level=logging_level, module_name=module_name, store_log=store_log,
                     suffix=suffix, install_path=install_path, dev=dev, codegen_opts=codegen_opts)

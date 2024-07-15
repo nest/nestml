@@ -79,6 +79,9 @@ class TestInitialization(unittest.TestCase):
             cm.compartments = [{"parent_idx": -1, "params": params}]
 
     def test_existing_states(self):
+        """Testing whether the python initialization of variables works by looking up the variables at the very start of
+        the simulation. Since the values change dramatically in the very first step, before which we can not sample them
+        we test whether they are still large enough and not whether they are the same"""
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1., 'e_L': -70.0, 'gbar_NaTa_t': 1.0, 'h_NaTa_t': 1000.0, 'c_Ca': 1000.0, 'v_comp': 1000.0}
 
         cm = nest.Create('multichannel_test_model_nestml')
