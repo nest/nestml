@@ -38,8 +38,8 @@ class TestNestDesktopCodeGenerator:
         Test to generate the json file for NEST Desktop target for the given neuron model
         """
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
-        target_path = "target_iaf"
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
+        target_path = "target_nest_desktop"
         target_platform = "NEST_DESKTOP"
         generate_target(input_path=input_path,
                         target_path=target_path,
