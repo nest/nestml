@@ -10,6 +10,10 @@ import numpy as np
 import os
 from datetime import datetime
 
+seed: int = int(datetime.now().timestamp() * 1000) % 2**31
+rng = np.random.default_rng(seed)
+max_int32 = np.iinfo(np.int32).max
+
 parser = argparse.ArgumentParser(description='Run a Benchmark with NEST')
 parser.add_argument('--noRunSim', action="store_false", help='Run the Benchmark with NEST Simulator')
 parser.add_argument('--enable_profiling', action="store_true", help="Run the Benchmark with profiling enabled with AMDuProf")
@@ -113,7 +117,7 @@ def start_strong_scaling_benchmark_mpi(iteration):
             "output_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{iteration}_%j.out",
             "error_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{iteration}_%j.err",
             "benchmarkPath": dirname,
-            "rng_seed": int(datetime.now().timestamp() * 1000) % 2**31,
+            "rng_seed": rng.integers(0, max_int32),
         } for neuronmodel in NEURONMODELS for compute_nodes in MPI_SCALES]
 
     for combination in combinations:
@@ -142,7 +146,7 @@ def start_weak_scaling_benchmark_mpi(iteration):
             "output_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{MPI_WEAK_SCALE_NEURONS * compute_nodes}_{iteration}_%j.out",
             "error_file": f"run_simulation_{neuronmodel}_{compute_nodes}_{MPI_WEAK_SCALE_NEURONS * compute_nodes}_{iteration}_%j.err",
             "benchmarkPath": dirname,
-            "rng_seed": int(datetime.now().timestamp() * 1000) % 2**31,
+            "rng_seed": rng.integers(0, max_int32),
         } for neuronmodel in NEURONMODELS for compute_nodes in MPI_SCALES]
     for combination in combinations:
         print("RUNNING FOR " + str(combination))
