@@ -46,6 +46,7 @@ def analyze_data(data, bin_size):
         data[neuron_model]["counts_mean"] = np.mean(np.array(data[neuron_model]["counts"]), axis=0)
         data[neuron_model]["counts_std"] = np.std(np.array(data[neuron_model]["counts"]), axis=0)
 
+    data["bin_edges"] = bin_edges
     data["bin_centers"] = (bin_edges[:-1] + bin_edges[1:]) / 2
     data["min_val"] = min_val
     data["max_val"] = max_val
@@ -54,8 +55,8 @@ def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(10, 6))
 
     for neuron_model in neuron_models:
-        plt.step(data["bin_centers"], data[neuron_model]["counts_mean"], label=neuron_model, linewidth=2, alpha=.5)
-        plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5, label='Variance')
+        plt.step(data["bin_edges"][:-1], data[neuron_model]["counts_mean"], label=neuron_model, linewidth=2, alpha=.5, where="post")
+        plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5)
 
     plt.xlabel('ISI (ms)')
     plt.ylabel('Frequency')
@@ -65,7 +66,8 @@ def plot_isi_distributions(neuron_models, data):
     plt.show()
 
 # Example usage
-neuron_models = ["aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco", "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic", "aeif_psc_alpha_neuron_Nestml", "aeif_psc_alpha"]
+#neuron_models = ["aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco", "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic", "aeif_psc_alpha_neuron_Nestml", "aeif_psc_alpha"]
+neuron_models = [ "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic", "aeif_psc_alpha_neuron_Nestml", "aeif_psc_alpha"]
 
 bin_size = 5  # Adjust the bin size as needed
 
