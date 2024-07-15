@@ -13,6 +13,7 @@ from datetime import datetime
 parser = argparse.ArgumentParser(description='Run a Benchmark with NEST')
 parser.add_argument('--noRunSim', action="store_false", help='Run the Benchmark with NEST Simulator')
 parser.add_argument('--enable_profiling', action="store_true", help="Run the Benchmark with profiling enabled with AMDuProf")
+parser.add_argument("--short_sim", action="store_true", help="Run Benchmark with profiling on 2 nodes with 2 iterations")
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 PATHTOFILE = os.path.join(current_dir, "examples/brunel_alpha_nest.py")
@@ -21,6 +22,7 @@ PATHTOFILE = os.path.join(current_dir, "examples/brunel_alpha_nest.py")
 args = parser.parse_args()
 runSim = args.noRunSim
 enable_profile = args.enable_profiling
+short_sim = args.short_sim
 
 # for aeif_psc_alpha neurons
 BASELINENEURON = "aeif_psc_alpha"
@@ -40,7 +42,7 @@ legend = {
 
 colors = {
     BASELINENEURON: 0,
-    # "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": 1,
+    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": 1,
     "aeif_psc_alpha_neuron_Nestml": 2,
     # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": 3
 }
@@ -53,10 +55,14 @@ NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX:
 # MPI Strong scaling
 if enable_profile:
     MPI_SCALES = [2]
-    ITERATIONS = 2
+    ITERATIONS = 1
 else:
-    MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
-    ITERATIONS = 2  # XXXXXXXXXXXX: was 10
+    if short_sim:
+        MPI_SCALES = [2]
+        ITERATIONS = 1
+    else:
+        MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
+        ITERATIONS = 2  # XXXXXXXXXXXX: was 10
 
 MPI_STRONG_SCALE_NEURONS = NETWORKSCALES[-1]
 STRONGSCALINGMPIFOLDERNAME = "timings_strong_scaling_mpi"
