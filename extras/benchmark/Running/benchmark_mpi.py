@@ -25,14 +25,14 @@ enable_profile = args.enable_profiling
 # for aeif_psc_alpha neurons
 BASELINENEURON = "aeif_psc_alpha"
 NEURONMODELS = [
-    # "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic",
+    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic",
     "aeif_psc_alpha_neuron_Nestml",
     BASELINENEURON,
     # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco"
 ]
 
 legend = {
-    # "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML neur, NESTML syn",
+    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML neur, NESTML syn",
     "aeif_psc_alpha_neuron_Nestml": "NESTML neur, NEST syn",
     BASELINENEURON: "NEST neur + syn",
     # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
@@ -53,7 +53,7 @@ NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX:
 # MPI Strong scaling
 if enable_profile:
     MPI_SCALES = [2]
-    ITERATIONS = 1
+    ITERATIONS = 2
 else:
     MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
     ITERATIONS = 2  # XXXXXXXXXXXX: was 10

@@ -374,6 +374,8 @@ print("Building network")
 # nodes are specified via ``params``, which expects a dictionary.
 
 modelName = args.simulated_neuron
+print(f"Creating the neuron model: {modelName}")
+print(f"Random seed: {args.rng_seed}")
 
 nodes_ex = nest.Create(modelName, NE, params=neuron_params)
 nodes_in = nest.Create(modelName, NI, params=neuron_params)
@@ -412,6 +414,7 @@ if "lastic" in modelName:
         if "noco" in args.simulated_neuron:
             nest.CopyModel("stdp_synapse_Nestml_Plastic_noco__with_aeif_psc_alpha_neuron_Nestml_Plastic_noco", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0.})
         else:
+            print("Synapse: stdp_synapse_Nestml_Plastic__with_aeif_psc_alpha_neuron_Nestml_Plastic")
             nest.CopyModel("stdp_synapse_Nestml_Plastic__with_aeif_psc_alpha_neuron_Nestml_Plastic", "excitatory", {"weight": J_ex, "delay": delay, "d": delay, "lambda": 0.})
 
 else:
