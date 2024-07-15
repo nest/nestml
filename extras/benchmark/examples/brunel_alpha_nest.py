@@ -249,8 +249,8 @@ NE = 4 * order  # number of excitatory neurons
 NI = 1 * order  # number of inhibitory neurons
 N_neurons = NE + NI  # number of neurons in total
 print(f"Number of neurons : {N_neurons}")
-N_rec = 100  # record from this many neurons
-N_rec_isi = 500
+N_rec_exc = 500  # record from this many neurons
+N_rec_inh = 100
 
 ###############################################################################
 # Definition of connectivity parameters
@@ -457,9 +457,9 @@ else:
 print("Local exc neurons: ", len(local_neurons_ex))
 print("Local inh neurons: ", len(local_neurons_in))
 
-nest.Connect(local_neurons_ex[:N_rec_isi], espikes, syn_spec="excitatory_static")
-nest.Connect(local_neurons_ex[:N_rec], espikes_ascii, syn_spec="excitatory_static")
-nest.Connect(local_neurons_in[:N_rec], ispikes, syn_spec="excitatory_static")
+nest.Connect(local_neurons_ex[:N_rec_exc], espikes, syn_spec="excitatory_static")
+nest.Connect(local_neurons_ex[:N_rec_exc], espikes_ascii, syn_spec="excitatory_static")
+nest.Connect(local_neurons_in[:N_rec_inh], ispikes, syn_spec="excitatory_static")
 
 nest.Connect(e_mm, local_neurons_ex[0], syn_spec="excitatory_static")
 
@@ -519,8 +519,8 @@ events_in = ispikes.n_events
 # neurons recorded from and the simulation time. The multiplication by 1000.0
 # converts the unit 1/ms to 1/s=Hz.
 
-rate_ex = events_ex / simtime * 1000.0 / N_rec
-rate_in = events_in / simtime * 1000.0 / N_rec
+rate_ex = events_ex / simtime * 1000.0 / N_rec_exc
+rate_in = events_in / simtime * 1000.0 / N_rec_inh
 
 ###############################################################################
 # Reading out the number of connections established using the excitatory and
