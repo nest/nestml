@@ -31,13 +31,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoVariableRedeclared:
+model CoCoVariableRedeclared:
     state:
         test1 mV = 20mV
-    end
-    
+
     update:
         test1 mV = 10mV # no redeclaration since shadowed by the local scope
         test2 boolean = True
-    end
-end

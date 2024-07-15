@@ -23,7 +23,7 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-assert sys.version_info.major >= 3 and sys.version_info.minor >= 9, "Python 3.9 or higher is required to run NESTML"
+assert sys.version_info.major >= 3 and sys.version_info.minor >= 8, "Python 3.8 or higher is required to run NESTML"
 
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
@@ -39,7 +39,7 @@ for dir_to_include in ["doc", "models", "extras"]:
 
 setup(
     name="NESTML",
-    version="5.1.0-post-dev",
+    version="8.0.0-rc1-post-dev",
     description="NESTML is a domain specific language that supports the specification of neuron models in a"
                 " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
                 " as a simple string of mathematical notation or as an algorithm written in the built-in procedural"
@@ -51,8 +51,18 @@ setup(
     package_data={"pynestml": ["codegeneration/resources_autodoc/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/common/*.jinja2",
-                               "codegeneration/resources_nest/point_neuron/directives/*.jinja2",
+                               "codegeneration/resources_nest/point_neuron/directives_cpp/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/setup/*.jinja2",
+                               "codegeneration/resources_nest/point_neuron/setup/common/*.jinja2",
+                               "codegeneration/resources_nest_compartmental/cm_neuron/*.jinja2",
+                               "codegeneration/resources_nest_compartmental/cm_neuron/directives_cpp/*.jinja2",
+                               "codegeneration/resources_nest_compartmental/cm_neuron/setup/*.jinja2",
+                               "codegeneration/resources_nest_compartmental/cm_neuron/setup/common/*.jinja2",
+                               "codegeneration/resources_python_standalone/point_neuron/*.jinja2",
+                               "codegeneration/resources_python_standalone/point_neuron/directives_py/*.jinja2",
+                               "codegeneration/resources_spinnaker/*.jinja2",
+                               "codegeneration/resources_spinnaker/directives_py/*",
+                               "codegeneration/resources_spinnaker/directives_cpp/*",
                                "codegeneration/resources_nest_desktop/*.jinja2"]},
     data_files=data_files,
     entry_points={

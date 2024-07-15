@@ -19,8 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.cocos.co_co import CoCo
@@ -39,11 +38,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
     Allowed:
         function foo(...) bool:
             return True
-        end
     Not allowed:
         function foo(...) bool:
             return
-        end
     Attributes:
         __processedFunction (ast_function): A reference to the currently processed function.
     """
@@ -54,9 +51,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         """
         Checks the coco for the handed over node.
         :param _node: a single node instance.
-        :type _node: ASTNeuron or ASTSynapse
+        :type _node: ASTModel
         """
-        assert (_node is not None and (isinstance(_node, ASTNeuron) or isinstance(_node, ASTSynapse))), \
+        assert (_node is not None and (isinstance(_node, ASTModel))), \
             '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of node provided (%s)!' % type(_node)
         cls.__nodeName = _node.get_name()
         for userDefinedFunction in _node.get_functions():
@@ -141,7 +138,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                                                    stmt.get_if_stmt().get_if_clause().get_block().get_stmts(),
                                                    ret_defined)
                     for else_ifs in stmt.get_if_stmt().get_elif_clauses():
-                        cls.__check_return_recursively(type_symbol, else_ifs.get_block().get_stmt(), ret_defined)
+                        cls.__check_return_recursively(type_symbol, else_ifs.get_block().get_stmts(), ret_defined)
                     if stmt.get_if_stmt().has_else_clause():
                         cls.__check_return_recursively(type_symbol,
                                                        stmt.get_if_stmt().get_else_clause().get_block().get_stmts(),

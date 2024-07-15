@@ -19,16 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Optional, List
 
 from abc import ABCMeta, abstractmethod
 
+from pynestml.symbol_table.scope import Scope
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTNode(metaclass=ABCMeta):
     """
-    This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes, e.g., the source position.
+    This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes,
+    e.g., the source position.
 
     This class is abstract, thus no instances can be created.
 
@@ -39,28 +43,20 @@ class ASTNode(metaclass=ABCMeta):
         #
         pre_comments = list()
         in_comment = None
-        post_comments = list()
         #
         implicit_conversion_factor = None
     """
 
-    def __init__(self, source_position=None, scope=None, comment=None, pre_comments=None, in_comment=None, post_comments=None, implicit_conversion_factor=None):
+    def __init__(self, source_position: ASTSourceLocation = None, scope: Scope = None, comment: Optional[str] = None, pre_comments: Optional[List[str]] = None,
+                 in_comment: Optional[str] = None, implicit_conversion_factor: Optional[float] = None):
         """
         The standard constructor.
         :param source_position: a source position element.
-        :type source_position: ASTSourceLocation
         :param scope: the scope in which this element is embedded in.
-        :type scope: Scope
         :param comment: comment for this node
-        :type comment: Optional[str]
         :param pre_comments: pre-comments for this node
-        :type pre_comments: Optional[List[str]]
         :param in_comment: in-comment for this node
-        :type in_comment: Optional[str]
-        :param post_comments: post-comments for this node
-        :type post_comments: Optional[List[str]]
         :param implicit_conversion_factor: see set_implicit_conversion_factor()
-        :type implicit_conversion_factor: Optional[float]
         """
         self.source_position = source_position
         self.scope = scope
@@ -69,9 +65,6 @@ class ASTNode(metaclass=ABCMeta):
             pre_comments = []
         self.pre_comments = pre_comments
         self.in_comment = in_comment
-        if post_comments is None:
-            post_comments = []
-        self.post_comments = post_comments
         self.implicit_conversion_factor = implicit_conversion_factor
 
     @abstractmethod
@@ -82,25 +75,31 @@ class ASTNode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def equals(self, other):
+    def equals(self, other: ASTNode) -> bool:
         """
         The equals operation.
-        :param other: a different object.
-        :type other: object
+        :param other: a different AST node.
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         pass
 
-    # todo: we can do this with a visitor instead of hard coding grammar traversals all over the place
-    @abstractmethod
-    def get_parent(self, ast):
+    def get_parent(self) -> Optional[ASTNode]:
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        Get the parent of this node.
+        :return: The parent node
+        """
+        assert "parent_" in dir(self), "No parent known, please ensure ASTParentVisitor has been run on the AST"
+
+        if self.parent_:
+            assert self in self.parent_.get_children(), "Doubly linked tree is inconsistent: please ensure ASTParentVisitor has been run on the AST"
+
+        return self.parent_
+
+    @abstractmethod
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         pass
 
@@ -201,11 +200,7 @@ class ASTNode(metaclass=ABCMeta):
         comments.extend(self.pre_comments)
         if self.in_comment is not None:
             comments.append(self.in_comment)
-        comments.extend(self.post_comments)
         return comments
-
-    def get_post_comments(self):
-        return self.post_comments
 
     def accept(self, visitor):
         """

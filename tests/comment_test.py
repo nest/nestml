@@ -45,8 +45,12 @@ Logger.init_logger(LoggingLevel.ERROR)
 
 
 class CommentTest(unittest.TestCase):
+
+    def print_token_stream(self, tokens):
+        for token in tokens:
+            print(token)
+
     def test(self):
-        # print('Start creating AST for ' + filename + ' ...'),
         input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CommentTest.nestml'))
@@ -60,7 +64,7 @@ class CommentTest(unittest.TestCase):
 
         # parse the file
         parser = PyNestMLParser(stream)
-        parser._errHandler = BailErrorStrategy()
+        # parser._errHandler = BailErrorStrategy()
         parser._errHandler.reset(parser)
 
         # process the comments
@@ -69,33 +73,31 @@ class CommentTest(unittest.TestCase):
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        neuron_or_synapse_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
+        model_body_elements = ast.get_model_list()[0].get_body().get_body_elements()
 
         # check if init values comment is correctly detected
-        assert (neuron_or_synapse_body_elements[0].get_comment()[0] == 'state comment ok')
+        assert (model_body_elements[0].get_comment()[0] == 'state pre comment ok')
+        assert (model_body_elements[0].get_comment()[1] == 'state in comment ok')
 
         # check that all declaration comments are detected
-        comments = neuron_or_synapse_body_elements[0].get_declarations()[0].get_comment()
+        comments = model_body_elements[0].get_declarations()[0].get_comment()
         assert (comments[0] == 'pre comment 1 ok')
         assert (comments[1] == 'pre comment 2 ok')
         assert (comments[2] == 'inline comment ok')
-        assert (comments[3] == 'post comment 1 ok')
-        assert (comments[4] == 'post comment 2 ok')
         assert ('pre comment not ok' not in comments)
-        assert ('post comment not ok' not in comments)
 
         # check that equation block comment is detected
-        self.assertEqual(neuron_or_synapse_body_elements[1].get_comment()[0], 'equations comment ok')
+        self.assertEqual(model_body_elements[1].get_comment()[0], 'equations comment ok')
         # check that parameters block comment is detected
-        self.assertEqual(neuron_or_synapse_body_elements[2].get_comment()[0], 'parameters comment ok')
+        self.assertEqual(model_body_elements[2].get_comment()[0], 'parameters comment ok')
         # check that internals block comment is detected
-        self.assertEqual(neuron_or_synapse_body_elements[3].get_comment()[0], 'internals comment ok')
+        self.assertEqual(model_body_elements[3].get_comment()[0], 'internals comment ok')
         # check that input comment is detected
-        self.assertEqual(neuron_or_synapse_body_elements[4].get_comment()[0], 'input comment ok')
+        self.assertEqual(model_body_elements[4].get_comment()[0], 'input comment ok')
         # check that output comment is detected
-        self.assertEqual(neuron_or_synapse_body_elements[5].get_comment()[0], 'output comment ok')
+        self.assertEqual(model_body_elements[5].get_comment()[0], 'output comment ok')
         # check that update comment is detected
-        self.assertEqual(neuron_or_synapse_body_elements[6].get_comment()[0], 'update comment ok')
+        self.assertEqual(model_body_elements[6].get_comment()[0], 'update comment ok')
 
 
 if __name__ == '__main__':

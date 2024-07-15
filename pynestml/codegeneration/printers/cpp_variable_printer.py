@@ -29,7 +29,7 @@ class CppVariablePrinter(VariablePrinter):
     @classmethod
     def _print_cpp_name(cls, variable_name: str) -> str:
         """
-        Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp" += 1" will be converted into "G_ahp__d".
+        Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp' += 1" will be converted into "G_ahp__d".
 
         :param variable_name: a single name.
         :return: a string representation
@@ -49,6 +49,9 @@ class CppVariablePrinter(VariablePrinter):
         assert isinstance(node, ASTVariable)
 
         if node.get_name() == PredefinedVariables.E_CONSTANT:
-            return "numerics::e"
+            return "2.718281828459045235360287471352"    # not defined in C++11 stdlib
+
+        if node.get_name() == PredefinedVariables.E_CONSTANT:
+            return "M_PI"    # from <cmath>
 
         return CppVariablePrinter._print_cpp_name(node.get_complete_name())

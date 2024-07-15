@@ -31,8 +31,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoFunctionCallNotConsistentWrongArgNumber:
+model CoCoFunctionCallNotConsistentWrongArgNumber:
     state:
         test integer = max(1,2) # max is provided with correct number of arguments and types, thus everything is correct
-    end
-end
+

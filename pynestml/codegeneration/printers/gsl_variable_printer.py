@@ -22,6 +22,7 @@
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class GSLVariablePrinter(CppVariablePrinter):
@@ -42,8 +43,12 @@ class GSLVariablePrinter(CppVariablePrinter):
             return self._print_delay_variable(node)
 
         if symbol.is_state() and not symbol.is_inline_expression:
-            # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
-            return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
+            if "_is_numeric" in dir(node) and node._is_numeric:
+                # ode_state[] here is---and must be---the state vector supplied by the integrator, not the state vector in the node, node.S_.ode_state[].
+                return "ode_state[State_::" + CppVariablePrinter._print_cpp_name(node.get_complete_name()) + "]"
+
+            # non-ODE state symbol
+            return "node.S_." + CppVariablePrinter._print_cpp_name(node.get_complete_name())
 
         if symbol.is_parameters():
             return "node.P_." + super().print_variable(node)
@@ -52,7 +57,7 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "node.V_." + super().print_variable(node)
 
         if symbol.is_input():
-            return "node.B_." + super().print_variable(node) + "_grid_sum_"
+            return "node.B_." + self._print_buffer_value(node)
 
         raise Exception("Unknown node type")
 
@@ -67,3 +72,22 @@ class GSLVariablePrinter(CppVariablePrinter):
             return "node.get_delayed_" + variable.get_name() + "()"
 
         raise RuntimeError(f"Cannot find the corresponding symbol for variable {variable.get_name()}")
+
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        if variable_symbol.is_spike_input_port():
+            var_name = variable_symbol.get_symbol_name().upper()
+            if variable.has_vector_parameter():
+                if variable.get_vector_parameter().is_variable():
+                    # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
+                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
+                else:
+                    var_name += "_" + str(variable.get_vector_parameter())
+            return "spike_inputs_grid_sum_[node." + var_name + " - node.MIN_SPIKE_RECEPTOR]"
+
+        return variable_symbol.get_symbol_name() + '_grid_sum_'

@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
@@ -70,7 +72,6 @@ class ASTWhileStmt(ASTNode):
                            comment=self.comment,
                            pre_comments=[s for s in self.pre_comments],
                            in_comment=self.in_comment,
-                           post_comments=[s for s in self.post_comments],
                            implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -91,31 +92,23 @@ class ASTWhileStmt(ASTNode):
         """
         return self.block
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.get_condition() is ast:
-            return self
-        if self.get_condition().get_parent(ast) is not None:
-            return self.get_condition().get_parent(ast)
-        if self.get_block() is ast:
-            return self
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
-        return None
+        children = []
+        if self.get_condition():
+            children.append(self.get_condition())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equals, otherwise False.
-        :rtype: bool
+        if self.get_block():
+            children.append(self.get_block())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTWhileStmt):
             return False

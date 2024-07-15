@@ -33,9 +33,8 @@ class ASTFunction(ASTNode):
     """
     This class is used to store a user-defined function.
     ASTFunction a function definition:
-      function set_V_m(v mV):
-        y3 = v - E_L
-      end
+        function set_V_m(v mV):
+            y3 = v - E_L
     @attribute name Functionname.
     @attribute parameter A single parameter.
     @attribute returnType Complex return type, e.g. String
@@ -99,7 +98,6 @@ class ASTFunction(ASTNode):
                           comment=self.comment,
                           pre_comments=[s for s in self.pre_comments],
                           in_comment=self.in_comment,
-                          post_comments=[s for s in self.post_comments],
                           implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -166,52 +164,46 @@ class ASTFunction(ASTNode):
         """
         self.type_symbol = type_symbol
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for param in self.get_parameters():
-            if param is ast:
-                return self
-            if param.get_parent(ast) is not None:
-                return param.get_parent(ast)
-        if self.has_return_type():
-            if self.get_return_type() is ast:
-                return self
-            if self.get_return_type().get_parent(ast) is not None:
-                return self.get_return_type().get_parent(ast)
-        if self.get_block() is ast:
-            return self
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
-        return None
+        children = []
+        children.extend(self.get_parameters())
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.has_return_type():
+            children.append(self.get_return_type())
+
+        if self.get_block():
+            children.append(self.get_block())
+
+        return children
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTFunction):
             return False
+
         if self.get_name() != other.get_name():
             return False
+
         if len(self.get_parameters()) != len(other.get_parameters()):
             return False
+
         my_parameters = self.get_parameters()
         your_parameters = other.get_parameters()
         for i in range(0, len(my_parameters)):
             if not my_parameters[i].equals(your_parameters[i]):
                 return False
+
         if self.has_return_type() + other.has_return_type() == 1:
             return False
+
         if (self.has_return_type() and other.has_return_type()
                 and not self.get_return_type().equals(other.get_return_type())):
             return False
+
         return self.get_block().equals(other.get_block())

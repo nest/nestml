@@ -31,13 +31,13 @@ Equations
 
 .. math::
 {%-         if eq.get_lhs().differential_order == 1 %}
-   \frac{ d{{ printer.print_expression(eq.get_lhs()) | replace("'", "") }} } { dt }
+   \frac{ d{{ printer.print(eq.get_lhs()) | replace("'", "") }} } { dt }
 {%-         elif eq.get_lhs().differential_order > 1 %}
-   \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print_expression(eq.get_lhs()) | replace("'", "") }} } { dt^{{ eq.get_lhs().differential_order }} }
+   \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print(eq.get_lhs()) | replace("'", "") }} } { dt^{{ eq.get_lhs().differential_order }} }
 {%-         else %} {# differential_order == 0 #}
    {{ eq.get_lhs().get_name() }}
 {%-         endif -%}
-   = {{ printer.print_expression(eq.get_rhs()) }}
+   = {{ printer.print(eq.get_rhs()) }}
 {%-     endfor %}
 {%- endfor %}
 
@@ -46,13 +46,7 @@ Equations
 Source code
 +++++++++++
 
-.. code-block:: nestml
-
-{{ model_source_code }}
-
-
-Characterisation
-++++++++++++++++
+The model source code can be found in the NESTML models repository here: `{{neuronName}} <https://github.com/nest/nestml/tree/master/models/neurons/{{neuron.get_artifact_name()}}>`_.
 
 .. include:: {{neuronName}}_characterisation.rst
 

@@ -33,13 +33,10 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron CoCoVectorParameterSize:
+model CoCoVectorParameterSize:
     state:
         V_m [0] mV = -10. mV
-    end
 
     parameters:
         N integer = -12
         coeff [N] real = 0
-    end
-end

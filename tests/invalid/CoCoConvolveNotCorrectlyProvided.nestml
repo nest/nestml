@@ -31,24 +31,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoConvolveNotCorrectlyProvided:
-
+model CoCoConvolveNotCorrectlyProvided:
     state:
         V_m mV = 10mV
         g_ex mV = 10mV
-    end
 
     equations:
         kernel test = 10
         inline testB pA = convolve(g_ex, g_ex) + test
         V_m' = 20 mV/ms
-    end
 
     input:
-        spikeExc integer  <- excitatory spike
-    end
+        spikeExc <- excitatory spike
 
     update:
         integrate_odes()
-    end
-end

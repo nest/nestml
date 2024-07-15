@@ -41,24 +41,26 @@ class TestNestVectorsIntegration:
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "Vectors.nestml")))
         target_path = "target"
         logging_level = "INFO"
-        module_name = "nestmlmodule"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         neuron = nest.Create("vectors_nestml")
         multimeter = nest.Create("multimeter")
         recordables = list()
-        recordables.extend(["G_IN_" + str(i + 1) for i in range(0, 20)])
-        recordables.extend(["G_EX_" + str(i + 1) for i in range(0, 10)])
+        recordables.extend(["G_IN_" + str(i) for i in range(0, 20)])
+        recordables.extend(["G_EX_" + str(i) for i in range(0, 10)])
         recordables.append("V_m")
         multimeter.set({"record_from": recordables})
         nest.Connect(multimeter, neuron)
@@ -66,8 +68,8 @@ class TestNestVectorsIntegration:
         nest.Simulate(2.0)
 
         events = multimeter.get("events")
-        g_in = events["G_IN_1"]
-        g_ex = events["G_EX_2"]
+        g_in = events["G_IN_0"]
+        g_ex = events["G_EX_1"]
         print("g_in: {}, g_ex: {}".format(g_in, g_ex))
         np.testing.assert_almost_equal(g_in[-1], 11.)
         np.testing.assert_almost_equal(g_ex[-1], -2.)
@@ -84,19 +86,22 @@ class TestNestVectorsIntegration:
             os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "VectorsResize.nestml")))
         target_path = "target"
         logging_level = "INFO"
-        module_name = "vectorsmodule"
         suffix = "_nestml"
 
         generate_nest_target(input_path,
                              target_path=target_path,
                              logging_level=logging_level,
-                             module_name=module_name,
                              suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install(module_name)
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
         neuron = nest.Create("vector_resize_nestml", params={"N": 200})
         neuron.set(x=[1.0, 1.0, 4.0])
+
         nest.Simulate(10)

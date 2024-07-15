@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -27,7 +29,8 @@ class ASTOutputBlock(ASTNode):
     """
     This class is used to store output port declarations.
     ASTOutput represents the output block of the neuron:
-        output: spike
+        output:
+            spike
       @attribute spike true if and only if the neuron has a spike output.
       @attribute continuous true if and only if the neuron has a continuous time output.
     Grammar:
@@ -63,7 +66,6 @@ class ASTOutputBlock(ASTNode):
                              comment=self.comment,
                              pre_comments=[s for s in self.pre_comments],
                              in_comment=self.in_comment,
-                             post_comments=[s for s in self.post_comments],
                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -82,23 +84,18 @@ class ASTOutputBlock(ASTNode):
         """
         return self.type is PortSignalType.CONTINUOUS
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        return None
+        return []
 
-    def equals(self, other) -> bool:
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equals, otherwise False.
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTOutputBlock):
             return False
+
         return self.is_spike() == other.is_spike() and self.is_continuous() == other.is_continuous()

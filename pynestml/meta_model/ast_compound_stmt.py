@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_node import ASTNode
@@ -89,7 +91,6 @@ class ASTCompoundStmt(ASTNode):
                               comment=self.comment,
                               pre_comments=[s for s in self.pre_comments],
                               in_comment=self.in_comment,
-                              post_comments=[s for s in self.post_comments],
                               implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -142,48 +143,39 @@ class ASTCompoundStmt(ASTNode):
         """
         return self.for_stmt
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_if_stmt():
-            if self.get_if_stmt() is ast:
-                return self
-            if self.get_if_stmt().get_parent(ast) is not None:
-                return self.get_if_stmt().get_parent(ast)
-        if self.is_while_stmt():
-            if self.get_while_stmt() is ast:
-                return self
-            if self.get_while_stmt().get_parent(ast) is not None:
-                return self.get_while_stmt().get_parent(ast)
-        if self.is_for_stmt():
-            if self.is_for_stmt() is ast:
-                return self
-            if self.get_for_stmt().get_parent(ast) is not None:
-                return self.get_for_stmt().get_parent(ast)
-        return None
+            return [self.get_if_stmt()]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.is_while_stmt():
+            return [self.get_while_stmt()]
+
+        if self.is_for_stmt():
+            return [self.get_for_stmt()]
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTCompoundStmt):
             return False
+
         if self.get_for_stmt() is not None and other.get_for_stmt() is not None and \
                 not self.get_for_stmt().equals(other.get_for_stmt()):
             return False
+
         if self.get_while_stmt() is not None and other.get_while_stmt() is not None and \
                 not self.get_while_stmt().equals(other.get_while_stmt()):
             return False
+
         if self.get_if_stmt() is not None and other.get_if_stmt() is not None and \
                 not self.get_if_stmt().equals(other.get_if_stmt()):
             return False
+
         return True

@@ -29,16 +29,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-synapse CoCoPrioritiesCorrectlySpecified:
-  input:
-    pre_spikes real <- spike
-    post_spikes real <- spike
-  end
+model priorities_correctly_specified_synapse:
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
 
-  onReceive(pre_spikes, priority=1):
-  end
+    onReceive(pre_spikes, priority=1):
+        print("onReceive pre_spikes")
 
-  onReceive(post_spikes, priority=2):
-  end
-
-end
+    onReceive(post_spikes, priority=2):
+        print("onReceive post_spikes")

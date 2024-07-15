@@ -23,11 +23,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron BlockTest:
+model BlockTest:
     function foo(bar mV):
         return
-    end
     update:
-      foo(10V)
-    end
-end
+        foo(10V)

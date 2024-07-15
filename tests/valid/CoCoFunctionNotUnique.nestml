@@ -32,24 +32,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoFunctionNotUnique:
+model CoCoFunctionNotUnique:
     function deltaNew(Tau_a ms,Tau_b ms) real: # deltaNew is not predefined, thus everything is correct
         test real = 1
         return test # correctly type return type is given
-    end
 
     function deltaBoolean(Tau_a ms,Tau_b ms) boolean:
         test real = 1
         return True
-    end
 
     function deltaNoReturn(Tau_a ms,Tau_b ms) boolean:
         test real = 1
-        if True == True:
-           return True
+        if Tau_a == 1:
+            test = True
+        elif Tau_b == 2:
+            test = True
         else:
-           return False
-        end
-        # all branches of the final statement have a return statement, thus everything is correct
-    end
-end
+            test = False
+        return test

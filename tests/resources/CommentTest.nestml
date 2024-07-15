@@ -30,52 +30,41 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron commentTest:
+model commentTest:  #model in comment ok
 
-  #state comment ok
-  state:
-    #pre comment not ok
+    #state pre comment ok
+    state:  #state in comment ok
+        #pre comment not ok
 
-    #pre comment 1 ok
-    #pre comment 2 ok
-    test boolean = True #inline comment ok
-    #post comment 1 ok
-    #post comment 2 ok
+        #pre comment 1 ok
+        #pre comment 2 ok
+        test real = -50 #inline comment ok
 
-    #post comment not ok
-  end
+    #equations comment ok
+    equations:
+        test' = -test/tau  # ODE for test
 
-  #equations comment ok
-  equations:
-  end
+    #parameters comment ok
+    parameters:
+       tau ms = 5 ms
 
+    #internals comment ok
+    internals:
+        intr integer = 1
 
-  #parameters comment ok
-  parameters:
-  end
+    #input comment ok
+    input:
+        NMDA <- spike
 
-  #internals comment ok
-  internals:
-  end
+    #output comment ok
+    output:
+        spike
 
-  #input comment ok
-  input:
-  end
+    #update comment ok
+    update:
+        #statement comment ok
+        test2 boolean = True
 
-  #output comment ok
-  output: spike
-
-  #update comment ok
-  update:
-
-    #statement comment ok
-    test2 boolean = True
-
-    #block comment ok
-    if test == test2:
-        test = test2
-    end
-
-  end
-
-end
+        #block comment ok
+        if test2 == True:
+            test = test + 1

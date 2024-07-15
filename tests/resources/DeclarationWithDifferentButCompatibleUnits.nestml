@@ -23,8 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron BlockTest:
+model BlockTest:
     state:
         V_m mV = (10 pA) / (100 pF) * (1 ms)
-    end
-end

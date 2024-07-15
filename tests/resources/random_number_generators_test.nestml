@@ -23,26 +23,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron test_random:
-  state:
-    p mV = random_normal(500 mV, 25 mV)
-    q real = random_normal(500, 25)
-    r real = random_uniform(0, 1)
-  end
+model test_random:
+    state:
+        p mV = random_normal(500 mV, 25 mV)
+        q real = random_normal(500, 25)
+        r real = random_uniform(0, 1)
 
-  equations:
-    p' = random_normal(500 mV, 25 mV) / s
-    q' = random_normal(500, 25) / s
-    r' = random_uniform(42, 123) / s
-  end
+    equations:
+        p' = random_normal(500 mV, 25 mV) / s
+        q' = random_normal(500, 25) / s
+        r' = random_uniform(42, 123) / s
 
-  input:
-    exc_spikes nS <- excitatory spike
-    inh_spikes nS <- inhibitory spike
-    currents pA <- continuous
-  end
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        currents pA <- continuous
 
-  update:
-    integrate_odes()
-  end
-end
+    update:
+        integrate_odes()

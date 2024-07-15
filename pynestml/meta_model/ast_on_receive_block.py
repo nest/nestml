@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Mapping
+from typing import Any, List, Optional, Mapping
 
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_node import ASTNode
@@ -34,8 +34,7 @@ class ASTOnReceiveBlock(ASTNode):
     .. code-block:: nestml
 
        onReceive(pre_spikes):
-         pre_tr += 1
-       end
+           pre_tr += 1
 
     """
 
@@ -67,7 +66,6 @@ class ASTOnReceiveBlock(ASTNode):
                                 comment=self.comment,
                                 pre_comments=[s for s in self.pre_comments],
                                 in_comment=self.in_comment,
-                                post_comments=[s for s in self.post_comments],
                                 implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -89,26 +87,18 @@ class ASTOnReceiveBlock(ASTNode):
         """
         return self.port_name
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+    def get_children(self) -> List[ASTNode]:
         r"""
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :return: AST if this or one of the child nodes contains the handed over element.
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        if self.get_block() is ast:
-            return self
+        return [self.get_block()]
 
-        if self.get_block().get_parent(ast) is not None:
-            return self.get_block().get_parent(ast)
-
-        return None
-
-    def equals(self, other: Any) -> bool:
+    def equals(self, other: ASTNode) -> bool:
         r"""
-        The equals method.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
+        The equality method.
         """
         if not isinstance(other, ASTOnReceiveBlock):
             return False
+
         return self.get_block().equals(other.get_block()) and self.port_name == other.port_name

@@ -23,16 +23,26 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron print_variable:
+model print_variable:
     state:
-      V_m V = -50 mV
-      V_thr MA*Ohm = -70 mV
-      V_abs mV = 0 mV
-    end
+        V_m V = -50 mV
+        V_thr MA*Ohm = -70 mV
+        V_rel mV = 0 mV
+        x real = 0
+
+    equations:
+        x' = alpha_x / ((1 + x**n_x) * ms) - beta_x * x
+
+    parameters:
+        alpha_x real = 0.5
+        beta_x real = 0.5
+        n_x integer = 2
 
     update:
-      V_abs = V_m
-      println("print: This is a simple print statement")
-      print("print: Membrane voltage: {V_m}, threshold: {V_thr}, and V_abs: {V_abs}")
-    end
-end
+        integrate_odes()
+
+        V_rel = V_m
+        println("print: This is a simple print statement")
+        println("print: Membrane voltage: {V_m}, threshold: {V_thr}, and V_rel: {V_rel}")
+        print("print: Numeric state variable: {x}")
+

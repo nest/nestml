@@ -32,14 +32,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoIllegalExpression:
+model CoCoIllegalExpression:
     state:
         test boolean = True
         test2 mV = 10mV
         test3 integer = 20
         # here type(rhs) != type(lhs) should be detected as well as incorrect type of expression
         test4 pA = 10mV
-    end
 
     update:
         # here type(rhs) != type(lhs) should be detected as well as incorrect type of expression
@@ -47,18 +46,17 @@ neuron CoCoIllegalExpression:
         # here it should be detected that the condition is not bool
         if test2:
             # not boolean condition
+            print("Inside if")
         elif test2+test3:
             # not boolean condition
-        end
+            print("Inside elif")
 
         while test2:
             # not boolean condition
-        end
+            print("Inside while")
 
         mlVolt mV = 10mV
 
         # here it should detect that from and to are not primitive numbers
         for i in mlVolt...mlVolt+10mV step 10:
-        end
-    end
-end
+            print("Inside for")

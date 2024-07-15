@@ -32,8 +32,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoMultipleNeuronsWithEqualName:
-end
+model CoCoMultipleNeuronsWithEqualName:
+    state:
+        v_m mV = -10 mV
 
-neuron CoCoMultipleNeuronsWithEqualNameNot: # names are not equal, thus should not be detected as an error
-end
+
+model CoCoMultipleNeuronsWithEqualNameNot: # names are not equal, thus should not be detected as an error
+    state:
+        v_m mV = -10 mV

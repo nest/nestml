@@ -1,0 +1,13 @@
+{%- macro VectorSizeParameter(node, with_origin) -%}
+{%- set vector_parameter = node.get_vector_parameter() -%}
+{%- if vector_parameter.is_variable() -%}
+{%-     set symbol = vector_parameter.get_scope().resolve_to_symbol(vector_parameter.get_variable().get_complete_name(), SymbolKind.VARIABLE) -%}
+{%-     if with_origin %}
+{{ nest_codegen_utils.print_symbol_origin(symbol, vector_parameter.get_variable()) % vector_parameter.get_variable().get_complete_name() }}
+{%-     else -%}
+{{ vector_parameter.get_variable().get_complete_name() }}
+{%-     endif -%}
+{%- elif vector_parameter.is_numeric_literal() -%}
+{{ vector_parameter.get_numeric_literal() }}
+{%- endif -%}
+{%- endmacro -%}

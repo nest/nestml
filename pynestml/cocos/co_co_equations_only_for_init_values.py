@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -26,31 +28,35 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class CoCoEquationsOnlyForInitValues(CoCo):
-    """
-    This coco ensures that ode equations are only provided for variables which have been defined in the
-    state block.
+    r"""
+    This coco ensures that ode equations are only provided for variables which have been defined in the state block.
     Allowed:
+
+    .. ::
+
         state:
             V_m mV = 10 mV
-        end
+
         equations:
             V_m' = ....
-        end
+
     Not allowed:
+
+    .. ::
+
         state:
-            V_abs mV = 5 mV
-        end
+            V_rel mV = 0 mV
+
         equations:
             V_m' = ....
-        end
+
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTModel):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ast_neuron
         """
         node.accept(EquationsOnlyForInitValues())
 

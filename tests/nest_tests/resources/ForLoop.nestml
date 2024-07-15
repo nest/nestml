@@ -24,22 +24,16 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron for_loop:
+model for_loop:
     state:
         V_m mV = -0.20 mV
-    end
 
     parameters:
-      N integer = 42
-    end
+        N integer = 42
 
     update:
-      k integer = 0
-      j integer = 0
-      for j in 0 ... N step 1:
-         k = j / N
-         V_m += 0.01 mV
-       end
-    end
-
-end
+        k integer = 0
+        j integer = 0
+        for j in 0 ... N step 1:
+            k = j / N
+            V_m += 0.01 mV

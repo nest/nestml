@@ -19,11 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
@@ -43,7 +44,7 @@ class ASTVariable(ASTNode):
 
     def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
                  vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
-        """
+        r"""
         Standard constructor.
         :param name: the name of the variable
         :type name: str
@@ -82,7 +83,6 @@ class ASTVariable(ASTNode):
                            comment=self.comment,
                            pre_comments=[s for s in self.pre_comments],
                            in_comment=self.in_comment,
-                           post_comments=[s for s in self.post_comments],
                            implicit_conversion_factor=self.implicit_conversion_factor)
 
     def resolve_in_own_scope(self):
@@ -164,7 +164,7 @@ class ASTVariable(ASTNode):
         """
         return self.vector_parameter
 
-    def set_size_parameter(self, vector_parameter):
+    def set_vector_parameter(self, vector_parameter):
         r"""
         Updates the vector parameter of the variable
         """
@@ -185,14 +185,6 @@ class ASTVariable(ASTNode):
         assert (delay is not None), '(PyNestML.AST.Variable) No delay parameter provided'
         self.delay_parameter = delay
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :return: AST if this or one of the child nodes contains the handed over element.
-        """
-        return None
-
     def is_unit_variable(self) -> bool:
         r"""
         Provided on-the-fly information whether this variable represents a unit-variable, e.g., nS.
@@ -204,19 +196,28 @@ class ASTVariable(ASTNode):
             return True
         return False
 
-    def equals(self, other: Any) -> bool:
-        r"""
-        The equals method.
-        :param other: a different object.
-        :return: True if equals, otherwise False.
-        """
-        if not isinstance(other, ASTVariable):
-            return False
-        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()
-
     def is_delay_variable(self) -> bool:
         """
         Returns whether it is a delay variable or not
         :return: True if the variable has a delay parameter, False otherwise
         """
         return self.get_delay_parameter() is not None
+
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
+        """
+        if self.has_vector_parameter():
+            return [self.get_vector_parameter()]
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
+        """
+        if not isinstance(other, ASTVariable):
+            return False
+
+        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()

@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import List
+
 from abc import ABCMeta
 from copy import copy
 
@@ -31,7 +34,6 @@ class ASTExpressionNode(ASTNode):
     This class is abstract, thus no instances can be created.
     """
     __type = None
-    __typeEither = None
     __metaclass__ = ABCMeta
 
     def __init__(self, *args, **kwargs):
@@ -48,8 +50,15 @@ class ASTExpressionNode(ASTNode):
     def type(self, _value):
         self.__type = _value
 
-    def get_parent(self, ast):
-        pass
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
+        """
+        assert False
 
-    def equals(self, other):
-        pass
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
+        """
+        assert False

@@ -32,16 +32,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoOdeVarNotInInitialValues:
+model CoCoOdeVarNotInInitialValues:
     state: # variable is now defined in the initial block, thus everything is correct.
         V_m mV = 10mV
-    end
 
     equations:
         V_m' = 10 mV / s
-    end
 
     update:
         integrate_odes()
-    end
-end

@@ -24,25 +24,19 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron dde_analytic:
+model dde_analytic:
     state:
         u_bar_plus real = -70.
         foo real = 0
-    end
 
     equations:
         u_bar_plus' = -u_bar_plus / tau
         foo' = u_bar_plus(t - delay) / tau
-    end
 
     parameters:
         tau ms = 1.5 ms
         delay ms = 5. ms
         b real = 0.
-    end
 
     update:
         integrate_odes()
-    end
-
-end

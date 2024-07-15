@@ -47,16 +47,16 @@ class NestSTDPNeuromodTest(unittest.TestCase):
     Test the neuromodulated (for instance, dopamine-modulated) synapse, by numerically comparing it to the NEST "stdp_dopamine" synapse in a representative simulation run.
     """
 
-    neuron_model_name = "iaf_psc_exp_nestml__with_neuromodulated_stdp_nestml"
-    synapse_model_name = "neuromodulated_stdp_nestml__with_iaf_psc_exp_nestml"
+    neuron_model_name = "iaf_psc_exp_neuron_nestml__with_neuromodulated_stdp_synapse_nestml"
+    synapse_model_name = "neuromodulated_stdp_synapse_nestml__with_iaf_psc_exp_neuron_nestml"
 
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+    ref_neuron_model_name = "iaf_psc_exp_neuron_nestml_non_jit"
     ref_synapse_model_name = "stdp_dopamine_synapse"
 
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
-                 os.path.join("models", "synapses", "neuromodulated_stdp.nestml")]
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
+                 os.path.join("models", "synapses", "neuromodulated_stdp_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
@@ -66,13 +66,15 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                              suffix="_nestml",
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
-                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                     "synapse": "neuromodulated_stdp",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
+                                                                     "synapse": "neuromodulated_stdp_synapse",
                                                                      "post_ports": ["post_spikes"],
-                                                                     "vt_ports": ["mod_spikes"]}]})
+                                                                     "vt_ports": ["mod_spikes"]}],
+                                           "delay_variable": {"neuromodulated_stdp_synapse": "d"},
+                                           "weight_variable": {"neuromodulated_stdp_synapse": "w"}})
 
         generate_nest_target(input_path=os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))),
+                                                                      os.path.join(os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))),
                              target_path="/tmp/nestml-non-jit",
                              logging_level="INFO",
                              module_name="nestml_non_jit_module",
@@ -155,17 +157,16 @@ class NestSTDPNeuromodTest(unittest.TestCase):
         nest.Connect(vt_parrot, vt, syn_spec={"synapse_model": "static_synapse",
                                               "weight": 1.,
                                               "delay": 1.})   # delay is ignored?!
-        vt_gid = vt.get("global_id")
 
         # set up custom synapse models
         wr = nest.Create("weight_recorder")
         wr_ref = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "the_delay": delay, "receptor_type": 0,
-                        "vt": vt_gid})
+                       {"weight_recorder": wr[0], "w": 1., "d": delay, "receptor_type": 0,
+                        "volume_transmitter": vt})
         nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
                        {"weight_recorder": wr_ref[0], "weight": 1., "delay": delay, "receptor_type": 0,
-                        "vt": vt_gid})
+                        "volume_transmitter": vt})
 
         # create parrot neurons and connect spike_generators
         if sim_mdl:
@@ -180,7 +181,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
             spikedet_pre = nest.Create("spike_recorder")
             spikedet_post = nest.Create("spike_recorder")
             spikedet_vt = nest.Create("spike_recorder")
-            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_tr__for_neuromodulated_stdp_nestml"]})
+            mm = nest.Create("multimeter", params={"record_from": ["V_m", "post_tr__for_neuromodulated_stdp_synapse_nestml"]})
 
         if sim_ref:
             spikedet_pre_ref = nest.Create("spike_recorder")
@@ -234,7 +235,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                 timevec = nest.GetStatus(mm, "events")[0]["times"]
                 V_m = nest.GetStatus(mm, "events")[0]["V_m"]
                 ax2.plot(timevec, nest.GetStatus(mm, "events")[
-                         0]["post_tr__for_neuromodulated_stdp_nestml"], label="post_tr nestml")
+                         0]["post_tr__for_neuromodulated_stdp_synapse_nestml"], label="post_tr nestml")
                 ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
             if sim_ref:
                 pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
@@ -291,7 +292,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
             ax1.set_ylabel("Pre spikes")
 
             ax2.plot(timevec, nest.GetStatus(mm, "events")[
-                     0]["post_tr__for_neuromodulated_stdp_nestml"], label="nestml post tr")
+                     0]["post_tr__for_neuromodulated_stdp_synapse_nestml"], label="nestml post tr")
             if sim_mdl:
                 n_spikes = len(post_spike_times_)
                 for i in range(n_spikes):

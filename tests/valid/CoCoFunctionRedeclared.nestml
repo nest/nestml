@@ -32,20 +32,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoFunctionRedeclared:
+model CoCoFunctionRedeclared:
     function maxGt(arg1 integer,arg2 integer) integer: # both functions have different names, thus everything is
         if arg1>arg2:
             return arg1
         else:
             return arg2
-        end
-    end
 
     function maxLeq(arg1 integer,arg2 integer) integer:
         if arg1<=arg2:
             return arg2
         else:
             return arg1
-        end
-    end
-end

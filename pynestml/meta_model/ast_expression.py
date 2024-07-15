@@ -18,14 +18,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import annotations
-from typing import Union
+
+from typing import List, Union
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 
 
@@ -151,7 +154,6 @@ class ASTExpression(ASTExpressionNode):
                             comment=self.comment,
                             pre_comments=[s for s in self.pre_comments],
                             in_comment=self.in_comment,
-                            post_comments=[s for s in self.post_comments],
                             implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -314,59 +316,48 @@ class ASTExpression(ASTExpressionNode):
             ret.extend(self.get_if_not().get_function_calls())
         return ret
 
-    def get_parent(self, ast=None):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_expression():
-            if self.get_expression() is ast:
-                return self
-            if self.get_expression().get_parent(ast) is not None:
-                return self.get_expression().get_parent(ast)
-        if self.is_unary_operator():
-            if self.get_unary_operator() is ast:
-                return self
-            if self.get_unary_operator().get_parent(ast) is not None:
-                return self.get_unary_operator().get_parent(ast)
-        if self.is_compound_expression():
-            if self.get_lhs() is ast:
-                return self
-            if self.get_lhs().get_parent(ast) is not None:
-                return self.get_lhs().get_parent(ast)
-            if self.get_binary_operator() is ast:
-                return self
-            if self.get_binary_operator().get_parent(ast) is not None:
-                return self.get_binary_operator().get_parent(ast)
-            if self.get_rhs() is ast:
-                return self
-            if self.get_rhs().get_parent(ast) is not None:
-                return self.get_rhs().get_parent(ast)
-        if self.is_ternary_operator():
-            if self.get_condition() is ast:
-                return self
-            if self.get_condition().get_parent(ast) is not None:
-                return self.get_condition().get_parent(ast)
-            if self.get_if_true() is ast:
-                return self
-            if self.get_if_true().get_parent(ast) is not None:
-                return self.get_if_true().get_parent(ast)
-            if self.get_if_not() is ast:
-                return self
-            if self.get_if_not().get_parent(ast) is not None:
-                return self.get_if_not().get_parent(ast)
-        return None
+            return [self.get_expression()]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.is_unary_operator():
+            return [self.get_unary_operator(), self.get_rhs()]
+
+        if self.is_compound_expression():
+            children = []
+            if self.get_lhs():
+                children.append(self.get_lhs())
+
+            if self.get_binary_operator():
+                children.append(self.get_binary_operator())
+
+            if self.get_rhs():
+                children.append(self.get_rhs())
+
+            return children
+
+        if self.is_ternary_operator():
+            children = []
+            if self.get_condition():
+                children.append(self.get_condition())
+
+            if self.get_if_true():
+                children.append(self.get_if_true())
+
+            if self.get_if_not():
+                children.append(self.get_if_not())
+
+            return children
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTExpression):
             return False

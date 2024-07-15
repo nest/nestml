@@ -44,7 +44,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "traub_cond_multisyn.nestml")))
+            os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "traub_cond_multisyn_neuron.nestml")))
         target_path = "target"
         module_name = "nestmlmodule"
         suffix = "_nestml"
@@ -55,8 +55,9 @@ class NestWBCondExpTest(unittest.TestCase):
                              suffix=suffix,
                              module_name=module_name)
 
+        nest.ResetKernel()
         nest.Install("nestmlmodule")
-        model = "traub_cond_multisyn_nestml"
+        model = "traub_cond_multisyn_neuron_nestml"
 
         dt = 0.01
         t_simulation = 1000.0

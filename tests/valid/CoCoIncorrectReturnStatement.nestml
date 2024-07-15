@@ -32,7 +32,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoIncorrectReturnStatement:
+model CoCoIncorrectReturnStatement:
     function foo() mV:# correct return type is given
         test mV = 10mV
 
@@ -40,21 +40,15 @@ neuron CoCoIncorrectReturnStatement:
             return test
         else:
             return 20mV
-        end
         return 5mV
-    end
 
     function noReturn():# correct return type is given
         return
-    end
 
     function bar() mV:# correct return type is given
         return 5mV
-    end
 
     function foobar() mV:# correct return type is given
         test mV = 10mV
         test = test*2
         return test
-    end
-end

@@ -32,31 +32,26 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoIllegalExpression:
+model CoCoIllegalExpression:
     state:
         test boolean = True
         test2 mV = 10mV
         test3 integer = 20
         test4 pA = 10pA
-    end
-
     update:
         # condition is bool, thus correct
         test2 = test2 + test2
         # condition is bool, thus correct
         if test2 == test2:
-        # condition is bool, thus correct
+            # condition is bool, thus correct
+            print("Inside if")
         elif test2+test2 > 0mV:
-        end
+            print("Inside elif")
 
         # condition is bool, thus correct
         while test:
-        end
+            print("Inside while")
 
         # from and to are integer typed, thus everything correct
         for i in test3...test3+10 step 10:
            test4 += test4
-        end
-
-    end
-end

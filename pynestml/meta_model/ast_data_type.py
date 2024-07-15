@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import List, Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_unit_type import ASTUnitType
@@ -100,7 +100,6 @@ class ASTDataType(ASTNode):
                           comment=self.comment,
                           pre_comments=[s for s in self.pre_comments],
                           in_comment=self.in_comment,
-                          post_comments=[s for s in self.post_comments],
                           implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -142,38 +141,33 @@ class ASTDataType(ASTNode):
             '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(type_symbol))
         self.type_symbol = type_symbol
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_unit_type():
-            if self.get_unit_type() is ast:
-                return self
-            if self.get_unit_type().get_parent(ast) is not None:
-                return self.get_unit_type().get_parent(ast)
-        return None
+            return [self.get_unit_type()]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTDataType):
             return False
+
         if not (self.is_integer == other.is_integer and self.is_real == other.is_real
                 and self.is_string == other.is_string and self.is_boolean == other.is_boolean
                 and self.is_void == other.is_void):
             return False
+
         # only one of them uses a unit, thus false
         if self.is_unit_type() + other.is_unit_type() == 1:
             return False
+
         if self.is_unit_type() and other.is_unit_type() and not self.get_unit_type().equals(other.get_unit_type()):
             return False
+
         return True

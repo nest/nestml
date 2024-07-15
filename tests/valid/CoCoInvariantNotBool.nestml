@@ -32,8 +32,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoInvariantNotBool:
+model CoCoInvariantNotBool:
     state:
         V_notBool mV = 10mV [[V_notBool > V_notBool]]# this should not be detected although on logical level incorrect
-    end
-end

@@ -5,6 +5,10 @@ Creating neuron models
 
   Learn how to write the Izhikevich spiking neuron model in NESTML.
 
+* :doc:`Spike-frequency adaptation </tutorials/spike_frequency_adaptation/nestml_spike_frequency_adaptation_tutorial>`
+
+  Spike-frequency adaptation (SFA) is the empirically observed phenomenon where the firing rate of a neuron decreases for a sustained, constant stimulus. Learn how to model SFA using threshold adaptation and an adaptation current.
+
 * :doc:`Active dendrite tutorial </tutorials/active_dendrite/nestml_active_dendrite_tutorial>`
 
   Learn how to model a dendritic action potential in an existing NESTML neuron.
@@ -12,6 +16,10 @@ Creating neuron models
 * :doc:`Ornstein-Uhlenbeck noise </tutorials/ornstein_uhlenbeck_noise/nestml_ou_noise_tutorial>`
 
   Implement the Ornstein-Uhlenbeck process in NESTML and use it to inject a noise current into a neuron.
+
+* :doc:`Inhomogeneous Poisson generator </tutorials/inhomogeneous_poisson/inhomogeneous_poisson>`
+
+  Create a model that emits spikes according to an inhomogeneous Poisson distribution.
 
 
 Creating synapse models

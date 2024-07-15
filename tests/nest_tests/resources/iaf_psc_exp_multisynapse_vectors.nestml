@@ -1,0 +1,66 @@
+"""
+iaf_psc_exp_multisynapse - Leaky integrate-and-fire neuron model with multiple ports
+####################################################################################
+
+Description
++++++++++++
+
+Used in NESTML unit testing.
+
+For more information about the model, see iaf_psc_exp in the ``models`` directory.
+
+For more information about "multisynapse" models, please refer to the NESTML documentation.
+"""
+model iaf_psc_exp_multisynapse_vectors_neuron:
+    state:
+        V_m mV = E_L                 # membrane potential
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
+
+    equations:
+        kernel I_kernel1 = exp(-1/tau_syn1*t)
+        kernel I_kernel2 = exp(-1/tau_syn2*t)
+        kernel I_kernel3 = -exp(-1/tau_syn3*t)
+
+        inline I_syn pA = (convolve(I_kernel1, spikes[0]) - convolve(I_kernel2, spikes[1]) + convolve(I_kernel3, spikes[2])) * pA
+
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_e + I_stim) / C_m
+
+    parameters:
+        C_m      pF = 250pF    # Capacity of the membrane
+        tau_m    ms = 10ms     # Membrane time constant.
+        tau_syn1 ms = .2ms     # Time constant of synaptic current.
+        tau_syn2 ms = 2ms      # Time constant of synaptic current.
+        tau_syn3 ms = 20ms     # Time constant of synaptic current.
+        refr_T ms = 2 ms       # Duration of refractory period
+        E_L      mV = -70mV    # Resting potential.
+        V_reset mV = -70.0 mV  # Reset value of the membrane potential
+        V_th   mV = -55.0 mV   # Threshold
+        I_e     pA = 0pA       # External current.
+
+    input:
+        spikes[3] <- spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
+        else:
+            # neuron not refractory, so evolve all ODEs (including V_m)
+            integrate_odes()
+
+    onCondition(not is_refractory and V_m >= V_th):
+        # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

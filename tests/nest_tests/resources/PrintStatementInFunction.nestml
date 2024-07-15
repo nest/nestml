@@ -23,14 +23,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron print_test_function:
-
+model print_test_function:
     function print_function():
         print("A statement inside a function")
         return
-    end
 
     update:
-      print_function()
-    end
-end
+        print_function()

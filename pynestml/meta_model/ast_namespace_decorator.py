@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import List, Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -48,7 +48,6 @@ class ASTNamespaceDecorator(ASTNode):
                                     comment=self.comment,
                                     pre_comments=[s for s in self.pre_comments],
                                     in_comment=self.in_comment,
-                                    post_comments=[s for s in self.post_comments],
                                     implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
@@ -67,23 +66,16 @@ class ASTNamespaceDecorator(ASTNode):
         """
         return self.name
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :return: AST if this or one of the child nodes contains the handed over element.
-        """
-        if self.get_name() is ast:
-            return self
-        elif self.get_namespace() is ast:
-            return self
-        return None
+        return [self.get_name(), self.get_namespace()]
 
     def equals(self, other: ASTNode) -> bool:
-        """
-        The equals operation.
-        :param other: a different object.
-        :return: True if equal, otherwise False.
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTNamespaceDecorator):
             return False

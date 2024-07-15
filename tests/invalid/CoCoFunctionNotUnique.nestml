@@ -32,23 +32,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoFunctionNotUnique:
-    function delta(Tau_a ms,Tau_b ms) real: # redeclaration should be detected
+model CoCoFunctionNotUnique:
+    function max(Tau_a ms,Tau_b ms) real: # redeclaration should be detected
         test real = 1
         return # missing return type should be detected
-    end
 
     function deltaBoolean(Tau_a ms,Tau_b ms) boolean:
         test string = "bl"
         return test # here wrong type of return should be detected
-    end
 
     function deltaNoReturn(Tau_a ms,Tau_b ms) boolean:
         test real = 1
         if True == True:
             return True
+        elif Tau_a == 2:
+            test = Tau_a # here no return statement should be detected
         else:
-           test = test # here no return statement should be detected
-        end
-    end
-end
+            test = test # here no return statement should be detected

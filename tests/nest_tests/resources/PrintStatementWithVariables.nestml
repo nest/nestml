@@ -23,21 +23,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron print_test_variables:
+model print_test_variables:
     state:
-      V_m mV = -50 mV
-    end
+        V_m mV = -50 mV
 
     parameters:
-      V_thr mV = -55 mV
-      t_ev ms = 10 ms
-    end
+        V_thr mV = -55 mV
+        t_ev ms = 10 ms
 
     update:
-      if V_m > V_thr:
-        print("A spike event with membrane voltage: {V_m}, current time t = {t} and t_ev = {t_ev}")
-      else:
-        println("Membrane voltage {V_m} is less than the threshold {V_thr}, current time t = {t} and t_ev = {t_ev}")
-      end
-    end
-end
+        if V_m > V_thr:
+            print("A spike event with membrane voltage: {V_m}, current time t = {t} and t_ev = {t_ev}")
+        else:
+            println("Membrane voltage {V_m} is less than the threshold {V_thr}, current time t = {t} and t_ev = {t_ev}")

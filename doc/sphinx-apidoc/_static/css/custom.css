@@ -1,3 +1,7 @@
+.caption-number {
+   display: none !important;
+}
+
 .wy-breadcrumbs-aside {
    display: none !important;
 }
@@ -69,6 +73,15 @@ t.rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
     .wy-nav-top {
         display: block;
     }
+}
+
+td figure {
+    margin-bottom: 0 !important;
+}
+
+.figcaption p {
+    text-align: center;
+    padding-left: 1em;
 }
 
 video {

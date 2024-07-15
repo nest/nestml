@@ -64,6 +64,9 @@ class CppExpressionPrinter(ExpressionPrinter):
         if node.is_ternary_operator():
             return self._print_ternary_operator_expression(node)
 
+        if node.is_expression():
+            return self.print_expression(node.get_expression())
+
         raise RuntimeError("Tried to print unknown expression: \"%s\"" % str(node))
 
     def _print_unary_op_expression(self, node: ASTExpressionNode) -> str:
@@ -228,7 +231,6 @@ class CppExpressionPrinter(ExpressionPrinter):
         :param node: an expression with binary operator
         :return: a string representation
         """
-
         binary_operator = node.get_binary_operator()
 
         if isinstance(binary_operator, ASTArithmeticOperator):

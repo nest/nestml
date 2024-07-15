@@ -62,7 +62,7 @@ class CoCoResolutionFuncLegallyUsedVisitor(ASTVisitor):
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             _node = node
             while _node:
-                _node = self.neuron.get_parent(_node)
+                _node = _node.get_parent()
 
                 if isinstance(_node, ASTEquationsBlock) \
                         or isinstance(_node, ASTFunction):

@@ -41,7 +41,6 @@ def __add_library_to_sli(lib_path):
         lib_path = os.path.abspath(lib_path)
 
     system = platform.system()
-    lib_key = ""
 
     if system == "Linux":
         lib_key = "LD_LIBRARY_PATH"
@@ -51,8 +50,7 @@ def __add_library_to_sli(lib_path):
     if lib_key in os.environ:
         current = os.environ[lib_key].split(os.pathsep)
         if lib_path not in current:
-            current.append(lib_path)
-            os.environ[lib_key] += os.pathsep.join(current)
+            os.environ[lib_key] = os.pathsep.join([os.environ[lib_key], lib_path])
     else:
         os.environ[lib_key] = lib_path
 
@@ -105,6 +103,8 @@ class NESTBuilder(Builder):
         InvalidPathException
             If a failure occurs while trying to access the target path or the NEST installation path.
         """
+        error_location = self._options["error_location"]
+
         cmake_cmd = ["cmake"]
         target_path = FrontendConfiguration.get_target_path()
         install_path = FrontendConfiguration.get_install_path()
@@ -146,23 +146,41 @@ class NESTBuilder(Builder):
         else:
             shell = False
 
-        # first call cmake with all the arguments
-        try:
-            subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, shell=shell,
-                                  cwd=str(os.path.join(target_path)))
-        except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException('Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')
+        stages_exception = {"cmake": f"Error occurred during cmake! More detailed error messages can be found in {error_location}.", "build": f"Error occurred during 'make all'! More detailed error messages can be found in {error_location}.",
+                            "install":  f"Error occurred during 'make install'! More detailed error messages can be found in {error_location}."}
+        current_stage = ""
 
-        # now execute make all
-        try:
-            subprocess.check_call(make_all_cmd, stderr=subprocess.STDOUT, shell=shell,
-                                  cwd=str(os.path.join(target_path)))
-        except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException('Error occurred during \'make all\'! More detailed error messages can be found in stdout.')
+        stdout = self._options["stdout"]
+        stderr = self._options["stderr"]
 
-        # finally execute make install
+        if self._options["redirect"]:
+            try:
+                stdout = open(stdout, "w")
+            except IOError as e:
+                raise GeneratedCodeBuildException(f"Failed to open file for stdout: {e}")
+
+            try:
+                stderr = open(stderr, "w")
+            except IOError as e:
+                stdout.close()
+                raise GeneratedCodeBuildException(f"Failed to open file for stderr: {e}")
+
         try:
-            subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, shell=shell,
+
+            current_stage = "cmake"
+            subprocess.check_call(cmake_cmd, stderr=stderr, stdout=stdout, shell=shell,
                                   cwd=str(os.path.join(target_path)))
+            current_stage = "build"
+            subprocess.check_call(make_all_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+            current_stage = "install"
+            subprocess.check_call(make_install_cmd, stderr=stderr, stdout=stdout, shell=shell,
+                                  cwd=str(os.path.join(target_path)))
+
         except subprocess.CalledProcessError as e:
-            raise GeneratedCodeBuildException('Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
+            raise GeneratedCodeBuildException(stages_exception[current_stage])
+
+        finally:
+            if self._options["redirect"]:
+                stderr.close()
+                stdout.close()
