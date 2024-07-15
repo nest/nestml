@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# compartmental_model_test.py
+# test__compartmental_model.py
 #
 # This file is part of NEST.
 #
@@ -527,7 +527,6 @@ class CMTest(unittest.TestCase):
                 "compartmental_model_test - dendritic synapse conductances.png")
 
         # check if voltages, ion channels state variables are equal
-        print("voltages active:")
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
             if var_nest == "v_comp0":
@@ -536,15 +535,9 @@ class CMTest(unittest.TestCase):
                 atol = 0.3
             else:
                 atol = 0.02
-            print(var_nest + " " + var_nestml)
-            differences = np.abs(res_act_nest[var_nest] - res_act_nestml[var_nestml])
-            max_difference = np.max(differences)
-
-            print("The largest difference between the elements is:", max_difference)
             self.assertTrue(np.allclose(
                 res_act_nest[var_nest], res_act_nestml[var_nestml], atol=atol
             ))
-        print("voltages passive:")
         for var_nest, var_nestml in zip(
                 recordables_nest[:8], recordables_nestml[:8]):
             if not var_nest in ["h_Na_1", "m_Na_1", "n_K_1"]:
@@ -554,24 +547,16 @@ class CMTest(unittest.TestCase):
                     atol = 0.3
                 else:
                     atol = 0.02
-                print(var_nest + " " + var_nestml)
-                differences = np.abs(res_pas_nest[var_nest] - res_pas_nestml[var_nestml])
-                max_difference = np.max(differences)
-
-                print("The largest difference between the elements is:", max_difference)
                 self.assertTrue(np.allclose(
                     res_pas_nest[var_nest], res_pas_nestml[var_nestml], atol=atol
                 ))
 
         # check if synaptic conductances are equal
-        print("conductances: ")
-        print("1: ")
         self.assertTrue(
             np.allclose(
                 res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
                 res_act_nestml['g_AN_AMPA1'],
                 5e-3))
-        print("2: ")
         self.assertTrue(
             np.allclose(
                 res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],

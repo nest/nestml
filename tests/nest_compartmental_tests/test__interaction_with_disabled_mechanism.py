@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# interaction_with_disabled_mechanism_test.py
+# test__interaction_with_disabled_mechanism.py
 #
 # This file is part of NEST.
 #

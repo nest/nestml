@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# continuous_input_test.py
+# test__continuous_input.py
 #
 # This file is part of NEST.
 #

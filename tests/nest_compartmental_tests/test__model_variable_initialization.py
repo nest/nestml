@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# model_variable_initialization_test.py
+# test__model_variable_initialization.py
 #
 # This file is part of NEST.
 #
