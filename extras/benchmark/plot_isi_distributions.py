@@ -55,7 +55,7 @@ def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(10, 6))
 
     for neuron_model in neuron_models:
-        plt.bar(data["bin_centers"], data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"] / 2, alpha=.5)
+        plt.bar(data["bin_centers"], 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"], alpha=.5)
         plt.step(data["bin_edges"][:-1], data[neuron_model]["counts_mean"], label=neuron_model, linewidth=2, alpha=.5, where="post")
         #plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5)
 
