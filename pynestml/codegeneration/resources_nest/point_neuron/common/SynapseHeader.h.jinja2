@@ -759,8 +759,8 @@ public:
 
         timestep += (start->t_ + __dendritic_delay) - t_lastspike_;
 
-        const double _tr_t = start->t_;
-        auto get_t = [_tr_t](){ return _tr_t; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+        const double t_hist_entry_ms = start->t_;
+        auto get_t = [t_hist_entry_ms](){ return t_hist_entry_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
@@ -798,8 +798,6 @@ public:
 {%- endif %}
 
     update_internal_state_(t_lastspike_, __t_spike - t_lastspike_, cp);
-
-    const double _tr_t = __t_spike - __dendritic_delay;
 
     {
         auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
@@ -1302,7 +1300,6 @@ inline void
                            (start->t_ + dendritic_delay) - t_last_update_,
                            cp);
 
-    const double _tr_t = start->t_;
 #ifdef DEBUG
         std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
 #endif

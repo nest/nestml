@@ -69,7 +69,8 @@ class NESTVariablePrinter(CppVariablePrinter):
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
                 return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
+            # grab the value from the postsynaptic spiking history buffer
+            return "start->" + _name + "_"
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"    # from nest::
