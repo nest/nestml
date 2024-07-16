@@ -63,7 +63,7 @@ if enable_profile:
 else:
     if short_sim:
         MPI_SCALES = [2]
-        ITERATIONS = 1
+        ITERATIONS = 2
     else:
         MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
         ITERATIONS = 2  # XXXXXXXXXXXX: was 10
