@@ -178,7 +178,7 @@ public:
     {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }}[concentration_id] = {{ printer_no_origin.print_with_indices(rhs_expression, "concentration_id") }};
+        {{ variable.name }}[concentration_id] = {{ vector_printer.print(rhs_expression, "concentration_id") }};
     {%- endfor %}
     }
     };

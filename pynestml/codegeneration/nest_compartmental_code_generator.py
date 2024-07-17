@@ -53,6 +53,7 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
@@ -152,7 +153,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._nest_printer = CppPrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False,
-                                                                    with_vector_parameter=False,
+                                                                    with_vector_parameter=True,
                                                                     enforce_getter=False)
         self._printer_no_origin = CppExpressionPrinter(
             simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
@@ -596,6 +597,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
+        namespace["vector_printer"] = ASTVectorParameterSetterAndPrinter(neuron, self._printer_no_origin)
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
