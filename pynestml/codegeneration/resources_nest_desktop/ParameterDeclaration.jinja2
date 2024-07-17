@@ -3,8 +3,7 @@
     {%- set default_value = parameters[variable.get_symbol_name()] %}
       {
         "id": "{{name}}",
-        "label": "{{name}}",
+        "label": "{{variable.print_comment()}}",
         "unit": "{{type_symbol}}",
-        "value": "{{default_value}}",
-        "input": "arrayInput"
+        "value": "{{default_value}}"
       }{%- if not last %},{%- endif %}
