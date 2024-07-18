@@ -79,7 +79,7 @@ As an example for a HH-type channel:
 
 All of the currents within a compartment (marked by ``@mechanism::channel``) are added up within a compartment.
 
-For a complete example, please see `cm_default.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `compartmental_model_test.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/concmech_model_test.py>`_.
+For a complete example, please see `cm_default.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__compartmental_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
 
 Concentration description
@@ -111,12 +111,14 @@ As an example a description of a calcium concentration model where we pretend th
 
 The only difference here is that the equation that is marked with the ``@mechanism::concentration`` descriptor is not an inline equation but an ODE. This is because in case of the ion-channel what we want to simulate is the current which relies on the evolution of some state variables like gating variables in case of the HH-models, and the compartment voltage. The concentration though can be more simply described by an evolving state directly.
 
-For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `compartmental_model_test.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/concmech_model_test.py>`_.
+For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
 Synapse description
 -------------------
 
-Here synapse models are based on convolutions over a buffer of incoming spikes. This means that the equation for the current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed. The descriptor for synapses is ``@mechanism::receptor``.
+Here synapse models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
+current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed.
+The descriptor for synapses is ``@mechanism::receptor``.
 
 .. code-block:: nestml
 
@@ -133,13 +135,44 @@ Here synapse models are based on convolutions over a buffer of incoming spikes. 
         input:
             <spike_name> <- spike
 
-For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `compartmental_model_test.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/concmech_model_test.py>`_.
+For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
+
+Continuous input description
+----------------------------
+
+The continuous inputs are defined by an inline with the descriptor @mechanism::continuous_input. This inline needs to
+include one input of type continuous and may include any states, parameters and functions.
+
+.. code-block:: nestml
+
+    model <neuron_name>:
+            equations:
+                inline <current_equation_name> real = \
+                    <some equation based on state variables, parameters, membrane potential and other equation names \
+                    and MUST contain at least one reference to a continuous input port like <continuous_name>> \
+                    @mechanism::continuous_input
+
+            input:
+                <continuous_name> real <- continuous
+
+For a complete example, please see `continuous_test.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/continuous_test.nestml>`_ and its associated unit test, `test__continuous_input.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__continuous_input.py>`_.
 
 Mechanism interdependence
 -------------------------
 
 Above examples of explicit interdependence inbetween concentration and channel models where already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and synapses are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or synapse-type amongst multiple in a given compartment or some concentration.
 
+Technical Notes
+---------------
+
+We have put emphasis on delivering a good performance for neurons with high spacial complexity. We utilize vectorization
+therefor you should compile nest with the OpenMP flag enabled. This of course can only be utilized if your hardware
+supports simd instructions in that case you can expect a performance improvement of about 3/4 of the theoretical improvement.
+Let's say you have an avx2 simd instruction set available you can expect about a 3 times performance improvement as long
+as your neuron has enough compartments.
+We vectorize the simulation steps of all instances of the same mechanism you have defined in
+your nestml model, meaning that you will get a better complexity/performance ratio the more instances of the same
+mechanism are used.
 
 See also
 --------

@@ -64,7 +64,7 @@ class TestContinuousInput:
 
         generate_nest_compartmental_target(
             input_path=input_path,
-            target_path="/tmp/nestml-component/",
+            target_path=target_path,
             module_name="continuous_test_module",
             suffix="_nestml",
             logging_level="DEBUG"
