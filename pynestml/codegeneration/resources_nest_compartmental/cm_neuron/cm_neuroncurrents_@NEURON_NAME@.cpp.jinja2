@@ -141,7 +141,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if(std::abs({{ vector_printer.print(rhs_expression) }}) <= NEAR_ZERO){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             channel_contributing = false;
         }
         {% endif %}
@@ -157,21 +157,21 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // state variable {{pure_variable_name}}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in channel_info["Parameters"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in channel_info["Internals"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {{variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
     }
 }
@@ -191,7 +191,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if(std::abs({{ vector_printer.print(rhs_expression) }}) <= NEAR_ZERO){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             channel_contributing = false;
         }
         {% endif %}
@@ -208,7 +208,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
 
         {%- with %}
@@ -235,7 +235,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
 
         {%- with %}
@@ -252,7 +252,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
     }
 }
@@ -296,7 +296,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
 
         std::vector< double > d_i_tot_dv(neuron_{{ ion_channel_name }}_channel_count, 0.);
 
-        {% if channel_info["ODEs"].items()|length %} std::vector< double > {{ vector_printer.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms()); {% endif %}
+        {% if channel_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms()); {% endif %}
 
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
@@ -307,10 +307,10 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-            {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+            {{ propagator }}[i] = {{ printer_no_origin.print_with_indices(propagator_info["init_expression"], "i") }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-            {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+            {{state}}[i] = {{ printer_no_origin.print_with_indices(state_solution_info["update_expression"], "i") }};
             {%- endfor %}
         {%- endfor %}
 
@@ -318,10 +318,10 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
         {%- set inline_expression_d = channel_info["inline_derivative"] %}
 
             // compute the conductance of the {{ion_channel_name}} channel
-            this->i_tot_{{ion_channel_name}}[i] = {{ vector_printer.print(inline_expression.get_expression(), "i") }};
+            this->i_tot_{{ion_channel_name}}[i] = {{ printer_no_origin.print_with_indices(inline_expression.get_expression(), "i") }};
 
             // derivative
-            d_i_tot_dv[i] = {{ vector_printer.print(inline_expression_d, "i") }};
+            d_i_tot_dv[i] = {{ printer_no_origin.print_with_indices(inline_expression_d, "i") }};
             g_val[i] = - d_i_tot_dv[i];
             i_val[i] = this->i_tot_{{ion_channel_name}}[i] - d_i_tot_dv[i] * v_comp[i];
         }
@@ -369,7 +369,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if(std::abs({{ vector_printer.print(rhs_expression) }}) <= NEAR_ZERO){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             concentration_contributing = false;
         }
         {% endif %}
@@ -385,21 +385,21 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in concentration_info["Parameters"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
 
         {% for variable_type, variable_info in concentration_info["Internals"].items() %}
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
     }
 }
@@ -418,7 +418,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {% if key_zero_param == variable.name %}
-        if(std::abs({{ vector_printer.print(rhs_expression) }}) <= NEAR_ZERO){
+        if(std::abs({{ printer_no_origin.print(rhs_expression) }}) <= NEAR_ZERO){
             concentration_contributing = false;
         }
         {% endif %}
@@ -435,7 +435,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
 
         {%- with %}
@@ -462,7 +462,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // channel parameter {{variable_type }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
 
         {%- with %}
@@ -479,7 +479,7 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
+        {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
     }
 }
@@ -518,7 +518,7 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< 
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
-        std::vector< double > {{ vector_printer.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
+        std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
 
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
@@ -530,10 +530,10 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< 
         for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-            {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+            {{ propagator }}[i] = {{ printer_no_origin.print_with_indices(propagator_info["init_expression"], "i") }};
             {%- endfor %}
             {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-            {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+            {{state}}[i] = {{ printer_no_origin.print_with_indices(state_solution_info["update_expression"], "i") }};
             {%- endfor %}
         {%- endfor %}
         }
@@ -581,14 +581,14 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_as
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
     {%- endfor %}
 
     {% for variable_type, variable_info in synapse_info["Parameters"].items() %}
     // synapse parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
     {%- endfor %}
 
     // set propagators to ode toolbox returned value
@@ -623,7 +623,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_as
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
     {%- endfor %}
     {%- with %}
     {%- for variable_type, variable_info in synapse_info["States"].items() %}
@@ -647,7 +647,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_as
     // synapse parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+synapse_name+"_synapse_count") -}});
     {%- endfor %}
 
     {%- with %}
@@ -702,17 +702,17 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
 
-    std::vector< double > {{ vector_printer.print(synapse_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ synapse_name }}_synapse_count, Time::get_resolution().get_ms());
+    std::vector< double > {{ printer_no_origin.print(synapse_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ synapse_name }}_synapse_count, Time::get_resolution().get_ms());
 
   {%- for state_name, state_declaration in synapse_info["States"].items() %}
-    std::vector< double > {{state_name}} = (neuron_{{ synapse_name }}_synapse_count, {{ vector_printer.print(state_declaration["rhs_expression"])}});
+    std::vector< double > {{state_name}} = (neuron_{{ synapse_name }}_synapse_count, {{ printer_no_origin.print(state_declaration["rhs_expression"])}});
   {%- endfor %}
 
   for(std::size_t i = 0; i < neuron_{{ synapse_name }}_synapse_count; i++){
     // set propagators to ode toolbox returned value
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+    {{state_variable_name}}[i] = {{ printer_no_origin.print_with_indices(state_variable_info["init_expression"], "i") }};
   {%- endfor %}
   {%- endfor %}
 
@@ -725,7 +725,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::pre_run_hook()
 
     // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
+    {{internal_name}}[i] = {{ printer_no_origin.print_with_indices(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
   {{synapse_info["buffer_name"]}}_[i]->clear();
@@ -747,7 +747,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
             {%- endfor %}
     {%- endfor %}
 
-    {% if synapse_info["ODEs"].items()|length %} std::vector< double > {{ vector_printer.print(synapse_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ synapse_name }}_synapse_count, Time::get_resolution().get_ms()); {% endif %}
+    {% if synapse_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(synapse_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ synapse_name }}_synapse_count, Time::get_resolution().get_ms()); {% endif %}
 
     std::vector < double > s_val(neuron_{{ synapse_name }}_synapse_count, 0);
 
@@ -761,30 +761,30 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
   for(std::size_t i = 0; i < neuron_{{ synapse_name }}_synapse_count; i++){
       {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+      {{ propagator }}[i] = {{ printer_no_origin.print_with_indices(propagator_info["init_expression"], "i") }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+      {{state}}[i] = {{ printer_no_origin.print_with_indices(state_solution_info["update_expression"], "i") }};
           {%- endfor %}
       {%- endfor %}
 
       // update kernel state variable / compute synaptic conductance
       {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {{state_variable_name}}[i] = {{ printer_no_origin.print_with_indices(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] += s_val[i] * {{ printer_no_origin.print_with_indices(state_variable_info["init_expression"], "i") }};
       {%- endfor %}
       {%- endfor %}
 
       // total current
       // this expression should be the transformed inline expression
 
-      this->i_tot_{{synapse_name}}[i] = {{ vector_printer.print(synapse_info["root_expression"].get_expression(), "i") }};
+      this->i_tot_{{synapse_name}}[i] = {{ printer_no_origin.print_with_indices(synapse_info["root_expression"].get_expression(), "i") }};
 
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(synapse_info["inline_expression_d"], "i") }};
+      d_i_tot_dv[i] = {{ printer_no_origin.print_with_indices(synapse_info["inline_expression_d"], "i") }};
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv[i];
@@ -843,14 +843,14 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
     {%- endfor %}
 
     {% for variable_type, variable_info in continuous_info["Parameters"].items() %}
     // parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
     {%- endfor %}
 
     // user declared internals in order they were declared
@@ -871,7 +871,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     // state variable {{pure_variable_name }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
     {%- endfor %}
     {%- for variable_type, variable_info in continuous_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -893,7 +893,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
     // continuous parameter {{variable_type }}
     {%- set variable = variable_info["ASTVariable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
+    {{ variable.name}}.push_back({{ printer_no_origin.print_with_indices(rhs_expression, "neuron_"+continuous_name+"_continuous_input_count") -}});
     {%- endfor %}
 
     {%- with %}
@@ -929,7 +929,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
 
       // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in continuous_info["Internals"] %}
-    {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
+    {{internal_name}}[i] = {{ printer_no_origin.print_with_indices(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
@@ -949,7 +949,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
     std::vector< double > d_i_tot_dv(neuron_{{ continuous_name }}_continuous_input_count, 0.);
 
     {% if continuous_info["ODEs"].items()|length %}
-    std::vector< double > {{ vector_printer.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
+    std::vector< double > {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
     {% endif %}
 
     {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
@@ -973,21 +973,21 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
       //update ODE state variable
       {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+      {{ propagator }}[i] = {{ printer_no_origin.print_with_indices(propagator_info["init_expression"], "i") }};
           {%- endfor %}
           {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+      {{state}}[i] = {{ printer_no_origin.print_with_indices(state_solution_info["update_expression"], "i") }};
           {%- endfor %}
       {%- endfor %}
 
       // total current
       // this expression should be the transformed inline expression
-      this->i_tot_{{continuous_name}}[i] = {{ vector_printer.print(continuous_info["root_expression"].get_expression(), "i") }};
+      this->i_tot_{{continuous_name}}[i] = {{ printer_no_origin.print_with_indices(continuous_info["root_expression"].get_expression(), "i") }};
 
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(continuous_info["inline_derivative"], "i") }};
+      d_i_tot_dv[i] = {{ printer_no_origin.print_with_indices(continuous_info["inline_derivative"], "i") }};
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv[i];

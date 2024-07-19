@@ -130,5 +130,3 @@ class TestCompartmentalConcmech:
 
         if not res['c_Ca0'][data_array_index] == expected_conc:
             self.fail("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
-
-

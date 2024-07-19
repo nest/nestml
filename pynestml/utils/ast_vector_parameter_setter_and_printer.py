@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_vector_parameter_setter.py
+# ast_vector_parameter_setter_and_printer.py
 #
 # This file is part of NEST.
 #
@@ -39,15 +39,15 @@ class ASTVectorParameterSetterAndPrinter(ASTVisitor):
     def visit_variable(self, node):
         self.inside_variable = True
         self.depth += 1
-        #print(self.printer.print(node)+" visited")
+        # print(self.printer.print(node)+" visited")
 
     def endvisit_variable(self, node):
-        #print("depth: " + str(self.depth))
-        #print(node.name)
+        # print("depth: " + str(self.depth))
+        # print(node.name)
         if self.depth < 2000:
             ast_vec_param = None
-            #print("processing: " + self.printer.print(node))
-            #print(self.vector_parameter)
+            # print("processing: " + self.printer.print(node))
+            # print(self.vector_parameter)
             if self.vector_parameter is not None:
                 ast_vec_param = ModelParser.parse_variable(self.vector_parameter)
                 artificial_scope = Scope(ScopeType(1))
@@ -61,11 +61,18 @@ class ASTVectorParameterSetterAndPrinter(ASTVisitor):
 
             symbol = node.get_scope().resolve_to_symbol(node.name, SymbolKind.VARIABLE)
             # breakpoint()
-            if symbol is not None:
+            if isinstance(symbol, VariableSymbol):
                 print("symbol known")
                 symbol.vector_parameter = self.vector_parameter
+                if symbol.is_spike_input_port():
+                    artificial_scope = Scope(ScopeType(1))
+                    artificial_symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
+                                                       name=self.vector_parameter, vector_parameter=None)
+                    artificial_scope.add_symbol(artificial_symbol)
+                    node.update_scope(artificial_scope)
+                    node.accept(ASTSymbolTableVisitor())
             node.set_vector_parameter(ast_vec_param)
-            #breakpoint()
+            # breakpoint()
             print("resulting variable output: " + self.printer.print(node))
         self.inside_variable = False
         self.depth -= 1
@@ -81,4 +88,3 @@ class ASTVectorParameterSetterAndPrinter(ASTVisitor):
         print("Resulting expression: \n " + text + "\n")
         self.set_vector_parameter(node)
         return text
-

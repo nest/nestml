@@ -106,7 +106,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     "cm_tree_@NEURON_NAME@.h.jinja2"]},
             "module_templates": ["setup"]},
         "nest_version": "",
-        "compartmental_variable_name": "v_comp",}
+        "compartmental_variable_name": "v_comp"}
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
