@@ -762,14 +762,13 @@ public:
         const double t_hist_entry_ms = start->t_;
         auto get_t = [t_hist_entry_ms](){ return t_hist_entry_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- filter indent(6, True) %}
+{%  filter indent(8, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
-  /**
-   *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
-  **/
-
-{%-         if synapse.get_on_receive_block(post_port) %}
+/**
+ *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+**/
+{%          if synapse.get_on_receive_block(post_port) %}
 {%-             set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-             with ast = dynamics.get_block() %}
 {%-                 include "directives_cpp/Block.jinja2" %}
@@ -819,7 +818,7 @@ public:
 {%-         endwith %}
 {%-     endif %}
 {%- endfor %}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->%s_") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
 {%- endfilter %}
     }
 

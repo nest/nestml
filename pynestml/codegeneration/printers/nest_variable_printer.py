@@ -49,7 +49,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.with_vector_parameter = with_vector_parameter
         self.enforce_getter = enforce_getter
         self.variables_special_cases = variables_special_cases
-        self.postsynaptic_getter_string_ = "start->%s_"
+        self.postsynaptic_getter_string_ = "start->get_%s()"
 
     def set_getter_string(self, s):
         self.postsynaptic_getter_string_ = s

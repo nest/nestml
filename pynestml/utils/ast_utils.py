@@ -29,6 +29,7 @@ import odetoolbox
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -655,6 +656,20 @@ class ASTUtils:
         for equations_block in node.get_equations_blocks():
             for inline_expr in equations_block.get_inline_expressions():
                 if name == inline_expr.variable_name:
+                    return inline_expr
+
+        return None
+
+    @classmethod
+    def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
+        for equations_block in node.get_equations_blocks():
+            for inline_expr in equations_block.get_inline_expressions():
+                if not ASTUtils.inline_aliases_convolution(inline_expr):
+                    continue
+
+                constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
+
+                if name == constructed_name:
                     return inline_expr
 
         return None
@@ -1321,7 +1336,7 @@ class ASTUtils:
 
     @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
-                                          diff_order_symbol="__d"):
+                                          diff_order_symbol="__d", suffix=""):
         """
         Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
 
@@ -1351,7 +1366,7 @@ class ASTUtils:
             if spike_input_port.has_vector_parameter():
                 spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
+        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,

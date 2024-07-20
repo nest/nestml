@@ -1133,6 +1133,7 @@ void
 {%-     endfor %}
     }
 
+{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
      *
@@ -1155,6 +1156,7 @@ void
       V_.__h = old___h;
       recompute_internal_variables(true);
     }
+{%- endif %}
 
     /**
       * print extra on-emit statements transferred from synapse
