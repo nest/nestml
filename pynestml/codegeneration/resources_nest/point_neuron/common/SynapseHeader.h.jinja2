@@ -1150,6 +1150,15 @@ template < typename targetidentifierT >
 {%- endfor %}
 {%- endfilter %}
 
+{%- if synapse_weight_variable | length > 0 %}
+{%-     set variable_symbol = synapse.get_scope().resolve_to_symbol(synapse_weight_variable, SymbolKind.VARIABLE) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
+  // special treatment of NEST weight
+  set_weight({{ printer.print(variable_symbol.get_initial_value()) }});
+{%-     endif %}
+{%- endif %}
+
   t_lastspike_ = 0.;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
   t_last_update_ = 0.;

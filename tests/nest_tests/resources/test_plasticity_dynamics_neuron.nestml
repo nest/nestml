@@ -1,0 +1,54 @@
+model test_plasticity_dynamics_neuron:
+    state:
+        dummys real = 0
+
+    parameters:
+        dummyp real = 0
+
+    equations:
+        dummys' = 0 / 1 ms
+
+    input:
+        spikes_parrot <- spike
+        spikes_plastic <- spike
+
+    output:
+        spike
+
+    update:
+        integrate_odes()
+        if spikes_parrot * 1 s != 0:
+            emit_spike()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
