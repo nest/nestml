@@ -56,6 +56,7 @@ def nestml_generate_target():
                                        "delay_variable": {"test_plasticity_dynamics_synapse": "d"},
                                        "weight_variable": {"test_plasticity_dynamics_synapse": "w"}})
 
+
 def test_plasticity_dynamics():
     r"""Test that the time interval-based plasticity rule in ``test_plasticity_dynamics_synapse`` is implemented correctly on a simple sequences of spikes"""
     nest.ResetKernel()
@@ -72,14 +73,14 @@ def test_plasticity_dynamics():
 
     # Create plastic synapse with pre_spikes as presynaptic neuron
     nest.Connect(pre_spikes, neuron,
-                syn_spec={'synapse_model': 'test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml',
-                        'receptor_type': rec_types['SPIKES_PLASTIC']})
+                 syn_spec={'synapse_model': 'test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml',
+                           'receptor_type': rec_types['SPIKES_PLASTIC']})
 
     # Add connection from post_driver_spikes to elicit spikes in postsynaptic neuron without triggering
     # plasticity mechanism. Note that neuron will spike 1 ms later than the times set in post_driver_spikes
     nest.Connect(post_driver_spikes, neuron,
-                syn_spec={'synapse_model': 'static_synapse',
-                        'receptor_type': rec_types['SPIKES_PARROT']})
+                 syn_spec={'synapse_model': 'static_synapse',
+                           'receptor_type': rec_types['SPIKES_PARROT']})
 
     nest.Connect(neuron, sr)
     nest.Simulate(15)
