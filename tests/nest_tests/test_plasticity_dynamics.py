@@ -56,23 +56,18 @@ def nestml_generate_target():
                                        "delay_variable": {"test_plasticity_dynamics_synapse": "d"},
                                        "weight_variable": {"test_plasticity_dynamics_synapse": "w"}})
 
-def test_stdp_triplet_synapse_delay_1():
+def test_plasticity_dynamics():
+    r"""Test that the time interval-based plasticity rule in ``test_plasticity_dynamics_synapse`` is implemented correctly on a simple sequences of spikes"""
     nest.ResetKernel()
     nest.resolution = .01
     nest.Install("nestmlmodule")
 
     pre_spikes = nest.Create('spike_train_injector', params={'spike_times': [1, 10]})
-
-    # Post-synaptic spike times are times of post_driver_spikes PLUS 1 ms
-    # Remove spike at 8ms here and the code will work at expected (weight 1.01 instead of 1.0 for spike at 10ms)
     post_driver_spikes = nest.Create('spike_train_injector', params={'spike_times': [.5]})
-
     neuron = nest.Create('test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml')
-
     sr = nest.Create('spike_recorder')
     wr = nest.Create('weight_recorder')
     nest.SetDefaults('test_plasticity_dynamics_synapse_nestml__with_test_plasticity_dynamics_neuron_nestml', {'weight_recorder': wr})
-
     rec_types = nest.GetDefaults('test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml')['receptor_types']
 
     # Create plastic synapse with pre_spikes as presynaptic neuron
@@ -89,7 +84,6 @@ def test_stdp_triplet_synapse_delay_1():
     nest.Connect(neuron, sr)
     nest.Simulate(15)
 
-    print()
     print("Spike times of presynaptic neuron :", pre_spikes.spike_times)
     print("Spike times of postsynaptic neuron:", sr.events['times'])
     print(wr.events)
