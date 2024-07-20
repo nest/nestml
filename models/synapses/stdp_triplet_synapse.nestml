@@ -57,7 +57,7 @@ model stdp_triplet_synapse:
     onReceive(post_spikes):
         # potentiate synapse
         #w_ nS = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
-        w_ nS = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
+        w_ nS = w + tr_r1 * ( A2_plus + A3_plus * (tr_o2 - 1) )
         w = min(Wmax, w_)
 
         # increment post trace values
