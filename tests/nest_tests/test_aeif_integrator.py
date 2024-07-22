@@ -32,11 +32,13 @@ from pynestml.codegeneration.nest_tools import NESTTools
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                     reason="This test does not support NEST 2")
-class TestAEIFIntegrator:
+class TestAEIFIntegrator_with_respect_to_solution:
     r"""Check that the integrator default tolerances are set such that the adaptive exponential models do not cause trouble for the numerical integrator"""
 
-    @pytest.fixture(scope="module", autouse=True)
-    def setUp(self):
+    @pytest.mark.parametrize("gsl_adaptive_step_size_controller", ["with_respect_to_solution", "with_respect_to_derivative"])
+    def test_aeif_integrator(self, gsl_adaptive_step_size_controller: str):
+        # generate the code
+
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, "models", "neurons", "aeif_cond_exp_neuron.nestml")))]
         logging_level = "DEBUG"
         suffix = "_nestml"
@@ -45,9 +47,11 @@ class TestAEIFIntegrator:
 
         generate_nest_target(input_path,
                              logging_level=logging_level,
-                             suffix=suffix)
+                             suffix=suffix,
+                             codegen_opts={"gsl_adaptive_step_size_controller": gsl_adaptive_step_size_controller})
 
-    def test_aeif_integrator(self):
+        # run the simulation
+
         nest.ResetKernel()
         nest.resolution = 0.01
         nest.Install("nestmlmodule")
@@ -76,4 +80,8 @@ class TestAEIFIntegrator:
 
         neuron.set({'V_m': -54.})
 
+        # the test succeeds if the integrator terminates
+
         nest.Simulate(100.)
+
+        assert not np.isnan(neuron.V_m)
