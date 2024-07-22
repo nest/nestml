@@ -340,7 +340,8 @@ private:
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-    double __gsl_error_tol;
+    double __gsl_abs_error_tol;
+    double __gsl_rel_error_tol;
 {%     endif %}
 {% endif %}
 
@@ -1086,10 +1087,16 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 {%  if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
 
-  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. )
+  updateValue< double >(__d, nest::names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol < 0. )
   {
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+
+  updateValue< double >(__d, nest::names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. )
+  {
+    throw nest::BadProperty( "The gsl_rel_error_tol must be strictly positive." );
   }
 {%-    endif %}
 {%  endif %}

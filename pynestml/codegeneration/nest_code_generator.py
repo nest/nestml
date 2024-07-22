@@ -109,6 +109,7 @@ class NESTCodeGenerator(CodeGenerator):
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.)
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
@@ -140,6 +141,7 @@ class NESTCodeGenerator(CodeGenerator):
         },
         "nest_version": "",
         "solver": "analytic",
+        "gsl_adaptive_step_size_controller": "with_respect_to_solution",
         "numeric_solver": "rk45",
         "delay_variable": {},
         "weight_variable": {}
@@ -491,6 +493,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         if namespace["uses_numeric_solver"]:
             namespace["numeric_solver"] = self.get_option("numeric_solver")
+            namespace["gsl_adaptive_step_size_controller"] = self.get_option("gsl_adaptive_step_size_controller")
 
         return namespace
 
