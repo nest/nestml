@@ -207,9 +207,10 @@ def start_strong_scaling_benchmark_mpi(iteration):
 
 def start_weak_scaling_benchmark_threads(iteration):
     benchmarkPathStr = '--benchmarkPath ' + WEAKSCALINGFOLDERNAME
+    rng_seed = rng.integers(0, max_int32)
     combinations = [
         {
-            "command": ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {NETWORK_BASE_SCALE * n_threads} --threads {NUMTHREADS} --iteration {iteration} {benchmarkPathStr}'],
+            "command": ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {NETWORK_BASE_SCALE * n_threads} --threads {NUMTHREADS} --rng_seed {rng_seed} --iteration {iteration} {benchmarkPathStr}'],
             "name": f"{neuronmodel}",
             "networksize": NETWORK_BASE_SCALE * n_threads} for neuronmodel in NEURONMODELS for n_threads in N_THREADS]
     log(f"\033[93mWeak Scaling Benchmark {iteration}\033[0m")
