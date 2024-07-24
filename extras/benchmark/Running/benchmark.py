@@ -153,9 +153,9 @@ def start_strong_scaling_benchmark_threads(iteration):
 
     dirname = os.path.join(output_folder, STRONGSCALINGFOLDERNAME)
 
-    combinations = [{"command":['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {threads} --iteration {iteration} --benchmarkPath {dirname}'],
-                     "name":f"{neuronmodel},{threads}"
-                     } for neuronmodel in NEURONMODELS for threads in N_THREADS]
+    combinations = [{"command":['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {n_threads} --iteration {iteration} --benchmarkPath {dirname}'],
+                     "name":f"{neuronmodel},{n_threads}"
+                     } for neuronmodel in NEURONMODELS for n_threads in N_THREADS]
     for combination in combinations:
         log(combination["name"])
 
