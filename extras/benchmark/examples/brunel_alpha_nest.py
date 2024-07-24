@@ -66,7 +66,7 @@ import os
 
 
 ###############################################################################
-# Helper functions 
+# Helper functions
 
 def convert_np_arrays_to_lists(obj):
     if isinstance(obj, dict):
@@ -120,23 +120,23 @@ def get_vmpeak(since=0.0):
 def compute_cv(spike_train):
     """
     Compute the coefficient of variation (CV) for a single spike train.
-    
+
     Parameters:
     spike_train (list or numpy array): Timestamps of spikes in the spike train.
-    
+
     Returns:
     float: Coefficient of variation (CV) of the inter-spike intervals.
     """
     # Calculate inter-spike intervals (ISI)
     isi = np.diff(spike_train)
-    
+
     # Calculate mean and standard deviation of ISI
     mean_isi = np.mean(isi)
     std_isi = np.std(isi)
-    
+
     # Calculate coefficient of variation
     cv = std_isi / mean_isi
-    
+
     return cv
 
 def compute_cv_for_neurons(spike_trains):
@@ -151,7 +151,7 @@ def compute_cv_for_neurons(spike_trains):
 def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
     """
     Plots the distribution of interspike intervals given a list of lists of spike times.
-    
+
     Parameters:
     spike_times_list (list of lists): Each inner list contains spike times for one neuron or trial.
     """
@@ -160,7 +160,7 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
     for spike_times in spike_times_list:
         intervals = np.diff(spike_times)
         interspike_intervals.extend(intervals)
-    
+
     # Plot the distribution of interspike intervals
     plt.figure(figsize=(10, 6))
     plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
@@ -187,7 +187,7 @@ parser = argparse.ArgumentParser(description='Run a simulation with NEST')
 parser.add_argument('--benchmarkPath', type=str, default='', help='Path to the nest installation')
 parser.add_argument('--simulated_neuron', type=str, default='iaf_psc_alpha_neuron_Nestml', help='Name of the model to use')
 parser.add_argument('--network_scale', type=int, default=2500, help='Number of neurons to use')
-parser.add_argument('--nodes', type=int, default=2, required=False, help='Number of compute nodes to use')
+parser.add_argument('--nodes', type=int, default=1, required=False, help='Number of compute nodes to use')
 parser.add_argument('--threads', type=int, default=4, help='Number of threads to use')
 parser.add_argument('--iteration', type=int, help='iteration number used for the benchmark')
 parser.add_argument('--rng_seed', type=int, help='random seed')

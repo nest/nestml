@@ -1,23 +1,64 @@
+# -*- coding: utf-8 -*-
+#
+# benchmark.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
-import subprocess
-import re
+import datetime
+import jinja2
 import json
 import math
-from time import sleep
-import matplotlib.pyplot as plt
-from jinja2 import Environment, FileSystemLoader
-import numpy as np
 import os
-from datetime import datetime
+import re
+import subprocess
+import time
 
-seed: int = int(datetime.now().timestamp() * 1000) % 2**31
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+# Plotting options
+palette = plt.get_cmap("Set1")
+
+plt.rcParams['axes.grid'] = True
+
+plt.rcParams['grid.color'] = 'gray'
+plt.rcParams['grid.linestyle'] = '--'
+plt.rcParams['grid.linewidth'] = 0.5
+
+plt.rcParams['axes.labelsize'] = 16  # Size of the axis labels
+plt.rcParams['xtick.labelsize'] = 14  # Size of the x-axis tick labels
+plt.rcParams['ytick.labelsize'] = 14  # Size of the y-axis tick labels
+plt.rcParams['legend.fontsize'] = 14  # Size of the legend labels
+plt.rcParams['figure.titlesize'] = 16  # Size of the figure title
+
+# RNG options
+
+seed: int = int(datetime.datetime.now().timestamp() * 1000) % 2**31
 rng = np.random.default_rng(seed)
 max_int32 = np.iinfo(np.int32).max
 
 parser = argparse.ArgumentParser(description='Run a Benchmark with NEST')
-parser.add_argument('--noRunSim', action="store_false", help='Run the Benchmark with NEST Simulator')
-parser.add_argument('--enable_profiling', action="store_true", help="Run the Benchmark with profiling enabled with AMDuProf")
-parser.add_argument("--short_sim", action="store_true", help="Run Benchmark with profiling on 2 nodes with 2 iterations")
+parser.add_argument('--noRunSim', action="store_false", help='Skip running simulations, only do plotting')
+parser.add_argument('--enable_profiling', action="store_true", help="Run the benchmark with profiling enabled with AMDuProf")
+parser.add_argument("--short_sim", action="store_true", help="Run benchmark with profiling on 2 nodes with 2 iterations")
+parser.add_argument("--enable_mpi", action="store_true", default=False, help="Run benchmark with MPI (default: thread-based benchmarking)")
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 PATHTOFILE = os.path.join(current_dir, "examples/brunel_alpha_nest.py")
@@ -66,20 +107,23 @@ else:
         ITERATIONS = 2
     else:
         MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
-        ITERATIONS = 2  # XXXXXXXXXXXX: was 10
+        ITERATIONS = 3
 
 MPI_STRONG_SCALE_NEURONS = NETWORKSCALES[-1]
-STRONGSCALINGMPIFOLDERNAME = "timings_strong_scaling_mpi"
+STRONGSCALINGFOLDERNAME = "timings_strong_scaling_mpi"
 
 # MPI Weak scaling
 MPI_WEAK_SCALE_NEURONS = 20000
-WEAKSCALINGMPIFOLDERNAME = "timings_weak_scaling_mpi"
+WEAKSCALINGFOLDERNAME = "timings_weak_scaling_mpi"
+
+# thread-based benchmarks
+NETWORK_BASE_SCALE = 1000
+N_THREADS = np.logspace(0, math.log2(64), num=7, base=2, dtype=int)
+PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
+
+
 
 output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_MPI', BASELINENEURON)
-
-# Plotting variables
-palette = plt.get_cmap("Set1")
-
 
 def log(message):
     print(message)
@@ -104,9 +148,37 @@ def render_sbatch_template(combination, filename):
         f.write(str(file))
         f.close()
 
+def start_strong_scaling_benchmark_threads(iteration):
+    log(f"Strong Scaling Benchmark {iteration}")
+
+    dirname = os.path.join(output_folder, STRONGSCALINGFOLDERNAME)
+
+    combinations = [{"command":['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {threads} --iteration {iteration} --benchmarkPath {dirname}'],
+                     "name":f"{neuronmodel},{threads}"
+                     } for neuronmodel in NEURONMODELS for threads in N_THREADS]
+    for combination in combinations:
+        log(combination["name"])
+
+        combined = combination["name"]
+
+        result = subprocess.run(combination["command"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.stdout:
+            fname = "stdout_strong_run_" + combined + "_[iter=" + str(iteration) + "].txt"
+            with open(fname, "w") as f:
+                f.write(result.stdout)
+
+        if result.stderr:
+            fname = "stderr_strong_run_" + combined + "_[iter=" + str(iteration) + "].txt"
+            with open(fname, "w") as f:
+                f.write(result.stderr)
+
+        if result.returncode != 0:
+            log(f"\033[91m{combination['name']} failed\033[0m")
+            log(f"\033[91m{result.stderr} failed\033[0m")
 
 def start_strong_scaling_benchmark_mpi(iteration):
-    dirname = os.path.join(output_folder, STRONGSCALINGMPIFOLDERNAME)
+    dirname = os.path.join(output_folder, STRONGSCALINGFOLDERNAME)
     combinations = [
         {
             "nodes": compute_nodes,
@@ -133,9 +205,37 @@ def start_strong_scaling_benchmark_mpi(iteration):
         command = ["sbatch", f"{filename}"]
         result = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+def start_weak_scaling_benchmark_threads(iteration):
+    benchmarkPathStr = '--benchmarkPath ' + WEAKSCALINGFOLDERNAME
+    combinations = [
+        {
+            "command": ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {NETWORK_BASE_SCALE * n_threads} --threads {NUMTHREADS} --iteration {iteration} {benchmarkPathStr}'],
+            "name": f"{neuronmodel}",
+            "networksize": NETWORK_BASE_SCALE * n_threads} for neuronmodel in NEURONMODELS for n_threads in N_THREADS]
+    log(f"\033[93mWeak Scaling Benchmark {iteration}\033[0m")
+
+    for combination in combinations:
+        print("RUNNING FOR " + str(combination))
+        combined = combination["name"]+","+str(combination["networksize"])
+        log(f"\033[93m{combined}\033[0m" if DEBUG else combined)
+        result = subprocess.run(combination["command"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.stdout:
+            fname = "stdout_weak_run_" + combined + "_[iter=" + str(iteration) + "].txt"
+            with open(fname, "w") as f:
+                f.write(result.stdout)
+
+        if result.stderr:
+            fname = "stderr_weak_run_" + combined + "_[iter=" + str(iteration) + "].txt"
+            with open(fname, "w") as f:
+                f.write(result.stderr)
+
+        if result.returncode != 0:
+            log(f"\033[91m{combination['name']} failed\033[0m")
+            log(f"\033[91m{result.stderr} failed\033[0m")
 
 def start_weak_scaling_benchmark_mpi(iteration):
-    dirname = os.path.join(output_folder, WEAKSCALINGMPIFOLDERNAME)
+    dirname = os.path.join(output_folder, WEAKSCALINGFOLDERNAME)
     combinations = [
         {
             "nodes": compute_nodes,
@@ -148,6 +248,7 @@ def start_weak_scaling_benchmark_mpi(iteration):
             "benchmarkPath": dirname,
             "rng_seed": rng.integers(0, max_int32),
         } for neuronmodel in NEURONMODELS for compute_nodes in MPI_SCALES]
+
     for combination in combinations:
         print("RUNNING FOR " + str(combination))
         combined = combination["simulated_neuron"] + "," + str(combination["nodes"]) + "," + str(
@@ -192,7 +293,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
                 it_data["memory_benchmark"]["rss"] = rss_sum
                 it_data["memory_benchmark"]["vmsize"] = vmsize_sum
                 it_data["memory_benchmark"]["vmpeak"] = vmpeak_sum
-    
+
     for neuron, values in sim_data.items():
         x = sorted(values.keys(), key=lambda k: int(k))
         y = np.array([np.mean(
@@ -266,7 +367,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         rss_std = np.array([np.std(
             [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
-        
+
         vmsize = np.array([np.mean(
             [(iteration_data["memory_benchmark"]["vmsize"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
@@ -290,7 +391,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
                      ecolor='gray', capsize=2)
         line3 = plt.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
                      ecolor='gray', capsize=2)
-        
+
         plot_lines.append([line1, line2, line3])
 
     # Create a legend for the linestyles
@@ -327,12 +428,12 @@ def process_data(dir_name: str):
 
 
 def plot_strong_scaling_benchmark():
-    strong_scaling_data = process_data(STRONGSCALINGMPIFOLDERNAME)
+    strong_scaling_data = process_data(STRONGSCALINGFOLDERNAME)
     plot_scaling_data(strong_scaling_data, "strong_scaling_mpi")
 
 
 def plot_weak_scaling_benchmark():
-    weak_scaling_data = process_data(WEAKSCALINGMPIFOLDERNAME)
+    weak_scaling_data = process_data(WEAKSCALINGFOLDERNAME)
     plot_scaling_data(weak_scaling_data, "weak_scaling_mpi")
 
 
@@ -343,18 +444,18 @@ def deleteDat():
 
 
 def deleteJson():
-    for filename in os.listdir(os.path.join(output_folder, WEAKSCALINGMPIFOLDERNAME)):
+    for filename in os.listdir(os.path.join(output_folder, WEAKSCALINGFOLDERNAME)):
         if filename.endswith(".json"):
-            os.remove(os.path.join(output_folder, WEAKSCALINGMPIFOLDERNAME, filename))
-    for filename in os.listdir(os.path.join(output_folder, STRONGSCALINGMPIFOLDERNAME)):
+            os.remove(os.path.join(output_folder, WEAKSCALINGFOLDERNAME, filename))
+    for filename in os.listdir(os.path.join(output_folder, STRONGSCALINGFOLDERNAME)):
         if filename.endswith(".json"):
-            os.remove(os.path.join(output_folder, STRONGSCALINGMPIFOLDERNAME, filename))
+            os.remove(os.path.join(output_folder, STRONGSCALINGFOLDERNAME, filename))
 
 
 def setup_template_env():
     template_file = "sbatch_run.sh.jinja2"
     template_dir = os.path.realpath(os.path.join(os.path.dirname(__file__)))
-    env = Environment(loader=FileSystemLoader(template_dir))
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
     template = env.get_template(template_file)
     return template
 
@@ -367,7 +468,7 @@ def check_for_completion():
         log("Checking for running jobs. Number of jobs running: " + str(nlines - 1))
         if nlines == 1:  # column headers in the output counts to one line
             break
-        sleep(10.)
+        time.sleep(10.)
 
 
 def clean_json_content(content):
@@ -383,29 +484,108 @@ def clean_json_content(content):
     return None
 
 
+def read_isis_from_files(neuron_models):
+    data = {}
+    for neuron_model in neuron_models:
+        data[neuron_model] = {"isis": []}
+        iteration = 0
+        rank = 0
+        while True:
+            filename = "isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=2]_[rank=" + str(rank) + "]_isi_list.txt"
+            if not os.path.exists(filename):
+                break
+
+            with open(filename, 'r') as file:
+                isis = [float(line.strip()) for line in file]
+                data[neuron_model]["isis"].append(isis)
+
+            #iteration += 1
+            rank += 1
+
+    return data
+
+
+def analyze_isi_data(data, bin_size):
+    # Determine the range for the bins
+    min_val = np.inf
+    max_val = -np.inf
+    for neuron_model in data.keys():
+        isi_list = data[neuron_model]["isis"]
+        for isi in isi_list:
+            min_val = min(min_val, min(isi))
+            max_val = max(max_val, max(isi))
+
+    bins = np.arange(min_val, max_val + bin_size, bin_size)
+
+    for neuron_model in data.keys():
+        isi_list = data[neuron_model]["isis"]
+        data[neuron_model]["counts"] = len(isi_list) * [None]
+        for i, isi in enumerate(isi_list):
+            counts, bin_edges = np.histogram(isi, bins=bins)
+            data[neuron_model]["counts"][i] = counts
+
+        data[neuron_model]["counts_mean"] = np.mean(np.array(data[neuron_model]["counts"]), axis=0)
+        data[neuron_model]["counts_std"] = np.std(np.array(data[neuron_model]["counts"]), axis=0)
+
+    data["bin_edges"] = bin_edges
+    data["bin_centers"] = (bin_edges[:-1] + bin_edges[1:]) / 2
+    data["min_val"] = min_val
+    data["max_val"] = max_val
+
+def plot_isi_distributions(neuron_models, data):
+    plt.figure(figsize=(10, 6))
+
+    for neuron_model in neuron_models:
+        plt.bar(data["bin_centers"], 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"], alpha=.5)
+        plt.step(data["bin_edges"][:-1], data[neuron_model]["counts_mean"], label=neuron_model, linewidth=2, alpha=.5, where="post")
+        #plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5)
+
+    plt.xlabel('ISI (ms)')
+    plt.ylabel('Frequency')
+    plt.title('ISI Distributions')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+
 if __name__ == "__main__":
     os.makedirs(output_folder, exist_ok=True)
-    os.makedirs(os.path.join(output_folder, STRONGSCALINGMPIFOLDERNAME), exist_ok=True)
-    os.makedirs(os.path.join(output_folder, WEAKSCALINGMPIFOLDERNAME), exist_ok=True)
+    os.makedirs(os.path.join(output_folder, STRONGSCALINGFOLDERNAME), exist_ok=True)
+    os.makedirs(os.path.join(output_folder, WEAKSCALINGFOLDERNAME), exist_ok=True)
 
-    # create dirs for sbatch scripts
-    os.makedirs(os.path.join(output_folder, STRONGSCALINGMPIFOLDERNAME, "sbatch"), exist_ok=True)
-    os.makedirs(os.path.join(output_folder, WEAKSCALINGMPIFOLDERNAME, "sbatch"), exist_ok=True)
+    if args.enable_mpi:
+        # create dirs for sbatch scripts
+        os.makedirs(os.path.join(output_folder, STRONGSCALINGFOLDERNAME, "sbatch"), exist_ok=True)
+        os.makedirs(os.path.join(output_folder, WEAKSCALINGFOLDERNAME, "sbatch"), exist_ok=True)
 
     if os.path.isfile(os.path.join(output_folder, "log.txt")):
         os.remove(os.path.join(output_folder, "log.txt"))
 
     # Run simulation
     if runSim:
-        # deleteJson()
+        deleteJson()
         deleteDat()
         for i in range(ITERATIONS):
-            start_strong_scaling_benchmark_mpi(i)
-            # start_weak_scaling_benchmark_mpi(i)
+            if args.enable_mpi:
+                start_strong_scaling_benchmark_mpi(i)
+                start_weak_scaling_benchmark_mpi(i)
+            else:
+                start_strong_scaling_benchmark_threads(i)
+                start_weak_scaling_benchmark_threads(i)
 
-    check_for_completion()
+    if args.enable_mpi:
+        check_for_completion()
+
     log("Finished")
     deleteDat()
 
     plot_strong_scaling_benchmark()
-    # plot_weak_scaling_benchmark()
+
+    plot_weak_scaling_benchmark()
+
+    # plot ISI distributions
+    bin_size = 5  # Adjust the bin size as needed
+    data = read_isis_from_files(NEURONMODELS)
+    analyze_isi_data(data, bin_size)
+    plot_isi_distributions(NEURONMODELS, data)
