@@ -190,7 +190,7 @@ parser.add_argument('--network_scale', type=int, default=2500, help='Number of n
 parser.add_argument('--nodes', type=int, default=1, required=False, help='Number of compute nodes to use')
 parser.add_argument('--threads', type=int, default=4, help='Number of threads to use')
 parser.add_argument('--iteration', type=int, help='iteration number used for the benchmark')
-parser.add_argument('--rng_seed', type=int, help='random seed')
+parser.add_argument('--rng_seed', type=int, help='random seed', default=123)
 args = parser.parse_args()
 
 
