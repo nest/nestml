@@ -1,5 +1,5 @@
-Python-standalone target
-------------------------
+NEST Desktop target
+-------------------
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`
 
