@@ -19,11 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
-from typing import Sequence, Union, Optional, Mapping, Any, Dict
+from typing import Sequence, Optional, Mapping, Any, Dict
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 
 
