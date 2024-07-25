@@ -200,7 +200,7 @@ This will generate, compile, build, and install the code for a set of specified 
    * - ``--target_path``
      - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
    * - ``--target_platform``
-     - (Optional) The name of the target platform to generate code for. The available targets are ``NEST`` and ``NEST_DESKTOP``. Default is ``NEST``.
+     - (Optional) The name of the target platform to generate code for. The available targets are ``NEST``, ``PYTHON-STANDALONE``, ``SPINNAKER``, and ``NEST_DESKTOP``. Default is ``NEST``.
    * - ``--logging_level``
      - (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [DEBUG, INFO, WARNING, ERROR, NO]
    * - ``--module_name``
