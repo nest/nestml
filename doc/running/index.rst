@@ -55,7 +55,7 @@ Currently, the following target platforms are supported for code generation. Cli
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
-      :doc:`NEST Desktop </running/running_python_standalone>`
+      :doc:`NEST Desktop </running/running_nest_desktop>`
 
       |nest_desktop_logo|
 
