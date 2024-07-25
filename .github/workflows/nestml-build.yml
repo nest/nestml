@@ -121,6 +121,10 @@ jobs:
   build_and_test_nest_desktop:
     needs: [static_checks]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        nest_branch: [ "master" ]
+      fail-fast: false
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
