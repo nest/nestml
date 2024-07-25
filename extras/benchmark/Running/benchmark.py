@@ -152,16 +152,21 @@ def start_strong_scaling_benchmark_threads(iteration):
     log(f"Strong Scaling Benchmark {iteration}")
 
     dirname = os.path.join(output_folder, STRONGSCALINGFOLDERNAME)
-    rng_seed = rng.integers(0, max_int32)
-    combinations = [{"command":['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {n_threads} --iteration {iteration} --rng_seed {rng_seed} --benchmarkPath {dirname}'],
-                     "name":f"{neuronmodel},{n_threads}"
+    combinations = [{"n_threads": n_threads,
+                     "neuronmodel": neuronmodel,
+                     "name": f"{neuronmodel},{n_threads}"
                      } for neuronmodel in NEURONMODELS for n_threads in N_THREADS]
+
     for combination in combinations:
+        rng_seed = rng.integers(0, max_int32)
+
+        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {MPI_STRONG_SCALE_NEURONS} --threads {combination["n_threads"]} --iteration {iteration} --rng_seed {rng_seed} --benchmarkPath {dirname}']
+
         log(combination["name"])
 
         combined = combination["name"]
 
-        result = subprocess.run(combination["command"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if result.stdout:
             fname = "stdout_strong_run_" + combined + "_[iter=" + str(iteration) + "].txt"
@@ -207,19 +212,21 @@ def start_strong_scaling_benchmark_mpi(iteration):
 
 def start_weak_scaling_benchmark_threads(iteration):
     benchmarkPathStr = '--benchmarkPath ' + WEAKSCALINGFOLDERNAME
-    rng_seed = rng.integers(0, max_int32)
     combinations = [
         {
-            "command": ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {neuronmodel} --network_scale {NETWORK_BASE_SCALE * n_threads} --threads {NUMTHREADS} --rng_seed {rng_seed} --iteration {iteration} {benchmarkPathStr}'],
-            "name": f"{neuronmodel}",
+            "n_threads": n_threads,
+            "neuronmodel": f"{neuronmodel}",
             "networksize": NETWORK_BASE_SCALE * n_threads} for neuronmodel in NEURONMODELS for n_threads in N_THREADS]
     log(f"\033[93mWeak Scaling Benchmark {iteration}\033[0m")
 
     for combination in combinations:
-        print("RUNNING FOR " + str(combination))
-        combined = combination["name"]+","+str(combination["networksize"])
+        rng_seed = rng.integers(0, max_int32)
+
+        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {NUMTHREADS} --rng_seed {rng_seed} --iteration {iteration} {benchmarkPathStr}']
+
+        combined = combination["neuronmodel"]+","+str(combination["networksize"])
         log(f"\033[93m{combined}\033[0m" if DEBUG else combined)
-        result = subprocess.run(combination["command"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if result.stdout:
             fname = "stdout_weak_run_" + combined + "_[iter=" + str(iteration) + "].txt"
@@ -232,7 +239,7 @@ def start_weak_scaling_benchmark_threads(iteration):
                 f.write(result.stderr)
 
         if result.returncode != 0:
-            log(f"\033[91m{combination['name']} failed\033[0m")
+            log(f"\033[91m{combination['neuronmodel']} failed\033[0m")
             log(f"\033[91m{result.stderr} failed\033[0m")
 
 def start_weak_scaling_benchmark_mpi(iteration):
