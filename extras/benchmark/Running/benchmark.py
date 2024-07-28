@@ -420,6 +420,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 
 def process_data(dir_name: str):
     scaling_data = {}
+    print("Reading data from directory: " + dir_name)
     for filename in os.listdir(os.path.join(output_folder, dir_name)):
         if filename.endswith(".json"):
             simulated_neuron = extract_value_from_filename(filename, "simulated_neuron")
