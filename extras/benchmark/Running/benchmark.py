@@ -211,7 +211,7 @@ def start_strong_scaling_benchmark_mpi(iteration):
         result = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def start_weak_scaling_benchmark_threads(iteration):
-    benchmarkPathStr = '--benchmarkPath ' + WEAKSCALINGFOLDERNAME
+    dirname = os.path.join(output_folder, WEAKSCALINGFOLDERNAME)
     combinations = [
         {
             "n_threads": n_threads,
@@ -222,7 +222,7 @@ def start_weak_scaling_benchmark_threads(iteration):
     for combination in combinations:
         rng_seed = rng.integers(0, max_int32)
 
-        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {NUMTHREADS} --rng_seed {rng_seed} --iteration {iteration} {benchmarkPathStr}']
+        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {NUMTHREADS} --rng_seed {rng_seed} --iteration {iteration} --benchmarkPath {dirname}']
 
         combined = combination["neuronmodel"]+","+str(combination["networksize"])
         log(f"\033[93m{combined}\033[0m" if DEBUG else combined)
@@ -420,7 +420,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 
 def process_data(dir_name: str):
     scaling_data = {}
-    abs_dir_name = os.path.join(os.path.dirname(__file__), dir_name)
+    abs_dir_name = os.path.join(output_folder, dir_name)
     print("Reading data from directory: " + abs_dir_name)
     for filename in os.listdir(abs_dir_name):
         if filename.endswith(".json"):
