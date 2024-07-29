@@ -188,7 +188,7 @@ parser.add_argument('--benchmarkPath', type=str, default='', help='Path to the n
 parser.add_argument('--simulated_neuron', type=str, default='iaf_psc_alpha_neuron_Nestml', help='Name of the model to use')
 parser.add_argument('--network_scale', type=int, default=2500, help='Number of neurons to use')
 parser.add_argument('--nodes', type=int, default=1, required=False, help='Number of compute nodes to use')
-parser.add_argument('--threads', type=int, default=4, help='Number of threads to use')
+parser.add_argument('--threads', type=int, default=1, help='Number of threads to use')
 parser.add_argument('--iteration', type=int, help='iteration number used for the benchmark')
 parser.add_argument('--rng_seed', type=int, help='random seed', default=123)
 args = parser.parse_args()
@@ -215,7 +215,7 @@ def ComputePSPnorm(tauMem, CMem, tauSyn):
 
 
 nest.ResetKernel()
-nest.local_num_threads = parser.parse_args().threads
+nest.local_num_threads = args.threads
 
 
 ###############################################################################
@@ -582,7 +582,7 @@ if args.benchmarkPath != "":
     if not os.path.exists(path):
         os.makedirs(path)
 
-    fname_snip = f"[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[rank={nest.Rank()}]"
+    fname_snip = f"[simulated_neuron={args.simulated_neuron}]_[network_scale={args.network_scale}]_[iteration={args.iteration}]_[nodes={args.nodes}]_[threads={args.threads}]_[rank={nest.Rank()}]"
 
     with open(f"{path}/timing_{fname_snip}.json", "w") as f:
         json.dump(status, f, indent=4)

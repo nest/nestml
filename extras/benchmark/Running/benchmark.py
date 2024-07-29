@@ -123,7 +123,7 @@ PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
 
 
 
-output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_MPI', BASELINENEURON)
+output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_MPI')
 
 def log(message):
     print(message)
@@ -418,14 +418,17 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 
 
 
-def process_data(dir_name: str):
+def process_data(dir_name: str, mode="MPI"):
     scaling_data = {}
     abs_dir_name = os.path.join(output_folder, dir_name)
     print("Reading data from directory: " + abs_dir_name)
     for filename in os.listdir(abs_dir_name):
         if filename.endswith(".json"):
             simulated_neuron = extract_value_from_filename(filename, "simulated_neuron")
-            nodes = int(extract_value_from_filename(filename, "nodes"))
+            if args.enable_mpi:
+                nodes = int(extract_value_from_filename(filename, "nodes"))
+            else:
+                nodes = int(extract_value_from_filename(filename, "threads"))
             iteration = int(extract_value_from_filename(filename, "iteration"))
             rank = int(extract_value_from_filename(filename, "rank"))
             with open(os.path.join(output_folder, dir_name, filename), "r") as f:
@@ -501,7 +504,7 @@ def read_isis_from_files(neuron_models):
         iteration = 0
         rank = 0
         while True:
-            filename = "isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=2]_[rank=" + str(rank) + "]_isi_list.txt"
+            filename = "isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=2]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
             if not os.path.exists(filename):
                 break
 
@@ -593,7 +596,6 @@ if __name__ == "__main__":
     deleteDat()
 
     plot_strong_scaling_benchmark()
-
     plot_weak_scaling_benchmark()
 
     # plot ISI distributions
