@@ -505,7 +505,7 @@ def read_isis_from_files(neuron_models):
             if not os.path.exists(filename):
                 break
 
-            with open(filename, 'r') as file:
+            with open(os.path.join(output_folder, filename), 'r') as file:
                 isis = [float(line.strip()) for line in file]
                 data[neuron_model]["isis"].append(isis)
 
@@ -521,6 +521,8 @@ def analyze_isi_data(data, bin_size):
     max_val = -np.inf
     for neuron_model in data.keys():
         isi_list = data[neuron_model]["isis"]
+        if len(isi_list) == 0:
+            raise Exception("ISI list is empty")
         for isi in isi_list:
             min_val = min(min_val, min(isi))
             max_val = max(max_val, max(isi))
