@@ -420,7 +420,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 
 def process_data(dir_name: str):
     scaling_data = {}
-    abs_dir_name = os.path.join(os.path.basename(__file__), dir_name)
+    abs_dir_name = os.path.join(os.path.dirname(__file__), dir_name)
     print("Reading data from directory: " + abs_dir_name)
     for filename in os.listdir(abs_dir_name):
         if filename.endswith(".json"):
