@@ -115,7 +115,7 @@ class NESTVariablePrinter(CppVariablePrinter):
                 return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
             # modification to not enforce getter function:
             else:
-                return self._print(variable, symbol, with_origin=False)
+                return self._print(variable, symbol, with_origin=False) + vector_param
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# conc_info_enricher.py
+# continuous_input_processing.py
 #
 # This file is part of NEST.
 #
@@ -19,11 +19,25 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
+import copy
+
+from pynestml.utils.mechanism_processing import MechanismProcessing
+
+from collections import defaultdict
 
 
-class ConcInfoEnricher(MechsInfoEnricher):
-    """Just created for consistency with the rest of the mechanism generation process. No more than the base-class
-    enriching needs to be done"""
+class ContinuousInputProcessing(MechanismProcessing):
+    mechType = "continuous_input"
+
     def __init__(self, params):
-        super(MechsInfoEnricher, self).__init__(params)
+        super(MechanismProcessing, self).__init__(params)
+
+    @classmethod
+    def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
+        for continuous_name, continuous_info in mechs_info.items():
+            continuous = defaultdict()
+            for port in continuous_info["Continuous"]:
+                continuous[port.name] = copy.deepcopy(port)
+            mechs_info[continuous_name]["Continuous"] = continuous
+
+        return mechs_info

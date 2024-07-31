@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cocos_test.py
+# test__cocos.py
 #
 # This file is part of NEST.
 #

@@ -22,13 +22,15 @@
 from collections import defaultdict
 
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.utils.model_parser import ModelParser
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+
+from collections import defaultdict
 
 
 class MechsInfoEnricher:

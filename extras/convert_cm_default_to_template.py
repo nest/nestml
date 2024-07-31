@@ -37,7 +37,7 @@ def get_replacement_patterns():
         # file names
         'cm_default'            : '{{neuronSpecificFileNamesCmSyns[\"main\"]}}',
         'cm_tree'               : '{{neuronSpecificFileNamesCmSyns[\"tree\"]}}',
-        'cm_compartmentcurrents': '{{neuronSpecificFileNamesCmSyns[\"compartmentcurrents\"]}}',
+        'cm_neuroncurrents': '{{neuronSpecificFileNamesCmSyns[\"neuroncurrents\"]}}',
         # class names
         'CompTree'              : 'CompTree{{cm_unique_suffix}}',
         'Compartment'           : 'Compartment{{cm_unique_suffix}}',

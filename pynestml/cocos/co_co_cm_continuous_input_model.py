@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# conc_info_enricher.py
+# co_co_cm_continuous_input_model.py
 #
 # This file is part of NEST.
 #
@@ -19,11 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
+from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.utils.continuous_input_processing import ContinuousInputProcessing
 
 
-class ConcInfoEnricher(MechsInfoEnricher):
-    """Just created for consistency with the rest of the mechanism generation process. No more than the base-class
-    enriching needs to be done"""
-    def __init__(self, params):
-        super(MechsInfoEnricher, self).__init__(params)
+class CoCoCmContinuousInputModel(CoCo):
+    @classmethod
+    def check_co_co(cls, neuron: ASTModel):
+        """
+        Checks if this compartmental condition applies to the handed over neuron.
+        If yes, it checks the presence of expected functions and declarations.
+        :param neuron: a single neuron instance.
+        :type neuron: ast_neuron
+        """
+        return ContinuousInputProcessing.check_co_co(neuron)
