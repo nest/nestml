@@ -32,7 +32,6 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):

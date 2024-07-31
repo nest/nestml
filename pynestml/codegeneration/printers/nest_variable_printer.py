@@ -56,9 +56,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable.
         :return: a nest processable format.
         """
-        array_index_access = ""
-        if self.print_as_arrays and self.array_index is not None:
-            array_index_access = "[" + str(self.array_index) + "]"
 
         assert isinstance(variable, ASTVariable)
 
@@ -115,17 +112,17 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             if self.enforce_getter:
-                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()" + array_index_access
+                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
             # modification to not enforce getter function:
             else:
-                return self._print(variable, symbol, with_origin=False) + array_index_access
+                return self._print(variable, symbol, with_origin=False) + vector_param
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
+            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
+        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
@@ -155,9 +152,6 @@ class NESTVariablePrinter(CppVariablePrinter):
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
-
-        if self.print_as_arrays and self.array_index is not None:
-            return variable_symbol.get_symbol_name() + "[" + str(self.array_index) + "]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

@@ -34,57 +34,36 @@ class ASTVectorParameterSetterAndPrinter(ASTVisitor):
         self.vector_parameter = ""
         self.printer = printer
         self.model = model
-        self.depth = 0
 
     def visit_variable(self, node):
         self.inside_variable = True
-        self.depth += 1
-        # print(self.printer.print(node)+" visited")
 
     def endvisit_variable(self, node):
-        # print("depth: " + str(self.depth))
-        # print(node.name)
-        if self.depth < 2000:
-            ast_vec_param = None
-            # print("processing: " + self.printer.print(node))
-            # print(self.vector_parameter)
-            if self.vector_parameter is not None:
-                ast_vec_param = ModelParser.parse_variable(self.vector_parameter)
-                artificial_scope = Scope(ScopeType(1))
-                artificial_symbol = VariableSymbol(element_reference=ast_vec_param, scope=artificial_scope,
-                                                   name=self.vector_parameter, vector_parameter=None)
-                artificial_scope.add_symbol(artificial_symbol)
-                ast_vec_param.update_scope(artificial_scope)
-                ast_vec_param.accept(ASTSymbolTableVisitor())
+        ast_vec_param = None
+        if self.vector_parameter is not None:
+            ast_vec_param = ModelParser.parse_variable(self.vector_parameter)
+            artificial_scope = Scope(ScopeType(1))
+            artificial_symbol = VariableSymbol(element_reference=ast_vec_param, scope=artificial_scope,
+                                               name=self.vector_parameter, vector_parameter=None)
+            artificial_scope.add_symbol(artificial_symbol)
+            ast_vec_param.update_scope(artificial_scope)
+            ast_vec_param.accept(ASTSymbolTableVisitor())
 
-                print("vector param attached: " + self.printer.print(ast_vec_param))
-
-            symbol = node.get_scope().resolve_to_symbol(node.name, SymbolKind.VARIABLE)
-            # breakpoint()
-            if isinstance(symbol, VariableSymbol):
-                print("symbol known")
-                symbol.vector_parameter = self.vector_parameter
-                if symbol.is_spike_input_port():
-                    artificial_scope = Scope(ScopeType(1))
-                    artificial_symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
-                                                       name=self.vector_parameter, vector_parameter=None)
-                    artificial_scope.add_symbol(artificial_symbol)
-                    node.update_scope(artificial_scope)
-                    node.accept(ASTSymbolTableVisitor())
-            node.set_vector_parameter(ast_vec_param)
-            # breakpoint()
-            print("resulting variable output: " + self.printer.print(node))
+        symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+        if isinstance(symbol, VariableSymbol):
+            symbol.vector_parameter = self.vector_parameter
+            if symbol.is_buffer():
+                symbol.variable_type = 1
+        node.set_vector_parameter(ast_vec_param)
         self.inside_variable = False
-        self.depth -= 1
 
     def set_vector_parameter(self, node, vector_parameter=None):
         self.vector_parameter = vector_parameter
         node.accept(self)
 
     def print(self, node, vector_parameter=None):
-        print("NEW PRINT: \n " + self.printer.print(node) + "\nwith vector param: \n " + str(vector_parameter))
-        self.set_vector_parameter(node, vector_parameter)
-        text = self.printer.print(node)
-        print("Resulting expression: \n " + text + "\n")
-        self.set_vector_parameter(node)
+        print_node = node.clone()
+        self.set_vector_parameter(print_node, vector_parameter)
+        text = self.printer.print(print_node)
+        self.set_vector_parameter(print_node)
         return text
