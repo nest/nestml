@@ -56,7 +56,6 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable.
         :return: a nest processable format.
         """
-
         assert isinstance(variable, ASTVariable)
 
         # print special cases such as synaptic delay variable
@@ -102,9 +101,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            if not (self.print_as_arrays and self.array_index is not None):
-                s += "B_."
-            s += self._print_buffer_value(variable)
+            s += "B_." + self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
