@@ -62,7 +62,8 @@ setup(
                                "codegeneration/resources_python_standalone/point_neuron/directives_py/*.jinja2",
                                "codegeneration/resources_spinnaker/*.jinja2",
                                "codegeneration/resources_spinnaker/directives_py/*",
-                               "codegeneration/resources_spinnaker/directives_cpp/*"]},
+                               "codegeneration/resources_spinnaker/directives_cpp/*",
+                               "codegeneration/resources_nest_desktop/*.jinja2"]},
     data_files=data_files,
     entry_points={
         "console_scripts": [
