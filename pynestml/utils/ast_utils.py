@@ -1596,6 +1596,7 @@ class ASTUtils:
 
     @classmethod
     def replace_post_moved_variable_names(cls, astnode, post_connected_continuous_input_ports, post_variable_names):
+        r"""In the synapse, continuous-valued input ports could be referred to based on their name. When they are moved to the neuron, they need to be referred to by the variable name as it exists on the neuron side. This function performs the variable name replacement recursively in ``astnode``. ``astnode`` can also be a list of nodes."""
         if not isinstance(astnode, ASTNode):
             for node in astnode:
                 ASTUtils.replace_post_moved_variable_names(node, post_connected_continuous_input_ports, post_variable_names)

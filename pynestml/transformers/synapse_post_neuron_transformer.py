@@ -527,7 +527,7 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(
                         port.get_name(), neuron.name, synapse.name))
 
-        for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
+        for state_var in post_connected_continuous_input_ports:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
             ASTUtils.replace_with_external_variable(state_var, new_synapse, "", None, "__" + state_var)
 
