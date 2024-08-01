@@ -490,6 +490,15 @@ The following functions are predefined in NESTML and can be used out of the box.
    * - ``expm1``
      - x
      - Returns the exponential of x minus 1. The type of x and the return type are Real.
+   * - ``sin``
+     - x
+     - Returns the sine of x. The type of x and the return type are Real.
+   * - ``cos``
+     - x
+     - Returns the cosine of x. The type of x and the return type are Real.
+   * - ``tan``
+     - x
+     - Returns the tangent of x. The type of x and the return type are Real.
    * - ``sinh``
      - x
      - Returns the hyperbolic sine of x. The type of x and the return type are Real.
@@ -570,6 +579,8 @@ The following variables and constants are predefined in NESTML and can be used o
      - The current simulation time (read only)
    * - ``e``
      - Euler's constant (2.718...)
+   * - ``pi``
+     - pi (3.14159...)
    * - ``inf``
      - Floating point infinity
 

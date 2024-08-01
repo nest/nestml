@@ -1,0 +1,17 @@
+{
+  "id": "{{neuronName}}",
+  "elementType": "neuron",
+  "label": "{{neuronName}}",
+  "recordables": [
+    {%- for variable in neuron.get_state_symbols() %}
+    "{{variable.get_symbol_name()}}"
+    {%- if not loop.last %},{%- endif %}
+    {%- endfor %}
+  ],
+  "params": [
+    {%- for variable in neuron.get_parameter_symbols() %}
+    {%- set last = loop.last %}
+    {%- include "ParameterDeclaration.jinja2" %}
+    {%- endfor %}
+  ]
+}
