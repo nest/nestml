@@ -85,6 +85,8 @@ class TestDopaSecondOrder:
         vt = nest.Create("volume_transmitter")
         vt_parrot = nest.Create("parrot_neuron")
         nest.Connect(vt_sg, vt_parrot)
+        sr = nest.Create("spike_recorder")
+        nest.Connect(vt_parrot, sr)
         nest.Connect(vt_parrot, vt, syn_spec={"synapse_model": "static_synapse",
                                               "weight": 1.,
                                               "delay": 1.})   # delay is ignored!
@@ -103,6 +105,7 @@ class TestDopaSecondOrder:
         syn = nest.GetConnections(pre_neuron, post_neuron)
         syn.tau_dopa = 25.   # [ms]
 
+        # run the NEST simulation
         log = {"t": [0.],
                "dopa_rate": [syn.dopa_rate],
                "dopa_rate_d": [syn.dopa_rate_d]}
@@ -114,10 +117,27 @@ class TestDopaSecondOrder:
             log["dopa_rate"].append(syn.dopa_rate)
             log["dopa_rate_d"].append(syn.dopa_rate_d)
 
+        # run the reference simulation
+        ref_log = {"t": np.arange(0., nest.biological_time + 1E-12, resolution),
+                   "dopa_rate": [0.],
+                   "dopa_rate_d": [0.]}
+
+        for t in ref_log["t"][1:]:
+            d_dopa_rate = resolution * ref_log["dopa_rate_d"][-1]
+            d_d_dopa_rate = resolution * (-ref_log["dopa_rate"][-1] / syn.tau_dopa**2 - 2 * ref_log["dopa_rate_d"][-1] / syn.tau_dopa)
+            ref_log["dopa_rate"].append(ref_log["dopa_rate"][-1] + d_dopa_rate)
+            ref_log["dopa_rate_d"].append(ref_log["dopa_rate_d"][-1] + d_d_dopa_rate)
+
+            for t_sp in np.array(sr.get("events")["times"]) + 1:
+                if np.abs(t - t_sp) < 1E-12:
+                    ref_log["dopa_rate_d"][-1] += 1 / syn.tau_dopa
+
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2, dpi=300)
-            ax[0].plot(log["t"], log["dopa_rate"], label="dopa_rate")
-            ax[1].plot(log["t"], log["dopa_rate_d"], label="dopa_rate_d")
+            ax[0].plot(log["t"], log["dopa_rate"], label="dopa_rate (NEST)")
+            ax[1].plot(log["t"], log["dopa_rate_d"], label="dopa_rate_d (NEST)")
+            ax[0].plot(ref_log["t"], ref_log["dopa_rate"], label="dopa_rate (ref)")
+            ax[1].plot(ref_log["t"], ref_log["dopa_rate_d"], label="dopa_rate_d (ref)")
             for _ax in ax:
                 _ax.legend()
             fig.savefig("/tmp/test_dopa_second_order_synapse.png")
