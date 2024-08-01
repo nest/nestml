@@ -222,7 +222,7 @@ def start_weak_scaling_benchmark_threads(iteration):
     for combination in combinations:
         rng_seed = rng.integers(0, max_int32)
 
-        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {NUMTHREADS} --rng_seed {rng_seed} --iteration {iteration} --benchmarkPath {dirname}']
+        command = ['bash', '-c', f'source {PATHTOSTARTFILE} && python3 {PATHTOFILE} --simulated_neuron {combination["neuronmodel"]} --network_scale {NETWORK_BASE_SCALE * combination["n_threads"]} --threads {combination["n_threads"]} --rng_seed {rng_seed} --iteration {iteration} --benchmarkPath {dirname}']
 
         combined = combination["neuronmodel"]+","+str(combination["networksize"])
         log(f"\033[93m{combined}\033[0m" if DEBUG else combined)
@@ -504,16 +504,16 @@ def read_isis_from_files(neuron_models):
         iteration = 0
         rank = 0
         while True:
-            filename = "isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=2]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
-            if not os.path.exists(filename):
+            filename = "timings_strong_scaling_mpi/isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=1]_[threads=1]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
+            if not os.path.exists(os.path.join(output_folder, filename)):
                 break
 
             with open(os.path.join(output_folder, filename), 'r') as file:
                 isis = [float(line.strip()) for line in file]
                 data[neuron_model]["isis"].append(isis)
 
-            #iteration += 1
-            rank += 1
+            iteration += 1
+            # rank += 1
 
     return data
 
@@ -547,6 +547,7 @@ def analyze_isi_data(data, bin_size):
     data["min_val"] = min_val
     data["max_val"] = max_val
 
+
 def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(10, 6))
 
@@ -560,8 +561,7 @@ def plot_isi_distributions(neuron_models, data):
     plt.title('ISI Distributions')
     plt.legend()
     plt.grid(True)
-    plt.show()
-
+    plt.savefig(os.path.join(output_folder, 'isi_distributions.png'))
 
 
 if __name__ == "__main__":

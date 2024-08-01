@@ -228,7 +228,7 @@ startbuild = time.time()
 ###############################################################################
 # Assigning the simulation parameters to variables.
 
-dt = 0.1  # the resolution in ms
+dt = 0.01  # the resolution in ms  -- note that in NEST, aeif models internally use .01 ms timestep; use same value for consistency!
 simtime = 1000.0  # Simulation time in ms
 delay = 1.5  # synaptic delay in ms
 
