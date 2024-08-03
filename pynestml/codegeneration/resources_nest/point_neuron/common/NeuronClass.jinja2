@@ -1124,10 +1124,10 @@ void
       assert(history_.back().t_ == last_spike_);
 
 {%-     for var in purely_numeric_state_variables_moved|sort %}
-      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
 {%-     endfor %}
 {%-     for var in analytic_state_variables_moved|sort %}
-      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{var}}_;
+      {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = history_.back().{{ var }}_;
 {%-     endfor %}
     }
     else
@@ -1140,6 +1140,7 @@ void
 {%-     endfor %}
     }
 
+{%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
      *
@@ -1152,16 +1153,17 @@ void
     {
       recompute_internal_variables(true);
 
-{%-     filter indent(6, True) -%}
-{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%-     endfilter %}
+{%-         filter indent(6, True) -%}
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-         endfilter %}
 
       V_.__h = old___h;
       recompute_internal_variables(true);
     }
+{%- endif %}
 
     /**
       * print extra on-emit statements transferred from synapse
@@ -1188,10 +1190,10 @@ void
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
 {%- for var in purely_numeric_state_variables_moved|sort %}
-    , get_{{var}}()
+    , get_{{ var }}()
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-    , get_{{var}}()
+    , get_{{ var }}()
 {%- endfor %}
 , 0
  ) );
@@ -1223,17 +1225,17 @@ void
 {%- endif %}
 
 double
-{{ neuronName }}::get_{{var}}( double t, const bool before_increment )
+{{ neuronName }}::get_{{ var }}( double t, const bool before_increment )
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: getting value at t = " << t << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: getting value at t = " << t << std::endl;
 #endif
 
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
+    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \thistory empty, returning initial value = " << {{ var }}__iv << std::endl;
 #endif
     // return initial value
     return {{ var }}__iv;
@@ -1251,7 +1253,7 @@ double
     if ( t - history_[ i ].t_ >= eps )
     {
 #ifdef DEBUG
-      std::cout<<"{{ neuronName }}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+      std::cout << "{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
@@ -1261,6 +1263,7 @@ double
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
+{%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1274,17 +1277,18 @@ double
         assert(V_.__h > 0);
         recompute_internal_variables(true);
 
-{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
+{%- endif %}
 
 #ifdef DEBUG
-      std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
+      std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
       return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
     }
@@ -1302,7 +1306,7 @@ double
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
+    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
 #endif
     return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
   }
@@ -1310,7 +1314,7 @@ double
   // this case occurs when the trace was requested at a time before the first spike in the history
   // return initial value propagated in time
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \tfall-through, returning initial value = " << {{ var }}__iv << std::endl;
 #endif
 
   if (t == 0.)
