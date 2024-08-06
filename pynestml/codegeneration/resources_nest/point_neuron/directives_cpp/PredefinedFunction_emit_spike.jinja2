@@ -9,6 +9,9 @@
 **/
 {% if ast.get_args() | length == 0 %}
 {#-     no parameters -- emit_spike() called from within neuron #}
+#ifdef DEBUG
+std::cout << "Emitting a spike at t = " << nest::Time(nest::Time::step(origin.get_steps() + lag + 1)).get_ms() << "\n";
+#endif
 set_spiketime(nest::Time::step(origin.get_steps() + lag + 1));
 nest::SpikeEvent se;
 nest::kernel().event_delivery_manager.send(*this, se, lag);

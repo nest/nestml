@@ -152,6 +152,9 @@ model ExpressionCollection:
         testerf real = erf(0.)
         testerfc real = erfc(0.)
 
+        test_e real = e
+        test_pi real = pi
+
     equations:
         #neuron aeif_cond_alpha_neuron
         test0 = E_L
