@@ -176,6 +176,8 @@ class CodeGenerator(WithOptions):
         for synapse in synapses:
             if Logger.logging_level == LoggingLevel.INFO:
                 print("Generating code for the synapse {}.".format(synapse.get_name()))
+            print("gen syn")
+            breakpoint()
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
@@ -217,6 +219,7 @@ class CodeGenerator(WithOptions):
             _file = _model_templ.render(template_namespace)
             Logger.log_message(message="Rendering template " + rendered_templ_file_name,
                                log_level=LoggingLevel.INFO)
+            breakpoint()
             with open(rendered_templ_file_name, "w+") as f:
                 f.write(str(_file))
 
