@@ -17,6 +17,10 @@ Creating neuron models
 
   Implement the Ornstein-Uhlenbeck process in NESTML and use it to inject a noise current into a neuron.
 
+* :doc:`Inhomogeneous Poisson generator </tutorials/inhomogeneous_poisson/inhomogeneous_poisson>`
+
+  Create a model that emits spikes according to an inhomogeneous Poisson distribution.
+
 
 Creating synapse models
 -----------------------

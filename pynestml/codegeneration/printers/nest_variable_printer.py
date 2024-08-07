@@ -43,11 +43,12 @@ class NESTVariablePrinter(CppVariablePrinter):
     Variable printer for C++ syntax and the NEST API.
     """
 
-    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, enforce_getter: bool = True) -> None:
+    def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True, enforce_getter: bool = True, variables_special_cases: Optional[Dict[str, str]] = None) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin
         self.with_vector_parameter = with_vector_parameter
         self.enforce_getter = enforce_getter
+        self.variables_special_cases = variables_special_cases
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -55,12 +56,13 @@ class NESTVariablePrinter(CppVariablePrinter):
         :param variable: a single variable.
         :return: a nest processable format.
         """
-        array_index_access = ""
-        if self.print_as_arrays and self.array_index is not None:
-            array_index_access = "[" + str(self.array_index) + "]"
-
         assert isinstance(variable, ASTVariable)
 
+        # print special cases such as synaptic delay variable
+        if self.variables_special_cases and variable.get_name() in self.variables_special_cases.keys():
+            return self.variables_special_cases[variable.get_name()]
+
+        # print external variables (such as a variable in the synapse that needs to call the getter method on the postsynaptic partner)
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
@@ -72,10 +74,10 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"
 
-        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
-
         if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
             return "get_t()"
+
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -89,7 +91,7 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -99,9 +101,7 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            if not (self.print_as_arrays and self.array_index is not None):
-                s += "B_."
-            s += self._print_buffer_value(variable)
+            s += "B_." + self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -109,17 +109,17 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             if self.enforce_getter:
-                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()" + array_index_access
+                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
             # modification to not enforce getter function:
             else:
-                return self._print(variable, symbol, with_origin=False) + array_index_access
+                return self._print(variable, symbol, with_origin=False) + vector_param
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
+            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + array_index_access
+        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
@@ -133,24 +133,6 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return ""
 
-    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
-        """
-        Converts the vector parameter into NEST processable format
-        :param variable:
-        :return:
-        """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = vector_parameter.get_variable()
-        if vector_parameter_var:
-            vector_parameter_var.scope = variable.get_scope()
-
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                        SymbolKind.VARIABLE)
-            if symbol and symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-
-        return self._expression_printer.print(vector_parameter)
-
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """
         Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
@@ -160,14 +142,13 @@ class NESTVariablePrinter(CppVariablePrinter):
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
             var_name = variable_symbol.get_symbol_name().upper()
-            if variable.get_vector_parameter() is not None:
-                vector_parameter = ASTUtils.get_numeric_vector_size(variable)
-                var_name = var_name + "_" + str(vector_parameter)
-
+            if variable.has_vector_parameter():
+                if variable.get_vector_parameter().is_variable():
+                    # the enum corresponding to the first input port in a vector of input ports will have the _0 suffixed to the enum's name.
+                    var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
+                else:
+                    var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
-
-        if self.print_as_arrays and self.array_index is not None:
-            return variable_symbol.get_symbol_name() + "[" + str(self.array_index) + "]"
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

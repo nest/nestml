@@ -45,8 +45,8 @@ class RandomNumberGeneratorsTest(unittest.TestCase):
         PredefinedFunctions.register_functions()
 
     def test_random_number_generators(self):
-        model = ModelParser.parse_model(
+        model = ModelParser.parse_file(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'random_number_generators_test.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 0)

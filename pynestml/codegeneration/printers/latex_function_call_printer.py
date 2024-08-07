@@ -62,16 +62,16 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
             return r'\text{steps}'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return r'\mathcal{N}({!s}, {!s}'
+            return r'\mathcal{N}({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.RANDOM_POISSON:
+            return r'\mathrm{Poisson}({!s})'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return r'\mathcal{U}({!s}, {!s}'
+            return r'\mathcal{U}({!s}, {!s})'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return r'\text{spike}'
-
-        if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return r'\text{deliver\_spike}'
 
         return r"\text{" + function_name + r"}"
 

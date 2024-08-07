@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -71,23 +72,20 @@ class ASTArithmeticOperator(ASTNode):
 
         return dup
 
-    def get_parent(self, ast):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        return None
+        return []
 
-    def equals(self, other):
-        # type: (ASTNode) -> bool
-        """
+    def equals(self, other: ASTNode) -> bool:
+        r"""
         The equality method.
         """
         if not isinstance(other, ASTArithmeticOperator):
             return False
+
         return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op
                 and self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op
                 and self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)

@@ -59,12 +59,13 @@ See also
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
 """
-neuron iaf_psc_alpha_adapt_thresh_OU:
+model iaf_psc_alpha_adapt_thresh_OU_neuron:
 
     state:
-        r integer = 0            # Counts number of tick during the refractory period
         V_m mV = E_L             # Membrane potential
         Theta mV = Theta_init    # Spiking threshold
+        refr_t ms = 0 ms    # Refractory period timer
+        is_refractory boolean = false
         I_noise pA = I_noise0    # Noise current
 
     equations:
@@ -79,7 +80,7 @@ neuron iaf_psc_alpha_adapt_thresh_OU:
         tau_m   ms = 10 ms        # Membrane time constant
         tau_syn_inh ms = 2 ms     # Time constant of synaptic current
         tau_syn_exc ms = 2 ms     # Time constant of synaptic current
-        t_ref   ms = 2 ms         # Duration of refractory period
+        refr_T ms = 2 ms          # Duration of refractory period
         E_L     mV = -70 mV       # Resting potential
         V_reset mV = -70 mV       # Reset potential of the membrane
 
@@ -94,14 +95,13 @@ neuron iaf_psc_alpha_adapt_thresh_OU:
         I_e pA = 0 pA
 
     internals:
-        RefractoryCounts integer = steps(t_ref)    # refractory time in steps
         D_noise pA**2/ms = 2 * sigma_noise**2 / tau_syn_exc
         A_noise pA = ((D_noise * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc )))**.5
 
     input:
         exc_spikes <- excitatory spike
         inh_spikes <- inhibitory spike
-        I_stim <- continuous
+        I_stim pA <- continuous
 
     output:
         spike
@@ -109,13 +109,21 @@ neuron iaf_psc_alpha_adapt_thresh_OU:
     update:
         I_noise = I_noise0 + (I_noise - I_noise0) * exp(-resolution() / tau_syn_exc) + A_noise * random_normal(0, 1)
 
-        if r == 0: # neuron not refractory
+        if is_refractory:
+            # neuron is absolute refractory, do not evolve ODEs
+            refr_t -= resolution()
+        else:
+            # neuron not refractory
             integrate_odes()
-        else: # neuron is absolute refractory
-            r = r - 1
 
-        if V_m >= Theta: # threshold crossing
-            r = RefractoryCounts
-            V_m = V_reset
-            Theta += Delta_Theta
-            emit_spike()
+    onCondition(V_m >= Theta): # threshold crossing
+        refr_t = refr_T    # start of the refractory period
+        is_refractory = true
+        V_m = V_reset
+        Theta += Delta_Theta
+        emit_spike()
+
+    onCondition(is_refractory and refr_t <= resolution() / 2):
+        # end of refractory period
+        refr_t = 0 ms
+        is_refractory = false

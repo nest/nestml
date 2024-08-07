@@ -98,10 +98,6 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return 'std::abs({!s})'
 
         if function_name == PredefinedFunctions.EXP:
-            if "fastexp" in FrontendConfiguration.get_codegen_opts():
-                if FrontendConfiguration.get_codegen_opts()["fastexp"]:
-                    return 'fastexp::IEEE<double, 2>::evaluate({!s})'
-
             return 'std::exp({!s})'
 
         if function_name == PredefinedFunctions.LN:
@@ -146,8 +142,8 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
-        else:
-            return function_name + '()'
+
+        return function_name + '()'
 
     def _print_function_call_argument_list(self, function_call: ASTFunctionCall) -> Tuple[str, ...]:
         ret = []

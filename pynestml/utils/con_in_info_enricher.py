@@ -19,15 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-import sympy
-
 from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
+from pynestml.utils.model_parser import ModelParser
+
+import sympy
 
 
 class ConInInfoEnricher(MechsInfoEnricher):
-    """Just created for consistency. No more than the base-class enriching needs to be done"""
+    """Class extends MechsInfoEnricher by the computation of the inline derivative. This hasn't been done in the
+    channel processing because it would cause a circular dependency through the coco checks used by the ModelParser
+    which we need to use."""
     def __init__(self, params):
         super(MechsInfoEnricher, self).__init__(params)
 

@@ -88,11 +88,11 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   , n_passed( 0 )
 {
 
-  double v_comp_update = el;
   updateValue< double >( compartment_params, names::C_m, ca );
   updateValue< double >( compartment_params, names::g_C, gc );
   updateValue< double >( compartment_params, names::g_L, gl );
   updateValue< double >( compartment_params, names::e_L, el );
+  double v_comp_update = el;
   if( compartment_params->known( "v_comp" ) ) updateValue< double >( compartment_params, "v_comp", v_comp_update);
 
   *v_comp = v_comp_update;

@@ -21,9 +21,11 @@
 
 from typing import Optional
 
+from pynestml.utils.ast_utils import ASTUtils
+
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType, BlockType
 from pynestml.utils.logger import LoggingLevel, Logger
 
 

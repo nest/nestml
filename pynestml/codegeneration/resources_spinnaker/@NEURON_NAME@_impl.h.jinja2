@@ -62,7 +62,7 @@
  *       through a function pointer.
  * @param void* Pointer to model neuron instance.
 **/
-extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
+extern "C" inline int {{neuronName}}_dynamics( double, const double ode_state[], double f[], void* pnode );
 {% endif %}
 
 // Missing paired_synapse stuff here
@@ -99,7 +99,7 @@ typedef struct {
 // 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     REAL inputs[{{ ns.count }}];
-{%- endif %} 
+{%- endif %}
 }neuron_input_t;
 
 typedef struct {
@@ -197,7 +197,7 @@ static void neuron_impl_store_neuron_parameters(
 
 // This should handle incoming input events (spike and additional inputs e.g. current)
 // For implementation follow the nestml "handle"- function
-// Weights are already applied ? 
+// Weights are already applied ?
 // Apply synapse type before adding to buffer (delta, exp, ...)
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_add_inputs(
@@ -244,7 +244,7 @@ static void neuron_impl_do_timestep_update(
 {%- endif %}
 
         // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
-    
+
 {%- for variable in neuron.get_spike_input_ports() %}
         input->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
 {%- endfor %}
