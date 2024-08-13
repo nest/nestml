@@ -1,0 +1,27 @@
+model beta_function_with_inline_expression_neuron:
+
+  parameters:
+    tau1 ms = 20. ms  ## decay time
+    tau2 ms = 10. ms  ## rise time
+
+  state:
+    x_ pA/ms = 0.0 pA/ms
+    x  pA    = 0.0 pA
+
+  equations:
+    x_' = - x_ / tau1
+    x'  =   x_        - x / tau2
+
+    recordable inline z pA = x
+
+  input:
+    weighted_input_spikes  <- spike
+
+  output:
+    spike
+
+  update:
+    integrate_odes()
+
+  onReceive(weighted_input_spikes):
+    x_ += ( 1./tau2 - 1./tau1) * pA
