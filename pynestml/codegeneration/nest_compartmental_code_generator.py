@@ -213,14 +213,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._nest_code_generator.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
         self._nest_code_generator.generate_synapses(synapses)
-        self.generate_module_code(neurons)
+        self.generate_module_code(neurons, synapses)
 
-    def generate_module_code(self, neurons: List[ASTModel]) -> None:
+    def generate_module_code(self, neurons: List[ASTModel], synapses: List[ASTModel]) -> None:
         """t
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
         """
-        namespace = self._get_module_namespace(neurons)
+        namespace = self._get_module_namespace(neurons, synapses)
         if not os.path.exists(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
 
@@ -244,13 +244,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
-    def _get_module_namespace(self, neurons: List[ASTModel]) -> Dict:
+    def _get_module_namespace(self, neurons: List[ASTModel], synapses: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
+                     "synapses": synapses,
                      "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
@@ -271,6 +272,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             }
         namespace["perNeuronFileNamesCm"] = neuron_name_to_filename
 
+        # neuron specific file names in compartmental case
+        synapse_name_to_filename = dict()
+        for synapse in synapses:
+            synapse_name_to_filename[synapse.get_name()] = {
+                "main": self.get_stdp_synapse_main_file_prefix(synapse)
+            }
+        namespace["perSynapseFileNamesCm"] = synapse_name_to_filename
+
         # compartmental case files that are not neuron specific - currently
         # empty
         namespace["sharedFileNamesCmSyns"] = {
@@ -289,6 +298,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def get_cm_syns_tree_file_prefix(self, neuron):
         return "cm_tree_" + neuron.get_name()
+
+    def get_stdp_synapse_main_file_prefix(self, synapse):
+        return synapse.get_name()
 
     def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
         """

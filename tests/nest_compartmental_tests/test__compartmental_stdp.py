@@ -68,32 +68,34 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-
-        generate_nest_compartmental_target(
-            input_path=[neuron_input_path, synapse_input_path],
-            target_path=target_path,
-            module_name="cm_stdp_module",
-            suffix="_nestml",
-            logging_level="INFO",
-            codegen_opts={"neuron_synapse_pairs": [{"neuron": "continuous_test_model",
-                                                    "synapse": "stdp_synapse",
-                                                    "post_ports": ["post_spikes"]}],
-                          "delay_variable": {"stdp_synapse": "d"},
-                          "weight_variable": {"stdp_synapse": "w"}
-                          }
-        )
+        if True:
+            generate_nest_compartmental_target(
+                input_path=[neuron_input_path, synapse_input_path],
+                target_path=target_path,
+                module_name="cm_stdp_module",
+                suffix="_nestml",
+                logging_level="INFO",
+                codegen_opts={"neuron_synapse_pairs": [{"neuron": "continuous_test_model",
+                                                        "synapse": "stdp_synapse",
+                                                        "post_ports": ["post_spikes"]}],
+                              "delay_variable": {"stdp_synapse": "d"},
+                              "weight_variable": {"stdp_synapse": "w"}
+                              }
+            )
 
         nest.Install("cm_stdp_module.so")
 
     def test_cm_stdp(self):
-        pre_spike_times = []
-        post_spike_times = []
+        pre_spike_times = [1, 200]
+        post_spike_times = [2, 199]
         sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5
         wr = nest.Create("weight_recorder")
-        nest.CopyModel("stdp_synapse", "stdp_nestml_rec",
+        nest.CopyModel("stdp_synapse_nestml__with_continuous_test_model_nestml", "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+        #nest.CopyModel("stdp_synapse", "stdp_nestml_rec",
+        #               {"weight_recorder": wr[0], "receptor_type": 0})
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
         external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
-        post_neuron = nest.Create("continuous_test_model_nestml_with_stdp_synapse_nestml")
+        post_neuron = nest.Create('continuous_test_model_nestml__with_stdp_synapse_nestml')
 
