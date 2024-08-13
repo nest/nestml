@@ -294,7 +294,8 @@ private:
 
     // state variables from state block
 {%-   filter indent(4,True) %}
-{%-   for variable in synapse.get_state_symbols() %}
+{%-   for variable_symbol in synapse.get_state_symbols() %}
+{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives_cpp/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}

@@ -478,7 +478,6 @@ def process():
     models, errors_occurred = get_parsed_models()
 
     if not errors_occurred:
-        #breakpoint()
         models = transform_models(transformers, models)
         generate_code(code_generator, models)
 

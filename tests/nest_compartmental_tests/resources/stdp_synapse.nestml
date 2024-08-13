@@ -33,7 +33,7 @@ References
        Stable Hebbian learning from spike timing-dependent
        plasticity, Journal of Neuroscience, 20:23,8812--8821
 """
-synapse stdp:
+model stdp_synapse:
     state:
         w real = 1.    @nest::weight   # Synaptic weight
         pre_trace real = 0.
@@ -76,4 +76,4 @@ synapse stdp:
         w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
-        deliver_spike(w, d)
+        emit_spike(w, d)

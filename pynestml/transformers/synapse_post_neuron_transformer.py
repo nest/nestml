@@ -368,7 +368,6 @@ class SynapsePostNeuronTransformer(Transformer):
         #
         #   move state variable declarations from synapse to neuron
         #
-
         for state_var in syn_to_neuron_state_vars:
             decls = ASTUtils.move_decls(state_var,
                                         neuron.get_state_blocks()[0],
@@ -592,6 +591,7 @@ class SynapsePostNeuronTransformer(Transformer):
         return new_neuron, new_synapse
 
     def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+        new_models = []
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):
             neuron_name = neuron_synapse_pair["neuron"]
             synapse_name = neuron_synapse_pair["synapse"]
@@ -604,8 +604,10 @@ class SynapsePostNeuronTransformer(Transformer):
                 raise Exception("Synapse used in pair (\"" + synapse_name + "\") not found")  # XXX: log error
 
             new_neuron, new_synapse = self.transform_neuron_synapse_pair_(neuron, synapse)
-            models.append(new_neuron)
-            models.append(new_synapse)
+            new_models.append(new_neuron)
+            new_models.append(new_synapse)
+        for model in new_models:
+            models.append(model)
 
         # remove the synapses used in neuron-synapse pairs, as they can potentially not be generated independently of a neuron and would otherwise result in an error
         for neuron_synapse_pair in self.get_option("neuron_synapse_pairs"):

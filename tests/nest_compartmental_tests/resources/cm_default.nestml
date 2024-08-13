@@ -31,10 +31,6 @@ model cm_default:
 
     state:
 
-        # compartmental voltage variable,
-        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
-        v_comp real = 0
-
         ### ion channels ###
         # initial values state variables sodium channel
         m_Na real = 0.01696863
@@ -42,6 +38,10 @@ model cm_default:
 
         # initial values state variables potassium channel
         n_K real = 0.00014943
+
+        # compartmental voltage variable,
+        # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
+        v_comp real = 0
 
 
     parameters:

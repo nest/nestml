@@ -22,6 +22,7 @@
 import os
 import unittest
 
+import numpy as np
 import pytest
 
 import nest
@@ -75,11 +76,24 @@ class TestCompartmentalConcmech(unittest.TestCase):
             suffix="_nestml",
             logging_level="INFO",
             codegen_opts={"neuron_synapse_pairs": [{"neuron": "continuous_test_model",
-                                                    "synapse": "stdp",
-                                                    "post_ports": ["post_spikes"]}]}
+                                                    "synapse": "stdp_synapse",
+                                                    "post_ports": ["post_spikes"]}],
+                          "delay_variable": {"stdp_synapse": "d"},
+                          "weight_variable": {"stdp_synapse": "w"}
+                          }
         )
 
-        nest.Install("concmech_mockup_module.so")
+        nest.Install("cm_stdp_module.so")
 
-    def test_concmech(self):
-        pass
+    def test_cm_stdp(self):
+        pre_spike_times = []
+        post_spike_times = []
+        sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5
+        wr = nest.Create("weight_recorder")
+        nest.CopyModel("stdp_synapse", "stdp_nestml_rec",
+                       {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+        external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
+        external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
+        pre_neuron = nest.Create("parrot_neuron")
+        post_neuron = nest.Create("continuous_test_model_nestml_with_stdp_synapse_nestml")
+

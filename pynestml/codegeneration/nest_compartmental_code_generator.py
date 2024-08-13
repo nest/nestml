@@ -28,6 +28,7 @@ import os
 from jinja2 import TemplateRuntimeError
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
@@ -74,6 +75,9 @@ from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumbe
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from odetoolbox import analysis
 
+#DEBUGGING
+from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
+
 
 class NESTCompartmentalCodeGenerator(CodeGenerator):
     r"""
@@ -92,6 +96,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     """
 
     _default_options = {
+        "neuron_models": [],
+        "synapse_models": [],
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": True,
@@ -108,7 +114,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     "cm_tree_@NEURON_NAME@.h.jinja2"]},
             "module_templates": ["setup"]},
         "nest_version": "",
-        "compartmental_variable_name": "v_comp"}
+        "compartmental_variable_name": "v_comp",
+        "delay_variable": {},
+        "weight_variable": {}
+    }
 
     _variable_matching_template = r"(\b)({})(\b)"
     _model_templates = dict()
@@ -116,6 +125,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST_COMPARTMENTAL", options)
+
+        self._nest_code_generator = NESTCodeGenerator(options)
 
         # auto-detect NEST Simulator installed version
         if not self.option_exists("nest_version") or not self.get_option("nest_version"):
@@ -127,7 +138,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.numeric_solver = {}
         # those state variables not defined as an ODE in the equations block
         self.non_equations_state_variables = {}
-        self._nest_code_generator = NESTCodeGenerator()
 
         self.setup_template_env()
 
@@ -190,17 +200,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         raise TemplateRuntimeError(msg)
 
     def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        self._nest_code_generator.set_options(options)
         ret = super().set_options(options)
         self.setup_template_env()
 
         return ret
 
     def generate_code(self, models: List[ASTModel]) -> None:
-        self.analyse_transform_neurons(models)
-        self._nest_code_generator.analyse_transform_synapses(models)
-        self.generate_neurons(models)
-        self._nest_code_generator.generate_synapses(models)
-        self.generate_module_code(models)
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option(
+            "neuron_models"), synapse_models=self.get_option("synapse_models"))
+        self.analyse_transform_neurons(neurons)
+        self._nest_code_generator.analyse_transform_synapses(synapses)
+        self.generate_neurons(neurons)
+        self._nest_code_generator.generate_synapses(synapses)
+        self.generate_module_code(neurons)
 
     def generate_module_code(self, neurons: List[ASTModel]) -> None:
         """t

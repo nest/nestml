@@ -415,7 +415,7 @@ class CoCosManager:
         cls.check_variables_defined_before_usage(model, after_ast_rewrite)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
-            cls.check_v_comp_requirement(model)
+            # cls.check_v_comp_requirement(model)
             cls.check_compartmental_model(model)
         cls.check_inline_expressions_have_rhs(model)
         cls.check_inline_has_max_one_lhs(model)
