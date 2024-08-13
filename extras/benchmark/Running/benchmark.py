@@ -29,6 +29,8 @@ import re
 import subprocess
 import time
 
+import matplotlib
+import matplotlib.ticker
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -320,6 +322,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.xscale('log')
     # plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
     plt.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, file_prefix + '_abs.png'))
@@ -354,6 +357,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.xscale('log')
     # plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
     plt.legend()
     plt.tight_layout()
@@ -414,6 +418,8 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.xscale('log')
     plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+
     plt.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
 
 
