@@ -8,6 +8,9 @@ model beta_function_with_inline_expression_neuron:
     x_ pA/ms = 0.0 pA/ms
     x  pA    = 0.0 pA
 
+  internals:
+    alpha real = 42.
+
   equations:
     x_' = - x_ / tau1
     x'  =   x_        - x / tau2
@@ -24,4 +27,4 @@ model beta_function_with_inline_expression_neuron:
     integrate_odes()
 
   onReceive(weighted_input_spikes):
-    x_ += ( 1./tau2 - 1./tau1) * pA
+    x_ += alpha * ( 1./tau2 - 1./tau1) * pA

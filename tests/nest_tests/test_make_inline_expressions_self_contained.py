@@ -34,5 +34,4 @@ class TestMakeInlineExpressionsSelfContained:
         input_files = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "beta_function_with_inline_expression_neuron.nestml")))]
         generate_nest_target(input_path=input_files,
                              logging_level="DEBUG",
-                             codegen_opts = {"solver": "numeric"})
-
+                             codegen_opts={"solver": "numeric"})
