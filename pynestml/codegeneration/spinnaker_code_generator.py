@@ -183,7 +183,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("SpiNNaker", options)
+        super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
         options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]

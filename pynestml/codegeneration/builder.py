@@ -37,7 +37,7 @@ from pynestml.utils.with_options import WithOptions
 class Builder(WithOptions, metaclass=ABCMeta):
     r"""Compile, build and install the code for a given target platform. Runs after the CodeGenerator."""
 
-    def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Builder, self).__init__(options)
         self.process_output_redirection_(options)
 
