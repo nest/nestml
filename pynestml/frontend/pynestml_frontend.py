@@ -59,6 +59,11 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
+    # transform (expand) inline expressions
+    from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+    inline_expression_expansion_transformer = InlineExpressionExpansionTransformer()
+    transformers.append(inline_expression_expansion_transformer)
+
     if target_name.upper() in ["NEST", "SPINNAKER"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 
@@ -132,9 +137,8 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    # cannot reach here due to earlier assert -- silence
+    # cannot reach here due to earlier assert -- silence static checker warnings
     assert "Unknown code generator requested: " + target_name
-    # static checker warnings
 
 
 def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
