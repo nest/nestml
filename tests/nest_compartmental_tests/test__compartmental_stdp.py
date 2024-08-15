@@ -46,7 +46,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         neuron_input_path = os.path.join(
             tests_path,
             "resources",
-            "continuous_test.nestml"
+            "concmech.nestml"
         )
         synapse_input_path = os.path.join(
             tests_path,
@@ -68,14 +68,14 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        if True:
+        if False:
             generate_nest_compartmental_target(
                 input_path=[neuron_input_path, synapse_input_path],
                 target_path=target_path,
                 module_name="cm_stdp_module",
                 suffix="_nestml",
-                logging_level="INFO",
-                codegen_opts={"neuron_synapse_pairs": [{"neuron": "continuous_test_model",
+                logging_level="WARNING",
+                codegen_opts={"neuron_synapse_pairs": [{"neuron": "multichannel_test_model",
                                                         "synapse": "stdp_synapse",
                                                         "post_ports": ["post_spikes"]}],
                               "delay_variable": {"stdp_synapse": "d"},
@@ -90,12 +90,52 @@ class TestCompartmentalConcmech(unittest.TestCase):
         post_spike_times = [2, 199]
         sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5
         wr = nest.Create("weight_recorder")
-        nest.CopyModel("stdp_synapse_nestml__with_continuous_test_model_nestml", "stdp_nestml_rec",
+        nest.CopyModel("stdp_synapse_nestml__with_multichannel_test_model_nestml", "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
-        #nest.CopyModel("stdp_synapse", "stdp_nestml_rec",
-        #               {"weight_recorder": wr[0], "receptor_type": 0})
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
         external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
-        post_neuron = nest.Create('continuous_test_model_nestml__with_stdp_synapse_nestml')
+        post_neuron = nest.Create('multichannel_test_model_nestml__with_stdp_synapse_nestml')
 
+        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 1.0, 'gbar_SK_E2': 1.0}
+        post_neuron.compartments = [
+            {"parent_idx": -1, "params": params}
+        ]
+        post_neuron.receptors = [
+            {"comp_idx": 0, "receptor_type": "AMPA"}
+        ]
+
+        mm = nest.Create('multimeter', 1, {
+            'record_from': ['v_comp0'], 'interval': .1})
+
+        nest.Connect(external_input_pre, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(external_input_post, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 99999.})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "stdp_nestml_rec", 'weight': 4.0,
+                                                                      'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(mm, post_neuron)
+
+        syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
+
+        t_hist = []
+        w_hist = []
+        t = 0
+        while t <= sim_time:
+            nest.Simulate(1)
+            t += 1
+            t_hist.append(t)
+            w_hist = []
+            w_hist.append(nest.GetStatus(syn)[0]["w"])
+        res = nest.GetStatus(mm, 'events')[0]
+
+        fig, axs = plt.subplots(2)
+
+        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
+        axs[1].plot(res['times'], w_hist, marker="o", label="weight")
+
+        axs[0].set_title('V_m_0')
+        axs[1].set_title('weight')
+
+        axs[0].legend()
+        axs[1].legend()
+
+        plt.show()

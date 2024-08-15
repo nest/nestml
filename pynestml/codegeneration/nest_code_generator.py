@@ -611,7 +611,6 @@ class NESTCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         """
         namespace = self._get_model_namespace(neuron)
-
         if "paired_synapse" in dir(neuron):
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
             namespace["paired_synapse"] = neuron.paired_synapse.get_name()

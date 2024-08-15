@@ -281,24 +281,24 @@ private:
     enum StateVecElems
     {
 {# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver#}
-{%-   if uses_numeric_solver %}
+{%-     if uses_numeric_solver %}
       // numeric solver state variables
-{%-     for variable_name in numeric_state_variables %}
-      {{variable_name}},
-{%-     endfor %}
-{%-   endif %}
+{%-         for variable_name in numeric_state_variables %}
+      {{variable_name}}_enum,
+{%-         endfor %}
+{%-     endif %}
       STATE_VEC_SIZE
     };
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
 
     // state variables from state block
-{%-   filter indent(4,True) %}
-{%-   for variable_symbol in synapse.get_state_symbols() %}
-{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     include "directives_cpp/MemberDeclaration.jinja2" %}
-{%-   endfor %}
-{%-   endfilter %}
+{%-     filter indent(4,True) %}
+{%-     for variable_symbol in synapse.get_state_symbols() %}
+{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-         include "directives_cpp/MemberDeclaration.jinja2" %}
+{%-     endfor %}
+{%-     endfilter %}
 {%- endif %}
 
     State_() {};

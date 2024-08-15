@@ -311,8 +311,31 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             code, message = Messages.get_analysing_transforming_model(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+            non_comp_neuron = neuron.clone()
             spike_updates = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
+
+            equations_block = neuron.get_equations_blocks()[0]
+            kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
+
+            analytic_solver, numeric_solver = self._nest_code_generator.ode_toolbox_analysis(neuron, kernel_buffers)
+
+            delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+
+            spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron, kernel_buffers,
+                                                                                  [analytic_solver, numeric_solver],
+                                                                                  delta_factors)
+
+            neuron.spike_updates = spike_updates
+            neuron.post_spike_updates = post_spike_updates
+            #neuron.equations_with_delay_vars = equations_with_delay_vars
+            #neuron.equations_with_vector_vars = equations_with_vector_vars
+            #post_spike_updates =
+            #equations_with_delay_vars =
+            #equations_with_vector_vars =
+            #neuron.post_spike_updates = post_spike_updates
+            #neuron.equations_with_delay_vars = equations_with_delay_vars
+            #neuron.equations_with_vector_vars = equations_with_vector_vars
 
     def create_ode_indict(self,
                           neuron: ASTModel,
@@ -608,6 +631,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
+        if "paired_synapse" in dir(neuron):
+            namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
+            namespace["paired_synapse"] = neuron.paired_synapse.get_name()
+            namespace["post_spike_updates"] = neuron.post_spike_updates
+            namespace["transferred_variables"] = neuron._transferred_variables
+            #namespace["transferred_variables_syms"] = {var_name: neuron.scope.resolve_to_symbol(
+            #    var_name, SymbolKind.VARIABLE) for var_name in namespace["transferred_variables"]}
+            #assert not any([v is None for v in namespace["transferred_variables_syms"].values()])
 
         # helper functions
         namespace["ast_node_factory"] = ASTNodeFactory
