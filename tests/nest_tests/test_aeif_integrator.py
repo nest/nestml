@@ -74,10 +74,7 @@ class TestAEIFIntegrator_with_respect_to_solution:
         }
 
         neuron = nest.Create("aeif_cond_exp_neuron_nestml")
-
-        for param in params:
-            neuron.set({param: params[param]})
-
+        neuron.set(**params)
         neuron.set({'V_m': -54.})
 
         # the test succeeds if the integrator terminates
