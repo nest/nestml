@@ -513,7 +513,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
-            namespace["paired_neuron"] = synapse.paired_neuron.get_name()
+            namespace["paired_neuron"] = synapse.paired_neuron
+            namespace["paired_neuron_name"] = synapse.paired_neuron.get_name()
             namespace["post_ports"] = synapse.post_port_names
             namespace["spiking_post_ports"] = synapse.spiking_post_port_names
             namespace["vt_ports"] = synapse.vt_port_names
