@@ -19,51 +19,32 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.visitors.ast_visitor import ASTVisitor
-
-from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.symbol_table.scope import Scope, ScopeType, Symbol, SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.codegeneration.printers.ast_printer import ASTPrinter
+from pynestml.codegeneration.printers.nest_variable_printer import NESTVariablePrinter
 
 
-class ASTVectorParameterSetterAndPrinter(ASTVisitor):
-    def __init__(self, model, printer):
+class ASTVectorParameterSetterAndPrinter(ASTPrinter):
+    def __init__(self):
         super(ASTVectorParameterSetterAndPrinter, self).__init__()
         self.inside_variable = False
         self.vector_parameter = ""
-        self.printer = printer
-        self.model = model
-
-    def visit_variable(self, node):
-        self.inside_variable = True
-
-    def endvisit_variable(self, node):
-        ast_vec_param = None
-        if self.vector_parameter is not None:
-            ast_vec_param = ModelParser.parse_variable(self.vector_parameter)
-            artificial_scope = Scope(ScopeType(1))
-            artificial_symbol = VariableSymbol(element_reference=ast_vec_param, scope=artificial_scope,
-                                               name=self.vector_parameter, vector_parameter=None)
-            artificial_scope.add_symbol(artificial_symbol)
-            ast_vec_param.update_scope(artificial_scope)
-            ast_vec_param.accept(ASTSymbolTableVisitor())
-
-        symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
-        if isinstance(symbol, VariableSymbol):
-            symbol.vector_parameter = self.vector_parameter
-            if symbol.is_buffer():
-                symbol.variable_type = 1
-        node.set_vector_parameter(ast_vec_param)
-        self.inside_variable = False
+        self.printer = None
+        self.model = None
 
     def set_vector_parameter(self, node, vector_parameter=None):
         self.vector_parameter = vector_parameter
         node.accept(self)
 
-    def print(self, node, vector_parameter=None):
-        print_node = node.clone()
-        self.set_vector_parameter(print_node, vector_parameter)
-        text = self.printer.print(print_node)
-        self.set_vector_parameter(print_node)
+    def print(self, node):
+        assert isinstance(self.printer._simple_expression_printer._variable_printer, NESTVariablePrinter)
+
+        self.printer._simple_expression_printer._variable_printer.cpp_variable_suffix = ""
+
+        if self.vector_parameter:
+            self.printer._simple_expression_printer._variable_printer.cpp_variable_suffix = "[" + self.vector_parameter + "]"
+
+        text = self.printer.print(node)
+
+        self.printer._simple_expression_printer._variable_printer.cpp_variable_suffix = ""
+
         return text
