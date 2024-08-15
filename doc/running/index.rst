@@ -49,27 +49,42 @@ Currently, the following target platforms are supported for code generation. Cli
 
       |spinnaker_logo|
 
+.. grid:: 2
 
-.. |nest_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nest-simulator-logo.png
+   .. grid-item-card::
+      :text-align: center
+      :class-title: sd-d-flex-row sd-align-minor-center
+
+      :doc:`"Pretty" render </running/running_pretty_render>`
+
+      |pretty_render_logo|
+
+
+.. |nest_logo| image:: ../fig/nest-simulator-logo.png
    :width: 95px
    :height: 40px
    :target: running_nest.html
 
-.. |python_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/python-logo.png
+.. |python_logo| image:: ../fig/python-logo.png
    :width: 40px
    :height: 40px
    :target: running_python_standalone.html
 
-.. |spinnaker_logo| image:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/spinnaker_logo.svg
+.. |spinnaker_logo| image:: ../fig/spinnaker_logo.svg
    :width: 40px
    :height: 40px
    :target: running_spinnaker.html
+
+.. |pretty_render_logo| image:: ../fig/nestml_code_render_thumbnail.png
+   :width: 100px
+   :height: 40px
+   :target: running_pretty_render.html
 
 .. warning::
 
    To ensure correct and reproducible results, always inspect the generated code by hand. Run comprehensive numerical testing of the model(s).
 
-   In case of doubt, please create a `GitHub Issue <https://github.com/nest/nestml/issues>`_ or write in on the `NEST mailing list <https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_. 
+   In case of doubt, please create a `GitHub Issue <https://github.com/nest/nestml/issues>`_ or write in on the `NEST mailing list <https://nest-simulator.readthedocs.io/en/latest/developer_space/guidelines/mailing_list_guidelines.html#mail-guidelines>`_.
 
 
 Running NESTML from Python

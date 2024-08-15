@@ -29,14 +29,14 @@ model stdp_synapse:
         post_trace += 1
 
         # potentiate synapse
-        w_ real = w + lambda * (1 - w)**mu_plus * pre_trace)
+        w_ real = w + lambda * (1 - w)**mu_plus * pre_trace
         w = min(1, w_)
 
     onReceive(pre_spikes):
         pre_trace += 1
 
         # depress synapse
-        w_ real = w - alpha * lambda * w**mu_minus * post_trace)
+        w_ real = w - alpha * lambda * w**mu_minus * post_trace
         w = max(0, w_)
 
         # deliver spike to postsynaptic partner
