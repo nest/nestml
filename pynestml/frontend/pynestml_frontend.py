@@ -59,11 +59,6 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    # transform (expand) inline expressions
-    from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-    inline_expression_expansion_transformer = InlineExpressionExpansionTransformer()
-    transformers.append(inline_expression_expansion_transformer)
-
     if target_name.upper() in ["NEST", "SPINNAKER"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 

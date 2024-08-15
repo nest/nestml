@@ -323,6 +323,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
+        InlineExpressionExpansionTransformer().transform(neuron)
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
@@ -399,6 +400,7 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
+            InlineExpressionExpansionTransformer().transform(synapse)
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 

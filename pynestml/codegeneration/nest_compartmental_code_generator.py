@@ -53,6 +53,7 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
@@ -434,6 +435,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # which is a convolve call and substituting that call with
         # newly created ASTVariable kernel__X__spike_buffer
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
+
+        # substitute inline expressions with each other
+        # such that no inline expression references another inline expression;
+        # deference inline_expressions inside ode_equations
+        InlineExpressionExpansionTransformer().transform(neuron)
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
