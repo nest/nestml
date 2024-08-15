@@ -29,6 +29,8 @@ import re
 import subprocess
 import time
 
+import matplotlib
+import matplotlib.ticker
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -315,11 +317,15 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         plt.errorbar(x, y, yerr=y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-', marker='o',
                      markersize=4, ecolor='gray', capsize=2)
 
-    plt.xlabel('Number of nodes')
+    if args.enable_mpi:
+        plt.xlabel('Number of nodes')
+    else:
+        plt.xlabel('Number of threads')
     plt.ylabel('Wall clock time (s)')
     plt.xscale('log')
     # plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
     plt.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, file_prefix + '_abs.png'))
@@ -348,12 +354,16 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         plt.errorbar(x, y_factor, yerr=y_factor_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',
                      marker='o', markersize=4, ecolor='gray', capsize=2)
 
-    plt.xlabel('Number of nodes')
+    if args.enable_mpi:
+        plt.xlabel('Number of nodes')
+    else:
+        plt.xlabel('Number of threads')
     plt.ylabel('Wall clock time (ratio)')
 
     plt.xscale('log')
     # plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
     plt.legend()
     plt.tight_layout()
@@ -409,11 +419,16 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     # Create a legend for the neurons
     neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
     plt.legend(neuron_handles, list(legend.values()), loc='upper right')
-    plt.xlabel('Number of nodes')
+    if args.enable_mpi:
+        plt.xlabel('Number of nodes')
+    else:
+        plt.xlabel('Number of threads')
     plt.ylabel('Memory (GB)')
     plt.xscale('log')
     plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
+    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+
     plt.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
 
 
