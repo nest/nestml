@@ -164,7 +164,6 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
     plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
     plt.xlabel('Interspike Interval (ms)')
     plt.ylabel('Frequency')
-    plt.title('Distribution of Interspike Intervals')
     plt.grid(True)
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".png")
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".pdf")
@@ -588,7 +587,7 @@ if args.benchmarkPath != "":
         json.dump(status, f, indent=4)
         f.close()
 
-    nest.raster_plot.from_device(espikes, hist=True)
+    nest.raster_plot.from_device(espikes, hist=True, title="")
     plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
     plt.savefig(f"{path}/raster_plot_{fname_snip}.pdf")
     plt.close()
