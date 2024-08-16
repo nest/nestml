@@ -34,38 +34,25 @@ import matplotlib.ticker
 import matplotlib.pyplot as plt
 import numpy as np
 
+from plotting_options import *
 
-# Plotting options
-palette = plt.get_cmap("Set1")
 
-plt.rcParams['axes.grid'] = True
-
-plt.rcParams['grid.color'] = 'gray'
-plt.rcParams['grid.linestyle'] = '--'
-plt.rcParams['grid.linewidth'] = 0.5
-
-plt.rcParams['axes.labelsize'] = 16  # Size of the axis labels
-plt.rcParams['xtick.labelsize'] = 14  # Size of the x-axis tick labels
-plt.rcParams['ytick.labelsize'] = 14  # Size of the y-axis tick labels
-plt.rcParams['legend.fontsize'] = 14  # Size of the legend labels
-plt.rcParams['figure.titlesize'] = 16  # Size of the figure title
+# the benchmark script to run
+current_dir = os.path.dirname(os.path.abspath(__file__))
+PATHTOFILE = os.path.join(current_dir, "brunel_alpha_nest.py")
 
 # RNG options
-
 seed: int = int(datetime.datetime.now().timestamp() * 1000) % 2**31
 rng = np.random.default_rng(seed)
 max_int32 = np.iinfo(np.int32).max
 
+# parse command line arguments
 parser = argparse.ArgumentParser(description='Run a Benchmark with NEST')
 parser.add_argument('--noRunSim', action="store_false", help='Skip running simulations, only do plotting')
 parser.add_argument('--enable_profiling', action="store_true", help="Run the benchmark with profiling enabled with AMDuProf")
 parser.add_argument("--short_sim", action="store_true", help="Run benchmark with profiling on 2 nodes with 2 iterations")
 parser.add_argument("--enable_mpi", action="store_true", default=False, help="Run benchmark with MPI (default: thread-based benchmarking)")
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-PATHTOFILE = os.path.join(current_dir, "examples/brunel_alpha_nest.py")
-
-# Command line args
 args = parser.parse_args()
 runSim = args.noRunSim
 enable_profile = args.enable_profiling
@@ -73,31 +60,32 @@ short_sim = args.short_sim
 
 # for aeif_psc_alpha neurons
 BASELINENEURON = "aeif_psc_alpha"
+
 NEURONMODELS = [
     "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic",
     "aeif_psc_alpha_neuron_Nestml",
     BASELINENEURON,
-    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco"
+    "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco"
 ]
 
 legend = {
     "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML neur, NESTML syn",
     "aeif_psc_alpha_neuron_Nestml": "NESTML neur, NEST syn",
     BASELINENEURON: "NEST neur + syn",
-    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
+    "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
 }
 
 colors = {
     BASELINENEURON: 0,
     "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": 1,
     "aeif_psc_alpha_neuron_Nestml": 2,
-    # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": 3
+    "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": 3
 }
 
 # MPI scaling
 DEBUG = True
 NUMTHREADS = 128  # Total number of threads per node
-NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX: was 10 and 30000
+NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX: was 10 points, max size 30000
 
 # MPI Strong scaling
 if enable_profile:
@@ -123,9 +111,12 @@ NETWORK_BASE_SCALE = 1000
 N_THREADS = np.logspace(0, math.log2(64), num=7, base=2, dtype=int)
 PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
 
+# output folder
+if args.enable_mpi:
+    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_MPI')
+else:
+    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_threads')
 
-
-output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'Output_MPI')
 
 def log(message):
     print(message)
@@ -329,6 +320,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, file_prefix + '_abs.png'))
+    plt.savefig(os.path.join(output_folder, file_prefix + '_abs.pdf'))
 
     plt.figure()
     neurons = []
@@ -368,6 +360,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.png'))
+    plt.savefig(os.path.join(output_folder, file_prefix + '_rel.pdf'))
 
     # Memory benchmark
     plt.figure()
@@ -430,6 +423,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
     plt.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
+    plt.savefig(os.path.join(output_folder, file_prefix + '_memory.pdf'))
 
 
 
@@ -577,6 +571,7 @@ def plot_isi_distributions(neuron_models, data):
     plt.legend()
     plt.grid(True)
     plt.savefig(os.path.join(output_folder, 'isi_distributions.png'))
+    plt.savefig(os.path.join(output_folder, 'isi_distributions.pdf'))
 
 
 if __name__ == "__main__":
