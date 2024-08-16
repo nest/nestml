@@ -49,7 +49,6 @@ References
 # should be imported before nest.
 
 import time
-import sys
 import matplotlib.pyplot as plt
 import nest
 import nest.raster_plot
@@ -59,8 +58,7 @@ import json
 import argparse
 import os
 
-
-
+from plotting_options import *
 
 
 
@@ -166,9 +164,10 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
     plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
     plt.xlabel('Interspike Interval (ms)')
     plt.ylabel('Frequency')
-    plt.title('Distribution of Interspike Intervals')
     plt.grid(True)
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".png")
+    plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".pdf")
+    plt.close()
 
     np.savetxt(f"{path}/isi_distribution_" + fname_snip + "_isi_list.txt", interspike_intervals)
 
@@ -362,7 +361,7 @@ try:
     nest.Install("nestmlmodule")
 except:
     pass
-nest.Install("nestmlOptimizedmodule")
+#nest.Install("nestmlOptimizedmodule")
 nest.Install("nestmlplasticmodule")
 nest.Install("nestmlnocomodule")
 print("Building network")
@@ -588,13 +587,15 @@ if args.benchmarkPath != "":
         json.dump(status, f, indent=4)
         f.close()
 
-    nest.raster_plot.from_device(espikes, hist=True)
+    nest.raster_plot.from_device(espikes, hist=True, title="")
     plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
+    plt.savefig(f"{path}/raster_plot_{fname_snip}.pdf")
     plt.close()
 
     fig, ax = plt.subplots()
     ax.plot(e_mm.get()["events"]["times"], e_mm.get()["events"]["V_m"])
     plt.savefig(f"{path}/V_m_{fname_snip}.png")
+    plt.savefig(f"{path}/V_m_{fname_snip}.pdf")
     plt.close()
 
     plot_interspike_intervals(exc_spikes, path, fname_snip=fname_snip)
