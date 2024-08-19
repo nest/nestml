@@ -68,7 +68,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        if False:
+        if True:
             generate_nest_compartmental_target(
                 input_path=[neuron_input_path, synapse_input_path],
                 target_path=target_path,
@@ -88,7 +88,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
     def test_cm_stdp(self):
         pre_spike_times = [1, 200]
         post_spike_times = [2, 199]
-        sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5
+        sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 50
         wr = nest.Create("weight_recorder")
         nest.CopyModel("stdp_synapse_nestml__with_multichannel_test_model_nestml", "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
@@ -123,14 +123,13 @@ class TestCompartmentalConcmech(unittest.TestCase):
             nest.Simulate(1)
             t += 1
             t_hist.append(t)
-            w_hist = []
             w_hist.append(nest.GetStatus(syn)[0]["w"])
         res = nest.GetStatus(mm, 'events')[0]
 
         fig, axs = plt.subplots(2)
 
         axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], w_hist, marker="o", label="weight")
+        axs[1].plot(t_hist, w_hist, c='b', label="weight")
 
         axs[0].set_title('V_m_0')
         axs[1].set_title('weight')

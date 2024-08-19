@@ -311,7 +311,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             code, message = Messages.get_analysing_transforming_model(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            non_comp_neuron = neuron.clone()
+            #non_comp_neuron = neuron.clone()
             spike_updates = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
 
