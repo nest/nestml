@@ -526,6 +526,13 @@ def read_isis_from_files(neuron_models):
     for neuron_model in neuron_models:
         data[neuron_model] = {"isis": []}  # list of lists: one element for each iteration, containing the list of ISIs for that iteration (across all ranks)
 
+        if args.enable_mpi:
+            threads = 128
+            nodes = 2
+        else:
+            threads = 1
+            nodes = 1
+
         # loop across iterations
         iteration = 0
         while True:
@@ -533,7 +540,7 @@ def read_isis_from_files(neuron_models):
             # loop across ranks
             rank = 0
             while True:
-                filename = "timings_strong_scaling_mpi/isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=1]_[threads=1]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
+                filename = "timings_strong_scaling_mpi/isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=" + str(nodes) + "]_[threads=" + str(threads) + "]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
                 print("Reading ISIs from: " + os.path.join(output_folder, filename))
                 if not os.path.exists(os.path.join(output_folder, filename)):
                     break

@@ -510,7 +510,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
-            namespace["paired_neuron"] = synapse.paired_neuron.get_name()
+            namespace["paired_neuron"] = synapse.paired_neuron
+            namespace["paired_neuron_name"] = synapse.paired_neuron.get_name()
             namespace["post_ports"] = synapse.post_port_names
             namespace["spiking_post_ports"] = synapse.spiking_post_port_names
             namespace["vt_ports"] = synapse.vt_port_names
@@ -538,7 +539,7 @@ class NESTCodeGenerator(CodeGenerator):
         spiking_post_port = find_spiking_post_port(synapse, namespace)
         if spiking_post_port:
             post_spike_port_priority = None
-            if "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
+            if synapse.get_on_receive_block(spiking_post_port) and "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
                 post_spike_port_priority = int(synapse.get_on_receive_block(spiking_post_port).get_const_parameters()["priority"])
 
             if post_spike_port_priority \

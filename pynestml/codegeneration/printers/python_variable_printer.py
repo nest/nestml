@@ -74,6 +74,9 @@ class PythonVariablePrinter(VariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "math.e"
 
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "math.pi"
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
