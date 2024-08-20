@@ -69,9 +69,9 @@ NEURONMODELS = [
 ]
 
 legend = {
-    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML neur, NESTML syn",
-    "aeif_psc_alpha_neuron_Nestml": "NESTML neur, NEST syn",
-    BASELINENEURON: "NEST neur + syn",
+    "aeif_psc_alpha_neuron_Nestml_Plastic__with_stdp_synapse_Nestml_Plastic": "NESTML",
+    "aeif_psc_alpha_neuron_Nestml": "NESTML/NEST",
+    BASELINENEURON: "NEST",
     # "aeif_psc_alpha_neuron_Nestml_Plastic_noco__with_stdp_synapse_Nestml_Plastic_noco": "NESTML neur, NESTML syn NOCO",
 }
 
@@ -368,6 +368,9 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.png'))
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.pdf'))
 
+
+def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
+
     # Memory benchmark
     plt.figure()
     plot_lines = []
@@ -428,6 +431,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.ylabel('Memory (GB)')
     plt.xscale('log')
     plt.yscale('log')
+    plt.tight_layout()
     plt.xticks(MPI_SCALES, MPI_SCALES)
     plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
@@ -460,12 +464,14 @@ def process_data(dir_name: str, mode="MPI"):
 
 def plot_strong_scaling_benchmark():
     strong_scaling_data = process_data(STRONGSCALINGFOLDERNAME)
-    plot_scaling_data(strong_scaling_data, "strong_scaling_mpi")
+    plot_scaling_data(strong_scaling_data, "strong_scaling")
+    plot_memory_scaling_benchmark(strong_scaling_data, "strong_scaling")
 
 
 def plot_weak_scaling_benchmark():
     weak_scaling_data = process_data(WEAKSCALINGFOLDERNAME)
-    plot_scaling_data(weak_scaling_data, "weak_scaling_mpi")
+    plot_scaling_data(weak_scaling_data, "weak_scaling")
+    plot_memory_scaling_benchmark(weak_scaling_data, "weak_scaling")
 
 
 def deleteDat():
@@ -518,21 +524,33 @@ def clean_json_content(content):
 def read_isis_from_files(neuron_models):
     data = {}
     for neuron_model in neuron_models:
-        data[neuron_model] = {"isis": []}
-        iteration = 0
-        rank = 0
-        while True:
-            filename = "timings_strong_scaling_mpi/isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=1]_[threads=1]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
-            print("Reading ISIs from: " + os.path.join(output_folder, filename))
-            if not os.path.exists(os.path.join(output_folder, filename)):
-                break
+        data[neuron_model] = {"isis": []}  # list of lists: one element for each iteration, containing the list of ISIs for that iteration (across all ranks)
 
-            with open(os.path.join(output_folder, filename), 'r') as file:
-                isis = [float(line.strip()) for line in file]
-                data[neuron_model]["isis"].append(isis)
+        # loop across iterations
+        iteration = 0
+        while True:
+
+            # loop across ranks
+            rank = 0
+            while True:
+                filename = "timings_strong_scaling_mpi/isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=1]_[threads=1]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
+                print("Reading ISIs from: " + os.path.join(output_folder, filename))
+                if not os.path.exists(os.path.join(output_folder, filename)):
+                    break
+
+                with open(os.path.join(output_folder, filename), 'r') as file:
+                    isis = [float(line.strip()) for line in file]
+                    if iteration >= len(data[neuron_model]["isis"]):
+                        data[neuron_model]["isis"].append([])
+
+                    data[neuron_model]["isis"][iteration].extend(isis)
+
+                rank += 1
 
             iteration += 1
-            # rank += 1
+
+            if iteration > 99:
+                break
 
     return data
 
@@ -552,18 +570,15 @@ def analyze_isi_data(data, bin_size):
     bins = np.arange(min_val, max_val + bin_size, bin_size)
 
     for neuron_model in data.keys():
-        n_datapoints = 0
-
         isi_list = data[neuron_model]["isis"]
         data[neuron_model]["counts"] = len(isi_list) * [None]
         for i, isi in enumerate(isi_list):
             counts, bin_edges = np.histogram(isi, bins=bins)
-            data[neuron_model]["counts"][i] = counts
-            n_datapoints += len(isi)
+            n_datapoints = len(isi)
+            data[neuron_model]["counts"][i] = counts / n_datapoints
 
         data[neuron_model]["counts_mean"] = np.mean(np.array(data[neuron_model]["counts"]), axis=0)
         data[neuron_model]["counts_std"] = np.std(np.array(data[neuron_model]["counts"]), axis=0)
-        data[neuron_model]["n_datapoints"] = n_datapoints
 
     data["bin_edges"] = bin_edges
     data["bin_centers"] = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -575,9 +590,8 @@ def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(6, 4))
 
     for neuron_model in neuron_models:
-        N = data[neuron_model]["n_datapoints"] / 100   # 100 to turn it into a percentage
-        plt.bar(data["bin_centers"], 2 * data[neuron_model]["counts_std"] / N, data["bin_centers"][1] - data["bin_centers"][0], bottom=(data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"]) / N, alpha=.5)
-        plt.step(data["bin_edges"][:-1], data[neuron_model]["counts_mean"] / N, label=legend[neuron_model], linewidth=2, alpha=.5, where="post")
+        plt.bar(data["bin_centers"], 100 * 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=100 * (data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"]), alpha=.5)
+        plt.step(data["bin_edges"][:-1], 100 * data[neuron_model]["counts_mean"], label=legend[neuron_model], linewidth=2, alpha=.5, where="post")
         #plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5)
 
     plt.xlabel('ISI [ms]')
