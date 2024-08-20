@@ -66,6 +66,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -1041,8 +1042,6 @@ class ASTUtils:
             if equation.get_lhs().get_name() == sym:
                 return True
         return False
-
-    _variable_matching_template = r'(\b)({})(\b)'
 
     @classmethod
     def add_declarations_to_internals(cls, neuron: ASTModel, declarations: Mapping[str, str]) -> ASTModel:
@@ -2094,74 +2093,6 @@ class ASTUtils:
 
             for decl in decl_to_remove:
                 equations_block.get_declarations().remove(decl)
-
-    @classmethod
-    def make_inline_expressions_self_contained(cls, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
-        """
-        Make inline_expressions self contained, i.e. without any references to other inline_expressions.
-
-        TODO: it should be a method inside of the ASTInlineExpression
-        TODO: this should be done by means of a visitor
-
-        :param inline_expressions: A sorted list with entries ASTInlineExpression.
-        :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
-        """
-        from pynestml.utils.model_parser import ModelParser
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        for source in inline_expressions:
-            source_position = source.get_source_position()
-            for target in inline_expressions:
-                matcher = re.compile(cls._variable_matching_template.format(source.get_variable_name()))
-                target_definition = str(target.get_expression())
-                target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
-                target.expression = ModelParser.parse_expression(target_definition)
-                target.expression.update_scope(source.get_scope())
-                target.expression.accept(ASTSymbolTableVisitor())
-
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
-
-                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-        return inline_expressions
-
-    @classmethod
-    def replace_inline_expressions_through_defining_expressions(cls, definitions: Sequence[ASTOdeEquation],
-                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
-        """
-        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
-
-        :param definitions: A list of ODE definitions (**updated in-place**).
-        :param inline_expressions: A list of inline expression definitions.
-        :return: A list of updated ODE definitions (same as the ``definitions`` parameter).
-        """
-        from pynestml.utils.model_parser import ModelParser
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        for m in inline_expressions:
-            if "mechanism" not in [e.namespace for e in m.get_decorators()]:
-                """
-                exclude compartmental mechanism definitions in order to have the
-                inline as a barrier inbetween odes that are meant to be solved independently
-                """
-                source_position = m.get_source_position()
-                for target in definitions:
-                    matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
-                    target_definition = str(target.get_rhs())
-                    target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
-                    target.rhs = ModelParser.parse_expression(target_definition)
-                    target.update_scope(m.get_scope())
-                    target.accept(ASTSymbolTableVisitor())
-
-                    def log_set_source_position(node):
-                        if node.get_source_position().is_added_source_position():
-                            node.set_source_position(source_position)
-
-                    target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-        return definitions
 
     @classmethod
     def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:
