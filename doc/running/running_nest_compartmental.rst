@@ -165,16 +165,11 @@ Above examples of explicit interdependence inbetween concentration and channel m
 Technical Notes
 ---------------
 
-We have put emphasis on delivering a good performance for neurons with high spacial complexity. We utilize vectorization
-therefor you should compile nest with the OpenMP flag enabled. This, of course, can only be utilized if your hardware
-supports simd instructions. In that case you can expect a performance improvement of about 3/4 of the theoretical improvement.
-Let's say you have an avx2 simd instruction set available, which can fit 4 doubles (4*64bit) into its vector register, you can expect about a 3 times performance improvement as long
-as your neuron has enough compartments.
-We vectorize the simulation steps of all instances of the same mechanism you have defined in
-your nestml model, meaning that you will get a better complexity/performance ratio the more instances of the same
-mechanism are used.
+We have put an emphasis on delivering good performance for neurons with high spatial complexity. We utilize vectorization, therefore, you should compile NEST with the OpenMP flag enabled. This, of course, can only be utilized if your hardware supports SIMD instructions. In that case, you can expect a performance improvement of about 3/4 of the theoretical maximum.
 
-Here is a small benchmark Example that shows the performance ratio (y-axis) as the number of compartments per neuron (x-axis) increases.
+Let's say you have an AVX2 SIMD instruction set available, which can fit 4 doubles (4*64-bit) into its vector register. In this case you can expect about a 3x performance improvement as long as your neuron has enough compartments. We vectorize the simulation steps of all instances of the same mechanism you have defined in your NESTML model, meaning that you will get a better complexity/performance ratio the more instances of the same mechanism are used.
+
+Here is a small benchmark example that shows the performance ratio (y-axis) as the number of compartments per neuron (x-axis) increases.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/performance_ratio_nonVec_vs_vec_compartmental.png
    :width: 326px
