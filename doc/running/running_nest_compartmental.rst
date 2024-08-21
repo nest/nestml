@@ -166,13 +166,20 @@ Technical Notes
 ---------------
 
 We have put emphasis on delivering a good performance for neurons with high spacial complexity. We utilize vectorization
-therefor you should compile nest with the OpenMP flag enabled. This of course can only be utilized if your hardware
-supports simd instructions in that case you can expect a performance improvement of about 3/4 of the theoretical improvement.
-Let's say you have an avx2 simd instruction set available you can expect about a 3 times performance improvement as long
+therefor you should compile nest with the OpenMP flag enabled. This, of course, can only be utilized if your hardware
+supports simd instructions. In that case you can expect a performance improvement of about 3/4 of the theoretical improvement.
+Let's say you have an avx2 simd instruction set available, which can fit 4 doubles (4*64bit) into its vector register, you can expect about a 3 times performance improvement as long
 as your neuron has enough compartments.
 We vectorize the simulation steps of all instances of the same mechanism you have defined in
 your nestml model, meaning that you will get a better complexity/performance ratio the more instances of the same
 mechanism are used.
+
+Here is a small benchmark Example that shows the performance ratio (y-axis) as the number of compartments per neuron (x-axis) increases.
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/performance_ratio_nonVec_vs_vec_compartmental.png
+   :width: 326px
+   :height: 203px
+   :align: left
+   :target: #
 
 See also
 --------

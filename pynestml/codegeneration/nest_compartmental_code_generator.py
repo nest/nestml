@@ -598,7 +598,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
-        # namespace["vector_printer"] = ASTVectorParameterSetterAndPrinter(neuron, self._printer_no_origin)
         namespace["vector_printer_factory"] = ASTVectorParameterSetterAndPrinterFactory(neuron, self._printer_no_origin)
 
         # NESTML syntax keywords
