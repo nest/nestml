@@ -175,6 +175,7 @@ your nestml model, meaning that you will get a better complexity/performance rat
 mechanism are used.
 
 Here is a small benchmark Example that shows the performance ratio (y-axis) as the number of compartments per neuron (x-axis) increases.
+
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/performance_ratio_nonVec_vs_vec_compartmental.png
    :width: 326px
    :height: 203px
