@@ -64,6 +64,54 @@ from plotting_options import *
 
 
 ###############################################################################
+# Plotting functions
+
+def raster_plot_from_device(detec, path, fname_snip, hist_binwidth=10.):
+
+    ev = detec.get("events")
+    ts, node_ids = ev["times"], ev["senders"]
+
+    if not len(ts):
+        raise Exception("No events recorded!")
+
+    xlabel = "Time (ms)"
+    ylabel = "Neuron ID"
+
+    color_marker = "."
+    color_bar = "blue"
+    color_edge = "black"
+
+    plt.figure(figsize=(6, 4))
+
+    ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
+    plotid = plt.plot(ts, node_ids, color_marker)
+    plt.ylabel(ylabel)
+    plt.xticks([])
+    xlim = plt.xlim()
+
+    plt.axes([0.1, 0.1, 0.85, 0.17])
+    t_bins = numpy.arange(numpy.amin(ts), numpy.amax(ts), float(hist_binwidth))
+    n, _ = _histogram(ts, bins=t_bins)
+    num_neurons = len(numpy.unique(node_ids))
+    heights = 1000 * n / (hist_binwidth * num_neurons)
+
+    plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
+    plt.yticks([int(x) for x in numpy.linspace(0.0, int(max(heights) * 1.1) + 5, 4)])
+    plt.ylabel("Rate [spikes/s]")
+    plt.xlabel(xlabel)
+    plt.xlim(xlim)
+    plt.axes(ax1)
+
+    plt.draw()
+
+    plt.tight_layout()
+    plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
+    plt.savefig(f"{path}/raster_plot_{fname_snip}.pdf")
+    plt.close()
+
+
+
+###############################################################################
 # Helper functions
 
 def convert_np_arrays_to_lists(obj):
@@ -160,11 +208,12 @@ def plot_interspike_intervals(spike_times_list, path, fname_snip=""):
         interspike_intervals.extend(intervals)
 
     # Plot the distribution of interspike intervals
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(6, 4))
     plt.hist(interspike_intervals, bins=30, edgecolor='black', alpha=0.75)
     plt.xlabel('Interspike Interval (ms)')
     plt.ylabel('Frequency')
     plt.grid(True)
+    plt.tight_layout()
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".png")
     plt.savefig(f"{path}/isi_distribution_" + fname_snip + ".pdf")
     plt.close()
@@ -587,13 +636,12 @@ if args.benchmarkPath != "":
         json.dump(status, f, indent=4)
         f.close()
 
-    nest.raster_plot.from_device(espikes, hist=True, title="")
-    plt.savefig(f"{path}/raster_plot_{fname_snip}.png")
-    plt.savefig(f"{path}/raster_plot_{fname_snip}.pdf")
-    plt.close()
+    #nest.raster_plot.from_device(espikes, hist=True, title="", figsize=(6, 4))
+    raster_plot_from_device(espikes, path, fname_snip)
 
     fig, ax = plt.subplots()
     ax.plot(e_mm.get()["events"]["times"], e_mm.get()["events"]["V_m"])
+    plt.tight_layout()
     plt.savefig(f"{path}/V_m_{fname_snip}.png")
     plt.savefig(f"{path}/V_m_{fname_snip}.pdf")
     plt.close()
