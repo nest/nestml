@@ -317,7 +317,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         plt.xlabel('Number of threads')
     plt.ylabel('Wall clock time (s)')
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
     plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
     plt.legend()
@@ -359,7 +359,6 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.ylabel('Wall clock time (ratio)')
 
     plt.xscale('log')
-    # plt.yscale('log')
     plt.xticks(MPI_SCALES, MPI_SCALES)
     plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
