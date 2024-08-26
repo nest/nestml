@@ -29,9 +29,10 @@ class PredefinedVariables:
     """
     This class is used to store all predefined variables as generally available.
     """
-    name2variable = {}   # type: Mapping[str, VariableSymbol]
-    E_CONSTANT = 'e'     # type: str
-    TIME_CONSTANT = 't'  # type: str
+    name2variable: Mapping[str, VariableSymbol] = {}
+    E_CONSTANT: str = 'e'
+    PI_CONSTANT: str = 'pi'
+    TIME_CONSTANT: str = 't'
 
     @classmethod
     def register_variables(cls):
@@ -40,6 +41,7 @@ class PredefinedVariables:
         """
         cls.name2variable = {}
         cls.__register_euler_constant()
+        cls.__register_pi_constant()
         cls.__register_time_constant()
 
     @classmethod
@@ -53,7 +55,6 @@ class PredefinedVariables:
                                     type_symbol=PredefinedTypes.get_type(name),
                                     variable_type=VariableType.TYPE)
             cls.name2variable[name] = symbol
-        return
 
     @classmethod
     def __register_euler_constant(cls):
@@ -64,7 +65,16 @@ class PredefinedVariables:
                                 is_predefined=True, type_symbol=PredefinedTypes.get_real_type(),
                                 variable_type=VariableType.VARIABLE)
         cls.name2variable[cls.E_CONSTANT] = symbol
-        return
+
+    @classmethod
+    def __register_pi_constant(cls):
+        """
+        Adds the pi constant.
+        """
+        symbol = VariableSymbol(name='pi', block_type=BlockType.STATE,
+                                is_predefined=True, type_symbol=PredefinedTypes.get_real_type(),
+                                variable_type=VariableType.VARIABLE)
+        cls.name2variable[cls.PI_CONSTANT] = symbol
 
     @classmethod
     def __register_time_constant(cls):
@@ -75,7 +85,6 @@ class PredefinedVariables:
                                 is_predefined=True, type_symbol=PredefinedTypes.get_type('ms'),
                                 variable_type=VariableType.VARIABLE)
         cls.name2variable[cls.TIME_CONSTANT] = symbol
-        return
 
     @classmethod
     def get_time_constant(cls):
@@ -106,8 +115,8 @@ class PredefinedVariables:
         """
         if name in cls.name2variable.keys():
             return cls.name2variable[name]
-        else:
-            return None
+
+        return None
 
     @classmethod
     def get_variables(cls):

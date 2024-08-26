@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -29,10 +31,9 @@ class ASTBlockWithVariables(ASTNode):
         state:
             y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
 
-    attribute state true: if the varblock is a state.
+    attribute state: true if the varblock is a state.
     attribute parameter: true if the varblock is a parameter.
     attribute internal: true if the varblock is a state internal.
-    attribute AliasDecl: a list with variable declarations
     Grammar:
          blockWithVariables:
             blockType=('state'|'parameters'|'internals')
@@ -113,28 +114,16 @@ class ASTBlockWithVariables(ASTNode):
         del self.declarations
         self.declarations = list()
 
-    def get_parent(self, ast=None):
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        for stmt in self.get_declarations():
-            if stmt is ast:
-                return self
-            if stmt.get_parent(ast) is not None:
-                return stmt.get_parent(ast)
-        return None
+        return self.get_declarations()
 
-    def equals(self, other=None):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False
-        :rtype: bool
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTBlockWithVariables):
             return False

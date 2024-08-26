@@ -89,7 +89,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
             ax[0].plot(timevec, I_dend_internal_ts, label="internal I_dend_syn")
             ax[0].legend()
             ax_ = ax[0].twinx()
-            ax_.plot(timevec, mm.get("events")["dend_curr_enabled"])
+            ax_.plot(timevec, mm.get("events")["dend_curr_enabled"], color="green")
             ax_.set_ylabel("dend_curr_enabled")
             ax[1].plot(timevec, mm.get("events")["I_dend_ap"])
             ax[1].set_ylabel("I_dend_AP")
@@ -99,7 +99,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
                 _ax.grid()
             plt.ylabel("Dendritic current $I_{dend}$")
             plt.suptitle("Reset of synaptic integration after dendritic spike")
-            plt.savefig("/tmp/nestml_triplet_stdp_test.png")
+            plt.savefig("/tmp/nestml_non_linear_dend_test.png")
 
         assert np.all(I_dend_alias_ts == I_dend_internal_ts), "Variable " + str(I_dend_alias_name) + " and (internal) variable " + str(I_dend_internal_name) + " should measure the same thing, but discrepancy in values occurred."
 

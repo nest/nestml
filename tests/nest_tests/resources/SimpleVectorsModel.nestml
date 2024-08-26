@@ -25,7 +25,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
-neuron simple_vectors_model:
+model simple_vectors_model:
     state:
         g_ex [20] real = 1.2
 

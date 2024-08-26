@@ -31,6 +31,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoInlineExpressionWithSeveralLhs:
+model CoCoInlineExpressionWithSeveralLhs:
     equations:
         inline V_rest,V_reset mV  = 10mV  # several lhs's should be detected

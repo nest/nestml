@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Sequence, Union
+from typing import Sequence
 
 import datetime
 import os
@@ -35,14 +35,17 @@ from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.latex_simple_expression_printer import LatexSimpleExpressionPrinter
 from pynestml.codegeneration.printers.latex_variable_printer import LatexVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 
 
 class AutoDocCodeGenerator(CodeGenerator):
+    r"""
+    The "autodoc" code generator generates human-readable documentation for each neuron and synapse model. The documentation consists of files in reStructuredText format.
 
+    In addition, supported models can be characterised by current injection, measuring the PSP, f-I curve, etc. These characterisations are run using NEST. Figures are saved in PNG format.
+    """
     def __init__(self):
         # setup the template environment
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_autodoc')))
@@ -59,14 +62,14 @@ class AutoDocCodeGenerator(CodeGenerator):
         variable_printer._expression_printer = self._printer
         function_call_printer._expression_printer = self._printer
 
-    def generate_code(self, models: Sequence[Union[ASTNeuron, ASTSynapse]]) -> None:
+    def generate_code(self, models: Sequence[ASTModel]) -> None:
         """
         Generate model documentation and index page for each neuron and synapse that is provided.
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        neurons = [model for model in models if isinstance(model, ASTNeuron)]
-        synapses = [model for model in models if isinstance(model, ASTSynapse)]
+        neurons = [model for model in models if not "synapse" in model.name.split("_with_")[0]]
+        synapses = [model for model in models if "synapse" in model.name.split("_with_")[0]]
         self.generate_index(neurons, synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
@@ -75,7 +78,7 @@ class AutoDocCodeGenerator(CodeGenerator):
             if Logger.has_errors(astnode):
                 raise Exception("Error(s) occurred during code generation")
 
-    def generate_index(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
+    def generate_index(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
         Generate model documentation and index page for each neuron and synapse that is provided.
         """
@@ -83,17 +86,18 @@ class AutoDocCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'index.rst')), 'w+') as f:
             f.write(str(nestml_models_index))
 
-    def generate_neuron_code(self, neuron: ASTNeuron):
+    def generate_neuron_code(self, neuron: ASTModel):
         """
         Generate model documentation for neuron model.
         :param neuron: a single neuron object.
         """
         nestml_model_doc = self._template_neuron_nestml_model.render(self.setup_neuron_model_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.rst',
+        neuron_name = neuron.get_name()
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_name)) + '.rst',
                   'w+') as f:
             f.write(str(nestml_model_doc))
 
-    def generate_synapse_code(self, synapse: ASTSynapse):
+    def generate_synapse_code(self, synapse: ASTModel):
         """
         Generate model documentation for synapse model.
         :param synapse: a single synapse object.
@@ -103,7 +107,7 @@ class AutoDocCodeGenerator(CodeGenerator):
                   'w+') as f:
             f.write(str(nestml_model_doc))
 
-    def setup_neuron_model_generation_helpers(self, neuron: ASTNeuron):
+    def setup_neuron_model_generation_helpers(self, neuron: ASTModel):
         """
         Returns a namespace for Jinja2 neuron model documentation template.
 
@@ -115,7 +119,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neuron'] = neuron
-        namespace['neuronName'] = str(neuron.get_name())
+        namespace['neuronName'] = neuron.get_name()
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
@@ -128,7 +132,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def setup_synapse_model_generation_helpers(self, synapse: ASTSynapse):
+    def setup_synapse_model_generation_helpers(self, synapse: ASTModel):
         """
         Returns a namespace for Jinja2 synapse model documentation template.
 
@@ -140,7 +144,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['synapse'] = synapse
-        namespace['synapseName'] = str(synapse.get_name())
+        namespace['synapseName'] = synapse.get_name()
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()
@@ -152,7 +156,7 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def setup_index_generation_helpers(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
+    def setup_index_generation_helpers(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
         Returns a namespace for Jinja2 neuron model index page template.
 
@@ -166,8 +170,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neurons'] = neurons
         namespace['synapses'] = synapses
-        namespace['neuronNames'] = [str(neuron.get_name()) for neuron in neurons]
-        namespace['synapseNames'] = [str(neuron.get_name()) for neuron in neurons]
         namespace['printer'] = self._printer
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['utils'] = ASTUtils()

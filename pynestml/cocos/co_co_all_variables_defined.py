@@ -21,7 +21,7 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
@@ -41,7 +41,7 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron, after_ast_rewrite: bool = False):
+    def check_co_co(cls, node: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
@@ -96,12 +96,12 @@ class CoCoAllVariablesDefined(CoCo):
                     code, message = Messages.get_variable_not_defined(var.get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
-                    return
+                    continue
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
                 # so check if the parent is a declaration and the expression the invariant
-                expr_par = node.get_parent(expr)
+                expr_par = expr.get_parent()
                 if isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
                     # in this case its ok if it is recursive or defined later on
                     continue
