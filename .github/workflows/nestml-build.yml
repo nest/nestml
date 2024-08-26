@@ -118,12 +118,76 @@ jobs:
           done;
           exit $rc
 
+  build_and_test_nest_desktop:
+    needs: [static_checks]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        nest_branch: [ "master" ]
+      fail-fast: false
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v4
+
+      # Setup Python version
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libgsl0-dev libncurses5-dev pkg-config
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
+          python -m pip install -r requirements.txt
+
+      - name: NEST simulator
+        run: |
+          python -m pip install cython
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          NEST_SIMULATOR=$(pwd)/nest-simulator
+          NEST_INSTALL=$(pwd)/nest_install
+          echo "NEST_SIMULATOR = $NEST_SIMULATOR"
+          echo "NEST_INSTALL = $NEST_INSTALL"
+
+          git clone --depth=1 https://github.com/nest/nest-simulator --branch ${{ matrix.nest_branch }}
+          mkdir nest_install
+          echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
+          cd nest_install
+          cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
+          make && make install
+          cd ..
+
+      # Install NESTML
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
+          #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
+      # Run integration tests
+      - name: Run integration tests
+        run: |
+          rc=0
+          for fn in $GITHUB_WORKSPACE/tests/nest_desktop_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+          done;
+          exit $rc
   build_and_test_nest:
     needs: [static_checks]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.7", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.8", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents

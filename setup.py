@@ -39,7 +39,7 @@ for dir_to_include in ["doc", "models", "extras"]:
 
 setup(
     name="NESTML",
-    version="7.0.2-post-dev",
+    version="8.0.0-rc2",
     description="NESTML is a domain specific language that supports the specification of neuron models in a"
                 " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
                 " as a simple string of mathematical notation or as an algorithm written in the built-in procedural"
@@ -62,7 +62,8 @@ setup(
                                "codegeneration/resources_python_standalone/point_neuron/directives_py/*.jinja2",
                                "codegeneration/resources_spinnaker/*.jinja2",
                                "codegeneration/resources_spinnaker/directives_py/*",
-                               "codegeneration/resources_spinnaker/directives_cpp/*"]},
+                               "codegeneration/resources_spinnaker/directives_cpp/*",
+                               "codegeneration/resources_nest_desktop/*.jinja2"]},
     data_files=data_files,
     entry_points={
         "console_scripts": [
