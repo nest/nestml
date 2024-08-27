@@ -76,7 +76,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
 
-    if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
+    if target_name.upper() in ["NEST"]:
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 
         # co-generate neuron and synapse
