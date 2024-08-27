@@ -191,6 +191,7 @@ class Neuron_{{neuronName}}(Neuron):
   {%-   endif %}
   {%- endfor %}
   {%- endfilter %}
+      pass
     else:
       # internals V_
   {%- filter indent(6) %}
@@ -220,10 +221,8 @@ class Neuron_{{neuronName}}(Neuron):
   # -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
 {%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives_py/MemberVariableGetterSetter.jinja2" %}
-{%-   endif %}
 {%- endfor %}
 {%- endfilter %}
 
@@ -264,13 +263,6 @@ class Neuron_{{neuronName}}(Neuron):
 {%-         set analytic_state_variables_ = utils.filter_variables_list(analytic_state_variables_, ast.get_args()) %}
 {%-     endif %}
 
-{#-      always integrate convolutions in time #}
-{%-      for var in analytic_state_variables %}
-{%-          if "__X__" in var %}
-{%-              set tmp = analytic_state_variables_.append(var) %}
-{%-          endif %}
-{%-      endfor %}
-
 {%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
 
 {%-     if uses_numeric_solver %}
@@ -286,14 +278,6 @@ class Neuron_{{neuronName}}(Neuron):
     __resolution: float = timestep   # do not remove, this is necessary for the resolution() function
 
     # -------------------------------------------------------------------------
-    #     integrate variables related to convolutions
-    # -------------------------------------------------------------------------
-
-{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-{%-     include "directives_py/AnalyticIntegrationStep_begin.jinja2" %}
-{%- endwith %}
-
-    # -------------------------------------------------------------------------
     #     NESTML generated code for the update block
     # -------------------------------------------------------------------------
 
@@ -305,21 +289,6 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
-
-    # -------------------------------------------------------------------------
-    #     integrate variables related to convolutions
-    # -------------------------------------------------------------------------
-
-{%- with analytic_state_variables_ = analytic_state_variables_from_convolutions %}
-{%-     include "directives_py/AnalyticIntegrationStep_end.jinja2" %}
-{%- endwith %}
-
-    # -------------------------------------------------------------------------
-    #     process spikes from buffers
-    # -------------------------------------------------------------------------
-{%- filter indent(4, True) -%}
-{%-     include "directives_py/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
 
     # -------------------------------------------------------------------------
     #     begin NESTML generated code for the onReceive block(s)
