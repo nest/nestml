@@ -2,6 +2,13 @@
 test_plasticity_dynamics_neuron.nestml
 #######################################
 
+Dummy test neuron for plasticity dynamics test.
+
+Will parrot spikes received on the ``spikes_parrot`` port.
+
+Has a dummy, second ``spikes_plastic`` port to support STDP-like plastic synapses.
+
+
 Copyright statement
 +++++++++++++++++++
 

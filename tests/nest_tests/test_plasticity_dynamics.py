@@ -65,8 +65,8 @@ def test_plasticity_dynamics():
     nest.resolution = .01
     nest.Install("nestmlmodule")
 
-    pre_spikes = nest.Create('spike_train_injector', params={'spike_times': [1, 10]})
-    post_driver_spikes = nest.Create('spike_train_injector', params={'spike_times': [.5]})
+    pre_spikes = nest.Create('spike_train_injector', params={'spike_times': [1., 10.]})
+    post_driver_spikes = nest.Create('spike_train_injector', params={'spike_times': [1., 5., 8.]})
     neuron = nest.Create('test_plasticity_dynamics_neuron_nestml__with_test_plasticity_dynamics_synapse_nestml')
     sr = nest.Create('spike_recorder')
     wr = nest.Create('weight_recorder')
