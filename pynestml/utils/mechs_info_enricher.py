@@ -30,9 +30,6 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 
-from collections import defaultdict
-
-
 class MechsInfoEnricher:
     """
     Adds information collection that can't be done in the processing class since that is used in the cocos.

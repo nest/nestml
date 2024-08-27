@@ -177,7 +177,7 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
 }
 
 void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t comp_ass, const DictionaryDatum& channel_params)
-// update {{ion_channel_name}} channel parameters
+/* update {{ion_channel_name}} channel parameters and states */
 {
     //Check whether the channel will contribute at all based on initial key-parameters. If not then don't add the channel.
     bool channel_contributing = true;
@@ -612,7 +612,7 @@ void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_as
 }
 
 void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_ass, const long syn_index, const DictionaryDatum& synapse_params)
-// update {{synapse}} synapse parameters
+/* update {{synapse}} synapse parameters and states */
 {
     neuron_{{ synapse_name }}_synapse_count++;
     compartment_association.push_back(comp_ass);
@@ -860,7 +860,7 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
 }
 
 void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params)
-// update {{continuous_name}} continuous input parameters
+/* update {{continuous_name}} continuous input parameters and states */
 {
     neuron_{{ continuous_name }}_continuous_input_count++;
     compartment_association.push_back(comp_ass);

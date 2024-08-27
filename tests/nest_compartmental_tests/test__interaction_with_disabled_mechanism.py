@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import unittest
 
 import pytest
 
@@ -39,7 +38,7 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
-class TestCompartmentalMechDisabled(unittest.TestCase):
+class TestCompartmentalMechDisabled():
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
         tests_path = os.path.realpath(os.path.dirname(__file__))
@@ -126,9 +125,5 @@ class TestCompartmentalMechDisabled(unittest.TestCase):
 
         plt.savefig("interaction with disabled mechanism test.png")
 
-        if not res['c_Ca0'][data_array_index] == expected_conc:
-            self.fail("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
 
-
-if __name__ == "__main__":
-    unittest.main()
