@@ -124,11 +124,8 @@ class TestInitialization():
 
         plt.savefig("initialization test.png")
 
-        assert res['v_comp0'][data_array_index] > 50.0, ("the voltage (left) is not as expected (right). (" + str(
-                res['v_comp0'][data_array_index]) + "<" + str(50.0) + ")")
+        assert res['v_comp0'][data_array_index] > 50.0, ("the voltage (left) is not as expected (right). (" + str(res['v_comp0'][data_array_index]) + "<" + str(50.0) + ")")
 
-        assert res['c_Ca0'][data_array_index] > 900.0, ("the concentration (left) is not as expected (right). (" + str(
-                res['c_Ca0'][data_array_index]) + "<" + str(900.0) + ")")
+        assert res['c_Ca0'][data_array_index] > 900.0, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "<" + str(900.0) + ")")
 
-        assert res['h_NaTa_t0'][data_array_index] > 5.0, ("the gating variable state (left) is not as expected (right). (" + str(
-                res['h_NaTa_t0'][data_array_index]) + "<" + str(5.0) + ")")
+        assert res['h_NaTa_t0'][data_array_index] > 5.0, ("the gating variable state (left) is not as expected (right). (" + str(res['h_NaTa_t0'][data_array_index]) + "<" + str(5.0) + ")")

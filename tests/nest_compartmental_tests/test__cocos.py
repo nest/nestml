@@ -51,7 +51,8 @@ def setUp():
     PredefinedFunctions.register_functions()
     FrontendConfiguration.target_platform = "NEST_COMPARTMENTAL"
 
-class TestCoCos():
+
+class TestCoCos:
 
     def test_invalid_cm_variables_declared(self, setUp):
         model = ModelParser.parse_file(

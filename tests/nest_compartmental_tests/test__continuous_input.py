@@ -121,5 +121,4 @@ class TestContinuousInput:
         step_time_delta = res['times'][1] - res['times'][0]
         data_array_index = int(212 / step_time_delta)
 
-        assert res['i_tot_con_in0'][data_array_index] > 19.9 and res['i_tot_con_in0'][data_array_index] < 20.1, ("the current (left) is not close enough to expected (right). (" + str(
-                res['i_tot_con_in0'][data_array_index]) + " != " + "20.0 +- 0.1" + ")")
+        assert 19.9 < res['i_tot_con_in0'][data_array_index] < 20.1, ("the current (left) is not close enough to expected (right). (" + str(res['i_tot_con_in0'][data_array_index]) + " != " + "20.0 +- 0.1" + ")")
