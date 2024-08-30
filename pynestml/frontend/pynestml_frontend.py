@@ -38,6 +38,7 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.transformers.convolutions_transformer import ConvolutionsTransformer
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -60,9 +61,12 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
+    # for all targets, add the InlineExpressionExpansionTransformer
+    transformers.append(InlineExpressionExpansionTransformer())
+
     # for all targets, add the convolutions transformer
     transformers.append(ConvolutionsTransformer())
-    
+
     if target_name.upper() in ["NEST", "SPINNAKER"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 

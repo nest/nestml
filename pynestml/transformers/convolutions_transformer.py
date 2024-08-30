@@ -26,6 +26,7 @@ from typing import Any, Dict, List, Sequence, Mapping, Optional, Tuple, Union
 import re
 
 import odetoolbox
+import sympy
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -67,7 +68,61 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ConvolutionsTransformer(Transformer):
-    r"""For each convolution that occurs in the model, allocate one or more needed state variables and replace the convolution() calls by these variable names."""
+    r"""For each convolution that occurs in the model, allocate one or more needed state variables and replace the convolution() calls by these variable names.
+
+    A new event handler (onReceive block) will be generated that increments the new state variables when a spike arrives. The priority of the handler will be clearly defined to be the highest of all (or the lowest of all) event handlers, so that the rest of the code (update block and other event handlers) get a consistent "just before" or "just after" value.
+
+    For instance,
+
+    .. code-block:: nestml
+
+       state:
+           V_m mV = 0 mV
+
+       equations:
+           kernel K = exp(-t / tau_syn)
+           V_m' = -V_m/tau_m + convolve(K, spikes) / C_m
+
+        update:
+            ...
+            integrate_odes(V_m)
+            ...
+
+    would be transformed into
+
+    .. code-block:: nestml
+
+       state:
+           V_m mV = 0 mV
+           K__conv__spikes real = 0
+
+       equations:
+           V_m' = -V_m/tau_m + K__conv__spikes / C_m
+           K__conv__spikes' = -K__conv__spikes / tau_syn
+
+        onReceive(spikes, priority=?????????/):
+            K__conv__spikes += spikes   # bump by spike weight
+
+        update:
+            K__conv__spikes__at_start_of_timestep real = K__conv__spikes    # backup old value of the convolution (add as first statement of update block)
+
+            ...
+            integrate_odes(V_m, K__conv__spikes)      # add integrating the convolutions to each integrate_odes() where, for any argument, there is reference to K__conv__spikes in an expression (checked recursively, and including inline expressions). XXX: in practice, it is added to every call that contains keyword arguments, such that it is always integrated.
+            K__conv__spikes = K__conv__spikes__at_start_of_timestep    # restore old value of the convolution
+            ...
+
+            # add as a last statement:
+            integrate_odes(K__conv__spikes)
+
+
+    If there is a delta kernel, do not increment the dummy variable, but increment the variable on the lhs of the expression. The dummy variable always stays at zero.
+
+    .. code-block:: nestml
+
+       onReceive(spikes, priority=?????????/):
+           V_m += spikes / C_m   # bump by spike weight
+
+    """
 
     _default_options = {
         "convolution_separator": "__conv__",
@@ -87,6 +142,49 @@ class ConvolutionsTransformer(Transformer):
                                                                                                                                function_call_printer=self._ode_toolbox_function_call_printer))
         self._ode_toolbox_variable_printer._expression_printer = self._ode_toolbox_printer
         self._ode_toolbox_function_call_printer._expression_printer = self._ode_toolbox_printer
+
+    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
+        r"""Transform a model or a list of models. Return an updated model or list of models."""
+        for model in models:
+            print("-------- MODEL BEFORE TRANSFORM ------------")
+            print(model)
+            kernel_buffers = self.generate_kernel_buffers(model)
+            delta_factors = self.get_delta_factors_from_convolutions(model)
+
+            print("Delta factors: ")
+            for k, v in delta_factors.items():
+                print("var = " + str(k[0]) + ", inport = " + str(k[1]) + ", expr = " + str(v))
+
+            odetoolbox_indict = self.transform_kernels_to_json(model, kernel_buffers)
+            print("odetoolbox indict: " + str(odetoolbox_indict))
+            odetoolbox.Config.config["differential_order_symbol"] = "___D"
+            solvers_json, shape_sys, shapes = odetoolbox._analysis(odetoolbox_indict,
+                                                                   disable_stiffness_check=True,
+                                                                   disable_analytic_solver=True,
+                                                                   preserve_expressions=True,
+                                                                   simplify_expression=self.get_option("simplify_expression"),
+                                                                   log_level=FrontendConfiguration.logging_level)
+            odetoolbox.Config.config["differential_order_symbol"] = "__d"
+            print("odetoolbox outdict: " + str(solvers_json))
+
+            self.replace_convolve_calls_with_buffers_(model)
+            delta_factors.update(self.get_delta_factors_from_input_port_references(model))
+            self.remove_initial_values_for_kernels(model)
+            self.create_initial_values_for_kernels(model, solvers_json, kernel_buffers)
+            self.create_spike_update_event_handlers(model, solvers_json, delta_factors)
+            self.remove_kernel_definitions_from_equations_blocks(model)
+            self.add_kernel_variables_to_integrate_odes_calls(model, solvers_json)
+            self.add_restore_kernel_variables_to_start_of_timestep(model, solvers_json)
+            self.add_temporary_kernel_variables_copy(model, solvers_json)
+            self.add_integrate_odes_call_for_kernel_variables(model, solvers_json)
+            self.add_convolution_equations(model, solvers_json)
+            self.replace_port_variable_names_with_buffers_(model)
+
+            print("-------- MODEL AFTER TRANSFORM ------------")
+            print(model)
+            print("-------------------------------------------")
+
+        return models
 
     def add_restore_kernel_variables_to_start_of_timestep(self, model, solvers_json):
         r"""For each integrate_odes() call in the model, append statements restoring the kernel variables to the values at the start of the timestep"""
@@ -119,12 +217,12 @@ class ConvolutionsTransformer(Transformer):
                     idx = parent_block.stmts.index(parent_stmt)
 
                     for i, var_name in enumerate(var_names):
-                        var = ASTNodeFactory.create_ast_variable(var_name + "__at_start_of_timestep", type_symbol=RealTypeSymbol)
+                        var = ASTNodeFactory.create_ast_variable(var_name + "__at_start_of_timestep")
                         var.update_scope(parent_block.get_scope())
                         expr = ASTNodeFactory.create_ast_simple_expression(variable=var)
                         ast_assignment = ASTNodeFactory.create_ast_assignment(lhs=ASTUtils.get_variable_by_name(model, var_name),
-                                                                               is_direct_assignment=True,
-                                                                               expression=expr, source_position=ASTSourceLocation.get_added_source_position())
+                                                                              is_direct_assignment=True,
+                                                                              expression=expr, source_position=ASTSourceLocation.get_added_source_position())
                         ast_assignment.update_scope(parent_block.get_scope())
                         ast_small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=ast_assignment)
                         ast_small_stmt.update_scope(parent_block.get_scope())
@@ -146,7 +244,6 @@ class ConvolutionsTransformer(Transformer):
 
         model.accept(ASTParentVisitor())
 
-
     def add_integrate_odes_call_for_kernel_variables(self, model, solvers_json):
         var_names = []
         for solver_dict in solvers_json:
@@ -156,10 +253,11 @@ class ConvolutionsTransformer(Transformer):
             for var_name, expr in solver_dict["initial_values"].items():
                 var_names.append(var_name)
 
-        args = ASTUtils.resolve_variables_to_simple_expressions(model, var_names)
-        ast_function_call = ASTNodeFactory.create_ast_function_call("integrate_odes", args)
-        ASTUtils.add_function_call_to_update_block(ast_function_call, model)
-        model.accept(ASTParentVisitor())
+        if var_names:
+            args = ASTUtils.resolve_variables_to_simple_expressions(model, var_names)
+            ast_function_call = ASTNodeFactory.create_ast_function_call("integrate_odes", args)
+            ASTUtils.add_function_call_to_update_block(ast_function_call, model)
+            model.accept(ASTParentVisitor())
 
     def add_temporary_kernel_variables_copy(self, model, solvers_json):
         var_names = []
@@ -173,12 +271,12 @@ class ConvolutionsTransformer(Transformer):
         scope = model.get_update_blocks()[0].scope
 
         for var_name in var_names:
-            var = ASTNodeFactory.create_ast_variable(var_name + "__at_start_of_timestep", type_symbol=RealTypeSymbol)
+            var = ASTNodeFactory.create_ast_variable(var_name + "__at_start_of_timestep")
             var.scope = scope
             expr = ASTNodeFactory.create_ast_simple_expression(variable=ASTUtils.get_variable_by_name(model, var_name))
             ast_declaration = ASTNodeFactory.create_ast_declaration(variables=[var],
                                                                     data_type=ASTDataType(is_real=True),
-                                                    expression=expr, source_position=ASTSourceLocation.get_added_source_position())
+                                                                    expression=expr, source_position=ASTSourceLocation.get_added_source_position())
             ast_declaration.update_scope(scope)
             ast_small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=ast_declaration)
             ast_small_stmt.update_scope(scope)
@@ -189,39 +287,6 @@ class ConvolutionsTransformer(Transformer):
 
         model.accept(ASTParentVisitor())
         model.accept(ASTSymbolTableVisitor())
-
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
-        r"""Transform a model or a list of models. Return an updated model or list of models."""
-        for model in models:
-            print("-------- MODEL BEFORE TRANSFORM ------------")
-            print(model)
-            kernel_buffers = self.generate_kernel_buffers(model)
-            odetoolbox_indict = self.transform_kernels_to_json(model, kernel_buffers)
-            print("odetoolbox indict: " + str(odetoolbox_indict))
-            solvers_json, shape_sys, shapes = odetoolbox._analysis(odetoolbox_indict,
-                                                                   disable_stiffness_check=True,
-                                                                   disable_analytic_solver=True,
-                                                                   preserve_expressions=True,
-                                                                   simplify_expression=self.get_option("simplify_expression"),
-                                                                   log_level=FrontendConfiguration.logging_level)
-            print("odetoolbox outdict: " + str(solvers_json))
-
-            self.remove_initial_values_for_kernels(model)
-            self.create_initial_values_for_kernels(model, solvers_json, kernel_buffers)
-            self.create_spike_update_event_handlers(model, solvers_json, kernel_buffers)
-            self.replace_convolve_calls_with_buffers_(model)
-            self.remove_kernel_definitions_from_equations_blocks(model)
-            self.add_kernel_variables_to_integrate_odes_calls(model, solvers_json)
-            self.add_restore_kernel_variables_to_start_of_timestep(model, solvers_json)
-            self.add_temporary_kernel_variables_copy(model, solvers_json)
-            self.add_integrate_odes_call_for_kernel_variables(model, solvers_json)
-            self.add_kernel_equations(model, solvers_json)
-
-            print("-------- MODEL AFTER TRANSFORM ------------")
-            print(model)
-            print("-------------------------------------------")
-
-        return models
 
     def construct_kernel_spike_buf_name(self, kernel_var_name: str, spike_input_port: ASTInputPort, order: int, diff_order_symbol: Optional[str] = None):
         """
@@ -272,7 +337,7 @@ class ConvolutionsTransformer(Transformer):
                     and node.is_variable() \
                     and node.get_variable().get_name() == variable_name_to_replace:
                 var_order = node.get_variable().get_differential_order()
-                new_variable_name = cls.construct_kernel_X_spike_buf_name(
+                new_variable_name = self.construct_kernel_spike_buf_name(
                     kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
                 new_variable = ASTVariable(new_variable_name, var_order)
                 new_variable.set_source_position(node.get_variable().get_source_position())
@@ -354,6 +419,7 @@ class ConvolutionsTransformer(Transformer):
             for var_name, expr in solver_dict["initial_values"].items():
                 spike_in_port_name = var_name.split(self.get_option("convolution_separator"))[1]
                 spike_in_port_name = spike_in_port_name.split("__d")[0]
+                spike_in_port_name = spike_in_port_name.split("___D")[0]
                 spike_in_port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), spike_in_port_name)
                 type_str = "real"
                 if spike_in_port:
@@ -408,13 +474,11 @@ class ConvolutionsTransformer(Transformer):
                 kernel = model.get_kernel_by_name(var.get_name())
 
                 _expr.set_function_call(None)
-                buffer_var = self.construct_kernel_spike_buf_name(
-                    var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if self.is_delta_kernel(kernel):
-                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
-                    _expr.set_variable(None)
-                    _expr.set_numeric_literal(0)
+                    # special case for delta kernels: they will be incremented elsewhere
+                    _expr.numeric_literal = 0.
                 else:
+                    buffer_var = self.construct_kernel_spike_buf_name(var.get_name(), spike_input_port, var.get_differential_order() - 1)
                     ast_variable = ASTVariable(buffer_var)
                     ast_variable.set_source_position(_expr.get_source_position())
                     _expr.set_variable(ast_variable)
@@ -425,39 +489,26 @@ class ConvolutionsTransformer(Transformer):
         for equations_block in model.get_equations_blocks():
             equations_block.accept(ASTHigherOrderVisitor(func))
 
-    @classmethod
-    def replace_convolution_aliasing_inlines(cls, neuron: ASTModel) -> None:
+    def replace_port_variable_names_with_buffers_(self, model: ASTModel) -> None:
+        r"""
+        Replace all occurrences of ``spike_input_port`` with the numeric literal zero.
         """
-        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
-        """
-        def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
-            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                var = _expr.get_variable()
-                if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
-                                               differential_order=0)
-                    ast_variable.set_source_position(var.get_source_position())
-                    _expr.set_variable(ast_variable)
 
-            elif isinstance(_expr, ASTVariable):
-                var = _expr
-                if var.get_name() == replace_var_name:
-                    var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
-                    var.set_differential_order(0)
+        spike_inports = model.get_spike_input_ports()
 
-        for equation_block in neuron.get_equations_blocks():
-            for decl in equation_block.get_declarations():
-                if isinstance(decl, ASTInlineExpression):
-                    expr = decl.get_expression()
-                    if isinstance(expr, ASTExpression):
-                        expr = expr.get_lhs()
+        def replace_inport_through_numeric_literal(_expr=None):
+            if _expr.variable:
+                var = _expr.variable
+                for inport in spike_inports:
+                    if var.get_name() == inport.name:
+                        _expr.variable = None
+                        _expr.numeric_literal = 0.
 
-                    if isinstance(expr, ASTSimpleExpression) \
-                            and '__X__' in str(expr) \
-                            and expr.get_variable():
-                        replace_with_var_name = expr.get_variable().get_name()
-                        neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
-                            x, decl.get_variable_name(), replace_with_var_name)))
+        def func(x):
+            return replace_inport_through_numeric_literal(x) if isinstance(x, ASTSimpleExpression) else True
+
+        for equations_block in model.get_equations_blocks():
+            equations_block.accept(ASTHigherOrderVisitor(func))
 
     def generate_kernel_buffers(self, model: ASTModel) -> Mapping[ASTKernel, ASTInputPort]:
         r"""
@@ -466,6 +517,7 @@ class ConvolutionsTransformer(Transformer):
         kernel_buffers = set()
         for equations_block in model.get_equations_blocks():
             convolve_calls = ASTUtils.get_convolve_function_calls(equations_block)
+            print("convolve_calls = " + " ".join([str(s) for s in convolve_calls]))
             for convolve in convolve_calls:
                 el = (convolve.get_args()[0], convolve.get_args()[1])
                 sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
@@ -484,11 +536,12 @@ class ConvolutionsTransformer(Transformer):
                     el[1]) + ")\": no kernel by name \"" + var.get_name() + "\" found in model."
 
                 el = (kernel, el[1])
-                kernel_buffers.add(el)
+                if not (str(el[0]), str(el[1])) in [(str(el[0]), str(el[1])) for el in kernel_buffers]:
+                    kernel_buffers.add(el)
 
         return kernel_buffers
 
-    def add_kernel_equations(self, model, solver_dicts):
+    def add_convolution_equations(self, model, solver_dicts):
         if not model.get_equations_blocks():
             ASTUtils.create_equations_block()
 
@@ -504,6 +557,11 @@ class ConvolutionsTransformer(Transformer):
                 expr = ModelParser.parse_expression(expr_str)
                 expr.update_scope(model.get_scope())
                 expr.accept(ASTSymbolTableVisitor())
+
+                if isinstance(expr.type, RealTypeSymbol):
+                    expr = ModelParser.parse_expression("(" + expr_str + ") / ms")    # change per second XXX: why ms? this should be simulation platform target-dependent. See
+                    expr.update_scope(model.get_scope())
+                    expr.accept(ASTSymbolTableVisitor())
 
                 var = ASTNodeFactory.create_ast_variable(var_name, differential_order=1, source_position=ASTSourceLocation.get_added_source_position())
                 var.update_scope(equations_block.get_scope())
@@ -544,17 +602,16 @@ class ConvolutionsTransformer(Transformer):
         odetoolbox_indict["dynamics"] = []
 
         for kernel, spike_input_port in kernel_buffers:
-
-            if self.is_delta_kernel(kernel):
-                # delta function -- skip passing this to ode-toolbox
-                continue
-
             for kernel_var in kernel.get_variables():
                 expr = ASTUtils.get_expr_from_kernel_var(kernel, kernel_var.get_complete_name())
                 kernel_order = kernel_var.get_differential_order()
                 kernel_X_spike_buf_name_ticks = self.construct_kernel_spike_buf_name(kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'")
 
                 self.replace_rhs_variables(expr, kernel_buffers)
+
+                if self.is_delta_kernel(kernel):
+                    # ODE-toolbox does not know how to handle "delta(t)", so replace this by a constant rhs so it generates a dummy (do-nothing) update expression
+                    expr = "1"
 
                 entry = {"expression": kernel_X_spike_buf_name_ticks + " = " + str(expr), "initial_values": {}}
 
@@ -579,7 +636,117 @@ class ConvolutionsTransformer(Transformer):
 
         return odetoolbox_indict
 
-    def create_spike_update_event_handlers(self, model: ASTModel, solver_dicts, kernel_buffers: List[Tuple[ASTKernel, ASTInputPort]]) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
+    def get_delta_factors_from_convolutions(self, model: ASTModel) -> dict:
+        r"""
+        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
+        """
+        delta_factors = {}
+
+        for equations_block in model.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                expr = ode_eq.get_rhs()
+                conv_calls = ASTUtils.get_convolve_function_calls(expr)
+                for conv_call in conv_calls:
+                    assert len(conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
+                    kernel = conv_call.args[0]
+                    if self.is_delta_kernel(model.get_kernel_by_name(kernel.get_variable().get_name())):
+                        inport = conv_call.args[1].get_variable()
+                        factor_str = self.get_factor_str_from_expr_and_inport(expr, str(conv_call))
+                        assert factor_str
+                        delta_factors[(var, inport)] = factor_str
+
+        return delta_factors
+
+    def get_factor_str_from_expr_and_inport(self, expr, sub_expr):
+        from sympy.physics.units import Quantity, Unit, milli, micro, nano, pico, femto, kilo, mega, volt, ampere, ohm, farad, second, meter, hertz
+        from pynestml.codegeneration.printers.nestml_printer_units_as_factors import NESTMLPrinterUnitsAsFactors
+        from sympy import sympify
+
+        units = {
+            'V': volt,                      # Volt
+            'mV': milli * volt,             # Millivolt (10^-3 V)
+            'uV': micro * volt,             # Microvolt (10^-6 V)
+            'nV': nano * volt,              # Nanovolt (10^-9 V)
+
+            'A': ampere,                    # Ampere
+            'mA': milli * ampere,           # Milliampere (10^-3 A)
+            'uA': micro * ampere,           # Microampere (10^-6 A)
+            'nA': nano * ampere,            # Nanoampere (10^-9 A)
+
+            'Ohm': ohm,                     # Ohm
+            'kOhm': kilo * ohm,             # Kiloohm (10^3 Ohm)
+            'MOhm': mega * ohm,             # Megaohm (10^6 Ohm)
+
+            'F': farad,                     # Farad
+            'uF': micro * farad,            # Microfarad (10^-6 F)
+            'nF': nano * farad,             # Nanofarad (10^-9 F)
+            'pF': pico * farad,             # Picofarad (10^-12 F)
+            'fF': femto * farad,            # Femtofarad (10^-15 F)
+
+            's': second,                    # Second
+            'ms': milli * second,           # Millisecond (10^-3 s)
+            'us': micro * second,           # Microsecond (10^-6 s)
+            'ns': nano * second,            # Nanosecond (10^-9 s)
+
+            'Hz': hertz,                    # Hertz (1/s)
+            'kHz': kilo * hertz,            # Kilohertz (10^3 Hz)
+            'MHz': mega * hertz,            # Megahertz (10^6 Hz)
+
+            'm': meter,                     # Meter
+            'mm': milli * meter,            # Millimeter (10^-3 m)
+            'um': micro * meter,            # Micrometer (10^-6 m)
+            'nm': nano * meter,             # Nanometer (10^-9 m)
+        }
+
+        expr_str = NESTMLPrinterUnitsAsFactors().print(expr)
+
+        print("In get_delta_factors_from_input_port_references(): parsing " + expr_str)
+        sympy_expr = sympify(expr_str, locals=units)
+        sympy_expr = sympy.expand(sympy_expr)
+        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr)
+        factor_str = []
+        for term in sympy.Add.make_args(sympy_expr):
+            if term.find(sympy_conv_expr):
+                _expr = str(term.replace(sympy_conv_expr, 1))
+                factor_str.append(_expr)
+
+        factor_str = " + ".join(factor_str)
+
+        return factor_str
+
+    def get_delta_factors_from_input_port_references(self, model: ASTModel) -> dict:
+        r"""
+        For every occurrence of a convolution of the form ``x^(n) = a * inport + ...``, add the element `(x^(n), inport) --> a` to the set.
+        """
+        delta_factors = {}
+        print("-----")
+        print("get_delta_factors_from_input_port_references")
+
+        spike_inports = model.get_spike_input_ports()
+        for equations_block in model.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                expr = ode_eq.get_rhs()
+
+                for inport in spike_inports:
+                    # inport = ASTUtils.get_input_port_by_name(model.get_input_blocks(), inport.name)
+
+                    inport = ASTNodeFactory.create_ast_variable(inport.name)
+                    inport.update_scope(equations_block.get_scope())
+
+                    factor_str = self.get_factor_str_from_expr_and_inport(expr, inport.name)
+
+                    if factor_str:
+                        delta_factors[(var, inport)] = factor_str
+
+        for k, v in delta_factors.items():
+            print("var = " + str(k[0]) + ", inport = " + str(k[1]) + ", expr = " + str(v))
+        print("-----")
+
+        return delta_factors
+
+    def create_spike_update_event_handlers(self, model: ASTModel, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         r"""
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after
         ode-toolbox.
@@ -601,6 +768,7 @@ class ConvolutionsTransformer(Transformer):
 
                 spike_in_port_name = var.split(self.get_option("convolution_separator"))[1]
                 spike_in_port_name = spike_in_port_name.split("__d")[0]
+                spike_in_port_name = spike_in_port_name.split("___D")[0]
                 spike_in_port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), spike_in_port_name)
                 type_str = "real"
 
@@ -610,9 +778,13 @@ class ConvolutionsTransformer(Transformer):
                     type_str = "(s**-" + str(differential_order) + ")"
 
                 assignment_str = var + " += "
-                assignment_str += "(" + str(spike_in_port_name) + ")"
+                assignment_str += "1000. * (" + str(spike_in_port_name) + ")"  # XXX: not clear where the factor 1E3 comes from
                 if not expr in ["1.", "1.0", "1"]:
                     assignment_str += " * (" + expr + ")"
+
+                kernel = model.get_kernel_by_name(var.split(self.get_option("convolution_separator"))[0])
+                if kernel and self.is_delta_kernel(kernel):
+                    continue
 
                 ast_assignment = ModelParser.parse_assignment(assignment_str)
                 ast_assignment.update_scope(model.get_scope())
@@ -625,6 +797,44 @@ class ConvolutionsTransformer(Transformer):
                     spike_in_port_to_stmts[spike_in_port_name] = []
 
                 spike_in_port_to_stmts[spike_in_port_name].append(ast_stmt)
+
+        for k, factor in delta_factors.items():
+            var = k[0]
+            inport = k[1]
+            assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
+            if not factor in ["1.", "1.0", "1"]:
+                factor_expr = ModelParser.parse_expression(factor)
+                factor_expr.update_scope(model.get_scope())
+                factor_expr.accept(ASTSymbolTableVisitor())
+                assignment_str += "(" + self._ode_toolbox_printer.print(factor_expr) + ") * "
+
+            if "_is_post_port" in dir(inport) and inport._is_post_port:
+                orig_port_name = inport[:inport.index("__for_")]
+                buffer_type = model.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+            else:
+                buffer_type = model.get_scope().resolve_to_symbol(inport.get_name(), SymbolKind.VARIABLE).get_type_symbol()
+
+            assignment_str += str(inport)
+            if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
+            ast_assignment = ModelParser.parse_assignment(assignment_str)
+            ast_assignment.update_scope(model.get_scope())
+            ast_assignment.accept(ASTSymbolTableVisitor())
+            ast_small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=ast_assignment)
+            ast_small_stmt.update_scope(model.get_scope())
+            ast_small_stmt.accept(ASTSymbolTableVisitor())
+            ast_stmt = ASTNodeFactory.create_ast_stmt(small_stmt=ast_small_stmt)
+            ast_stmt.update_scope(model.get_scope())
+            ast_stmt.accept(ASTSymbolTableVisitor())
+
+            inport_name = inport.get_name()
+            if inport.has_vector_parameter():
+                inport_name += "_" + str(ASTUtils.get_numeric_vector_size(inport))
+
+            if not spike_in_port_name in spike_in_port_to_stmts.keys():
+                spike_in_port_to_stmts[spike_in_port_name] = []
+
+            spike_in_port_to_stmts[spike_in_port_name].append(ast_stmt)
 
         # for every input port, add an onreceive block with its update statements
         for in_port, stmts in spike_in_port_to_stmts.items():

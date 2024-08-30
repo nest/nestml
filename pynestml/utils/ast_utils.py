@@ -442,7 +442,7 @@ class ASTUtils:
         model.accept(ASTParentVisitor())
 
         return model
-    
+
     @classmethod
     def create_on_receive_block(cls, model: ASTModel, block: ASTBlock, input_port_name: str) -> ASTModel:
         """
@@ -580,14 +580,18 @@ class ASTUtils:
         return False
 
     @classmethod
-    def add_state_var_to_integrate_odes_calls(cls, model: ASTModel, var: ASTExpression):
-        r"""Add a state variable to the arguments to each integrate_odes() calls in the model."""
+    def add_state_var_to_integrate_odes_calls(cls, model: ASTModel, var: ASTExpression, append_to_no_args_call=False):
+        r"""Add a state variable to the arguments to each integrate_odes() calls in the model.
+
+        If ``append_to_no_args_call`` is True, the variable is always appended. Otherwise, it is only appended if there are already other arguments in the call to ``integrate_odes()``; the thought behind this is that the variable would be already implicitly included if the call has no arguments at all.
+        """
 
         class AddStateVarToIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
                 if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
                     expr = ASTNodeFactory.create_ast_simple_expression(variable=var.clone())
-                    node.args.append(expr)
+                    if append_to_no_args_call or (not append_to_no_args_call and len(node.args) > 0):
+                        node.args.append(expr)
 
         model.accept(AddStateVarToIntegrateODEsCallsVisitor())
 
@@ -1070,7 +1074,7 @@ class ASTUtils:
             if equation.get_lhs().get_name() == sym:
                 return True
         return False
-    
+
     @classmethod
     def add_function_call_to_update_block(cls, function_call: ASTFunctionCall, model: ASTModel) -> ASTModel:
         """
@@ -1096,7 +1100,7 @@ class ASTUtils:
         model.accept(ASTParentVisitor())
 
         return model
-    
+
     @classmethod
     def add_declarations_to_internals(cls, neuron: ASTModel, declarations: Mapping[str, str]) -> ASTModel:
         """
@@ -1946,8 +1950,6 @@ class ASTUtils:
         """
         Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
         variable name (e.g. `g_ex__DOLLAR__d__d`).
-
-        Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():

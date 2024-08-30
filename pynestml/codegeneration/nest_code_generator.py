@@ -71,6 +71,7 @@ from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import \
     ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -170,7 +171,7 @@ class NESTCodeGenerator(CodeGenerator):
         for model in neurons + synapses:
             for equations_block in model.get_equations_blocks():
                 assert len(equations_block.get_kernels()) == 0, "Kernels and convolutions should have been removed by ConvolutionsTransformer"
-        
+
         for synapse in synapses:
             synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
             delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
@@ -381,11 +382,9 @@ class NESTCodeGenerator(CodeGenerator):
             if len(synapse.get_equations_blocks()) > 1:
                 raise Exception("Only one equations block per model supported for now")
 
-            equations_block = synapse.get_equations_blocks()[0]
-
             InlineExpressionExpansionTransformer().transform(synapse)
 
-            analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
+            analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse)
             self.analytic_solver[synapse.get_name()] = analytic_solver
             self.numeric_solver[synapse.get_name()] = numeric_solver
 
@@ -828,6 +827,8 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Update symbol table and scope.
         """
+        neuron.accept(ASTParentVisitor())
+
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         symbol_table_visitor.after_ast_rewrite_ = True

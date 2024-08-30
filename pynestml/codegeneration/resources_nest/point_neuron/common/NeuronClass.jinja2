@@ -720,11 +720,11 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
     update_delay_variables();
 {%- endif %}
+{%  if neuron.get_update_blocks() %}
 
     /**
      * Begin NESTML generated code for the update block(s)
     **/
-{%  if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_block() %}
@@ -755,14 +755,18 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     **/
 {% if neuron.get_on_condition_blocks() %}
 {%-     for block in neuron.get_on_condition_blocks() %}
+    /**
+     * Begin NESTML generated code for the ``onCondition({{ nestml_printer.print(block.get_cond_expr()) }})`` block
+    **/
+
     if ({{ printer.print(block.get_cond_expr()) }})
     {
 {%-         set ast = block.get_block() %}
 {%-         if ast.print_comment('*') | length > 1 %}
-/*
- {{ast.print_comment('*')}}
- */
-{%-         endif %}
+    /**
+     * {{ ast.print_comment('*') }}
+    **/
+{%          endif %}
 {%-         filter indent(6) %}
 {%-             include "directives_cpp/Block.jinja2" %}
 {%-         endfilter %}
@@ -1126,14 +1130,6 @@ void
 {%-         include "directives_cpp/Statement.jinja2" %}
 {%-     endfor %}
 {%-     endfilter %}
-
-    /**
-     * updates due to convolutions
-    **/
-
-{%-     for _, spike_update in post_spike_updates.items() %}
-    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
-{%-     endfor %}
 
     /**
      * push back history
