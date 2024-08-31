@@ -506,7 +506,6 @@ class NESTMLPrinter(ModelPrinter):
         raise RuntimeError("Type of unary operator not specified!")
 
     def print_unit_type(self, node: ASTUnitType) -> str:
-        print("yyyyyyyyyy")
         if node.is_encapsulated:
             return "(" + self.print(node.compound_unit) + ")"
 
@@ -521,7 +520,7 @@ class NESTMLPrinter(ModelPrinter):
             else:
                 return t_lhs + "/" + self.print(node.get_rhs())
 
-        return "******" + node.unit
+        return node.unit
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
