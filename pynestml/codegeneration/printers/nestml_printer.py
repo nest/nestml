@@ -226,8 +226,7 @@ class NESTMLPrinter(ModelPrinter):
             return "real"
 
         if node.is_unit_type():
-            print("xxxxxx: " + str(self.print(node.get_unit_type())))
-            return "*" + self.print(node.get_unit_type())
+            return self.print(node.get_unit_type())
 
         raise RuntimeError("Type of datatype not specified!")
 
