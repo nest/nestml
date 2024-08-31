@@ -36,4 +36,4 @@ class NESTMLPrinterUnitsAsFactors(NESTMLPrinter):
 
             return str(node.numeric_literal)
 
-        return super(node)
+        return super().print_simple_expression(node)
