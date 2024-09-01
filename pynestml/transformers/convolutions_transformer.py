@@ -30,6 +30,11 @@ import sympy
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+from pynestml.codegeneration.printers.nestml_expression_printer import NESTMLExpressionPrinter
+from pynestml.codegeneration.printers.nestml_function_call_printer import NESTMLFunctionCallPrinter
+from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer import NESTMLSimpleExpressionPrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer_units_as_factors import NESTMLSimpleExpressionPrinterUnitsAsFactors
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
@@ -659,8 +664,7 @@ class ConvolutionsTransformer(Transformer):
         return delta_factors
 
     def get_factor_str_from_expr_and_inport(self, expr, sub_expr):
-        from sympy.physics.units import Quantity, Unit, milli, micro, nano, pico, femto, kilo, mega, volt, ampere, ohm, farad, second, meter, hertz
-        from pynestml.codegeneration.printers.nestml_printer_units_as_factors import NESTMLPrinterUnitsAsFactors
+        from sympy.physics.units import Quantity, Unit, siemens, milli, micro, nano, pico, femto, kilo, mega, volt, ampere, ohm, farad, second, meter, hertz
         from sympy import sympify
 
         units = {
@@ -668,6 +672,9 @@ class ConvolutionsTransformer(Transformer):
             'mV': milli * volt,             # Millivolt (10^-3 V)
             'uV': micro * volt,             # Microvolt (10^-6 V)
             'nV': nano * volt,              # Nanovolt (10^-9 V)
+
+            'S': siemens,                    # Ampere
+            'nS': nano * siemens,                    # Ampere
 
             'A': ampere,                    # Ampere
             'mA': milli * ampere,           # Milliampere (10^-3 A)
@@ -699,7 +706,15 @@ class ConvolutionsTransformer(Transformer):
             'nm': nano * meter,             # Nanometer (10^-9 m)
         }
 
-        expr_str = NESTMLPrinterUnitsAsFactors().print(expr)
+        printer = NESTMLPrinter()
+        printer._expression_printer = NESTMLExpressionPrinter(simple_expression_printer=None)
+        printer._constant_printer = ConstantPrinter()
+        printer._function_call_printer = NESTMLFunctionCallPrinter(expression_printer=printer._expression_printer)
+        printer._variable_printer = ODEToolboxVariablePrinter(expression_printer=printer._expression_printer)
+        printer._simple_expression_printer = NESTMLSimpleExpressionPrinterUnitsAsFactors(variable_printer=printer._variable_printer, function_call_printer=printer._function_call_printer, constant_printer=printer._constant_printer)
+        printer._expression_printer._simple_expression_printer = printer._simple_expression_printer
+
+        expr_str = printer.print(expr)
 
         print("In get_delta_factors_from_input_port_references(): parsing " + expr_str)
         sympy_expr = sympify(expr_str, locals=units)

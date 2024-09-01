@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nestml_printer_units_as_factors.py
+# nestml_simple_expression_printer_units_as_factors.py
 #
 # This file is part of NEST.
 #
@@ -19,11 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer import NESTMLSimpleExpressionPrinter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
-class NESTMLPrinterUnitsAsFactors(NESTMLPrinter):
+class NESTMLSimpleExpressionPrinterUnitsAsFactors(NESTMLSimpleExpressionPrinter):
     r"""
     Same as the NESTMLPrinter, except print unit literals with a multiplication operator between (for example "42 * ms" instead of "42 ms").
     """

@@ -21,11 +21,6 @@
 
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
-import re
-import sympy
-
-import odetoolbox
-
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
@@ -65,7 +60,6 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
