@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, List, Sequence
+from typing import Any, List, Optional, Sequence
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -32,14 +33,13 @@ class ASTEquationsBlock(ASTNode):
     This class is used to store an equations block.
     """
 
-    def __init__(self, declarations, *args, **kwargs):
+    def __init__(self, declarations: Optional[List[ASTDeclaration]], *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param declarations: a block of definitions.
-        :type declarations: ast_block
+        :param declarations: a list of declarations
         """
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
@@ -49,6 +49,9 @@ class ASTEquationsBlock(ASTNode):
                                          or isinstance(decl, ASTInlineExpression)), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
+        if declarations is None:
+            declarations = []
+
         self.declarations = declarations
 
     def clone(self):
@@ -58,7 +61,7 @@ class ASTEquationsBlock(ASTNode):
         :return: new AST node instance
         :rtype: ASTEquationsBlock
         """
-        declarations_dup = None
+        declarations_dup = []
         if self.declarations:
             declarations_dup = [decl.clone() for decl in self.declarations]
         dup = ASTEquationsBlock(declarations=declarations_dup,

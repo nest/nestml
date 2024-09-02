@@ -273,6 +273,9 @@ class ConvolutionsTransformer(Transformer):
             for var_name, expr in solver_dict["initial_values"].items():
                 var_names.append(var_name)
 
+        if not model.get_update_blocks():
+            model.create_empty_update_block()
+
         scope = model.get_update_blocks()[0].scope
 
         for var_name in var_names:
@@ -548,9 +551,9 @@ class ConvolutionsTransformer(Transformer):
 
     def add_convolution_equations(self, model, solver_dicts):
         if not model.get_equations_blocks():
-            ASTUtils.create_equations_block()
+            ASTUtils.create_equations_block(model)
 
-        assert len(model.get_equations_blocks()) <= 1
+        assert len(model.get_equations_blocks()) == 1, "More than one equations block not yet supported!"
 
         equations_block = model.get_equations_blocks()[0]
 

@@ -560,20 +560,6 @@ class ASTUtils:
         return vars
 
     @classmethod
-    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
-        """
-        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
-        """
-        expr = inline_expr.get_expression()
-        if isinstance(expr, ASTExpression):
-            expr = expr.get_lhs()
-        if isinstance(expr, ASTSimpleExpression) \
-           and expr.is_function_call() \
-           and expr.get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
-            return True
-        return False
-
-    @classmethod
     def add_state_var_to_integrate_odes_calls(cls, model: ASTModel, var: ASTExpression, append_to_no_args_call=False):
         r"""Add a state variable to the arguments to each integrate_odes() calls in the model.
 

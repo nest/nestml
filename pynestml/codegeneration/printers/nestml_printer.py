@@ -85,7 +85,6 @@ class NESTMLPrinter(ModelPrinter):
         self.indent = 0
 
         self._expression_printer = NESTMLExpressionPrinter(simple_expression_printer=None)
-
         self._constant_printer = ConstantPrinter()
         self._function_call_printer = NESTMLFunctionCallPrinter(expression_printer=self._expression_printer)
         self._variable_printer = NESTMLVariablePrinter(expression_printer=self._expression_printer)
