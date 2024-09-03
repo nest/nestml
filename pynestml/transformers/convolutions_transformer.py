@@ -710,7 +710,7 @@ class ConvolutionsTransformer(Transformer):
         }
 
         printer = NESTMLPrinter()
-        printer._expression_printer = NESTMLExpressionPrinter(simple_expression_printer=None)
+        printer._expression_printer = ODEToolboxExpressionPrinter(simple_expression_printer=None)
         printer._constant_printer = ConstantPrinter()
         printer._function_call_printer = NESTMLFunctionCallPrinter(expression_printer=printer._expression_printer)
         printer._variable_printer = ODEToolboxVariablePrinter(expression_printer=printer._expression_printer)

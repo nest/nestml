@@ -387,8 +387,7 @@ class Messages:
         return MessageCode.MODEL_CONTAINS_ERRORS, message
 
     @classmethod
-    def get_start_processing_model(
-            cls, model_name: str) -> Tuple[MessageCode, str]:
+    def get_start_processing_model(cls, model_name: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the processing of a model is started.
         :param model_name: the name of the model
@@ -396,7 +395,7 @@ class Messages:
         """
         assert (model_name is not None and isinstance(model_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
-        message = 'Starts processing of the model \'' + model_name + '\''
+        message = 'Starting processing of the model \'' + model_name + '\''
         return MessageCode.START_PROCESSING_MODEL, message
 
     @classmethod

@@ -41,7 +41,7 @@ class ODEToolboxUtils:
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
 
         class MySympyPrinter(StrPrinter):
-            """Resulting expressions will be parsed by NESTML parser. R
+            """Resulting expressions will be parsed by NESTML parser.
             """
             def _print_Function(self, expr):
                 if expr.func.__name__ == "Piecewise":
