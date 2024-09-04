@@ -592,6 +592,42 @@ def analyze_isi_data(data, bin_size):
     data["max_val"] = max_val
 
 
+def kolmogorov_smirnov_metric(p1, p2):
+    """
+    Compute the Kolmogorov-Smirnov metric between two discrete probability distributions.
+
+    :param p1: First probability distribution as a list or numpy array.
+    :param p2: Second probability distribution as a list or numpy array.
+    :return: KS metric (maximum absolute difference between the two cumulative distributions).
+    """
+
+    # Ensure the two distributions are numpy arrays
+    p1 = np.asarray(p1)
+    p2 = np.asarray(p2)
+
+    # Check if the two distributions are valid and have the same length
+    assert p1.shape == p2.shape, "Distributions must have the same shape"
+    assert np.isclose(p1.sum(), 1), "First distribution must sum to 1"
+    assert np.isclose(p2.sum(), 1), "Second distribution must sum to 1"
+
+    # Compute the cumulative distribution functions (CDFs)
+    cdf1 = np.cumsum(p1)
+    cdf2 = np.cumsum(p2)
+
+    # Compute the Kolmogorov-Smirnov metric (maximum absolute difference between CDFs)
+    ks_metric = np.max(np.abs(cdf1 - cdf2))
+
+    return ks_metric
+
+def print_isi_distributions_ks_distance(neuron_models, data):
+
+    for neuron_model1 in neuron_models:
+        for neuron_model2 in neuron_models:
+            ks_metric = kolmogorov_smirnov_metric(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
+
+            print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) metric = " + str(ks_metric))
+
+
 def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(6, 4))
 
@@ -649,3 +685,5 @@ if __name__ == "__main__":
     data = read_isis_from_files(NEURONMODELS)
     analyze_isi_data(data, bin_size)
     plot_isi_distributions(NEURONMODELS, data)
+    print_isi_distributions_ks_distance(neuron_models, data)
+
