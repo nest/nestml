@@ -26,6 +26,7 @@ import json
 import math
 import os
 import re
+import scipy
 import subprocess
 import time
 
@@ -623,10 +624,10 @@ def print_isi_distributions_ks_distance(neuron_models, data):
 
     for neuron_model1 in neuron_models:
         for neuron_model2 in neuron_models:
-            ks_metric = kolmogorov_smirnov_metric(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
+            ks_distance = kolmogorov_smirnov_metric(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
+            ks_statistic, p_value = scipy.stats.ks_2samp(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
 
-            print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) metric = " + str(ks_metric))
-
+            print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) distance = " + str(ks_distance) + ", KS statistic = " + str(ks_statistic) + ", p-value = " + str(p_value))
 
 def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(6, 4))
@@ -685,5 +686,5 @@ if __name__ == "__main__":
     data = read_isis_from_files(NEURONMODELS)
     analyze_isi_data(data, bin_size)
     plot_isi_distributions(NEURONMODELS, data)
-    print_isi_distributions_ks_distance(neuron_models, data)
+    print_isi_distributions_ks_distance(NEURONMODELS, data)
 
