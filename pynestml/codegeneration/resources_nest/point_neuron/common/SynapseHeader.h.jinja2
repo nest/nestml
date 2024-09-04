@@ -339,12 +339,6 @@ private:
 {%- endfor %}
 {%- endfilter %}
 
-{% if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-    double __gsl_error_tol;
-{%     endif %}
-{% endif %}
-
     /** Initialize parameters to their default values. */
     Parameters_() {};
   };
@@ -1081,17 +1075,6 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
   }
 {%- endfor %}
 {%- endif %}
-
-{%  if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-
-  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. )
-  {
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
-  }
-{%-    endif %}
-{%  endif %}
 
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
   V_.__h = nest::Time::get_resolution().get_ms();
