@@ -27,6 +27,7 @@ import math
 import os
 import re
 import scipy
+import scipy.stats
 import subprocess
 import time
 
@@ -277,8 +278,8 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     neurons = []
 
     # Compute max simulation time between MPI ranks and add it to the data
-    for neuron, values in sim_data.items():
-        neurons.append(neuron)
+    for neuron in NEURONMODELS:
+        values = sim_data[neuron]
         x = sorted(values.keys(), key=lambda k: int(k))
         for nodes in x:
             for it_data in values[nodes].values():
@@ -296,9 +297,8 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
                 it_data["memory_benchmark"]["vmsize"] = vmsize_sum
                 it_data["memory_benchmark"]["vmpeak"] = vmpeak_sum
 
-    for neuron, values in sim_data.items():
-        if not neuron in NEURONMODELS:
-            continue
+    for neuron in NEURONMODELS:
+        values = sim_data[neuron]
 
         x = sorted(values.keys(), key=lambda k: int(k))
         y = np.array([np.mean(
@@ -310,12 +310,14 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 
         x = np.array([int(val) for val in x], dtype=int)
         plt.errorbar(x, y, yerr=y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-', marker='o',
-                     markersize=4, ecolor='gray', capsize=2)
+                     markersize=4, ecolor='gray', capsize=2, linewidth=2)
 
     if args.enable_mpi:
         plt.xlabel('Number of nodes')
+        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
     else:
         plt.xlabel('Number of threads')
+        plt.xlim(N_THREADS[0], N_THREADS[-1])
     plt.ylabel('Wall clock time (s)')
     plt.xscale('log')
     plt.yscale('log')
@@ -329,9 +331,8 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.figure()
     neurons = []
     referenceValues = sim_data[BASELINENEURON]
-    for neuron, values in sim_data.items():
-        if not neuron in NEURONMODELS:
-            continue
+    for neuron in NEURONMODELS:
+        values = sim_data[neuron]
 
         neurons.append(neuron)
         x = sorted(values.keys(), key=lambda k: int(k))
@@ -351,12 +352,15 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 
         x = np.array([int(val) for val in x], dtype=int)
         plt.errorbar(x, y_factor, yerr=y_factor_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',
-                     marker='o', markersize=4, ecolor='gray', capsize=2)
+                     marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
 
     if args.enable_mpi:
         plt.xlabel('Number of nodes')
+        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
     else:
         plt.xlabel('Number of threads')
+        plt.xlim(N_THREADS[0], N_THREADS[-1])
+
     plt.ylabel('Wall clock time (ratio)')
 
     plt.xscale('log')
@@ -379,9 +383,8 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
         "vmsize": "-.",
         "vmpeak": ":"
     }
-    for neuron, values in sim_data.items():
-        if not neuron in NEURONMODELS:
-            continue
+    for neuron in NEURONMODELS:
+        values = sim_data[neuron]
 
         x = sorted(values.keys(), key=lambda k: int(k))
         rss = np.array([np.mean(
@@ -625,7 +628,11 @@ def print_isi_distributions_ks_distance(neuron_models, data):
     for neuron_model1 in neuron_models:
         for neuron_model2 in neuron_models:
             ks_distance = kolmogorov_smirnov_metric(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
-            ks_statistic, p_value = scipy.stats.ks_2samp(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
+            # ks_statistic, p_value = scipy.stats.ks_2samp(data[neuron_model1]["isis"][0], data[neuron_model2]["isis"][0])
+            all_isis1 = [isi for isis in data[neuron_model1]["isis"] for isi in isis]
+            all_isis2 = [isi for isis in data[neuron_model2]["isis"] for isi in isis]
+            ks_statistic, p_value = scipy.stats.ks_2samp(all_isis1, all_isis2)
+            
 
             print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) distance = " + str(ks_distance) + ", KS statistic = " + str(ks_statistic) + ", p-value = " + str(p_value))
 
@@ -633,8 +640,8 @@ def plot_isi_distributions(neuron_models, data):
     plt.figure(figsize=(6, 4))
 
     for neuron_model in neuron_models:
-        plt.bar(data["bin_centers"], 100 * 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=100 * (data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"]), alpha=.5)
-        plt.step(data["bin_edges"][:-1], 100 * data[neuron_model]["counts_mean"], label=legend[neuron_model], linewidth=2, alpha=.5, where="post")
+        plt.bar(data["bin_centers"], 100 * 2 * data[neuron_model]["counts_std"], data["bin_centers"][1] - data["bin_centers"][0], bottom=100 * (data[neuron_model]["counts_mean"] - data[neuron_model]["counts_std"]), alpha=.5, color=palette(colors[neuron_model]))
+        plt.step(data["bin_edges"][:-1], 100 * data[neuron_model]["counts_mean"], label=legend[neuron_model], linewidth=2, alpha=.5, where="post", color=palette(colors[neuron_model]))
         #plt.errorbar(data["bin_centers"], data[neuron_model]["counts_mean"], yerr=data[neuron_model]["counts_std"], fmt='o', color='black', capsize=5)
 
     plt.xlabel('ISI [ms]')
@@ -642,6 +649,8 @@ def plot_isi_distributions(neuron_models, data):
     plt.grid(True)
     plt.tight_layout()
     plt.legend()
+
+    plt.xlim(0, 160) # XXX hard-coded...
 
     plt.savefig(os.path.join(output_folder, 'isi_distributions.png'))
     plt.savefig(os.path.join(output_folder, 'isi_distributions.pdf'))
