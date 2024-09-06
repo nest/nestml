@@ -129,12 +129,14 @@ class TestNestIntegration:
         self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_alt_int_nestml")
         self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_alt_int_nestml")
 
-        self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
-        self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", tolerance=1E-5)
-        self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_neuron_nestml")
+        nestml_hh_psc_alpha_model_parameters = {"gsl_abs_error_tol": 1E-3, "gsl_rel_error_tol": 0.}  # matching the defaults in NEST
+        self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
+        self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", tolerance=1E-5, nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
+        self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
 
-        self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml")
-        self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml")
+        nestml_hh_cond_exp_traub_model_parameters = {"gsl_abs_error_tol": 1E-3, "gsl_rel_error_tol": 0.}  # matching the defaults in NEST
+        self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
+        self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
 
         self._test_model_equivalence_subthreshold("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
         self._test_model_equivalence_fI_curve("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml")
