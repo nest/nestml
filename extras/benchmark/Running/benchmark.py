@@ -419,7 +419,11 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
         # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
         #              ecolor='gray', capsize=2)
 
-        ax_abs.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2)
+        baseline_rss = np.array([np.mean(
+            [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024)  for iteration_data in
+             sim_data[BASELINENEURON][nodes].values()]) for nodes in x])
+
+        ax_rel.errorbar(x, rss / baseline_rss, yerr=rss_std / baseline_rss, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2)
         # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize", color='gray', capsize=2)
         # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",ecolor='gray', capsize=2)
 
@@ -440,12 +444,13 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
         _ax.set_ylabel('Memory (GB)')
         _ax.set_xscale('log')
         _ax.set_yscale('log')
-        _ax.tight_layout()
-        _ax.xticks(MPI_SCALES, MPI_SCALES)
+        _ax.set_xticks(MPI_SCALES, MPI_SCALES)
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
         _ax.legend(loc='upper left')
 
+    for fig in [fig_rel, fig_abs]:
+        fig.tight_layout()
 
     fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.png'))
     fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.pdf'))
