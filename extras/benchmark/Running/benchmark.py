@@ -376,13 +376,15 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
     # Memory benchmark
-    plt.figure()
+    fig_abs, ax_abs = plt.subplots()
+    fig_rel, ax_rel = plt.subplots()
     plot_lines = []
     linestyles = {
         "rss": "--",
         "vmsize": "-.",
         "vmpeak": ":"
     }
+
     for neuron in NEURONMODELS:
         values = sim_data[neuron]
 
@@ -408,38 +410,48 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
             [(iteration_data["memory_benchmark"]["vmpeak"] / 1024 / 1024) for iteration_data in
              values[nodes].values()]) for nodes in x])
 
-        print(rss, vmsize, vmpeak)
+        # print(rss, vmsize, vmpeak)
 
         x = np.array([int(val) for val in x], dtype=int)
-        line1 = plt.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label="rss",
-                     ecolor='gray', capsize=2)
-        line2 = plt.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
-                     ecolor='gray', capsize=2)
-        line3 = plt.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
-                     ecolor='gray', capsize=2)
+        ax_abs.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2)
+        # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
+        #              ecolor='gray', capsize=2)
+        # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
+        #              ecolor='gray', capsize=2)
 
-        plot_lines.append([line1, line2, line3])
+        ax_abs.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2)
+        # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize", color='gray', capsize=2)
+        # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",ecolor='gray', capsize=2)
+
+        # plot_lines.append([line1, line2, line3])
 
     # Create a legend for the linestyles
-    linestyle_legend = plt.legend(plot_lines[0], list(linestyles.keys()), loc='upper left')
-    plt.gca().add_artist(linestyle_legend)
+    # linestyle_legend = ax_abs.legend(plot_lines[0], list(linestyles.keys()), loc='upper left')
+    # ax_absplt.gca().add_artist(linestyle_legend)
 
     # Create a legend for the neurons
-    neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
-    plt.legend(neuron_handles, list(legend.values()), loc='upper right')
-    if args.enable_mpi:
-        plt.xlabel('Number of nodes')
-    else:
-        plt.xlabel('Number of threads')
-    plt.ylabel('Memory (GB)')
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.tight_layout()
-    plt.xticks(MPI_SCALES, MPI_SCALES)
-    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+    # neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
+    # plt.legend(neuron_handles, list(legend.values()), loc='upper right')
+    for _ax in [ax_rel, ax_abs]:
+        if args.enable_mpi:
+            _ax.set_xlabel('Number of nodes')
+        else:
+            _ax.set_xlabel('Number of threads')
+        _ax.set_ylabel('Memory (GB)')
+        _ax.set_xscale('log')
+        _ax.set_yscale('log')
+        _ax.tight_layout()
+        _ax.xticks(MPI_SCALES, MPI_SCALES)
+        _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-    plt.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
-    plt.savefig(os.path.join(output_folder, file_prefix + '_memory.pdf'))
+        _ax.legend(loc='upper left')
+
+
+    fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.png'))
+    fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.pdf'))
+
+    fig_rel.savefig(os.path.join(output_folder, file_prefix + '_memory_rel.png'))
+    fig_rel.savefig(os.path.join(output_folder, file_prefix + '_memory_rel.pdf'))
 
 
 
@@ -632,7 +644,7 @@ def print_isi_distributions_ks_distance(neuron_models, data):
             all_isis1 = [isi for isis in data[neuron_model1]["isis"] for isi in isis]
             all_isis2 = [isi for isis in data[neuron_model2]["isis"] for isi in isis]
             ks_statistic, p_value = scipy.stats.ks_2samp(all_isis1, all_isis2)
-            
+
 
             print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) distance = " + str(ks_distance) + ", KS statistic = " + str(ks_statistic) + ", p-value = " + str(p_value))
 
