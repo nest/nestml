@@ -27,6 +27,7 @@ import math
 import os
 import re
 import scipy
+import scipy.stats
 import subprocess
 import time
 
@@ -625,7 +626,10 @@ def print_isi_distributions_ks_distance(neuron_models, data):
     for neuron_model1 in neuron_models:
         for neuron_model2 in neuron_models:
             ks_distance = kolmogorov_smirnov_metric(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
-            ks_statistic, p_value = scipy.stats.ks_2samp(data[neuron_model1]["counts_mean"], data[neuron_model2]["counts_mean"])
+
+            all_isis1 = [isi for isis in data[neuron_model1]["isis"] for isi in isis]
+            all_isis2 = [isi for isis in data[neuron_model2]["isis"] for isi in isis]
+            ks_statistic, p_value = scipy.stats.ks_2samp(all_isis1, all_isis2)
 
             print("For neuron model " + str(neuron_model1) + " and neuron model " + str(neuron_model2) + ", Kolmogorov-Smirnov (KS) distance = " + str(ks_distance) + ", KS statistic = " + str(ks_statistic) + ", p-value = " + str(p_value))
 
