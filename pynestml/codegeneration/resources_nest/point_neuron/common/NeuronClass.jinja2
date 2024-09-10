@@ -1100,28 +1100,21 @@ void
 
   {{ neuron_parent_class }}::set_spiketime( t_sp, offset );
 
-  unsigned int num_transferred_variables = 0;
-{%-     for var in transferred_variables %}
-  ++num_transferred_variables; {# XXX: TODO: see https://github.com/nest/nestml/pull/1061 #}
-{%-     endfor %}
-
   const double t_sp_ms = t_sp.get_ms() - offset;
 
   if ( n_incoming_ )
   {
     // prune all spikes from history which are no longer needed
     // only remove a spike if:
-    // - its access counter indicates it has been read out by all connected
-    //     STDP synapses, and
-    // - there is another, later spike, that is strictly more than
-    //     (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
+    // - its access counter indicates it has been read out by all connected STDP synapses, and
+    // - there is another, later spike, that is strictly more than ``min_global_delay + max_delay_ + eps`` away from the new spike (at ``t_sp_ms``)
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
-      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+      // Note that ``access_counter`` is compared to the number of incoming synapses (``n_incoming_``), so that spikes are removed from the history only after they have been read out by each synapse
       // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
 
-      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+      if ( history_.front().access_counter_ >= n_incoming_
            and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
       {
         history_.pop_front();

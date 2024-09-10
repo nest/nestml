@@ -22,7 +22,7 @@
 from __future__ import annotations
 from typing import Dict, Optional
 
-from pynestml.utils.ast_utils import ASTUtils
+from typing import Dict, Optional
 
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
@@ -51,6 +51,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.enforce_getter = enforce_getter
         self.variables_special_cases = variables_special_cases
         self.cpp_variable_suffix = ""
+        self.postsynaptic_getter_string_ = "start->get_%s()"
+
+    def set_getter_string(self, s):
+        self.postsynaptic_getter_string_ = s
+        return ""
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -71,7 +76,8 @@ class NESTVariablePrinter(CppVariablePrinter):
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
                 return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
+            # grab the value from the postsynaptic spiking history buffer
+            return self.postsynaptic_getter_string_ % _name
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"    # from nest::

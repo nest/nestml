@@ -280,8 +280,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
-        init_value = node.get_expression(
-        ) if self.block_type_stack.top() == BlockType.STATE else None
+        init_value = node.get_expression() if self.block_type_stack.top() in [BlockType.STATE, BlockType.PARAMETERS, BlockType.INTERNALS] else None
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []

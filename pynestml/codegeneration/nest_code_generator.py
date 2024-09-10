@@ -618,7 +618,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         if "paired_synapse" in dir(neuron):
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
-            namespace["paired_synapse"] = neuron.paired_synapse.get_name()
+            namespace["paired_synapse"] = neuron.paired_synapse
+            namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
+            namespace["paired_synapse_name"] = neuron.paired_synapse.get_name()
             namespace["post_spike_updates"] = neuron.post_spike_updates
             namespace["transferred_variables"] = neuron._transferred_variables
             namespace["transferred_variables_syms"] = {var_name: neuron.scope.resolve_to_symbol(
@@ -771,7 +773,6 @@ class NESTCodeGenerator(CodeGenerator):
                 numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"])
             namespace["numerical_state_symbols"] = numeric_state_variable_names
             ASTUtils.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
-
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = []
