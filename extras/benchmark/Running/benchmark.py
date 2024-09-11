@@ -111,6 +111,12 @@ WEAKSCALINGFOLDERNAME = "timings_weak_scaling_mpi"
 # thread-based benchmarks
 NETWORK_BASE_SCALE = 1000
 N_THREADS = np.logspace(0, math.log2(64), num=7, base=2, dtype=int)
+
+if short_sim:
+    N_THREADS = np.logspace(math.log2(4), math.log2(32), num=2, base=2, dtype=int)
+    NETWORKSCALES = np.logspace(3, math.log10(20000), 2, dtype=int)
+    ITERATIONS = 1
+
 PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
 
 # output folder
@@ -312,19 +318,28 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         plt.errorbar(x, y, yerr=y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-', marker='o',
                      markersize=4, ecolor='gray', capsize=2, linewidth=2)
 
-    if args.enable_mpi:
-        plt.xlabel('Number of nodes')
-        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
-    else:
-        plt.xlabel('Number of threads')
-        plt.xlim(N_THREADS[0], N_THREADS[-1])
     plt.ylabel('Wall clock time (s)')
     plt.xscale('log')
     plt.yscale('log')
-    plt.xticks(MPI_SCALES, MPI_SCALES)
     plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
     plt.legend()
-    plt.tight_layout()
+    plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
+
+
+    if args.enable_mpi:
+        plt.xlabel('Number of nodes')
+        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
+        plt.xticks(MPI_SCALES, MPI_SCALES)
+    else:
+        plt.xlabel('Number of threads')
+        plt.xlim(N_THREADS[0], N_THREADS[-1])
+        plt.xticks(N_THREADS, N_THREADS)
+
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['left'].set_visible(False)
+    plt.gca().spines['bottom'].set_visible(False)
+
     plt.savefig(os.path.join(output_folder, file_prefix + '_abs.png'))
     plt.savefig(os.path.join(output_folder, file_prefix + '_abs.pdf'))
 
@@ -364,11 +379,24 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
     plt.ylabel('Wall clock time (ratio)')
 
     plt.xscale('log')
-    plt.xticks(MPI_SCALES, MPI_SCALES)
     plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
+    if args.enable_mpi:
+        plt.xlabel('Number of nodes')
+        plt.xticks(MPI_SCALES, MPI_SCALES)
+        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
+    else:
+        plt.xlabel('Number of threads')
+        plt.xticks(N_THREADS, N_THREADS)
+        plt.xlim(N_THREADS[0], N_THREADS[-1])
+
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['left'].set_visible(False)
+    plt.gca().spines['bottom'].set_visible(False)
+
     plt.legend()
-    plt.tight_layout()
+    plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.png'))
     plt.savefig(os.path.join(output_folder, file_prefix + '_rel.pdf'))
 
@@ -380,8 +408,8 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
     fig_rel, ax_rel = plt.subplots()
     plot_lines = []
     linestyles = {
-        "rss": "--",
-        "vmsize": "-.",
+        "rss": "-",
+        "vmsize": "--",
         "vmpeak": ":"
     }
 
@@ -413,7 +441,7 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
         # print(rss, vmsize, vmpeak)
 
         x = np.array([int(val) for val in x], dtype=int)
-        ax_abs.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2)
+        ax_abs.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
         # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
         #              ecolor='gray', capsize=2)
         # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
@@ -423,9 +451,9 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
             [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024)  for iteration_data in
              sim_data[BASELINENEURON][nodes].values()]) for nodes in x])
 
-        ax_rel.errorbar(x, rss / baseline_rss, yerr=rss_std / baseline_rss, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2)
-        # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize", color='gray', capsize=2)
-        # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",ecolor='gray', capsize=2)
+        ax_rel.errorbar(x, rss / baseline_rss, yerr=rss_std / baseline_rss, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+        # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize", color='gray', capsize=2, linewidth=2)
+        # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",ecolor='gray', capsize=2, linewidth=2)
 
         # plot_lines.append([line1, line2, line3])
 
@@ -437,20 +465,34 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
     # neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
     # plt.legend(neuron_handles, list(legend.values()), loc='upper right')
     for _ax in [ax_rel, ax_abs]:
-        if args.enable_mpi:
-            _ax.set_xlabel('Number of nodes')
-        else:
-            _ax.set_xlabel('Number of threads')
+        formatter = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=False)
+        formatter.set_powerlimits((-100, 100))  # Avoid scaling by powers of ten
+        formatter.set_scientific(False)
+
+        #_ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        _ax.yaxis.set_major_formatter(formatter)
         _ax.set_ylabel('Memory (GB)')
         _ax.set_xscale('log')
-        _ax.set_yscale('log')
-        _ax.set_xticks(MPI_SCALES, MPI_SCALES)
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
-
+        _ax.spines['top'].set_visible(False)
+        _ax.spines['right'].set_visible(False)
+        _ax.spines['left'].set_visible(False)
+        _ax.spines['bottom'].set_visible(False)
         _ax.legend(loc='upper left')
 
+        if args.enable_mpi:
+            _ax.set_xlabel('Number of nodes')
+            _ax.set_xticks(MPI_SCALES, MPI_SCALES)
+            _ax.set_xlim(MPI_SCALES[0], MPI_SCALES[-1])
+        else:
+            _ax.set_xlabel('Number of threads')
+            _ax.set_xticks(N_THREADS, N_THREADS)
+            _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
+
+    ax_abs.set_yscale('log')
+
     for fig in [fig_rel, fig_abs]:
-        fig.tight_layout()
+        fig.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
 
     fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.png'))
     fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.pdf'))
@@ -664,10 +706,15 @@ def plot_isi_distributions(neuron_models, data):
     plt.xlabel('ISI [ms]')
     plt.ylabel('Frequency of occurrence [%]')
     plt.grid(True)
-    plt.tight_layout()
+    plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
     plt.legend()
 
     plt.xlim(0, 160) # XXX hard-coded...
+
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['left'].set_visible(False)
+    plt.gca().spines['bottom'].set_visible(False)
 
     plt.savefig(os.path.join(output_folder, 'isi_distributions.png'))
     plt.savefig(os.path.join(output_folder, 'isi_distributions.pdf'))
