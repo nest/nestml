@@ -279,9 +279,7 @@ def extract_value_from_filename(filename, key):
     return match.group(1) if match else None
 
 
-def plot_scaling_data(sim_data: dict, file_prefix: str):
-    plt.figure()
-    neurons = []
+def post_process_data(sim_data: dict):
 
     # Compute max simulation time between MPI ranks and add it to the data
     for neuron in NEURONMODELS:
@@ -303,53 +301,13 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
                 it_data["memory_benchmark"]["vmsize"] = vmsize_sum
                 it_data["memory_benchmark"]["vmpeak"] = vmpeak_sum
 
-    for neuron in NEURONMODELS:
-        values = sim_data[neuron]
+def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
+    assert abs_or_rel in ["abs", "rel"]
 
-        x = sorted(values.keys(), key=lambda k: int(k))
-        y = np.array([np.mean(
-            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             values[nodes].values()]) for nodes in x])
-        y_std = np.array([np.std(
-            [iteration_data['max_time_simulate'] / (iteration_data["biological_time"] / 1000) for iteration_data in
-             values[nodes].values()]) for nodes in x])
-
-        x = np.array([int(val) for val in x], dtype=int)
-        plt.errorbar(x, y, yerr=y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-', marker='o',
-                     markersize=4, ecolor='gray', capsize=2, linewidth=2)
-
-    plt.ylabel('Wall clock time (s)')
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
-    plt.legend()
-    plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
-
-
-    if args.enable_mpi:
-        plt.xlabel('Number of nodes')
-        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
-        plt.xticks(MPI_SCALES, MPI_SCALES)
-    else:
-        plt.xlabel('Number of threads')
-        plt.xlim(N_THREADS[0], N_THREADS[-1])
-        plt.xticks(N_THREADS, N_THREADS)
-
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['left'].set_visible(False)
-    plt.gca().spines['bottom'].set_visible(False)
-
-    plt.savefig(os.path.join(output_folder, file_prefix + '_abs.png'))
-    plt.savefig(os.path.join(output_folder, file_prefix + '_abs.pdf'))
-
-    plt.figure()
-    neurons = []
     referenceValues = sim_data[BASELINENEURON]
     for neuron in NEURONMODELS:
         values = sim_data[neuron]
 
-        neurons.append(neuron)
         x = sorted(values.keys(), key=lambda k: int(k))
         # Real Time Factor
         reference_y = np.array([np.mean(
@@ -366,39 +324,59 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
         y_factor_std = y_std / reference_y  # Calculate the standard deviation of the factor
 
         x = np.array([int(val) for val in x], dtype=int)
-        plt.errorbar(x, y_factor, yerr=y_factor_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',
-                     marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
+
+        if abs_or_rel == "rel":
+            _y_std = y_factor_std
+            _y = y_factor
+        else:
+            _y_std = y_std
+            _y = y
+
+        plt.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
+
+
+def plot_scaling_data(sim_data: dict, file_prefix: str):
+    fig, ax = plt.subplot(nrows=2, ncols=2, figsize=(6, 4))
+
+    for i, abs_or_rel in enumerate(["abs", "rel"]):
+        if abs_or_rel == "abs":
+            ax[i, 0].set_ylabel('Wall clock time (s)')
+        else:
+            ax[i, 0].set_ylabel('Wall clock time (ratio)')
+
+        for j, which_scaling in enumerate(["weak", "strong"]):
+            _plot_scaling_data(ax[i, j], sim_data, file_prefix)
+
+    for _ax in ax:
+        _ax.set_xscale('log')
+        _ax.set_yscale('log')
+        _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+
+    ax[0, 0].legend()
 
     if args.enable_mpi:
-        plt.xlabel('Number of nodes')
-        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
+        for _ax in ax[1, :]:
+            _ax.set_xlabel('Number of nodes')
+            _ax.set_xlim(MPI_SCALES[0], MPI_SCALES[-1])
+            _ax.set_xticks(MPI_SCALES, MPI_SCALES)
     else:
-        plt.xlabel('Number of threads')
-        plt.xlim(N_THREADS[0], N_THREADS[-1])
+        for _ax in ax[1, :]:
+            _ax.set_xlabel('Number of threads')
+            _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
+            _ax.set_xticks(N_THREADS, N_THREADS)
 
-    plt.ylabel('Wall clock time (ratio)')
+    for _ax in ax:
+        _ax.spines['top'].set_visible(False)
+        _ax.spines['right'].set_visible(False)
+        _ax.spines['left'].set_visible(False)
+        _ax.spines['bottom'].set_visible(False)
 
-    plt.xscale('log')
-    plt.gca().xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+    fig.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
 
-    if args.enable_mpi:
-        plt.xlabel('Number of nodes')
-        plt.xticks(MPI_SCALES, MPI_SCALES)
-        plt.xlim(MPI_SCALES[0], MPI_SCALES[-1])
-    else:
-        plt.xlabel('Number of threads')
-        plt.xticks(N_THREADS, N_THREADS)
-        plt.xlim(N_THREADS[0], N_THREADS[-1])
+    fig.savefig(os.path.join(output_folder, file_prefix + ".png"))
+    fig.savefig(os.path.join(output_folder, file_prefix + ".pdf"))
 
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['left'].set_visible(False)
-    plt.gca().spines['bottom'].set_visible(False)
-
-    plt.legend()
-    plt.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
-    plt.savefig(os.path.join(output_folder, file_prefix + '_rel.png'))
-    plt.savefig(os.path.join(output_folder, file_prefix + '_rel.pdf'))
+    plt.close(fig)
 
 
 def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
@@ -526,12 +504,14 @@ def process_data(dir_name: str, mode="MPI"):
 
 def plot_strong_scaling_benchmark():
     strong_scaling_data = process_data(STRONGSCALINGFOLDERNAME)
+    post_process_data(strong_scaling_data)
     plot_scaling_data(strong_scaling_data, "strong_scaling")
     plot_memory_scaling_benchmark(strong_scaling_data, "strong_scaling")
 
 
 def plot_weak_scaling_benchmark():
     weak_scaling_data = process_data(WEAKSCALINGFOLDERNAME)
+    post_process_data(weak_scaling_data)
     plot_scaling_data(weak_scaling_data, "weak_scaling")
     plot_memory_scaling_benchmark(weak_scaling_data, "weak_scaling")
 
