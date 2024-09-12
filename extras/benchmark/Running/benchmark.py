@@ -592,7 +592,7 @@ def read_isis_from_files(neuron_models):
             threads = 128
             nodes = 2
         else:
-            threads = 1
+            threads = N_THREADS[0]
             nodes = 1
 
         # loop across iterations
