@@ -59,6 +59,7 @@ args = parser.parse_args()
 runSim = args.noRunSim
 enable_profile = args.enable_profiling
 short_sim = args.short_sim
+enable_mpi = args.enable_mpi
 
 # for aeif_psc_alpha neurons
 BASELINENEURON = "aeif_psc_alpha"
@@ -89,18 +90,6 @@ DEBUG = True
 NUMTHREADS = 128  # Total number of threads per node
 NETWORKSCALES = np.logspace(3, math.log10(20000), 5, dtype=int)  # XXXXXXXXXXXX: was 10 points, max size 30000
 
-# MPI Strong scaling
-if enable_profile:
-    MPI_SCALES = [2]
-    ITERATIONS = 1
-else:
-    if short_sim:
-        MPI_SCALES = [2]
-        ITERATIONS = 2
-    else:
-        MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
-        ITERATIONS = 3
-
 MPI_STRONG_SCALE_NEURONS = NETWORKSCALES[-1]
 STRONGSCALINGFOLDERNAME = "timings_strong_scaling_mpi"
 
@@ -112,11 +101,24 @@ WEAKSCALINGFOLDERNAME = "timings_weak_scaling_mpi"
 NETWORK_BASE_SCALE = 1000
 N_THREADS = np.logspace(0, math.log2(64), num=7, base=2, dtype=int)
 
-if short_sim:
-    N_THREADS = np.logspace(math.log2(4), math.log2(32), num=2, base=2, dtype=int)
-    NETWORKSCALES = np.logspace(3, math.log10(20000), 2, dtype=int)
-    ITERATIONS = 1
-
+# MPI Strong scaling
+if enable_mpi:
+    if enable_profile:
+        MPI_SCALES = [2]
+        ITERATIONS = 1
+    else:
+        if short_sim:
+            MPI_SCALES = [2]
+            ITERATIONS = 3
+        else:
+            MPI_SCALES = np.logspace(1, math.log2(64), num=6, base=2, dtype=int)
+            ITERATIONS = 3
+else:
+    if short_sim:
+        N_THREADS = np.logspace(math.log2(4), math.log2(32), num=2, base=2, dtype=int)
+        NETWORKSCALES = np.logspace(3, math.log10(20000), 2, dtype=int)
+        ITERATIONS = 1
+        
 PATHTOSTARTFILE = os.path.join(current_dir, "start.sh")
 
 # output folder
@@ -735,7 +737,6 @@ if __name__ == "__main__":
 
     # Run simulation
     if runSim:
-        deleteJson()
         deleteDat()
         for i in range(ITERATIONS):
             if args.enable_mpi:
