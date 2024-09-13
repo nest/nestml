@@ -335,17 +335,18 @@ def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
         plt.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
 
 
-def plot_scaling_data(sim_data: dict, file_prefix: str):
-    fig, ax = plt.subplot(nrows=2, ncols=2, figsize=(6, 4))
+def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: str):
+    fig, ax = plt.subplot(nrows=2, ncols=2, figsize=(12, 8))
 
     for i, abs_or_rel in enumerate(["abs", "rel"]):
         if abs_or_rel == "abs":
-            ax[i, 0].set_ylabel('Wall clock time (s)')
+            ax[i, 0].set_ylabel('Wall clock time [s]')
         else:
             ax[i, 0].set_ylabel('Wall clock time (ratio)')
+            ax[i, 0].set_ylim(0.99, np.amax(np.ceil() * 100 / 100))
 
         for j, which_scaling in enumerate(["weak", "strong"]):
-            _plot_scaling_data(ax[i, j], sim_data, file_prefix)
+            _plot_scaling_data(ax[i, j], sim_data, file_prefix, abs_or_rel=abs_or_rel)
 
     for _ax in ax:
         _ax.set_xscale('log')
@@ -382,9 +383,7 @@ def plot_scaling_data(sim_data: dict, file_prefix: str):
 def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
     # Memory benchmark
-    fig_abs, ax_abs = plt.subplots()
-    fig_rel, ax_rel = plt.subplots()
-    plot_lines = []
+    fig, ax = plt.subplot(ncols=2, figsize=(12, 4))
     linestyles = {
         "rss": "-",
         "vmsize": "--",
@@ -419,17 +418,27 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
         # print(rss, vmsize, vmpeak)
 
         x = np.array([int(val) for val in x], dtype=int)
-        ax_abs.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+        for _ax, abs_or_rel in zip(ax, ["abs", "rel"]):
+            _ax.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
         # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
         #              ecolor='gray', capsize=2)
         # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
         #              ecolor='gray', capsize=2)
 
-        baseline_rss = np.array([np.mean(
+            baseline_rss = np.array([np.mean(
             [(iteration_data["memory_benchmark"]["rss"] / 1024 / 1024)  for iteration_data in
              sim_data[BASELINENEURON][nodes].values()]) for nodes in x])
 
-        ax_rel.errorbar(x, rss / baseline_rss, yerr=rss_std / baseline_rss, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+            if abs_or_rel == "rel":
+                _y = rss / baseline_rss
+            else:
+                _y = rss
+
+            _ax.errorbar(x, _y, yerr=rss_std / baseline_rss, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+
+            if abs_or_rel == "abs":
+                _ax.set_yscale('log')
+
         # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize", color='gray', capsize=2, linewidth=2)
         # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",ecolor='gray', capsize=2, linewidth=2)
 
@@ -439,24 +448,24 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
     # linestyle_legend = ax_abs.legend(plot_lines[0], list(linestyles.keys()), loc='upper left')
     # ax_absplt.gca().add_artist(linestyle_legend)
 
+    ax[0].legend(loc='upper left')
+    ax[0].set_ylabel('Memory [GB]')
+    ax[0].set_ylabel('Memory (ratio)')
     # Create a legend for the neurons
     # neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
-    # plt.legend(neuron_handles, list(legend.values()), loc='upper right')
-    for _ax in [ax_rel, ax_abs]:
+    for _ax in ax:
         formatter = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=False)
         formatter.set_powerlimits((-100, 100))  # Avoid scaling by powers of ten
         formatter.set_scientific(False)
-
-        #_ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
         _ax.yaxis.set_major_formatter(formatter)
-        _ax.set_ylabel('Memory (GB)')
+
         _ax.set_xscale('log')
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+
         _ax.spines['top'].set_visible(False)
         _ax.spines['right'].set_visible(False)
         _ax.spines['left'].set_visible(False)
         _ax.spines['bottom'].set_visible(False)
-        _ax.legend(loc='upper left')
 
         if args.enable_mpi:
             _ax.set_xlabel('Number of nodes')
@@ -467,17 +476,10 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
             _ax.set_xticks(N_THREADS, N_THREADS)
             _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
 
-    ax_abs.set_yscale('log')
+    fig.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
 
-    for fig in [fig_rel, fig_abs]:
-        fig.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
-
-    fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.png'))
-    fig_abs.savefig(os.path.join(output_folder, file_prefix + '_memory_abs.pdf'))
-
-    fig_rel.savefig(os.path.join(output_folder, file_prefix + '_memory_rel.png'))
-    fig_rel.savefig(os.path.join(output_folder, file_prefix + '_memory_rel.pdf'))
-
+    fig.savefig(os.path.join(output_folder, file_prefix + '_memory.png'))
+    fig.savefig(os.path.join(output_folder, file_prefix + '_memory.pdf'))
 
 
 def process_data(dir_name: str, mode="MPI"):
