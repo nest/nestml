@@ -452,7 +452,8 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
         x = np.array([int(val) for val in x], dtype=int)
         for _ax, abs_or_rel in zip(ax, ["abs", "rel"]):
-            _ax.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+            #_ax.errorbar(x, rss, yerr=rss_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+
         # line2 = ax_abs.errorbar(x, vmsize, yerr=vmsize_std, color=palette(colors[neuron]), linestyle=linestyles["vmsize"], label="vmsize",
         #              ecolor='gray', capsize=2)
         # line3 = ax_abs.errorbar(x, vmpeak, yerr=vmpeak_std, color=palette(colors[neuron]), linestyle=linestyles["vmpeak"], label="vmpeak",
@@ -483,7 +484,7 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
     ax[0].legend(loc='upper left')
     ax[0].set_ylabel('Memory [GB]')
-    ax[0].set_ylabel('Memory (ratio)')
+    ax[1].set_ylabel('Memory (ratio)')
     # Create a legend for the neurons
     # neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
     for _ax in ax:
