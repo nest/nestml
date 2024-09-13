@@ -306,6 +306,8 @@ def post_process_data(sim_data: dict):
 def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
     assert abs_or_rel in ["abs", "rel"]
 
+    min_y, max_y = np.inf, -np.inf
+
     referenceValues = sim_data[BASELINENEURON]
     for neuron in NEURONMODELS:
         values = sim_data[neuron]
@@ -334,50 +336,79 @@ def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
             _y_std = y_std
             _y = y
 
-        plt.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
+        ax.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
+
+        min_y = min(min_y, np.amin(_y))
+        max_y = max(max_y, np.amax(_y))
+
+    return min_y, max_y
 
 
-def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: str):
-    fig, ax = plt.subplot(nrows=2, ncols=2, figsize=(12, 8))
+def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: str = ""):
+    min_y, max_y = np.inf, -np.inf
+
+    fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
 
     for i, abs_or_rel in enumerate(["abs", "rel"]):
+        for j, which_scaling in enumerate(["weak", "strong"]):
+            if which_scaling == "weak":
+                sim_data = sim_data_weak
+            else:
+                sim_data = sim_data_strong
+
+            _min_y, _max_y = _plot_scaling_data(ax[i, j], sim_data, file_prefix, abs_or_rel=abs_or_rel)
+            if abs_or_rel == "rel":
+                min_y = min(_min_y, min_y)
+                max_y = max(_max_y, max_y)
+
         if abs_or_rel == "abs":
             ax[i, 0].set_ylabel('Wall clock time [s]')
+            ax[i, 0].set_yscale('log')
         else:
             ax[i, 0].set_ylabel('Wall clock time (ratio)')
-            ax[i, 0].set_ylim(0.99, np.amax(np.ceil() * 100 / 100))
+            ax[i, 1].set_yticklabels([])  # hide y tick labels from bottom right plot, ticks/labels are same as for bottom left
 
-        for j, which_scaling in enumerate(["weak", "strong"]):
-            _plot_scaling_data(ax[i, j], sim_data, file_prefix, abs_or_rel=abs_or_rel)
 
-    for _ax in ax:
+    for _ax in ax.flatten():
         _ax.set_xscale('log')
-        _ax.set_yscale('log')
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
     ax[0, 0].legend()
 
+    for _ax in ax[1, :]:
+        _ax.set_ylim(0.98, np.ceil(max_y * 100) / 100)
+
+    for _ax in ax.flatten():
+        _ax.set_clip_on(False)	
+
     if args.enable_mpi:
         for _ax in ax[1, :]:
             _ax.set_xlabel('Number of nodes')
+
+        for _ax in ax.flatten():
             _ax.set_xlim(MPI_SCALES[0], MPI_SCALES[-1])
             _ax.set_xticks(MPI_SCALES, MPI_SCALES)
     else:
         for _ax in ax[1, :]:
             _ax.set_xlabel('Number of threads')
+
+        for _ax in ax.flatten():
             _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
             _ax.set_xticks(N_THREADS, N_THREADS)
 
-    for _ax in ax:
+    for _ax in ax.flatten():
         _ax.spines['top'].set_visible(False)
         _ax.spines['right'].set_visible(False)
         _ax.spines['left'].set_visible(False)
         _ax.spines['bottom'].set_visible(False)
 
+    for _ax in ax[0, :]:
+        _ax.set_xticklabels([])    # hide x tick labels for number of threads/processes from top two panels
+
     fig.subplots_adjust(left=0.2, right=.9, bottom=0.15, top=0.9)
 
-    fig.savefig(os.path.join(output_folder, file_prefix + ".png"))
-    fig.savefig(os.path.join(output_folder, file_prefix + ".pdf"))
+    fig.savefig(os.path.join(output_folder, "performance_benchmark" + file_prefix + ".png"))
+    fig.savefig(os.path.join(output_folder, "performance_benchmark" + file_prefix + ".pdf"))
 
     plt.close(fig)
 
@@ -385,7 +416,7 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
 def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
     # Memory benchmark
-    fig, ax = plt.subplot(ncols=2, figsize=(12, 4))
+    fig, ax = plt.subplots(ncols=2, figsize=(12, 4))
     linestyles = {
         "rss": "-",
         "vmsize": "--",
@@ -507,16 +538,20 @@ def process_data(dir_name: str, mode="MPI"):
 
 
 def plot_strong_scaling_benchmark():
+    weak_scaling_data = process_data(WEAKSCALINGFOLDERNAME)
+    post_process_data(weak_scaling_data)
+
     strong_scaling_data = process_data(STRONGSCALINGFOLDERNAME)
     post_process_data(strong_scaling_data)
-    plot_scaling_data(strong_scaling_data, "strong_scaling")
+
+    plot_scaling_data(weak_scaling_data, strong_scaling_data)
+
     plot_memory_scaling_benchmark(strong_scaling_data, "strong_scaling")
 
 
 def plot_weak_scaling_benchmark():
     weak_scaling_data = process_data(WEAKSCALINGFOLDERNAME)
     post_process_data(weak_scaling_data)
-    plot_scaling_data(weak_scaling_data, "weak_scaling")
     plot_memory_scaling_benchmark(weak_scaling_data, "weak_scaling")
 
 
