@@ -21,52 +21,69 @@
  */
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
 
-
-nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index )
+nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index)
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
   , p_index( parent_index )
   , parent( nullptr )
-  , v_comp( 0.0 )
+  , v_comp( new double(0.0) )
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
   , el( -70. )
-  , gg0( 0.0 )
-  , ca__div__dt( 0.0 )
-  , gl__div__2( 0.0 )
-  , gc__div__2( 0.0 )
-  , gl__times__el( 0.0 )
-  , ff( 0.0 )
-  , gg( 0.0 )
+  , gg0( nullptr )
+  , ca__div__dt( nullptr )
+  , gl__times__el( nullptr )
+  , ff( nullptr )
+  , gg( nullptr )
   , hh( 0.0 )
   , n_passed( 0 )
 {
-  v_comp = el;
-
-  compartment_currents = CompartmentCurrents{{cm_unique_suffix}}();
+  *v_comp = el;
 }
-nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
-  const long parent_index,
-  const DictionaryDatum& compartment_params )
+
+nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index, const long parent_index,
+    double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref )
   : xx_( 0.0 )
   , yy_( 0.0 )
   , comp_index( compartment_index )
   , p_index( parent_index )
   , parent( nullptr )
-  , v_comp( 0.0 )
+  , v_comp( v_comp_ref )
   , ca( 1.0 )
   , gc( 0.01 )
   , gl( 0.1 )
   , el( -70. )
-  , gg0( 0.0 )
-  , ca__div__dt( 0.0 )
-  , gl__div__2( 0.0 )
-  , gc__div__2( 0.0 )
-  , gl__times__el( 0.0 )
-  , ff( 0.0 )
-  , gg( 0.0 )
+  , gg0( gg0_ref )
+  , ca__div__dt( ca__div__dt_ref )
+  , gl__times__el( gl__times__el_ref )
+  , ff( ff_ref )
+  , gg( gg_ref )
+  , hh( 0.0 )
+  , n_passed( 0 )
+{
+  *v_comp = el;
+}
+nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
+  const long parent_index,
+  const DictionaryDatum& compartment_params,
+  double* v_comp_ref, double* ca__div__dt_ref, double* gl__times__el_ref, double* gg0_ref, double* gg_ref, double* ff_ref)
+  : xx_( 0.0 )
+  , yy_( 0.0 )
+  , comp_index( compartment_index )
+  , p_index( parent_index )
+  , parent( nullptr )
+  , v_comp( v_comp_ref )
+  , ca( 1.0 )
+  , gc( 0.01 )
+  , gl( 0.1 )
+  , el( -70. )
+  , gg0( gg0_ref )
+  , ca__div__dt( ca__div__dt_ref )
+  , gl__times__el( gl__times__el_ref )
+  , ff( ff_ref )
+  , gg( gg_ref )
   , hh( 0.0 )
   , n_passed( 0 )
 {
@@ -75,10 +92,10 @@ nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const lo
   updateValue< double >( compartment_params, names::g_C, gc );
   updateValue< double >( compartment_params, names::g_L, gl );
   updateValue< double >( compartment_params, names::e_L, el );
+  double v_comp_update = el;
+  if( compartment_params->known( "v_comp" ) ) updateValue< double >( compartment_params, "v_comp", v_comp_update);
 
-  v_comp = el;
-
-  compartment_currents = CompartmentCurrents{{cm_unique_suffix}}( compartment_params );
+  *v_comp = v_comp_update;
 }
 
 void
@@ -88,73 +105,39 @@ nest::Compartment{{cm_unique_suffix}}::calibrate()
 nest::Compartment{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
-{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-  compartment_currents.calibrate();
-{%- else %}
-  compartment_currents.pre_run_hook();
-{%- endif %}
 
   const double dt = Time::get_resolution().get_ms();
-  ca__div__dt = ca / dt;
-  gl__div__2 = gl / 2.;
-  gg0 = ca__div__dt + gl__div__2;
-  gc__div__2 = gc / 2.;
-  gl__times__el = gl * el;
-
-  // initialize the buffer
-  currents.clear();
+  // used in vectorized passive loop
+  *ca__div__dt = ca / dt;
+  *gl__times__el = gl * el;
+  *gg0 = *ca__div__dt + gl;
 }
 
 std::map< Name, double* >
 nest::Compartment{{cm_unique_suffix}}::get_recordables()
 {
-  std::map< Name, double* > recordables = compartment_currents.get_recordables( comp_index );
+  std::map< Name, double* > recordables;
 
-  recordables.insert( recordables.begin(), recordables.end() );
-  recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = &v_comp;
+  recordables[ Name( "v_comp" + std::to_string( comp_index ) ) ] = v_comp;
 
   return recordables;
 }
 
 // for matrix construction
 void
-nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( const long lag )
+nest::Compartment{{cm_unique_suffix}}::construct_matrix_coupling_elements()
 {
-  // matrix diagonal element
-  gg = gg0;
-
   if ( parent != nullptr )
   {
-    gg += gc__div__2;
+    *gg += gc;
     // matrix off diagonal element
-    hh = -gc__div__2;
+    hh = -gc;
   }
 
   for ( auto child_it = children.begin(); child_it != children.end(); ++child_it )
   {
-    gg += ( *child_it ).gc__div__2;
+    *gg += ( *child_it ).gc;
   }
-
-  // right hand side
-  ff = ( ca__div__dt - gl__div__2 ) * v_comp + gl__times__el;
-
-  if ( parent != nullptr )
-  {
-    ff -= gc__div__2 * ( v_comp - parent->v_comp );
-  }
-
-  for ( auto child_it = children.begin(); child_it != children.end(); ++child_it )
-  {
-    ff -= ( *child_it ).gc__div__2 * ( v_comp - ( *child_it ).v_comp );
-  }
-
-  // add all currents to compartment
-  std::pair< double, double > gi = compartment_currents.f_numstep( v_comp, lag );
-  gg += gi.first;
-  ff += gi.second;
-
-  // add input current
-  ff += currents.get_value( lag );
 }
 
 
@@ -174,14 +157,116 @@ nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}()
 void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index )
 {
-  Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}( size_, parent_index );
+  v_comp_vec.push_back(0.0);
+  ca__div__dt_vec.push_back(0.0);
+  gl__times__el_vec.push_back(0.0);
+  gg0_vec.push_back(0.0);
+  gg_vec.push_back(0.0);
+  ff_vec.push_back(0.0);
+  size_t comp_index = v_comp_vec.size()-1;
+
+  Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}(
+    size_, parent_index, &(v_comp_vec[comp_index]), &(ca__div__dt_vec[comp_index]),
+    &(gl__times__el_vec[comp_index]), &(gg0_vec[comp_index]), &(gg_vec[comp_index]), &(ff_vec[comp_index])
+  );
+
+  neuron_currents.add_compartment();
   add_compartment( compartment, parent_index );
 }
 
 void
 nest::CompTree{{cm_unique_suffix}}::add_compartment( const long parent_index, const DictionaryDatum& compartment_params )
 {
-  Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}( size_, parent_index, compartment_params );
+  //Check whether all passed parameters exist within the used neuron model:
+  Dictionary* comp_param_copy = new Dictionary(*compartment_params);
+
+  comp_param_copy->remove(names::C_m);
+  comp_param_copy->remove(names::g_C);
+  comp_param_copy->remove(names::g_L);
+  comp_param_copy->remove(names::e_L);
+  comp_param_copy->remove("v_comp");
+{%- for ion_channel_name, channel_info in chan_info.items() %}
+  {%- for variable_type, variable_info in channel_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in channel_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in channel_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for concentration_name, concentration_info in conc_info.items() %}
+  {%- for variable_type, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in concentration_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for synapse_name, synapse_info in syns_info.items() %}
+  {%- for variable_type, variable_info in synapse_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for synapse_name, synapse_info in syns_info.items() %}
+  {%- for variable_type, variable_info in synapse_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in synapse_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+  {%- for variable_type, variable_info in continuous_info["Parameters"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+  {%- for variable_type, variable_info in continuous_info["ODEs"].items() %}
+  if( comp_param_copy->known( "{{variable_type}}" ) ) comp_param_copy->remove("{{variable_type}}");
+  {%- endfor %}
+{%- endfor %}
+{%- for continuous_name, continuous_info in con_in_info.items() %}
+  {%- for variable_type, variable_info in continuous_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+  if( comp_param_copy->known( "{{variable.name}}" ) ) comp_param_copy->remove("{{variable.name}}");
+  {%- endfor %}
+{%- endfor %}
+
+  if(!comp_param_copy->empty()){
+    std::string msg = "Following parameters are invalid: ";
+    for(auto& param : *comp_param_copy){
+        msg += param.first.toString();
+        msg += "\n";
+    }
+    throw BadParameter(msg);
+  }
+
+  v_comp_vec.push_back(0.0);
+  ca__div__dt_vec.push_back(0.0);
+  gl__times__el_vec.push_back(0.0);
+  gg0_vec.push_back(0.0);
+  gg_vec.push_back(0.0);
+  ff_vec.push_back(0.0);
+  size_t comp_index = v_comp_vec.size()-1;
+
+  Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}(
+    size_, parent_index, compartment_params, &(v_comp_vec[comp_index]), &(ca__div__dt_vec[comp_index]),
+    &(gl__times__el_vec[comp_index]), &(gg0_vec[comp_index]), &(gg_vec[comp_index]), &(ff_vec[comp_index])
+  );
+
+  neuron_currents.add_compartment(compartment_params);
   add_compartment( compartment, parent_index );
 }
 
@@ -285,6 +370,7 @@ nest::CompTree{{cm_unique_suffix}}::init_pointers()
 {
   set_parents();
   set_compartments();
+  set_compartment_variables();
   set_leafs();
 }
 
@@ -321,6 +407,23 @@ nest::CompTree{{cm_unique_suffix}}::set_compartments()
 }
 
 /**
+ * Set pointer variables within a compartment
+ */
+void
+nest::CompTree{{cm_unique_suffix}}::set_compartment_variables()
+{
+  //reset compartment pointers due to unsafe pointers in vectors when resizing during compartment creation
+  for( size_t i = 0; i < v_comp_vec.size(); i++){
+    compartments_[i]->v_comp = &(v_comp_vec[i]);
+    compartments_[i]->ca__div__dt = &(ca__div__dt_vec[i]);
+    compartments_[i]->gl__times__el = &(gl__times__el_vec[i]);
+    compartments_[i]->gg0 = &(gg0_vec[i]);
+    compartments_[i]->gg = &(gg_vec[i]);
+    compartments_[i]->ff = &(ff_vec[i]);
+  }
+}
+
+/**
  * Creates a vector of compartment pointers of compartments that are also leafs of the tree.
  */
 void
@@ -342,10 +445,7 @@ nest::CompTree{{cm_unique_suffix}}::set_leafs()
 void
 nest::CompTree{{cm_unique_suffix}}::set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
 {
-  for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
-  {
-    ( *compartment_it )->compartment_currents.set_syn_buffers( syn_buffers );
-  }
+  neuron_currents.set_buffers( syn_buffers );
 }
 
 /**
@@ -362,7 +462,11 @@ nest::CompTree{{cm_unique_suffix}}::get_recordables()
    */
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
-    std::map< Name, double* > recordables_comp = ( *compartment_it )->get_recordables();
+    long comp_index = (*compartment_it)->comp_index;
+    std::map< Name, double* > recordables_comp = neuron_currents.get_recordables( comp_index );
+    recordables.insert( recordables_comp.begin(), recordables_comp.end() );
+
+    recordables_comp = ( *compartment_it )->get_recordables();
     recordables.insert( recordables_comp.begin(), recordables_comp.end() );
   }
   return recordables;
@@ -393,6 +497,11 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
     ( *compartment_it )->pre_run_hook();
 {%- endif %}
   }
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+    neuron_currents.calibrate();
+{%- else %}
+    neuron_currents.pre_run_hook();
+{%- endif %}
 }
 
 /**
@@ -401,12 +510,7 @@ nest::CompTree{{cm_unique_suffix}}::pre_run_hook()
 std::vector< double >
 nest::CompTree{{cm_unique_suffix}}::get_voltage() const
 {
-  std::vector< double > v_comps;
-  for ( auto compartment_it = compartments_.cbegin(); compartment_it != compartments_.cend(); ++compartment_it )
-  {
-    v_comps.push_back( ( *compartment_it )->v_comp );
-  }
-  return v_comps;
+  return v_comp_vec;
 }
 
 /**
@@ -415,7 +519,7 @@ nest::CompTree{{cm_unique_suffix}}::get_voltage() const
 double
 nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartment_index )
 {
-  return compartments_[ compartment_index ]->v_comp;
+  return *(compartments_[ compartment_index ]->v_comp);
 }
 
 /**
@@ -424,9 +528,23 @@ nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartm
 void
 nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
+  // compute all channel currents, receptor currents, and input currents
+  std::vector< std::pair< double, double > > comps_gi = neuron_currents.f_numstep( v_comp_vec, lag );
+
+  #pragma omp simd
+  for( size_t i = 0; i < v_comp_vec.size(); i++ ){
+    // passive current left hand side
+    gg_vec[i] = gg0_vec[i];
+    // passive currents right hand side
+    ff_vec[i] = ca__div__dt_vec[i] * v_comp_vec[i] + gl__times__el_vec[i];
+
+    // add all currents to compartment
+    gg_vec[i] += comps_gi[i].first;
+    ff_vec[i] += comps_gi[i].second;
+  }
   for ( auto compartment_it = compartments_.begin(); compartment_it != compartments_.end(); ++compartment_it )
   {
-    ( *compartment_it )->construct_matrix_element( lag );
+    ( *compartment_it )->construct_matrix_coupling_elements();
   }
 }
 

@@ -29,15 +29,18 @@ import odetoolbox
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
@@ -63,6 +66,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -423,17 +427,17 @@ class ASTUtils:
 
     @classmethod
     def create_internal_block(cls, model: ASTModel):
-        """
-        Creates a single internal block in the handed over model.
+        r"""
+        Create an internals block in the handed over model if it does not yet exist.
         :param model: a single model
-        :return: the modified model
+        :return: the modified model (the model is also changed in-place)
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_internals_blocks():
-            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
-                                                                      ASTSourceLocation.get_added_source_position())
-            internal.update_scope(model.get_scope())
-            model.get_body().get_body_elements().append(internal)
+            block = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
+                                                                   ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -442,17 +446,38 @@ class ASTUtils:
 
     @classmethod
     def create_state_block(cls, model: ASTModel):
-        """
-        Creates a single internals block in the handed over model.
-        :param neuron: a single model
-        :return: the modified model
+        r"""
+        Create a state block in the handed over model if it does not yet exist.
+        :param model: a single model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if not model.get_internals_blocks():
-            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
+        if not model.get_state_blocks():
+            block = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
-            model.get_body().get_body_elements().append(state)
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
+        return model
+
+    @classmethod
+    def create_parameters_block(cls, model: ASTModel):
+        r"""
+        Create a parameters block in the handed over model if it does not yet exist.
+        :param model: a single model
+        :return: the modified model (the model is also changed in-place)
+        """
+        # local import since otherwise circular dependency
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        if not model.get_parameters_blocks():
+            block = ASTNodeFactory.create_ast_block_with_variables(False, True, False, list(),
+                                                                   ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
+            model.get_body().get_body_elements().append(block)
 
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         model.accept(ASTParentVisitor())
@@ -461,17 +486,22 @@ class ASTUtils:
 
     @classmethod
     def create_equations_block(cls, model: ASTModel) -> ASTModel:
-        """
-        Creates a single equations block in the handed over model.
+        r"""
+        Create an equations block in the handed over model if it does not yet exist.
         :param model: a single model
-        :return: the modified model
+        :return: the modified model (the model is also changed in-place)
         """
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if not model.get_equations_blocks():
             block = ASTNodeFactory.create_ast_equations_block(list(),
                                                               ASTSourceLocation.get_added_source_position())
+            block.update_scope(model.get_scope())
             model.get_body().get_body_elements().append(block)
+
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        model.accept(ASTParentVisitor())
+
         return model
 
     @classmethod
@@ -482,10 +512,11 @@ class ASTUtils:
         """
         if not variable.get_declaring_expression():
             return False
-        else:
-            for func in variable.get_declaring_expression().get_function_calls():
-                if func.get_name() == PredefinedFunctions.CONVOLVE:
-                    return True
+
+        for func in variable.get_declaring_expression().get_function_calls():
+            if func.get_name() == PredefinedFunctions.CONVOLVE:
+                return True
+
         return False
 
     @classmethod
@@ -551,7 +582,7 @@ class ASTUtils:
 
     @classmethod
     def remove_state_var_from_integrate_odes_calls(cls, model: ASTModel, state_var_name: str):
-        r"""Remove a state variable from the arguments to integrate_odes() calls in the model."""
+        r"""Remove a state variable from the arguments (where it exists) of each integrate_odes() call in the model."""
 
         class RemoveStateVarFromIntegrateODEsCallsVisitor(ASTVisitor):
             def visit_function_call(self, node: ASTFunctionCall):
@@ -631,6 +662,20 @@ class ASTUtils:
         return None
 
     @classmethod
+    def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
+        for equations_block in node.get_equations_blocks():
+            for inline_expr in equations_block.get_inline_expressions():
+                if not ASTUtils.inline_aliases_convolution(inline_expr):
+                    continue
+
+                constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
+
+                if name == constructed_name:
+                    return inline_expr
+
+        return None
+
+    @classmethod
     def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
         for equations_block in node.get_equations_blocks():
             for kernel in equations_block.get_kernels():
@@ -641,7 +686,7 @@ class ASTUtils:
 
     @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
-        """
+        r"""
         Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
         """
 
@@ -659,26 +704,23 @@ class ASTUtils:
             ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
                                               differential_order=var.get_differential_order(),
                                               source_position=var.get_source_position())
+
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
-
-            ast_ext_var.parent_ = _expr
 
             ast_ext_var.update_alt_scope(new_scope)
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             ast_ext_var.accept(ASTSymbolTableVisitor())
 
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                Logger.log_message(None, -1, "ASTSimpleExpression replacement made (var = " + str(
-                    ast_ext_var.get_name()) + ") in expression: " + str(_expr.get_parent()), None, LoggingLevel.INFO)
                 _expr.set_variable(ast_ext_var)
+                ast_ext_var.parent_ = _expr
                 return
 
             if isinstance(_expr, ASTVariable):
+                ast_ext_var.parent_ = _expr.get_parent()
                 if isinstance(_expr.get_parent(), ASTAssignment):
                     _expr.get_parent().lhs = ast_ext_var
-                    Logger.log_message(None, -1, "ASTVariable replacement made in expression: "
-                                       + str(_expr.get_parent()), None, LoggingLevel.INFO)
                 elif isinstance(_expr.get_parent(), ASTSimpleExpression) and _expr.get_parent().is_variable():
                     _expr.get_parent().set_variable(ast_ext_var)
                 elif isinstance(_expr.get_parent(), ASTDeclaration):
@@ -1001,8 +1043,6 @@ class ASTUtils:
                 return True
         return False
 
-    _variable_matching_template = r'(\b)({})(\b)'
-
     @classmethod
     def add_declarations_to_internals(cls, neuron: ASTModel, declarations: Mapping[str, str]) -> ASTModel:
         """
@@ -1295,7 +1335,7 @@ class ASTUtils:
 
     @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
-                                          diff_order_symbol="__d"):
+                                          diff_order_symbol="__d", suffix=""):
         """
         Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
 
@@ -1325,7 +1365,7 @@ class ASTUtils:
             if spike_input_port.has_vector_parameter():
                 spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
+        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -1767,6 +1807,21 @@ class ASTUtils:
         return visitor.vars
 
     @classmethod
+    def get_all_variables_assigned_to(cls, node: ASTNode):
+        class GetDependentVariablesVisitor(ASTVisitor):
+            def __init__(self):
+                super().__init__()
+                self.vars = set()
+
+            def visit_assignment(self, node: ASTAssignment) -> None:
+                self.vars.add(node.lhs.get_name())
+
+        visitor = GetDependentVariablesVisitor()
+        node.accept(visitor)
+
+        return visitor.vars
+
+    @classmethod
     def get_dependent_variables(cls, var: str, model: ASTExpression) -> List[ASTVariable]:
         r"""Return a list of all left-hand side variables in the model that depend on ``var`` in their right-hand side."""
         class GetDependentVariablesVisitor(ASTVisitor):
@@ -1797,6 +1852,18 @@ class ASTUtils:
 
                 if var in rhs_vars:
                     self.vars.add(str(node.lhs))
+
+            def _visit_if_clause(self, node: ASTIfClause) -> None:
+                cond_vars = ASTUtils.get_all_variables_names_in_expression(node.condition)
+                if var in cond_vars:
+                    # collect all variables assigned to in the if-block -- they all depend on ``var``
+                    self.vars |= ASTUtils.get_all_variables_assigned_to(node.block)
+
+            def visit_if_clause(self, node: ASTIfClause) -> None:
+                self._visit_if_clause(node)
+
+            def visit_elif_clause(self, node: ASTElifClause) -> None:
+                self._visit_if_clause(node)
 
         visitor = GetDependentVariablesVisitor()
         model.accept(visitor)
@@ -1871,10 +1938,10 @@ class ASTUtils:
         model.integrate_odes_combinations = visitor.all_args
 
         # always ensure code is generated for an integrate_odes() call without any arguments. This is needed, for example, for gap junctions support
-        if not [] in model.integrate_odes_combinations:
-            model.integrate_odes_combinations.append([])
+        if not "" in model.integrate_odes_combinations:
+            model.integrate_odes_combinations.append("")
 
-        return visitor.all_args
+        return model.integrate_odes_combinations
 
     @classmethod
     def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> None:
@@ -2026,74 +2093,6 @@ class ASTUtils:
 
             for decl in decl_to_remove:
                 equations_block.get_declarations().remove(decl)
-
-    @classmethod
-    def make_inline_expressions_self_contained(cls, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
-        """
-        Make inline_expressions self contained, i.e. without any references to other inline_expressions.
-
-        TODO: it should be a method inside of the ASTInlineExpression
-        TODO: this should be done by means of a visitor
-
-        :param inline_expressions: A sorted list with entries ASTInlineExpression.
-        :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
-        """
-        from pynestml.utils.model_parser import ModelParser
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        for source in inline_expressions:
-            source_position = source.get_source_position()
-            for target in inline_expressions:
-                matcher = re.compile(cls._variable_matching_template.format(source.get_variable_name()))
-                target_definition = str(target.get_expression())
-                target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
-                target.expression = ModelParser.parse_expression(target_definition)
-                target.expression.update_scope(source.get_scope())
-                target.expression.accept(ASTSymbolTableVisitor())
-
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
-
-                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-        return inline_expressions
-
-    @classmethod
-    def replace_inline_expressions_through_defining_expressions(cls, definitions: Sequence[ASTOdeEquation],
-                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
-        """
-        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
-
-        :param definitions: A list of ODE definitions (**updated in-place**).
-        :param inline_expressions: A list of inline expression definitions.
-        :return: A list of updated ODE definitions (same as the ``definitions`` parameter).
-        """
-        from pynestml.utils.model_parser import ModelParser
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        for m in inline_expressions:
-            if "mechanism" not in [e.namespace for e in m.get_decorators()]:
-                """
-                exclude compartmental mechanism definitions in order to have the
-                inline as a barrier inbetween odes that are meant to be solved independently
-                """
-                source_position = m.get_source_position()
-                for target in definitions:
-                    matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
-                    target_definition = str(target.get_rhs())
-                    target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
-                    target.rhs = ModelParser.parse_expression(target_definition)
-                    target.update_scope(m.get_scope())
-                    target.accept(ASTSymbolTableVisitor())
-
-                    def log_set_source_position(node):
-                        if node.get_source_position().is_added_source_position():
-                            node.set_source_position(source_position)
-
-                    target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-        return definitions
 
     @classmethod
     def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:

@@ -97,6 +97,9 @@ class CodeGenerator(WithOptions):
             module_templates = self.get_option("templates")["module_templates"]
             self._module_templates.extend(self._setup_template_env(module_templates, templates_root_dir))
 
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
+
     def _init_templates_list(self):
         self._model_templates: Mapping[str, List[Template]] = {}
         self._model_templates["neuron"]: List[Template] = []

@@ -61,11 +61,13 @@ class TestDopaSecondOrder:
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_neuron",
                                                                      "synapse": "dopa_second_order_synapse",
-                                                                     "vt_ports": ["dopa_spikes"]}]})
+                                                                     "vt_ports": ["dopa_spikes"]}],
+                                           "delay_variable": {"dopa_second_order_synapse": "d"},
+                                           "weight_variable": {"dopa_second_order_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
-    def test_nest_stdp_synapse(self):
+    def test_synapse(self):
 
         resolution = .25   # [ms]
         delay = 1.    # [ms]

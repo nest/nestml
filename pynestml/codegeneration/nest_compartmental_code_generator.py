@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import shutil
 from typing import Any, Dict, List, Mapping, Optional
 
 import datetime
@@ -53,9 +53,14 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
+from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
+from pynestml.utils.continuous_input_processing import ContinuousInputProcessing
+from pynestml.utils.con_in_info_enricher import ConInInfoEnricher
 from pynestml.utils.conc_info_enricher import ConcInfoEnricher
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.chan_info_enricher import ChanInfoEnricher
@@ -95,8 +100,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "path": "resources_nest_compartmental/cm_neuron",
             "model_templates": {
                 "neuron": [
-                    "cm_compartmentcurrents_@NEURON_NAME@.cpp.jinja2",
-                    "cm_compartmentcurrents_@NEURON_NAME@.h.jinja2",
+                    "cm_neuroncurrents_@NEURON_NAME@.cpp.jinja2",
+                    "cm_neuroncurrents_@NEURON_NAME@.h.jinja2",
                     "@NEURON_NAME@.cpp.jinja2",
                     "@NEURON_NAME@.h.jinja2",
                     "cm_tree_@NEURON_NAME@.cpp.jinja2",
@@ -150,7 +155,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._nest_printer = CppPrinter(expression_printer=self._printer)
 
         self._nest_variable_printer_no_origin = NESTVariablePrinter(None, with_origin=False,
-                                                                    with_vector_parameter=False,
+                                                                    with_vector_parameter=True,
                                                                     enforce_getter=False)
         self._printer_no_origin = CppExpressionPrinter(
             simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
@@ -244,7 +249,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron_name_to_filename = dict()
         for neuron in neurons:
             neuron_name_to_filename[neuron.get_name()] = {
-                "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
+                "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),
                 "tree": self.get_cm_syns_tree_file_prefix(neuron)
             }
@@ -259,6 +264,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
     def get_cm_syns_compartmentcurrents_file_prefix(self, neuron):
         return "cm_compartmentcurrents_" + neuron.get_name()
+
+    def get_cm_syns_neuroncurrents_file_prefix(self, neuron):
+        return "cm_neuroncurrents_" + neuron.get_name()
 
     def get_cm_syns_main_file_prefix(self, neuron):
         return neuron.get_name()
@@ -436,13 +444,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
         # substitute inline expressions with each other
-        # such that no inline expression references another inline expression
-        ASTUtils.make_inline_expressions_self_contained(
-            equations_block.get_inline_expressions())
-
-        # dereference inline_expressions inside ode equations
-        ASTUtils.replace_inline_expressions_through_defining_expressions(
-            equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        # such that no inline expression references another inline expression;
+        # deference inline_expressions inside ode_equations
+        InlineExpressionExpansionTransformer().transform(neuron)
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
@@ -528,7 +532,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             jinja_file_name).split(".")[0]
 
         file_name_calculators = {
-            "CompartmentCurrents": self.get_cm_syns_compartmentcurrents_file_prefix,
+            "NeuronCurrents": self.get_cm_syns_neuroncurrents_file_prefix,
             "Tree": self.get_cm_syns_tree_file_prefix,
             "Main": self.get_cm_syns_main_file_prefix,
         }
@@ -591,6 +595,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
+        namespace["vector_printer_factory"] = ASTVectorParameterSetterAndPrinterFactory(neuron, self._printer_no_origin)
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
@@ -703,14 +708,19 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
         namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])
 
+        namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
+        namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
+
         chan_info_string = MechanismProcessing.print_dictionary(namespace["chan_info"], 0)
         syns_info_string = MechanismProcessing.print_dictionary(namespace["syns_info"], 0)
         conc_info_string = MechanismProcessing.print_dictionary(namespace["conc_info"], 0)
-        code, message = Messages.get_mechs_dictionary_info(chan_info_string, syns_info_string, conc_info_string)
+        con_in_info_string = MechanismProcessing.print_dictionary(namespace["con_in_info"], 0)
+
+        code, message = Messages.get_mechs_dictionary_info(chan_info_string, syns_info_string, conc_info_string, con_in_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
 
         neuron_specific_filenames = {
-            "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
+            "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
             "tree": self.get_cm_syns_tree_file_prefix(neuron)}
 

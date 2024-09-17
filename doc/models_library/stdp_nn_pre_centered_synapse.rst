@@ -91,12 +91,9 @@ Source code
 The model source code can be found in the NESTML models repository here: `stdp_nn_pre_centered_synapse <https://github.com/nest/nestml/tree/master/models/synapses/stdp_nn_pre_centered_synapse.nestml>`_.
 
 
-Characterisation
-++++++++++++++++
-
 .. include:: stdp_nn_pre_centered_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-11-16 11:40:54.333803
+   Generated at 2024-05-22 14:51:14.672063
