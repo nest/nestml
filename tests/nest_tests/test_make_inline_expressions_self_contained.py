@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# conc_info_enricher.py
+# test_make_inline_expressions_self_contained.py
 #
 # This file is part of NEST.
 #
@@ -19,11 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.utils.mechs_info_enricher import MechsInfoEnricher
+import os
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-class ConcInfoEnricher(MechsInfoEnricher):
-    """Just created for consistency with the rest of the mechanism generation process. No more than the base-class
-    enriching needs to be done"""
-    def __init__(self, params):
-        super(MechsInfoEnricher, self).__init__(params)
+class TestMakeInlineExpressionsSelfContained:
+    r"""
+    Test the transformer that makes inline expressions self contained.
+    """
+
+    def test_make_inline_expression_self_contained(self):
+        r"""Generate the model code"""
+        input_files = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "beta_function_with_inline_expression_neuron.nestml")))]
+        generate_nest_target(input_path=input_files,
+                             logging_level="DEBUG",
+                             codegen_opts={"solver": "numeric"})

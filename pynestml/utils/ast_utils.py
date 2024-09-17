@@ -29,6 +29,7 @@ import odetoolbox
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
@@ -65,6 +66,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -660,6 +662,20 @@ class ASTUtils:
         return None
 
     @classmethod
+    def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
+        for equations_block in node.get_equations_blocks():
+            for inline_expr in equations_block.get_inline_expressions():
+                if not ASTUtils.inline_aliases_convolution(inline_expr):
+                    continue
+
+                constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
+
+                if name == constructed_name:
+                    return inline_expr
+
+        return None
+
+    @classmethod
     def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
         for equations_block in node.get_equations_blocks():
             for kernel in equations_block.get_kernels():
@@ -1027,8 +1043,6 @@ class ASTUtils:
                 return True
         return False
 
-    _variable_matching_template = r'(\b)({})(\b)'
-
     @classmethod
     def add_declarations_to_internals(cls, neuron: ASTModel, declarations: Mapping[str, str]) -> ASTModel:
         """
@@ -1321,7 +1335,7 @@ class ASTUtils:
 
     @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
-                                          diff_order_symbol="__d"):
+                                          diff_order_symbol="__d", suffix=""):
         """
         Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
 
@@ -1351,7 +1365,7 @@ class ASTUtils:
             if spike_input_port.has_vector_parameter():
                 spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + spike_input_port_name + diff_order_symbol * order
+        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -2079,74 +2093,6 @@ class ASTUtils:
 
             for decl in decl_to_remove:
                 equations_block.get_declarations().remove(decl)
-
-    @classmethod
-    def make_inline_expressions_self_contained(cls, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
-        """
-        Make inline_expressions self contained, i.e. without any references to other inline_expressions.
-
-        TODO: it should be a method inside of the ASTInlineExpression
-        TODO: this should be done by means of a visitor
-
-        :param inline_expressions: A sorted list with entries ASTInlineExpression.
-        :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
-        """
-        from pynestml.utils.model_parser import ModelParser
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        for source in inline_expressions:
-            source_position = source.get_source_position()
-            for target in inline_expressions:
-                matcher = re.compile(cls._variable_matching_template.format(source.get_variable_name()))
-                target_definition = str(target.get_expression())
-                target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
-                target.expression = ModelParser.parse_expression(target_definition)
-                target.expression.update_scope(source.get_scope())
-                target.expression.accept(ASTSymbolTableVisitor())
-
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
-
-                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-        return inline_expressions
-
-    @classmethod
-    def replace_inline_expressions_through_defining_expressions(cls, definitions: Sequence[ASTOdeEquation],
-                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
-        """
-        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
-
-        :param definitions: A list of ODE definitions (**updated in-place**).
-        :param inline_expressions: A list of inline expression definitions.
-        :return: A list of updated ODE definitions (same as the ``definitions`` parameter).
-        """
-        from pynestml.utils.model_parser import ModelParser
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-
-        for m in inline_expressions:
-            if "mechanism" not in [e.namespace for e in m.get_decorators()]:
-                """
-                exclude compartmental mechanism definitions in order to have the
-                inline as a barrier inbetween odes that are meant to be solved independently
-                """
-                source_position = m.get_source_position()
-                for target in definitions:
-                    matcher = re.compile(cls._variable_matching_template.format(m.get_variable_name()))
-                    target_definition = str(target.get_rhs())
-                    target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
-                    target.rhs = ModelParser.parse_expression(target_definition)
-                    target.update_scope(m.get_scope())
-                    target.accept(ASTSymbolTableVisitor())
-
-                    def log_set_source_position(node):
-                        if node.get_source_position().is_added_source_position():
-                            node.set_source_position(source_position)
-
-                    target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-        return definitions
 
     @classmethod
     def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:
