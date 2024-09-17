@@ -29,7 +29,7 @@
 #include "nest_types.h"
 #include "universal_data_logger.h"
 
-#include "{{neuronSpecificFileNamesCmSyns["compartmentcurrents"]}}.h"
+#include "{{neuronSpecificFileNamesCmSyns["neuroncurrents"]}}.h"
 #include "{{neuronSpecificFileNamesCmSyns["tree"]}}.h"
 
 namespace nest
@@ -251,7 +251,7 @@ public:
   size_t handles_test_event( CurrentEvent&, size_t );
   size_t handles_test_event( DataLoggingRequest&, size_t );
 
-  void get_status( DictionaryDatum& ) const;
+  void get_status( DictionaryDatum& );
   void set_status( const DictionaryDatum& );
 
 private:

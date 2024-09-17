@@ -1,0 +1,52 @@
+"""
+test_plasticity_dynamics_synapse.nestml
+#######################################
+
+Dummy test synapse for plasticity dynamics test.
+
+This model is based on "simple_stdp_synapse" in https://github.com/saeedark/Fast-SNN-PymoNNto-rch/blob/main/Benchmarks/Simple/nest_native_LIF.py (Copyright (c) 2023 PesarAmmehZA). It was originally licensed under the MIT License, a copy of which can be found at https://github.com/saeedark/Fast-SNN-PymoNNto-rch/blob/main/LICENSE. The MIT license permits redistribution under the GPL v2 license.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+model test_plasticity_dynamics_synapse:
+    state:
+        w real = 1.0
+        t_last_pre_spike ms = 0 ms
+
+    parameters:
+        d ms = 1.0 ms
+        stdp_speed real = 0.01
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike
+
+    onReceive(post_spikes):
+        if t_last_pre_spike < t and t <= (t_last_pre_spike + 1*ms):
+            w += stdp_speed
+
+    onReceive(pre_spikes):
+        t_last_pre_spike = t
+        emit_spike(w, d)

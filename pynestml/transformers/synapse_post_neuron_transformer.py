@@ -583,7 +583,6 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
-        new_neuron.paired_synapse = new_synapse
         new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
 
         #
@@ -593,6 +592,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
         new_synapse.set_name(new_synapse_name)
         new_synapse.paired_neuron = new_neuron
+        new_neuron.paired_synapse_original_model = synapse
 
         base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
         base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)

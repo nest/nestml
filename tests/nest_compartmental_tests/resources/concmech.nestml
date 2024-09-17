@@ -1,3 +1,24 @@
+"""
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 model multichannel_test_model:
     parameters:
@@ -31,7 +52,7 @@ model multichannel_test_model:
         inf_Ca real = 0.0001
 
     state:
-        v_comp real = -7500.00000000
+        v_comp real = -75.00000000
 
         # state variables Ca_HVA
         h_Ca_HVA real = 0.69823671
@@ -69,17 +90,17 @@ model multichannel_test_model:
         h_Ca_LVAst' = ( h_inf_Ca_LVAst(v_comp) - h_Ca_LVAst ) / (tau_h_Ca_LVAst(v_comp)*1s)
 
         # equations NaTa_t
-        #inline NaTa_t real = gbar_NaTa_t * (h_NaTa_t*m_NaTa_t**3) * (e_NaTa_t - v_comp) @mechanism::channel
-        #m_NaTa_t' = ( m_inf_NaTa_t(v_comp) - m_NaTa_t ) / (tau_m_NaTa_t(v_comp)*1s)
-        #h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
+        inline NaTa_t real = gbar_NaTa_t * (h_NaTa_t*m_NaTa_t**3) * (e_NaTa_t - v_comp) @mechanism::channel
+        m_NaTa_t' = ( m_inf_NaTa_t(v_comp) - m_NaTa_t ) / (tau_m_NaTa_t(v_comp)*1s)
+        h_NaTa_t' = ( h_inf_NaTa_t(v_comp) - h_NaTa_t ) / (tau_h_NaTa_t(v_comp)*1s)
 
         # equations SKv3_1
         #inline SKv3_1 real = gbar_SKv3_1 * (z_SKv3_1) * (e_SKv3_1 - v_comp) @mechanism::channel
         #z_SKv3_1' = ( z_inf_SKv3_1(v_comp) - z_SKv3_1 ) / (tau_z_SKv3_1(v_comp)*1s)
 
         # equations SK_E2
-        #inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
-        #z_SK_E2' = ( z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
+        inline SK_E2 real = gbar_SK_E2 * (z_SK_E2) * (e_SK_E2 - v_comp) @mechanism::channel
+        z_SK_E2' = ( z_inf_SK_E2(c_Ca) - z_SK_E2) / 1.0s
 
         # equations Ca concentration mechanism
         c_Ca' = (inf_Ca - c_Ca) / (tau_Ca*1s) + (gamma_Ca * (Ca_HVA + Ca_LVAst)) / 1s @mechanism::concentration

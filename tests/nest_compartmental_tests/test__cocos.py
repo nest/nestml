@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cocos_test.py
+# test__cocos.py
 #
 # This file is part of NEST.
 #
@@ -22,7 +22,8 @@
 from __future__ import print_function
 
 import os
-import unittest
+import pytest
+
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -35,23 +36,25 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.model_parser import ModelParser
 
 
-class CoCosTest(unittest.TestCase):
+@pytest.fixture
+def setUp():
+    Logger.init_logger(LoggingLevel.INFO)
+    SymbolTable.initialize_symbol_table(
+        ASTSourceLocation(
+            start_line=0,
+            start_column=0,
+            end_line=0,
+            end_column=0))
+    PredefinedUnits.register_units()
+    PredefinedTypes.register_types()
+    PredefinedVariables.register_variables()
+    PredefinedFunctions.register_functions()
+    FrontendConfiguration.target_platform = "NEST_COMPARTMENTAL"
 
-    def setUp(self):
-        Logger.init_logger(LoggingLevel.INFO)
-        SymbolTable.initialize_symbol_table(
-            ASTSourceLocation(
-                start_line=0,
-                start_column=0,
-                end_line=0,
-                end_column=0))
-        PredefinedUnits.register_units()
-        PredefinedTypes.register_types()
-        PredefinedVariables.register_variables()
-        PredefinedFunctions.register_functions()
-        FrontendConfiguration.target_platform = "NEST_COMPARTMENTAL"
 
-    def test_invalid_cm_variables_declared(self):
+class TestCoCos:
+
+    def test_invalid_cm_variables_declared(self, setUp):
         model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
@@ -59,10 +62,10 @@ class CoCosTest(unittest.TestCase):
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmVariablesDeclared.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 5)
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 5
 
-    def test_valid_cm_variables_declared(self):
+    def test_valid_cm_variables_declared(self, setUp):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(
@@ -71,12 +74,12 @@ class CoCosTest(unittest.TestCase):
                         os.path.dirname(__file__), 'resources',
                         'valid')),
                 'CoCoCmVariablesDeclared.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 0
 
     # it is currently not enforced for the non-cm parameter block, but cm
     # needs that
-    def test_invalid_cm_variable_has_rhs(self):
+    def test_invalid_cm_variable_has_rhs(self, setUp):
         model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
@@ -84,10 +87,10 @@ class CoCosTest(unittest.TestCase):
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmVariableHasRhs.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 2)
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 2
 
-    def test_valid_cm_variable_has_rhs(self):
+    def test_valid_cm_variable_has_rhs(self, setUp):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(
@@ -96,12 +99,12 @@ class CoCosTest(unittest.TestCase):
                         os.path.dirname(__file__), 'resources',
                         'valid')),
                 'CoCoCmVariableHasRhs.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 0
 
     # it is currently not enforced for the non-cm parameter block, but cm
     # needs that
-    def test_invalid_cm_v_comp_exists(self):
+    def test_invalid_cm_v_comp_exists(self, setUp):
         model = ModelParser.parse_file(
             os.path.join(
                 os.path.realpath(
@@ -109,10 +112,10 @@ class CoCosTest(unittest.TestCase):
                         os.path.dirname(__file__), 'resources',
                         'invalid')),
                 'CoCoCmVcompExists.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 4)
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 4
 
-    def test_valid_cm_v_comp_exists(self):
+    def test_valid_cm_v_comp_exists(self, setUp):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_file(
             os.path.join(
@@ -121,5 +124,5 @@ class CoCosTest(unittest.TestCase):
                         os.path.dirname(__file__), 'resources',
                         'valid')),
                 'CoCoCmVcompExists.nestml'))
-        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)), 0)
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 0

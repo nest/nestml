@@ -112,6 +112,7 @@ class NESTCodeGenerator(CodeGenerator):
         - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     - **nest_version**: A string identifying the version of NEST Simulator to generate code for. The string corresponds to the NEST Simulator git repository tag or git branch name, for instance, ``"v2.20.2"`` or ``"master"``. The default is the empty string, which causes the NEST version to be automatically identified from the ``nest`` Python module.
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
+    - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
@@ -143,6 +144,7 @@ class NESTCodeGenerator(CodeGenerator):
         },
         "nest_version": "",
         "solver": "analytic",
+        "gsl_adaptive_step_size_controller": "with_respect_to_solution",
         "numeric_solver": "rk45",
         "delay_variable": {},
         "weight_variable": {}
@@ -172,10 +174,20 @@ class NESTCodeGenerator(CodeGenerator):
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for synapse in synapses:
             synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-            delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-            CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
-            if Logger.has_errors(synapse):
-                raise Exception("Error(s) occurred during code generation")
+
+            # special case for NEST delay variable (state or parameter)
+            assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+            assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+
+            # special case for NEST weight variable (state or parameter)
+            assert synapse_name_stripped in self.get_option("weight_variable").keys(), "Please specify a weight variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+            assert ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]), "Weight variable '" + self.get_option("weight_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+
+            if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
+                delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+                CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
+                if Logger.has_errors(synapse):
+                    raise Exception("Error(s) occurred during code generation")
 
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
@@ -430,12 +442,7 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
 
-        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-        # special case for NEST delay variable (state or parameter)
-
         ASTUtils.update_blocktype_for_common_parameters(synapse)
-        assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
-        assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
 
         return spike_updates
 
@@ -491,6 +498,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         if namespace["uses_numeric_solver"]:
             namespace["numeric_solver"] = self.get_option("numeric_solver")
+            namespace["gsl_adaptive_step_size_controller"] = self.get_option("gsl_adaptive_step_size_controller")
 
         return namespace
 
@@ -643,7 +651,9 @@ class NESTCodeGenerator(CodeGenerator):
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
-            namespace["paired_synapse"] = neuron.paired_synapse.get_name()
+            namespace["paired_synapse"] = neuron.paired_synapse
+            namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
+            namespace["paired_synapse_name"] = neuron.paired_synapse.get_name()
             namespace["post_spike_updates"] = neuron.post_spike_updates
             namespace["transferred_variables"] = neuron._transferred_variables
             namespace["transferred_variables_syms"] = {var_name: neuron.scope.resolve_to_symbol(
@@ -796,7 +806,6 @@ class NESTCodeGenerator(CodeGenerator):
                 numeric_state_variable_names.extend(namespace["analytic_state_variables_moved"])
             namespace["numerical_state_symbols"] = numeric_state_variable_names
             ASTUtils.assign_numeric_non_numeric_state_variables(neuron, numeric_state_variable_names, namespace["numeric_update_expressions"] if "numeric_update_expressions" in namespace.keys() else None, namespace["update_expressions"] if "update_expressions" in namespace.keys() else None)
-
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = []
