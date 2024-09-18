@@ -465,10 +465,13 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
 
             if abs_or_rel == "rel":
                 _y = rss / baseline_rss
+                _y_std = rss_std / baseline_rss
             else:
                 _y = rss
+                _y_std = rss_std
 
-            _ax.errorbar(x, _y, yerr=rss_std / baseline_rss, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+            _ax.errorbar(x, _y, yerr=_y_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
+            #print("mem for neuron " + neuron + " = " + str(_y) + ", std dev = " + str(_y_std))
 
             if abs_or_rel == "abs":
                 _ax.set_yscale('log')
