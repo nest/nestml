@@ -333,8 +333,9 @@ def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
             _y_std = y_factor_std
             _y = y_factor
         else:
-            _y_std = y_std
-            _y = y
+            # convert from seconds to minutes
+            _y_std = y_std / 60
+            _y = y / 60
 
         ax.errorbar(x, _y, yerr=_y_std, label=legend[neuron], color=palette(colors[neuron]), linestyle='-',marker='o', markersize=4, ecolor='gray', capsize=2, linewidth=2)
 
@@ -362,7 +363,7 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
                 max_y = max(_max_y, max_y)
 
         if abs_or_rel == "abs":
-            ax[i, 0].set_ylabel('Wall clock time [s]')
+            ax[i, 0].set_ylabel('Wall clock time [min]')
             ax[i, 0].set_yscale('log')
         else:
             ax[i, 0].set_ylabel('Wall clock time (ratio)')
@@ -395,6 +396,14 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
         for _ax in ax.flatten():
             _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
             _ax.set_xticks(N_THREADS, N_THREADS)
+
+    for _ax in ax.flatten():
+        formatter = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=False)
+        formatter.set_powerlimits((-100, 100))  # Avoid scaling by powers of ten
+        formatter.set_scientific(False)
+        _ax.yaxis.set_major_formatter(formatter)
+        _ax.yaxis.set_minor_formatter(formatter)
+
 
     for _ax in ax.flatten():
         _ax.spines['top'].set_visible(False)
@@ -486,16 +495,17 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
     # ax_absplt.gca().add_artist(linestyle_legend)
 
     ax[0].legend(loc='upper left')
-    ax[0].set_ylabel('Memory [GB]')
+    ax[0].set_ylabel('Memory [GiB]')
     ax[1].set_ylabel('Memory (ratio)')
     # Create a legend for the neurons
     # neuron_handles = [plt.Line2D([0], [0], color=palette(colors[key]), lw=2) for key in legend.keys()]
-    for _ax in ax:
+    for _ax in [ax[1]]:
         formatter = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=False)
         formatter.set_powerlimits((-100, 100))  # Avoid scaling by powers of ten
         formatter.set_scientific(False)
         _ax.yaxis.set_major_formatter(formatter)
 
+    for _ax in ax:
         _ax.set_xscale('log')
         _ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
