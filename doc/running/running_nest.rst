@@ -227,8 +227,7 @@ Note that when a continuous-time input port is defined in the synapse model whic
 
 The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
 
-To generate code for synapses with a (postsynaptic) plasticity factor, NESTML needs to be invoked so that it generates code for neuron and synapse together (as described in :ref:`Generating code for plastic synapses`). Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`). Passing this as a code generator option facilitates combining models from different sources, where the naming conventions can be different between the neuron and synapse model.
-
+To generate code for synapses with a (postsynaptic) plasticity factor, NESTML needs to be invoked so that it generates code for neuron and synapse together (as described in :ref:`Generating code for plastic synapses`). The ``"post_ports"`` entry needs to be specified to connect the input port on the synapse with the right variable of the neuron. Passing this as a code generator option facilitates combining models from different sources, where the naming conventions can be different between the neuron and synapse model.
 
 
 Dendritic delay and synaptic weight

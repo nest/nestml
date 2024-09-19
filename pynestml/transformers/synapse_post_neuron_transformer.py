@@ -592,6 +592,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
         new_synapse.set_name(new_synapse_name)
         new_synapse.paired_neuron = new_neuron
+        new_neuron.paired_synapse = new_synapse
         new_neuron.paired_synapse_original_model = synapse
 
         base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
