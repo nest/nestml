@@ -369,6 +369,9 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
             ax[i, 0].set_ylabel('Wall clock time (ratio)')
             ax[i, 1].set_yticklabels([])  # hide y tick labels from bottom right plot, ticks/labels are same as for bottom left
 
+    # column labels
+    ax[0, 0].text(0.5, 1.1, "Strong scaling", transform=ax[0, 0].transAxes, ha="center", fontsize=16)
+    ax[0, 1].text(0.5, 1.1, "Weak scaling", transform=ax[0, 1].transAxes, ha="center", fontsize=16)
 
     for _ax in ax.flatten():
         _ax.set_xscale('log')
