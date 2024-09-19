@@ -345,13 +345,16 @@ def _plot_scaling_data(ax, sim_data: dict, file_prefix: str, abs_or_rel: str):
     return min_y, max_y
 
 
+def format_func(value, tick_number):
+    return f'{int(value)}'
+
 def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: str = ""):
     min_y, max_y = np.inf, -np.inf
 
     fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
 
     for i, abs_or_rel in enumerate(["abs", "rel"]):
-        for j, which_scaling in enumerate(["weak", "strong"]):
+        for j, which_scaling in enumerate(["strong", "weak"]):
             if which_scaling == "weak":
                 sim_data = sim_data_weak
             else:
@@ -400,12 +403,13 @@ def plot_scaling_data(sim_data_weak: dict, sim_data_strong: dict, file_prefix: s
             _ax.set_xlim(N_THREADS[0], N_THREADS[-1])
             _ax.set_xticks(N_THREADS, N_THREADS)
 
-    for _ax in ax.flatten():
-        formatter = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=False)
-        formatter.set_powerlimits((-100, 100))  # Avoid scaling by powers of ten
-        formatter.set_scientific(False)
+    for _ax in ax[0, :]:   # hide decimal points, set simple decimal formatter for top two panels y axis
+        #formatter = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=False)
+        formatter = matplotlib.ticker.FuncFormatter(format_func)
+        #formatter.set_powerlimits((-100, 100))  # Avoid scaling by powers of ten
+        #formatter.set_scientific(False)
         _ax.yaxis.set_major_formatter(formatter)
-        _ax.yaxis.set_minor_formatter(formatter)
+        #_ax.yaxis.set_minor_formatter(formatter)
 
 
     for _ax in ax.flatten():
@@ -483,7 +487,7 @@ def plot_memory_scaling_benchmark(sim_data: dict, file_prefix: str):
                 _y_std = rss_std
 
             _ax.errorbar(x, _y, yerr=_y_std, color=palette(colors[neuron]), linestyle=linestyles["rss"], label=legend[neuron], ecolor='gray', capsize=2, linewidth=2, marker='o', markersize=4)
-            #print("mem for neuron " + neuron + " = " + str(_y) + ", std dev = " + str(_y_std))
+            print("mem for neuron " + neuron + " = " + str(_y) + ", std dev = " + str(_y_std))
 
             if abs_or_rel == "abs":
                 _ax.set_yscale('log')
@@ -639,9 +643,10 @@ def read_isis_from_files(neuron_models):
             rank = 0
             while True:
                 filename = "timings_strong_scaling_mpi/isi_distribution_[simulated_neuron=" + neuron_model + "]_[network_scale=" + str(MPI_WEAK_SCALE_NEURONS) + "]_[iteration=" + str(iteration) + "]_[nodes=" + str(nodes) + "]_[threads=" + str(threads) + "]_[rank=" + str(rank) + "]_isi_list.txt" # XXX update MPI_WEAK_SCALE_NEURONS
-                print("Reading ISIs from: " + os.path.join(output_folder, filename))
                 if not os.path.exists(os.path.join(output_folder, filename)):
                     break
+
+                print("Reading ISIs from: " + os.path.join(output_folder, filename))
 
                 with open(os.path.join(output_folder, filename), 'r') as file:
                     isis = [float(line.strip()) for line in file]
