@@ -1264,7 +1264,10 @@ class ASTUtils:
                 continue
 
             for var_name in solver_dict["state_variables"]:
-                var_name_base = var_name.split("__X__")[0]
+                if var_name == var:
+                    return True
+
+                var_name_base = var_name.split("__conv__")[0]
                 if var_name_base == var:
                     return True
 
@@ -1288,7 +1291,7 @@ class ASTUtils:
         Check if a variable by this name (in ode-toolbox style) is defined in the ode-toolbox solver results
         """
 
-        var_name_base = var_name.split("__X__")[0]
+        var_name_base = var_name.split("__conv__")[0]
         var_name_base = var_name_base.split("__d")[0]
         var_name_base = var_name_base.replace("__DOLLAR", "$")
 
@@ -1332,7 +1335,7 @@ class ASTUtils:
                 continue
 
             for var_name in solver_dict["state_variables"]:
-                var_name_base = var_name.split("__X__")[0]
+                var_name_base = var_name.split("__conv__")[0]
                 var_name_base = var_name_base.split("__d")[0]
                 if var_name_base == kernel_var:
                     order = max(order, var_name.count("__d") + 1)
@@ -1368,7 +1371,7 @@ class ASTUtils:
     @classmethod
     def all_convolution_variable_names(cls, model: ASTModel) -> List[str]:
         vars = ASTUtils.all_variables_defined_in_block(model.get_state_blocks())
-        var_names = [var.get_complete_name() for var in vars if "__X__" in var.get_complete_name()]
+        var_names = [var.get_complete_name() for var in vars if "__conv__" in var.get_complete_name()]
         return var_names
 
     @classmethod
@@ -1954,7 +1957,7 @@ class ASTUtils:
     @classmethod
     def replace_convolve_calls_with_buffers_(cls, model: ASTModel, equations_block: ASTEquationsBlock) -> None:
         r"""
-        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
+        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__conv__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
         """
 
         def replace_function_call_through_var(_expr=None):
