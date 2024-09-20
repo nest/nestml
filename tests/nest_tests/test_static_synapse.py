@@ -47,7 +47,11 @@ class TestStaticSynapse:
         generate_nest_target(input_path=input_path,
                              logging_level="DEBUG",
                              module_name="nestmlmodule",
-                             suffix="_nestml")
+                             suffix="_nestml",
+                             codegen_opts={"delay_variable": {"static_synapse": "d",
+                                                              "noisy_synapse": "d"},
+                                           "weight_variable": {"static_synapse": "w",
+                                                               "noisy_synapse": "w"}})
 
     @pytest.mark.parametrize("synapse_model_name", ["static_synapse_nestml", "noisy_synapse_nestml"])
     def test_static_synapse(self, synapse_model_name: str):
@@ -81,6 +85,7 @@ class TestStaticSynapse:
         V_m_before_sim = post_neuron.V_m
 
         syn = nest.GetConnections(source=pre_neuron, synapse_model="syn_nestml_rec")
+        assert syn.weight == 1.
 
         nest.Simulate(sim_time)
 

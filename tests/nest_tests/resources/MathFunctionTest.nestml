@@ -34,6 +34,9 @@ model math_function_test:
         floor_state real = 0.
         round_state real = 0.
         abs_state real = 0.
+        cos_state real = 0.
+        sin_state real = 0.
+        tan_state real = 0.
 
     update:
         ln_state = ln(x)
@@ -44,4 +47,7 @@ model math_function_test:
         floor_state = floor(x / 10.)
         round_state = round(x / 10.)
         abs_state = abs(x)
+        cos_state = cos(x)
+        sin_state = sin(x)
+        tan_state = tan(x)
         x = x + 1.

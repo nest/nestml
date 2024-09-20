@@ -38,6 +38,7 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.string_utils import removesuffix
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -52,6 +53,22 @@ class SynapsePostNeuronTransformer(Transformer):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Transformer, self).__init__(options)
+        self._copy_custom_options(options)
+
+    def _copy_custom_options(self, options):
+        if options:
+            if "delay_variable" in options:
+                self._options["delay_variable"] = options["delay_variable"].copy()
+
+            if "weight_variable" in options:
+                self._options["weight_variable"] = options["weight_variable"].copy()
+
+    def set_options(self, options: Mapping[str, Any]) -> Mapping[str, Any]:
+        r"""Set options. "Eats off" any options that it knows how to set, and returns the rest as "unhandled" options."""
+        unused_options = super().set_options(options)
+        self._copy_custom_options(options)
+
+        return unused_options
 
     def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
         """
@@ -172,7 +189,7 @@ class SynapsePostNeuronTransformer(Transformer):
                         found_parent_assignment = False
                         node_ = node
                         while not found_parent_assignment:
-                            node_ = self.parent_node.get_parent(node_)
+                            node_ = node_.get_parent()
                             # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                             if isinstance(node_, ASTInlineExpression):
                                 found_parent_assignment = True
@@ -206,7 +223,6 @@ class SynapsePostNeuronTransformer(Transformer):
                 symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
                 assert symbol is not None  # should have been checked in a CoCo before
                 self._variable_names.append(node.get_variable().get_name())
-                # print("-------> adding " + node.get_variable().get_name())
 
         if node is None:
             return []
@@ -225,6 +241,10 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron = neuron.clone()
         new_synapse = synapse.clone()
 
+        new_neuron.parent_ = None    # set root element
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.parent_ = None    # set root element
+        new_synapse.accept(ASTParentVisitor())
         new_neuron.accept(ASTSymbolTableVisitor())
         new_synapse.accept(ASTSymbolTableVisitor())
 
@@ -262,6 +282,12 @@ class SynapsePostNeuronTransformer(Transformer):
         # exclude certain variables from being moved:
         # exclude any variable assigned to in any block that is not connected to a postsynaptic port
         strictly_synaptic_vars = ["t"]      # "seed" this with the predefined variable t
+        if self.option_exists("delay_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("delay_variable").keys() and self.get_option("delay_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
+            strictly_synaptic_vars.append(self.get_option("delay_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
+
+        if self.option_exists("weight_variable") and removesuffix(synapse.get_name(), FrontendConfiguration.suffix) in self.get_option("weight_variable").keys() and self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)]:
+            strictly_synaptic_vars.append(self.get_option("weight_variable")[removesuffix(synapse.get_name(), FrontendConfiguration.suffix)])
+
         for input_block in new_synapse.get_input_blocks():
             for port in input_block.get_input_ports():
                 if not self.is_post_port(port.name, neuron.name, synapse.name):
@@ -302,7 +328,11 @@ class SynapsePostNeuronTransformer(Transformer):
         #   collect all the parameters
         #
 
-        all_declared_params = [s.get_variables() for s in new_synapse.get_parameters_blocks()[0].get_declarations()]
+        if new_synapse.get_parameters_blocks():
+            all_declared_params = [s.get_variables() for s in new_synapse.get_parameters_blocks()[0].get_declarations()]
+        else:
+            all_declared_params = []
+
         all_declared_params = sum(all_declared_params, [])
         all_declared_params = [var.name for var in all_declared_params]
 
@@ -336,18 +366,6 @@ class SynapsePostNeuronTransformer(Transformer):
         # XXX: TODO
 
         #
-        #   move state variable declarations from synapse to neuron
-        #
-
-        for state_var in syn_to_neuron_state_vars:
-            decls = ASTUtils.move_decls(state_var,
-                                        neuron.get_state_blocks()[0],
-                                        synapse.get_state_blocks()[0],
-                                        var_name_suffix,
-                                        block_type=BlockType.STATE)
-            ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
-
-        #
         #   move defining equations for variables from synapse to neuron
         #
 
@@ -366,6 +384,7 @@ class SynapsePostNeuronTransformer(Transformer):
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
                                None, LoggingLevel.INFO)
+            # move the ODE so a solver will be generated for it by ODE-toolbox
             decls = ASTUtils.equations_from_block_to_block(state_var,
                                                            new_synapse.get_equations_blocks()[0],
                                                            new_neuron.get_equations_blocks()[0],
@@ -373,10 +392,15 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            mode="move")
             ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
+            # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
+            # for now, moved variables are integrated separately in time in set_spiketime()
 
         #
         #    move initial values for equations
         #
+
+        if syn_to_neuron_state_vars and not new_neuron.get_state_blocks():
+            ASTUtils.create_state_block(new_neuron)
 
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var),
@@ -439,10 +463,10 @@ class SynapsePostNeuronTransformer(Transformer):
 
                                 collected_on_post_stmts.append(stmt)
 
-                                stmt.scope = new_neuron.get_update_blocks()[0].scope
-                                stmt.small_stmt.scope = new_neuron.get_update_blocks()[0].scope
-                                stmt.small_stmt.get_assignment().scope = new_neuron.get_update_blocks()[0].scope
-                                stmt.small_stmt.get_assignment().get_variable().scope = new_neuron.get_update_blocks()[0].scope
+                                stmt.scope = new_neuron.scope
+                                stmt.small_stmt.scope = new_neuron.scope
+                                stmt.small_stmt.get_assignment().scope = new_neuron.scope
+                                stmt.small_stmt.get_assignment().get_variable().scope = new_neuron.scope
 
                         for stmt in collected_on_post_stmts:
                             stmts.pop(stmts.index(stmt))
@@ -460,7 +484,7 @@ class SynapsePostNeuronTransformer(Transformer):
         #
 
         Logger.log_message(
-            None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with suffixed external variable references", None, LoggingLevel.INFO)
+            None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with external variable references", None, LoggingLevel.INFO)
         post_connected_continuous_input_ports = []
         post_variable_names = []
         for input_block in synapse.get_input_blocks():
@@ -472,12 +496,14 @@ class SynapsePostNeuronTransformer(Transformer):
 
         for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, "",
-                                                    new_synapse.get_equations_blocks()[0], alternate_name)
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_synapse.get_equations_blocks()[0].get_scope(), alternate_name)
 
         #
         #    copy parameters
         #
+
+        if not new_neuron.get_parameters_blocks():
+            ASTUtils.create_parameters_block(new_neuron)
 
         Logger.log_message(None, -1, "Copying parameters from synapse to neuron...", None, LoggingLevel.INFO)
         for param_var in syn_to_neuron_params:
@@ -504,12 +530,16 @@ class SynapsePostNeuronTransformer(Transformer):
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
         #
 
+        # make sure the moved symbols can be resolved in the scope of the neuron (that's where ``ASTExternalVariable._altscope`` will be pointing to)
+        ast_symbol_table_visitor = ASTSymbolTableVisitor()
+        ast_symbol_table_visitor.after_ast_rewrite_ = True
+        new_neuron.accept(ast_symbol_table_visitor)
+
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(
-                state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks()[0])
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks()[0].get_scope())
 
         #
         #     rename neuron
@@ -519,7 +549,6 @@ class SynapsePostNeuronTransformer(Transformer):
 
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
         new_neuron.set_name(new_neuron_name)
-        new_neuron.paired_synapse = new_synapse
 
         #
         #    rename synapse
@@ -529,6 +558,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse.set_name(new_synapse_name)
         new_synapse.paired_neuron = new_neuron
         new_neuron.paired_synapse = new_synapse
+        new_neuron.paired_synapse_original_model = synapse
 
         base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
         base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
@@ -541,6 +571,8 @@ class SynapsePostNeuronTransformer(Transformer):
         #    add modified versions of neuron and synapse to list
         #
 
+        new_neuron.accept(ASTParentVisitor())
+        new_synapse.accept(ASTParentVisitor())
         ast_symbol_table_visitor = ASTSymbolTableVisitor()
         ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)

@@ -24,6 +24,8 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope, ScopeType
@@ -278,8 +280,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
-        init_value = node.get_expression(
-        ) if self.block_type_stack.top() == BlockType.STATE else None
+        init_value = node.get_expression() if self.block_type_stack.top() in [BlockType.STATE, BlockType.PARAMETERS, BlockType.INTERNALS] else None
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []
@@ -302,6 +303,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
             type_symbol = PredefinedTypes.get_type(type_name)
             vector_parameter = var.get_vector_parameter()
+            if vector_parameter:
+                vector_parameter.update_scope(node.get_scope())
+
             symbol = VariableSymbol(element_reference=node,
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
@@ -461,18 +465,18 @@ class ASTSymbolTableVisitor(ASTVisitor):
         elif node.is_variable() or node.has_unit():
             assert node.get_scope() is not None
             node.get_variable().update_scope(node.get_scope())
-            if node.get_variable().get_vector_parameter() is not None:
+            if node.get_variable().has_vector_parameter():
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
-        if node.get_vector_parameter() is not None:
+        if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
+            node.get_vector_parameter().accept(self)
 
-    def visit_inline_expression(self, node):
+    def visit_inline_expression(self, node: ASTInlineExpression):
         """
-        Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
+        Private method: Used to visit a single inline expression, create the corresponding symbol and update the scope.
         :param node: a single inline expression.
-        :type node: ASTInlineExpression
         """
 
         # split the decorators in the AST up into namespace decorators and other decorators
@@ -592,6 +596,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.is_continuous() and node.has_datatype():
             type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
+        if node.has_size_parameter():
+            if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
+                node.get_size_parameter().update_scope(node.get_scope())
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
                                 is_predefined=False, is_inline_expression=False, is_recordable=False,

@@ -32,8 +32,8 @@ model neuromodulated_stdp_synapse:
         post_tr real = 0.
 
     parameters:
-        d ms = 1 ms  @nest::delay   # Synaptic transmission delay
-        tau_tr_pre ms = 20 ms   # STDP time constant for weight changes caused by pre-before-post spike pairings.
+        d ms = 1 ms    # Synaptic transmission delay
+        tau_tr_pre ms = 20 ms    # STDP time constant for weight changes caused by pre-before-post spike pairings.
         tau_tr_post ms = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
         tau_c ms = 1000 ms    # Time constant of eligibility trace
         tau_n ms = 200 ms   # Time constant of dopaminergic trace

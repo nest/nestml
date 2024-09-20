@@ -71,6 +71,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
@@ -130,6 +131,11 @@ class ModelParser:
         # create a new visitor and return the new AST
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
+
+        # create links back from children in the tree to their parents
+        for model in ast.get_model_list():
+            model.parent_ = None   # root node has no parent
+            model.accept(ASTParentVisitor())
 
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())

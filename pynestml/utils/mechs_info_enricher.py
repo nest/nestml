@@ -19,14 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ast_model import ASTModel
-from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.symbols.predefined_functions import PredefinedFunctions
 from collections import defaultdict
+
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.utils.model_parser import ModelParser
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
 
 
 class MechsInfoEnricher:
@@ -117,6 +119,8 @@ class MechsInfoEnricher:
                                     mechanism_info["time_resolution_var"] = variable
 
                     mechanism_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
+
+        neuron.accept(ASTParentVisitor())
 
         return mechs_info
 

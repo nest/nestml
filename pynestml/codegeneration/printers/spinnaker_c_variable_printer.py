@@ -63,6 +63,9 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
 
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "REAL_CONST(3.14159)"
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -76,7 +79,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -113,24 +116,6 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
             return "get_delayed_" + variable.get_name() + "()"
 
         return ""
-
-    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
-        """
-        Converts the vector parameter into SPINNAKER processable format
-        :param variable:
-        :return:
-        """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = vector_parameter.get_variable()
-        if vector_parameter_var:
-            vector_parameter_var.scope = variable.get_scope()
-
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                        SymbolKind.VARIABLE)
-            if symbol and symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-
-        return self._expression_printer.print(vector_parameter)
 
     def _print_buffer_value(self, variable: ASTVariable) -> str:
         """

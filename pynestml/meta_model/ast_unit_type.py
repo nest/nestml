@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.cloning_helpers import clone_numeric_literal
 
@@ -177,44 +179,32 @@ class ASTUnitType(ASTNode):
     def set_type_symbol(self, type_symbol):
         self.type_symbol = type_symbol
 
-    def get_parent(self, ast):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param ast: an arbitrary meta_model node.
-        :type ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        :return: List of children of this node.
         """
         if self.is_encapsulated:
-            if self.compound_unit is ast:
-                return self
-            if self.compound_unit.get_parent(ast) is not None:
-                return self.compound_unit.get_parent(ast)
+            return [self.compound_unit]
 
         if self.is_pow:
-            if self.base is ast:
-                return self
-            if self.base.get_parent(ast) is not None:
-                return self.base.get_parent(ast)
-        if self.is_arithmetic_expression():
-            if isinstance(self.get_lhs(), ASTUnitType):
-                if self.get_lhs() is ast:
-                    return self
-                if self.get_lhs().get_parent(ast) is not None:
-                    return self.get_lhs().get_parent(ast)
-            if self.get_rhs() is ast:
-                return self
-            if self.get_rhs().get_parent(ast) is not None:
-                return self.get_rhs().get_parent(ast)
-        return None
+            return [self.base]
 
-    def equals(self, other):
-        """
-        The equals method.
-        :param other: a different object.
-        :type other: object
-        :return: True if equal, otherwise False.
-        :rtype: bool
+        if self.is_arithmetic_expression():
+            children = []
+            if self.get_lhs() and isinstance(self.get_lhs(), ASTNode):
+                children.append(self.get_lhs())
+
+            if self.get_rhs() and isinstance(self.get_rhs(), ASTNode):
+                children.append(self.get_rhs())
+
+            return children
+
+        return []
+
+    def equals(self, other: ASTNode) -> bool:
+        r"""
+        The equality method.
         """
         if not isinstance(other, ASTUnitType):
             return False

@@ -113,7 +113,6 @@ class MessageCode(Enum):
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 82
     REPEATED_PRIORITY_VALUE = 83
     DELAY_VARIABLE = 84
-    NEST_DELAY_DECORATOR_NOT_FOUND = 85
     INPUT_PORT_SIZE_NOT_INTEGER = 86
     INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO = 87
     INSTALL_PATH_INFO = 88
@@ -1270,11 +1269,6 @@ class Messages:
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
-    def get_nest_delay_decorator_not_found(cls):
-        message = "To generate code for NEST Simulator, at least one parameter in the model should be decorated with the ``@nest::delay`` keyword."
-        return MessageCode.NEST_DELAY_DECORATOR_NOT_FOUND, message
-
-    @classmethod
     def get_input_port_size_not_integer(cls, port_name: str):
         message = "The size of the input port " + port_name + " is not of integer type."
         return MessageCode.INPUT_PORT_SIZE_NOT_INTEGER, message
@@ -1310,10 +1304,11 @@ class Messages:
         return MessageCode.INTEGRATE_ODES_WRONG_ARG, message
 
     @classmethod
-    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info):
+    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info):
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
         message += "syns_info:\n" + syns_info + "\n"
         message += "conc_info:\n" + conc_info + "\n"
+        message += "con_in_info:\n" + con_in_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message

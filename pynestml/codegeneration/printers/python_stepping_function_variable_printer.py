@@ -42,6 +42,9 @@ class PythonSteppingFunctionVariablePrinter(VariablePrinter):
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "np.e"
 
+        if node.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "np.pi"
+
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
 
         if symbol.is_state() and not symbol.is_inline_expression:

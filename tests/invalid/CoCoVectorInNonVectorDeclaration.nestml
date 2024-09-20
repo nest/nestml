@@ -36,5 +36,6 @@ model CoCoVectorInNonVectorDeclaration:
     state:
         g_ex [ten] mV = 10mV
         g_in mV = 10mV + g_ex
+
     parameters:
         ten integer = 10

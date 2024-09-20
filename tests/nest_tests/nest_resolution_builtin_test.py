@@ -46,7 +46,9 @@ class NestResolutionBuiltinTest(unittest.TestCase):
                              codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                            "neuron_parent_class_include": "structural_plasticity_node.h",
                                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test_neuron",
-                                                                     "synapse": "resolution_legally_used_synapse"}]})
+                                                                     "synapse": "resolution_legally_used_synapse"}],
+                                           "delay_variable": {"resolution_legally_used_synapse": "d"},
+                                           "weight_variable": {"resolution_legally_used_synapse": "w"}})
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")

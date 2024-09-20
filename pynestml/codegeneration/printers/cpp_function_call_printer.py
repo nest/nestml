@@ -105,6 +105,15 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.LOG10:
             return 'std::log10({!s})'
 
+        if function_name == PredefinedFunctions.COS:
+            return 'std::cos({!s})'
+
+        if function_name == PredefinedFunctions.SIN:
+            return 'std::sin({!s})'
+
+        if function_name == PredefinedFunctions.TAN:
+            return 'std::tan({!s})'
+
         if function_name == PredefinedFunctions.COSH:
             return 'std::cosh({!s})'
 

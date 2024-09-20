@@ -69,5 +69,6 @@ class ASTExternalVariable(ASTVariable):
 
     def get_scope(self):
         if self._altscope:
-            return self._altscope.get_scope()
+            return self._altscope
+
         return self.scope

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "7.0.2-post-dev"
+__version__ = "8.0.0-rc2"
 
 __all__ = ['cocos',
            'codegeneration',

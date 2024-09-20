@@ -27,12 +27,9 @@ Source code
 The model source code can be found in the NESTML models repository here: `static_synapse <https://github.com/nest/nestml/tree/master/models/synapses/static_synapse.nestml>`_.
 
 
-Characterisation
-++++++++++++++++
-
 .. include:: static_synapse_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2023-11-16 11:40:54.329827
+   Generated at 2024-05-22 14:51:14.678237

@@ -59,8 +59,8 @@ class TestNestVectorsIntegration:
         neuron = nest.Create("vectors_nestml")
         multimeter = nest.Create("multimeter")
         recordables = list()
-        recordables.extend(["G_IN_" + str(i + 1) for i in range(0, 20)])
-        recordables.extend(["G_EX_" + str(i + 1) for i in range(0, 10)])
+        recordables.extend(["G_IN_" + str(i) for i in range(0, 20)])
+        recordables.extend(["G_EX_" + str(i) for i in range(0, 10)])
         recordables.append("V_m")
         multimeter.set({"record_from": recordables})
         nest.Connect(multimeter, neuron)
@@ -68,8 +68,8 @@ class TestNestVectorsIntegration:
         nest.Simulate(2.0)
 
         events = multimeter.get("events")
-        g_in = events["G_IN_1"]
-        g_ex = events["G_EX_2"]
+        g_in = events["G_IN_0"]
+        g_ex = events["G_EX_1"]
         print("g_in: {}, g_ex: {}".format(g_in, g_ex))
         np.testing.assert_almost_equal(g_in[-1], 11.)
         np.testing.assert_almost_equal(g_ex[-1], -2.)

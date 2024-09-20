@@ -1341,9 +1341,8 @@ class ASTVisitor:
             node.get_block().accept(self.get_real_self())
 
     def traverse_variable(self, node):
-        return
-        # if node.get_vector_parameter() is not None:
-        #     node.get_vector_parameter().accept(self.get_real_self())
+        if node.get_vector_parameter() is not None:
+            node.get_vector_parameter().accept(self.get_real_self())
 
     def traverse_while_stmt(self, node):
         if node.get_condition() is not None:

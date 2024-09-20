@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.5.4
+        uses: lycheeverse/lychee-action@v1.10.0
         with:
           args: --verbose --no-progress **/*.md **/*.html **/*.rst
           fail: true
@@ -89,9 +89,9 @@ jobs:
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          wget http://www.antlr.org/download/antlr-4.10-complete.jar
+          wget http://www.antlr.org/download/antlr-4.13.1-complete.jar
           echo \#\!/bin/bash > antlr4
-          echo java -cp \"`pwd`/antlr-4.10-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo java -cp \"`pwd`/antlr-4.13.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
           echo PATH=$PATH:`pwd` >> $GITHUB_ENV
@@ -118,12 +118,76 @@ jobs:
           done;
           exit $rc
 
+  build_and_test_nest_desktop:
+    needs: [static_checks]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        nest_branch: [ "master" ]
+      fail-fast: false
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v4
+
+      # Setup Python version
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libgsl0-dev libncurses5-dev pkg-config
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle scipy
+          python -m pip install -r requirements.txt
+
+      - name: NEST simulator
+        run: |
+          python -m pip install cython
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          NEST_SIMULATOR=$(pwd)/nest-simulator
+          NEST_INSTALL=$(pwd)/nest_install
+          echo "NEST_SIMULATOR = $NEST_SIMULATOR"
+          echo "NEST_INSTALL = $NEST_INSTALL"
+
+          git clone --depth=1 https://github.com/nest/nest-simulator --branch ${{ matrix.nest_branch }}
+          mkdir nest_install
+          echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
+          cd nest_install
+          cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
+          make && make install
+          cd ..
+
+      # Install NESTML
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
+          #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
+      # Run integration tests
+      - name: Run integration tests
+        run: |
+          rc=0
+          for fn in $GITHUB_WORKSPACE/tests/nest_desktop_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+          done;
+          exit $rc
   build_and_test_nest:
     needs: [static_checks]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nest_branch: ["v2.20.2", "v3.0", "v3.7", "master"]
+        nest_branch: ["v2.20.2", "v3.0", "v3.8", "master"]
       fail-fast: false
     steps:
       # Checkout the repository contents
@@ -160,9 +224,9 @@ jobs:
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          wget http://www.antlr.org/download/antlr-4.10-complete.jar
+          wget http://www.antlr.org/download/antlr-4.13.1-complete.jar
           echo \#\!/bin/bash > antlr4
-          echo java -cp \"`pwd`/antlr-4.10-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo java -cp \"`pwd`/antlr-4.13.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
           echo PATH=$PATH:`pwd` >> $GITHUB_ENV
@@ -227,7 +291,7 @@ jobs:
           done;
           exit $rc
 
-      # Run only the nest_integration_test for the NEST versions other than master and 2.20.2
+      # Run only the nest integration tests for NEST versions other than master and 2.20.2
       - name: Run integration tests
         if: ${{ !(matrix.nest_branch == 'master' || matrix.nest_branch == 'v2.20.2') }}
         env:
@@ -242,8 +306,13 @@ jobs:
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
           for fn in $ipynb_fns; do
+              echo "Now running Jupyter notebook: ${fn}"
               cd `dirname ${fn}`
-              ipython3 ${fn} || rc=1
+              ipython3 ${fn}
+              if [ $? -ne 0 ]; then
+                  echo "Error running Jupyter notebook: ${fn}"
+                  rc=1
+              fi
           done;
           cd $GITHUB_WORKSPACE
           exit $rc

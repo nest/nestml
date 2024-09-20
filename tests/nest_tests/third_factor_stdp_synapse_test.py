@@ -50,7 +50,9 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         codegen_opts = {"neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend_neuron",
                                                   "synapse": "third_factor_stdp_synapse",
                                                   "post_ports": ["post_spikes",
-                                                                 ["I_post_dend", "I_dend"]]}]}
+                                                                 ["I_post_dend", "I_dend"]]}],
+                        "delay_variable": {"third_factor_stdp_synapse": "d"},
+                        "weight_variable": {"third_factor_stdp_synapse": "w"}}
 
         if not NESTTools.detect_nest_version().startswith("v2"):
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"

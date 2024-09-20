@@ -103,7 +103,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0],
-                                                                          LoggingLevel.ERROR)), 4)
+                                                                          LoggingLevel.ERROR)), 5)
 
     def test_valid_element_not_defined_in_scope(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -453,7 +453,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVectorParameterType.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 3)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_valid_vector_parameter_type(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -695,4 +695,4 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVectorInputPortSizeAndType.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 2)
+            Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)), 1)

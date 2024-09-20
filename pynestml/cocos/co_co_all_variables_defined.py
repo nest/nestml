@@ -96,12 +96,12 @@ class CoCoAllVariablesDefined(CoCo):
                     code, message = Messages.get_variable_not_defined(var.get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
-                    return
+                    continue
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
                 # so check if the parent is a declaration and the expression the invariant
-                expr_par = node.get_parent(expr)
+                expr_par = expr.get_parent()
                 if isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
                     # in this case its ok if it is recursive or defined later on
                     continue
