@@ -260,13 +260,13 @@ In order to model an absolute refractory state, in which the neuron cannot fire 
    update:
        if is_refractory:
            # neuron is absolute refractory, do not evolve V_m
-           refr_t -= resolution()
+           refr_t -= timestep()
            integrate_odes(I_syn)
        else:
            # neuron not refractory, so evolve all ODEs
            integrate_odes(V_m, I_syn)
 
-   onCondition(is_refractory and refr_t <= resolution() / 2):
+   onCondition(is_refractory and refr_t <= timestep() / 2):
        # end of refractory period
        refr_t = 0 ms
        is_refractory = false
