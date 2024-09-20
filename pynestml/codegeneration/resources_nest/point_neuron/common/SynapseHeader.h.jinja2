@@ -339,12 +339,6 @@ private:
 {%- endfor %}
 {%- endfilter %}
 
-{% if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-    double __gsl_error_tol;
-{%     endif %}
-{% endif %}
-
     /** Initialize parameters to their default values. */
     Parameters_() {};
   };
@@ -710,10 +704,10 @@ public:
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
     double timestep = 0;
+    std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
+    std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
     {
       // get spike history in relevant range (t1, t2] from post-synaptic neuron
-      std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
-      std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       double t0 = t_last_update_;
 {%- endif %}
@@ -732,11 +726,11 @@ public:
       // facilitation due to post-synaptic spikes since last pre-synaptic spike
       while ( start != finish )
       {
-        {%- if vt_ports is defined and vt_ports|length > 0  %}
-        {%- set vt_port = vt_ports[0] %}
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+{%-     set vt_port = vt_ports[0] %}
         process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
         t0 = start->t_ + __dendritic_delay;
-        {%- endif %}
+{%- endif %}
         const double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
         // get_history() should make sure that ``start->t_ > t_lastspike_ - dendritic_delay``, i.e. ``minus_dt < 0``
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
@@ -759,17 +753,16 @@ public:
 
         timestep += (start->t_ + __dendritic_delay) - t_lastspike_;
 
-        const double _tr_t = start->t_;
-        auto get_t = [_tr_t](){ return _tr_t; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+        const double t_hist_entry_ms = start->t_;
+        auto get_t = [t_hist_entry_ms](){ return t_hist_entry_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- filter indent(6, True) %}
+{%  filter indent(8, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
-  /**
-   *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
-  **/
-
-{%-         if synapse.get_on_receive_block(post_port) %}
+/**
+ *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+**/
+{%          if synapse.get_on_receive_block(post_port) %}
 {%-             set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-             with ast = dynamics.get_block() %}
 {%-                 include "directives_cpp/Block.jinja2" %}
@@ -802,14 +795,14 @@ public:
     const double _tr_t = __t_spike - __dendritic_delay;
 
     {
-        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+      auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 {%- filter indent(8, True) %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }}
 {%- for pre_port in pre_ports %}
-        /**
-         *  NESTML generated onReceive code block for presynaptic port "{{pre_port}}" begins here!
-        **/
-
+/**
+ *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
+**/
 {%-     if synapse.get_on_receive_block(pre_port) %}
 {%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
 {%-         with ast = dynamics.get_block() %}
@@ -819,6 +812,7 @@ public:
 {%-         endwith %}
 {%-     endif %}
 {%- endfor %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
 {%- endfilter %}
     }
 
@@ -1071,17 +1065,6 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 {%- endfor %}
 {%- endif %}
 
-{%  if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-
-  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. )
-  {
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
-  }
-{%-    endif %}
-{%  endif %}
-
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
   V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
@@ -1138,6 +1121,15 @@ template < typename targetidentifierT >
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+
+{%- if synapse_weight_variable | length > 0 %}
+{%-     set variable_symbol = synapse.get_scope().resolve_to_symbol(synapse_weight_variable, SymbolKind.VARIABLE) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
+  // special treatment of NEST weight
+  set_weight({{ printer.print(variable_symbol.get_initial_value()) }});
+{%-     endif %}
+{%- endif %}
 
   t_lastspike_ = 0.;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
@@ -1291,6 +1283,7 @@ inline void
                            cp);
 
     const double _tr_t = start->t_;
+
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}

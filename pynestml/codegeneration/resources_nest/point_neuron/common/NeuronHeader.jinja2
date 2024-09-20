@@ -119,6 +119,9 @@ namespace {{names_namespace}}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
 {%- endfor %}
 {%- endif %}
+
+    const Name gsl_abs_error_tol("gsl_abs_error_tol");
+    const Name gsl_rel_error_tol("gsl_rel_error_tol");
 }
 }
 
@@ -178,10 +181,7 @@ double {{var}},
 {%- endfor %}
 size_t access_counter )
   : t_( t )
-{%- for var in purely_numeric_state_variables_moved|sort %}
-  , {{var}}_( {{var}} )
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
+{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   , {{var}}_( {{var}} )
 {%- endfor %}
   , access_counter_( access_counter )
@@ -189,11 +189,19 @@ size_t access_counter )
   }
 
   double t_;              //!< point in time when spike occurred (in ms)
-{%- for var in purely_numeric_state_variables_moved|sort %}
-   double {{var}}_;
-{%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
-   double {{var}}_;
+{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
+  double {{var}}_;
+
+{%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
+{%-     if inline and utils.inline_aliases_convolution(inline) %}
+  double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
+{%-     else %}
+  double get_{{ var }}() const
+{%-     endif %}
+  {
+    return {{ var }}_;
+  }
+
 {%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
@@ -381,6 +389,7 @@ public:
 {%          endfor %}
 {%-     endfilter %}
 {%- endif %}
+
 {%- if paired_synapse is defined %}
 
   // -------------------------------------------------------------------------
@@ -580,7 +589,8 @@ private:
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
 
-    double __gsl_error_tol;
+    double __gsl_abs_error_tol;
+    double __gsl_rel_error_tol;
 {%-     endif %}
 {%- endif %}
 
@@ -789,7 +799,8 @@ private:
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------
-{% filter indent(2, True) -%}
+
+{%  filter indent(2, True) -%}
 {%- for equations_block in neuron.get_equations_blocks() %}
 {%-     for inline_expr in equations_block.get_inline_expressions() %}
 {%-         set variable = ast_node_factory.create_ast_variable(inline_expr.get_variable_name(), differential_order=0, scope=inline_expr.scope) %}
@@ -817,7 +828,7 @@ private:
   //   Function declarations
   // -------------------------------------------------------------------------
 
-{% filter indent(2) -%}
+{%  filter indent(2) -%}
 {%- for function in neuron.get_functions() %}
 {{ function_declaration.FunctionDeclaration(function, "") }};
 {%- endfor %}
@@ -999,9 +1010,13 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  def< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. ){
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+  def< double >(__d, nest::{{ neuronName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. ){
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  def< double >(__d, nest::{{ neuronName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. ){
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
   }
 {%-     endif %}
 {%- endif %}
@@ -1055,10 +1070,15 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 
 {% if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. )
+  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_abs_error_tol, P_.__gsl_abs_error_tol);
+  if ( P_.__gsl_abs_error_tol <= 0. )
   {
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+    throw nest::BadProperty( "The gsl_abs_error_tol must be strictly positive." );
+  }
+  updateValue< double >(__d, nest::{{ neuronName }}_names::gsl_rel_error_tol, P_.__gsl_rel_error_tol);
+  if ( P_.__gsl_rel_error_tol < 0. )
+  {
+    throw nest::BadProperty( "The gsl_rel_error_tol must be zero or positive." );
   }
 {%-     endif %}
 {%- endif %}

@@ -23,6 +23,7 @@ import numpy as np
 import os
 import pytest
 import scipy
+import scipy.signal
 
 import nest
 
@@ -58,7 +59,7 @@ class TestGapJunction:
         files = [os.path.join("models", "neurons", neuron_model + ".nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
-                             logging_level="DEBUG",
+                             logging_level="WARNING",
                              module_name="nestml_gap_" + neuron_model + "_module",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
