@@ -31,7 +31,6 @@ model wb_cond_multisyn_neuron:
         V_m mV = -65. mV # Membrane potential
         V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
         Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)  # Activation variable n for K
@@ -138,22 +137,12 @@ model wb_cond_multisyn_neuron:
         spike
 
     update:
-        if is_refractory:
-            refr_t -= resolution()
-
         V_m_old = V_m
-        integrate_odes()
+        integrate_odes()    # in this model, V_m is always integrated, regardless of refractory state
 
-    onCondition(not is_refractory and V_m > V_Tr and V_m_old > V_m):
-        # threshold crossing and maximum
+    onCondition(refr_t <= 0 ms and V_m > V_Tr and V_m_old > V_m):        # if neuron is not refractory, threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
 
     function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak nS) real:
         # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term

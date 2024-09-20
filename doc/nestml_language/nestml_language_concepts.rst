@@ -559,6 +559,9 @@ The following functions are predefined in NESTML and can be used out of the box.
    * - ``steps``
      - t
      - Convert a time into a number of simulation steps. See the section :ref:`Handling of time` for more information.
+   * - ``resolution``
+     -
+     - In the ``update`` block, or in initialising expressions, returns the current timestep taken in milliseconds. See the section :ref:`Handling of time` for more information.
    * - ``timestep``
      -
      - In the ``update`` block, returns the current timestep taken in milliseconds. See the section :ref:`Handling of time` for more information.
@@ -1104,6 +1107,7 @@ Retrieving simulation timing parameters
 
 To retrieve timing parameters from the simulator kernel, two special functions are built into NESTML:
 
+- ``resolution`` returns the current timestep taken. Can be used only inside the ``update`` block and in intialising expressions. The use of this function assumes that the simulator uses fixed resolution steps, therefore it is recommended to use ``timestep()`` instead in order to make the models more generic.
 - ``timestep`` returns the current timestep taken. Can be used only inside the ``update`` block.
 - ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
 

@@ -52,6 +52,7 @@ from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPort
 from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
+from pynestml.cocos.co_co_resolution_func_used import CoCoResolutionFuncUsed
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
@@ -329,6 +330,14 @@ class CoCosManager:
         CoCoInvariantIsBoolean.check_co_co(model)
 
     @classmethod
+    def check_resolution_func_used(cls, model: ASTModel):
+        """
+        Checks if all invariants are of type boolean.
+        :param model: a single model object.
+        """
+        CoCoResolutionFuncUsed.check_co_co(model)
+
+    @classmethod
     def check_vector_in_non_vector_declaration_detected(cls, model: ASTModel):
         """
         Checks if no declaration a vector value is added to a non vector one.
@@ -451,4 +460,5 @@ class CoCosManager:
         cls.check_vector_declaration_size(model)
         cls.check_co_co_priorities_correctly_specified(model)
         cls.check_resolution_func_legally_used(model)
+        cls.check_resolution_func_used(model)
         cls.check_input_port_size_type(model)

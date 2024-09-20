@@ -130,6 +130,7 @@ class MessageCode(Enum):
     SYNS_BAD_BUFFER_COUNT = 107
     CM_NO_V_COMP = 108
     MECHS_DICTIONARY_INFO = 109
+    RESOLUTION_FUNC_USED = 110
 
 
 class Messages:
@@ -1312,3 +1313,8 @@ class Messages:
         message += "con_in_info:\n" + con_in_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message
+
+    @classmethod
+    def get_resolution_func_used(cls):
+        message = "Model contains a call to the ``resolution()`` function. This restricts the model to being compatible only with fixed-timestep simulators. Consider using ``timestep()`` instead."
+        return MessageCode.RESOLUTION_FUNC_USED, message
