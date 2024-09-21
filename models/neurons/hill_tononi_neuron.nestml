@@ -37,7 +37,6 @@ References
 model hill_tononi_neuron:
     state:
         potassium_refr_t ms = 0 ms
-        is_refractory boolean = false
         g_spike boolean = false
 
         V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
@@ -86,6 +85,7 @@ model hill_tononi_neuron:
         # The spike current is only activate immediately after a spike.
         inline I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike * ms : 0 mV
         V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
+        potassium_refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``potassium_refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
         #############
         # Intrinsic currents
@@ -192,14 +192,14 @@ model hill_tononi_neuron:
         spike
 
     update:
-        if is_refractory:
-            # neuron is absolute refractory, do not evolve ODEs
-            potassium_refr_t -= resolution()
+        if potassium_refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(potassium_refr_t)
         else:
-            # neuron not refractory, so evolve all ODEs
-            integrate_odes()
+            # neuron not refractory
+            integrate_odes(V_m, Theta, IKNa_D, IT_m, IT_h, Ih_m)
 
-    onCondition(potassium_refr_t <= resolution() / 2):
+    onCondition(potassium_refr_t <= 0):
         # Deactivate potassium current after spike time have expired
         g_spike = false # Deactivate potassium current.
 
@@ -211,10 +211,11 @@ model hill_tononi_neuron:
         # Activate fast potassium current. Drives the
         # membrane potential towards the potassium reversal
         # potential (activate only if duration is non-zero).
-        if is_refractory:
+        if potassium_refr_t >= 0 ms:
             g_spike = true
         else:
             g_spike = false
+
         potassium_refr_t = t_spike
 
         emit_spike()
