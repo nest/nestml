@@ -1,0 +1,52 @@
+"""
+test_plasticity_dynamics_neuron.nestml
+#######################################
+
+Dummy test neuron for plasticity dynamics test.
+
+Will parrot spikes received on the ``spikes_parrot`` port.
+
+Has a dummy, second ``spikes_plastic`` port to support STDP-like plastic synapses.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+model test_plasticity_dynamics_neuron:
+    state:
+        dummys real = 0
+
+    parameters:
+        dummyp real = 0
+
+    equations:
+        dummys' = 0 / 1 ms
+
+    input:
+        spikes_parrot <- spike
+        spikes_plastic <- spike
+
+    output:
+        spike
+
+    update:
+        integrate_odes()
+        if spikes_parrot * 1 s != 0:
+            emit_spike()

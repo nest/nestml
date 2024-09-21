@@ -29,11 +29,10 @@ class SymbolTable:
     This class is used to store a single symbol table, consisting of scope and symbols.
 
     Attributes:
-        name2neuron_scope A dict from the name of a neuron to the corresponding scope. Type str->Scope
+        name2model_scope A dict from the name of a model to the corresponding scope. Type str->Scope
         source_position The source position of the overall compilation unit. Type ASTSourceLocation
     """
-    name2neuron_scope = {}   # type: Mapping[str, Scope]
-    name2synapse_scope = {}
+    name2model_scope = {}   # type: Mapping[str, Scope]
     source_location = None
 
     @classmethod
@@ -42,13 +41,12 @@ class SymbolTable:
         Standard initializer.
         """
         cls.source_location = source_position
-        cls.name2neuron_scope = {}
-        cls.name2synapse_scope = {}
+        cls.name2model_scope = {}
 
     @classmethod
-    def add_neuron_scope(cls, name, scope):
+    def add_model_scope(cls, name, scope):
         """
-        Adds a single neuron scope to the set of stored scopes.
+        Adds a single model scope to the set of stored scopes.
         :return: a single scope element.
         :rtype: Scope
         """
@@ -58,47 +56,19 @@ class SymbolTable:
             '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
         assert isinstance(name, str), \
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(name)
-        if name not in cls.name2neuron_scope.keys():
-            cls.name2neuron_scope[name] = scope
+        if name not in cls.name2model_scope.keys():
+            cls.name2model_scope[name] = scope
         return
 
     @classmethod
-    def delete_neuron_scope(cls, name):
+    def delete_model_scope(cls, name):
         """
-        Deletes a single neuron scope from the set of stored scopes.
+        Deletes a single model scope from the set of stored scopes.
         :return: the name of the scope to delete.
         :rtype: Scope
         """
-        if name in cls.name2neuron_scope.keys():
-            del cls.name2neuron_scope[name]
-        return
-
-    @classmethod
-    def add_synapse_scope(cls, name, scope):
-        """
-        Adds a single synapse scope to the set of stored scopes.
-        :return: a single scope element.
-        :rtype: Scope
-        """
-        assert isinstance(scope, Scope), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!' % type(scope)
-        assert (scope.get_scope_type() == ScopeType.GLOBAL), \
-            '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
-        assert isinstance(name, str), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(name)
-        if name not in cls.name2synapse_scope.keys():
-            cls.name2synapse_scope[name] = scope
-        return
-
-    @classmethod
-    def delete_synapse_scope(cls, name):
-        """
-        Deletes a single synapse scope from the set of stored scopes.
-        :return: the name of the scope to delete.
-        :rtype: Scope
-        """
-        if name in cls.name2synapse_scope.keys():
-            del cls.name2synapse_scope[name]
+        if name in cls.name2model_scope.keys():
+            del cls.name2model_scope[name]
         return
 
     @classmethod
@@ -106,10 +76,8 @@ class SymbolTable:
         """
         Deletes all entries as stored in the symbol table.
         """
-        del cls.name2neuron_scope
-        cls.name2neuron_scope = {}
-        del cls.name2synapse_scope
-        cls.name2synapse_scope = {}
+        del cls.name2model_scope
+        cls.name2model_scope = {}
 
     @classmethod
     def print_symbol_table(cls) -> str:
@@ -117,12 +85,8 @@ class SymbolTable:
         Prints the content of this symbol table.
         """
         ret = ''
-        for _name in cls.name2neuron_scope.keys():
+        for _name in cls.name2model_scope.keys():
             ret += '--------------------------------------------------\n'
             ret += _name + ':\n'
-            ret += cls.name2neuron_scope[_name].print_scope()
-        for _name in cls.name2synapse_scope.keys():
-            ret += '--------------------------------------------------\n'
-            ret += _name + ':\n'
-            ret += cls.name2synapse_scope[_name].print_scope()
+            ret += cls.name2model_scope[_name].print_scope()
         return ret

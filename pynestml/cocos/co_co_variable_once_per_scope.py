@@ -18,7 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_model import ASTModel
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -30,23 +33,20 @@ class CoCoVariableOncePerScope(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks if each variable is defined at most once per scope. Obviously, this test does not check if a declaration
         is shadowed by an embedded scope.
-        :param node: a single neuron
-        :type node: ast_neuron
+        :param node: a single model
         """
         cls.__check_scope(node, node.get_scope())
 
     @classmethod
-    def __check_scope(cls, neuron, scope):
+    def __check_scope(cls, neuron: ASTModel, scope: Scope):
         """
         Checks a single scope and proceeds recursively.
         :param neuron: a single neuron object, required for correct printing of messages.
-        :type neuron: ast_neuron
         :param scope: a single scope to check.
-        :type scope: Scope
         """
         checked = list()
         for sym1 in scope.get_symbols_in_this_scope():

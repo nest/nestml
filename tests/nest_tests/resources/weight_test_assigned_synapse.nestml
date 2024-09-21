@@ -1,0 +1,18 @@
+"""
+weight_test_assigned_synapse
+###########################
+"""
+model weight_test_assigned_synapse:
+  state:
+    w real = 1    # Synaptic weight
+    d ms = 1 ms    # Synaptic transmission delay
+
+  input:
+    pre_spikes <- spike
+
+  output:
+    spike
+
+  onReceive(pre_spikes):
+    w = 2
+    emit_spike(w, d)

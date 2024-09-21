@@ -32,8 +32,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration, Inva
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
     qualifier_dev_arg, qualifier_install_path_arg
-from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -45,7 +44,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "NEST_DESKTOP", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -115,6 +114,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         }, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
 
+    if target_name.upper() == "NEST_DESKTOP":
+        from pynestml.codegeneration.nest_desktop_code_generator import NESTDesktopCodeGenerator
+        return NESTDesktopCodeGenerator(options)
+
     if target_name.upper() == "NEST_COMPARTMENTAL":
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         return NESTCompartmentalCodeGenerator()
@@ -129,17 +132,14 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    # cannot reach here due to earlier assert -- silence
+    # cannot reach here due to earlier assert -- silence static checker warnings
     assert "Unknown code generator requested: " + target_name
-    # static checker warnings
 
 
 def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
-    from pynestml.frontend.pynestml_frontend import get_known_targets
 
-    assert target_name.upper() in get_known_targets(
-    ), "Unknown target platform requested: \"" + str(target_name) + "\""
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
     if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
@@ -150,6 +150,12 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     if target_name.upper() == "SPINNAKER":
         from pynestml.codegeneration.spinnaker_builder import SpiNNakerBuilder
         builder = SpiNNakerBuilder(options)
+        remaining_options = builder.set_options(options)
+        return builder, remaining_options
+
+    if target_name.upper() == "AUTODOC":
+        from pynestml.codegeneration.autodoc_builder import AutodocBuilder
+        builder = AutodocBuilder(options)
         remaining_options = builder.set_options(options)
         return builder, remaining_options
 
@@ -387,7 +393,7 @@ def get_parsed_models():
 
     Returns
     -------
-    models: Sequence[Union[ASTNeuron, ASTSynapse]]
+    models: Sequence[ASTModel]
         List of correctly parsed models
     errors_occurred : bool
         Flag indicating whether errors occurred during processing
@@ -406,7 +412,7 @@ def get_parsed_models():
         nestml_files = [nestml_files]
 
     for nestml_file in nestml_files:
-        parsed_unit = ModelParser.parse_model(nestml_file)
+        parsed_unit = ModelParser.parse_file(nestml_file)
         if parsed_unit is None:
             # Parsing error in the NESTML model, return True
             return [],  True
@@ -414,11 +420,10 @@ def get_parsed_models():
         compilation_units.append(parsed_unit)
 
     if len(compilation_units) > 0:
-        # generate a list of all neurons + synapses
-        models: Sequence[Union[ASTNeuron, ASTSynapse]] = []
+        # generate a list of all models
+        models: Sequence[ASTModel] = []
         for compilationUnit in compilation_units:
-            models.extend(compilationUnit.get_neuron_list())
-            models.extend(compilationUnit.get_synapse_list())
+            models.extend(compilationUnit.get_model_list())
 
         # check that no models with duplicate names have been defined
         CoCosManager.check_no_duplicate_compilation_unit_names(models)

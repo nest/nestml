@@ -22,7 +22,6 @@
 import numpy as np
 import os
 import pytest
-import unittest
 
 import nest
 
@@ -48,27 +47,29 @@ class TestHomogeneousParametersSynapse:
     @pytest.fixture(scope="module", autouse=True)
     def setUp(self):
         r"""generate code for neuron and synapse and build NEST user module"""
-        files = [os.path.join("models", "neurons", "iaf_psc_exp.nestml"),
+        files = [os.path.join("models", "neurons", "iaf_psc_exp_neuron.nestml"),
                  os.path.join("tests", "nest_tests", "resources", "homogeneous_parameters_synapse.nestml")]
         input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, s))) for s in files]
         generate_nest_target(input_path=input_path,
                              logging_level="INFO",
                              module_name="nestmlmodule",
-                             suffix="_nestml")
+                             suffix="_nestml",
+                             codegen_opts={"delay_variable": {"static_synapse": "d"},
+                                           "weight_variable": {"static_synapse": "w"}})
 
     def test_homogeneous_parameters_synapse(self):
 
-        fname_snip = ""
-
         sim_time = 50.
         synapse_model_name = "static_synapse_nestml"
-        neuron_model_name = "iaf_psc_exp_nestml"
+        neuron_model_name = "iaf_psc_exp_neuron_nestml"
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.SetKernelStatus({"resolution": .1})
         nest.Install("nestmlmodule")
+
+        nest.CopyModel(synapse_model_name, "my_synapse_model", {"w": 1., "a": 42.})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -78,7 +79,7 @@ class TestHomogeneousParametersSynapse:
         post_neuron = nest.Create(neuron_model_name)
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one")
-        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": synapse_model_name})
+        nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={"synapse_model": "my_synapse_model"})
 
         V_m_before_sim = post_neuron.V_m
 

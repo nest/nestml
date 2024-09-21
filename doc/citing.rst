@@ -9,6 +9,8 @@ In general, please cite the software release that you are using. In case you wis
 Software releases
 -----------------
 
+Charl A.P. Linssen, Pooja N. Babu, Bernhard Rumpe and Abigail Morrison (2024). **NESTML 7.0.1.** Zenodo. `doi:10.5281/zenodo.10966350 <https://doi.org/10.5281/zenodo.10966350>`_.
+
 Charl A.P. Linssen, Pooja N. Babu, Jochen M. Eppler, Leander Ewert, Krzysztof Blaszczyk, Willem Wybo, Beck Strohmer, Bernhard Rumpe and Abigail Morrison (2023). **NESTML 7.0.0.** Zenodo. `doi:10.5281/zenodo.10125416 <https://doi.org/10.5281/zenodo.10125416>`_.
 
 Charl A.P. Linssen, Pooja N. Babu, Levin Schmidt, Tom Tetzlaff, Maryada, Mohamed Ayssar Benelhedi, Jochen M. Eppler, Bernhard Rumpe and Abigail Morrison (2023). **NESTML 6.0.0.** Zenodo. `doi:10.5281/zenodo.8380365 <https://doi.org/10.5281/zenodo.8380365>`_.

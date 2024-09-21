@@ -48,7 +48,7 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
             # context dependent; we assume the template contains the necessary definitions
-            return 'neuron->this_h'
+            return 'parameter->__h'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             raise Exception("time_steps() function not yet implemented")
@@ -62,9 +62,6 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);\n' \
                    'send_spike(timer_count, time, neuron_index)'
-
-        if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return "// Probably dont need to actively deliver spike"
 
         return super().print_function_call(node)
 
@@ -105,6 +102,15 @@ class SpinnakerCFunctionCallPrinter(FunctionCallPrinter):
 
         if function_name == PredefinedFunctions.LOG10:
             return '(kdivk(logk({!s}), REAL_CONST(2.303)))'
+
+        if function_name == PredefinedFunctions.COS:
+            return 'cos({!s})'
+
+        if function_name == PredefinedFunctions.SIN:
+            return 'sin({!s})'
+
+        if function_name == PredefinedFunctions.TAN:
+            return 'tan({!s})'
 
         if function_name == PredefinedFunctions.COSH:
             return '(HALF * (expk({!s}) + expk(-{!s})))'

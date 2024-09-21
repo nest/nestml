@@ -74,6 +74,9 @@ class PythonVariablePrinter(VariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "math.e"
 
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "math.pi"
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -87,7 +90,7 @@ class PythonVariablePrinter(VariablePrinter):
 
         vector_param = ""
         if self.with_vector_parameter and symbol.has_vector_parameter():
-            vector_param = "[" + self._print_vector_parameter_name_reference(variable) + "]"
+            vector_param = "[" + self._expression_printer.print(variable.get_vector_parameter()) + "]"
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -125,24 +128,6 @@ class PythonVariablePrinter(VariablePrinter):
             if symbol.is_state() and symbol.has_delay_parameter():
                 return "get_delayed_" + variable.get_name() + "()"
         return ""
-
-    def _print_vector_parameter_name_reference(self, variable: ASTVariable) -> str:
-        """
-        Converts the vector parameter into Python format
-        :param variable:
-        :return:
-        """
-        vector_parameter = variable.get_vector_parameter()
-        vector_parameter_var = vector_parameter.get_variable()
-        if vector_parameter_var:
-            vector_parameter_var.scope = variable.get_scope()
-
-            symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
-                                                                        SymbolKind.VARIABLE)
-            if symbol and symbol.block_type == BlockType.LOCAL:
-                return symbol.get_symbol_name()
-
-        return self._expression_printer.print(vector_parameter)
 
     def _print(self, variable, symbol, with_origin: bool = True) -> str:
         variable_name = PythonVariablePrinter._print_python_name(variable.get_complete_name())
