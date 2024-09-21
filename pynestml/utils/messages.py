@@ -131,6 +131,7 @@ class MessageCode(Enum):
     CM_NO_V_COMP = 108
     MECHS_DICTIONARY_INFO = 109
     RESOLUTION_FUNC_USED = 110
+    TIMESTEP_FUNCTION_LEGALLY_USED = 111
 
 
 class Messages:
@@ -1315,6 +1316,11 @@ class Messages:
         return MessageCode.MECHS_DICTIONARY_INFO, message
 
     @classmethod
-    def get_resolution_func_used(cls):
-        message = "Model contains a call to the ``resolution()`` function. This restricts the model to being compatible only with fixed-timestep simulators. Consider using ``timestep()`` instead."
+    def get_fixed_timestep_func_used(cls):
+        message = "Model contains a call to fixed-timestep functions (``resolution()`` and/or ``steps()``). This restricts the model to being compatible only with fixed-timestep simulators. Consider eliminating ``resolution()`` and ``steps()`` from the model, and using ``timestep()`` instead."
         return MessageCode.RESOLUTION_FUNC_USED, message
+
+    @classmethod
+    def get_timestep_function_legally_used(cls):
+        message = "``timestep()`` function may appear only inside the ``update`` block."
+        return MessageCode.TIMESTEP_FUNCTION_LEGALLY_USED, message

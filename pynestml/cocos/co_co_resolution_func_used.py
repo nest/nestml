@@ -28,9 +28,9 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoResolutionFuncUsed(CoCo):
+class CoCoResolutionOrStepsFuncUsed(CoCo):
     r"""
-    This Coco emits a warning in case the ``resolution()`` predefined function is used.
+    This Coco emits a warning in case the ``resolution()`` or ``steps()`` predefined function is used.
     """
 
     @classmethod
@@ -39,17 +39,16 @@ class CoCoResolutionFuncUsed(CoCo):
         Checks the coco.
         :param model: a single neuron
         """
-        visitor = CoCoResolutionFuncUsedVisitor()
+        class CoCoResolutionOrStepsFuncUsedVisitor(ASTVisitor):
+            def visit_simple_expression(self, node):
+                if node.get_function_call() is None:
+                    return
+
+                function_name = node.get_function_call().get_name()
+                if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_STEPS]:
+                    code, message = Messages.get_fixed_timestep_func_used()
+                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.WARNING)
+
+        visitor = CoCoResolutionOrStepsFuncUsedVisitor()
         visitor.neuron = model
         model.accept(visitor)
-
-
-class CoCoResolutionFuncUsedVisitor(ASTVisitor):
-    def visit_simple_expression(self, node):
-        if node.get_function_call() is None:
-            return
-
-        function_name = node.get_function_call().get_name()
-        if function_name == PredefinedFunctions.TIME_RESOLUTION:
-            code, message = Messages.get_resolution_func_used()
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.WARNING)
