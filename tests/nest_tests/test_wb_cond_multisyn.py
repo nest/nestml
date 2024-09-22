@@ -21,7 +21,6 @@
 
 import numpy as np
 import os
-import unittest
 
 try:
     import matplotlib as mpl
@@ -38,7 +37,7 @@ from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
-class NestWBCondExpTest(unittest.TestCase):
+class TestNestWBCondExp:
 
     def test_wb_cond_multisyn(self):
 
@@ -88,8 +87,6 @@ class NestWBCondExpTest(unittest.TestCase):
 
         firing_rate = len(spikes) / t_simulation * 1000
         print("firing rate is ", firing_rate)
-        expected_value = np.abs(firing_rate - 50)
-        tolerance_value = 5  # Hz
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, figsize=(8, 6), sharex=True)
@@ -106,8 +103,5 @@ class NestWBCondExpTest(unittest.TestCase):
 
             plt.savefig("wb_cond_multisyn.png")
 
-        self.assertLessEqual(expected_value, tolerance_value)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        tolerance_value = 5  # Hz
+        assert np.abs(firing_rate - 50) < tolerance_value
