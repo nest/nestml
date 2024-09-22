@@ -53,15 +53,20 @@ class TestSimulator:
         for neuron_id, neuron_log in simulator.log.items():
             if neuron_id == "t":
                 continue
+
             if len(neuron_log) == 0:
                 continue
+
             fig, ax = plt.subplots(nrows=len(neuron_log))
-            for i, (var_name, values) in enumerate(neuron_log.items()):
+            for i, (var_name, values) in sorted(enumerate(neuron_log.items())):
                 ax[i].plot(simulator.log["t"], values, label="Neuron " + str(neuron_id) + ": " + str(var_name))
                 ax[i].legend()
                 ax[i].set_xlim(0, t_stop)
                 ax[i].grid(True)
-            #plt.show()
+                if i < len(neuron_log.items()) - 1:
+                    ax[i].set_xticklabels([])
+
+            ax[-1].set_xlabel("Time [ms]")
             fig.savefig("/tmp/test_python_standalone_simulation_[neuron=" + simulator.neurons[neuron_id].get_model() + "].png")
 
         return neuron_log
