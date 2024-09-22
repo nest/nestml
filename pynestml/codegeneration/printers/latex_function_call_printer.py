@@ -54,7 +54,7 @@ class LatexFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = node.get_name()
 
-        if function_name == PredefinedFunctions.TIME_RESOLUTION:
+        if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             # context dependent; we assume the template contains the necessary definitions
             return r'\Delta{}t'
 

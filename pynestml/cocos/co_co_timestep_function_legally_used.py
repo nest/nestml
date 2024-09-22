@@ -20,17 +20,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
-from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.symbols.predefined_functions import PredefinedFunctions
 
 
 class CoCoTimestepFuncLegallyUsed(CoCo):
@@ -68,12 +64,12 @@ class CoCoTimestepFuncLegallyUsedVisitor(ASTVisitor):
             while _node:
                 _node = _node.get_parent()
 
-                if isinstance(_node, ASTEquationsBlock) \
-                        or isinstance(_node, ASTBlockWithVariables) \
-                        or isinstance(_node, ASTOnReceiveBlock) \
-                        or isinstance(_node, ASTOnConditionBlock) \
-                        or isinstance(_node, ASTFunction) \
-                        or isinstance(_node, ASTModel):
+                if isinstance(_node, ASTUpdateBlock):
+                    # function was used inside an ``update`` block; everything is OK
+                    return
+
+                if isinstance(_node, ASTModel):
+                    # we reached the top-level block without running into an ``update`` block on the way --> incorrect usage of the function
                     code, message = Messages.get_timestep_function_legally_used()
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR)
