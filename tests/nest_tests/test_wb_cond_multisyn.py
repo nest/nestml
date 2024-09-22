@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# wb_cond_multisyn_test.py
+# test_wb_cond_multisyn.py
 #
 # This file is part of NEST.
 #
