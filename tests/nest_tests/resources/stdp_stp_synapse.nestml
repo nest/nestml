@@ -1,0 +1,79 @@
+"""
+stdp_stp - Synapse model for spike-timing dependent plasticity
+##############################################################
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+synapse stdp_stp:
+
+  state:
+    w real = 1. @nest::weight
+    u real = U  # facilitation
+    x real = 1.  # depression
+    a_pre real = 0.
+    a_post real = 0.
+  end
+
+  parameters:
+    #STP
+    U real = random_normal(0.5, 0.25)
+    tau_d ms = random_normal(110 ms, 55 ms)     # depression timescale
+    tau_f ms = random_normal(5 ms, 2.5 ms)    # facilitation timescale
+    foo real = random_uniform(0, 1)         # test parameter for random uniform
+
+    #STDP
+    d ms = 3. ms  @nest::delay  # !!! cannot have a variable called "delay"
+    tau_tr_pre ms = 15 ms       # presynaptic time constant
+    tau_tr_post ms = 30 ms      # postsynaptic time constant
+    A_plus real = 0.48          # presynaptic amplitude
+    A_minus real = -0.24        # postsynaptic amplitude
+
+  end
+
+  equations:
+    u' = (U - u) / tau_f    # STP
+    x' = (1 - x) / tau_d    # STP
+
+    a_pre' = -a_pre/tau_tr_pre      # STDP
+    a_post' = -a_post/tau_tr_post   # STDP
+  end
+
+  input:
+    pre_spikes nS <- spike
+    post_spikes nS <- spike
+  end
+
+  output: spike
+
+  # potentiation
+  onReceive(post_spikes):
+    w_ real = w + a_pre
+  end
+
+  onReceive(pre_spikes):
+    w_eff real = u * x * w                # compute effective weight changing the conductance
+
+    x -= x * u                            # STD
+    u += U * (1 - u)                      # STF
+
+    deliver_spike(w_eff, d)
+  end
+end
