@@ -178,7 +178,7 @@ class SynapseProcessing(MechanismProcessing):
             convolve(G, ex_spikes)
             convolve(G, in_spikes)
 
-        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
+        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__conv__ex_spikes` and `G__conv__in_spikes`.
 
         :param parameters_block: ASTBlockWithVariables
         :return: Dict

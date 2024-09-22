@@ -465,7 +465,7 @@ class ConvolutionsTransformer(Transformer):
 
     def replace_convolve_calls_with_buffers_(self, model: ASTModel) -> None:
         r"""
-        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
+        Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__conv__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
         """
 
         def replace_function_call_through_var(_expr=None):
@@ -604,7 +604,7 @@ class ConvolutionsTransformer(Transformer):
            convolve(G, exc_spikes)
            convolve(G, inh_spikes)
 
-        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__exc_spikes` and `G__X__inh_spikes`.
+        then `kernel_buffers` will contain the pairs `(G, exc_spikes)` and `(G, inh_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__conv__exc_spikes` and `G__conv__inh_spikes`.
         """
         odetoolbox_indict = {}
         odetoolbox_indict["dynamics"] = []

@@ -66,7 +66,7 @@ class TestSpiNNakerIafPscExp:
         # TODO: Set names for exitatory input, membrane potential and synaptic response
         exc_input = "exc_spikes"
         membranePot = "V_m"
-        synapticRsp = "I_kernel_exc__X__exc_spikes"
+        synapticRsp = "I_kernel_exc__conv__exc_spikes"
 
         # Set the run time of the execution
         run_time = 150

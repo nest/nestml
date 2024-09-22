@@ -110,13 +110,13 @@ After generating and building the model code, a ``receptor_type`` entry is avail
 
 Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
-We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
+We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__conv__". The variables to be recorded are thus named as follows: XXX: add reference to the part of the docs that describe convolutions
 
 .. code-block:: python
 
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes_1',
-                                                          'I_kernel2__X__spikes_2',
-                                                          'I_kernel3__X__spikes_3'],
+   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__conv__spikes_1',
+                                                          'I_kernel2__conv__spikes_2',
+                                                          'I_kernel3__conv__spikes_3'],
                                           'interval': .1})
    nest.Connect(mm, neuron)
 

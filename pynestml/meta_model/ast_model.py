@@ -322,7 +322,7 @@ class ASTModel(ASTNode):
 
     def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
         assert type(kernel_name) is str
-        kernel_name = kernel_name.split("__X__")[0]
+        kernel_name = kernel_name.split("__conv__")[0]
 
         if not self.get_equations_blocks():
             return None

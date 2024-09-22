@@ -135,8 +135,7 @@ class TestNestIntegration:
         self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
 
         # self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml")  # unfortunately, cannot test this due to small differences in generated code (multiplying by 1000 is not the same, numerically, as dividing by (1 / 1000)). See https://github.com/nest/nestml/issues/984
-        self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
-        self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
+        self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml")
 
         self._test_model_equivalence_subthreshold("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
         self._test_model_equivalence_fI_curve("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml")
