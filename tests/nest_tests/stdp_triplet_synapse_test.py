@@ -44,7 +44,7 @@ except Exception:
 def nestml_generate_target():
     r"""Generate the neuron model code"""
 
-    files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml"),
+    files = [os.path.join("models", "neurons", "iaf_psc_delta_fixed_timestep_neuron.nestml"),
              os.path.join("models", "synapses", "stdp_triplet_synapse.nestml")]
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
@@ -53,7 +53,7 @@ def nestml_generate_target():
                          suffix="_nestml",
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                        "neuron_parent_class_include": "structural_plasticity_node.h",
-                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
                                                                  "synapse": "stdp_triplet_synapse",
                                                                  "post_ports": ["post_spikes"]}],
                                        "delay_variable": {"stdp_triplet_synapse": "d"},
@@ -365,11 +365,11 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     }
 
     if experiment == "test_nestml_pair_synapse":
-        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_stdp_triplet_synapse_nestml"
+        neuron_model_name = "iaf_psc_delta_fixed_timestep_neuron_nestml__with_stdp_triplet_synapse_nestml"
         neuron_opts = {"tau_minus__for_stdp_triplet_synapse_nestml": syn_opts["tau_minus"],
                        "tau_y__for_stdp_triplet_synapse_nestml": syn_opts["tau_y"]}
 
-        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
+        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_fixed_timestep_neuron_nestml"
         nest_syn_opts = {"d": delay}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop("tau_minus")  # these have been moved to the neuron
