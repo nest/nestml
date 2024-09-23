@@ -409,7 +409,7 @@ public:
 
 {%  filter indent(2, True) -%}
 {%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ blk.get_port_name() }}();
+    void on_receive_block_{{ blk.get_port_name() }}{% if blk.has_port_index() %}_VEC_{{ blk.get_port_index() }}{% endif %}();
 {%-     endfor %}
 {%- endfilter %}
 
