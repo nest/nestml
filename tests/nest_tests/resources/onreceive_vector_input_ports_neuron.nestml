@@ -1,0 +1,30 @@
+"""
+onreceive_vector_input_ports_neuron
+###################################
+
+Description
++++++++++++
+
+Used in NESTML unit testing.
+
+"""
+model onreceive_vector_input_ports_neuron:
+    state:
+        x real = 0
+        y real = 0
+        z real = 0
+
+    input:
+        spikes[2] <- spike
+
+    output:
+        spike
+
+    onReceive(spikes):
+        x += 1
+
+    onReceive(spikes[0]):
+        y += 1
+
+    onReceive(spikes[1]):
+        z += 1
