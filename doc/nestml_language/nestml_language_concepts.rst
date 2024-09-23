@@ -1111,16 +1111,19 @@ To retrieve timing parameters from the simulator kernel, two special functions a
 - ``timestep`` returns the current timestep taken. Can be used only inside the ``update`` block.
 - ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
 
-When using ``timestep()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the synapse ``update`` block, a step is made between spike events, unconstrained by the simulation resolution. For example:
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the synapse ``update`` block, a step is made between spike events, unconstrained by the simulation resolution. For example:
 
 .. code-block:: nestml
 
    parameters:
-       h ms = timestep()   # !! NOT RECOMMENDED.
+       h ms = resolution()   # !! NOT RECOMMENDED
 
    update:
        # update from t to t + timestep()
-       x *= exp(-timestep() / tau)   # let x' = -x / tau
+       # let x' = -x / tau
+       # x *= exp(-h / tau)  # !! NOT RECOMMENDED
+       # x *= exp(-resolution() / tau)  # !! better but NOT RECOMMENDED
+       x *= exp(-timestep() / tau)  # recommended (supports any timestep)
 
 
 Integration order
