@@ -71,7 +71,7 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.string_utils import removesuffix
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
-from pynestml.utils.synapse_processing import SynapseProcessing
+from pynestml.utils.receptor_processing import ReceptorProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from odetoolbox import analysis
@@ -814,7 +814,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
 
-        namespace["syns_info"] = SynapseProcessing.get_mechs_info(neuron)
+        namespace["syns_info"] = ReceptorProcessing.get_mechs_info(neuron)
         namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(neuron, namespace["syns_info"])
 
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)

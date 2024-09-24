@@ -21,7 +21,7 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.utils.synapse_processing import SynapseProcessing
+from pynestml.utils.receptor_processing import ReceptorProcessing
 
 
 class CoCoCmSynapseModel(CoCo):
@@ -33,4 +33,4 @@ class CoCoCmSynapseModel(CoCo):
         If yes, it checks the presence of expected functions and declarations.
         :param model: a single neuron instance.
         """
-        return SynapseProcessing.check_co_co(model)
+        return ReceptorProcessing.check_co_co(model)

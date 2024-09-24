@@ -103,7 +103,7 @@ class CMTest(unittest.TestCase):
 
         generate_nest_compartmental_target(
             input_path=input_path,
-            target_path=target_path,
+            target_path="/home/levie/Desktop/HiWi/tests/cm_iaf_prototype/",
             module_name="cm_defaultmodule",
             suffix="_nestml",
             logging_level="ERROR"
