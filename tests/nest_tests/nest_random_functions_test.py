@@ -42,9 +42,10 @@ class TestNestRandomFunctions:
     @pytest.mark.xfail(strict=True, raises=Exception)
     def test_nest_random_function_synapse_illegal(self):
         input_path = [os.path.realpath(
-            os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml")),
-                      os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                    "resources", "random_functions_illegal_synapse.nestml"))]
+            os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "models", "neurons",
+                         "iaf_psc_exp_neuron.nestml")),
+            os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                          "resources", "random_functions_illegal_synapse.nestml"))]
 
         generate_nest_target(input_path=input_path,
                              target_path="target",
