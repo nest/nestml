@@ -22,6 +22,8 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -58,7 +60,8 @@ class CoCoNestRandomFunctionsLegallyUsedVisitor(ASTVisitor):
             while parent:
                 parent = parent.get_parent()
 
-                if isinstance(parent, ASTUpdateBlock):
+                if isinstance(parent, ASTUpdateBlock) or isinstance(parent, ASTOnReceiveBlock) \
+                        or isinstance(parent, ASTOnConditionBlock):
                     # the random function is correctly defined within the update block, hence return
                     return
 

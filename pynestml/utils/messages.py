@@ -1316,5 +1316,5 @@ class Messages:
 
     @classmethod
     def get_random_functions_legally_used(cls, name):
-        message = "The function '" + name + "' can only be used in the update block."
+        message = "The function '" + name + "' can only be used in the update, onReceive, or onCondition blocks."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
