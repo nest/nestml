@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_timestep_function_legally_used.py
+# co_co_nest_random_functions_legally_used.py
 #
 # This file is part of NEST.
 #
