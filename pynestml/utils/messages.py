@@ -130,6 +130,7 @@ class MessageCode(Enum):
     SYNS_BAD_BUFFER_COUNT = 107
     CM_NO_V_COMP = 108
     MECHS_DICTIONARY_INFO = 109
+    RANDOM_FUNCTIONS_LEGALLY_USED = 110
 
 
 class Messages:
@@ -1312,3 +1313,8 @@ class Messages:
         message += "con_in_info:\n" + con_in_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message
+
+    @classmethod
+    def get_random_functions_legally_used(cls, name):
+        message = "The function '" + name + "' can only be used in the update block."
+        return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message

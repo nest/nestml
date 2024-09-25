@@ -28,6 +28,7 @@ import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -170,7 +171,16 @@ class NESTCodeGenerator(CodeGenerator):
         self.setup_printers()
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
+        for neuron in neurons:
+            # Check if the random number functions are used only in the update block.
+            CoCosManager.check_co_co_nest_random_functions_legally_used(neuron)
+            if Logger.has_errors(neuron):
+                raise Exception("Error(s) occurred during code generation")
+
         for synapse in synapses:
+            # Check if the random number functions are used only in the update block.
+            CoCosManager.check_co_co_nest_random_functions_legally_used(synapse)
+
             synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
             # special case for NEST delay variable (state or parameter)
@@ -184,8 +194,9 @@ class NESTCodeGenerator(CodeGenerator):
             if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
                 delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
                 CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
-                if Logger.has_errors(synapse):
-                    raise Exception("Error(s) occurred during code generation")
+
+            if Logger.has_errors(synapse):
+                raise Exception("Error(s) occurred during code generation")
 
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
