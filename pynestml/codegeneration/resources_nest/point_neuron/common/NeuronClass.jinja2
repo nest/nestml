@@ -1229,16 +1229,13 @@ void
 
   {{ neuron_parent_class }}::set_spiketime( t_sp, offset );
 
-  {{ neuron_parent_class }}::set_spiketime( t_sp, offset );
-  ++num_transferred_variables; {# XXX: TODO: see https://github.com/nest/nestml/pull/1061 #}
-
   const double t_sp_ms = t_sp.get_ms() - offset;
 
   if ( n_incoming_ )
   {
     // Prune all spikes from history which are no longer needed. Only remove a spike if:
     // - its access counter indicates it has been read out by all connected STDP synapses, and
-    // - there is another, later spike, that is strictly more than (min_global_delay + max_delay_ + eps) away from the new spike (at t_sp_ms)
+    // - there is another, later spike, that is strictly more than ``min_global_delay + max_delay_ + eps`` away from the new spike (at ``t_sp_ms``)
     // for access counter logic, see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
     while ( history_.size() > 1 )
     {
@@ -1277,7 +1274,6 @@ void
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
 {%-     endfor %}
     }
-{%-     if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
@@ -1302,7 +1298,7 @@ void
     }
 {%- endif %}
     /**
-      * print extra on-emit statements transferred from synapse
+     * print extra on-emit statements transferred from synapse
     **/
 
 {%-     filter indent(4, True) %}
@@ -1409,7 +1405,6 @@ double
 {%- for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
-{%- if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
 {%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
@@ -1496,9 +1491,9 @@ double
 
 {# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%- filter indent(8, True) %}
-{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%- endfilter %}
 
     V_.__h = old___h;
@@ -1511,7 +1506,6 @@ double
 {%- endfor %}
 
 {%- endif %}
-
 
 
 {%- if use_gap_junctions %}
