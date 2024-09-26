@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __all__ = [
+    'ast_bit_operator_visitor.py',
     'ast_binary_logic_visitor.py',
     'ast_boolean_literal_visitor.py',
     'ast_builder_visitor.py',
@@ -33,7 +34,6 @@ __all__ = [
     'ast_inf_visitor.py',
     'ast_line_operation_visitor.py',
     'ast_logical_not_visitor.py',
-    'ast_no_semantics_visitor.py',
     'ast_numeric_literal_visitor.py',
     'ast_parent_aware_visitor.py',
     'ast_parentheses_visitor.py',

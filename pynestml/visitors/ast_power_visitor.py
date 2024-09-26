@@ -19,16 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-rhs : <assoc=right> left=rhs powOp='**' right=rhs
-"""
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-from pynestml.utils.error_strings import ErrorStrings
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -104,9 +101,9 @@ class ASTPowerVisitor(ASTVisitor):
                     literal = expr.get_numeric_literal()
                     return literal
 
-                error_message = ErrorStrings.message_unit_base(self, expr.get_source_position())
+                error_code, error_msg = Messages.get_unit_base()
 
-                raise Exception(error_message)
+                raise Exception(error_msg)
 
             # expr is a variable
             variable = expr.get_variable()
@@ -119,5 +116,6 @@ class ASTPowerVisitor(ASTVisitor):
 
             return self.calculate_numeric_value(symbol.get_declaring_expression())
 
-        error_message = ErrorStrings.message_non_constant_exponent(self, expr.get_source_position())
-        raise Exception(error_message)
+        error_code, error_msg = Messages.get_non_constant_exponent()
+
+        raise Exception(error_msg)
