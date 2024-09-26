@@ -42,8 +42,7 @@ class NESTDesktopCodeGenerator(CodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        self._target = "NEST_DESKTOP"
-        super().__init__(self._target, options)
+        super().__init__(options)
         self.setup_template_env()
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
