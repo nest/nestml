@@ -527,7 +527,7 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(
                         port.get_name(), neuron.name, synapse.name))
 
-        for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
+        for state_var in post_connected_continuous_input_ports:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
             ASTUtils.replace_with_external_variable(state_var, new_synapse, "", None, "__" + state_var)
 
@@ -583,7 +583,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
-        new_neuron.paired_synapse = new_synapse
+        new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
         new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
 
         #
@@ -593,6 +593,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
         new_synapse.set_name(new_synapse_name)
         new_synapse.paired_neuron = new_neuron
+        new_neuron.paired_synapse_original_model = synapse
 
         base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
         base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)

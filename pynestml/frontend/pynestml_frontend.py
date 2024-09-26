@@ -44,7 +44,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -108,11 +108,19 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
         return PythonStandaloneCodeGenerator(options)
 
+    if target_name.upper() == "PRETTY_RENDER":
+        from pynestml.codegeneration.pretty_render_code_generator import PrettyRenderCodeGenerator
+        return PrettyRenderCodeGenerator()
+
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {
         }, "\"autodoc\" code generator does not support options"
         return AutoDocCodeGenerator()
+
+    if target_name.upper() == "NEST_DESKTOP":
+        from pynestml.codegeneration.nest_desktop_code_generator import NESTDesktopCodeGenerator
+        return NESTDesktopCodeGenerator(options)
 
     if target_name.upper() == "NEST_COMPARTMENTAL":
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
@@ -128,9 +136,8 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         return CodeGenerator("", options)
 
-    # cannot reach here due to earlier assert -- silence
+    # cannot reach here due to earlier assert -- silence static checker warnings
     assert "Unknown code generator requested: " + target_name
-    # static checker warnings
 
 
 def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:

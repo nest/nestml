@@ -444,7 +444,6 @@ Source file: `wb_cond_multisyn_neuron.nestml <https://www.github.com/nest/nestml
 Synapse models
 ~~~~~~~~~~~~~~
 
-
 :doc:`neuromodulated_stdp_synapse <neuromodulated_stdp_synapse>`
 ----------------------------------------------------------------
 

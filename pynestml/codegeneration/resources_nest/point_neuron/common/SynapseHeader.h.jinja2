@@ -339,12 +339,6 @@ private:
 {%- endfor %}
 {%- endfilter %}
 
-{% if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-    double __gsl_error_tol;
-{%     endif %}
-{% endif %}
-
     /** Initialize parameters to their default values. */
     Parameters_() {};
   };
@@ -746,6 +740,15 @@ void get_entry_from_continuous_variable_history(double t,
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 %}
     double timestep = 0;
+      /**
+       * Updates due to post-synaptic spikes since last pre-synaptic spike.
+       *
+       * t_lastspike_ contains the point in time of the last spike. So we read the history (t_last_spike - dendritic_delay, ..., __t_spike - dendritic_delay]
+       *
+       * Note that this also increases the access counter for these entries which is used to prune the history.
+      **/
+    std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
+    std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
     {
       /**
        * Updates due to post-synaptic spikes since last pre-synaptic spike.
@@ -846,17 +849,16 @@ void get_entry_from_continuous_variable_history(double t,
 
         timestep += (start->t_ + __dendritic_delay) - t_lastspike_;
 
-        const double _tr_t = start->t_;
-        auto get_t = [_tr_t](){ return _tr_t; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+        const double t_hist_entry_ms = start->t_;
+        auto get_t = [t_hist_entry_ms](){ return t_hist_entry_ms; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
-{%- filter indent(6, True) %}
+{%  filter indent(8, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
-  /**
-   *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
-  **/
-
-{%-         if synapse.get_on_receive_block(post_port) %}
+/**
+ *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+**/
+{%          if synapse.get_on_receive_block(post_port) %}
 {%-             set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-             with ast = dynamics.get_block() %}
 {%-                 include "directives_cpp/Block.jinja2" %}
@@ -889,7 +891,7 @@ void get_entry_from_continuous_variable_history(double t,
     const double _tr_t = __t_spike - __dendritic_delay;
 
     {
-        auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
+      auto get_t = [__t_spike](){ return __t_spike; };    // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 {%- if paired_neuron_name is not none and paired_neuron_name|length > 0 and paired_neuron.state_vars_that_need_continuous_buffering | length > 0 %}
 
@@ -902,12 +904,12 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endfor %}
 {%- endif %}
 
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }}
 {%- for pre_port in pre_ports %}
 
         /**
          *  NESTML generated onReceive code block for presynaptic port "{{pre_port}}" begins here!
         **/
-
 {%-     if synapse.get_on_receive_block(pre_port) %}
 {%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
 {%-         with ast = dynamics.get_block() %}
@@ -917,6 +919,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%-         endwith %}
 {%-     endif %}
 {%- endfor %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
     }
 
     /**
@@ -947,6 +950,8 @@ void get_entry_from_continuous_variable_history(double t,
 {%-         set var_name_post = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name) %}
         const double __{{ var_name }} = ((post_neuron_t*)(__target))->get_{{ var_name_post }}();
 {%-     endfor %}
+{%- endif %}
+
 {%- endif %}
 
 {%- filter indent(6, True) %}
@@ -1190,17 +1195,6 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 {%- endfor %}
 {%- endif %}
 
-{%  if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
-
-  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
-  if ( P_.__gsl_error_tol <= 0. )
-  {
-    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
-  }
-{%-    endif %}
-{%  endif %}
-
   // recompute internal variables in case they are dependent on parameters or state that might have been updated in this call to set_status()
   V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
@@ -1258,6 +1252,15 @@ template < typename targetidentifierT >
 {%- endfor %}
 {%- endfilter %}
 
+{%- if synapse_weight_variable | length > 0 %}
+{%-     set variable_symbol = synapse.get_scope().resolve_to_symbol(synapse_weight_variable, SymbolKind.VARIABLE) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
+  // special treatment of NEST weight
+  set_weight({{ printer.print(variable_symbol.get_initial_value()) }});
+{%-     endif %}
+{%- endif %}
+
   t_lastspike_ = 0.;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
   t_last_update_ = 0.;
@@ -1311,9 +1314,7 @@ inline void
 {
     if (timestep < 1E-12)
     {
-#ifdef DEBUG
         std::cout << "[synapse " << this << "] {{ synapseName }}: update_internal_state_() called with dt < 1E-12; skipping update" << std::endl;
-#endif
         return;
     }
 
@@ -1445,7 +1446,6 @@ inline void
 {%- set vt_port = vt_ports[0] %}
   process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
-
 #ifdef DEBUG
   std::cout << "[synapse " << this << "] {{ synapseName }}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
 #endif

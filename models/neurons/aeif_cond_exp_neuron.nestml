@@ -75,7 +75,7 @@ model aeif_cond_exp_neuron:
         b pA = 80.5 pA          # Spike-triggered adaptation
         Delta_T mV = 2.0 mV     # Slope factor
         tau_w ms = 144.0 ms     # Adaptation time constant
-        V_th mV = -50.4 mV      # Threshold Potential
+        V_th mV = -50.4 mV      # Spike initiation threshold
         V_peak mV = 0 mV        # Spike detection threshold
 
         # synaptic parameters

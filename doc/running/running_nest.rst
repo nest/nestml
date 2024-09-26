@@ -228,6 +228,8 @@ By default, the "continuous-time" based buffer is selected. This covers the most
 As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the soma is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 
+
+
 Dendritic delay and synaptic weight
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

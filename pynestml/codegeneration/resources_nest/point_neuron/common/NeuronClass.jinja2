@@ -1,3 +1,4 @@
+
 {#
 NeuronClass.jinja2
 
@@ -371,9 +372,9 @@ void {{ neuronName }}::init_state_internal_()
   const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 {%- if numeric_solver == "rk45" %}
-  // by default, integrate all variables
-  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
-  P_.__gsl_error_tol = 1e-3;
+  // by default, integrate all variables with a conservative tolerance, in the sense that we err on the side of integrating very precisely at the expense of extra computation
+  P_.__gsl_abs_error_tol = 1e-6;
+  P_.__gsl_rel_error_tol = 1e-6;
 {%- endif %}
 
 {%- if parameter_vars_with_iv|length > 0 %}
@@ -481,11 +482,24 @@ void {{ neuronName }}::init_buffers_()
 
   if ( not B_.__c )
   {
-    B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
+{%- if gsl_adaptive_step_size_controller == "with_respect_to_solution" %}
+    B_.__c = gsl_odeiv_control_y_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+{%- elif gsl_adaptive_step_size_controller == "with_respect_to_derivative" %}
+    B_.__c = gsl_odeiv_control_yp_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+{%- else %}
+{{ raise('Unknown GSL adaptive step size controller value') }}
+{%- endif %}
   }
   else
   {
-    gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
+{%- if gsl_adaptive_step_size_controller == "with_respect_to_solution" %}
+    gsl_odeiv_control_init( B_.__c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 1.0, 0.0 );
+{%- elif gsl_adaptive_step_size_controller == "with_respect_to_derivative" %}
+    gsl_odeiv_control_init( B_.__c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 0.0, 1.0 );
+{%- else %}
+{{ raise('Unknown GSL adaptive step size controller value') }}
+{%- endif %}
+
   }
 
   if ( not B_.__e )
@@ -1215,10 +1229,8 @@ void
 
   {{ neuron_parent_class }}::set_spiketime( t_sp, offset );
 
-  unsigned int num_transferred_variables = 0;
-{%-     for var in transferred_variables %}
+  {{ neuron_parent_class }}::set_spiketime( t_sp, offset );
   ++num_transferred_variables; {# XXX: TODO: see https://github.com/nest/nestml/pull/1061 #}
-{%-     endfor %}
 
   const double t_sp_ms = t_sp.get_ms() - offset;
 
@@ -1231,10 +1243,10 @@ void
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
-      // Note that ``access_counter`` now has an extra multiplicative factor equal (``n_incoming_``) to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+      // Note that ``access_counter`` is compared to the number of incoming synapses (``n_incoming_``), so that spikes are removed from the history only after they have been read out by each synapse
       // see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
 
-      if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+      if ( history_.front().access_counter_ >= n_incoming_
            and t_sp_ms - next_t_sp > max_delay_ + nest::Time::delay_steps_to_ms(nest::kernel().connection_manager.get_min_delay()) + nest::kernel().connection_manager.get_stdp_eps() )
       {
         history_.pop_front();
@@ -1266,6 +1278,7 @@ void
 {%-     endfor %}
     }
 {%-     if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
      *
@@ -1277,12 +1290,12 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-{%-     filter indent(6, True) -%}
-{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
-{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%-     endfilter %}
+{%-         filter indent(6, True) -%}
+{#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-             set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-             include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-         endfilter %}
 
       V_.__h = old___h;
       recompute_internal_variables(true);
@@ -1397,6 +1410,7 @@ double
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
 {%- if (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
+{%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
        *
@@ -1410,10 +1424,11 @@ double
         assert(V_.__h > 0);
         recompute_internal_variables(true);
 
-{# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%- filter indent(8, True) %}
 {%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     filter indent(8, True) %}
 {%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%- endfilter %}
 
