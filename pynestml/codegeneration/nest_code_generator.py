@@ -174,7 +174,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         for model in neurons + synapses:
-            # Check if the random number functions are used only in the update block.
+            # Check if the random number functions are used in the right blocks
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
             if self.get_option("neuron_synapse_pairs"):

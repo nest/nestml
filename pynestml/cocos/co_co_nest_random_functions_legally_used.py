@@ -33,7 +33,8 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoNestRandomFunctionsLegallyUsed(CoCo):
     """
-    This CoCo ensure that the random functions are used only in the ``update`` block. This CoCo is only checked for the NEST Simulator target.
+    This CoCo ensure that the random functions are used only in the ``update``, ``onReceive``, and ``onCondition`` blocks.
+    This CoCo is only checked for the NEST Simulator target.
     """
 
     @classmethod
@@ -62,7 +63,7 @@ class CoCoNestRandomFunctionsLegallyUsedVisitor(ASTVisitor):
 
                 if isinstance(parent, ASTUpdateBlock) or isinstance(parent, ASTOnReceiveBlock) \
                         or isinstance(parent, ASTOnConditionBlock):
-                    # the random function is correctly defined within the update block, hence return
+                    # the random function is correctly defined, hence return
                     return
 
                 if isinstance(parent, ASTModel):
