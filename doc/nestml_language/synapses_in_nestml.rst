@@ -131,11 +131,9 @@ Third-factor plasticity
 
 The postsynaptic trace value in the models so far is assumed to correspond to a property of the postsynaptic neuron, but it is specified in the synapse model. Some synaptic plasticity rules require access to a postsynaptic value that cannot be specified as part of the synapse model, but is a part of the (postsynaptic) neuron model.
 
-An example would be a neuron that generates dendritic action potentials. The synapse could need access to the postsynaptic dendritic current. For more details on this example, please see the tutorial https://nestml.readthedocs.io/en/latest/tutorials/active_dendrite/nestml_active_dendrite_tutorial.html
+An example would be a neuron that generates dendritic action potentials. (For more details about this neuron model, please see the tutorial https://nestml.readthedocs.io/en/latest/tutorials/active_dendrite/nestml_active_dendrite_tutorial.html.) The synapse could need access to the postsynaptic dendritic current.
 
-An additional complication is that when combining models from different sources, the naming convention can be different between the neuron and synapse model.
-
-To make the "third factor" value available in the synapse model, begin by defining an appropriate input port:
+To make this "third factor" value available in the synapse model, begin by defining an appropriate input port:
 
 .. code-block:: nestml
 
@@ -147,24 +145,17 @@ In the synapse, the value will be referred to as ``I_post_dend`` and can be used
 .. code-block:: nestml
 
    onReceive(post_spikes):
-       # potentiate synapse
        w_ real = # [...] normal STDP update rule
-       w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
-       w = min(Wmax, w_)
+       w_ = (I_post_dend / I_post_dend_peak) * w_
+            + (1 - I_post_dend / I_post_dend_peak) * w    # "gating" of the weight update
 
-In the neuron, no special output port is required; all state variables are accessible for the third factor rules.
+In the neuron, no special output port is required; all state variables are accessible for the third factor rules. For more details on how to generate code in NEST, please refer to the NEST-specific instructions at :ref:`Third-factor plasticity rules <sec-nest-third-factor-plasticity>`.
 
-NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`).
-
-In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
+In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be clamped at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp_triplet_synapse_test.png
 
-For a full example, please see the following files:
-
-* ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure)
-* ``models/neurons/iaf_psc_exp_dend_neuron.nestml`` (neuron model)
-* ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
+For a full example, please see :doc:`Third-factor modulated STDP </tutorials/stdp_third_factor_active_dendrite/stdp_third_factor_active_dendrite>`.
 
 
 Examples
