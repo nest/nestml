@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.13.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.13.0
 from antlr4 import *
 if "." in __name__:
     from .PyNestMLParser import PyNestMLParser
@@ -101,6 +101,16 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNestMLParser#assignment.
     def visitAssignment(self, ctx:PyNestMLParser.AssignmentContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#includeStatement.
+    def visitIncludeStatement(self, ctx:PyNestMLParser.IncludeStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#includeStatement_newline.
+    def visitIncludeStatement_newline(self, ctx:PyNestMLParser.IncludeStatement_newlineContext):
         return self.visitChildren(ctx)
 
 
