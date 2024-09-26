@@ -37,18 +37,9 @@ from pynestml.utils.with_options import WithOptions
 class Builder(WithOptions, metaclass=ABCMeta):
     r"""Compile, build and install the code for a given target platform. Runs after the CodeGenerator."""
 
-    def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(Builder, self).__init__(options)
         self.process_output_redirection_(options)
-        from pynestml.frontend.pynestml_frontend import get_known_targets
-
-        if not target.upper() in get_known_targets():
-            code, msg = Messages.get_unknown_target(target)
-            Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
-            self._target = ""
-            raise InvalidTargetException()
-
-        self._target = target
 
     def process_output_redirection_(self, options):
         require_redirect_key = options.get("redirect_build_output", False)

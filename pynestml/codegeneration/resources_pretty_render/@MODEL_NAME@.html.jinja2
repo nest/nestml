@@ -1,0 +1,107 @@
+{#-
+@MODEL_NAME@.jinja2
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#}
+{{ highlighted_code_html }}
+
+<div class="circ">⬤ ⬤ ⬤ </div>
+
+<style>
+.circ {
+   position: absolute;
+
+{%- if "neuron" in model_type %}
+   top: 47px;
+   left: 80px;
+{%- elif "synapse" in model_type %}
+   top: 58px;
+   left: 70px;
+{%- endif %}
+   transform: translateX(-50%);
+   font-size: .8em; /* Adjust the size as needed */
+   font-family: Inter;
+   font-weight: 500;
+   letter-spacing: .32px;
+   color: hsla(0,0%,100%,.2);
+   padding: 10px 0; /* Optional: Add padding if needed */
+   transform: rotateX(20deg) rotateY(20deg);
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+<style>
+body {
+   padding: 40px;
+   color: #FFFFFF;
+   background-color: #fff;
+}
+
+.highlight::before {
+   content: "{{ model_title }}";
+   position: absolute;
+   top: 0;
+   left: 50%;
+   transform: translateX(-52%);
+   text-align: center;
+   width: 100%;
+   font-size: .8em; /* Adjust the size as needed */
+   font-family: Inter;
+   font-weight: 500;
+   letter-spacing: .32px;
+   color: hsla(0,0%,100%,.6);
+   padding: 10px 0; /* Optional: Add padding if needed */
+}
+
+.highlight {
+   box-shadow: 0 0 0 1px var(--frame-highlight-border),0 0 0 1.5px var(--frame-shadow-border),0 2.8px 2.2px rgba(0,0,0,.034),0 6.7px 5.3px rgba(0,0,0,.048),0 12.5px 10px rgba(0,0,0,.06),0 22.3px 17.9px rgba(0,0,0,.072),0 41.8px 33.4px rgba(0,0,0,.086),0 100px 80px rgba(0,0,0,.12);
+
+   border-radius: 10px;
+   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+   transform: rotateX(20deg) rotateY(20deg);
+{%- if "neuron" in model_type %}
+   width: 800px;
+{%- elif "synapse" in model_type %}
+   width: 500px;
+{%- endif %}
+   padding: 40px 20px 20px 20px;
+   background-color: #2e273f;
+}
+
+.mf, .mi {
+   color: #7A7FFD !important;
+}
+
+.nb {
+   color: #d3c277 !important;
+}
+
+.c1 {
+   color: #807796 !important;
+}
+
+.k {
+   color: #FF659C !important;
+}
+
+.o {
+   color: #FF659C !important;
+}
+
+</style>

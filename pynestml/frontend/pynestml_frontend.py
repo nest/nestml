@@ -44,7 +44,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "NEST_DESKTOP", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -107,6 +107,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     if target_name.upper() == "PYTHON_STANDALONE":
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
         return PythonStandaloneCodeGenerator(options)
+
+    if target_name.upper() == "PRETTY_RENDER":
+        from pynestml.codegeneration.pretty_render_code_generator import PrettyRenderCodeGenerator
+        return PrettyRenderCodeGenerator()
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
