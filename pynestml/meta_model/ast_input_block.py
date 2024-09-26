@@ -27,21 +27,14 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class ASTInputBlock(ASTNode):
     """
-    This class is used to store blocks of input definitions.
-    ASTInputBlock represents the input block, e.g.:
+    This class is used to store the input block of a model, e.g.:
 
     .. code-block:: nestml
 
        input:
-           spike_in pA <- excitatory spike
+           spike_in <- excitatory spike
            current_in pA <- continuous
 
-    @attribute inputPort set of input ports.
-    Grammar:
-          inputBlock: 'input'
-            BLOCK_OPEN
-              (inputPort | NEWLINE)*
-            BLOCK_CLOSE;
     Attributes:
         input_definitions = None
     """

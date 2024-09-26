@@ -199,8 +199,9 @@ appropriate numeric solver otherwise.
 
     @classmethod
     def get_codegen_opts(cls):
-        """Get the code generator options dictionary"""
-        return cls.codegen_opts
+        """Get a copy of the code generator options dictionary"""
+        import copy
+        return copy.deepcopy(cls.codegen_opts)
 
     @classmethod
     def set_codegen_opts(cls, codegen_opts):
