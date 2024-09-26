@@ -1423,7 +1423,6 @@ double
 {%- filter indent(8, True) %}
 {%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     filter indent(8, True) %}
 {%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%- endfilter %}
 

@@ -21,10 +21,6 @@ Creating neuron models
 
   Create a model that emits spikes according to an inhomogeneous Poisson distribution.
 
-* :doc:`Sequence learning network </tutorials/sequence_learning/sequence_learning>`
-
-  A network learns to predict and autonomously replay sequences of items.
-
 
 Creating synapse models
 -----------------------

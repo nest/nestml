@@ -237,7 +237,6 @@ public:
 
   double t_;              //!< point in time for history entry
   size_t access_counter_;
-{%-     endfor %}
 
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
   double {{ state_var }};
