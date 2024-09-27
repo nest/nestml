@@ -478,9 +478,7 @@ def process():
 
     # check for unused codegen options
     for opt_key in FrontendConfiguration.get_codegen_opts().keys():
-        if opt_key in unused_opts_transformer.keys() \
-         and opt_key in unused_opts_codegen.keys() \
-         and opt_key in unused_opts_builder.keys():
+        if opt_key in unused_opts_transformer.keys() and opt_key in unused_opts_codegen.keys() and opt_key in unused_opts_builder.keys():
             raise CodeGeneratorOptionsException("The code generator option \"" + opt_key + "\" does not exist.")
 
     models, errors_occurred = get_parsed_models()
