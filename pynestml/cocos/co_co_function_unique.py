@@ -65,4 +65,5 @@ class CoCoFunctionUnique(CoCo):
                                         log_level=LoggingLevel.ERROR,
                                         message=message, code=code)
                         checked.append(funcA)
+
             checked_funcs_names.append(func.get_name())

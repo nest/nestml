@@ -28,12 +28,11 @@ class TypeCaster:
     @staticmethod
     def do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression):
         """
-        determine conversion factor from rhs to lhs, register it with the relevant expression
+        Determine conversion factor from rhs to lhs, register it with the relevant expression
         """
         _containing_expression.set_implicit_conversion_factor(
-            UnitTypeSymbol.get_conversion_factor(_lhs_type_symbol.astropy_unit,
-                                                 _rhs_type_symbol.astropy_unit))
-        _containing_expression.type = _lhs_type_symbol
+            UnitTypeSymbol.get_conversion_factor(_rhs_type_symbol.astropy_unit,
+                                                 _lhs_type_symbol.astropy_unit))
         code, message = Messages.get_implicit_magnitude_conversion(_lhs_type_symbol, _rhs_type_symbol,
                                                                    _containing_expression.get_implicit_conversion_factor())
         Logger.log_message(code=code, message=message,
@@ -45,18 +44,26 @@ class TypeCaster:
         if _rhs_type_symbol.is_castable_to(_lhs_type_symbol):
             if isinstance(_lhs_type_symbol, UnitTypeSymbol) \
                     and isinstance(_rhs_type_symbol, UnitTypeSymbol):
-                conversion_factor = UnitTypeSymbol.get_conversion_factor(
-                    _lhs_type_symbol.astropy_unit,  _rhs_type_symbol.astropy_unit)
+                conversion_factor = UnitTypeSymbol.get_conversion_factor(_rhs_type_symbol.astropy_unit, _lhs_type_symbol.astropy_unit)
+
+                if conversion_factor is None:
+                    # error during conversion
+                    code, message = Messages.get_type_different_from_expected(_lhs_type_symbol, _rhs_type_symbol)
+                    Logger.log_message(error_position=_containing_expression.get_source_position(),
+                                       code=code, message=message, log_level=LoggingLevel.ERROR)
+                    return
+
                 if not conversion_factor == 1.:
                     # the units are mutually convertible, but require a factor unequal to 1 (e.g. mV and A*Ohm)
-                    TypeCaster.do_magnitude_conversion_rhs_to_lhs(
-                        _rhs_type_symbol, _lhs_type_symbol, _containing_expression)
+                    TypeCaster.do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression)
+
             # the units are mutually convertible (e.g. V and A*Ohm)
             code, message = Messages.get_implicit_cast_rhs_to_lhs(_rhs_type_symbol.print_symbol(),
                                                                   _lhs_type_symbol.print_symbol())
             Logger.log_message(error_position=_containing_expression.get_source_position(),
                                code=code, message=message, log_level=LoggingLevel.INFO)
-        else:
-            code, message = Messages.get_type_different_from_expected(_lhs_type_symbol, _rhs_type_symbol)
-            Logger.log_message(error_position=_containing_expression.get_source_position(),
-                               code=code, message=message, log_level=LoggingLevel.ERROR)
+            return
+
+        code, message = Messages.get_type_different_from_expected(_lhs_type_symbol, _rhs_type_symbol)
+        Logger.log_message(error_position=_containing_expression.get_source_position(),
+                           code=code, message=message, log_level=LoggingLevel.ERROR)

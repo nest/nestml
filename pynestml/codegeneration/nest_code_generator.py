@@ -28,6 +28,7 @@ import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -374,6 +375,9 @@ class NESTCodeGenerator(CodeGenerator):
                     if not used_in_eq:
                         self.non_equations_state_variables[neuron.get_name()].append(var)
 
+        # cache state variables before symbol table update for the sake of delay variables
+        state_vars_before_update = neuron.get_state_symbols()
+
         ASTUtils.remove_initial_values_for_kernels(neuron)
         kernels = ASTUtils.remove_kernel_definitions_from_equations_block(neuron)
         ASTUtils.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
@@ -388,7 +392,6 @@ class NESTCodeGenerator(CodeGenerator):
             neuron = ASTUtils.add_declarations_to_internals(
                 neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
-        state_vars_before_update = neuron.get_state_symbols()
         self.update_symbol_table(neuron)
 
         # Update the delay parameter parameters after symbol table update
@@ -898,8 +901,8 @@ class NESTCodeGenerator(CodeGenerator):
         """
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
-        symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def get_spike_update_expressions(self, neuron: ASTModel, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:

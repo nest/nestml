@@ -24,6 +24,7 @@ from typing import Tuple
 from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 from antlr4.error.ErrorListener import ConsoleErrorListener
+from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -65,6 +66,7 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.transformers.assign_implicit_conversion_factors_transformer import AssignImplicitConversionFactorsTransformer
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -142,10 +144,14 @@ class ModelParser:
         for model in ast.get_model_list():
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
+            Logger.set_current_node(model)
+            AssignImplicitConversionFactorsTransformer().transform(model)
+            Logger.set_current_node(None)
 
         # store source paths
         for model in ast.get_model_list():
             model.file_path = file_path
+
         ast.file_path = file_path
 
         return ast
