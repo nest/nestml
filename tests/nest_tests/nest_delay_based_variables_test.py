@@ -19,12 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 import numpy as np
 import os
-from typing import List
 import pytest
-
-import nest
 
 try:
     import matplotlib
@@ -34,13 +33,10 @@ try:
 except BaseException:
     TEST_PLOTS = False
 
+import nest
+
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
-
-
-target_path = "target_delay"
-logging_level = "DEBUG"
-suffix = "_nestml"
 
 
 def plot_fig(times, recordable_events_delay: dict, recordable_events: dict, filename: str):
@@ -86,6 +82,9 @@ def run_simulation(neuron_model_name: str, module_name: str, recordables: List[s
                           ("DelayDifferentialEquationsWithNumericSolver.nestml", "dde_numeric_nestml", ["x", "z"]),
                           ("DelayDifferentialEquationsWithMixedSolver.nestml", "dde_mixed_nestml", ["x", "z"])])
 def test_dde_with_analytic_solver(file_name: str, neuron_model_name: str, recordables: List[str]):
+    target_path = "target_delay"
+    logging_level = "DEBUG"
+    suffix = "_nestml"
     input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", file_name)))
     module_name = neuron_model_name + "_module"
     print("Module name: ", module_name)
@@ -112,16 +111,3 @@ def test_dde_with_analytic_solver(file_name: str, neuron_model_name: str, record
     if neuron_model_name == "dde_analytic_nestml":
         np.testing.assert_allclose(recordable_events_delay[recordables[1]][int(delay):],
                                    recordable_events[recordables[1]][:-int(delay)])
-
-    @pytest.fixture(scope="function", autouse=True)
-    def cleanup(self):
-        # Run the test
-        yield
-
-        # clean up
-        import shutil
-        if self.target_path:
-            try:
-                shutil.rmtree(self.target_path)
-            except Exception:
-                pass

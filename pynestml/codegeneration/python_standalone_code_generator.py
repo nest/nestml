@@ -111,7 +111,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
-        print("In Python code generator: created self._gsl_variable_printer = " + str(self._gsl_variable_printer))
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                             constant_printer=self._constant_printer,
