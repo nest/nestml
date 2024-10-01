@@ -60,6 +60,8 @@ jobs:
           cd ..
 
       - name: Track Fork PR Benchmarks with Bencher
+        env:
+          LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
           bencher run \
           --project nestml \
