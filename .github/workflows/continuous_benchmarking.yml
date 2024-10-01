@@ -1,4 +1,4 @@
-on:
+	on:
   pull_request_target:
     types: [opened, reopened, edited, synchronize]
 
@@ -63,7 +63,9 @@ jobs:
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
         run: |
-          bencher run \
+          echo "NEST_INSTALL = $NEST_INSTALL"
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest python3 -m pytest -s $GITHUB_WORKSPACE/tests/nest_tests/stdp_nn_synapse_test.py
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest bencher run \
           --project nestml \
           --token '${{ secrets.BENCHER_API_TOKEN }}' \
           --branch '${{ github.event.number }}/merge' \
