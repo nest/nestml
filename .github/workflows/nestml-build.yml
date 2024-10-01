@@ -163,7 +163,7 @@ jobs:
           echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
           cd nest_install
           cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
-          make -j install
+          make install
           cd ..
 
       # Install NESTML
@@ -247,7 +247,7 @@ jobs:
           echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
           cd nest_install
           cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
-          make -j install
+          make install
           cd ..
 
       # Install NESTML (repeated)
@@ -365,7 +365,7 @@ jobs:
           echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
           cd nest_install
           cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
-          make -j install
+          make install
           cd ..
 
       # Install NESTML (repeated)
