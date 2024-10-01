@@ -72,5 +72,4 @@ jobs:
           --testbed ubuntu-latest \
           --adapter json \
           --err \
-          --github-actions '${{ secrets.GITHUB_TOKEN }}' \
           'python3 -m pytest -s $GITHUB_WORKSPACE/tests/nest_tests/stdp_nn_synapse_test.py'
