@@ -59,6 +59,14 @@ jobs:
           make -j install
           cd ..
 
+      # Install NESTML (repeated)
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
+          #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
       - name: Track Fork PR Benchmarks with Bencher
         env:
           LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
@@ -77,3 +85,6 @@ jobs:
           --adapter json \
           --err \
           'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest python3 -m pytest -s $GITHUB_WORKSPACE/tests/nest_tests/stdp_nn_synapse_test.py'
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
