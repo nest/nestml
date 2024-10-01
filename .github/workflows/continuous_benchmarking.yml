@@ -74,4 +74,4 @@ jobs:
           --testbed ubuntu-latest \
           --adapter json \
           --err \
-          'python3 -m pytest -s $GITHUB_WORKSPACE/tests/nest_tests/stdp_nn_synapse_test.py'
+          'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest python3 -m pytest -s $GITHUB_WORKSPACE/tests/nest_tests/stdp_nn_synapse_test.py'
