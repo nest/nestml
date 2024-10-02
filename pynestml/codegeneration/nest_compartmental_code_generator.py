@@ -26,6 +26,7 @@ import os
 
 from jinja2 import TemplateRuntimeError
 import pynestml
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
@@ -662,8 +663,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
-        symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:

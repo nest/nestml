@@ -28,6 +28,7 @@ import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -840,6 +841,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
-        symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())

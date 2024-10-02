@@ -158,7 +158,7 @@ class ConvolutionsTransformer(Transformer):
 
             print("Delta factors: ")
             for k, v in delta_factors.items():
-                print("var = " + str(k[0]) + ", inport = " + str(k[1]) + ", expr = " + str(v))
+                print("   -> var = " + str(k[0]) + ", inport = " + str(k[1]) + ", expr = " + str(v))
 
             odetoolbox_indict = self.transform_kernels_to_json(model, kernel_buffers)
             print("odetoolbox indict: " + str(odetoolbox_indict))
@@ -323,7 +323,7 @@ class ConvolutionsTransformer(Transformer):
 
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
-                spike_input_port_name += "_" + str(self.get_numeric_vector_size(spike_input_port))
+                spike_input_port_name += "_VEC_" + str(ASTUtils.get_numeric_vector_size(spike_input_port))
 
         if not diff_order_symbol:
             diff_order_symbol = self.get_option("diff_order_symbol")
@@ -428,6 +428,10 @@ class ConvolutionsTransformer(Transformer):
                 spike_in_port_name = var_name.split(self.get_option("convolution_separator"))[1]
                 spike_in_port_name = spike_in_port_name.split("__d")[0]
                 spike_in_port_name = spike_in_port_name.split("___D")[0]
+
+                if "_VEC_" in spike_in_port_name:
+                    spike_in_port_name, _ = spike_in_port_name.split("_VEC_")
+
                 spike_in_port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), spike_in_port_name)
                 type_str = "real"
                 if spike_in_port:
@@ -787,6 +791,11 @@ class ConvolutionsTransformer(Transformer):
                 spike_in_port_name = var.split(self.get_option("convolution_separator"))[1]
                 spike_in_port_name = spike_in_port_name.split("__d")[0]
                 spike_in_port_name = spike_in_port_name.split("___D")[0]
+
+                if "_VEC_" in spike_in_port_name:
+                    port_name, port_index = spike_in_port_name.split("_VEC_")
+                    spike_in_port_name = port_name + "[" + port_index + "]"
+
                 spike_in_port = ASTUtils.get_input_port_by_name(model.get_input_blocks(), spike_in_port_name)
                 type_str = "real"
 
@@ -847,12 +856,12 @@ class ConvolutionsTransformer(Transformer):
 
             inport_name = inport.get_name()
             if inport.has_vector_parameter():
-                inport_name += "_" + str(ASTUtils.get_numeric_vector_size(inport))
+                inport_name += "[" + str(ASTUtils.get_numeric_vector_size(inport)) + "]"
 
-            if not spike_in_port_name in spike_in_port_to_stmts.keys():
-                spike_in_port_to_stmts[spike_in_port_name] = []
+            if not inport_name in spike_in_port_to_stmts.keys():
+                spike_in_port_to_stmts[inport_name] = []
 
-            spike_in_port_to_stmts[spike_in_port_name].append(ast_stmt)
+            spike_in_port_to_stmts[inport_name].append(ast_stmt)
 
         # for every input port, add an onreceive block with its update statements
         for in_port, stmts in spike_in_port_to_stmts.items():

@@ -53,7 +53,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.symbol_stack = Stack()
         self.scope_stack = Stack()
         self.block_type_stack = Stack()
-        self.after_ast_rewrite_ = False
 
     def visit_model(self, node: ASTModel) -> None:
         """
@@ -79,10 +78,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_scope().add_symbol(types[symbol])
 
     def endvisit_model(self, node: ASTModel):
-        # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(
-            node, after_ast_rewrite=self.after_ast_rewrite_)
-
         # update the equations
         for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)

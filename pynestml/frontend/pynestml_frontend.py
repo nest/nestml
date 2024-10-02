@@ -485,7 +485,14 @@ def process():
     models, errors_occurred = get_parsed_models()
 
     if not errors_occurred:
+        # validation
+        for model in models:
+            CoCosManager.check_cocos(model)
+
+        # transformation(s)
         models = transform_models(transformers, models)
+
+        # generate code
         generate_code(code_generator, models)
 
         # perform build

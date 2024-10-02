@@ -41,11 +41,10 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel, after_ast_rewrite: bool = False):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
-        :param after_ast_rewrite: indicates whether this coco is checked after the code generator has done rewriting of the abstract syntax tree. If True, checks are not as rigorous. Use False where possible.
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()
@@ -62,13 +61,6 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # test if the symbol has been defined at least
                 if symbol is None:
-                    # if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
-                    #     symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                    #     if symbol2 is not None:
-                    #         # an inline expression defining this variable name (ignoring differential order) exists
-                    #         if "__conv__" in str(symbol2):     # if this variable was the result of a convolution...
-                    #             continue
-
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
                     if symbol2 is not None:

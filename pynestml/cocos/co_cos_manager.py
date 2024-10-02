@@ -123,12 +123,12 @@ class CoCosManager:
         CoCoStateVariablesInitialized.check_co_co(model)
 
     @classmethod
-    def check_variables_defined_before_usage(cls, model: ASTModel, after_ast_rewrite: bool) -> None:
+    def check_variables_defined_before_usage(cls, model: ASTModel) -> None:
         """
         Checks that all variables are defined before being used.
         :param model: a single model.
         """
-        CoCoAllVariablesDefined.check_co_co(model, after_ast_rewrite)
+        CoCoAllVariablesDefined.check_co_co(model)
 
     @classmethod
     def check_v_comp_requirement(cls, neuron: ASTModel):
@@ -402,7 +402,7 @@ class CoCosManager:
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, model: ASTModel, after_ast_rewrite: bool = False):
+    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
         :param model: a single model object.
@@ -412,7 +412,7 @@ class CoCosManager:
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
-        cls.check_variables_defined_before_usage(model, after_ast_rewrite)
+        cls.check_variables_defined_before_usage(model)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(model)

@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 from typing import Any, Sequence, Mapping, Optional, Union
+from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -450,8 +451,8 @@ class SynapsePostNeuronTransformer(Transformer):
 
         # make sure the moved symbols can be resolved in the scope of the neuron (that's where ``ASTExternalVariable._altscope`` will be pointing to)
         ast_symbol_table_visitor = ASTSymbolTableVisitor()
-        ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)
+        CoCosManager.check_cocos(new_neuron, after_ast_rewrite=True)
 
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
@@ -492,9 +493,10 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.accept(ASTParentVisitor())
         new_synapse.accept(ASTParentVisitor())
         ast_symbol_table_visitor = ASTSymbolTableVisitor()
-        ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)
         new_synapse.accept(ast_symbol_table_visitor)
+        CoCosManager.check_cocos(new_neuron, after_ast_rewrite=True)
+        CoCosManager.check_cocos(new_synapse, after_ast_rewrite=True)
 
         ASTUtils.update_blocktype_for_common_parameters(new_synapse)
 

@@ -689,20 +689,6 @@ class ASTUtils:
         return None
 
     @classmethod
-    def get_inline_expression_by_constructed_rhs_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
-        for equations_block in node.get_equations_blocks():
-            for inline_expr in equations_block.get_inline_expressions():
-                if not ASTUtils.inline_aliases_convolution(inline_expr):
-                    continue
-
-                constructed_name = ASTUtils.construct_kernel_X_spike_buf_name(str(inline_expr.get_expression().get_function_call().get_args()[0]), inline_expr.get_expression().get_function_call().get_args()[1], order=0, suffix="__for_" + node.get_name())
-
-                if name == constructed_name:
-                    return inline_expr
-
-        return None
-
-    @classmethod
     def get_kernel_by_name(cls, node, name: str) -> Optional[ASTKernel]:
         for equations_block in node.get_equations_blocks():
             for kernel in equations_block.get_kernels():
@@ -1403,11 +1389,17 @@ class ASTUtils:
                     size_parameter = input_port.get_size_parameter()
                     if isinstance(size_parameter, ASTSimpleExpression):
                         size_parameter = size_parameter.get_numeric_literal()
-                    port_name, port_index = port_name.split("_")
-                    assert int(port_index) >= 0
-                    assert int(port_index) <= size_parameter
+
+                    if "[" in port_name:
+                        port_name, _port_index = port_name.split("[")
+                        port_index = int(_port_index.strip("]"))
+
+                        assert int(port_index) >= 0
+                        assert int(port_index) <= size_parameter
+
                 if input_port.name == port_name:
                     return input_port
+
         return None
 
     @classmethod
