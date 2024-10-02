@@ -18,13 +18,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import shutil
+
 from typing import Any, Dict, List, Mapping, Optional
 
 import datetime
 import os
 
 from jinja2 import TemplateRuntimeError
+
+from odetoolbox import analysis
+
 import pynestml
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -53,9 +56,9 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
-from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
@@ -72,7 +75,6 @@ from pynestml.utils.syns_info_enricher import SynsInfoEnricher
 from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from odetoolbox import analysis
 
 
 class NESTCompartmentalCodeGenerator(CodeGenerator):
@@ -115,7 +117,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     _module_templates = list()
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("NEST_COMPARTMENTAL", options)
+        super().__init__(options)
 
         # auto-detect NEST Simulator installed version
         if not self.option_exists("nest_version") or not self.get_option("nest_version"):

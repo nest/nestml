@@ -23,7 +23,6 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
-from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -698,7 +697,32 @@ class ASTUtils:
         return None
 
     @classmethod
-    def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
+    def print_alternate_var_name(cls, var_name, continuous_post_ports):
+        for pair in continuous_post_ports:
+            if pair[0] == var_name:
+                return pair[1]
+
+        assert False
+
+    @classmethod
+    def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
+        for pair in codegen_opts_pairs:
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+               and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+               and "post_ports" in pair.keys():
+                return pair["post_ports"]
+
+        return []
+
+    @classmethod
+    def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port):
+        for pair in post_port_names:
+            if pair[0] == post_port:
+                return pair[1]
+        return None
+
+    @classmethod
+    def replace_with_external_variable(cls, var_name, node: ASTNode, suffix: str, new_scope, alternate_name=None):
         r"""
         Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
         """
@@ -1518,6 +1542,28 @@ class ASTUtils:
         return None
 
     @classmethod
+    def replace_post_moved_variable_names(cls, astnode, post_connected_continuous_input_ports, post_variable_names):
+        r"""In the synapse, continuous-valued input ports could be referred to based on their name. When they are moved to the neuron, they need to be referred to by the variable name as it exists on the neuron side. This function performs the variable name replacement recursively in ``astnode``. ``astnode`` can also be a list of nodes."""
+        if not isinstance(astnode, ASTNode):
+            for node in astnode:
+                ASTUtils.replace_post_moved_variable_names(node, post_connected_continuous_input_ports, post_variable_names)
+            return
+
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if var.get_name() in post_connected_continuous_input_ports:
+                idx = post_connected_continuous_input_ports.index(var.get_name())
+                var.set_name(post_variable_names[idx])
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+
+    @classmethod
     def collect_variable_names_in_expression(cls, expr: ASTNode) -> List[ASTVariable]:
         """
         Collect all occurrences of variables (`ASTVariable`) XXX ...
@@ -1623,10 +1669,12 @@ class ASTUtils:
     @classmethod
     def update_initial_values_for_odes(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
         """
-        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model
-        before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
+        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
         assert len(model.get_equations_blocks()) == 1, "Only one equation block should be present"
 
         if not model.get_state_blocks():
@@ -1639,10 +1687,6 @@ class ASTUtils:
                     if cls.is_ode_variable(var.get_name(), model):
                         assert cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
 
-                        # replace the left-hand side variable name by the ode-toolbox format
-                        var.set_name(cls.to_ode_toolbox_processed_name(var.get_complete_name()))
-                        var.set_differential_order(0)
-
                         # replace the defining expression by the ode-toolbox result
                         iv_expr = cls.get_initial_value_from_ode_toolbox_result(
                             cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
@@ -1650,6 +1694,9 @@ class ASTUtils:
                         iv_expr = ModelParser.parse_expression(iv_expr)
                         iv_expr.update_scope(state_block.get_scope())
                         iv_decl.set_expression(iv_expr)
+
+        model.accept(ASTParentVisitor())
+        model.accept(ASTSymbolTableVisitor())
 
     @classmethod
     def integrate_odes_args_strs_from_function_call(cls, function_call: ASTFunctionCall):
@@ -1966,6 +2013,7 @@ class ASTUtils:
         r"""
         Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__conv__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
         """
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         def replace_function_call_through_var(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
@@ -1996,6 +2044,7 @@ class ASTUtils:
             return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
         equations_block.accept(ASTHigherOrderVisitor(func))
+        equations_block.accept(ASTSymbolTableVisitor())
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):

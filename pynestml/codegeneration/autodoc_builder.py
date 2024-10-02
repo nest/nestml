@@ -39,7 +39,7 @@ def get_model_doc_title(model_fname: str):
 class AutodocBuilder(Builder):
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("AUTODOC", options)
+        super().__init__(options)
         self.model_doc_rst = ""
 
     def build(self) -> None:

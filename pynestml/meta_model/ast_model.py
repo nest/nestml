@@ -460,23 +460,27 @@ class ASTModel(ASTNode):
         Adds the handed over declaration the internals block
         :param declaration: a single declaration
         """
-        assert len(self.get_internals_blocks()) <= 1, "Only one internals block supported for now"
         from pynestml.utils.ast_utils import ASTUtils
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+
+        assert len(self.get_internals_blocks()) <= 1, "Only one internals block supported for now"
+
         if not self.get_internals_blocks():
             ASTUtils.create_internal_block(self)
+
         n_declarations = len(self.get_internals_blocks()[0].get_declarations())
         if n_declarations == 0:
             index = 0
         else:
             index = 1 + (index % len(self.get_internals_blocks()[0].get_declarations()))
+
         self.get_internals_blocks()[0].get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks()[0].get_scope())
-        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
-        declaration.accept(symtable_vistor)
-        self.get_internals_blocks()[0].accept(ASTParentVisitor())
+        self.accept(ASTParentVisitor())
+        self.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
         CoCosManager.check_cocos(self)
 
@@ -485,25 +489,26 @@ class ASTModel(ASTNode):
         Adds the handed over declaration to an arbitrary state block. A state block will be created if none exists.
         :param declaration: a single declaration.
         """
-        assert len(self.get_state_blocks()) <= 1, "Only one internals block supported for now"
+        from pynestml.symbols.symbol import SymbolKind
         from pynestml.utils.ast_utils import ASTUtils
-        if not self.get_state_blocks():
-            ASTUtils.create_state_block(self)
-        self.get_state_blocks()[0].get_declarations().append(declaration)
-        declaration.update_scope(self.get_state_blocks()[0].get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+
+        assert len(self.get_state_blocks()) <= 1, "Only one internals block supported for now"
+
+        if not self.get_state_blocks():
+            ASTUtils.create_state_block(self)
+
+        self.get_state_blocks()[0].get_declarations().append(declaration)
+        declaration.update_scope(self.get_state_blocks()[0].get_scope())
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.STATE)
-        declaration.accept(symtable_vistor)
-        CoCosManager.check_cocos(self)
-        self.get_state_blocks()[0].accept(ASTParentVisitor())
+        self.accept(ASTParentVisitor())
+        self.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
-        from pynestml.symbols.symbol import SymbolKind
-        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(
-            declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
-        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(),
-                                                         SymbolKind.VARIABLE) is not None
+
+        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
+        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
 
     def print_comment(self, prefix: str = "") -> str:
         """

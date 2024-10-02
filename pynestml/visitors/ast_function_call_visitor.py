@@ -94,7 +94,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
         # return type of the convolve function is the type of the second parameter multiplied by the unit of time (s)
         if function_name == PredefinedFunctions.CONVOLVE:
-            # Deviations from the assumptions made here are handled in the convolveCoco
             buffer_parameter = node.get_function_call().get_args()[1]
 
             if buffer_parameter.get_variable() is not None:
@@ -112,8 +111,9 @@ class ASTFunctionCallVisitor(ASTVisitor):
             return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
-            # todo: the error message is not used here, fix this
-            # error_msg = ErrorStrings.message_void_function_on_rhs(self, function_name, node.get_source_position())
+            code, message = Messages.get_void_function_on_rhs(function_name)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
             node.type = ErrorTypeSymbol()
             return
 

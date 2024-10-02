@@ -79,9 +79,14 @@ class CoCoAllVariablesDefined(CoCo):
                     # in this case its ok if it is recursive or defined later on
                     continue
 
+                if symbol.is_predefined:
+                    continue
+
+                if symbol.block_type == BlockType.LOCAL and symbol.get_referenced_object().get_source_position().before(var.get_source_position()):
+                    continue
+
                 # check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
-                if (not symbol.is_predefined) \
-                        and symbol.block_type != BlockType.INPUT \
+                if symbol.block_type != BlockType.INPUT \
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))

@@ -27,16 +27,9 @@ import scipy.signal
 
 import nest
 
-from pynestml.utils.ast_source_location import ASTSourceLocation
-from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.predefined_types import PredefinedTypes
-from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.codegeneration.nest_tools import NESTTools
-from pynestml.frontend.pynestml_frontend import generate_nest_target
+from pynestml.frontend.pynestml_frontend import generate_nest_target, generate_target
 from pynestml.utils.logger import LoggingLevel, Logger
-from pynestml.utils.model_parser import ModelParser
 
 try:
     import matplotlib
@@ -227,12 +220,15 @@ class TestIntegrateODEs:
     def test_integrate_odes_params(self):
         r"""Test the integrate_odes() function, in particular with respect to the parameter types."""
 
-        Logger.init_logger(LoggingLevel.INFO)
-        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-        PredefinedUnits.register_units()
-        PredefinedTypes.register_types()
-        PredefinedVariables.register_variables()
-        PredefinedFunctions.register_functions()
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_file(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params.nestml"))))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model.get_model_list()[0], LoggingLevel.ERROR)) == 6
+        fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params.nestml")))
+        generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+
+        assert len(Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)) == 2
+
+    def test_integrate_odes_params2(self):
+        r"""Test the integrate_odes() function, in particular with respect to non-existent parameter variables."""
+
+        fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params2.nestml")))
+        generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+
+        assert len(Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)) == 2

@@ -52,16 +52,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         models = list()
         for child in ctx.model():
             models.append(self.visit(child))
+
         # extract the name of the artifact from the context
         if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed_from_string'
+
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
-        # first ensure certain properties of the model
-        CoCosManager.check_model_names_unique(compilation_unit)
+
         return compilation_unit
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.

@@ -69,6 +69,7 @@ from pynestml.cocos.co_co_function_argument_template_types_consistent import CoC
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.utils.logger import Logger
 
 
 class CoCosManager:
@@ -407,6 +408,8 @@ class CoCosManager:
         Checks all context conditions.
         :param model: a single model object.
         """
+        Logger.set_current_node(model)
+
         cls.check_each_block_defined_at_most_once(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
@@ -452,3 +455,5 @@ class CoCosManager:
         cls.check_co_co_priorities_correctly_specified(model)
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
+
+        Logger.set_current_node(None)

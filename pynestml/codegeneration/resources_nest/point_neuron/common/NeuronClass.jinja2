@@ -1,3 +1,4 @@
+
 {#
 NeuronClass.jinja2
 
@@ -67,6 +68,23 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "lockptrdatum.h"
 
 #include "{{ neuronName }}.h"
+
+// uncomment the next line to enable printing of detailed debug information
+// #define DEBUG
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %} )
+: t_( t )
+, access_counter_ ( 0 )
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+, {{ state_var }}( {{ state_var }} )
+{%-     endfor %}
+{
+}
+{%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
         or nest_version.startswith("v3.3") or nest_version.startswith("v3.4") or nest_version.startswith("v3.5") or nest_version.startswith("v3.6")) %}
@@ -252,7 +270,6 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 {{ neuronName }}::{{ neuronName }}(const {{ neuronName }}& __n):
   {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this)
 {
-
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
 {%-   set node = utils.get_parameter_variable_by_name(astnode, parameter.get_symbol_name()) %}
@@ -733,7 +750,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
     update_delay_variables();
 {%- endif %}
-{%  if neuron.get_update_blocks() %}
 
     /**
      * Begin NESTML generated code for the update block(s)
@@ -763,6 +779,24 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     }
 {%- endfor %}
 
+
+{%- if purely_numeric_state_variables_moved %}
+  /**
+   * numeric state variables moved from synapse to neuron should always be integrated, regardless of calls to integrate_odes() in the neuron
+  **/
+
+  // restore the original values
+{%-     for variable_name in purely_numeric_state_variables_moved %}
+{%-         set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
+{{ printer.print(var_ast) }} = {{ variable_name }}__tmp;
+{%-     endfor %}
+
+{#          emulate a call to ``integrate_odes(purely_numeric_state_variables_moved)`` #}
+{%-         set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved) %}
+{%-         set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endif %}
+
     /**
      * Begin NESTML generated code for the onCondition block(s)
     **/
@@ -790,8 +824,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     /**
      * handle continuous input ports
     **/
-
-{%- for inputPort in neuron.get_continuous_input_ports() %}
+{% for inputPort in neuron.get_continuous_input_ports() %}
 {%-     if use_gap_junctions %}
     if ( called_from_wfr_update )
     {
@@ -876,6 +909,15 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
 {%-     endif %}
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+    write_continuous_variable_history( nest::Time::step( origin.get_steps() + lag + 1 ),
+{%-     for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
+{%-         set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
+      {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
+{%-     endfor %}
+    );
+{%- endif %}
   }
 
 {%- if use_gap_junctions %}
@@ -902,6 +944,67 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
   return wfr_tol_exceeded;
 {%- endif %}
 }
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+void {{neuronName}}::get_continuous_variable_history( double t1,
+  double t2,
+  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
+  std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
+{
+  *finish = continuous_variable_history_.end();
+  if ( continuous_variable_history_.empty() )
+  {
+    *start = *finish;
+    return;
+  }
+  else
+  {
+    std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator runner = continuous_variable_history_.begin();
+
+    // To have a well defined discretization of the integral, we make sure
+    // that we exclude the entry at t1 but include the one at t2 by subtracting
+    // a small number so that runner->t_ is never equal to t1 or t2.
+    while ( ( runner != continuous_variable_history_.end() ) and runner->t_ - 1.0e-6 < t1 )
+    {
+      ++runner;
+    }
+    *start = runner;
+    while ( ( runner != continuous_variable_history_.end() ) and runner->t_ - 1.0e-6 < t2 )
+    {
+      ( runner->access_counter_ )++;
+      ++runner;
+    }
+    *finish = runner;
+  }
+}
+
+void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      const double {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %})
+{
+  const double t_ms = t.get_ms();
+
+  // prune all entries from history which are no longer needed except the penultimate one. we might still need it.
+  while ( continuous_variable_history_.size() > 1 )
+  {
+    if ( continuous_variable_history_.front().access_counter_ >= n_incoming_ )
+    {
+      continuous_variable_history_.pop_front();
+    }
+    else
+    {
+      break;
+    }
+  }
+
+  continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+      {{ state_var }}{% if not loop.last %}, {% endif %}
+{%-     endfor %}) );
+}
+{%- endif %}
 
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
@@ -1144,13 +1247,13 @@ void
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
 {%- for var in purely_numeric_state_variables_moved|sort %}
-    , get_{{ var }}()
+        , get_{{ var }}()
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-    , get_{{ var }}()
+        , get_{{ var }}()
 {%- endfor %}
-, 0
- ) );
+      , 0 // access counter
+    ) );
   }
   else
   {
@@ -1174,6 +1277,10 @@ void
 {%- for var in transferred_variables %}
 {%- with variable_symbol = transferred_variables_syms[var] %}
 
+{%- if not variable_symbol %}
+{%-     set variable_symbol = astnode.get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE) %}
+{%- endif %}
+
 {%- if not var == variable_symbol.get_symbol_name() %}
 {{ raise('Error in resolving variable to symbol') }}
 {%- endif %}
@@ -1191,6 +1298,7 @@ double
 #ifdef DEBUG
     std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \thistory empty, returning initial value = " << {{ var }}__iv << std::endl;
 #endif
+
     // return initial value
     return {{ var }}__iv;
   }
@@ -1234,7 +1342,9 @@ double
 {#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-     filter indent(8, True) %}
+{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-     endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
@@ -1244,6 +1354,7 @@ double
 #ifdef DEBUG
       std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
+
       return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
     }
     --i;
@@ -1262,11 +1373,13 @@ double
 #ifdef DEBUG
     std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
 #endif
+
     return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
   }
 
   // this case occurs when the trace was requested at a time before the first spike in the history
   // return initial value propagated in time
+
 #ifdef DEBUG
   std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \tfall-through, returning initial value = " << {{ var }}__iv << std::endl;
 #endif
@@ -1290,18 +1403,22 @@ double
    * variables that will be integrated: {{ purely_numeric_state_variables_moved + analytic_state_variables_moved }}
   **/
 
-  const double old___h = V_.__h;
-  V_.__h = t;   // from time 0 to the requested time
-  assert(V_.__h > 0);
-  recompute_internal_variables(true);
+  if (t > 1E-12)
+  {
+    const double old___h = V_.__h;
+    V_.__h = t;   // from time 0 to the requested time
+    recompute_internal_variables(true);
 
 {# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- filter indent(8, True) %}
 {%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
 {%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endfilter %}
 
-  V_.__h = old___h;
-  recompute_internal_variables(true);
+    V_.__h = old___h;
+    recompute_internal_variables(true);
+  }
 
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }

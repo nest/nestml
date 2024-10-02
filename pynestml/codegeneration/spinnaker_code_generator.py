@@ -138,7 +138,6 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
-        print("In Python code generator: created self._gsl_variable_printer = " + str(self._gsl_variable_printer))
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=SpinnakerPythonSimpleExpressionPrinter(
             variable_printer=self._gsl_variable_printer,
@@ -184,7 +183,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("SpiNNaker", options)
+        super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
         options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
@@ -199,7 +198,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_cpp = CustomNESTCodeGenerator(options_cpp)
-        self.codegen_cpp._target = "SpiNNaker"
 
         options_py = copy.deepcopy(PythonStandaloneCodeGenerator._default_options)
         options_py["templates"]["model_templates"]["neuron"] = [fname for fname in
@@ -212,7 +210,6 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
-        self.codegen_py._target = "SpiNNaker"
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         cloned_models = []

@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import Any, Sequence, Mapping, Optional, Union
 from pynestml.cocos.co_cos_manager import CoCosManager
 
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -188,7 +189,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         return visitor._variable_names
 
-    def transform_neuron_synapse_pair_(self, neuron, synapse):
+    def transform_neuron_synapse_pair_(self, neuron: ASTModel, synapse: ASTModel):
         r"""
         "Co-generation" or in-tandem generation of neuron and synapse code.
 
@@ -312,6 +313,37 @@ class SynapsePostNeuronTransformer(Transformer):
         # XXX: TODO
 
         #
+        #   collect all ``continuous`` type input ports that are connected to postsynaptic neuron
+        #
+
+        post_connected_continuous_input_ports = []
+        post_variable_names = []
+        for input_block in synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_post_port(port.get_name(), neuron.name, synapse.name) and self.is_continuous_port(port.get_name(), synapse):
+                    post_connected_continuous_input_ports.append(port.get_name())
+                    post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(port.get_name(), neuron.name, synapse.name))
+
+        #
+        #   collect all ``continuous`` type input ports, the value of which is used in event handlers -- these have to be buffered in the hist_entry for each post spike in the postsynaptic history
+        #
+
+        state_vars_that_need_continuous_buffering = []
+        for input_block in new_synapse.get_input_blocks():
+            for port in input_block.get_input_ports():
+                if self.is_continuous_port(port.name, new_synapse):
+                    state_vars_that_need_continuous_buffering.append(port.name)
+
+        # check that they are not used in the update block
+        update_block_var_names = []
+        for update_block in synapse.get_update_blocks():
+            update_block_var_names.extend([var.get_complete_name() for var in ASTUtils.collect_variable_names_in_expression(update_block)])
+
+        assert all([var not in update_block_var_names for var in state_vars_that_need_continuous_buffering])
+
+        Logger.log_message(None, -1, "Synaptic state variables moved to neuron that will need buffering: " + str(state_vars_that_need_continuous_buffering), None, LoggingLevel.INFO)
+
+        #
         #   move defining equations for variables from synapse to neuron
         #
 
@@ -337,6 +369,7 @@ class SynapsePostNeuronTransformer(Transformer):
                                                            var_name_suffix,
                                                            mode="move")
             ASTUtils.add_suffix_to_variable_names2(post_port_names + syn_to_neuron_state_vars + syn_to_neuron_params, decls, var_name_suffix)
+            ASTUtils.replace_post_moved_variable_names(decls, [name + var_name_suffix for name in post_connected_continuous_input_ports], post_variable_names)
             ASTUtils.remove_state_var_from_integrate_odes_calls(new_synapse, state_var)
             # ASTUtils.add_integrate_odes_call_to_update_block(new_neuron, state_var)   # the moved state variables are never needed inside the neuron, their values are only read out from the side of the synapse. Therefore they do not have to be added to integrate_odes() calls; we just have to make sure the value has been updated before the end of the timestep
             # for now, moved variables are integrated separately in time in set_spiketime()
@@ -404,6 +437,7 @@ class SynapsePostNeuronTransformer(Transformer):
 
         Logger.log_message(
             None, -1, "In synapse: replacing ``continuous`` type input ports that are connected to postsynaptic neuron with external variable references", None, LoggingLevel.INFO)
+
         post_connected_continuous_input_ports = []
         post_variable_names = []
         for input_block in synapse.get_input_blocks():
@@ -413,9 +447,9 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(
                         port.get_name(), neuron.name, synapse.name))
 
-        for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
+        for state_var in post_connected_continuous_input_ports:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", new_synapse.get_equations_blocks()[0].get_scope(), alternate_name)
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, "", None, "__" + state_var)
 
         #
         #    copy parameters
@@ -449,11 +483,6 @@ class SynapsePostNeuronTransformer(Transformer):
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
         #
 
-        # make sure the moved symbols can be resolved in the scope of the neuron (that's where ``ASTExternalVariable._altscope`` will be pointing to)
-        ast_symbol_table_visitor = ASTSymbolTableVisitor()
-        new_neuron.accept(ast_symbol_table_visitor)
-        CoCosManager.check_cocos(new_neuron, after_ast_rewrite=True)
-
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
@@ -467,7 +496,9 @@ class SynapsePostNeuronTransformer(Transformer):
         name_separator_str = "__with_"
 
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
+        new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
+        new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
 
         #
         #    rename synapse
