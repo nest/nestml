@@ -80,8 +80,11 @@ class TestNESTContinuousBenchmarking:
                              codegen_opts={"neuron_parent_class": "ArchivingNode",
                                            "neuron_parent_class_include": "archiving_node.h"})
 
-    @benchmark
-    def test_stdp_nn_synapse(self):
+    @pytest.mark.benchmark
+    def test_stdp_nn_synapse(self, benchmark):
+        return benchmark(self._test_stdp_nn_synapse)
+
+    def _test_stdp_nn_synapse(self):
 
         fname_snip = ""
 
