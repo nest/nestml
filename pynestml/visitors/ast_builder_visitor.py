@@ -388,15 +388,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
 
-        # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
-        # # check if this variable was decorated as homogeneous
-        # import pynestml.generated.PyNestMLLexer
-        # is_homogeneous = any([isinstance(ch, pynestml.generated.PyNestMLParser.PyNestMLParser.AnyDecoratorContext) \
-        #   and len(ch.getTokens(pynestml.generated.PyNestMLLexer.PyNestMLLexer.DECORATOR_HOMOGENEOUS)) > 0 \
-        #   for ch in ctx.parentCtx.children])
-        # if is_homogeneous:
-        #     print("\t----> is homogeneous")
-
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
                                                             variables=variables,
                                                             data_type=data_type,

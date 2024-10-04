@@ -35,8 +35,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 class TestCoCos:

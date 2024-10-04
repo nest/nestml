@@ -574,7 +574,6 @@ class ASTModel(ASTNode):
         """
         Returns a list of all spike input ports defined in the model.
         """
-        print("get_spike_input_port_names = " + str([port.get_symbol_name() for port in self.get_spike_input_ports()]))
         return [port.get_symbol_name() for port in self.get_spike_input_ports()]
 
     def get_continuous_input_ports(self) -> List[VariableSymbol]:
