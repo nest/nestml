@@ -101,7 +101,7 @@ model iaf_psc_exp_neuron:
     onReceive(inh_spikes):
         I_syn_inh += inh_spikes * pA * s
 
-    onCondition(V_m >= V_th and refr_t <= 0 ms):
+    onCondition(refr_t <= 0 ms and V_m >= V_th):
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
         V_m = V_reset

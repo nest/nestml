@@ -104,7 +104,7 @@ model aeif_cond_exp_neuron:
             # neuron not refractory
             integrate_odes(w, V_m)
 
-    onCondition(V_m >= V_peak and refr_t <= 0 ms):
+    onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
         V_m = V_reset # clamp potential
