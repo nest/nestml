@@ -278,10 +278,8 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
 
   // copy state struct S_
 {%- for init in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-   set node = utils.get_state_variable_by_name(astnode, init.get_symbol_name()) %}
   {{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }} = __n.{{ nest_codegen_utils.print_symbol_origin(init, node) % printer_no_origin.print(node) }};
-{%-   endif %}
 {%- endfor %}
 
   // copy internals V_
@@ -752,32 +750,10 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
     update_delay_variables();
 {%- endif %}
-
-    /**
-     * subthreshold updates of the convolution variables
-     *
-     * step 1: regardless of whether and how integrate_odes() will be called, update variables due to convolutions
-    **/
-{% if uses_analytic_solver %}
-{%-     for variable_name in analytic_state_variables: %}
-{%-         if "__X__" in variable_name %}
-{%-             set update_expr = update_expressions[variable_name] %}
-{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
-{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-{%-             if use_gap_junctions %}
-    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) | replace("B_." + gap_junction_port + "_grid_sum_", "(B_." + gap_junction_port + "_grid_sum_ + __I_gap)") }};
-{%-             else %}
-    const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}__tmp_ = {{ printer.print(update_expr) }};
-{%-             endif %}
-{%-         endif %}
-{%-     endfor %}
-{%- endif %}
-
-
+{% if neuron.get_update_blocks() %}
     /**
      * Begin NESTML generated code for the update block(s)
     **/
-{%  if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_block() %}
@@ -803,22 +779,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     }
 {%- endfor %}
 
-    /**
-     * subthreshold updates of the convolution variables
-     *
-     * step 2: regardless of whether and how integrate_odes() was called, update variables due to convolutions. Set to the updated values at the end of the timestep.
-    **/
-{%  if uses_analytic_solver %}
-{%-     for variable_name in analytic_state_variables: %}
-{%-         if "__X__" in variable_name %}
-{%-             set update_expr = update_expressions[variable_name] %}
-{%-             set var_ast = utils.get_variable_by_name(astnode, variable_name)%}
-{%-             set var_symbol = var_ast.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)%}
-    {{ printer.print(var_ast) }} = {{variable_name}}__tmp_;
-{%-         endif %}
-{%-     endfor %}
-{%- endif %}
-
 
 {%- if purely_numeric_state_variables_moved %}
   /**
@@ -838,25 +798,22 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%- endif %}
 
     /**
-     * spike updates due to convolutions
-    **/
-{%  filter indent(4) %}
-{%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
-{%- endfilter %}
-
-    /**
      * Begin NESTML generated code for the onCondition block(s)
     **/
 {% if neuron.get_on_condition_blocks() %}
 {%-     for block in neuron.get_on_condition_blocks() %}
+    /**
+     * Begin NESTML generated code for the ``onCondition({{ nestml_printer.print(block.get_cond_expr()) }})`` block
+    **/
+
     if ({{ printer.print(block.get_cond_expr()) }})
     {
 {%-         set ast = block.get_block() %}
 {%-         if ast.print_comment('*') | length > 1 %}
-/*
- {{ast.print_comment('*')}}
- */
-{%-         endif %}
+    /**
+     * {{ ast.print_comment('*') }}
+    **/
+{%          endif %}
 {%-         filter indent(6) %}
 {%-             include "directives_cpp/Block.jinja2" %}
 {%-         endfilter %}
@@ -1282,14 +1239,6 @@ void
 {%-         include "directives_cpp/Statement.jinja2" %}
 {%-     endfor %}
 {%-     endfilter %}
-
-    /**
-     * updates due to convolutions
-    **/
-
-{%-     for _, spike_update in post_spike_updates.items() %}
-    {{ printer.print(utils.get_variable_by_name(astnode, spike_update.get_variable().get_complete_name())) }} += 1.;
-{%-     endfor %}
 
     /**
      * push back history

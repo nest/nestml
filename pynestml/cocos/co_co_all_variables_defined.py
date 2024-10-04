@@ -41,11 +41,10 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTModel, after_ast_rewrite: bool = False):
+    def check_co_co(cls, node: ASTModel):
         """
         Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
-        :param after_ast_rewrite: indicates whether this coco is checked after the code generator has done rewriting of the abstract syntax tree. If True, checks are not as rigorous. Use False where possible.
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()
@@ -62,32 +61,6 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # test if the symbol has been defined at least
                 if symbol is None:
-                    if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
-                        symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                        if symbol2 is not None:
-                            # an inline expression defining this variable name (ignoring differential order) exists
-                            if "__X__" in str(symbol2):     # if this variable was the result of a convolution...
-                                continue
-                    else:
-                        # for kernels, also allow derivatives of that kernel to appear
-
-                        inline_expr_names = []
-                        inline_exprs = []
-                        for equations_block in node.get_equations_blocks():
-                            inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
-                            inline_exprs.extend(equations_block.get_inline_expressions())
-
-                        if var.get_name() in inline_expr_names:
-                            inline_expr_idx = inline_expr_names.index(var.get_name())
-                            inline_expr = inline_exprs[inline_expr_idx]
-                            from pynestml.utils.ast_utils import ASTUtils
-                            if ASTUtils.inline_aliases_convolution(inline_expr):
-                                symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                                if symbol2 is not None:
-                                    # actually, no problem detected, skip error
-                                    # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                    continue
-
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
                     if symbol2 is not None:
@@ -106,9 +79,14 @@ class CoCoAllVariablesDefined(CoCo):
                     # in this case its ok if it is recursive or defined later on
                     continue
 
+                if symbol.is_predefined:
+                    continue
+
+                if symbol.block_type == BlockType.LOCAL and symbol.get_referenced_object().get_source_position().before(var.get_source_position()):
+                    continue
+
                 # check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
-                if (not symbol.is_predefined) \
-                        and symbol.block_type != BlockType.INPUT \
+                if symbol.block_type != BlockType.INPUT \
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ode_toolbox_variable_printer.py
+# nestml_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,19 +19,22 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
-from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 
 
-class ODEToolboxVariablePrinter(VariablePrinter):
+class NESTMLFunctionCallPrinter(FunctionCallPrinter):
     r"""
-    Convert into a format accepted by ODE-toolbox as input.
+    Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def print_variable(self, node: ASTVariable) -> str:
-        r"""
-        Print variable.
-        :param node: the node to print
-        :return: string representation
-        """
-        return node.get_name().replace("$", "__DOLLAR") + "__d" * node.get_differential_order()
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        ret = str(node.get_name()) + "("
+        for i in range(0, len(node.get_args())):
+            ret += self._expression_printer.print(node.get_args()[i])
+            if i < len(node.get_args()) - 1:  # in the case that it is not the last arg, print also a comma
+                ret += ","
+
+        ret += ")"
+
+        return ret

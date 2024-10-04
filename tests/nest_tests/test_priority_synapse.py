@@ -129,7 +129,7 @@ class TestSynapsePriority:
 
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
-        # mm = nest.Create("multimeter", params={"record_from" : ["V_m", "post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"]})
+        # mm = nest.Create("multimeter", params={"record_from" : ["V_m", "post_trace_kernel__for_stdp_nestml__conv__post_spikes__for_stdp_nestml"]})
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})

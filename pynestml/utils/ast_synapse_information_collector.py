@@ -191,10 +191,12 @@ class ASTSynapseInformationCollector(ASTVisitor):
 
     def get_basic_kernel_variable_names(self, synapse_inline):
         """
-        for every occurence of convolve(port, spikes) generate "port__X__spikes" variable
+        for every occurence of convolve(port, spikes) generate "port__conv__spikes" variable
         gather those variables for this synapse inline and return their list
 
-        note that those variables will occur as substring in other kernel variables            i.e  "port__X__spikes__d" or "__P__port__X__spikes__port__X__spikes"
+        note that those variables will occur as substring in other kernel variables
+
+        i.e  "port__conv__spikes__d" or "__P__port__conv__spikes__port__conv__spikes"
 
         so we can use the result to identify all the other kernel variables related to the
         specific synapse inline declaration
@@ -207,7 +209,7 @@ class ASTSynapseInformationCollector(ASTVisitor):
                     kernel_name = kernel_var.get_name()
                     spike_input_port = self.input_port_name_to_input_port[spike_var.get_name(
                     )]
-                    kernel_variable_name = self.construct_kernel_X_spike_buf_name(
+                    kernel_variable_name = self.construct_kernel_spike_buf_name(
                         kernel_name, spike_input_port, order)
                     results.append(kernel_variable_name)
 
@@ -346,4 +348,4 @@ class ASTSynapseInformationCollector(ASTVisitor):
         assert type(kernel_var_name) is str
         assert type(order) is int
         assert type(diff_order_symbol) is str
-        return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+        return kernel_var_name.replace("$", "__DOLLAR") + "__conv__" + str(spike_input_port) + diff_order_symbol * order

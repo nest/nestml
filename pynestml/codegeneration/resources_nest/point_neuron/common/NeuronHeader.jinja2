@@ -191,18 +191,15 @@ public:
   double t_;              //!< point in time when spike occurred (in ms)
 {%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   double {{ var }}_;
+{%- endfor %}
 
-{%-     set inline = utils.get_inline_expression_by_constructed_rhs_name(paired_synapse_original_model, var) %}
-{%-     if inline and utils.inline_aliases_convolution(inline) %}
-  double get_{{ inline.get_variable_name() + "__for_" + paired_synapse_original_model.get_name() }}() const     // getter for an inline expression
-{%-     else %}
+{%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   double get_{{ var }}() const
-{%-     endif %}
   {
     return {{ var }}_;
   }
-
 {%- endfor %}
+
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
@@ -390,10 +387,8 @@ public:
 
 {%      filter indent(2, True) -%}
 {%-         for variable_symbol in neuron.get_state_symbols() %}
-{%-             if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
-{%-                 set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-                 include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
-{%              endif %}
+{%-             set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-             include "directives_cpp/MemberVariableGetterSetter.jinja2" %}
 {%          endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -1015,14 +1010,12 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {%-     endfilter %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or kernel
+  // initial values for state variables in ODEs
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
 {%-     filter indent(2) %}
 {%-             include "directives_cpp/WriteInDictionary.jinja2" %}
 {%-     endfilter %}
-{%-     endif -%}
 {%- endfor %}
 
   {{neuron_parent_class}}::get_status( __d );
@@ -1070,14 +1063,12 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 {%-     endfilter %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or kernel
+  // initial values for state variables in ODEs
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
-{%-         filter indent(2) %}
-{%-             include "directives_cpp/ReadFromDictionaryToTmp.jinja2" %}
-{%-         endfilter %}
-{%-     endif %}
+{%-     filter indent(2) %}
+{%-         include "directives_cpp/ReadFromDictionaryToTmp.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
 
   // We now know that (ptmp, stmp) are consistent. We do not
@@ -1096,11 +1087,9 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d)
 
 {%- for variable_symbol in neuron.get_state_symbols() -%}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-     if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.name)) %}
-{%-         filter indent(2) %}
-{%-             include "directives_cpp/AssignTmpDictionaryValue.jinja2" %}
-{%-         endfilter %}
-{%-     endif %}
+{%-     filter indent(2) %}
+{%-         include "directives_cpp/AssignTmpDictionaryValue.jinja2" %}
+{%-     endfilter %}
 {%- endfor %}
 
 {% for invariant in neuron.get_parameter_invariants() %}

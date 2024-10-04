@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ode_toolbox_variable_printer.py
+# test_function_parameter_templating.py
 #
 # This file is part of NEST.
 #
@@ -19,19 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
-from pynestml.meta_model.ast_variable import ASTVariable
+import os
+
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.frontend.pynestml_frontend import generate_target
 
 
-class ODEToolboxVariablePrinter(VariablePrinter):
-    r"""
-    Convert into a format accepted by ODE-toolbox as input.
+class TestFunctionParameterTemplating:
+    """
+    This test is used to test the correct derivation of types when functions use templated type parameters.
     """
 
-    def print_variable(self, node: ASTVariable) -> str:
-        r"""
-        Print variable.
-        :param node: the node to print
-        :return: string representation
-        """
-        return node.get_name().replace("$", "__DOLLAR") + "__d" * node.get_differential_order()
+    def test(self):
+        fname = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "FunctionParameterTemplatingTest.nestml")))
+        generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+        assert len(Logger.get_all_messages_of_level_and_or_node("templated_function_parameters_type_test", LoggingLevel.ERROR)) == 5

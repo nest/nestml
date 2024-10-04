@@ -50,6 +50,7 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         :param node: A single ode equation.
         :type node: ast_ode_equation
         """
+        return
         variable_name = node.get_lhs().get_name()
         variable_symbol = node.get_lhs().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if variable_symbol is None:

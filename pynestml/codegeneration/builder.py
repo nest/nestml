@@ -20,12 +20,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-import subprocess
-import os
 
 from typing import Any, Mapping, Optional
 
 from abc import ABCMeta, abstractmethod
+import os
+import subprocess
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration

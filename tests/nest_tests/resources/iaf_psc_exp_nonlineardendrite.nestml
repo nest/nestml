@@ -37,13 +37,16 @@ model iaf_psc_exp_nonlineardendrite:
         t_dend_ap ms = 0 ms   # dendritic action potential timer
         dend_curr_enabled real = 1.   # set to 1 to allow synaptic dendritic currents to contribute to V_m integration, 0 otherwise
         I_dend_ap pA = 0 pA
+        I_dend pA = 0 pA
+        I_dend$ pA/s= 0 pA/s
 
     equations:
         kernel I_kernel1 = exp(-t / tau_syn1)
-        kernel I_kernel2 = (e / tau_syn2) * t * exp(-t / tau_syn2)
         kernel I_kernel3 = exp(-t / tau_syn3)
 
-        recordable inline I_dend pA = convolve(I_kernel2, I_2) * pA
+        # alpha kernel for I_dend
+        I_dend' = I_dend$ - I_dend / tau_syn2
+        I_dend$' = -I_dend$ / tau_syn2
 
         inline I_syn pA = convolve(I_kernel1, I_1) * pA + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) * pA + I_e
 
@@ -77,6 +80,9 @@ model iaf_psc_exp_nonlineardendrite:
         # solve ODEs
         integrate_odes()
 
+    onReceive(I_2):
+        I_dend$ += I_2 * 1 pA * 1E3    # s/ms is to convert (1/s) units of spiking input port into (1/ms) because time constants are in ms
+
     onCondition(t_dend_ap > 0 ms):
         # we are in the middle of emitting a dendritic action potential
         t_dend_ap -= resolution()
@@ -84,7 +90,7 @@ model iaf_psc_exp_nonlineardendrite:
             t_dend_ap = 0 ms
             dend_curr_enabled = 1.
             I_dend = 0 pA
-            I_dend' = 0 * s**-1
+            I_dend$ = 0 pA/s
             I_dend_ap = 0 pA
 
     onCondition(I_dend > i_th):

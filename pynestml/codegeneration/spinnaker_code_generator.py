@@ -23,6 +23,7 @@ from typing import Sequence, Optional, Mapping, Any
 
 import copy
 import os
+from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -137,7 +138,6 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
-        print("In Python code generator: created self._gsl_variable_printer = " + str(self._gsl_variable_printer))
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=SpinnakerPythonSimpleExpressionPrinter(
             variable_printer=self._gsl_variable_printer,
@@ -216,6 +216,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         for model in models:
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            CoCosManager.check_cocos(cloned_model)
             cloned_models.append(cloned_model)
 
         self.codegen_cpp.generate_code(cloned_models)
@@ -224,6 +225,7 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         for model in models:
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
+            CoCosManager.check_cocos(cloned_model)
             cloned_models.append(cloned_model)
 
         self.codegen_py.generate_code(cloned_models)
