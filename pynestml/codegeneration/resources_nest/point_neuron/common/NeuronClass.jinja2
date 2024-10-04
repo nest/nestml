@@ -750,7 +750,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
     update_delay_variables();
 {%- endif %}
-
+{% if neuron.get_update_blocks() %}
     /**
      * Begin NESTML generated code for the update block(s)
     **/

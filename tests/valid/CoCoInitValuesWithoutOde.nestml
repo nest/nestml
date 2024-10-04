@@ -38,3 +38,6 @@ model CoCoInitValuesWithoutOde:
 
     equations:
         V_m' = 20mV / s # initial values provided with odes, thus everything is correct
+
+    update:
+        integrate_odes()

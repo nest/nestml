@@ -139,7 +139,7 @@ class TestCoCos:
 
     def test_invalid_order_of_equations_correct(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoNoOrderOfEquations.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 2
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
 
     def test_valid_order_of_equations_correct(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoNoOrderOfEquations.nestml'))

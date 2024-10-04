@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import List, Optional
-from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -482,6 +481,7 @@ class ASTModel(ASTNode):
         self.accept(ASTParentVisitor())
         self.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
+        from pynestml.cocos.co_cos_manager import CoCosManager
         CoCosManager.check_cocos(self)
 
     def add_to_state_block(self, declaration: ASTDeclaration) -> None:
