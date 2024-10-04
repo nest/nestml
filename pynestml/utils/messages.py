@@ -80,7 +80,6 @@ class MessageCode(Enum):
     SYMBOL_NOT_RESOLVED = 48
     SYNAPSE_SOLVED_BY_GSL = 49
     TYPE_MISMATCH = 50
-    NO_SEMANTICS = 51
     NEURON_SOLVED_BY_GSL = 52
     NO_UNIT = 53
     NOT_NEUROSCIENCE_UNIT = 54
@@ -130,8 +129,11 @@ class MessageCode(Enum):
     SYNS_BAD_BUFFER_COUNT = 107
     CM_NO_V_COMP = 108
     MECHS_DICTIONARY_INFO = 109
-    RESOLUTION_FUNC_USED = 110
-    TIMESTEP_FUNCTION_LEGALLY_USED = 111
+    VOID_FUNCTION_ON_RHS = 110
+    NON_CONSTANT_EXPONENT = 111
+    RESOLUTION_FUNC_USED = 112
+    TIMESTEP_FUNCTION_LEGALLY_USED = 113
+    EXPONENT_MUST_BE_INTEGER = 114
 
 
 class Messages:
@@ -1228,16 +1230,15 @@ class Messages:
 
     @classmethod
     def get_expected_cm_function_bad_return_type(
-            cls, ion_channel_name: str, astfun: ASTFunction):
+            cls, ion_channel_name: str, astfun: ASTFunction) -> Tuple[MessageCode, str]:
         message = "'" + ion_channel_name + "' channel function '" + \
             astfun.name + "' must return real. "
         return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message
 
     @classmethod
-    def get_expected_cm_variables_missing_in_blocks(
-            cls,
-            missing_variable_to_proper_block: Iterable,
-            expected_variables_to_reason: dict):
+    def get_expected_cm_variables_missing_in_blocks(cls,
+                                                    missing_variable_to_proper_block: Iterable,
+                                                    expected_variables_to_reason: dict) -> Tuple[MessageCode, str]:
         message = "The following variables not found:\n"
         for missing_var, proper_location in missing_variable_to_proper_block.items():
             message += "Variable with name '" + missing_var
@@ -1248,13 +1249,12 @@ class Messages:
         return MessageCode.CM_VARIABLES_NOT_DECLARED, message
 
     @classmethod
-    def get_cm_variable_value_missing(cls, varname: str):
+    def get_cm_variable_value_missing(cls, varname: str) -> Tuple[MessageCode, str]:
         message = "The following variable has no value assinged: " + varname + "\n"
         return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
 
     @classmethod
-    def get_v_comp_variable_value_missing(
-            cls, neuron_name: str, missing_variable_name):
+    def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name) -> Tuple[MessageCode, str]:
         message = "Missing state variable '" + missing_variable_name
         message += "' inside of neuron '" + neuron_name + "'. "
         message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
@@ -1264,49 +1264,49 @@ class Messages:
         return MessageCode.CM_NO_V_COMP, message
 
     @classmethod
-    def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
+    def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str) -> Tuple[MessageCode, str]:
         message = "Synapse `\'%s\' uses the following input buffers: %s" % (
             synapse_name, buffers)
         message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
-    def get_input_port_size_not_integer(cls, port_name: str):
+    def get_input_port_size_not_integer(cls, port_name: str) -> Tuple[MessageCode, str]:
         message = "The size of the input port " + port_name + " is not of integer type."
         return MessageCode.INPUT_PORT_SIZE_NOT_INTEGER, message
 
     @classmethod
-    def get_input_port_size_not_greater_than_zero(cls, port_name: str):
+    def get_input_port_size_not_greater_than_zero(cls, port_name: str) -> Tuple[MessageCode, str]:
         message = "The size of the input port " + port_name + " must be greater than zero."
         return MessageCode.INPUT_PORT_SIZE_NOT_GREATER_THAN_ZERO, message
 
     @classmethod
-    def get_target_path_info(cls, target_dir: str):
+    def get_target_path_info(cls, target_dir: str) -> Tuple[MessageCode, str]:
         message = "Target platform code will be generated in directory: '" + target_dir + "'"
         return MessageCode.TARGET_PATH_INFO, message
 
     @classmethod
-    def get_install_path_info(cls, install_path: str):
+    def get_install_path_info(cls, install_path: str) -> Tuple[MessageCode, str]:
         message = "Target platform code will be installed in directory: '" + install_path + "'"
         return MessageCode.INSTALL_PATH_INFO, message
 
     @classmethod
-    def get_creating_target_path(cls, target_path: str):
+    def get_creating_target_path(cls, target_path: str) -> Tuple[MessageCode, str]:
         message = "Creating target directory: '" + target_path + "'"
         return MessageCode.CREATING_TARGET_PATH, message
 
     @classmethod
-    def get_creating_install_path(cls, install_path: str):
+    def get_creating_install_path(cls, install_path: str) -> Tuple[MessageCode, str]:
         message = "Creating installation directory: '" + install_path + "'"
         return MessageCode.CREATING_INSTALL_PATH, message
 
     @classmethod
-    def get_integrate_odes_wrong_arg(cls, arg: str):
+    def get_integrate_odes_wrong_arg(cls, arg: str) -> Tuple[MessageCode, str]:
         message = "Parameter provided to integrate_odes() function is not a state variable: '" + arg + "'"
         return MessageCode.INTEGRATE_ODES_WRONG_ARG, message
 
     @classmethod
-    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info):
+    def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info) -> Tuple[MessageCode, str]:
         message = ""
         message += "chan_info:\n" + chan_info + "\n"
         message += "syns_info:\n" + syns_info + "\n"
@@ -1314,6 +1314,16 @@ class Messages:
         message += "con_in_info:\n" + con_in_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message
+
+    @classmethod
+    def get_void_function_on_rhs(cls, function_name: str) -> Tuple[MessageCode, str]:
+        r"""
+        Construct an error message indicating that a void function cannot be used on a RHS.
+        :param function_name: the offending function
+        :return: the error message
+        """
+        message = "Function " + function_name + " with the return-type 'void' cannot be used in expressions."
+        return MessageCode.VOID_FUNCTION_ON_RHS, message
 
     @classmethod
     def get_fixed_timestep_func_used(cls):
@@ -1324,3 +1334,55 @@ class Messages:
     def get_timestep_function_legally_used(cls):
         message = "``timestep()`` function may appear only inside the ``update`` block."
         return MessageCode.TIMESTEP_FUNCTION_LEGALLY_USED, message
+
+    @classmethod
+    def get_ternary_mismatch(cls, if_true_text: str, if_not_text: str) -> Tuple[MessageCode, str]:
+        r"""
+        construct an error message indicating that an a comparison operation has incompatible operands
+        :param if_true_text: plain text of the positive branch of the ternary operator
+        :param if_not_text: plain text of the negative branch of the ternary operator
+        :return: the error message
+        """
+        message = "Mismatched conditional alternatives " + if_true_text + " and " + if_not_text + "-> Assuming real."
+
+        return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
+
+    @classmethod
+    def get_mismatch(cls) -> Tuple[MessageCode, str]:
+        r"""
+        construct an error message indicating that an a comparison operation has incompatible operands
+        :return: the error message
+        """
+        message = "The ternary operator condition must be boolean."
+
+        return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
+
+    @classmethod
+    def get_comparison(cls, message_code: MessageCode) -> Tuple[MessageCode, str]:
+        r"""
+        construct an error message indicating that an a comparison operation has incompatible operands
+        :return: the error message
+        """
+        message = "Operands of logical comparison operator not compatible."
+
+        return message_code, message
+
+    @classmethod
+    def get_unit_base(cls) -> Tuple[MessageCode, str]:
+        """
+        construct an error message indicating that a non-int type was given as exponent to a unit type
+        :return: the error message
+        """
+        message = "With a Unit base, the exponent must be an integer."
+
+        return MessageCode.EXPONENT_MUST_BE_INTEGER, message
+
+    @classmethod
+    def get_non_constant_exponent(cls) -> Tuple[MessageCode, str]:
+        """
+        construct an error message indicating that the exponent given to a unit base is not a constant value
+        :return: the error message
+        """
+        message = "Cannot calculate value of exponent. Must be a constant value!"
+
+        return MessageCode.NON_CONSTANT_EXPONENT, message

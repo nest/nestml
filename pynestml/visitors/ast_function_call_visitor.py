@@ -112,8 +112,9 @@ class ASTFunctionCallVisitor(ASTVisitor):
             return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
-            # todo: the error message is not used here, fix this
-            # error_msg = ErrorStrings.message_void_function_on_rhs(self, function_name, node.get_source_position())
+            code, message = Messages.get_void_function_on_rhs(function_name)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
             node.type = ErrorTypeSymbol()
             return
 

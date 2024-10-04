@@ -78,7 +78,7 @@ class NESTBuilder(Builder):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("NEST", options)
+        super().__init__(options)
 
         # auto-detect NEST Simulator install path
         if not self.option_exists("nest_path") or not self.get_option("nest_path"):
