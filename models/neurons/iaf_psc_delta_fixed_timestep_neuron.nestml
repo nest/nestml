@@ -21,7 +21,7 @@ The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
 [1]_.  A flow chart can be found in [2]_.
 
-This model differs from ``iaf_psc_delta_fixed_timestep`` in that it
+This model differs from ``iaf_psc_delta`` in that it
 assumes a fixed-timestep simulator, so the function ``resolution()``
 can be used.
 
@@ -48,7 +48,6 @@ model iaf_psc_delta_fixed_timestep_neuron:
     state:
         V_m mV = E_L     # Membrane potential
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
     equations:
         kernel K_delta = delta(t)
@@ -75,24 +74,15 @@ model iaf_psc_delta_fixed_timestep_neuron:
         spike
 
     update:
-        if is_refractory:
+        if refr_t > 0 ms:
             # neuron is absolute refractory, do not evolve V_m
             refr_t -= resolution()
         else:
             # neuron not refractory, so evolve all ODEs (including V_m)
             integrate_odes()
 
-    onCondition(not is_refractory and V_m >= V_th):
+    onCondition(refr_t <= resolution() / 2 and V_m >= V_th):
         # threshold crossing
         V_m = V_reset
-
-        if refr_T > 0 ms:
-            refr_t = refr_T    # start of the refractory period
-            is_refractory = true
-
+        refr_t = refr_T    # start of the refractory period
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
