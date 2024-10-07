@@ -73,3 +73,9 @@ class ASTIncludeStmt(ASTNode):
             return False
 
         return self.get_filename().equals(other.get_filename())
+
+    def get_children(self) -> List[ASTNode]:
+        r"""
+        Returns the children of this node, if any.
+        """
+        return []

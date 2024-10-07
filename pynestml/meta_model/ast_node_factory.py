@@ -37,6 +37,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
@@ -310,6 +311,10 @@ class ASTNodeFactory:
         return ASTReturnStmt(expression, source_position=source_position)
 
     @classmethod
+    def create_ast_include_stmt(cls, filename="", source_position=None):
+        return ASTIncludeStmt(filename, source_position=source_position)
+
+    @classmethod
     def create_ast_simple_expression(cls, function_call=None,  # type: Union(ASTFunctionCall,None)
                                      boolean_literal=None,  # type: Union(bool,None)
                                      numeric_literal=None,  # type: Union(float,int)
@@ -327,9 +332,10 @@ class ASTNodeFactory:
                               function_call=None,  # type: ASTFunctionCall
                               declaration=None,  # type: ASTDeclaration
                               return_stmt=None,  # type: ASTReturnStmt
+                              include_stmt=None,  # type: ASTIncludeStmt
                               source_position=None  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTSmallStmt
-        return ASTSmallStmt(assignment, function_call, declaration, return_stmt, source_position=source_position)
+        return ASTSmallStmt(assignment, function_call, declaration, return_stmt, include_stmt, source_position=source_position)
 
     @classmethod
     def create_ast_unary_operator(cls, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False,

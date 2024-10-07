@@ -352,7 +352,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                                                     declaration=declaration, return_stmt=return_stmt,
                                                     include_stmt=include_stmt,
                                                     source_position=create_source_pos(ctx))
-        # update_node_comments(node, self.__comments.visit(ctx))
         update_node_comments(node, self.__comments.visit(ctx))
         return node
 
@@ -405,6 +404,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitReturnStmt(self, ctx):
         ret_expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
         return ASTNodeFactory.create_ast_return_stmt(expression=ret_expression, source_position=create_source_pos(ctx))
+
+    # Visit a parse tree produced by PyNESTMLParser#returnStmt.
+    def visitIncludeStmt(self, ctx):
+        filename = ctx.filename.text[1:-1]   # strip quotation marks
+        return ASTNodeFactory.create_ast_include_stmt(filename=filename, source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#ifStmt.
     def visitIfStmt(self, ctx):

@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.13.0
+# Generated from PyNestMLParser.g4 by ANTLR 4.13.2
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -450,7 +450,7 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.13.0")
+        self.checkVersion("4.13.2")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -2313,6 +2313,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self.filename = None # Token
 
         def INCLUDE_KEYWORD(self):
             return self.getToken(PyNestMLParser.INCLUDE_KEYWORD, 0)
@@ -2341,7 +2342,7 @@ class PyNestMLParser ( Parser ):
             self.state = 340
             self.match(PyNestMLParser.INCLUDE_KEYWORD)
             self.state = 341
-            self.match(PyNestMLParser.STRING_LITERAL)
+            localctx.filename = self.match(PyNestMLParser.STRING_LITERAL)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)

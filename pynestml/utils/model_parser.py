@@ -478,8 +478,7 @@ class ModelParser:
     @classmethod
     def parse_included_file(cls, filename: str):
         with open(filename, 'r') as file:
-            lines = file.readlines()
-
+            lines = file.read()
             ast = None
             try:
                 ast = ModelParser.parse_model(lines)
@@ -570,14 +569,59 @@ class ModelParser:
 
 
 
+# def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
+#     lexer = PyNestMLLexer(InputStream(string))
+#     # create a token stream
+#     stream = CommonTokenStream(lexer)
+#     stream.fill()
+#     parser = PyNestMLParser(stream)
+#     builder = ASTBuilderVisitor(stream.tokens)
+#     return builder, parser
+
+
+
 def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
-    lexer = PyNestMLLexer(InputStream(string))
+
+    lexer = PyNestMLLexer()
+    lexer.removeErrorListeners()
+    lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
+    lexer._errHandler.reset(lexer)
+    lexer.inputStream = InputStream(string)
     # create a token stream
     stream = CommonTokenStream(lexer)
     stream.fill()
-    parser = PyNestMLParser(stream)
+    lexerErrorListener = NestMLErrorListener()
+    if lexerErrorListener._error_occurred:
+        raise Exception("Lexer error")
+
+    # parse the file
+    parser = PyNestMLParser(None)
+    parser.removeErrorListeners()
+    parser._errHandler = BailErrorStrategy()
+    parser._errHandler.reset(parser)
+    parser.setTokenStream(stream)
+
     builder = ASTBuilderVisitor(stream.tokens)
     return builder, parser
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def log_set_added_source_position(node):

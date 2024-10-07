@@ -19,7 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from typing import Optional
+from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -31,6 +33,7 @@ from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode, Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -48,7 +51,6 @@ class ASTIncludeStatementVisitor(ASTVisitor):
         :param expr: an expression
         """
         print(node)
-        import pdb;pdb.set_trace()
 
     def visit_small_stmt(self, node: ASTSmallStmt):
         """
@@ -56,7 +58,14 @@ class ASTIncludeStatementVisitor(ASTVisitor):
         :param expr: an expression
         """
         if node.is_include_stmt():
-            filename = node.get_filename()
+            filename = node.get_include_stmt().get_filename()
+            if not os.path.isabs(filename):
+                filename = os.path.join(self.model_path, filename)
             parsed_included_file = ModelParser.parse_included_file(filename)
             print(parsed_included_file)
-            import pdb;pdb.set_trace()
+            
+            if isinstance(node.get_parent().get_parent(), ASTBlock):
+                idx = node.get_parent().get_parent().get_stmts().index(node.get_parent())
+                blk = node.get_parent().get_parent()
+                blk.get_stmts()[idx] = parsed_included_file
+                blk.accept(ASTParentVisitor())

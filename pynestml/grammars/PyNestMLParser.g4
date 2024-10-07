@@ -153,7 +153,7 @@ parser grammar PyNestMLParser;
                  compoundQuotient=FORWARD_SLASH_EQUALS)
                expression;
 
-  includeStmt : INCLUDE_KEYWORD STRING_LITERAL;
+  includeStmt : INCLUDE_KEYWORD filename=STRING_LITERAL;
   includeStmt_newline : includeStmt NEWLINE;
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:

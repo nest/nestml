@@ -440,6 +440,10 @@ def get_parsed_models() -> List[ASTModel]:
     for model in models:
         model.accept(ASTIncludeStatementVisitor(os.path.dirname(model.file_path)))
 
+    print("After swapping include statements, model: ")
+    print(model)
+    import pdb;pdb.set_trace()
+
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)
 

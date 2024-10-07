@@ -446,7 +446,7 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_include_stmt(self, node: ASTIncludeStmt):
         ret = print_n_spaces(self.indent)
-        ret += "include \"" + node.get_filename() + "\""
+        ret += "include " + node.get_filename()
         return ret
 
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
