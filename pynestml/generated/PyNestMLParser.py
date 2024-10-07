@@ -310,8 +310,8 @@ class PyNestMLParser ( Parser ):
     RULE_compoundStmt = 16
     RULE_smallStmt = 17
     RULE_assignment = 18
-    RULE_includeStatement = 19
-    RULE_includeStatement_newline = 20
+    RULE_includeStmt = 19
+    RULE_includeStmt_newline = 20
     RULE_declaration = 21
     RULE_declaration_newline = 22
     RULE_anyDecorator = 23
@@ -345,7 +345,7 @@ class PyNestMLParser ( Parser ):
                    "simpleExpression", "unaryOperator", "bitOperator", "comparisonOperator", 
                    "logicalOperator", "variable", "functionCall", "inlineExpression", 
                    "odeEquation", "kernel", "block", "stmt", "compoundStmt", 
-                   "smallStmt", "assignment", "includeStatement", "includeStatement_newline", 
+                   "smallStmt", "assignment", "includeStmt", "includeStmt_newline", 
                    "declaration", "declaration_newline", "anyDecorator", 
                    "namespaceDecoratorNamespace", "namespaceDecoratorName", 
                    "returnStmt", "ifStmt", "ifClause", "elifClause", "elseClause", 
@@ -2152,8 +2152,8 @@ class PyNestMLParser ( Parser ):
             return self.getTypedRuleContext(PyNestMLParser.ReturnStmtContext,0)
 
 
-        def includeStatement(self):
-            return self.getTypedRuleContext(PyNestMLParser.IncludeStatementContext,0)
+        def includeStmt(self):
+            return self.getTypedRuleContext(PyNestMLParser.IncludeStmtContext,0)
 
 
         def getRuleIndex(self):
@@ -2199,7 +2199,7 @@ class PyNestMLParser ( Parser ):
 
             elif la_ == 5:
                 self.state = 325
-                self.includeStatement()
+                self.includeStmt()
                 pass
 
 
@@ -2307,7 +2307,7 @@ class PyNestMLParser ( Parser ):
         return localctx
 
 
-    class IncludeStatementContext(ParserRuleContext):
+    class IncludeStmtContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -2321,21 +2321,21 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.STRING_LITERAL, 0)
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_includeStatement
+            return PyNestMLParser.RULE_includeStmt
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitIncludeStatement" ):
-                return visitor.visitIncludeStatement(self)
+            if hasattr( visitor, "visitIncludeStmt" ):
+                return visitor.visitIncludeStmt(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def includeStatement(self):
+    def includeStmt(self):
 
-        localctx = PyNestMLParser.IncludeStatementContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 38, self.RULE_includeStatement)
+        localctx = PyNestMLParser.IncludeStmtContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 38, self.RULE_includeStmt)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 340
@@ -2351,40 +2351,40 @@ class PyNestMLParser ( Parser ):
         return localctx
 
 
-    class IncludeStatement_newlineContext(ParserRuleContext):
+    class IncludeStmt_newlineContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def includeStatement(self):
-            return self.getTypedRuleContext(PyNestMLParser.IncludeStatementContext,0)
+        def includeStmt(self):
+            return self.getTypedRuleContext(PyNestMLParser.IncludeStmtContext,0)
 
 
         def NEWLINE(self):
             return self.getToken(PyNestMLParser.NEWLINE, 0)
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_includeStatement_newline
+            return PyNestMLParser.RULE_includeStmt_newline
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitIncludeStatement_newline" ):
-                return visitor.visitIncludeStatement_newline(self)
+            if hasattr( visitor, "visitIncludeStmt_newline" ):
+                return visitor.visitIncludeStmt_newline(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def includeStatement_newline(self):
+    def includeStmt_newline(self):
 
-        localctx = PyNestMLParser.IncludeStatement_newlineContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 40, self.RULE_includeStatement_newline)
+        localctx = PyNestMLParser.IncludeStmt_newlineContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 40, self.RULE_includeStmt_newline)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 343
-            self.includeStatement()
+            self.includeStmt()
             self.state = 344
             self.match(PyNestMLParser.NEWLINE)
         except RecognitionException as re:
@@ -3348,11 +3348,11 @@ class PyNestMLParser ( Parser ):
         def DEDENT(self):
             return self.getToken(PyNestMLParser.DEDENT, 0)
 
-        def includeStatement_newline(self, i:int=None):
+        def includeStmt_newline(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.IncludeStatement_newlineContext)
+                return self.getTypedRuleContexts(PyNestMLParser.IncludeStmt_newlineContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.IncludeStatement_newlineContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.IncludeStmt_newlineContext,i)
 
 
         def blockWithVariables(self, i:int=None):
@@ -3445,7 +3445,7 @@ class PyNestMLParser ( Parser ):
                 token = self._input.LA(1)
                 if token in [29]:
                     self.state = 455
-                    self.includeStatement_newline()
+                    self.includeStmt_newline()
                     pass
                 elif token in [33, 34, 35]:
                     self.state = 456
@@ -3713,11 +3713,11 @@ class PyNestMLParser ( Parser ):
         def INTERNALS_KEYWORD(self):
             return self.getToken(PyNestMLParser.INTERNALS_KEYWORD, 0)
 
-        def includeStatement_newline(self, i:int=None):
+        def includeStmt_newline(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.IncludeStatement_newlineContext)
+                return self.getTypedRuleContexts(PyNestMLParser.IncludeStmt_newlineContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.IncludeStatement_newlineContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.IncludeStmt_newlineContext,i)
 
 
         def declaration_newline(self, i:int=None):
@@ -3769,7 +3769,7 @@ class PyNestMLParser ( Parser ):
                 token = self._input.LA(1)
                 if token in [29]:
                     self.state = 502
-                    self.includeStatement_newline()
+                    self.includeStmt_newline()
                     pass
                 elif token in [16, 30, 89]:
                     self.state = 503
