@@ -211,7 +211,7 @@ class TestCoCos:
 
     def test_valid_init_values_have_rhs_and_ode(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoInitValuesWithoutOde.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) == 2
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) == 3
 
     def test_invalid_incorrect_return_stmt_detected(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoIncorrectReturnStatement.nestml'))
