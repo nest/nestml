@@ -1,0 +1,46 @@
+"""
+random_functions_illegal_neuron.nestml
+######################################
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+model random_functions_illegal_neuron:
+    state:
+        noise real = random_normal(0,sigma_noise)
+        v mV = -15 mV
+
+    parameters:
+        rate ms**-1 = 15.5 s**-1
+        sigma_noise real = 16.
+        u real = random_uniform(0,1)
+
+    internals:
+        poisson_input integer = random_poisson(rate * resolution() * 1E-3)
+
+    update:
+        if u < 0.5:
+            noise = 0.
+        else:
+            noise = random_normal(0,sigma_noise)
+
+        v += (poisson_input + noise) * mV

@@ -23,11 +23,9 @@ from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
-from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
 from pynestml.cocos.co_co_cm_continuous_input_model import CoCoCmContinuousInputModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
-from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
@@ -43,6 +41,7 @@ from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCo
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
+from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
@@ -401,6 +400,14 @@ class CoCosManager:
         :param model: a single model object
         """
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
+
+    @classmethod
+    def check_co_co_nest_random_functions_legally_used(cls, model: ASTModel):
+        """
+        Checks if the random number functions are used only in the update block.
+        :param model: a single model object.
+        """
+        CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
     @classmethod
     def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
