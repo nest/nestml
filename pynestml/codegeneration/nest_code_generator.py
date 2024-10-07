@@ -28,6 +28,7 @@ import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -172,21 +173,30 @@ class NESTCodeGenerator(CodeGenerator):
         self.setup_printers()
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
-        for synapse in synapses:
-            synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+        for model in neurons + synapses:
+            # Check if the random number functions are used in the right blocks
+            CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
-            # special case for NEST delay variable (state or parameter)
-            assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
-            assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+            if Logger.has_errors(model):
+                raise Exception("Error(s) occurred during code generation")
 
-            # special case for NEST weight variable (state or parameter)
-            assert synapse_name_stripped in self.get_option("weight_variable").keys(), "Please specify a weight variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
-            assert ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]), "Weight variable '" + self.get_option("weight_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+        if self.get_option("neuron_synapse_pairs"):
+            for model in synapses:
+                synapse_name_stripped = removesuffix(removesuffix(model.name.split("_with_")[0], "_"),
+                                                     FrontendConfiguration.suffix)
+                # special case for NEST delay variable (state or parameter)
+                assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+                assert ASTUtils.get_variable_by_name(model, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
 
-            if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
-                delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-                CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
-                if Logger.has_errors(synapse):
+                # special case for NEST weight variable (state or parameter)
+                assert synapse_name_stripped in self.get_option("weight_variable").keys(), "Please specify a weight variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+                assert ASTUtils.get_variable_by_name(model, self.get_option("weight_variable")[synapse_name_stripped]), "Weight variable '" + self.get_option("weight_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+
+                if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
+                    delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
+
+                if Logger.has_errors(model):
                     raise Exception("Error(s) occurred during code generation")
 
     def setup_printers(self):
