@@ -488,14 +488,15 @@ def process() -> bool:
     # validation -- check cocos for models that do not have errors already
     excluded_models = []
     for model in models:
+        if not Logger.has_errors(model.name):
+            CoCosManager.check_cocos(model)
+
         if Logger.has_errors(model.name):
             code, message = Messages.get_model_contains_errors(model.get_name())
             Logger.log_message(node=model, code=code, message=message,
                                error_position=model.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             excluded_models.append(model)
-        else:
-            CoCosManager.check_cocos(model)
 
     # exclude models that have errors
     models = list(set(models) - set(excluded_models))
