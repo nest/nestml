@@ -54,6 +54,8 @@ from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilation
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -388,6 +390,20 @@ class ModelParser:
         return ret
 
     @classmethod
+    def parse_on_receive_block(cls, string: str) -> ASTOnReceiveBlock:
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.onReceiveBlock())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
+    def parse_on_condition_block(cls, string: str) -> ASTOnConditionBlock:
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.onConditionBlock())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
     def parse_parameter(cls, string):
         # type: (str) -> ASTParameter
         (builder, parser) = tokenize(string)
@@ -440,7 +456,7 @@ class ModelParser:
         # type: (str) -> ASTUpdateBlock
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.updateBlock())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        ret.accept(ASTHigherOrderVisitor(log_sparse_included_fileet_added_source_position))
         return ret
 
     @classmethod
@@ -458,6 +474,100 @@ class ModelParser:
         ret = builder.visit(parser.whileStmt())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
+
+    @classmethod
+    def parse_included_file(cls, filename: str):
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+
+            ast = None
+            try:
+                ast = ModelParser.parse_model(lines)
+            except:
+                pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_model_body(lines)
+                except:
+                    pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_block_with_variables(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_equations_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_input_block(lines)
+                except:
+                    pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_output_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_on_receive_block(lines)
+                except:
+                    pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_on_condition_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_update_block(lines)
+                except:
+                    pass
+                
+
+
+
+
+
+
+
+
+
+
+
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_stmt(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_small_stmt(lines)
+                except:
+                    pass
+
+        assert ast
+
+        return ast
+
 
 
 def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:

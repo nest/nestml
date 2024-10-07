@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# include_statement_test.py
+# test_include_statement.py
 #
 # This file is part of NEST.
 #
@@ -23,6 +23,7 @@ import os
 from antlr4.CommonTokenStream import CommonTokenStream
 from antlr4.FileStream import FileStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy
+from pynestml.frontend.pynestml_frontend import generate_target
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -30,18 +31,5 @@ from pynestml.generated.PyNestMLParser import PyNestMLParser
 
 class TestIncludeStatement:
     def test_include_statement(self):
-        input = os.path.realpath(os.path.join(os.path.dirname("__file__"), "resources", "IncludeStatementTest.nestml"))
-
-        input_file = FileStream(input)
-        lexer = PyNestMLLexer(input_file)
-        lexer._errHandler = BailErrorStrategy()
-        lexer._errHandler.reset(lexer)
-        # create a token stream
-        stream = CommonTokenStream(lexer)
-        stream.fill()
-        # parse the file
-        parser = PyNestMLParser(stream)
-        parser._errHandler = BailErrorStrategy()
-        parser._errHandler.reset(parser)
-        compilation_unit = parser.nestMLCompilationUnit()
-        assert compilation_unit is not None
+        fname = os.path.realpath(os.path.join(os.path.dirname("__file__"), "tests", "resources", "IncludeStatementTest.nestml"))
+        generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")

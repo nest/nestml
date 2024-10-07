@@ -38,6 +38,7 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
@@ -443,6 +444,11 @@ class NESTMLPrinter(ModelPrinter):
         ret += "return " + (self.print(node.get_expression()) if node.has_expression() else "")
         return ret
 
+    def print_include_stmt(self, node: ASTIncludeStmt):
+        ret = print_n_spaces(self.indent)
+        ret += "include \"" + node.get_filename() + "\""
+        return ret
+
     def print_simple_expression(self, node: ASTSimpleExpression) -> str:
         if node.is_function_call():
             return self.print(node.function_call)
@@ -481,7 +487,10 @@ class NESTMLPrinter(ModelPrinter):
             ret += print_sl_comment(node.in_comment) + "\n"
         elif node.is_declaration():
             ret = self.print(node.get_declaration())
+        elif node.is_include_stmt():
+            ret = self.print(node.get_include_stmt())
         else:
+            assert node.is_return_stmt()
             ret = self.print(node.get_return_stmt())
         return ret
 

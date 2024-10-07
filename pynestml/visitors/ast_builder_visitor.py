@@ -347,8 +347,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         function_call = self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None
         declaration = self.visit(ctx.declaration()) if ctx.declaration() is not None else None
         return_stmt = self.visit(ctx.returnStmt()) if ctx.returnStmt() is not None else None
+        include_stmt = self.visit(ctx.includeStmt()) if ctx.includeStmt() is not None else None
         node = ASTNodeFactory.create_ast_small_stmt(assignment=assignment, function_call=function_call,
                                                     declaration=declaration, return_stmt=return_stmt,
+                                                    include_stmt=include_stmt,
                                                     source_position=create_source_pos(ctx))
         # update_node_comments(node, self.__comments.visit(ctx))
         update_node_comments(node, self.__comments.visit(ctx))

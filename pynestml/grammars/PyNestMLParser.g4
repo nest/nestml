@@ -143,7 +143,7 @@ parser grammar PyNestMLParser;
             | functionCall
             | declaration
             | returnStmt
-            | includeStatement) NEWLINE;
+            | includeStmt) NEWLINE;
 
   assignment : lhs_variable=variable
                 (directAssignment=EQUALS |
@@ -153,8 +153,8 @@ parser grammar PyNestMLParser;
                  compoundQuotient=FORWARD_SLASH_EQUALS)
                expression;
 
-  includeStatement : INCLUDE_KEYWORD STRING_LITERAL;
-  includeStatement_newline : includeStatement NEWLINE;
+  include : INCLUDE_KEYWORD STRING_LITERAL;
+  includeStmt_newline : includeStmt NEWLINE;
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
@@ -237,7 +237,7 @@ parser grammar PyNestMLParser;
     @attribute function: A block declaring a user-defined function.
   */
   modelBody: COLON
-         NEWLINE INDENT ( includeStatement_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
+         NEWLINE INDENT ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
 
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
@@ -263,7 +263,7 @@ parser grammar PyNestMLParser;
   blockWithVariables:
     blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD)
     COLON
-      NEWLINE INDENT (includeStatement_newline | declaration_newline)+ DEDENT;
+      NEWLINE INDENT (includeStmt_newline | declaration_newline)+ DEDENT;
 
   /** ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated:
       update:

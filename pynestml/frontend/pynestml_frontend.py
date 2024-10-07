@@ -41,6 +41,7 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_include_statement_visitor import ASTIncludeStatementVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -434,6 +435,10 @@ def get_parsed_models() -> List[ASTModel]:
     for compilation_unit in compilation_units:
         CoCosManager.check_model_names_unique(compilation_unit)
         models.extend(compilation_unit.get_model_list())
+
+    # swap include statements for included file
+    for model in models:
+        model.accept(ASTIncludeStatementVisitor(os.path.dirname(model.file_path)))
 
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)
