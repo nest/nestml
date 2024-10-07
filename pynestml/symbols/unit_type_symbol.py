@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -131,12 +132,12 @@ class UnitTypeSymbol(TypeSymbol):
     def add_or_sub_another_unit(self, other):
         if self.equals(other):
             return other
-        else:
-            return self.attempt_magnitude_cast(other)
+
+        return self.attempt_magnitude_cast(other)
 
     def attempt_magnitude_cast(self, other):
         if self.differs_only_in_magnitude(other):
-            factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, other.astropy_unit)
+            factor = UnitTypeSymbol.get_conversion_factor(other.astropy_unit, self.astropy_unit)
             other.referenced_object.set_implicit_conversion_factor(factor)
             code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
             Logger.log_message(code=code, message=message,
@@ -144,18 +145,20 @@ class UnitTypeSymbol(TypeSymbol):
                                log_level=LoggingLevel.INFO)
 
             return self
-        else:
-            return self.binary_operation_not_defined_error('+/-', other)
 
-    # TODO: change order of parameters to conform with the from_to scheme.
-    # TODO: Also rename to reflect that, i.e. get_conversion_factor_from_to
+        return self.binary_operation_not_defined_error('+/-', other)
+
     @classmethod
-    def get_conversion_factor(cls, to, _from):
+    def get_conversion_factor(cls, _from, to) -> Optional[float]:
         """
-        Calculates the conversion factor from _convertee_unit to target_unit.
-        Behaviour is only well-defined if both units have the same physical base type
+        Calculates the conversion factor from _convertee_unit to target_unit. Behaviour is only well-defined if both units have the same physical base type.
         """
-        factor = (_from / to).si.scale
+        try:
+            factor = (_from / to).si.scale
+        except BaseException:
+            # this can fail in case of e.g. trying to convert from "1/s" to "2/s"
+            return None
+
         return factor
 
     def is_castable_to(self, _other_type):

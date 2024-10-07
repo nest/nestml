@@ -23,11 +23,9 @@ from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
-from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
 from pynestml.cocos.co_co_cm_continuous_input_model import CoCoCmContinuousInputModel
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
-from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
@@ -43,6 +41,7 @@ from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCo
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
+from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
@@ -69,6 +68,7 @@ from pynestml.cocos.co_co_function_argument_template_types_consistent import CoC
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.utils.logger import Logger
 
 
 class CoCosManager:
@@ -123,12 +123,12 @@ class CoCosManager:
         CoCoStateVariablesInitialized.check_co_co(model)
 
     @classmethod
-    def check_variables_defined_before_usage(cls, model: ASTModel, after_ast_rewrite: bool) -> None:
+    def check_variables_defined_before_usage(cls, model: ASTModel) -> None:
         """
         Checks that all variables are defined before being used.
         :param model: a single model.
         """
-        CoCoAllVariablesDefined.check_co_co(model, after_ast_rewrite)
+        CoCoAllVariablesDefined.check_co_co(model)
 
     @classmethod
     def check_v_comp_requirement(cls, neuron: ASTModel):
@@ -402,17 +402,27 @@ class CoCosManager:
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, model: ASTModel, after_ast_rewrite: bool = False):
+    def check_co_co_nest_random_functions_legally_used(cls, model: ASTModel):
+        """
+        Checks if the random number functions are used only in the update block.
+        :param model: a single model object.
+        """
+        CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
+
+    @classmethod
+    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
         :param model: a single model object.
         """
+        Logger.set_current_node(model)
+
         cls.check_each_block_defined_at_most_once(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
-        cls.check_variables_defined_before_usage(model, after_ast_rewrite)
+        cls.check_variables_defined_before_usage(model)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(model)
@@ -452,3 +462,5 @@ class CoCosManager:
         cls.check_co_co_priorities_correctly_specified(model)
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
+
+        Logger.set_current_node(None)

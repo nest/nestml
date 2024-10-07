@@ -41,6 +41,8 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 def get_known_targets():
@@ -131,10 +133,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         return SpiNNakerCodeGenerator(options)
 
     if target_name.upper() == "NONE":
-        # dummy/null target: user requested to not generate any code
+        # dummy/null target: user requested to not generate any code (for instance, when just doing validation of a model)
         code, message = Messages.get_no_code_generated()
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-        return CodeGenerator("", options)
+        return CodeGenerator(options)
 
     # cannot reach here due to earlier assert -- silence static checker warnings
     assert "Unknown code generator requested: " + target_name
@@ -193,12 +195,17 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
+
+    Return
+    ------
+    errors_occurred
+        Flag indicating whether errors occurred during processing. False if processing was successful; True if errors occurred in any of the models.
     """
 
     configure_front_end(input_path, target_platform, target_path, install_path, logging_level,
                         module_name, store_log, suffix, dev, codegen_opts)
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
+
+    return process()
 
 
 def configure_front_end(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
@@ -373,34 +380,36 @@ def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], ta
 
 
 def main() -> int:
-    """
+    r"""
     Entry point for the command-line application.
 
     Returns
     -------
-    The process exit code: 0 for success, > 0 for failure
+    exit_code
+        The process exit code: 0 for success, > 0 for failure
     """
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException as e:
         print(e)
+
         return 1
+
     # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
+
     # after all argument have been collected, start the actual processing
     return int(process())
 
 
-def get_parsed_models():
+def get_parsed_models() -> List[ASTModel]:
     r"""
    Handle the parsing and validation of the NESTML files
 
     Returns
     -------
-    models: Sequence[ASTModel]
+    models
         List of correctly parsed models
-    errors_occurred : bool
-        Flag indicating whether errors occurred during processing
     """
     # init log dir
     create_report_dir()
@@ -417,36 +426,29 @@ def get_parsed_models():
 
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_file(nestml_file)
-        if parsed_unit is None:
-            # Parsing error in the NESTML model, return True
-            return [],  True
+        if parsed_unit:
+            compilation_units.append(parsed_unit)
 
-        compilation_units.append(parsed_unit)
+    # generate a list of all models
+    models: Sequence[ASTModel] = []
+    for compilation_unit in compilation_units:
+        CoCosManager.check_model_names_unique(compilation_unit)
+        models.extend(compilation_unit.get_model_list())
 
-    if len(compilation_units) > 0:
-        # generate a list of all models
-        models: Sequence[ASTModel] = []
-        for compilationUnit in compilation_units:
-            models.extend(compilationUnit.get_model_list())
+    # check that no models with duplicate names have been defined
+    CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
-        # check that no models with duplicate names have been defined
-        CoCosManager.check_no_duplicate_compilation_unit_names(models)
+    for model in models:
+        model.accept(ASTParentVisitor())
+        model.accept(ASTSymbolTableVisitor())
 
-        # now exclude those which are broken, i.e. have errors.
-        for model in models:
-            if Logger.has_errors(model):
-                code, message = Messages.get_model_contains_errors(model.get_name())
-                Logger.log_message(node=model, code=code, message=message,
-                                   error_position=model.get_source_position(),
-                                   log_level=LoggingLevel.WARNING)
-                return [model], True
-
-        return models, False
+    return models
 
 
 def transform_models(transformers, models):
     for transformer in transformers:
         models = transformer.transform(models)
+
     return models
 
 
@@ -454,44 +456,65 @@ def generate_code(code_generators, models):
     code_generators.generate_code(models)
 
 
-def process():
+def process() -> bool:
     r"""
     The main toolchain workflow entry point. For all models: parse, validate, transform, generate code and build.
 
-    Returns
-    -------
-    errors_occurred : bool
-        Flag indicating whether errors occurred during processing
+    Return
+    ------
+    errors_occurred
+        Flag indicating whether errors occurred during processing. False if processing was successful; True if errors occurred in any of the models.
     """
 
-    # initialize and set options for transformers, code generator and builder
-    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    # initialise model transformers
+    transformers, unused_opts_transformer = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                          options=FrontendConfiguration.get_codegen_opts())
 
-    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                                           options=codegen_and_builder_opts)
-
+    # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
-    codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
+    unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
 
-    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
+    # initialise builder
+    _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                             options=FrontendConfiguration.get_codegen_opts())
 
-    if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+    # check for unused codegen options
+    for opt_key in FrontendConfiguration.get_codegen_opts().keys():
+        if opt_key in unused_opts_transformer.keys() and opt_key in unused_opts_codegen.keys() and opt_key in unused_opts_builder.keys():
+            raise CodeGeneratorOptionsException("The code generator option \"" + opt_key + "\" does not exist.")
 
-    models, errors_occurred = get_parsed_models()
+    models = get_parsed_models()
 
-    if not errors_occurred:
-        models = transform_models(transformers, models)
-        generate_code(code_generator, models)
+    # validation -- check cocos for models that do not have errors already
+    excluded_models = []
+    for model in models:
+        if Logger.has_errors(model.name):
+            code, message = Messages.get_model_contains_errors(model.get_name())
+            Logger.log_message(node=model, code=code, message=message,
+                               error_position=model.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
+            excluded_models.append(model)
+        else:
+            CoCosManager.check_cocos(model)
 
-        # perform build
-        if _builder is not None:
-            _builder.build()
+    # exclude models that have errors
+    models = list(set(models) - set(excluded_models))
+
+    # transformation(s)
+    models = transform_models(transformers, models)
+
+    # generate code
+    generate_code(code_generator, models)
+
+    # perform build
+    if _builder is not None:
+        _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    return errors_occurred
+    # return a boolean indicating whether errors occurred
+    return len(Logger.get_all_messages_of_level(LoggingLevel.ERROR)) > 0
 
 
 def init_predefined():
