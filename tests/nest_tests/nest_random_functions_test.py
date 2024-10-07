@@ -27,7 +27,7 @@ from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 class TestNestRandomFunctions:
     """
-    Tests for random number functions in NEST are declared only in ``update``, ``onReceive``, and ``onConditionBlock`` block
+    Tests that, for the NEST target, random number functions are called only in ``update``, ``onReceive``, and ``onCondition`` block
     """
 
     @pytest.mark.xfail(strict=True, raises=Exception)
