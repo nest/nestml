@@ -133,6 +133,7 @@ class MessageCode(Enum):
     NON_CONSTANT_EXPONENT = 111
     RESOLUTION_FUNC_USED = 112
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
+    RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
 
 
@@ -1386,3 +1387,8 @@ class Messages:
         message = "Cannot calculate value of exponent. Must be a constant value!"
 
         return MessageCode.NON_CONSTANT_EXPONENT, message
+
+    @classmethod
+    def get_random_functions_legally_used(cls, name):
+        message = "The function '" + name + "' can only be used in the update, onReceive, or onCondition blocks."
+        return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
