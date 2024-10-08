@@ -177,7 +177,7 @@ class NESTCodeGenerator(CodeGenerator):
             # Check if the random number functions are used in the right blocks
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
-            if Logger.has_errors(model):
+            if Logger.has_errors(model.name):
                 raise Exception("Error(s) occurred during code generation")
 
         if self.get_option("neuron_synapse_pairs"):
@@ -196,7 +196,7 @@ class NESTCodeGenerator(CodeGenerator):
                     delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
                     CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
 
-                if Logger.has_errors(model):
+                if Logger.has_errors(model.name):
                     raise Exception("Error(s) occurred during code generation")
 
     def setup_printers(self):
