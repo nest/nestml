@@ -43,7 +43,7 @@ double f[State_::STATE_VEC_SIZE];
 {{neuronName}}_dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}( get_t(), S_.ode_state, f, reinterpret_cast< void* >( this ) );
 for (size_t i = 0; i < State_::STATE_VEC_SIZE; ++i)
 {
-    S_.ode_state[i] += __resolution * f[i];
+    S_.ode_state[i] += __timestep * f[i];
 }
 {%- else %}
 {{ raise('Unknown numeric ODE solver requested.') }}

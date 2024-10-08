@@ -45,9 +45,11 @@ class NESTCppFunctionCallPrinter(CppFunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
-        if function_name in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
-            # context dependent; we assume the template contains the necessary definitions
-            return '__resolution'
+        if function_name == PredefinedFunctions.TIME_TIMESTEP:
+            return '__timestep'
+
+        if function_name == PredefinedFunctions.TIME_RESOLUTION:
+            return 'nest::Time::get_resolution().get_ms()'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
