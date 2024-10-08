@@ -47,8 +47,6 @@ class NestNonLinearDendriteTest(unittest.TestCase):
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
     def test_non_linear_dendrite(self):
-        MAX_SSE = 1E-12
-
         I_dend_alias_name = "I_dend"  # synaptic current
         I_dend_internal_name = "I_kernel2__X__I_2"  # alias for the synaptic current
 
