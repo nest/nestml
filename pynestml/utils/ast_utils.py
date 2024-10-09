@@ -685,7 +685,32 @@ class ASTUtils:
         return None
 
     @classmethod
-    def replace_with_external_variable(cls, var_name, node: ASTNode, suffix, new_scope, alternate_name=None):
+    def print_alternate_var_name(cls, var_name, continuous_post_ports):
+        for pair in continuous_post_ports:
+            if pair[0] == var_name:
+                return pair[1]
+
+        assert False
+
+    @classmethod
+    def get_post_ports_of_neuron_synapse_pair(cls, neuron, synapse, codegen_opts_pairs):
+        for pair in codegen_opts_pairs:
+            if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+               and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
+               and "post_ports" in pair.keys():
+                return pair["post_ports"]
+
+        return []
+
+    @classmethod
+    def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port):
+        for pair in post_port_names:
+            if pair[0] == post_port:
+                return pair[1]
+        return None
+
+    @classmethod
+    def replace_with_external_variable(cls, var_name, node: ASTNode, suffix: str, new_scope, alternate_name=None):
         r"""
         Replace all occurrences of variables (``ASTVariable``s) (e.g. ``post_trace'``) in the node with ``ASTExternalVariable``s, indicating that they are moved to the postsynaptic neuron.
         """
@@ -1581,6 +1606,28 @@ class ASTUtils:
                     if var.get_name() == var_name:
                         return decl
         return None
+
+    @classmethod
+    def replace_post_moved_variable_names(cls, astnode, post_connected_continuous_input_ports, post_variable_names):
+        r"""In the synapse, continuous-valued input ports could be referred to based on their name. When they are moved to the neuron, they need to be referred to by the variable name as it exists on the neuron side. This function performs the variable name replacement recursively in ``astnode``. ``astnode`` can also be a list of nodes."""
+        if not isinstance(astnode, ASTNode):
+            for node in astnode:
+                ASTUtils.replace_post_moved_variable_names(node, post_connected_continuous_input_ports, post_variable_names)
+            return
+
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if var.get_name() in post_connected_continuous_input_ports:
+                idx = post_connected_continuous_input_ports.index(var.get_name())
+                var.set_name(post_variable_names[idx])
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
     def collect_variable_names_in_expression(cls, expr: ASTNode) -> List[ASTVariable]:

@@ -44,7 +44,7 @@ from pynestml.utils.model_parser import ModelParser
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "spinnaker", "NEST_DESKTOP", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -107,6 +107,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     if target_name.upper() == "PYTHON_STANDALONE":
         from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
         return PythonStandaloneCodeGenerator(options)
+
+    if target_name.upper() == "PRETTY_RENDER":
+        from pynestml.codegeneration.pretty_render_code_generator import PrettyRenderCodeGenerator
+        return PrettyRenderCodeGenerator()
 
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
@@ -460,19 +464,22 @@ def process():
         Flag indicating whether errors occurred during processing
     """
 
-    # initialize and set options for transformers, code generator and builder
-    codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+    # initialise model transformers
+    transformers, unused_opts_transformer = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                                          options=FrontendConfiguration.get_codegen_opts())
 
-    transformers, codegen_and_builder_opts = transformers_from_target_name(FrontendConfiguration.get_target_platform(),
-                                                                           options=codegen_and_builder_opts)
-
+    # initialise code generator
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
-    codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
+    unused_opts_codegen = code_generator.set_options(FrontendConfiguration.get_codegen_opts())
 
-    _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)
+    # initialise builder
+    _builder, unused_opts_builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                             options=FrontendConfiguration.get_codegen_opts())
 
-    if len(codegen_and_builder_opts) > 0:
-        raise CodeGeneratorOptionsException("The code generator option(s) \"" + ", ".join(codegen_and_builder_opts.keys()) + "\" do not exist.")
+    # check for unused codegen options
+    for opt_key in FrontendConfiguration.get_codegen_opts().keys():
+        if opt_key in unused_opts_transformer.keys() and opt_key in unused_opts_codegen.keys() and opt_key in unused_opts_builder.keys():
+            raise CodeGeneratorOptionsException("The code generator option \"" + opt_key + "\" does not exist.")
 
     models, errors_occurred = get_parsed_models()
 

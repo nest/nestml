@@ -28,6 +28,7 @@ import odetoolbox
 import pynestml
 
 from pynestml.cocos.co_co_nest_synapse_delay_not_assigned_to import CoCoNESTSynapseDelayNotAssignedTo
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -58,10 +59,12 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -149,7 +152,7 @@ class NESTCodeGenerator(CodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("NEST", options)
+        super().__init__(options)
 
         # auto-detect NEST Simulator installed version
         if not self.option_exists("nest_version") or not self.get_option("nest_version"):
@@ -170,21 +173,30 @@ class NESTCodeGenerator(CodeGenerator):
         self.setup_printers()
 
     def run_nest_target_specific_cocos(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
-        for synapse in synapses:
-            synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+        for model in neurons + synapses:
+            # Check if the random number functions are used in the right blocks
+            CoCosManager.check_co_co_nest_random_functions_legally_used(model)
 
-            # special case for NEST delay variable (state or parameter)
-            assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
-            assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+            if Logger.has_errors(model):
+                raise Exception("Error(s) occurred during code generation")
 
-            # special case for NEST weight variable (state or parameter)
-            assert synapse_name_stripped in self.get_option("weight_variable").keys(), "Please specify a weight variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
-            assert ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]), "Weight variable '" + self.get_option("weight_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+        if self.get_option("neuron_synapse_pairs"):
+            for model in synapses:
+                synapse_name_stripped = removesuffix(removesuffix(model.name.split("_with_")[0], "_"),
+                                                     FrontendConfiguration.suffix)
+                # special case for NEST delay variable (state or parameter)
+                assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+                assert ASTUtils.get_variable_by_name(model, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
 
-            if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
-                delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-                CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, synapse)
-                if Logger.has_errors(synapse):
+                # special case for NEST weight variable (state or parameter)
+                assert synapse_name_stripped in self.get_option("weight_variable").keys(), "Please specify a weight variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+                assert ASTUtils.get_variable_by_name(model, self.get_option("weight_variable")[synapse_name_stripped]), "Weight variable '" + self.get_option("weight_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+
+                if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
+                    delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
+
+                if Logger.has_errors(model):
                     raise Exception("Error(s) occurred during code generation")
 
     def setup_printers(self):
@@ -520,6 +532,21 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["paired_neuron_name"] = synapse.paired_neuron.get_name()
             namespace["post_ports"] = synapse.post_port_names
             namespace["spiking_post_ports"] = synapse.spiking_post_port_names
+
+            if "state_vars_that_need_continuous_buffering" in dir(synapse.paired_neuron):
+                namespace["state_vars_that_need_continuous_buffering"] = synapse.paired_neuron.state_vars_that_need_continuous_buffering
+                codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+                xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
+                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(synapse.paired_neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(synapse.paired_neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in synapse.paired_neuron.state_vars_that_need_continuous_buffering]
+                namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
+                for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
+                    namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(synapse.paired_neuron.get_initial_value(var_name_transformed))
+
+            namespace["continuous_post_ports"] = []
+            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys():
+                post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(synapse.paired_neuron, synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
+                namespace["continuous_post_ports"] = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+
             namespace["vt_ports"] = synapse.vt_port_names
             namespace["pre_ports"] = list(set(all_input_port_names)
                                           - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
@@ -622,6 +649,17 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = self._get_model_namespace(neuron)
 
         if "paired_synapse" in dir(neuron):
+            if "state_vars_that_need_continuous_buffering" in dir(neuron):
+                namespace["state_vars_that_need_continuous_buffering"] = neuron.state_vars_that_need_continuous_buffering
+
+                codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
+                xfrm = SynapsePostNeuronTransformer(codegen_and_builder_opts)
+                namespace["state_vars_that_need_continuous_buffering_transformed"] = [xfrm.get_neuron_var_name_from_syn_port_name(port_name, removesuffix(neuron.unpaired_name, FrontendConfiguration.suffix), removesuffix(neuron.paired_synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix)) for port_name in neuron.state_vars_that_need_continuous_buffering]
+                namespace["state_vars_that_need_continuous_buffering_transformed_iv"] = {}
+                for var_name, var_name_transformed in zip(namespace["state_vars_that_need_continuous_buffering"], namespace["state_vars_that_need_continuous_buffering_transformed"]):
+                    namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
+            else:
+                namespace["state_vars_that_need_continuous_buffering"] = []
             namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
             namespace["paired_synapse"] = neuron.paired_synapse
             namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
