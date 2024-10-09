@@ -86,7 +86,7 @@ class KernelUsageVisitor(ASTVisitor):
             symbol = node.get_scope().resolve_to_symbol(kernelName, SymbolKind.VARIABLE)
             # if it is not a kernel just continue
             if symbol is None:
-                if not (isinstance(node, ASTVariable) and node.get_alternate_name()):
+                if not (isinstance(node, ASTExternalVariable) and node.get_alternate_name()):
                     code, message = Messages.get_no_variable_found(kernelName)
                     Logger.log_message(node=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
                 continue
