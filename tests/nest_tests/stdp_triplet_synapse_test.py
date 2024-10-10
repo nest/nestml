@@ -456,19 +456,7 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     compare_results(ref_timevec, ref_w, nestml_timevec, nestml_w)
 
 
+@pytest.mark.parametrize("delay", [1., 5., 10.])
 @pytest.mark.parametrize("spike_times_len", [10])
-def test_stdp_triplet_synapse_delay_1(spike_times_len):
-    delay = 1.
-    _test_stdp_triplet_synapse(delay, spike_times_len)
-
-
-@pytest.mark.parametrize("spike_times_len", [10])
-def test_stdp_triplet_synapse_delay_5(spike_times_len):
-    delay = 5.
-    _test_stdp_triplet_synapse(delay, spike_times_len)
-
-
-@pytest.mark.parametrize("spike_times_len", [10])
-def test_stdp_triplet_synapse_delay_10(spike_times_len):
-    delay = 10.
+def test_stdp_triplet_synapse_delay_1(spike_times_len, delay):
     _test_stdp_triplet_synapse(delay, spike_times_len)
