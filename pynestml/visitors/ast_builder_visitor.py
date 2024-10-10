@@ -52,16 +52,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         models = list()
         for child in ctx.model():
             models.append(self.visit(child))
+
         # extract the name of the artifact from the context
         if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed_from_string'
+
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
-        # first ensure certain properties of the model
-        CoCosManager.check_model_names_unique(compilation_unit)
+
         return compilation_unit
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.
@@ -386,15 +387,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
-
-        # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
-        # # check if this variable was decorated as homogeneous
-        # import pynestml.generated.PyNestMLLexer
-        # is_homogeneous = any([isinstance(ch, pynestml.generated.PyNestMLParser.PyNestMLParser.AnyDecoratorContext) \
-        #   and len(ch.getTokens(pynestml.generated.PyNestMLLexer.PyNestMLLexer.DECORATOR_HOMOGENEOUS)) > 0 \
-        #   for ch in ctx.parentCtx.children])
-        # if is_homogeneous:
-        #     print("\t----> is homogeneous")
 
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
                                                             variables=variables,
