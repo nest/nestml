@@ -44,4 +44,4 @@ model time_variable_pre_post_synapse:
     post_spikes <- spike
 
   update:
-    x = t + resolution()
+    x = t + timestep()
