@@ -59,6 +59,7 @@ class AssignImplicitConversionFactorsTransformer(Transformer):
 
         if single:
             return models[0]
+
         return models
 
     def __assign_return_types(self, _node):
@@ -138,7 +139,8 @@ class AssignImplicitConversionFactorsTransformer(Transformer):
                                            code=code, message=message, log_level=LoggingLevel.ERROR)
                     elif not type_of_return.equals(type_symbol):
                         TypeCaster.try_to_recover_or_error(type_symbol, type_of_return,
-                                                           stmt.get_return_stmt().get_expression())
+                                                           stmt.get_return_stmt().get_expression(),
+                                                           set_implicit_conversion_factor_on_lhs=True)
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.is_if_stmt():
@@ -192,7 +194,8 @@ class AssignImplicitConversionFactorVisitor(ASTVisitor):
                 LoggingHelper.drop_missing_type_error(node)
                 return
             if self.__types_do_not_match(lhs_type, rhs_type):
-                TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
+                TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression(),
+                                                   set_implicit_conversion_factor_on_lhs=True)
 
     def visit_inline_expression(self, node):
         """
@@ -206,7 +209,8 @@ class AssignImplicitConversionFactorVisitor(ASTVisitor):
             return
 
         if self.__types_do_not_match(lhs_type, rhs_type):
-            TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
+            TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression(),
+                                               set_implicit_conversion_factor_on_lhs=True)
 
     def visit_assignment(self, node):
         """
@@ -245,21 +249,24 @@ class AssignImplicitConversionFactorVisitor(ASTVisitor):
         if node.is_compound_product:
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol,
-                                                   node.get_expression())
+                                                   node.get_expression(),
+                                                   set_implicit_conversion_factor_on_lhs=True)
                 return
             return
 
         if node.is_compound_quotient:
             if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
                 TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
-                                                   node.get_expression())
+                                                   node.get_expression(),
+                                                   set_implicit_conversion_factor_on_lhs=True)
                 return
             return
 
         assert node.is_compound_sum or node.is_compound_minus
         if self.__types_do_not_match(lhs_type_symbol, rhs_type_symbol):
             TypeCaster.try_to_recover_or_error(lhs_type_symbol, rhs_type_symbol,
-                                               node.get_expression())
+                                               node.get_expression(),
+                                               set_implicit_conversion_factor_on_lhs=True)
 
     @staticmethod
     def __types_do_not_match(lhs_type_symbol, rhs_type_symbol):
@@ -281,7 +288,8 @@ class AssignImplicitConversionFactorVisitor(ASTVisitor):
         if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol.get_type_symbol(),
                                                                          rhs_type_symbol):
             TypeCaster.try_to_recover_or_error(lhs_variable_symbol.get_type_symbol(), rhs_type_symbol,
-                                               node.get_expression())
+                                               node.get_expression(),
+                                               set_implicit_conversion_factor_on_lhs=True)
 
     def visit_function_call(self, node):
         """
@@ -332,4 +340,5 @@ class AssignImplicitConversionFactorVisitor(ASTVisitor):
                 return
 
             if not actual_type.equals(expected_type) and not isinstance(expected_type, TemplateTypeSymbol):
-                TypeCaster.try_to_recover_or_error(expected_type, actual_type, actual_arg)
+                TypeCaster.try_to_recover_or_error(expected_type, actual_type, actual_arg,
+                                                   set_implicit_conversion_factor_on_lhs=True)

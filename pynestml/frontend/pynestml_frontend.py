@@ -438,10 +438,6 @@ def get_parsed_models() -> List[ASTModel]:
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
-    for model in models:
-        model.accept(ASTParentVisitor())
-        model.accept(ASTSymbolTableVisitor())
-
     return models
 
 
