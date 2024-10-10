@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# assign_implicit_conversion_factors_transformer.py
+# assign_implicit_conversion_factors_visitor.py
 #
 # This file is part of NEST.
 #
@@ -24,6 +24,7 @@ from typing import Sequence, Union
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
@@ -32,7 +33,6 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.variadic_type_symbol import VariadicTypeSymbol
-from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -42,140 +42,13 @@ from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class AssignImplicitConversionFactorsTransformer(Transformer):
+class AssignImplicitConversionFactorsVisitor(ASTVisitor):
     r"""
     Assign implicit conversion factors in expressions.
     """
 
-    def transform(self, models: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
-        single = False
-        if isinstance(models, ASTNode):
-            single = True
-            models = [models]
-
-        for model in models:
-            model.accept(AssignImplicitConversionFactorVisitor())
-            self.__assign_return_types(model)
-
-        if single:
-            return models[0]
-
-        return models
-
-    def __assign_return_types(self, _node):
-        for userDefinedFunction in _node.get_functions():
-            symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
-                                                                       SymbolKind.FUNCTION)
-            # first ensure that the block contains at least one statement
-            if symbol is not None and len(userDefinedFunction.get_block().get_stmts()) > 0:
-                # now check that the last statement is a return
-                self.__check_return_recursively(userDefinedFunction,
-                                                symbol.get_return_type(),
-                                                userDefinedFunction.get_block().get_stmts(),
-                                                False)
-            # now if it does not have a statement, but uses a return type, it is an error
-            elif symbol is not None and userDefinedFunction.has_return_type() and \
-                    not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
-                code, message = Messages.get_no_return()
-                Logger.log_message(node=_node, code=code, message=message,
-                                   error_position=userDefinedFunction.get_source_position(),
-                                   log_level=LoggingLevel.ERROR)
-
-    def __check_return_recursively(self, processed_function, type_symbol=None, stmts=None, ret_defined: bool = False) -> None:
-        """
-        For a handed over statement, it checks if the statement is a return statement and if it is typed according to the handed over type symbol.
-        :param type_symbol: a single type symbol
-        :type type_symbol: type_symbol
-        :param stmts: a list of statements, either simple or compound
-        :type stmts: list(ASTSmallStmt,ASTCompoundStmt)
-        :param ret_defined: indicates whether a ret has already been defined after this block of stmt, thus is not
-                    necessary. Implies that the return has been defined in the higher level block
-        """
-        # in order to ensure that in the sub-blocks, a return is not necessary, we check if the last one in this
-        # block is a return statement, thus it is not required to have a return in the sub-blocks, but optional
-        last_statement = stmts[len(stmts) - 1]
-        ret_defined = False or ret_defined
-        if (len(stmts) > 0 and isinstance(last_statement, ASTStmt)
-                and last_statement.is_small_stmt()
-                and last_statement.small_stmt.is_return_stmt()):
-            ret_defined = True
-
-        # now check that returns are there if necessary and correctly typed
-        for c_stmt in stmts:
-            if c_stmt.is_small_stmt():
-                stmt = c_stmt.small_stmt
-            else:
-                stmt = c_stmt.compound_stmt
-
-            # if it is a small statement, check if it is a return statement
-            if isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt():
-                # first check if the return is the last one in this block of statements
-                if stmts.index(c_stmt) != (len(stmts) - 1):
-                    code, message = Messages.get_not_last_statement('Return')
-                    Logger.log_message(error_position=stmt.get_source_position(),
-                                       code=code, message=message,
-                                       log_level=LoggingLevel.WARNING)
-
-                # now check that it corresponds to the declared type
-                if stmt.get_return_stmt().has_expression() and type_symbol is PredefinedTypes.get_void_type():
-                    code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_void_type(),
-                                                                              stmt.get_return_stmt().get_expression().type)
-                    Logger.log_message(error_position=stmt.get_source_position(),
-                                       message=message, code=code, log_level=LoggingLevel.ERROR)
-
-                # if it is not void check if the type corresponds to the one stated
-                if not stmt.get_return_stmt().has_expression() and \
-                        not type_symbol.equals(PredefinedTypes.get_void_type()):
-                    code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_void_type(),
-                                                                              type_symbol)
-                    Logger.log_message(error_position=stmt.get_source_position(),
-                                       message=message, code=code, log_level=LoggingLevel.ERROR)
-
-                if stmt.get_return_stmt().has_expression():
-                    type_of_return = stmt.get_return_stmt().get_expression().type
-                    if isinstance(type_of_return, ErrorTypeSymbol):
-                        code, message = Messages.get_type_could_not_be_derived(processed_function.get_name())
-                        Logger.log_message(error_position=stmt.get_source_position(),
-                                           code=code, message=message, log_level=LoggingLevel.ERROR)
-                    elif not type_of_return.equals(type_symbol):
-                        TypeCaster.try_to_recover_or_error(type_symbol, type_of_return,
-                                                           stmt.get_return_stmt().get_expression(),
-                                                           set_implicit_conversion_factor_on_lhs=True)
-            elif isinstance(stmt, ASTCompoundStmt):
-                # otherwise it is a compound stmt, thus check recursively
-                if stmt.is_if_stmt():
-                    self.__check_return_recursively(processed_function,
-                                                    type_symbol,
-                                                    stmt.get_if_stmt().get_if_clause().get_block().get_stmts(),
-                                                    ret_defined)
-                    for else_ifs in stmt.get_if_stmt().get_elif_clauses():
-                        self.__check_return_recursively(processed_function,
-                                                        type_symbol, else_ifs.get_block().get_stmts(), ret_defined)
-                    if stmt.get_if_stmt().has_else_clause():
-                        self.__check_return_recursively(processed_function,
-                                                        type_symbol,
-                                                        stmt.get_if_stmt().get_else_clause().get_block().get_stmts(),
-                                                        ret_defined)
-                elif stmt.is_while_stmt():
-                    self.__check_return_recursively(processed_function,
-                                                    type_symbol, stmt.get_while_stmt().get_block().get_stmts(),
-                                                    ret_defined)
-                elif stmt.is_for_stmt():
-                    self.__check_return_recursively(processed_function,
-                                                    type_symbol, stmt.get_for_stmt().get_block().get_stmts(),
-                                                    ret_defined)
-            # now, if a return statement has not been defined in the corresponding higher level block, we have to ensure that it is defined here
-            elif not ret_defined and stmts.index(c_stmt) == (len(stmts) - 1):
-                if not (isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt()):
-                    code, message = Messages.get_no_return()
-                    Logger.log_message(error_position=stmt.get_source_position(), log_level=LoggingLevel.ERROR,
-                                       code=code, message=message)
-
-
-class AssignImplicitConversionFactorVisitor(ASTVisitor):
-    """
-    This visitor checks that all expression correspond to the expected type.
-    """
+    def visit_model(self, model: ASTModel):
+        self.__assign_return_types(model)
 
     def visit_declaration(self, node):
         """
@@ -342,3 +215,112 @@ class AssignImplicitConversionFactorVisitor(ASTVisitor):
             if not actual_type.equals(expected_type) and not isinstance(expected_type, TemplateTypeSymbol):
                 TypeCaster.try_to_recover_or_error(expected_type, actual_type, actual_arg,
                                                    set_implicit_conversion_factor_on_lhs=True)
+
+    def __assign_return_types(self, _node):
+        for userDefinedFunction in _node.get_functions():
+            symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
+                                                                       SymbolKind.FUNCTION)
+            # first ensure that the block contains at least one statement
+            if symbol is not None and len(userDefinedFunction.get_block().get_stmts()) > 0:
+                # now check that the last statement is a return
+                self.__check_return_recursively(userDefinedFunction,
+                                                symbol.get_return_type(),
+                                                userDefinedFunction.get_block().get_stmts(),
+                                                False)
+            # now if it does not have a statement, but uses a return type, it is an error
+            elif symbol is not None and userDefinedFunction.has_return_type() and \
+                    not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
+                code, message = Messages.get_no_return()
+                Logger.log_message(node=_node, code=code, message=message,
+                                   error_position=userDefinedFunction.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
+
+    def __check_return_recursively(self, processed_function, type_symbol=None, stmts=None, ret_defined: bool = False) -> None:
+        """
+        For a handed over statement, it checks if the statement is a return statement and if it is typed according to the handed over type symbol.
+        :param type_symbol: a single type symbol
+        :type type_symbol: type_symbol
+        :param stmts: a list of statements, either simple or compound
+        :type stmts: list(ASTSmallStmt,ASTCompoundStmt)
+        :param ret_defined: indicates whether a ret has already been defined after this block of stmt, thus is not
+                    necessary. Implies that the return has been defined in the higher level block
+        """
+        # in order to ensure that in the sub-blocks, a return is not necessary, we check if the last one in this
+        # block is a return statement, thus it is not required to have a return in the sub-blocks, but optional
+        last_statement = stmts[len(stmts) - 1]
+        ret_defined = False or ret_defined
+        if (len(stmts) > 0 and isinstance(last_statement, ASTStmt)
+                and last_statement.is_small_stmt()
+                and last_statement.small_stmt.is_return_stmt()):
+            ret_defined = True
+
+        # now check that returns are there if necessary and correctly typed
+        for c_stmt in stmts:
+            if c_stmt.is_small_stmt():
+                stmt = c_stmt.small_stmt
+            else:
+                stmt = c_stmt.compound_stmt
+
+            # if it is a small statement, check if it is a return statement
+            if isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt():
+                # first check if the return is the last one in this block of statements
+                if stmts.index(c_stmt) != (len(stmts) - 1):
+                    code, message = Messages.get_not_last_statement('Return')
+                    Logger.log_message(error_position=stmt.get_source_position(),
+                                       code=code, message=message,
+                                       log_level=LoggingLevel.WARNING)
+
+                # now check that it corresponds to the declared type
+                if stmt.get_return_stmt().has_expression() and type_symbol is PredefinedTypes.get_void_type():
+                    code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_void_type(),
+                                                                              stmt.get_return_stmt().get_expression().type)
+                    Logger.log_message(error_position=stmt.get_source_position(),
+                                       message=message, code=code, log_level=LoggingLevel.ERROR)
+
+                # if it is not void check if the type corresponds to the one stated
+                if not stmt.get_return_stmt().has_expression() and \
+                        not type_symbol.equals(PredefinedTypes.get_void_type()):
+                    code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_void_type(),
+                                                                              type_symbol)
+                    Logger.log_message(error_position=stmt.get_source_position(),
+                                       message=message, code=code, log_level=LoggingLevel.ERROR)
+
+                if stmt.get_return_stmt().has_expression():
+                    type_of_return = stmt.get_return_stmt().get_expression().type
+                    if isinstance(type_of_return, ErrorTypeSymbol):
+                        code, message = Messages.get_type_could_not_be_derived(processed_function.get_name())
+                        Logger.log_message(error_position=stmt.get_source_position(),
+                                           code=code, message=message, log_level=LoggingLevel.ERROR)
+                    elif not type_of_return.equals(type_symbol):
+                        TypeCaster.try_to_recover_or_error(type_symbol, type_of_return,
+                                                           stmt.get_return_stmt().get_expression(),
+                                                           set_implicit_conversion_factor_on_lhs=True)
+            elif isinstance(stmt, ASTCompoundStmt):
+                # otherwise it is a compound stmt, thus check recursively
+                if stmt.is_if_stmt():
+                    self.__check_return_recursively(processed_function,
+                                                    type_symbol,
+                                                    stmt.get_if_stmt().get_if_clause().get_block().get_stmts(),
+                                                    ret_defined)
+                    for else_ifs in stmt.get_if_stmt().get_elif_clauses():
+                        self.__check_return_recursively(processed_function,
+                                                        type_symbol, else_ifs.get_block().get_stmts(), ret_defined)
+                    if stmt.get_if_stmt().has_else_clause():
+                        self.__check_return_recursively(processed_function,
+                                                        type_symbol,
+                                                        stmt.get_if_stmt().get_else_clause().get_block().get_stmts(),
+                                                        ret_defined)
+                elif stmt.is_while_stmt():
+                    self.__check_return_recursively(processed_function,
+                                                    type_symbol, stmt.get_while_stmt().get_block().get_stmts(),
+                                                    ret_defined)
+                elif stmt.is_for_stmt():
+                    self.__check_return_recursively(processed_function,
+                                                    type_symbol, stmt.get_for_stmt().get_block().get_stmts(),
+                                                    ret_defined)
+            # now, if a return statement has not been defined in the corresponding higher level block, we have to ensure that it is defined here
+            elif not ret_defined and stmts.index(c_stmt) == (len(stmts) - 1):
+                if not (isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt()):
+                    code, message = Messages.get_no_return()
+                    Logger.log_message(error_position=stmt.get_source_position(), log_level=LoggingLevel.ERROR,
+                                       code=code, message=message)

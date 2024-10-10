@@ -66,11 +66,11 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.transformers.assign_implicit_conversion_factors_transformer import AssignImplicitConversionFactorsTransformer
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
+from pynestml.visitors.assign_implicit_conversion_factors_visitor import AssignImplicitConversionFactorsVisitor
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
@@ -145,7 +145,7 @@ class ModelParser:
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
             Logger.set_current_node(model)
-            AssignImplicitConversionFactorsTransformer().transform(model)
+            model.accept(AssignImplicitConversionFactorsVisitor())
             Logger.set_current_node(None)
 
         # store source paths
