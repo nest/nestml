@@ -697,7 +697,8 @@ class ASTUtils:
         for pair in codegen_opts_pairs:
             if pair["neuron"] == removesuffix(neuron.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
                and pair["synapse"] == removesuffix(synapse.get_name().split("__with_")[0], FrontendConfiguration.suffix) \
-               and "post_ports" in pair.keys():
+               and "post_ports" in pair.keys() \
+               and pair["post_ports"]:
                 return pair["post_ports"]
 
         return []
