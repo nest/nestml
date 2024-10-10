@@ -94,7 +94,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
         # return type of the convolve function is the type of the second parameter multiplied by the unit of time (s)
         if function_name == PredefinedFunctions.CONVOLVE:
-            # Deviations from the assumptions made here are handled in the convolveCoco
             buffer_parameter = node.get_function_call().get_args()[1]
 
             if buffer_parameter.get_variable() is not None:

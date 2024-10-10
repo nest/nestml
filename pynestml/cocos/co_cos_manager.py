@@ -71,6 +71,7 @@ from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVe
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.utils.logger import Logger
 
 
 class CoCosManager:
@@ -125,12 +126,12 @@ class CoCosManager:
         CoCoStateVariablesInitialized.check_co_co(model)
 
     @classmethod
-    def check_variables_defined_before_usage(cls, model: ASTModel, after_ast_rewrite: bool) -> None:
+    def check_variables_defined_before_usage(cls, model: ASTModel) -> None:
         """
         Checks that all variables are defined before being used.
         :param model: a single model.
         """
-        CoCoAllVariablesDefined.check_co_co(model, after_ast_rewrite)
+        CoCoAllVariablesDefined.check_co_co(model)
 
     @classmethod
     def check_v_comp_requirement(cls, neuron: ASTModel):
@@ -427,17 +428,19 @@ class CoCosManager:
         CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, model: ASTModel, after_ast_rewrite: bool = False):
+    def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
         :param model: a single model object.
         """
+        Logger.set_current_node(model)
+
         cls.check_each_block_defined_at_most_once(model)
         cls.check_function_defined(model)
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
-        cls.check_variables_defined_before_usage(model, after_ast_rewrite)
+        cls.check_variables_defined_before_usage(model)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(model)
@@ -479,3 +482,5 @@ class CoCosManager:
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
         cls.check_timestep_func_legally_used(model)
+
+        Logger.set_current_node(None)
