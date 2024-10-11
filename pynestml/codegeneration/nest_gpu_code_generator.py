@@ -88,10 +88,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super(NESTCodeGenerator, self).__init__("nest_gpu",
-                                                NESTGPUCodeGenerator._default_options.update(
-                                                    options if options else {}))
-        self._target = "NEST_GPU"
+        super(NESTCodeGenerator, self).__init__(NESTGPUCodeGenerator._default_options.update(options if options else {}))
         if not self.option_exists("nest_gpu_path") or not self.get_option("nest_gpu_path"):
             if "NEST_GPU" in os.environ:
                 self.nest_gpu_path = os.environ["NEST_GPU"]

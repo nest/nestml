@@ -42,7 +42,7 @@ class NESTGPUBuilder(Builder):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("NEST_GPU", options)
+        super().__init__(options)
 
         if not self.option_exists("nest_gpu_path") or not self.get_option("nest_gpu_path"):
             if "NEST_GPU" in os.environ:
