@@ -47,14 +47,12 @@ class ASTIncludeStatementVisitor(ASTVisitor):
 
     def visit_update_block(self, node: ASTUpdateBlock):
         """
-        
         :param expr: an expression
         """
         print(node)
 
     def visit_small_stmt(self, node: ASTSmallStmt):
         """
-        
         :param expr: an expression
         """
         if node.is_include_stmt():
@@ -63,7 +61,7 @@ class ASTIncludeStatementVisitor(ASTVisitor):
                 filename = os.path.join(self.model_path, filename)
             parsed_included_file = ModelParser.parse_included_file(filename)
             print(parsed_included_file)
-            
+
             if isinstance(node.get_parent().get_parent(), ASTBlock):
                 idx = node.get_parent().get_parent().get_stmts().index(node.get_parent())
                 blk = node.get_parent().get_parent()
