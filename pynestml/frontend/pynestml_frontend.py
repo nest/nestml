@@ -435,6 +435,10 @@ def get_parsed_models() -> List[ASTModel]:
         CoCosManager.check_model_names_unique(compilation_unit)
         models.extend(compilation_unit.get_model_list())
 
+    # swap include statements for included file
+    for model in models:
+        model.accept(ASTIncludeStatementVisitor(os.path.dirname(model.file_path)))
+
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)
 

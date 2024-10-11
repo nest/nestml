@@ -54,6 +54,8 @@ from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilation
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -66,6 +68,7 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.transformers.assign_implicit_conversion_factors_transformer import AssignImplicitConversionFactorsTransformer
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -388,6 +391,20 @@ class ModelParser:
         return ret
 
     @classmethod
+    def parse_on_receive_block(cls, string: str) -> ASTOnReceiveBlock:
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.onReceiveBlock())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
+    def parse_on_condition_block(cls, string: str) -> ASTOnConditionBlock:
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.onConditionBlock())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
     def parse_parameter(cls, string):
         # type: (str) -> ASTParameter
         (builder, parser) = tokenize(string)
@@ -440,7 +457,7 @@ class ModelParser:
         # type: (str) -> ASTUpdateBlock
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.updateBlock())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        ret.accept(ASTHigherOrderVisitor(log_sparse_included_fileet_added_source_position))
         return ret
 
     @classmethod
@@ -459,15 +476,153 @@ class ModelParser:
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
+    @classmethod
+    def parse_included_file(cls, filename: str):
+        with open(filename, 'r') as file:
+            lines = file.read()
+            ast = None
+            try:
+                ast = ModelParser.parse_model(lines)
+            except:
+                pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_model_body(lines)
+                except:
+                    pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_block_with_variables(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_equations_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_input_block(lines)
+                except:
+                    pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_output_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_on_receive_block(lines)
+                except:
+                    pass
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_on_condition_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_update_block(lines)
+                except:
+                    pass
+                
+
+
+
+
+
+
+
+
+
+
+
+
+            if not ast:
+                try:
+                    ast = ModelParser.parse_block(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_stmt(lines)
+                except:
+                    pass
+                
+            if not ast:
+                try:
+                    ast = ModelParser.parse_small_stmt(lines)
+                except:
+                    pass
+
+        assert ast
+
+        return ast
+
+
+
+# def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
+#     lexer = PyNestMLLexer(InputStream(string))
+#     # create a token stream
+#     stream = CommonTokenStream(lexer)
+#     stream.fill()
+#     parser = PyNestMLParser(stream)
+#     builder = ASTBuilderVisitor(stream.tokens)
+#     return builder, parser
+
+
 
 def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
-    lexer = PyNestMLLexer(InputStream(string))
+
+    lexer = PyNestMLLexer()
+    lexer.removeErrorListeners()
+    lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
+    lexer._errHandler.reset(lexer)
+    lexer.inputStream = InputStream(string)
     # create a token stream
     stream = CommonTokenStream(lexer)
     stream.fill()
-    parser = PyNestMLParser(stream)
+    lexerErrorListener = NestMLErrorListener()
+    if lexerErrorListener._error_occurred:
+        raise Exception("Lexer error")
+
+    # parse the file
+    parser = PyNestMLParser(None)
+    parser.removeErrorListeners()
+    parser._errHandler = BailErrorStrategy()
+    parser._errHandler.reset(parser)
+    parser.setTokenStream(stream)
+
     builder = ASTBuilderVisitor(stream.tokens)
     return builder, parser
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def log_set_added_source_position(node):

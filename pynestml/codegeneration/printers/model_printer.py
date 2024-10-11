@@ -35,6 +35,7 @@ from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -157,6 +158,9 @@ class ModelPrinter(ASTPrinter):
         raise Exception("Printer does not support printing this node type")
 
     def print_return_stmt(self, node: ASTReturnStmt) -> str:
+        raise Exception("Printer does not support printing this node type")
+
+    def print_include_stmt(self, node: ASTIncludeStmt) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_small_stmt(self, node: ASTSmallStmt) -> str:
@@ -285,6 +289,9 @@ class ModelPrinter(ASTPrinter):
 
         if isinstance(node, ASTReturnStmt):
             return self.print_return_stmt(node)
+
+        if isinstance(node, ASTIncludeStmt):
+            return self.print_include_stmt(node)
 
         if isinstance(node, ASTSimpleExpression):
             return self.print_simple_expression(node)

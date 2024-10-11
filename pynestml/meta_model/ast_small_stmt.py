@@ -19,19 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
+from typing import List, Optional
+from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 
 
 class ASTSmallStmt(ASTNode):
     """
     This class is used to store small statements, e.g., a declaration.
-    Grammar:
-        smallStmt : assignment
-                 | functionCall
-                 | declaration
-                 | returnStmt;
+
     Attributes:
         assignment (ast_assignment): A assignment reference.
         function_call (ast_function_call): A function call reference.
@@ -39,26 +40,23 @@ class ASTSmallStmt(ASTNode):
         return_stmt (ast_return_stmt): A reference to the returns statement.
     """
 
-    def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, *args, **kwargs):
+    def __init__(self, assignment: Optional[ASTAssignment] = None, function_call: Optional[ASTFunctionCall] = None, declaration: Optional[ASTDeclaration] = None, return_stmt: Optional[ASTReturnStmt] = None, include_stmt: Optional[ASTIncludeStmt] = None, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param assignment: an meta_model-assignment object.
-        :type assignment: ASTAssignment
         :param function_call: an meta_model-function call object.
-        :type function_call: ASTFunctionCall
         :param declaration: an meta_model-declaration object.
-        :type declaration: ASTDeclaration
         :param return_stmt: an meta_model-return statement object.
-        :type return_stmt: ASTReturnStmt
         """
         super(ASTSmallStmt, self).__init__(*args, **kwargs)
         self.assignment = assignment
         self.function_call = function_call
         self.declaration = declaration
         self.return_stmt = return_stmt
+        self.include_stmt = include_stmt
 
     def clone(self):
         """
@@ -79,10 +77,14 @@ class ASTSmallStmt(ASTNode):
         return_stmt_dup = None
         if self.return_stmt:
             return_stmt_dup = self.return_stmt.clone()
+        include_stmt_dup = None
+        if self.include_stmt:
+            include_stmt_dup = self.include_stmt.clone()
         dup = ASTSmallStmt(assignment=assignment_dup,
                            function_call=function_call_dup,
                            declaration=declaration_dup,
                            return_stmt=return_stmt_dup,
+                           include_stmt=include_stmt_dup,
                            # ASTNode common attributes:
                            source_position=self.source_position,
                            scope=self.scope,
@@ -157,6 +159,20 @@ class ASTSmallStmt(ASTNode):
         """
         return self.return_stmt
 
+    def is_include_stmt(self) -> bool:
+        """
+        Returns whether it is a include statement or not.
+        :return: True if include stmt, False else.
+        """
+        return self.include_stmt is not None
+
+    def get_include_stmt(self) -> Optional[ASTIncludeStmt]:
+        """
+        Returns the include statement.
+        :return: the include statement.
+        """
+        return self.include_stmt
+
     def get_children(self) -> List[ASTNode]:
         r"""
         Returns the children of this node, if any.
@@ -173,6 +189,9 @@ class ASTSmallStmt(ASTNode):
 
         if self.is_return_stmt():
             return [self.get_return_stmt()]
+
+        if self.is_include_stmt():
+            return [self.get_include_stmt()]
 
         return []
 
@@ -200,5 +219,10 @@ class ASTSmallStmt(ASTNode):
             return False
         if self.is_return_stmt() and other.is_return_stmt() and not self.get_return_stmt().equals(
                 other.get_return_stmt()):
+            return False
+        if self.is_include_stmt() + other.is_include_stmt() == 1:
+            return False
+        if self.is_include_stmt() and other.is_include_stmt() and not self.get_include_stmt().equals(
+                other.get_include_stmt()):
             return False
         return True
