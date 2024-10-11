@@ -18,11 +18,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from enum import Enum
+
+from __future__ import annotations
+
 from typing import Tuple
 
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from collections.abc import Iterable
+from enum import Enum
+
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_function import ASTFunction
 
 
@@ -131,8 +135,10 @@ class MessageCode(Enum):
     MECHS_DICTIONARY_INFO = 109
     VOID_FUNCTION_ON_RHS = 110
     NON_CONSTANT_EXPONENT = 111
-    EXPONENT_MUST_BE_INTEGER = 112
+    RESOLUTION_FUNC_USED = 112
+    TIMESTEP_FUNCTION_LEGALLY_USED = 113
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
+    EXPONENT_MUST_BE_INTEGER = 114
 
 
 class Messages:
@@ -159,8 +165,8 @@ class Messages:
         return MessageCode.INPUT_PATH_NOT_FOUND, message
 
     @classmethod
-    def get_unknown_target(cls, target):
-        message = 'Unknown target ("%s")' % (target)
+    def get_unknown_target_platform(cls, target: str):
+        message = "Unknown target: '" + target + "'"
         return MessageCode.UNKNOWN_TARGET, message
 
     @classmethod
@@ -314,22 +320,13 @@ class Messages:
         return MessageCode.CAST_NOT_POSSIBLE, message
 
     @classmethod
-    def get_type_different_from_expected(cls, expected_type, got_type):
+    def get_type_different_from_expected(cls, expected_type, got_type) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the received type is different from the expected one.
         :param expected_type: the expected type
-        :type expected_type: TypeSymbol
         :param got_type: the actual type
-        :type got_type: type_symbol
         :return: a message
-        :rtype: (MessageCode,str)
         """
-        from pynestml.symbols.type_symbol import TypeSymbol
-        assert (expected_type is not None and isinstance(expected_type, TypeSymbol)), \
-            '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(
-                expected_type)
-        assert (got_type is not None and isinstance(got_type, TypeSymbol)), \
-            '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(got_type)
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
             expected_type.print_symbol(), got_type.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
@@ -431,11 +428,10 @@ class Messages:
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
-    def get_variable_used_before_declaration(cls, variable_name):
+    def get_variable_used_before_declaration(cls, variable_name: str):
         """
         Returns a message indicating that a variable is used before declaration.
         :param variable_name: a variable name
-        :type variable_name: str
         :return: a message
         :rtype: (MessageCode,str)
         """
@@ -702,7 +698,7 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'model \'%s\' redeclared!' % name
+        message = 'Model \'%s\' redeclared!' % name
         return MessageCode.MODEL_REDECLARED, message
 
     @classmethod
@@ -1315,6 +1311,11 @@ class Messages:
         return MessageCode.MECHS_DICTIONARY_INFO, message
 
     @classmethod
+    def get_fixed_timestep_func_used(cls):
+        message = "Model contains a call to fixed-timestep functions (``resolution()`` and/or ``steps()``). This restricts the model to being compatible only with fixed-timestep simulators. Consider eliminating ``resolution()`` and ``steps()`` from the model, and using ``timestep()`` instead."
+        return MessageCode.RESOLUTION_FUNC_USED, message
+
+    @classmethod
     def get_void_function_on_rhs(cls, function_name: str) -> Tuple[MessageCode, str]:
         r"""
         Construct an error message indicating that a void function cannot be used on a RHS.
@@ -1322,8 +1323,12 @@ class Messages:
         :return: the error message
         """
         message = "Function " + function_name + " with the return-type 'void' cannot be used in expressions."
-
         return MessageCode.VOID_FUNCTION_ON_RHS, message
+
+    @classmethod
+    def get_timestep_function_legally_used(cls):
+        message = "``timestep()`` function may appear only inside the ``update`` block."
+        return MessageCode.TIMESTEP_FUNCTION_LEGALLY_USED, message
 
     @classmethod
     def get_ternary_mismatch(cls, if_true_text: str, if_not_text: str) -> Tuple[MessageCode, str]:

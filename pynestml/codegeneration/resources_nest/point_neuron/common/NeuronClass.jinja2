@@ -369,7 +369,7 @@ void {{ neuronName }}::init_state_internal_()
   std::cout << "[neuron " << this << "] {{ neuronName }}::init_state_internal_()" << std::endl;
 #endif
 
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {%- if numeric_solver == "rk45" %}
   // by default, integrate all variables with a conservative tolerance, in the sense that we err on the side of integrating very precisely at the expense of extra computation
@@ -523,7 +523,7 @@ void {{ neuronName }}::init_buffers_()
 
 void {{ neuronName }}::recompute_internal_variables(bool exclude_timestep)
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
   if (exclude_timestep)
   {
@@ -645,7 +645,7 @@ bool {{ neuronName }}::update_( nest::Time const& origin, const long from, const
 void {{ neuronName }}::update(nest::Time const & origin, const long from, const long to)
 {%- endif %}
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {%- if use_gap_junctions %}
   const size_t interpolation_order = nest::kernel().simulation_manager.get_wfr_interpolation_order();
@@ -910,7 +910,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
         case 3:
           // find dV_m/dt
           {
-            gap_junction_step = __resolution;
+            gap_junction_step = __timestep;
             y_ip1 = {{ gap_junction_membrane_potential_variable_cpp }};
 {%-     if gap_junction_membrane_potential_variable_is_numeric %}
             double f_temp[ State_::STATE_VEC_SIZE ];
@@ -1145,6 +1145,8 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 void
 {{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()
 {
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+
 {%-     filter indent(2, True) -%}
 {%-         include "directives_cpp/Block.jinja2" %}
 {%-     endfilter %}

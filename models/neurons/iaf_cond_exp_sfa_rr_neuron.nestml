@@ -38,7 +38,6 @@ model iaf_cond_exp_sfa_rr_neuron:
     state:
         V_m mV = E_L # membrane potential
         refr_t ms = 0 ms          # Refractory period timer
-        is_refractory boolean = false
         g_sfa nS = 0 nS     # inputs from the sfa conductance
         g_rr nS = 0 nS      # inputs from the rr conductance
 
@@ -56,6 +55,7 @@ model iaf_cond_exp_sfa_rr_neuron:
         inline I_rr pA = g_rr * ( V_m - E_rr )
 
         V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         V_th mV = -57.0 mV       # Threshold potential
@@ -87,23 +87,17 @@ model iaf_cond_exp_sfa_rr_neuron:
         spike
 
     update:
-        if is_refractory:
-            # neuron is absolute refractory, do not evolve ODEs
-            refr_t -= resolution()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(refr_t)
         else:
-            # neuron not refractory, so evolve all ODEs
-            integrate_odes()
+            # neuron not refractory
+            integrate_odes(V_m, g_rr, g_sfa)
 
-    onCondition(not is_refractory and V_m >= V_th): # threshold crossing
+    onCondition(refr_t <= 0 ms and V_m >= V_th): # threshold crossing
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         V_m = V_reset
         g_sfa += q_sfa
         g_rr += q_rr
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false

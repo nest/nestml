@@ -44,7 +44,7 @@ except Exception:
 def nestml_generate_target():
     r"""Generate the neuron model code"""
 
-    files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml"),
+    files = [os.path.join("models", "neurons", "iaf_psc_delta_fixed_timestep_neuron.nestml"),
              os.path.join("models", "synapses", "stdp_triplet_synapse.nestml")]
     input_path = [os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
         os.pardir, os.pardir, s))) for s in files]
@@ -53,7 +53,7 @@ def nestml_generate_target():
                          suffix="_nestml",
                          codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                        "neuron_parent_class_include": "structural_plasticity_node.h",
-                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_neuron",
+                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta_fixed_timestep_neuron",
                                                                  "synapse": "stdp_triplet_synapse",
                                                                  "post_ports": ["post_spikes"]}],
                                        "delay_variable": {"stdp_triplet_synapse": "d"},
@@ -119,10 +119,10 @@ def run_reference_simulation(syn_opts,
         if spk_time in times_spikes_post_syn_persp:
             print("\tgetting pre trace r1")
             r1 = get_trace_at(spk_time, times_spikes_pre,
-                              syn_opts["tau_plus"], before_increment=False, extra_debug=True)  # F
+                              syn_opts["tau_plus"], before_increment=False, extra_debug=True)
             print("\tgetting post trace o2")
             o2 = get_trace_at(spk_time, times_spikes_post_syn_persp,
-                              syn_opts["tau_y"], before_increment=True, extra_debug=True)  # T
+                              syn_opts["tau_y"], before_increment=True, extra_debug=True)
             old_weight = weight
             weight = np.clip(weight + r1 * (syn_opts["A2_plus"] + syn_opts["A3_plus"]
                              * o2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
@@ -132,10 +132,10 @@ def run_reference_simulation(syn_opts,
             # print("Pre spike --> depression")
             print("\tgetting post trace o1")
             o1 = get_trace_at(spk_time, times_spikes_post_syn_persp,
-                              syn_opts["tau_minus"], before_increment=False, extra_debug=True)  # F
+                              syn_opts["tau_minus"], before_increment=False, extra_debug=True)
             print("\tgetting pre trace r2")
             r2 = get_trace_at(spk_time, times_spikes_pre,
-                              syn_opts["tau_x"], before_increment=True, extra_debug=True)  # T
+                              syn_opts["tau_x"], before_increment=True, extra_debug=True)
             old_weight = weight
             weight = np.clip(weight - o1 * (syn_opts["A2_minus"] + syn_opts["A3_minus"]
                              * r2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
@@ -340,10 +340,6 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
 
     plt.savefig("/tmp/stdp_triplets_[delay=" + "%.3f" % syn_opts["delay"] + "].png", dpi=150.)
 
-# @pytest.mark.parametrize("delay", [1., 5., 14.3])
-# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
-# @pytest.mark.parametrize("spike_times_len", [10])
-
 
 def _test_stdp_triplet_synapse(delay, spike_times_len):
     print("Running test for delay = " + str(delay) + ", spike_times_len = " + str(spike_times_len))
@@ -365,11 +361,11 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     }
 
     if experiment == "test_nestml_pair_synapse":
-        neuron_model_name = "iaf_psc_delta_neuron_nestml__with_stdp_triplet_synapse_nestml"
+        neuron_model_name = "iaf_psc_delta_fixed_timestep_neuron_nestml__with_stdp_triplet_synapse_nestml"
         neuron_opts = {"tau_minus__for_stdp_triplet_synapse_nestml": syn_opts["tau_minus"],
                        "tau_y__for_stdp_triplet_synapse_nestml": syn_opts["tau_y"]}
 
-        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_neuron_nestml"
+        synapse_model_name = "stdp_triplet_synapse_nestml__with_iaf_psc_delta_fixed_timestep_neuron_nestml"
         nest_syn_opts = {"d": delay}
         nest_syn_opts.update(syn_opts)
         nest_syn_opts.pop("tau_minus")  # these have been moved to the neuron
@@ -406,21 +402,8 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
 
     fname_snip = "_experiment=[" + experiment + "]"
 
-    pre_spike_times = np.array([2.,   3.,   7.,   8.,   9.,  10.,  12.,  17.,  19.,  21.,  22.,  24.,  25.,  26.,
-                                28.,  30.,  36.,  37.,  38.,  40.,  43.,  46.,  47.,  48.,  49.,  50.,  51.,  52.,
-                                53.,  55.,  58.,  59.,  60.,  62.,  64.,  65.,  66.,  67.,  68.,  69.,  71.,  72.,
-                                76.,  77.,  78.,  82.,  83.,  84.,  85.,  86.,  87.,  88.,  92.,  96.,  99., 105.,
-                                113., 114., 121., 122., 124., 129., 135., 140., 152., 161., 167., 170., 183., 186.,
-                                192., 202., 218., 224., 303., 311.])
-    post_spike_times = np.array([2.,   4.,   5.,   8.,   9.,  12.,  13.,  14.,  17.,  18.,  19.,  21.,  24.,  25.,
-                                 26.,  28.,  30.,  32.,  34.,  37.,  38.,  40.,  42.,  44.,  45.,  46.,  49.,  50.,
-                                 51.,  53.,  55.,  56.,  60.,  61.,  67.,  68.,  72.,  73.,  74.,  76.,  77.,  78.,
-                                 79.,  81.,  82.,  84.,  87.,  88.,  93.,  95.,  96.,  98.,  99., 100., 109., 110.,
-                                 111., 115., 116., 118., 120., 121., 124., 125., 127., 128., 140., 144., 149., 150.,
-                                 152., 155., 156., 157., 163., 164., 168., 172., 204., 206., 216., 239., 243.])
-
-    # pre_spike_times = 1 + 5 * np.arange(spike_times_len).astype(float)
-    # post_spike_times = 1 + 5 * np.arange(spike_times_len).astype(float)
+    pre_spike_times = 1 + 10 * np.arange(spike_times_len).astype(float)
+    post_spike_times = 5 + 10 * np.arange(spike_times_len).astype(float)
 
     nestml_timevec, nestml_w, gid_pre, gid_post, times_spikes, senders_spikes, sim_time = \
         run_nest_simulation(neuron_model_name=neuron_model_name,
@@ -444,6 +427,9 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
 
     print("Actual pre spike times: " + str(times_spikes_pre))
     print("Actual post spike times: " + str(times_spikes_post))
+
+    assert len(times_spikes_pre) > 0, "No presynaptic spikes!"
+    assert len(times_spikes_post) > 0, "No postsynaptic spikes!"
 
     # convert somatic spike times to synaptic perspective: add post dendritic delay
 
@@ -470,32 +456,7 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     compare_results(ref_timevec, ref_w, nestml_timevec, nestml_w)
 
 
-# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
+@pytest.mark.parametrize("delay", [1., 5., 10.])
 @pytest.mark.parametrize("spike_times_len", [10])
-def test_stdp_triplet_synapse_delay_1(spike_times_len):
-    delay = 1.
+def test_stdp_triplet_synapse_delay_1(spike_times_len, delay):
     _test_stdp_triplet_synapse(delay, spike_times_len)
-
-
-logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/703")
-# @pytest.mark.xfail(strict=True, raises=Exception)
-# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
-
-
-@pytest.mark.parametrize("spike_times_len", [10])
-def test_stdp_triplet_synapse_delay_5(spike_times_len):
-    logging.warning("XXX: TODO: this test is disabled due to https://github.com/nest/nestml/issues/703")
-    # delay = 5.
-    # _test_stdp_triplet_synapse(delay, spike_times_len)
-
-
-logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/703")
-# @pytest.mark.xfail(strict=True, raises=Exception)
-# @pytest.mark.parametrize("spike_times_len", [1, 10, 100])
-
-
-@pytest.mark.parametrize("spike_times_len", [10])
-def test_stdp_triplet_synapse_delay_10(spike_times_len):
-    logging.warning("XXX: TODO: this test is disabled due to https://github.com/nest/nestml/issues/703")
-    # delay = 10.
-    # _test_stdp_triplet_synapse(delay, spike_times_len)

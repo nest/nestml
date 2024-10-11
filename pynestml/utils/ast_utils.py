@@ -28,7 +28,6 @@ import odetoolbox
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
-from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -66,7 +65,6 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -1791,10 +1789,12 @@ class ASTUtils:
     @classmethod
     def update_initial_values_for_odes(cls, model: ASTModel, solver_dicts: List[dict]) -> None:
         """
-        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model
-        before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
+        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         from pynestml.utils.model_parser import ModelParser
+        from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+
         assert len(model.get_equations_blocks()) == 1, "Only one equation block should be present"
 
         if not model.get_state_blocks():
@@ -1807,10 +1807,6 @@ class ASTUtils:
                     if cls.is_ode_variable(var.get_name(), model):
                         assert cls.variable_in_solver(cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
 
-                        # replace the left-hand side variable name by the ode-toolbox format
-                        var.set_name(cls.to_ode_toolbox_processed_name(var.get_complete_name()))
-                        var.set_differential_order(0)
-
                         # replace the defining expression by the ode-toolbox result
                         iv_expr = cls.get_initial_value_from_ode_toolbox_result(
                             cls.to_ode_toolbox_processed_name(var_name), solver_dicts)
@@ -1818,6 +1814,9 @@ class ASTUtils:
                         iv_expr = ModelParser.parse_expression(iv_expr)
                         iv_expr.update_scope(state_block.get_scope())
                         iv_decl.set_expression(iv_expr)
+
+        model.accept(ASTParentVisitor())
+        model.accept(ASTSymbolTableVisitor())
 
     @classmethod
     def integrate_odes_args_strs_from_function_call(cls, function_call: ASTFunctionCall):
@@ -2321,6 +2320,7 @@ class ASTUtils:
         r"""
         Replace all occurrences of `convolve(kernel[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a kernel named `g_E` and a spike input port named `spikes_exc`.
         """
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
         def replace_function_call_through_var(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
@@ -2351,6 +2351,7 @@ class ASTUtils:
             return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
         equations_block.accept(ASTHigherOrderVisitor(func))
+        equations_block.accept(ASTSymbolTableVisitor())
 
     @classmethod
     def update_blocktype_for_common_parameters(cls, node):

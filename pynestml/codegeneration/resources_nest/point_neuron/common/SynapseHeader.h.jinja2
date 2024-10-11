@@ -704,7 +704,7 @@ void get_entry_from_continuous_variable_history(double t,
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
 {%- endif %}
   {
-    const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+    const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
     auto get_thread = [tid]()
     {
@@ -1195,7 +1195,7 @@ set_delay(tmp_{{ nest_codegen_opt_delay_variable }});
 template < typename targetidentifierT >
 void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {% filter indent(2) %}
 {%- for variable_symbol in synapse.get_internal_symbols() %}
@@ -1213,7 +1213,7 @@ void {{synapseName}}< targetidentifierT >::recompute_internal_variables()
 template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
   // initial values for parameters
 {%- filter indent(2, True) %}
@@ -1307,7 +1307,7 @@ inline void
         return;
     }
 
-    const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
+    const double __timestep = timestep;  // do not remove, this is necessary for the timestep() function
     auto get_t = [t_start](){ return t_start; };   // do not remove, this is in case the predefined time variable ``t`` is used in the NESTML model
 
 #ifdef DEBUG

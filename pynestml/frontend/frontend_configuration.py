@@ -244,8 +244,8 @@ appropriate numeric solver otherwise.
 
     @classmethod
     def handle_target_platform(cls, target_platform: Optional[str]):
-        if target_platform is None or target_platform.upper() == 'NONE':
-            target_platform = ''     # make sure `target_platform` is always a string
+        if target_platform is None:
+            target_platform = "NONE"     # make sure `target_platform` is always a string
 
         from pynestml.frontend.pynestml_frontend import get_known_targets
 
