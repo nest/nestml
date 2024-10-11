@@ -580,7 +580,6 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
         new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
-        new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
 
         #
         #    rename synapse
