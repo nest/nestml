@@ -22,21 +22,28 @@
 from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
-from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
+from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_cm_continuous_input_model import CoCoCmContinuousInputModel
+from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
+from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
-from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
-from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_each_block_defined_at_most_once import CoCoEachBlockDefinedAtMostOnce
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
+from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
 from pynestml.cocos.co_co_illegal_expression import CoCoIllegalExpression
+from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
+from pynestml.cocos.co_co_integrate_odes_params_correct import CoCoIntegrateODEsParamsCorrect
 from pynestml.cocos.co_co_inline_expressions_have_rhs import CoCoInlineExpressionsHaveRhs
+from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_inline_max_one_lhs import CoCoInlineMaxOneLhs
+from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
+from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
+from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
 from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCoIntegrateOdesCalledIfEquationsDefined
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
@@ -48,15 +55,13 @@ from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDupli
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_internals_assigned_only_in_internals_block import CoCoInternalsAssignedOnlyInInternalsBlock
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
+from pynestml.cocos.co_co_resolution_func_used import CoCoResolutionOrStepsFuncUsed
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
-from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
-from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
-from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
-from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
+from pynestml.cocos.co_co_timestep_function_legally_used import CoCoTimestepFuncLegallyUsed
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
@@ -64,10 +69,9 @@ from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclara
 from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorInputPortsCorrectSizeType
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
-from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
-from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
-from pynestml.meta_model.ast_model import ASTModel
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.utils.logger import Logger
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger
 
 
@@ -329,6 +333,14 @@ class CoCosManager:
         CoCoInvariantIsBoolean.check_co_co(model)
 
     @classmethod
+    def check_resolution_func_used(cls, model: ASTModel):
+        """
+        Checks if all invariants are of type boolean.
+        :param model: a single model object.
+        """
+        CoCoResolutionOrStepsFuncUsed.check_co_co(model)
+
+    @classmethod
     def check_vector_in_non_vector_declaration_detected(cls, model: ASTModel):
         """
         Checks if no declaration a vector value is added to a non vector one.
@@ -395,6 +407,13 @@ class CoCosManager:
         CoCoResolutionFuncLegallyUsed.check_co_co(model)
 
     @classmethod
+    def check_timestep_func_legally_used(cls, model: ASTModel):
+        """
+        :param model: a single model object.
+        """
+        CoCoTimestepFuncLegallyUsed.check_co_co(model)
+
+    @classmethod
     def check_input_port_size_type(cls, model: ASTModel):
         """
         :param model: a single model object
@@ -449,6 +468,7 @@ class CoCosManager:
             cls.check_function_declared_and_correctly_typed(model)
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
+            cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
             if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
@@ -462,5 +482,6 @@ class CoCosManager:
         cls.check_co_co_priorities_correctly_specified(model)
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
+        cls.check_timestep_func_legally_used(model)
 
         Logger.set_current_node(None)

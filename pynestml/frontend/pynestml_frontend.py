@@ -41,7 +41,6 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_include_statement_visitor import ASTIncludeStatementVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -447,10 +446,6 @@ def get_parsed_models() -> List[ASTModel]:
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)
 
-    for model in models:
-        model.accept(ASTParentVisitor())
-        model.accept(ASTSymbolTableVisitor())
-
     return models
 
 
@@ -509,6 +504,9 @@ def process() -> bool:
 
     # exclude models that have errors
     models = list(set(models) - set(excluded_models))
+
+    if len(models) == 0:
+        return True    # there is no model code to generate, return error condition
 
     # transformation(s)
     models = transform_models(transformers, models)

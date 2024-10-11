@@ -47,7 +47,7 @@ class SpinnakerPythonFunctionCallPrinter(PythonFunctionCallPrinter):
         if function_call.get_name() == PredefinedFunctions.TIME_STEPS:
             return " SpynnakerDataView.get_simulation_time_step_per_ms() * {!s}"
 
-        if function_call.get_name() == PredefinedFunctions.TIME_RESOLUTION:
+        if function_call.get_name() in [PredefinedFunctions.TIME_RESOLUTION, PredefinedFunctions.TIME_TIMESTEP]:
             return "timestep"
 
         if function_call.get_name() == PredefinedFunctions.EMIT_SPIKE:

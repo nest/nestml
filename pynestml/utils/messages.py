@@ -135,8 +135,10 @@ class MessageCode(Enum):
     MECHS_DICTIONARY_INFO = 109
     VOID_FUNCTION_ON_RHS = 110
     NON_CONSTANT_EXPONENT = 111
-    EXPONENT_MUST_BE_INTEGER = 112
+    RESOLUTION_FUNC_USED = 112
+    TIMESTEP_FUNCTION_LEGALLY_USED = 113
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
+    EXPONENT_MUST_BE_INTEGER = 114
 
 
 class Messages:
@@ -1309,6 +1311,11 @@ class Messages:
         return MessageCode.MECHS_DICTIONARY_INFO, message
 
     @classmethod
+    def get_fixed_timestep_func_used(cls):
+        message = "Model contains a call to fixed-timestep functions (``resolution()`` and/or ``steps()``). This restricts the model to being compatible only with fixed-timestep simulators. Consider eliminating ``resolution()`` and ``steps()`` from the model, and using ``timestep()`` instead."
+        return MessageCode.RESOLUTION_FUNC_USED, message
+
+    @classmethod
     def get_void_function_on_rhs(cls, function_name: str) -> Tuple[MessageCode, str]:
         r"""
         Construct an error message indicating that a void function cannot be used on a RHS.
@@ -1316,8 +1323,12 @@ class Messages:
         :return: the error message
         """
         message = "Function " + function_name + " with the return-type 'void' cannot be used in expressions."
-
         return MessageCode.VOID_FUNCTION_ON_RHS, message
+
+    @classmethod
+    def get_timestep_function_legally_used(cls):
+        message = "``timestep()`` function may appear only inside the ``update`` block."
+        return MessageCode.TIMESTEP_FUNCTION_LEGALLY_USED, message
 
     @classmethod
     def get_ternary_mismatch(cls, if_true_text: str, if_not_text: str) -> Tuple[MessageCode, str]:

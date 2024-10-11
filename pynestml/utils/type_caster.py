@@ -40,7 +40,7 @@ class TypeCaster:
                            log_level=LoggingLevel.INFO)
 
     @staticmethod
-    def try_to_recover_or_error(_lhs_type_symbol, _rhs_type_symbol, _containing_expression):
+    def try_to_recover_or_error(_lhs_type_symbol, _rhs_type_symbol, _containing_expression, set_implicit_conversion_factor_on_lhs=False):
         if _rhs_type_symbol.is_castable_to(_lhs_type_symbol):
             if isinstance(_lhs_type_symbol, UnitTypeSymbol) \
                     and isinstance(_rhs_type_symbol, UnitTypeSymbol):
@@ -53,7 +53,7 @@ class TypeCaster:
                                        code=code, message=message, log_level=LoggingLevel.ERROR)
                     return
 
-                if not conversion_factor == 1.:
+                if set_implicit_conversion_factor_on_lhs and not conversion_factor == 1.:
                     # the units are mutually convertible, but require a factor unequal to 1 (e.g. mV and A*Ohm)
                     TypeCaster.do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression)
 
