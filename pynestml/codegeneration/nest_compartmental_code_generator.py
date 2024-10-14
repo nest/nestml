@@ -70,7 +70,9 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.string_utils import removesuffix
+from pynestml.utils.synapse_processing import SynapseProcessing
 from pynestml.utils.syns_info_enricher import SynsInfoEnricher
+from pynestml.utils.recs_info_enricher import RecsInfoEnricher
 from pynestml.utils.receptor_processing import ReceptorProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -97,6 +99,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     """
 
     _default_options = {
+        "neuron_synapse_pairs": [],
         "neuron_models": [],
         "synapse_models": [],
         "neuron_parent_class": "ArchivingNode",
@@ -210,10 +213,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     def generate_code(self, models: List[ASTModel]) -> None:
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option(
             "neuron_models"), synapse_models=self.get_option("synapse_models"))
+        synapses_per_neuron = self.arrange_synapses_per_neuron(neurons, synapses)
+        #breakpoint()
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
-        self.generate_neurons(neurons)
-        self.generate_module_code(neurons)
+        self.generate_compartmental_neurons(neurons, synapses_per_neuron)
+        self.generate_module_code(neurons, synapses)
 
     def generate_module_code(self, neurons: List[ASTModel], synapses: List[ASTModel]) -> None:
         """t
@@ -336,7 +341,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         for synapse in synapses:
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
-            synapse.spike_updates = self.analyse_synapse(synapse)
+            SynapseProcessing.process(synapse)
+            #synapse.spike_updates = self.analyse_synapse(synapse)
 
     def analyse_synapse(self, synapse: ASTModel) -> Dict[str, ASTAssignment]:
         """
@@ -631,7 +637,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         # generate how to calculate the next spike update
-        self.update_symbol_table(neuron, kernel_buffers)
+        self.update_symbol_table(neuron)
         # find any spike update expressions defined by the user
         spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
@@ -675,7 +681,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapse: ASTModel) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
@@ -814,8 +820,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["chan_info"] = ChannelProcessing.get_mechs_info(neuron)
         namespace["chan_info"] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace["chan_info"])
 
-        namespace["syns_info"] = ReceptorProcessing.get_mechs_info(neuron)
-        namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(neuron, namespace["syns_info"])
+        namespace["recs_info"] = ReceptorProcessing.get_mechs_info(neuron)
+        namespace["recs_info"] = RecsInfoEnricher.enrich_with_additional_info(neuron, namespace["recs_info"])
 
         namespace["conc_info"] = ConcentrationProcessing.get_mechs_info(neuron)
         namespace["conc_info"] = ConcInfoEnricher.enrich_with_additional_info(neuron, namespace["conc_info"])
@@ -823,14 +829,18 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
         namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
 
+        namespace["syns_info"] = SynapseProcessing.get_syn_info(paired_synapse)
+        namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapse, namespace["syns_info"], namespace["chan_info"], namespace["recs_info"], namespace["conc_info"], namespace["con_in_info"])
+
         chan_info_string = MechanismProcessing.print_dictionary(namespace["chan_info"], 0)
-        syns_info_string = MechanismProcessing.print_dictionary(namespace["syns_info"], 0)
+        recs_info_string = MechanismProcessing.print_dictionary(namespace["recs_info"], 0)
         conc_info_string = MechanismProcessing.print_dictionary(namespace["conc_info"], 0)
         con_in_info_string = MechanismProcessing.print_dictionary(namespace["con_in_info"], 0)
-
-        code, message = Messages.get_mechs_dictionary_info(chan_info_string, syns_info_string, conc_info_string, con_in_info_string)
+        syns_info_string = SynapseProcessing.print_dictionary(namespace["syns_info"], 0)
+        #breakpoint()
+        code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
-
+        breakpoint()
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
@@ -846,7 +856,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def update_symbol_table(self, neuron, kernel_buffers):
+    def update_symbol_table(self, neuron):
         """
         Update symbol table and scope.
         """
@@ -1057,3 +1067,42 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                     )] = self._ode_toolbox_printer.print(decl.get_expression())
 
         return odetoolbox_indict
+
+    def generate_compartmental_neuron_code(self, neuron: ASTModel, paired_synapse: ASTModel) -> None:
+        self.generate_model_code(neuron.get_name(),
+                                 model_templates=self._model_templates["neuron"],
+                                 template_namespace=self._get_neuron_model_namespace(neuron, paired_synapse),
+                                 model_name_escape_string="@NEURON_NAME@")
+
+    def generate_compartmental_neurons(self, neurons: Sequence[ASTModel], paired_synapses: dict) -> None:
+        """
+        Generate code for the given neurons.
+
+        :param neurons: a list of neurons.
+        """
+        from pynestml.frontend.frontend_configuration import FrontendConfiguration
+        #breakpoint()
+        neuron_index = 0
+        for neuron in neurons:
+            for synapse in paired_synapses[neuron.get_name()]:
+                self.generate_compartmental_neuron_code(neuron, synapse)
+                if not Logger.has_errors(neuron):
+                    code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
+                    Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            neuron_index += 1
+
+    def arrange_synapses_per_neuron(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
+        paired_synapses = dict()
+        for neuron in neurons:
+            paired_synapses[neuron.get_name()] = list()
+
+        neuron_synapse_pairs = self.get_option("neuron_synapse_pairs")
+        #breakpoint()
+        for pair in neuron_synapse_pairs:
+            for synapse in synapses:
+                #breakpoint()
+                if synapse.get_name() == (pair["synapse"]+"_nestml"):
+                    paired_synapses[pair["neuron"]+"_nestml"].append(synapse)
+
+        return paired_synapses
+

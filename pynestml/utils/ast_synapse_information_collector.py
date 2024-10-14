@@ -21,7 +21,9 @@
 
 from collections import defaultdict
 
+from build.lib.pynestml.meta_model.ast_node import ASTNode
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -91,16 +93,29 @@ class ASTSynapseInformationCollector(object):
         syn_info["ContinuousPorts"] = port_collector_visitor.continuous_ports
         return syn_info
 
+    @classmethod
+    def collect_potential_dependencies(cls, synapse, syn_info):
+        non_dec_asmt_visitor = ASTNonDeclaringAssignmentVisitor()
+        synapse.accept(non_dec_asmt_visitor)
+
+        potential_dependencies = list()
+        for state in syn_info["States"]:
+            for assignment in non_dec_asmt_visitor.non_declaring_assignments:
+                if state == assignment.get_variable().get_name():
+                    potential_dependencies.append(state)
+
+        syn_info["PotentialDependencies"] = potential_dependencies
+
+        return syn_info
 
     @classmethod
-    def extend_variables_with_initialisations(cls, neuron, syn_info):
+    def extend_variables_with_initialisations(cls, synapse, syn_info):
         """collects initialization expressions for all variables and parameters contained in syn_info"""
-        for mechanism_name, mechanism_info in syn_info.items():
-            var_init_visitor = VariableInitializationVisitor(mechanism_info)
-            neuron.accept(var_init_visitor)
-            syn_info[mechanism_name]["States"] = var_init_visitor.states
-            syn_info[mechanism_name]["Parameters"] = var_init_visitor.parameters
-            syn_info[mechanism_name]["Internals"] = var_init_visitor.internals
+        var_init_visitor = VariableInitializationVisitor(syn_info)
+        synapse.accept(var_init_visitor)
+        syn_info["States"] = var_init_visitor.states
+        syn_info["Parameters"] = var_init_visitor.parameters
+        syn_info["Internals"] = var_init_visitor.internals
 
         return syn_info
 
@@ -522,11 +537,12 @@ class ASTOnReceiveBlockVisitor(ASTVisitor):
         super(ASTOnReceiveBlockVisitor, self).__init__()
         self.inside_on_receive = False
         self.port_name = port_name
-        self.on_receive_block
+        self.on_receive_block = None
 
-    def visit_on_receive(self, node):
+    def visit_on_receive_block(self, node):
         self.inside_on_receive = True
-        if node.port_name == self.port_name:
+        breakpoint()
+        if node.port_name in self.port_name:
             self.on_receive_block = node.clone()
 
     def endvisit_on_receive_block(self, node):
@@ -553,12 +569,49 @@ class ASTPortVisitor(ASTVisitor):
         self.spiking_ports = list()
         self.continuous_ports = list()
 
-    def visit_port(self, node):
+    def visit_input_port(self, node):
         self.inside_port = True
+        breakpoint()
         if node.is_spike():
             self.spiking_ports.append(node.clone())
         if node.is_continuous():
             self.continuous_ports.append(node.clone())
 
-    def endvisit_port(self, node):
+    def endvisit_input_port(self, node):
         self.inside_port = False
+
+class ASTNonDeclaringAssignmentVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTNonDeclaringAssignmentVisitor, self).__init__()
+        self.inside_states_block = False
+        self.inside_parameters_block = False
+        self.inside_internals_block = False
+        self.inside_assignment = False
+        self.non_declaring_assignments = list()
+
+    def visit_states_block(self, node):
+        self.inside_states_block = True
+
+    def endvisit_states_block(self, node):
+        self.inside_states_block = False
+
+    def visit_parameters_block(self, node):
+        self.inside_parameters_block = True
+
+    def endvisit_parameters_block(self, node):
+        self.inside_parameters_block = False
+
+    def visit_internals_block(self, node):
+        self.inside_internals_block = True
+
+    def endvisit_internals_block(self, node):
+        self.inside_internals_block = False
+
+    def visit_assignment(self, node):
+        self.inside_assignment = True
+        if not self.inside_parameters_block or not self.inside_internals_block or self.inside_states_block:
+            self.non_declaring_assignments.append(node.clone())
+
+    def endvisit_assignment(self, node):
+        self.inside_assignment = False
+

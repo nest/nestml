@@ -22,6 +22,7 @@
 from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_cm_channel_model import CoCoCmChannelModel
@@ -55,7 +56,7 @@ from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFunc
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_convolve_has_correct_parameter import CoCoConvolveHasCorrectParameter
-from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
+from pynestml.cocos.co_co_cm_receptor_model import CoCoCmReceptorModel
 from pynestml.cocos.co_co_cm_concentration_model import CoCoCmConcentrationModel
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
@@ -139,7 +140,7 @@ class CoCosManager:
         CoCoVCompDefined.check_co_co(neuron)
 
     @classmethod
-    def check_compartmental_model(cls, neuron: ASTModel) -> None:
+    def check_compartmental_neuron_model(cls, neuron: ASTModel) -> None:
         """
         collects all relevant information for the different compartmental mechanism classes for later code-generation
 
@@ -148,8 +149,12 @@ class CoCosManager:
         """
         CoCoCmChannelModel.check_co_co(neuron)
         CoCoCmConcentrationModel.check_co_co(neuron)
-        CoCoCmSynapseModel.check_co_co(neuron)
+        CoCoCmReceptorModel.check_co_co(neuron)
         CoCoCmContinuousInputModel.check_co_co(neuron)
+
+    @classmethod
+    def check_compartmental_synapse_model(cls, synapse: ASTModel) -> None:
+        CoCoCmSynapseModel.check_co_co(synapse)
 
     @classmethod
     def check_inline_expressions_have_rhs(cls, model: ASTModel):
@@ -402,7 +407,7 @@ class CoCosManager:
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, model: ASTModel, after_ast_rewrite: bool = False):
+    def post_symbol_table_builder_checks(cls, model: ASTModel, after_ast_rewrite: bool = False, syn_model: bool = False):
         """
         Checks all context conditions.
         :param model: a single model object.
@@ -416,7 +421,10 @@ class CoCosManager:
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             # cls.check_v_comp_requirement(model)
-            cls.check_compartmental_model(model)
+            if syn_model:
+                cls.check_compartmental_synapse_model(model)
+            else:
+                cls.check_compartmental_neuron_model(model)
         cls.check_inline_expressions_have_rhs(model)
         cls.check_inline_has_max_one_lhs(model)
         cls.check_input_ports_not_assigned_to(model)

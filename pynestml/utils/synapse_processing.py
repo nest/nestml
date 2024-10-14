@@ -46,7 +46,7 @@ class SynapseProcessing:
 
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co
-    first_time_run = defaultdict(lambda: defaultdict(lambda: True))
+    first_time_run = defaultdict(lambda: True)
     # stores synapse from the first call of check_co_co
     syn_info = defaultdict()
 
@@ -67,45 +67,43 @@ class SynapseProcessing:
     def prepare_equations_for_ode_toolbox(cls, synapse, syn_info):
         """Transforms the collected ode equations to the required input format of ode-toolbox and adds it to the
         syn_info dictionary"""
-        for mechanism_name, mechanism_info in syn_info.items():
-            mechanism_odes = defaultdict()
-            for ode in mechanism_info["ODEs"]:
-                nestml_printer = NESTMLPrinter()
-                ode_nestml_expression = nestml_printer.print_ode_equation(ode)
-                mechanism_odes[ode.lhs.name] = defaultdict()
-                mechanism_odes[ode.lhs.name]["ASTOdeEquation"] = ode
-                mechanism_odes[ode.lhs.name]["ODENestmlExpression"] = ode_nestml_expression
-            syn_info[mechanism_name]["ODEs"] = mechanism_odes
 
-        for mechanism_name, mechanism_info in syn_info.items():
-            for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
-                # Expression:
-                odetoolbox_indict = {"dynamics": []}
-                lhs = ASTUtils.to_ode_toolbox_name(ode_info["ASTOdeEquation"].get_lhs().get_complete_name())
-                rhs = cls._ode_toolbox_printer.print(ode_info["ASTOdeEquation"].get_rhs())
-                entry = {"expression": lhs + " = " + rhs, "initial_values": {}}
+        mechanism_odes = defaultdict()
+        for ode in syn_info["ODEs"]:
+            nestml_printer = NESTMLPrinter()
+            ode_nestml_expression = nestml_printer.print_ode_equation(ode)
+            mechanism_odes[ode.lhs.name] = defaultdict()
+            mechanism_odes[ode.lhs.name]["ASTOdeEquation"] = ode
+            mechanism_odes[ode.lhs.name]["ODENestmlExpression"] = ode_nestml_expression
+        syn_info["ODEs"] = mechanism_odes
 
-                # Initial values:
-                symbol_order = ode_info["ASTOdeEquation"].get_lhs().get_differential_order()
-                for order in range(symbol_order):
-                    iv_symbol_name = ode_info["ASTOdeEquation"].get_lhs().get_name() + "'" * order
-                    initial_value_expr = synapse.get_initial_value(iv_symbol_name)
-                    entry["initial_values"][
-                        ASTUtils.to_ode_toolbox_name(iv_symbol_name)] = cls._ode_toolbox_printer.print(
-                        initial_value_expr)
+        for ode_variable_name, ode_info in syn_info["ODEs"].items():
+            # Expression:
+            odetoolbox_indict = {"dynamics": []}
+            lhs = ASTUtils.to_ode_toolbox_name(ode_info["ASTOdeEquation"].get_lhs().get_complete_name())
+            rhs = cls._ode_toolbox_printer.print(ode_info["ASTOdeEquation"].get_rhs())
+            entry = {"expression": lhs + " = " + rhs, "initial_values": {}}
 
-                odetoolbox_indict["dynamics"].append(entry)
-                syn_info[mechanism_name]["ODEs"][ode_variable_name]["ode_toolbox_input"] = odetoolbox_indict
+            # Initial values:
+            symbol_order = ode_info["ASTOdeEquation"].get_lhs().get_differential_order()
+            for order in range(symbol_order):
+                iv_symbol_name = ode_info["ASTOdeEquation"].get_lhs().get_name() + "'" * order
+                initial_value_expr = synapse.get_initial_value(iv_symbol_name)
+                entry["initial_values"][
+                    ASTUtils.to_ode_toolbox_name(iv_symbol_name)] = cls._ode_toolbox_printer.print(
+                    initial_value_expr)
+
+            odetoolbox_indict["dynamics"].append(entry)
+            syn_info["ODEs"][ode_variable_name]["ode_toolbox_input"] = odetoolbox_indict
 
         return syn_info
 
     @classmethod
     def collect_raw_odetoolbox_output(cls, syn_info):
         """calls ode-toolbox for each ode individually and collects the raw output"""
-        for mechanism_name, mechanism_info in syn_info.items():
-            for ode_variable_name, ode_info in mechanism_info["ODEs"].items():
-                solver_result = analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True)
-                syn_info[mechanism_name]["ODEs"][ode_variable_name]["ode_toolbox_output"] = solver_result
+        for ode_variable_name, ode_info in syn_info["ODEs"].items():
+            solver_result = analysis(ode_info["ode_toolbox_input"], disable_stiffness_check=True)
+            syn_info["ODEs"][ode_variable_name]["ode_toolbox_output"] = solver_result
 
         return syn_info
 
@@ -154,11 +152,11 @@ class SynapseProcessing:
         via object references
         :param synapse: a single synapse instance.
         """
-
-        return copy.deepcopy(cls.syn_info[synapse][cls.mechType])
+        #breakpoint()
+        return copy.deepcopy(cls.syn_info[synapse])
 
     @classmethod
-    def check_co_co(cls, synapse: ASTModel):
+    def process(cls, synapse: ASTModel):
         """
         Checks if mechanism conditions apply for the handed over synapse.
         :param synapse: a single synapse instance.
@@ -172,6 +170,7 @@ class SynapseProcessing:
             info_collector = ASTSynapseInformationCollector(synapse)
 
             # collect and process all basic mechanism information
+            syn_info = defaultdict()
             syn_info = info_collector.collect_definitions(synapse, syn_info)
             syn_info = info_collector.extend_variables_with_initialisations(synapse, syn_info)
             syn_info = cls.ode_toolbox_processing(synapse, syn_info)
@@ -181,13 +180,20 @@ class SynapseProcessing:
 
             # collect the onReceive function of pre- and post-spikes
             spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
+            breakpoint()
             post_ports = FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"][0]["post_ports"]
             pre_ports = list(set(spiking_port_names) - set(post_ports))
+            breakpoint()
             syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
             # collect the update block
+            syn_info = info_collector.collect_update_block(synapse, syn_info)
+
+            # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
+            syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
 
             cls.syn_info[synapse] = syn_info
+            #breakpoint()
             cls.first_time_run[synapse] = False
 
     @classmethod

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_cm_synapse_model.py
+# co_co_cm_receptor_model.py
 #
 # This file is part of NEST.
 #
@@ -21,16 +21,16 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_model import ASTModel
-from pynestml.utils.synapse_processing import SynapseProcessing
+from pynestml.utils.receptor_processing import ReceptorProcessing
 
 
-class CoCoCmSynapseModel(CoCo):
+class CoCoCmReceptorModel(CoCo):
 
     @classmethod
     def check_co_co(cls, model: ASTModel):
         """
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
-        :param model: a single synapse instance.
+        :param model: a single neuron instance.
         """
-        return SynapseProcessing.check_co_co(model)
+        return ReceptorProcessing.check_co_co(model)
