@@ -567,7 +567,7 @@ std::vector< double > nest::{{concentration_name}}{{cm_unique_suffix}}::distribu
 
 ////////////////////////////////////// synapses
 
-{%- for synapse_name, synapse_info in syns_info.items() %}
+{%- for synapse_name, synapse_info in recs_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 
 void nest::{{synapse_name}}{{cm_unique_suffix}}::new_synapse(std::size_t comp_ass, const long syn_index)
