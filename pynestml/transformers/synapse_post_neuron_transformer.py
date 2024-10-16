@@ -568,7 +568,7 @@ class SynapsePostNeuronTransformer(Transformer):
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
-            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks()[0].get_scope())
+            ASTUtils.replace_with_external_variable(state_var, new_synapse, var_name_suffix, new_neuron.get_scope())
 
         #
         #     rename neuron

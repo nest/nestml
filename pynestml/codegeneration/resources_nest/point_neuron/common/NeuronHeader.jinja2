@@ -168,27 +168,42 @@ extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% e
 
 {%- if paired_synapse is defined %}
 
-// entry in the spiking history
+/**
+ * entry in the spiking history
+**/
 class histentry__{{ neuronName }}
 {
 public:
-  histentry__{{ neuronName }}( double t,
+  histentry__{{ neuronName }}( double t
+      , size_t access_counter
 {%- for var in purely_numeric_state_variables_moved|sort %}
-      double {{var}},
+      , double {{ var }}
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-      double {{ var }},
+      , double {{ var }}
 {%- endfor %}
-      size_t access_counter )
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+      , double {{ state_var }}
+{%-     endfor %}
+{%- endif %}
+  )
   : t_( t )
+  , access_counter_( access_counter )
 {%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   , {{ var }}_( {{ var }} )
 {%- endfor %}
-  , access_counter_( access_counter )
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering | sort %}
+  , {{ state_var }}_( {{ state_var }} )
+{%-     endfor %}
+{%- endif %}
   {
   }
 
   double t_;              //!< point in time when spike occurred (in ms)
+  size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
+
 {%- for var in (purely_numeric_state_variables_moved + analytic_state_variables_moved) | sort %}
   double {{ var }}_;
 
@@ -203,9 +218,14 @@ public:
   }
 
 {%- endfor %}
-  size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for state_var in state_vars_that_need_continuous_buffering %}
+  double {{ state_var }}_;
+{%-     endfor %}
+{%- endif %}
 };
-{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
 class continuous_variable_histentry_{{ neuronName }}
 {
@@ -215,12 +235,12 @@ public:
       double {{ state_var }}{% if not loop.last %}, {% endif %}
 {%-     endfor %} );
 
+  double t_;              //!< point in time for history entry
+  size_t access_counter_;
+
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
   double {{ state_var }};
 {%-     endfor %}
-
-  double t_;              //!< point in time for history entry
-  size_t access_counter_;
 };
 {%- endif %}
 {%- endif %}
@@ -365,11 +385,12 @@ public:
    * with t > t_first_read.
    */
   void register_stdp_connection( double t_first_read, double delay );
-{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "continuous_time_buffer" %}
 
   /**
    * write_continuous_variable_history
-   */
+  **/
   void write_continuous_variable_history(nest::Time const &t,
 {%-     for state_var in state_vars_that_need_continuous_buffering %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
@@ -432,9 +453,20 @@ public:
   //   Getters/setters for variables transferred from synapse
   // -------------------------------------------------------------------------
 
-{%-     for var in transferred_variables + state_vars_that_need_continuous_buffering %}
-  double get_{{var}}( double t, const bool before_increment = true );
+{%-     for var in transferred_variables %}
+  double get_{{ var }}( double t, const bool before_increment = true );
 {%-     endfor %}
+
+{%-     if state_vars_that_need_continuous_buffering | length > 0 %}
+
+  // -------------------------------------------------------------------------
+  //   Getters/setters for variables that need continuous time buffering
+  // -------------------------------------------------------------------------
+
+{%-         for var in state_vars_that_need_continuous_buffering %}
+  double get_{{ var }}( double t, const bool before_increment = true );
+{%-         endfor %}
+{%-     endif %}
 {%- endif %}
 
   // -------------------------------------------------------------------------

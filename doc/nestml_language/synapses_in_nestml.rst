@@ -149,7 +149,7 @@ In the synapse, the value will be referred to as ``I_post_dend`` and can be used
        w_ = (I_post_dend / I_post_dend_peak) * w_
             + (1 - I_post_dend / I_post_dend_peak) * w    # "gating" of the weight update
 
-In the neuron, no special output port is required; all state variables are accessible for the third factor rules. For more details on how to generate code in NEST, please refer to the NEST-specific instructions at :ref:`Third-factor plasticity rules <sec-nest-third-factor-plasticity>`.
+NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`). Passing this as a code generator option facilitates combining models from different sources, where the naming conventions can be different between the neuron and synapse model.
 
 In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be clamped at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 

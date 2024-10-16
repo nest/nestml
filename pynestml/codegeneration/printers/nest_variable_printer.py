@@ -20,10 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Dict, Optional
 
 from typing import Dict, Optional
-
 
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter

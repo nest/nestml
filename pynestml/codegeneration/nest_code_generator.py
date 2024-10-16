@@ -115,6 +115,7 @@ class NESTCodeGenerator(CodeGenerator):
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
+    - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
@@ -147,6 +148,7 @@ class NESTCodeGenerator(CodeGenerator):
         "solver": "analytic",
         "gsl_adaptive_step_size_controller": "with_respect_to_solution",
         "numeric_solver": "rk45",
+        "continuous_state_buffering_method": "continuous_time_buffer",
         "delay_variable": {},
         "weight_variable": {}
     }
@@ -274,6 +276,14 @@ class NESTCodeGenerator(CodeGenerator):
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
+
+        for synapse in synapses:
+
+            if "neuron_synapse_pairs" in FrontendConfiguration.get_codegen_opts().keys() and "paired_neuron" in dir(synapse):
+                post_ports = ASTUtils.get_post_ports_of_neuron_synapse_pair(synapse.paired_neuron, synapse, FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"])
+                synapse.continuous_post_ports = [v for v in post_ports if isinstance(v, tuple) or isinstance(v, list)]
+                synapse.paired_neuron.continuous_post_ports = synapse.continuous_post_ports
+
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
@@ -512,6 +522,12 @@ class NESTCodeGenerator(CodeGenerator):
             namespace["numeric_solver"] = self.get_option("numeric_solver")
             namespace["gsl_adaptive_step_size_controller"] = self.get_option("gsl_adaptive_step_size_controller")
 
+        # continuous post ports
+        namespace["continuous_state_buffering_method"] = self.get_option("continuous_state_buffering_method")
+        namespace["continuous_post_ports"] = []
+        if "continuous_post_ports" in dir(astnode):
+            namespace["continuous_post_ports"] = astnode.continuous_post_ports
+
         return namespace
 
     def _get_synapse_model_namespace(self, synapse: ASTModel) -> Dict:
@@ -652,6 +668,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         if "paired_synapse" in dir(neuron):
             if "state_vars_that_need_continuous_buffering" in dir(neuron):
+                assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]
                 namespace["state_vars_that_need_continuous_buffering"] = neuron.state_vars_that_need_continuous_buffering
 
                 codegen_and_builder_opts = FrontendConfiguration.get_codegen_opts()
