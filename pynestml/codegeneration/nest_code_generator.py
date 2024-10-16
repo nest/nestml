@@ -528,12 +528,6 @@ class NESTCodeGenerator(CodeGenerator):
         if "continuous_post_ports" in dir(astnode):
             namespace["continuous_post_ports"] = astnode.continuous_post_ports
 
-        # continuous post ports
-        namespace["continuous_state_buffering_method"] = self.get_option("continuous_state_buffering_method")
-        namespace["continuous_post_ports"] = []
-        if "continuous_post_ports" in dir(astnode):
-            namespace["continuous_post_ports"] = astnode.continuous_post_ports
-
         return namespace
 
     def _get_synapse_model_namespace(self, synapse: ASTModel) -> Dict:

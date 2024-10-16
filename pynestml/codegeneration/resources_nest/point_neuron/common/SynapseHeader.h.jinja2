@@ -751,8 +751,6 @@ void get_entry_from_continuous_variable_history(double t,
        * Note that this also increases the access counter for these entries which is used to prune the history.
       **/
 
-      std::deque< histentry__{{ paired_neuron_name }} >::iterator start;
-      std::deque< histentry__{{ paired_neuron_name }} >::iterator finish;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
       double t0 = t_last_update_;
 {%- endif %}
@@ -814,7 +812,6 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endif %}
 {%- endif %}
 
-{%  if vt_ports is defined and vt_ports|length > 0  %}
 {%  if vt_ports is defined and vt_ports|length > 0  %}
 {%-     set vt_port = vt_ports[0] %}
         process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
@@ -905,7 +902,6 @@ void get_entry_from_continuous_variable_history(double t,
        *  NESTML generated onReceive code block for presynaptic port "{{ pre_port }}" begins here!
       **/
 {%      if synapse.get_on_receive_block(pre_port) %}
-{%- filter indent(8, True) %}
 {%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
 {%-         with ast = dynamics.get_block() %}
 {%-             filter indent(6, True) %}
@@ -913,8 +909,8 @@ void get_entry_from_continuous_variable_history(double t,
 {%-             endfilter %}
 {%-         endwith %}
 {%-     endif %}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
 {%- endfor %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
     }
 
     /**
