@@ -19,11 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -52,7 +52,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.symbol_stack = Stack()
         self.scope_stack = Stack()
         self.block_type_stack = Stack()
-        self.after_ast_rewrite_ = False
 
     def visit_model(self, node: ASTModel) -> None:
         """
@@ -78,10 +77,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_scope().add_symbol(types[symbol])
 
     def endvisit_model(self, node: ASTModel):
-        # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(
-            node, after_ast_rewrite=self.after_ast_rewrite_)
-
         # update the equations
         for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)
@@ -279,16 +274,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
-        init_value = node.get_expression(
-        ) if self.block_type_stack.top() == BlockType.STATE else None
+        init_value = node.get_expression() if self.block_type_stack.top() in [BlockType.STATE, BlockType.PARAMETERS, BlockType.INTERNALS] else None
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []
         namespace_decorators = {}
         for d in node.get_decorators():
             if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(
-                    d.get_name())
+                namespace_decorators[str(d.get_namespace())] = str(d.get_name())
             else:
                 decorators.append(d)
 
@@ -296,6 +289,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         block_type = None
         if not self.block_type_stack.is_empty():
             block_type = self.block_type_stack.top()
+
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
 
@@ -324,11 +318,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)
             var.set_type_symbol(type_symbol)
+
         # the data type
         node.get_data_type().update_scope(node.get_scope())
+
         # the rhs update
         if node.has_expression():
             node.get_expression().update_scope(node.get_scope())
+
         # the invariant update
         if node.has_invariant():
             node.get_invariant().update_scope(node.get_scope())
@@ -473,11 +470,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_vector_parameter().update_scope(node.get_scope())
             node.get_vector_parameter().accept(self)
 
-    def visit_inline_expression(self, node):
+    def visit_inline_expression(self, node: ASTInlineExpression):
         """
-        Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
+        Private method: Used to visit a single inline expression, create the corresponding symbol and update the scope.
         :param node: a single inline expression.
-        :type node: ASTInlineExpression
         """
 
         # split the decorators in the AST up into namespace decorators and other decorators

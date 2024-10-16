@@ -35,7 +35,6 @@ model hh_moto_5ht_neuron:
         V_m mV = V_m_init    # Membrane potential
         V_m_old mV = V_m_init    # Membrane potential
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
         Ca_in mmol = Ca_in_init    # Inside Calcium concentration
         Act_m real =    alpha_m(V_m_init) / ( alpha_m(V_m_init) + beta_m(V_m_init) )
         Act_h real = h_inf(V_m_init)
@@ -61,6 +60,7 @@ model hh_moto_5ht_neuron:
         inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in) / (Ca_in * Ca_in + 0.014 * 0.014)) * (V_m - E_K)
 
         V_m' =( -( I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
         Inact_n' = (n_inf(V_m) - Inact_n) / n_tau(V_m)
         Act_m' = alpha_m(V_m) * (1. - Act_m) - beta_m(V_m) * Act_m
@@ -69,7 +69,7 @@ model hh_moto_5ht_neuron:
         Act_mc' = (mc_inf(V_m) - Act_mc) / mc_tau
         Act_hc' = (hc_inf(V_m) - Act_hc) / hc_tau
 
-        Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
+        Ca_in' = (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
 
     parameters:
         refr_T ms = 2 ms                 # Duration of refractory period
@@ -118,22 +118,17 @@ model hh_moto_5ht_neuron:
     update:
         # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
-        integrate_odes()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, Inact_n, Act_m, Act_h, Act_p, Act_mc, Act_hc, Ca_in, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, Inact_n, Act_m, Act_h, Act_p, Act_mc, Act_hc, Ca_in)
 
-        if is_refractory:
-            # neuron is absolute refractory, decrease refractoriness timer
-            refr_t -= resolution()
-
-    onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > 0 mV and V_m_old > V_m):
         # threshold && maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false
 
     function h_inf(V_m mV) real:
         return 1. / (1. + exp((V_m + 65.) / 7.))

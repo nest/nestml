@@ -87,6 +87,8 @@ for root, dirnames, filenames in os.walk(static_docs_dir):
             matches.append(os.path.join(root, filename))
     for filename in fnmatch.filter(filenames, '*.png'):
             matches.append(os.path.join(root, filename))
+    for filename in fnmatch.filter(filenames, '*.svg'):
+            matches.append(os.path.join(root, filename))
     for filename in fnmatch.filter(filenames, '*.ipynb'):
             matches.append(os.path.join(root, filename))
 print("Matches:")

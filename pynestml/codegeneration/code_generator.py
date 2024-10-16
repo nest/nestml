@@ -42,18 +42,11 @@ from pynestml.utils.with_options import WithOptions
 
 
 class CodeGenerator(WithOptions):
+    r"""Generate code for a given target platform."""
+
     _default_options: Mapping[str, Any] = {}
 
-    def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
-        from pynestml.frontend.pynestml_frontend import get_known_targets
-
-        if not target.upper() in get_known_targets():
-            code, msg = Messages.get_unknown_target(target)
-            Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
-            self._target = ""
-            raise InvalidTargetException()
-
-        self._target = target
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super(CodeGenerator, self).__init__(options)
 
         self._init_templates_list()
@@ -96,6 +89,9 @@ class CodeGenerator(WithOptions):
         if "module_templates" in self.get_option("templates"):
             module_templates = self.get_option("templates")["module_templates"]
             self._module_templates.extend(self._setup_template_env(module_templates, templates_root_dir))
+
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
 
     def _init_templates_list(self):
         self._model_templates: Mapping[str, List[Template]] = {}

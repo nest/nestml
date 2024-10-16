@@ -3,7 +3,13 @@ NEST Simulator target
 
 *NESTML features supported:* :doc:`neurons </nestml_language/neurons_in_nestml>`, :doc:`synapses </nestml_language/synapses_in_nestml>`, :ref:`vectors <Vectors>`, :ref:`delay differential equations <Delay Differential Equations>`, :ref:`guards <Guards>`
 
+Generates code for NEST Simulator. For a list of supported versions, see :ref:`Compatibility with different versions of NEST <nest_versions_compatibility>`.
+
 After NESTML completes, the NEST extension module (by default called ``"nestmlmodule"``) can either be statically linked into NEST (see `Writing an extension module <https://nest-extension-module.readthedocs.io/>`_), or loaded dynamically using the ``Install`` API call in Python.
+
+.. note::
+
+   Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
 Simulation loop
@@ -176,10 +182,6 @@ For a full example, please see `iaf_psc_exp_multisynapse_vectors.nestml <https:/
 Generating code
 ---------------
 
-.. note::
-
-   Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
-
 Generating code for plastic synapses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -219,9 +221,13 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
 Third-factor plasticity
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Note that when a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron (see :ref:`Third-factor plasticity <synapses_in_nestml#third-factor-plasticity>`), a corresponding buffer is allocated in each neuron which retains the recent history of the connected state variables. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal.
+When a continuous-time input port is defined in the synapse model which is connected to a postsynaptic neuron, a corresponding buffer is allocated in each neuron which retains the recent history of the needed state variables. Two options are available for how the buffer is implemented: a "continuous-time" based buffer, or a spike-based buffer (see the NEST code generator option ``continuous_state_buffering_method`` on https://nestml.readthedocs.io/en/latest/pynestml.codegeneration.html#pynestml.codegeneration.nest_code_generator.NESTCodeGenerator).
 
-The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
+By default, the "continuous-time" based buffer is selected. This covers the most general case of different synaptic delay values and a discontinuous third-factor signal. The implementation corresponds to the event-based update scheme in Fig. 4b of [Stapmanns2021]_. There, the authors observe that the storage and management of such a buffer can be expensive in terms of memory and runtime. In each time step, the value of the current dendritic current (or membrane potential, or other third factor) is appended to the buffer. The maximum length of the buffer depends on the maximum inter-spike interval of any of the presynaptic neurons.
+
+As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
+
+
 
 
 Dendritic delay and synaptic weight
@@ -231,7 +237,7 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
 
 .. code:: nestml
 
-   synapse my_synapse:
+   model my_synapse:
        state:
            w real = 1.
 
@@ -253,6 +259,8 @@ Custom templates
 
 See :ref:`Running NESTML with custom templates`.
 
+
+.. _nest_versions_compatibility:
 
 Compatibility with different versions of NEST
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

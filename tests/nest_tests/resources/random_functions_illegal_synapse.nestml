@@ -1,0 +1,73 @@
+"""
+random_functions_illegal_synapse.nestml
+#######################################
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+model random_functions_illegal_synapse:
+    state:
+        w real = 1    # Synaptic weight
+        pre_trace real = 0.
+        post_trace real = 0.
+
+    parameters:
+        d ms = 1 ms    # Synaptic transmission delay
+        lambda real = .01
+        tau_tr_pre ms = random_normal(110 ms, 55 ms)
+        tau_tr_post ms = random_normal(5 ms, 2.5 ms)
+        alpha real = 1
+        mu_plus real = 1
+        mu_minus real = 1
+        Wmax real = 100.
+        Wmin real = 0.
+
+    equations:
+        pre_trace' = -pre_trace / tau_tr_pre
+        post_trace' = -post_trace / tau_tr_post
+
+    input:
+        pre_spikes <- spike
+        post_spikes <- spike
+
+    output:
+        spike
+
+    onReceive(post_spikes):
+        post_trace += 1
+
+        # potentiate synapse
+        w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w = min(Wmax, w_)
+
+    onReceive(pre_spikes):
+        pre_trace += 1
+
+        # depress synapse
+        w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w = max(Wmin, w_)
+
+        # deliver spike to postsynaptic partner
+        emit_spike(w, d)
+
+    update:
+        integrate_odes()

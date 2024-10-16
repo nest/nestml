@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from typing import Any, Sequence, Mapping, Optional, Union
 
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -527,7 +528,7 @@ class SynapsePostNeuronTransformer(Transformer):
                     post_variable_names.append(self.get_neuron_var_name_from_syn_port_name(
                         port.get_name(), neuron.name, synapse.name))
 
-        for state_var, alternate_name in zip(post_connected_continuous_input_ports, post_variable_names):
+        for state_var in post_connected_continuous_input_ports:
             Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
             ASTUtils.replace_with_external_variable(state_var, new_synapse, "", None, "__" + state_var)
 
@@ -563,11 +564,6 @@ class SynapsePostNeuronTransformer(Transformer):
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
         #
 
-        # make sure the moved symbols can be resolved in the scope of the neuron (that's where ``ASTExternalVariable._altscope`` will be pointing to)
-        ast_symbol_table_visitor = ASTSymbolTableVisitor()
-        ast_symbol_table_visitor.after_ast_rewrite_ = True
-        new_neuron.accept(ast_symbol_table_visitor)
-
         Logger.log_message(
             None, -1, "In synapse: replacing variables with suffixed external variable references", None, LoggingLevel.INFO)
         for state_var in syn_to_neuron_state_vars:
@@ -583,7 +579,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
         new_neuron.unpaired_name = neuron.get_name()
         new_neuron.set_name(new_neuron_name)
-        new_neuron.paired_synapse = new_synapse
+        new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
         new_neuron.state_vars_that_need_continuous_buffering = state_vars_that_need_continuous_buffering
 
         #
@@ -593,6 +589,7 @@ class SynapsePostNeuronTransformer(Transformer):
         new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
         new_synapse.set_name(new_synapse_name)
         new_synapse.paired_neuron = new_neuron
+        new_neuron.paired_synapse_original_model = synapse
 
         base_neuron_name = removesuffix(neuron.get_name(), FrontendConfiguration.suffix)
         base_synapse_name = removesuffix(synapse.get_name(), FrontendConfiguration.suffix)
@@ -608,7 +605,6 @@ class SynapsePostNeuronTransformer(Transformer):
         new_neuron.accept(ASTParentVisitor())
         new_synapse.accept(ASTParentVisitor())
         ast_symbol_table_visitor = ASTSymbolTableVisitor()
-        ast_symbol_table_visitor.after_ast_rewrite_ = True
         new_neuron.accept(ast_symbol_table_visitor)
         new_synapse.accept(ast_symbol_table_visitor)
 

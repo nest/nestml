@@ -76,13 +76,13 @@ model neuromodulated_stdp_synapse:
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
 
-    # update from time t to t + resolution()
+    # update from time t to t + timestep()
     update:
-        # resolution() returns the timestep to be made (in units of time)
+        # timestep() returns the timestep to be made (in units of time)
         # the sequence here matters: the update step for w requires the "old" values of c and n
-        w -= c * ( n / tau_s * expm1( -tau_s * resolution() ) \
-                 - b * tau_c * expm1( -resolution() / tau_c ))
-        c = c * exp(-resolution() / tau_c)
-        n = n * exp(-resolution() / tau_n)
+        w -= c * ( n / tau_s * expm1( -tau_s * timestep() ) \
+                 - b * tau_c * expm1( -timestep() / tau_c ))
+        c = c * exp(-timestep() / tau_c)
+        n = n * exp(-timestep() / tau_n)
 
         integrate_odes(pre_tr, post_tr)

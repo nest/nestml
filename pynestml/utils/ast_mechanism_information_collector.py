@@ -101,6 +101,7 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(var_init_visitor)
             mechs_info[mechanism_name]["States"] = var_init_visitor.states
             mechs_info[mechanism_name]["Parameters"] = var_init_visitor.parameters
+            mechs_info[mechanism_name]["Internals"] = var_init_visitor.internals
 
         return mechs_info
 
@@ -116,6 +117,7 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(variable_collector)
             global_states = variable_collector.all_states
             global_parameters = variable_collector.all_parameters
+            global_internals = variable_collector.all_internals
 
             function_collector = ASTFunctionCollectorVisitor()
             neuron.accept(function_collector)
@@ -133,16 +135,23 @@ class ASTMechanismInformationCollector(object):
             neuron.accept(kernel_collector)
             global_kernels = kernel_collector.all_kernels
 
+            continuous_input_collector = ASTContinuousInputDeclarationVisitor()
+            neuron.accept(continuous_input_collector)
+            global_continuous_inputs = continuous_input_collector.ports
+
             mechanism_states = list()
             mechanism_parameters = list()
+            mechanism_internals = list()
             mechanism_functions = list()
             mechanism_inlines = list()
             mechanism_odes = list()
             synapse_kernels = list()
+            mechanism_continuous_inputs = list()
             mechanism_dependencies = defaultdict()
             mechanism_dependencies["concentrations"] = list()
             mechanism_dependencies["channels"] = list()
             mechanism_dependencies["receptors"] = list()
+            mechanism_dependencies["continuous"] = list()
 
             mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
 
@@ -200,6 +209,10 @@ class ASTMechanismInformationCollector(object):
                                                 if not inline.variable_name in [i.variable_name for i in
                                                                                 mechanism_dependencies["receptors"]]:
                                                     mechanism_dependencies["receptors"].append(inline)
+                                            if "continuous" in [e.name for e in inline.get_decorators()]:
+                                                if not inline.variable_name in [i.variable_name for i in
+                                                                                mechanism_dependencies["continuous"]]:
+                                                    mechanism_dependencies["continuous"].append(inline)
 
                                 if not is_dependency:
                                     mechanism_inlines.append(inline)
@@ -252,6 +265,10 @@ class ASTMechanismInformationCollector(object):
                             if variable.name == parameter.name:
                                 mechanism_parameters.append(parameter)
 
+                        for internal in global_internals:
+                            if variable.name == internal.name:
+                                mechanism_internals.append(internal)
+
                         for kernel in global_kernels:
                             if variable.name == kernel.get_variables()[0].name:
                                 synapse_kernels.append(kernel)
@@ -268,15 +285,21 @@ class ASTMechanismInformationCollector(object):
                                                                                                        local_function_call_collector.all_function_calls,
                                                                                                        search_functions + found_functions)
 
+                        for input in global_continuous_inputs:
+                            if variable.name == input.name:
+                                mechanism_continuous_inputs.append(input)
+
                     search_variables.remove(variable)
                     found_variables.append(variable)
                     # IMPLEMENT CATCH NONDEFINED!!!
 
             mechs_info[mechanism_name]["States"] = mechanism_states
             mechs_info[mechanism_name]["Parameters"] = mechanism_parameters
+            mechs_info[mechanism_name]["Internals"] = mechanism_internals
             mechs_info[mechanism_name]["Functions"] = mechanism_functions
             mechs_info[mechanism_name]["SecondaryInlineExpressions"] = mechanism_inlines
             mechs_info[mechanism_name]["ODEs"] = mechanism_odes
+            mechs_info[mechanism_name]["Continuous"] = mechanism_continuous_inputs
             mechs_info[mechanism_name]["Dependencies"] = mechanism_dependencies
 
         return mechs_info
@@ -312,9 +335,11 @@ class VariableInitializationVisitor(ASTVisitor):
         self.inside_declaration = False
         self.inside_parameter_block = False
         self.inside_state_block = False
+        self.inside_internal_block = False
         self.current_declaration = None
         self.states = defaultdict()
         self.parameters = defaultdict()
+        self.internals = defaultdict()
         self.channel_info = channel_info
 
     def visit_declaration(self, node):
@@ -330,10 +355,13 @@ class VariableInitializationVisitor(ASTVisitor):
             self.inside_state_block = True
         if node.is_parameters:
             self.inside_parameter_block = True
+        if node.is_internals:
+            self.inside_internal_block = True
 
     def endvisit_block_with_variables(self, node):
         self.inside_state_block = False
         self.inside_parameter_block = False
+        self.inside_internal_block = False
 
     def visit_variable(self, node):
         self.inside_variable = True
@@ -348,6 +376,12 @@ class VariableInitializationVisitor(ASTVisitor):
                 self.parameters[node.name] = defaultdict()
                 self.parameters[node.name]["ASTVariable"] = node.clone()
                 self.parameters[node.name]["rhs_expression"] = self.current_declaration.get_expression()
+
+        if self.inside_internal_block and self.inside_declaration:
+            if any(node.name == variable.name for variable in self.channel_info["Internals"]):
+                self.internals[node.name] = defaultdict()
+                self.internals[node.name]["ASTVariable"] = node.clone()
+                self.internals[node.name]["rhs_expression"] = self.current_declaration.get_expression()
 
     def endvisit_variable(self, node):
         self.inside_variable = False
@@ -374,8 +408,10 @@ class ASTVariableCollectorVisitor(ASTVisitor):
         self.inside_block_with_variables = False
         self.all_states = list()
         self.all_parameters = list()
+        self.all_internals = list()
         self.inside_states_block = False
         self.inside_parameters_block = False
+        self.inside_internals_block = False
         self.all_variables = list()
 
     def visit_block_with_variables(self, node):
@@ -384,10 +420,13 @@ class ASTVariableCollectorVisitor(ASTVisitor):
             self.inside_states_block = True
         if node.is_parameters:
             self.inside_parameters_block = True
+        if node.is_internals:
+            self.inside_internals_block = True
 
     def endvisit_block_with_variables(self, node):
         self.inside_states_block = False
         self.inside_parameters_block = False
+        self.inside_internals_block = False
         self.inside_block_with_variables = False
 
     def visit_variable(self, node):
@@ -397,6 +436,8 @@ class ASTVariableCollectorVisitor(ASTVisitor):
             self.all_states.append(node.clone())
         if self.inside_parameters_block:
             self.all_parameters.append(node.clone())
+        if self.inside_internals_block:
+            self.all_internals.append(node.clone())
 
     def endvisit_variable(self, node):
         self.inside_variable = False
@@ -456,3 +497,20 @@ class ASTKernelCollectorVisitor(ASTVisitor):
 
     def endvisit_kernel(self, node):
         self.inside_kernel = False
+
+
+class ASTContinuousInputDeclarationVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTContinuousInputDeclarationVisitor, self).__init__()
+        self.inside_port = False
+        self.current_port = None
+        self.ports = list()
+
+    def visit_input_port(self, node):
+        self.inside_port = True
+        self.current_port = node
+        if self.current_port.is_continuous():
+            self.ports.append(node.clone())
+
+    def endvisit_input_port(self, node):
+        self.inside_port = False

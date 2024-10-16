@@ -24,6 +24,7 @@ from pynestml.meta_model import ast_arithmetic_operator, ast_bit_operator, ast_c
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.visitors.ast_binary_logic_visitor import ASTBinaryLogicVisitor
+from pynestml.visitors.ast_bit_operator_visitor import ASTBitOperatorVisitor
 from pynestml.visitors.ast_boolean_literal_visitor import ASTBooleanLiteralVisitor
 from pynestml.visitors.ast_comparison_operator_visitor import ASTComparisonOperatorVisitor
 from pynestml.visitors.ast_condition_visitor import ASTConditionVisitor
@@ -32,7 +33,6 @@ from pynestml.visitors.ast_function_call_visitor import ASTFunctionCallVisitor
 from pynestml.visitors.ast_inf_visitor import ASTInfVisitor
 from pynestml.visitors.ast_line_operation_visitor import ASTLineOperatorVisitor
 from pynestml.visitors.ast_logical_not_visitor import ASTLogicalNotVisitor
-from pynestml.visitors.ast_no_semantics_visitor import ASTNoSemanticsVisitor
 from pynestml.visitors.ast_numeric_literal_visitor import ASTNumericLiteralVisitor
 from pynestml.visitors.ast_parentheses_visitor import ASTParenthesesVisitor
 from pynestml.visitors.ast_power_visitor import ASTPowerVisitor
@@ -54,9 +54,9 @@ class ASTExpressionTypeVisitor(ASTVisitor):
     logical_not_visitor = ASTLogicalNotVisitor()
     dot_operator_visitor = ASTDotOperatorVisitor()
     line_operator_visitor = ASTLineOperatorVisitor()
-    no_semantics = ASTNoSemanticsVisitor()
     comparison_operator_visitor = ASTComparisonOperatorVisitor()
     binary_logic_visitor = ASTBinaryLogicVisitor()
+    bit_operator_visitor = ASTBitOperatorVisitor()
     condition_visitor = ASTConditionVisitor()
     function_call_visitor = ASTFunctionCallVisitor()
     boolean_literal_visitor = ASTBooleanLiteralVisitor()
@@ -164,7 +164,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             # handle all bitOperators:
             if isinstance(bin_op, ast_bit_operator.ASTBitOperator):
                 # Expr = left=expression bitOperator right=expression
-                self.set_real_self(self.no_semantics)  # TODO: implement something -> future work with more operators
+                self.set_real_self(self.bit_operator_visitor)
                 return
             # handle all comparison Operators:
             if isinstance(bin_op, ast_comparison_operator.ASTComparisonOperator):
