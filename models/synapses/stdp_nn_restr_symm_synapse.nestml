@@ -72,7 +72,7 @@ model stdp_nn_restr_symm_synapse:
         post_spikes <- spike
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(post_spikes):
         post_trace = 1

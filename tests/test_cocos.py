@@ -115,7 +115,7 @@ class TestCoCos:
 
     def test_invalid_inline_expressions_have_rhs(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoInlineExpressionHasNoRhs.nestml'))
-        assert model is None
+        assert model is None    # parse error
 
     def test_valid_inline_expressions_have_rhs(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoInlineExpressionHasNoRhs.nestml'))
@@ -123,7 +123,7 @@ class TestCoCos:
 
     def test_invalid_inline_expression_has_several_lhs(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoInlineExpressionWithSeveralLhs.nestml'))
-        assert model is None
+        assert model is None    # parse error
 
     def test_valid_inline_expression_has_several_lhs(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoInlineExpressionWithSeveralLhs.nestml'))
@@ -324,6 +324,23 @@ class TestCoCos:
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoOutputPortDefinedIfEmitCall.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
 
+    def test_invalid_output_port_type_if_emit_call(self):
+        """test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port"""
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoOutputPortTypeIfEmitCall.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) > 0
+
+    def test_invalid_output_port_type_if_emit_call(self):
+        """test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port"""
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoOutputPortTypeIfEmitCall-2.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) > 0
+
+    def test_valid_output_port_type_if_emit_call(self):
+        """test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port"""
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoOutputPortTypeIfEmitCall-3.nestml'))
+        assert model is not None
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) > 0
+
     def test_valid_coco_kernel_type(self):
         """
         Test the functionality of CoCoKernelType.
@@ -388,10 +405,7 @@ class TestCoCos:
 
         Logger.init_logger(LoggingLevel.DEBUG)
 
-        try:
-            generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
-        except BaseException:
-            return None
+        generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
 
         ast_compilation_unit = ModelParser.parse_file(fname)
         if ast_compilation_unit is None or len(ast_compilation_unit.get_model_list()) == 0:

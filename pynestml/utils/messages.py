@@ -139,6 +139,7 @@ class MessageCode(Enum):
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
+    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
 
 
 class Messages:
@@ -1072,6 +1073,14 @@ class Messages:
         """
         message = 'emit_spike() function was called, but no spiking output port has been defined!'
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
+
+    @classmethod
+    def get_output_port_type_differs(cls) -> Tuple[MessageCode, str]:
+        """
+        Indicates that an emit_spike() function was called, but with different parameter types than the output port was defined with.
+        """
+        message = 'emit_spike() function was called, but with different parameter types than the output port was defined with!'
+        return MessageCode.EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS, message
 
     @classmethod
     def get_kernel_wrong_type(cls,
