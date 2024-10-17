@@ -2570,6 +2570,13 @@ class ASTUtils:
 
 
     @classmethod
+    def print_spike_update_expressions(cls, neuron:ASTModel):
+        import pdb;
+        for port, update_exp in neuron.spike_updates.items():
+            pdb.set_trace()
+            print(f"Update expression for {port} is {update_exp}")
+
+    @classmethod
     def get_first_spike_port_from_spike_updates(cls, neuron: ASTModel) -> ASTVariable:
         # Get the first variable in the sorted spike update expressions list
         for update_expr in dict(sorted(neuron.spike_updates.items())).values():
@@ -2585,11 +2592,6 @@ class ASTUtils:
 
         # There is no port marked excitatory, return the first port name
         return neuron.get_spike_input_ports()[0].get_symbol_name()
-
-    # @classmethod
-    # def get_port_qualifier_by_port_name(cls, neuron: ASTModel, port_name: str):
-    #     for port in neuron.get_input_blocks()[0].get_input_ports():
-    #         if port.get
 
     @classmethod
     def get_exc_spike_variable(cls, neuron: ASTModel) -> ASTVariable:

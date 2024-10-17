@@ -307,6 +307,7 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
+            ASTUtils.print_spike_update_expressions(neuron)
             neuron.post_spike_updates = post_spike_updates
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
