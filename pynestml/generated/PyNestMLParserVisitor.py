@@ -1,6 +1,6 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.13.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.10.1
 from antlr4 import *
-if "." in __name__:
+if __name__ is not None and "." in __name__:
     from .PyNestMLParser import PyNestMLParser
 else:
     from PyNestMLParser import PyNestMLParser
