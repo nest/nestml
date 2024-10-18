@@ -545,7 +545,6 @@ class ASTModel(ASTNode):
                 return True
 
         return False
-
     def get_input_ports(self) -> List[VariableSymbol]:
         """
         Returns a list of all defined input ports.
@@ -697,6 +696,20 @@ class ASTModel(ASTNode):
                                                        or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
+
+    def get_state_symbols_sorted_by_suffix(self) -> List[VariableSymbol]:
+        """
+        This method returns a list of state symbols that are sorted by symbol name with a suffix string.
+        """
+        extract_list = [var for var in self.get_state_symbols()
+                        if any(input_port.get_symbol_name() in var.get_symbol_name() for input_port in self.get_spike_input_ports())]
+        if extract_list:
+            diff =  list(set(self.get_state_symbols()) - set(extract_list))
+            extract_list = sorted(extract_list, key=lambda x: x.name)
+            extract_list = sorted(extract_list, key=lambda x: (x.name.endswith("__d")))
+            return diff + extract_list
+        return self.get_state_symbols()
+        # return sorted(self.get_state_symbols(), key=lambda x: (x.name.endswith(suffix)))
 
     def get_children(self) -> List[ASTNode]:
         r"""
