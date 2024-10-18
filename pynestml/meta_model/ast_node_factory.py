@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -295,9 +295,8 @@ class ASTNodeFactory:
         return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
-    def create_ast_output_block(cls, s_type, source_position):
-        # type: (PortSignalType,ASTSourceLocation) -> ASTOutputBlock
-        return ASTOutputBlock(s_type, source_position=source_position)
+    def create_ast_output_block(cls, s_type: PortSignalType, attributes: Optional[List[ASTParameter]] = None, source_position: ASTSourceLocation = None) -> ASTOutputBlock:
+        return ASTOutputBlock(s_type, attributes=attributes, source_position=source_position)
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
