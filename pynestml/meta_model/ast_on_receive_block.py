@@ -38,7 +38,7 @@ class ASTOnReceiveBlock(ASTNode):
 
     """
 
-    def __init__(self, block: ASTBlock, port_name: str, const_parameters: Optional[Mapping] = None, *args, **kwargs):
+    def __init__(self, block: ASTBlock, port_name: str, port_index: Optional[int], const_parameters: Optional[Mapping] = None, *args, **kwargs):
         r"""
         Standard constructor.
         :param block: a block of definitions.
@@ -47,6 +47,7 @@ class ASTOnReceiveBlock(ASTNode):
         super(ASTOnReceiveBlock, self).__init__(*args, **kwargs)
         self.block = block
         self.port_name = port_name
+        self.port_index = port_index
         self.const_parameters = const_parameters
         if self.const_parameters is None:
             self.const_parameters = {}
@@ -59,6 +60,7 @@ class ASTOnReceiveBlock(ASTNode):
         """
         dup = ASTOnReceiveBlock(block=self.block.clone(),
                                 port_name=self.port_name,
+                                port_index=self.port_index,
                                 const_parameters=self.const_parameters,
                                 # ASTNode common attributes:
                                 source_position=self.source_position,
@@ -86,6 +88,20 @@ class ASTOnReceiveBlock(ASTNode):
         :return: the port name
         """
         return self.port_name
+
+    def has_port_index(self) -> bool:
+        r"""
+        Returns whether there is a port vector index
+        :return: the port index
+        """
+        return self.port_index is not None
+
+    def get_port_index(self) -> Optional[int]:
+        r"""
+        Returns the port vector index if there is one, otherwise None
+        :return: the port index
+        """
+        return self.port_index
 
     def get_children(self) -> List[ASTNode]:
         r"""

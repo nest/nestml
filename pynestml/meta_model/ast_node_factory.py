@@ -116,8 +116,8 @@ class ASTNodeFactory:
         return ASTNamespaceDecorator(namespace, name, source_position=source_position)
 
     @classmethod
-    def create_ast_on_receive_block(cls, block=None, port_name=None, const_parameters=None, source_position=None):
-        return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
+    def create_ast_on_receive_block(cls, block=None, port_name=None, port_index=None, const_parameters=None, source_position=None):
+        return ASTOnReceiveBlock(block, port_name, port_index, const_parameters, source_position=source_position)
 
     @classmethod
     def create_ast_on_condition_block(cls, block=None, cond_expr=None, const_parameters=None, source_position=None):

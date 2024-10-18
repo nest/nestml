@@ -1143,7 +1143,7 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_block() %}
 void
-{{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()
+{{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}{% if blk.has_port_index() %}_VEC_{{ blk.get_port_index() }}{% endif %} ()
 {
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
