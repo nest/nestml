@@ -83,18 +83,17 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
             if not output_blocks[0].is_spike():
                 code, message = Messages.get_emit_spike_function_but_no_output_port()
                 Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
-                                   error_position=node.get_source_position())
+                                   error_position=output_blocks[0].get_source_position())
                 return
 
             # check types
             if len(node.get_args()) != len(output_blocks[0].get_attributes()):
                 code, message = Messages.get_output_port_type_differs()
                 Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
-                                   error_position=node.get_source_position())
+                                   error_position=output_blocks[0].get_source_position())
                 return
 
             for emit_spike_arg, output_block_attr in zip(node.get_args(), output_blocks[0].get_attributes()):
-
                 emit_spike_arg_type_sym = emit_spike_arg.type
                 output_block_attr_type_sym = output_block_attr.get_data_type().get_type_symbol()
 
@@ -105,12 +104,12 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
                     # types are not equal, but castable
                     code, message = Messages.get_implicit_cast_rhs_to_lhs(output_block_attr_type_sym.print_symbol(),
                                                                           emit_spike_arg_type_sym.print_symbol())
-                    Logger.log_message(error_position=node.get_source_position(),
+                    Logger.log_message(error_position=output_blocks[0].get_source_position(),
                                        code=code, message=message, log_level=LoggingLevel.WARNING)
                     continue
                 else:
                     # types are not equal and not castable
                     code, message = Messages.get_output_port_type_differs()
                     Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
-                                       error_position=node.get_source_position())
+                                       error_position=output_blocks[0].get_source_position())
                     return

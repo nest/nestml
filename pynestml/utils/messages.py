@@ -140,6 +140,7 @@ class MessageCode(Enum):
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
 
 
 class Messages:
@@ -1395,3 +1396,8 @@ class Messages:
     def get_random_functions_legally_used(cls, name):
         message = "The function '" + name + "' can only be used in the update, onReceive, or onCondition blocks."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_continuous_output_port_cannot_have_attributes(cls):
+        message = "continuous time output port may not have attributes."
+        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message

@@ -907,6 +907,28 @@ Each model can only send a single type of event. The type of the event has to be
 
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
 
+Event attributes
+~~~~~~~~~~~~~~~~
+
+Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(w, 1 ms)
+
+If spike event attributes are used, their names and types must be given as part the output port specification. The names are only used externally, for other models making reference to this one (it is allowed to have a state variable called ``weight`` and an output port attribute by the same name).
+
+.. code-block:: nestml
+
+   output:
+       spike(weight real, delay ms)
+
+Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
+
 
 Equations
 ---------
