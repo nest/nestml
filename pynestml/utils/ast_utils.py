@@ -2571,9 +2571,7 @@ class ASTUtils:
 
     @classmethod
     def print_spike_update_expressions(cls, neuron:ASTModel):
-        import pdb;
         for port, update_exp in neuron.spike_updates.items():
-            pdb.set_trace()
             print(f"Update expression for {port} is {update_exp}")
 
     @classmethod

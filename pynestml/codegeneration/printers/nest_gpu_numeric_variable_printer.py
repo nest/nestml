@@ -48,7 +48,7 @@ class NESTGPUNumericVariablePrinter(CppVariablePrinter):
         if symbol.is_parameters() or symbol.is_internals() or symbol.is_continuous_input_port():
             return "param[i_" + var_cpp_name + "]"
         
-        if symbol.is_input():
-            pass
+        if symbol.is_spike_input_port():
+            return "y[N_SCAL_VAR + i_" + symbol.get_symbol_name() + "]"
 
         raise Exception("Unknown node type: " + symbol.get_symbol_name())

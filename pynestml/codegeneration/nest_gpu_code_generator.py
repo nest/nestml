@@ -237,5 +237,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         namespace = super()._get_neuron_model_namespace(astnode)
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer
+            namespace["uses_analytic_solver"] = False
 
         return namespace

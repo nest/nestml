@@ -233,13 +233,13 @@ __device__
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
-    if (var[N_SCAL_VAR + i_{{ inport }}])
+    if (y[N_SCAL_VAR + i_{{ inport }}])
     {
 {%-     set ast = blk.get_block() %}
 {%-     filter indent(6, True) -%}
 {%-         include "directives/Block.jinja2" %}
 {%-     endfilter %}      
-      var[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
+      y[N_SCAL_VAR + i_{{ inport }}] = 0; // reset the value
     }
 {%- endfor %}
 
@@ -372,10 +372,19 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 
 {%- if uses_numeric_solver %}
   {# TODO: automatically determine "PSConInit_E" #}
-  # port_weight_arr_ = GetParamArr() + GetScalParamIdx("PSConInit_E");
+  {# port_weight_arr_ = GetParamArr() + GetScalParamIdx("PSConInit_E");
   port_weight_arr_ = GetParamArr()
   port_weight_arr_step_ = n_param_;
   port_weight_port_step_ = 1;
+  #}
+
+  // multiplication factor of input signal is always 1 for all nodes
+  float input_weight = 1.0;
+  gpuErrchk(cudaMalloc(&port_weight_arr_, sizeof(float)));
+  gpuErrchk(cudaMemcpy(port_weight_arr_, &input_weight,
+			 sizeof(float), cudaMemcpyHostToDevice));
+  port_weight_arr_step_ = 0;
+  port_weight_port_step_ = 0;
 {%- else %}
   // multiplication factor of input signal is always 1 for all nodes
   float input_weight = 1.0;
