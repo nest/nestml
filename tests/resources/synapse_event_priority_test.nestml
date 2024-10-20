@@ -42,7 +42,7 @@ model event_priority_test_synapse:
         post_spikes <- spike
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(pre_spikes, priority=1):
         tr += 1.
