@@ -56,7 +56,6 @@ class NestDeclarationsHelper:
         :param variable_symbol: a single variable symbol
         :type variable_symbol: variable_symbol
         :return: a string presentation of the variable symbol's type
-        :rtype: str
         """
         if variable_symbol.has_vector_parameter():
             return 'std::vector< ' + self.type_symbol_printer.print(variable_symbol.get_type_symbol()) + \
