@@ -62,7 +62,7 @@ model aeif_cond_alpha_implicit:
     # input pre
     input:
         # input decl pre
-        inh_spikes <- inhibitory spike # input decl in
+        inh_spikes <- spike # input decl in
         # input decl post
 
     # output pre

@@ -9,16 +9,17 @@ Used to test resolution() function.
 """
 model iaf_psc_exp_resolution_test_neuron:
     state:
+        I_syn_exc pA = 0 pA
+        I_syn_inh pA = 0 pA
         V_m mV = E_L
         refr_t ms = 0 ms    # Refractory period timer
         is_refractory boolean = false
         a ms = resolution()
 
     equations:
-        kernel I_kernel_inh = exp(-t/tau_syn_inh)
-        kernel I_kernel_exc = exp(-t/tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_inh, inh_spikes) * pA + convolve(I_kernel_exc, exc_spikes) * pA + I_e + I_stim
-        V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
+        I_syn_exc' = -I_syn_exc / tau_syn_exc
+        I_syn_inh' = -I_syn_inh / tau_syn_inh
+        V_m' = -(V_m - E_L) / tau_m + (I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
 
     parameters:
         C_m pF = 250 pF           # Capacitance of the membrane
@@ -38,12 +39,18 @@ model iaf_psc_exp_resolution_test_neuron:
         c ms = resolution()
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        spike_in_port <- spike
         I_stim pA <- continuous
 
     output:
         spike
+
+    onReceive(spike_in_port):
+        # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
+        if spike_in_port < 0:
+            I_syn_inh += spike_in_port * pA * s
+        else:
+            I_syn_exc += spike_in_port * pA * s
 
     update:
         d ms = resolution()

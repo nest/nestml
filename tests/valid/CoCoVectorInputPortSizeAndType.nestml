@@ -35,5 +35,5 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 model CoCoVectorInputPortSizeAndType:
     input:
         foo[2] <- spike
-        bar1[3] <- excitatory spike
-        bar2[3] <- inhibitory spike
+        bar1[3] <- spike
+        bar2[3] <- spike

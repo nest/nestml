@@ -36,12 +36,12 @@ model input_ports:
         my_spikes_ip pA = 0 pA
 
     input:
-        AMPA_spikes <- excitatory spike
-        GABA_spikes <- inhibitory spike
+        AMPA_spikes <- spike
+        GABA_spikes <- spike
         NMDA_spikes <- spike
         foo[2] <- spike
-        my_spikes[3] <- excitatory spike
-        my_spikes2[3] <- inhibitory spike
+        my_spikes[3] <- spike
+        my_spikes2[3] <- spike
         I_stim pA <- continuous
 
     update:

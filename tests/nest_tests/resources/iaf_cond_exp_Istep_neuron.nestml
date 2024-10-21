@@ -58,8 +58,8 @@ model iaf_cond_exp_Istep_neuron:
         t_step[n_step] ms = 0. ms  # times of step current changes
 
     input:
-        inh_spikes <- inhibitory spike
-        exc_spikes <- excitatory spike
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:
