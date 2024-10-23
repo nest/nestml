@@ -28,10 +28,11 @@ from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class ASTVectorParameterSetterAndPrinter(ASTVisitor):
-    def __init__(self, model, printer):
+    def __init__(self, model, printer, std_index = None):
         super(ASTVectorParameterSetterAndPrinter, self).__init__()
         self.inside_variable = False
-        self.vector_parameter = ""
+        self.vector_parameter = None
+        self.std_vector_parameter = std_index
         self.printer = printer
         self.model = model
 
@@ -63,7 +64,10 @@ class ASTVectorParameterSetterAndPrinter(ASTVisitor):
 
     def print(self, node, vector_parameter=None):
         print_node = node.clone()
-        self.set_vector_parameter(print_node, vector_parameter)
+        if vector_parameter is None and self.std_vector_parameter is not None:
+            self.set_vector_parameter(print_node, self.std_vector_parameter)
+        else:
+            self.set_vector_parameter(print_node, vector_parameter)
         text = self.printer.print(print_node)
         self.set_vector_parameter(print_node)
         return text

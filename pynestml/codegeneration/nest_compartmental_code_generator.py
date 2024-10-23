@@ -218,14 +218,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_compartmental_neurons(neurons, synapses_per_neuron)
-        self.generate_module_code(neurons, synapses)
+        self.generate_module_code(neurons)
 
-    def generate_module_code(self, neurons: List[ASTModel], synapses: List[ASTModel]) -> None:
+    def generate_module_code(self, neurons: List[ASTModel]) -> None:
         """t
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
         """
-        namespace = self._get_module_namespace(neurons, synapses)
+        namespace = self._get_module_namespace(neurons)
         if not os.path.exists(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
 
@@ -249,14 +249,13 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
-    def _get_module_namespace(self, neurons: List[ASTModel], synapses: List[ASTModel]) -> Dict:
+    def _get_module_namespace(self, neurons: List[ASTModel]) -> Dict:
         """
         Creates a namespace for generating NEST extension module code
         :param neurons: List of neurons
         :return: a context dictionary for rendering templates
         """
         namespace = {"neurons": neurons,
-                     "synapses": synapses,
                      "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
                      "now": datetime.datetime.utcnow()}
@@ -276,14 +275,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 "tree": self.get_cm_syns_tree_file_prefix(neuron)
             }
         namespace["perNeuronFileNamesCm"] = neuron_name_to_filename
-
-        # neuron specific file names in compartmental case
-        synapse_name_to_filename = dict()
-        for synapse in synapses:
-            synapse_name_to_filename[synapse.get_name()] = {
-                "main": self.get_stdp_synapse_main_file_prefix(synapse)
-            }
-        namespace["perSynapseFileNamesCm"] = synapse_name_to_filename
 
         # compartmental case files that are not neuron specific - currently
         # empty
@@ -342,12 +333,16 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         for synapse in synapses:
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
             SynapseProcessing.process(synapse)
-            #synapse.spike_updates = self.analyse_synapse(synapse)
+            self.analyse_synapse(synapse)
 
-    def analyse_synapse(self, synapse: ASTModel) -> Dict[str, ASTAssignment]:
+    def analyse_synapse(self, synapse: ASTModel):# -> Dict[str, ASTAssignment]:
         """
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
+        """
+        ASTUtils.add_timestep_symbol(synapse)
+        self.update_symbol_table(synapse)
+
         """
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
@@ -398,6 +393,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
 
         return spike_updates
+        """
 
     def create_ode_indict(self,
                           neuron: ASTModel,
@@ -712,7 +708,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
-        namespace["vector_printer"] = ASTVectorParameterSetterAndPrinter(neuron, self._printer_no_origin)
+        namespace["vector_printer"] = ASTVectorParameterSetterAndPrinter(neuron, self._printer_no_origin, "i")
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
@@ -738,6 +734,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             "neuron_parent_class_include")
 
         namespace["PredefinedUnits"] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace["PredefinedFunctions"] = pynestml.symbols.predefined_functions.PredefinedFunctions
+
         namespace["UnitTypeSymbol"] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
         namespace["SymbolKind"] = pynestml.symbols.symbol.SymbolKind
 
@@ -840,7 +838,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         #breakpoint()
         code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
-        breakpoint()
+        #breakpoint()
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),

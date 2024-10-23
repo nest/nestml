@@ -21,6 +21,8 @@
 
 from collections import defaultdict
 
+from executing.executing import node_linenos
+
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -46,8 +48,11 @@ class SynsInfoEnricher:
 
     @classmethod
     def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict, con_in_info: dict):
-        syns_info = cls.transform_ode_solutions(synapse, syns_info)
-        syns_info = cls.confirm_dependencies(syns_info, chan_info, recs_info, conc_info, con_in_info)
+        synapse_info = syns_info[synapse.get_name()]
+        synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
+        synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
+        synapse_info = cls.extract_infunction_declarations(synapse_info)
+        syns_info[synapse.get_name()] = synapse_info
 
         return syns_info
 
@@ -117,12 +122,15 @@ class SynsInfoEnricher:
                     synapse_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
                     synapse.accept(synapse_internal_declaration_collector)
 
+                    #breakpoint()
                     for variable in expression_variable_collector.all_variables:
                         for internal_declaration in synapse_internal_declaration_collector.internal_declarations:
+                            #breakpoint()
                             if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
                                     and internal_declaration.get_expression().is_function_call() \
                                     and internal_declaration.get_expression().get_function_call().callee_name == \
                                     PredefinedFunctions.TIME_RESOLUTION:
+                                #breakpoint()
                                 syns_info["time_resolution_var"] = variable
 
                 syns_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
@@ -141,6 +149,28 @@ class SynsInfoEnricher:
 
         syns_info["Dependencies"] = actual_dependencies
         return syns_info
+
+    @classmethod
+    def extract_infunction_declarations(cls, syn_info):
+        pre_spike_function = syn_info["PreSpikeFunction"]
+        post_spike_function = syn_info["PostSpikeFunction"]
+        update_block = syn_info["UpdateBlock"]
+        #general_functions = syn_info["Functions"]
+        declaration_visitor = ASTDeclarationCollectorAndUniqueRenamerVisitor()
+        if pre_spike_function is not None:
+            pre_spike_function.accept(declaration_visitor)
+        if post_spike_function is not None:
+            post_spike_function.accept(declaration_visitor)
+        if update_block is not None:
+            update_block.accept(declaration_visitor)
+
+        declaration_vars = list()
+        for decl in declaration_visitor.declarations:
+            for var in decl.get_variables():
+                declaration_vars.append(var.get_name())
+
+        syn_info["InFunctionDeclarationsVars"] = declaration_visitor.declarations #list(declaration_vars)
+        return syn_info
 
 
 
@@ -193,3 +223,53 @@ class ASTEnricherInfoCollectorVisitor(ASTVisitor):
 
     def endvisit_declaration(self, node):
         self.inside_declaration = False
+
+
+class ASTDeclarationCollectorAndUniqueRenamerVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTDeclarationCollectorAndUniqueRenamerVisitor, self).__init__()
+        self.declarations = list()
+        self.variable_names = dict()
+        self.inside_declaration = False
+        self.inside_block = False
+        self.current_block = None
+
+    def visit_block(self, node):
+        self.inside_block = True
+        self.current_block = node
+
+    def endvisit_block(self, node):
+        self.inside_block = False
+        self.current_block = None
+
+    def visit_declaration(self, node):
+        self.inside_declaration = True
+        for variable in node.get_variables():
+            if variable.get_name() in self.variable_names:
+                self.variable_names[variable.get_name()] += 1
+            else:
+                self.variable_names[variable.get_name()] = 0
+            new_name = variable.get_name() + '_' + str(self.variable_names[variable.get_name()])
+            name_replacer = ASTVariableNameReplacerVisitor(variable.get_name(), new_name)
+            self.current_block.accept(name_replacer)
+        node.accept(ASTSymbolTableVisitor())
+        self.declarations.append(node.clone())
+
+    def endvisit_declaration(self, node):
+        self.inside_declaration = False
+
+
+class ASTVariableNameReplacerVisitor(ASTVisitor):
+    def __init__(self, old_name, new_name):
+        super(ASTVariableNameReplacerVisitor, self).__init__()
+        self.inside_variable = False
+        self.new_name = new_name
+        self.old_name = old_name
+
+    def visit_variable(self, node):
+        self.inside_variable = True
+        if node.get_name() == self.old_name:
+            node.set_name(self.new_name)
+
+    def endvisit_variable(self, node):
+        self.inside_variable = False

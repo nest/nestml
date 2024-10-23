@@ -24,6 +24,7 @@ from collections import defaultdict
 from build.lib.pynestml.meta_model.ast_node import ASTNode
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+#from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -541,7 +542,7 @@ class ASTOnReceiveBlockVisitor(ASTVisitor):
 
     def visit_on_receive_block(self, node):
         self.inside_on_receive = True
-        breakpoint()
+        #breakpoint()
         if node.port_name in self.port_name:
             self.on_receive_block = node.clone()
 
@@ -571,7 +572,7 @@ class ASTPortVisitor(ASTVisitor):
 
     def visit_input_port(self, node):
         self.inside_port = True
-        breakpoint()
+        #breakpoint()
         if node.is_spike():
             self.spiking_ports.append(node.clone())
         if node.is_continuous():

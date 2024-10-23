@@ -153,7 +153,7 @@ class SynapseProcessing:
         :param synapse: a single synapse instance.
         """
         #breakpoint()
-        return copy.deepcopy(cls.syn_info[synapse])
+        return copy.deepcopy(cls.syn_info)
 
     @classmethod
     def process(cls, synapse: ASTModel):
@@ -180,10 +180,10 @@ class SynapseProcessing:
 
             # collect the onReceive function of pre- and post-spikes
             spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
-            breakpoint()
+            #breakpoint()
             post_ports = FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"][0]["post_ports"]
             pre_ports = list(set(spiking_port_names) - set(post_ports))
-            breakpoint()
+            #breakpoint()
             syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
             # collect the update block
@@ -192,9 +192,9 @@ class SynapseProcessing:
             # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
             syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
 
-            cls.syn_info[synapse] = syn_info
+            cls.syn_info[synapse.get_name()] = syn_info
             #breakpoint()
-            cls.first_time_run[synapse] = False
+            cls.first_time_run[synapse.get_name()] = False
 
     @classmethod
     def print_element(cls, name, element, rec_step):

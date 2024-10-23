@@ -323,6 +323,8 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, con
 
       SpikeEvent se;
       kernel().event_delivery_manager.send( *this, se, lag );
+
+      c_tree_.neuron_currents.postsynaptic_synaptic_processing();
     }
 
     logger_.record_data( origin.get_steps() + lag );
