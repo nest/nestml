@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_mechanism_information_collector.py
+# ast_synapse_information_collector.py
 #
 # This file is part of NEST.
 #
@@ -120,7 +120,35 @@ class ASTSynapseInformationCollector(object):
 
         return syn_info
 
+    @classmethod
+    def extend_variable_list_name_based_restricted(cls, extended_list, appending_list, restrictor_list):
+        """go through appending_list and append every variable that is not in restrictor_list to extended_list for the
+         purpose of not re-searching the same variable"""
+        for app_item in appending_list:
+            appendable = True
+            for rest_item in restrictor_list:
+                if rest_item.name == app_item.name:
+                    appendable = False
+                    break
+            if appendable:
+                extended_list.append(app_item)
 
+        return extended_list
+
+    @classmethod
+    def extend_function_call_list_name_based_restricted(cls, extended_list, appending_list, restrictor_list):
+        """go through appending_list and append every variable that is not in restrictor_list to extended_list for the
+        purpose of not re-searching the same function"""
+        for app_item in appending_list:
+            appendable = True
+            for rest_item in restrictor_list:
+                if rest_item.callee_name == app_item.callee_name:
+                    appendable = False
+                    break
+            if appendable:
+                extended_list.append(app_item)
+
+        return extended_list
 
     @classmethod
     def collect_mechanism_related_definitions(cls, neuron, syn_info):

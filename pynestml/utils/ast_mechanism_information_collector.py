@@ -106,7 +106,7 @@ class ASTMechanismInformationCollector(object):
         return mechs_info
 
     @classmethod
-    def collect_mechanism_related_definitions(cls, neuron, mechs_info):
+    def collect_mechanism_related_definitions(cls, neuron, mechs_info, global_info):
         """Collects all parts of the nestml code the root expressions previously collected depend on. search
         is cut at other mechanisms root expressions"""
         from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -152,6 +152,7 @@ class ASTMechanismInformationCollector(object):
             mechanism_dependencies["channels"] = list()
             mechanism_dependencies["receptors"] = list()
             mechanism_dependencies["continuous"] = list()
+            mechanism_dependencies["global"] = list()
 
             mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
 
@@ -258,8 +259,12 @@ class ASTMechanismInformationCollector(object):
                                         search_functions + found_functions)
 
                         for state in global_states:
-                            if variable.name == state.name and not is_dependency:
-                                mechanism_states.append(state)
+                            if variable.name == state.name:
+                                if state.name in global_info["States"]:
+                                    is_dependency = True
+                                    mechanism_dependencies["global"].append(state)
+                                if not is_dependency:
+                                    mechanism_states.append(state)
 
                         for parameter in global_parameters:
                             if variable.name == parameter.name:

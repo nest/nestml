@@ -11,6 +11,6 @@
 {%-   endwith %}
 {%- elif stmt.is_compound_stmt() %}
 {%-   with stmt = stmt.compound_stmt %}
-{%-     include "directives_cpp/CompoundStatement.jinja2" %}
+{%-     include "cm_directives_cpp/CompoundStatement.jinja2" %}
 {%-   endwith %}
 {%- endif %}

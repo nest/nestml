@@ -57,6 +57,8 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
+from pynestml.utils.global_info_enricher import GlobalInfoEnricher
+from pynestml.utils.global_processing import GlobalProcessing
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
@@ -677,7 +679,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             underscore_pos = ret.find("_")
         return ret
 
-    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapse: ASTModel) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTModel, paired_synapse: ASTModel = None) -> Dict:
         """
         Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
@@ -827,16 +829,26 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["con_in_info"] = ContinuousInputProcessing.get_mechs_info(neuron)
         namespace["con_in_info"] = ConInInfoEnricher.enrich_with_additional_info(neuron, namespace["con_in_info"])
 
-        namespace["syns_info"] = SynapseProcessing.get_syn_info(paired_synapse)
-        namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapse, namespace["syns_info"], namespace["chan_info"], namespace["recs_info"], namespace["conc_info"], namespace["con_in_info"])
+        if paired_synapse:
+            namespace["syns_info"] = SynapseProcessing.get_syn_info(paired_synapse)
+            namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapse, namespace["syns_info"], namespace["chan_info"], namespace["recs_info"], namespace["conc_info"], namespace["con_in_info"])
+        else:
+            namespace["syns_info"] = dict()
+
+        namespace["global_info"] = GlobalProcessing.get_global_info(neuron)
+        namespace["global_info"] = GlobalInfoEnricher.enrich_with_additional_info(neuron, namespace["global_info"])
 
         chan_info_string = MechanismProcessing.print_dictionary(namespace["chan_info"], 0)
         recs_info_string = MechanismProcessing.print_dictionary(namespace["recs_info"], 0)
         conc_info_string = MechanismProcessing.print_dictionary(namespace["conc_info"], 0)
         con_in_info_string = MechanismProcessing.print_dictionary(namespace["con_in_info"], 0)
-        syns_info_string = SynapseProcessing.print_dictionary(namespace["syns_info"], 0)
+        if paired_synapse:
+            syns_info_string = SynapseProcessing.print_dictionary(namespace["syns_info"], 0)
+        else:
+            syns_info_string = ""
+        global_info_string = GlobalProcessing.print_dictionary(namespace["global_info"], 0)
         #breakpoint()
-        code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string)
+        code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string, global_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
         #breakpoint()
         neuron_specific_filenames = {
@@ -1066,7 +1078,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return odetoolbox_indict
 
-    def generate_compartmental_neuron_code(self, neuron: ASTModel, paired_synapse: ASTModel) -> None:
+    def generate_compartmental_neuron_code(self, neuron: ASTModel, paired_synapse = None) -> None:
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron, paired_synapse),
@@ -1082,10 +1094,18 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         #breakpoint()
         neuron_index = 0
         for neuron in neurons:
+            paired_syn_exists = False
             for synapse in paired_synapses[neuron.get_name()]:
+                paired_syn_exists = True
                 self.generate_compartmental_neuron_code(neuron, synapse)
                 if not Logger.has_errors(neuron):
                     code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
+                    Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            if not paired_syn_exists:
+                self.generate_compartmental_neuron_code(neuron)
+                if not Logger.has_errors(neuron):
+                    code, message = Messages.get_code_generated(neuron.get_name(),
+                                                                FrontendConfiguration.get_target_path())
                     Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
             neuron_index += 1
 

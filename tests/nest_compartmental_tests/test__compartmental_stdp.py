@@ -86,8 +86,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest.Install("cm_stdp_module.so")
 
     def test_cm_stdp(self):
-        pre_spike_times = [1, 50]
-        post_spike_times = [2, 45]
+        pre_spike_times = [11, 50]
+        post_spike_times = [12, 45]
         sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 20
         #wr = nest.Create("weight_recorder")
         #nest.CopyModel("stdp_synapse_nestml__with_multichannel_test_model_nestml", "stdp_nestml_rec",
@@ -105,11 +105,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
         print("comps")
         post_neuron.receptors = [
             {"comp_idx": 0, "receptor_type": "AMPA"},
-            {"comp_idx": 0, "receptor_type": "AMPA_STDP", "params": {'w': 50.0}}
+            {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 50.0}}
         ]
         print("syns")
         mm = nest.Create('multimeter', 1, {
-            'record_from': ['v_comp0', 'w0', 'i_tot_AMPA0', 'i_tot_AMPASTDP0', 'pre_trace_AMPA0', 'post_trace_AMPA0'], 'interval': .1})
+            'record_from': ['v_comp0', 'w0', 'i_tot_AMPA0', 'i_tot_AMPA_stdp_synapse_nestml0', 'pre_trace0', 'post_trace0'], 'interval': .1})
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
 
@@ -133,7 +133,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         #axs[1].plot(res['times'], res['post_trace_AMPA0'], c='g', label="post_trace")
         #breakpoint()
         axs[2].plot(res['times'], res['i_tot_AMPA0'], c='b', label="AMPA")
-        axs[2].plot(res['times'], res['i_tot_AMPASTDP0'], c='g', label="AMPA STDP")
+        axs[2].plot(res['times'], res['i_tot_AMPA_stdp_synapse_nestml0'], c='g', label="AMPA STDP")
         label_set = False
         for spike in pre_spikes_rec['times']:
             if(label_set):
@@ -150,8 +150,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 axs[2].axvline(x=spike, color='orange', linestyle='--', linewidth=1, label="post syn spikes")
                 label_set = True
 
-        axs[3].plot(res['times'], res['pre_trace_AMPA0'], c='b', label="pre_trace")
-        axs[3].plot(res['times'], res['post_trace_AMPA0'], c='g', label="post_trace")
+        axs[3].plot(res['times'], res['pre_trace0'], c='b', label="pre_trace")
+        axs[3].plot(res['times'], res['post_trace0'], c='g', label="post_trace")
 
 
         axs[0].set_title('V_m_0')

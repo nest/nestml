@@ -1,0 +1,68 @@
+{%- with %}
+// Global channel //////////////////////////////////////////////////////////////////
+
+nest::Global{{cm_unique_suffix}}::Global{{cm_unique_suffix}}({%- for pure_variable_name, variable_info in global_info["States"].items() %}
+                                            {%- set variable = variable_info["ASTVariable"] %}
+                                            {%- set rhs_expression = variable_info["rhs_expression"] %}
+                                            {{ render_variable_type(variable) }}& init_{{ variable.name }}{% if not loop.last %}, {% endif %}
+                                            {%- endfor %}
+                                            ) :
+    {%- for pure_variable_name, variable_info in global_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+    {{ variable.name }}(init_{{ variable.name }}){% if not loop.last %}, {% endif %}
+    {%- endfor %}
+{}
+
+void
+nest::Global{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* recordables,
+                                               const long compartment_idx)
+{
+  // add state variables to recordables map
+  bool found_rec = false;
+  {%- with %}
+  {%- for pure_variable_name, variable_info in global_info["States"].items() %}
+  {%- set variable = variable_info["ASTVariable"] %}
+  found_rec = false;
+  ( *recordables )[ Name( std::string("{{variable.name}}") )] = &{{variable.name}};
+  {%- endfor %}
+  {% endwith %}
+}
+
+void nest::Global{{cm_unique_suffix}}::f_numstep()
+{
+    double __resolution = Time::get_resolution().get_ms();
+    {%- set function = global_info["UpdateBlock"] %}
+    {%-   filter indent(2,True) %}
+    {%-   with ast = function.get_block() %}
+    {%- set printer = printer_no_origin %}
+    {%-     include "cm_directives_cpp/Block.jinja2" %}
+    {%-   endwith %}
+    {%-   endfilter %}
+}
+
+bool nest::Global{{cm_unique_suffix}}::f_self_spike()
+{
+    double __resolution = Time::get_resolution().get_ms();
+    {%- set function = global_info["SelfSpikesFunction"] %}
+    {%-   filter indent(2,True) %}
+    {%-   with ast = function.get_block() %}
+    {%- set printer = printer_no_origin %}
+    {%-     include "cm_directives_cpp/Block.jinja2" %}
+    {%-   endwith %}
+    {%-   endfilter %}
+}
+
+{%- for function in global_info["Functions"] %}
+    {%- if not function.get_name() == global_info["SelfSpikesFunction"].get_name() %}
+    {%-   filter indent(2,True) %}
+    {%-   with ast = function.get_block() %}
+    {%- set printer = printer_no_origin %}
+    {%-     include "cm_directives_cpp/Block.jinja2" %}
+    {%-   endwith %}
+    {%-   endfilter %}
+    {%- endif %}
+{%- endfor %}
+
+// Global end ///////////////////////////////////////////////////////////
+{% endwith %}

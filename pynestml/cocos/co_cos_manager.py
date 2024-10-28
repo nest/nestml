@@ -22,6 +22,7 @@
 from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
+from pynestml.cocos.co_co_cm_global import CoCoCmGlobal
 from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
@@ -70,6 +71,7 @@ from pynestml.cocos.co_co_function_argument_template_types_consistent import CoC
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.utils.global_processing import GlobalProcessing
 
 
 class CoCosManager:
@@ -147,10 +149,12 @@ class CoCosManager:
         searches for inlines or odes with decorator @mechanism::<type> and performs a base and, depending on type,
         specific information collection process. See nestml documentation on compartmental code generation.
         """
-        CoCoCmChannelModel.check_co_co(neuron)
-        CoCoCmConcentrationModel.check_co_co(neuron)
-        CoCoCmReceptorModel.check_co_co(neuron)
-        CoCoCmContinuousInputModel.check_co_co(neuron)
+        CoCoCmGlobal.check_co_co(neuron)
+        global_info = GlobalProcessing.get_global_info(neuron)
+        CoCoCmChannelModel.check_co_co(neuron, global_info)
+        CoCoCmConcentrationModel.check_co_co(neuron, global_info)
+        CoCoCmReceptorModel.check_co_co(neuron, global_info)
+        CoCoCmContinuousInputModel.check_co_co(neuron, global_info)
 
     @classmethod
     def check_compartmental_synapse_model(cls, synapse: ASTModel) -> None:

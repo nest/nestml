@@ -148,7 +148,7 @@ class MechanismProcessing:
         return copy.deepcopy(cls.mechs_info[neuron][cls.mechType])
 
     @classmethod
-    def check_co_co(cls, neuron: ASTModel):
+    def check_co_co(cls, neuron: ASTModel, global_info):
         """
         Checks if mechanism conditions apply for the handed over neuron.
         :param neuron: a single neuron instance.
@@ -163,7 +163,7 @@ class MechanismProcessing:
             mechs_info = info_collector.detect_mechs(cls.mechType)
 
             # collect and process all basic mechanism information
-            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info)
+            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
             mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
 

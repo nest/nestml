@@ -127,6 +127,13 @@ inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channe
 {%- endwith -%}
 {%- endmacro -%}
 
+{% macro render_variable_type(variable) -%}
+{%- with -%}
+    {%- set symbol = variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE) -%}
+    {{ types_printer.print(symbol.type_symbol) }}
+{%- endwith -%}
+{%- endmacro %}
+
 
 {%- with %}
 {%- for ion_channel_name, channel_info in chan_info.items() %}
@@ -289,8 +296,12 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
 std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["global"]|length %}
+                        {% endif %}{% for state in channel_info["Dependencies"]["global"] %}, {{ render_variable_type(state) }} point_{{ printer_no_origin.print(state) }}{% endfor %})
 {
+    {% for state in channel_info["Dependencies"]["global"] %}
+    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}(neuron_{{ ion_channel_name }}_channel_count, point_{{ printer_no_origin.print(state) }});
+    {% endfor %}
     std::vector< double > g_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
     std::vector< double > i_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
 
@@ -516,8 +527,13 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["global"]|length %}
+                        {% endif %}{% for state in concentration_info["Dependencies"]["global"] %}, {{ render_variable_type(state) }} point_{{ printer_no_origin.print(state) }}{% endfor %})
 {
+        {% for state in concentration_info["Dependencies"]["global"] %}
+        std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}(neuron_{{ concentration_name }}_concentration_count, point_{{ printer_no_origin.print(state) }});
+        {% endfor %}
+
         std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
 
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
@@ -735,8 +751,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
 std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}}{{cm_unique_suffix}}::f_numstep( std::vector< double > v_comp, const long lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["global"]|length %}
+                        {% endif %}{% for state in receptor_info["Dependencies"]["global"] %}, {{ render_variable_type(state) }} point_{{ printer_no_origin.print(state) }}{% endfor %})
 {
+    {% for state in receptor_info["Dependencies"]["global"] %}
+    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}(neuron_{{ receptor_name }}_receptor_count, point_{{ printer_no_origin.print(state) }});
+    {% endfor %}
+
     std::vector< double > g_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > i_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
@@ -892,11 +913,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
-    {%- for in_function_declaration in synapse_info["InFunctionDeclarations"] %}
+    {%- with %}
+    {%- for in_function_declaration in synapse_info["InFunctionDeclarationsVars"] %}
       {%- for variable in declarations.get_variables(in_function_declaration) %}
     {{variable.get_symbol_name()}}.push_back(0);
       {%- endfor %}
-  {%- endfor %}
+    {%- endfor %}
+    {%- endwith %}
 }
 
 void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_receptor(std::size_t comp_ass, const long syn_index, const DictionaryDatum& receptor_params)
@@ -996,11 +1019,11 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
-    {%- for in_function_declaration in synapse_info["InFunctionDeclarations"] %}
+    {%- for in_function_declaration in synapse_info["InFunctionDeclarationsVars"] %}
       {%- for variable in declarations.get_variables(in_function_declaration) %}
     {{variable.get_symbol_name()}}.push_back(0);
       {%- endfor %}
-  {%- endfor %}
+    {%- endfor %}
 }
 
 void
@@ -1015,7 +1038,7 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
   {%- endfor %}
     for(size_t syns_id = 0; syns_id < neuron_{{ receptor_name }}_receptor_count; syns_id++){
       if(compartment_association[syns_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_{{receptor_name}}" + std::to_string(syns_id) )] = &i_tot_{{receptor_name}}[syns_id];
+        ( *recordables )[ Name( "i_tot_{{receptor_name}}_{{synapse_name}}" + std::to_string(syns_id) )] = &i_tot_{{receptor_name}}[syns_id];
       }
     }
 
@@ -1081,8 +1104,13 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynap
 std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_numstep( std::vector< double > v_comp, const long lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["global"]|length %}
+                        {% endif %}{% for state in receptor_info["Dependencies"]["global"] %}, {{ render_variable_type(state) }} point_{{ printer_no_origin.print(state) }}{% endfor %})
 {
+    {% for state in receptor_info["Dependencies"]["global"] %}
+    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}(neuron_{{ receptor_name }}_receptor_count, point_{{ printer_no_origin.print(state) }});
+    {% endfor %}
+
     std::vector< double > g_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > i_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
@@ -1105,15 +1133,9 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
 
     //synaptic processing:
     //presynaptic spike processing
-  std::vector < double > pre_val(neuron_{{ receptor_name }}_receptor_count, 0);
-  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        // get spikes
-      pre_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag );
-  }
-
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      if(pre_val[i]!=0) {
+      if(s_val[i]!=0) {
             {%- set function = synapse_info["PreSpikeFunction"] %}
             {%-   filter indent(2,True) %}
             {%-   with ast = function.get_block() %}
@@ -1333,8 +1355,13 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
 std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_name}}{{cm_unique_suffix}}::f_numstep( std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["global"]|length %}
+                        {% endif %}{% for state in continuous_info["Dependencies"]["global"] %}, {{ render_variable_type(state) }} point_{{ printer_no_origin.print(state) }}{% endfor %})
 {
+    {% for state in continuous_info["Dependencies"]["global"] %}
+    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}(neuron_{{ continuous_name }}_continuous_input_count, point_{{ printer_no_origin.print(state) }});
+    {% endfor %}
+
     std::vector< double > g_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
     std::vector< double > i_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ continuous_name }}_continuous_input_count, 0.);
@@ -1419,3 +1446,6 @@ std::vector< double > nest::{{continuous_name}}{{cm_unique_suffix}}::distribute_
 
 // {{continuous_name}} continuous input end ///////////////////////////////////////////////////////////
 {%- endfor %}
+
+
+{%- include "cm_global_dynamics.cpp.jinja2" %}

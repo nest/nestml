@@ -26,10 +26,10 @@ from pynestml.utils.channel_processing import ChannelProcessing
 
 class CoCoCmChannelModel(CoCo):
     @classmethod
-    def check_co_co(cls, model: ASTModel):
+    def check_co_co(cls, model: ASTModel, global_info):
         """
         Checks if this compartmental condition applies to the handed over neuron.
         If yes, it checks the presence of expected functions and declarations.
         :param model: a single neuron instance.
         """
-        return ChannelProcessing.check_co_co(model)
+        return ChannelProcessing.check_co_co(model, global_info)
