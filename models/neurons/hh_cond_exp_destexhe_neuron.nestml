@@ -126,8 +126,8 @@ model hh_cond_exp_destexhe_neuron:
         D_inh uS**2/ms = 2 * sigma_noise_inh**2 / tau_syn_inh
 
     input:
-        inh_spikes <- inhibitory spike
-        exc_spikes <- excitatory spike
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

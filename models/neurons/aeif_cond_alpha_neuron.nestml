@@ -98,8 +98,8 @@ model aeif_cond_alpha_neuron:
         PSConInit_I nS/ms = nS * e / tau_syn_inh
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

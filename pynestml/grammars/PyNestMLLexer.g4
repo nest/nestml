@@ -93,8 +93,6 @@ lexer grammar PyNestMLLexer;
   ON_RECEIVE_KEYWORD : 'onReceive';
   ON_CONDITION_KEYWORD : 'onCondition';
   SPIKE_KEYWORD : 'spike';
-  INHIBITORY_KEYWORD : 'inhibitory';
-  EXCITATORY_KEYWORD : 'excitatory';
 
   DECORATOR_HOMOGENEOUS : '@homogeneous';
   DECORATOR_HETEROGENEOUS : '@heterogeneous';

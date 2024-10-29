@@ -86,8 +86,8 @@ model traub_psc_alpha_neuron:
         beta_h_init  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

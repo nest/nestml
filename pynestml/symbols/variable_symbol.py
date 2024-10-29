@@ -221,20 +221,6 @@ class VariableSymbol(Symbol):
         """
         return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_continuous()
 
-    def is_excitatory(self) -> bool:
-        """
-        Returns whether this symbol represents an input port with qualifier excitatory.
-        :return: True if is excitatory, otherwise False.
-        """
-        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_excitatory()
-
-    def is_inhibitory(self) -> bool:
-        """
-        Returns whether this symbol represents an input port with qualifier inhibitory.
-        :return: True if is inhibitory, otherwise False.
-        """
-        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
-
     def is_state(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a state block.

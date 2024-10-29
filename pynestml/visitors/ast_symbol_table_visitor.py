@@ -585,9 +585,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             else:
                 node.get_datatype().update_scope(node.get_scope())
 
-        for qual in node.get_input_qualifiers():
-            qual.update_scope(node.get_scope())
-
     def endvisit_input_port(self, node):
         type_symbol = PredefinedTypes.get_type("s")**-1
         if node.is_continuous() and node.has_datatype():

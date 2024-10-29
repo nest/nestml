@@ -547,7 +547,6 @@ private:
   static const nest_port_t MIN_SPIKE_RECEPTOR = 0;
 {%-   set ns = namespace(count=0) %}
 {%- endif %}
-  static const nest_port_t PORT_NOT_AVAILABLE = -1;
 
   enum SynapseTypes
   {
@@ -568,8 +567,8 @@ private:
 
   static const size_t NUM_SPIKE_RECEPTORS = MAX_SPIKE_RECEPTOR - MIN_SPIKE_RECEPTOR;
 
-{% if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() -%}
-  static std::vector< std::tuple< int, int > > rport_to_nestml_buffer_idx;
+{% if neuron.get_spike_input_ports() | length > 1 or neuron.is_multisynapse_spikes() -%}
+  static std::vector< size_t > rport_to_nestml_buffer_idx;
 {%- endif %}
 
   /**
@@ -1061,19 +1060,19 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
   DictionaryDatum __receptor_type = new Dictionary();
-{%-   for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-{%-   set ns = namespace(rport=key) %}
-{%-     for port in ports  %}
-{%-       if not port.has_vector_parameter() %}
+{%-     for rport, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
+{%-         set ns = namespace(rport=rport) %}
+{%-         for port in ports  %}
+{%-             if not port.has_vector_parameter() %}
     ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{ns.rport + 1}};
-{%-       else %}
-{%-       set size = utils.get_numeric_vector_size(port) %}
-{%-         for i in range(size)  %}
+{%-             else %}
+{%-                 set size = utils.get_numeric_vector_size(port) %}
+{%-                 for i in range(size)  %}
     ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i}}" ] = {{ns.rport + i + 1}},
+{%-                 endfor %}
+{%-             endif %}
 {%-         endfor %}
-{%-       endif %}
 {%-     endfor %}
-{%-   endfor %}
     ( *__d )[ "receptor_types" ] = __receptor_type;
 {%- endif %}
 

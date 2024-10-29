@@ -308,16 +308,15 @@ class ASTModel(ASTNode):
         """
         ret = list()
         for port in self.get_spike_input_ports():
-            if port.is_excitatory() and port.is_inhibitory():
-                if port is not None:
-                    ret.append(port)
-                else:
-                    code, message = Messages.get_could_not_resolve(port.get_symbol_name())
-                    Logger.log_message(
-                        message=message,
-                        code=code,
-                        error_position=port.get_source_position(),
-                        log_level=LoggingLevel.ERROR)
+            if port is not None:
+                ret.append(port)
+            else:
+                code, message = Messages.get_could_not_resolve(port.get_symbol_name())
+                Logger.log_message(
+                    message=message,
+                    code=code,
+                    error_position=port.get_source_position(),
+                    log_level=LoggingLevel.ERROR)
         return ret
 
     def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:

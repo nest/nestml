@@ -56,7 +56,6 @@ class MessageCode(Enum):
     ARG_NOT_SPIKE_INPUT = 20
     NUMERATOR_NOT_ONE = 21
     ORDER_NOT_DECLARED = 22
-    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 23
     BLOCK_NOT_CORRECT = 24
     VARIABLE_NOT_IN_STATE_BLOCK = 25
     WRONG_NUMBER_OF_ARGS = 26
@@ -139,6 +138,7 @@ class MessageCode(Enum):
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 115
 
 
 class Messages:
@@ -536,23 +536,6 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % lhs
         message = 'Order of differential equation for %s is not declared!' % lhs
         return MessageCode.ORDER_NOT_DECLARED, message
-
-    @classmethod
-    def get_continuous_input_port_specified(cls, name, keyword):
-        """
-        Indicates that the continuous time input port has been specified with an `inputQualifier` keyword.
-        :param name: the name of the buffer
-        :type name: str
-        :param keyword: the keyword
-        :type keyword: list(str)
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (
-            name, keyword)
-        return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
     def get_block_not_defined_correctly(cls, block, missing):
@@ -1386,3 +1369,8 @@ class Messages:
     def get_random_functions_legally_used(cls, name):
         message = "The function '" + name + "' can only be used in the update, onReceive, or onCondition blocks."
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
+
+    @classmethod
+    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in the definition of an onReceive block!"
+        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message

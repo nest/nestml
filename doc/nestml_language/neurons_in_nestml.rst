@@ -31,48 +31,7 @@ A neuron model written in NESTML can be configured to receive two distinct types
        AMPA_spikes <- spike
        I_stim pA <- continuous
 
-The general syntax is:
-
-::
-
-    port_name <- inputQualifier spike
-    port_name dataType <- continuous
-
 The spiking input ports are declared without a data type, whereas the continuous input ports must have a data type.
-For spiking input ports, the qualifier keywords decide whether inhibitory and excitatory inputs are lumped together into a single named input port, or if they are separated into differently named input ports based on their sign. When processing a spike event, some simulators (including NEST) use the sign of the amplitude (or weight) property in the spike event to indicate whether it should be considered an excitatory or inhibitory spike. By using the qualifier keywords, a single spike handler can route each incoming spike event to the correct input buffer (excitatory or inhibitory). Compare:
-
-.. code-block:: nestml
-
-   input:
-       # [...]
-       all_spikes <- spike
-
-In this case, all spike events will be processed through the ``all_spikes`` input port. A spike weight could be positive or negative, and the occurrences of ``all_spikes`` in the model should be considered a signed quantity.
-
-.. code-block:: nestml
-
-   input:
-       # [...]
-       AMPA_spikes <- excitatory spike
-       GABA_spikes <- inhibitory spike
-
-In this case, spike events that have a negative weight are routed to the ``GABA_spikes`` input port, and those that have a positive weight to the ``AMPA_spikes`` port.
-
-It is equivalent if either both `inhibitory` and `excitatory` are given, or neither: an unmarked port will by default handle all incoming presynaptic spikes.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 10 60
-
-   * - Keyword
-     - The incoming weight :math:`w`...
-   * - none, or ``excitatory`` and ``inhibitory``
-     - ... may be positive or negative. It is added to the buffer with signed value :math:`w` (positive or negative).
-   * - ``excitatory``
-     - ... should not be negative. It is added to the buffer with non-negative magnitude :math:`w`.
-   * - ``inhibitory``
-     - ... should be negative. It is added to the buffer with non-negative magnitude :math:`-w`.
-
 
 
 Integrating current input
@@ -214,12 +173,12 @@ The input ports can also be defined as vectors. For example,
 
    neuron multi_synapse_vectors:
        input:
-           AMPA_spikes <- excitatory spike
-           GABA_spikes <- inhibitory spike
+           AMPA_spikes <- spike
+           GABA_spikes <- spike
            NMDA_spikes <- spike
            foo[2] <- spike
-           exc_spikes[3] <- excitatory spike
-           inh_spikes[3] <- inhibitory spike
+           exc_spikes[3] <- spike
+           inh_spikes[3] <- spike
 
        equations:
            kernel I_kernel_exc = exp(-1 / tau_syn_exc * t)

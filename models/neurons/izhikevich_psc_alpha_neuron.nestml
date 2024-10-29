@@ -72,8 +72,8 @@ model izhikevich_psc_alpha_neuron:
         I_e pA = 0 pA
 
     input:
-        inh_spikes <- inhibitory spike
-        exc_spikes <- excitatory spike
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

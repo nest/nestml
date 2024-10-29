@@ -148,20 +148,20 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
 }
 
 {%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
-std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_idx =
+std::vector< size_t > {{ neuronName }}::rport_to_nestml_buffer_idx =
 {
-{%-   for key, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-{%-   set ns = namespace(rport=key) %}
-{%-     if ports[0].has_vector_parameter() %}
-{%-     set size = utils.get_numeric_vector_size(ports[0]) %}
-{%-         for i in range(size) %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }}
-{%-         set ns.rport = ns.rport + 1 %}
-{%-         endfor %}
-{%-     else %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport) }}
-{%-     endif %}
-{%-   endfor %}
+{%-     for rport, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
+{%-         set ns = namespace(rport=rport) %}
+{%-         if ports[0].has_vector_parameter() %}
+{%-             set size = utils.get_numeric_vector_size(ports[0]) %}
+{%-             for i in range(size) %}
+  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }},
+{%-                 set ns.rport = ns.rport + 1 %}
+{%-             endfor %}
+{%-         else %}
+  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport) }},
+{%-         endif %}
+{%-     endfor %}
 };
 {%- endif %}
 
@@ -1090,26 +1090,14 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
   assert(e.get_delay_steps() > 0);
   assert( e.get_rport() < B_.spike_inputs_.size() );
 
-  double weight = e.get_weight();
-  size_t nestml_buffer_idx = 0;
-{%- if neuron.get_spike_input_ports()|length > 1 or neuron.is_multisynapse_spikes() %}
-  if ( weight >= 0.0 )
-  {
-    nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
-  }
-  else
-  {
-    nestml_buffer_idx = std::get<1>(rport_to_nestml_buffer_idx[e.get_rport()]);
-    if ( nestml_buffer_idx == {{ neuronName }}::PORT_NOT_AVAILABLE )
-    {
-      nestml_buffer_idx = std::get<0>(rport_to_nestml_buffer_idx[e.get_rport()]);
-    }
-    weight = -weight;
-  }
+{%  if neuron.get_spike_input_ports() | length > 1 or neuron.is_multisynapse_spikes() -%}
+  const size_t nestml_buffer_idx = rport_to_nestml_buffer_idx[e.get_rport()];
+{%- else %}
+  const size_t nestml_buffer_idx = 0;
 {%- endif %}
   B_.spike_inputs_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-    weight * e.get_multiplicity() );
+    e.get_weight() * e.get_multiplicity() );
   B_.spike_input_received_[ nestml_buffer_idx - MIN_SPIKE_RECEPTOR ].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     1. );

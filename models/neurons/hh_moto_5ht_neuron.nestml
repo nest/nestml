@@ -108,8 +108,8 @@ model hh_moto_5ht_neuron:
         alpha mmol/pA = 1E-5 mmol/pA
 
     input:
-        inh_spikes <- inhibitory spike
-        exc_spikes <- excitatory spike
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:

@@ -279,7 +279,7 @@ parser grammar PyNestMLParser;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
-        spike_in <- excitatory spike
+        spike_in <- spike
         current_in pA <- continuous
     @attribute inputPort: A list of input ports.
   */
@@ -287,20 +287,18 @@ parser grammar PyNestMLParser;
               NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
-      spike_in[3] <- excitatory spike
+      spike_in[3] <- spike
       I_stim[3] pA <- continuous
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for model with multiple input ports.
     @attribute datatype: Optional data type of the port.
-    @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous-time input.
   */
   spikeInputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
-    LEFT_ANGLE_MINUS inputQualifier*
-    SPIKE_KEYWORD NEWLINE;
+    LEFT_ANGLE_MINUS SPIKE_KEYWORD NEWLINE;
 
   continuousInputPort:
     name = NAME
@@ -308,12 +306,6 @@ parser grammar PyNestMLParser;
     dataType
     LEFT_ANGLE_MINUS CONTINUOUS_KEYWORD NEWLINE;
 
-
-  /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
-    @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
-    @attribute isExcitatory: Indicates that this spiking input port is excitatory.
-  */
-  inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
   /** ASTOutputBlock Represents the output block of the neuron, i.e., declarations of output ports:
         output:

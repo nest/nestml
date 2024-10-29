@@ -32,7 +32,7 @@ class ASTInputBlock(ASTNode):
     .. code-block:: nestml
 
        input:
-           spike_in <- excitatory spike
+           spike_in <- spike
            current_in pA <- continuous
 
     Attributes:
