@@ -35,7 +35,6 @@ class MessageCode(Enum):
     A mapping between codes and the corresponding messages.
     """
     START_PROCESSING_FILE = 0
-    START_SYMBOL_TABLE_BUILDING = 1
     FUNCTION_CALL_TYPE_ERROR = 2
     TYPE_NOT_DERIVABLE = 3
     IMPLICIT_CAST = 4
@@ -221,15 +220,6 @@ class Messages:
         message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
             lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
         return MessageCode.IMPLICIT_CAST, message
-
-    @classmethod
-    def get_start_building_symbol_table(cls):
-        """
-        Returns a message that the building for a model has been started.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        return MessageCode.START_SYMBOL_TABLE_BUILDING, 'Start building symbol table!'
 
     @classmethod
     def get_function_call_implicit_cast(
