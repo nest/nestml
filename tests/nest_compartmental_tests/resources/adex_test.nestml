@@ -1,0 +1,183 @@
+"""
+aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
+###############################################################################
+
+Description
++++++++++++
+
+aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
+
+The membrane potential is given by the following differential equation:
+
+.. math::
+
+   C_m \frac{dv_comp}{dt} =
+   -g_L(v_comp-E_L)+g_L\Delta_T\exp\left(\frac{v_comp-V_{th}}{\Delta_T}\right) -
+ g_e(t)(v_comp-E_e) \\
+                                                     -g_i(t)(v_comp-E_i)-w + I_e
+
+and
+
+.. math::
+
+ \tau_w \frac{dw}{dt} = a(v_comp-E_L) - w
+
+Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`v_comp`, the value :math:`\min(v_comp,V_{peak})` is used in the dynamical equations.
+
+
+References
+++++++++++
+
+.. [1] Brette R and Gerstner W (2005). Adaptive exponential
+       integrate-and-fire model as an effective description of neuronal
+       activity. Journal of Neurophysiology. 943637-3642
+       DOI: https://doi.org/10.1152/jn.00686.2005
+
+
+See also
+++++++++
+
+iaf_cond_alpha, aeif_cond_exp
+"""
+model aeif_cond_alpha_neuron:
+
+    state:
+        v_comp mV = 0 mV       # Membrane potential
+        w pA = 0 pA        # Spike-adaptation current
+        refr_t ms = 0 ms    # Refractory period timer
+        c_Ca umol = 0 umol
+        m_Ca real = 0.
+        h_Ca real = 0.
+
+        m_K real = 0.
+
+        I_bp real = 0  # back propagation
+
+        is_refr real = 0.
+
+        w_add real = 0.
+
+    equations:
+        kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+        kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
+
+        # Add inlines to simplify the equation definition of v_comp
+        # Soma
+
+        inline I_spike pA = g_L * Delta_T * exp((min(v_comp, V_peak) - v_comp) / Delta_T)                                @mechanism::channel
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * (min(v_comp, V_peak) - E_exc)    @mechanism::receptor
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * (min(v_comp, V_peak) - E_inh)    @mechanism::receptor
+        inline external_stim pA = I_stim                                                @mechanism::continuous_input
+        inline refr real = G_refr * is_refr * (V_reset - v_comp)                        @mechanism::channel
+        inline adapt pA = G_adapt * w                                @mechanism::channel
+
+        w' = ((a * (min(v_comp, V_peak) - E_L) - w) + b * w_add) / tau_w
+
+        inline I_Ca pA = g_Ca * m_Ca * h_Ca * (E_Ca - v_comp)                             @mechanism::channel
+        inline I_K pA = g_K * m_K * (E_K - v_comp)                                        @mechanism::channel
+
+        m_Ca' = (m_inf_Ca(v_comp, h_slope_Ca, h_half_Ca) - m_Ca) / tau_m_Ca
+        h_Ca' = (h_inf_Ca(v_comp, h_slope_Ca, h_half_Ca) - h_Ca) / tau_h_Ca
+        c_Ca' = phi_ca * I_Ca + (c_Ca - Ca_0) / tau_Ca                                  @mechanism::concentration
+        m_K' = (m_inf_K(c_Ca, Ca_th, exp_K_Ca) - m_K) / tau_K
+
+    parameters:
+        # membrane parameters
+
+        refr_T ms = 2 ms          # Duration of refractory period
+        V_reset mV = -60.0 mV     # Reset Potential
+        g_L nS = 30.0 nS          # Leak Conductance
+        g_Ca nS = 22.98 nS
+        g_K nS = 18 nS
+        E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
+        E_Ca mV = 50 mV
+        E_K mV = -90 mV
+
+        G_adapt real = 0.
+
+        # spike adaptation parameters
+
+        a nS = 4 nS               # Subthreshold adaptation
+        b pA = 80.5 pA            # Spike-triggered adaptation
+        Delta_T mV = 2.0 mV       # Slope factor
+        tau_w ms = 144.0 ms       # Adaptation time constant
+        V_peak mV = 0 mV          # Spike detection threshold
+
+        # synaptic parameters
+
+        E_exc mV = 0 mV            # Excitatory reversal Potential
+        tau_syn_exc ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
+        E_inh mV = -85.0 mV        # Inhibitory reversal Potential
+        tau_syn_inh ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+
+        # Distal
+        # synaptic parameters
+
+        phi_ca pA**-1 = 2.2e-08 pA**-1
+        Ca_th real = 0.00043
+        Ca_0 real = 0.0001
+        tau_Ca ms = 129 ms
+
+        m_slope_Ca real = 0.5
+        m_half_Ca mV = -9 mV
+        tau_m_Ca ms = 15 ms
+
+        h_slope_Ca real = -0.5
+        h_half_Ca mV = -21 mV
+        tau_h_Ca ms = 80 ms
+
+        exp_K_Ca real = 4.8
+        tau_K ms = 1.0 ms
+
+        # Constant external input current
+        I_e pA = 0 pA
+
+        G_refr real = 1000.
+    internals:
+        # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude conductance excursion
+        PSConInit_E nS/ms = nS * e / tau_syn_exc
+
+        # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion
+        PSConInit_I nS/ms = nS * e / tau_syn_inh
+
+    input:
+        exc_spikes <- excitatory spike
+        inh_spikes <- inhibitory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    update:
+        if refr_t > resolution() / 2:
+            # neuron is absolute refractory, do not evolve v_comp
+            refr_t -= resolution()
+        else:
+            refr_t = 0 ms
+            is_refr = 0
+
+        I_bp = 0
+        w_add = 0
+
+    function self_spikes() boolean:
+        is_refr = 1
+        refr_t = refr_T
+        w_add = 1
+        I_bp = 10
+
+        return True
+
+    function m_inf_Ca(v mV, m_slope_Ca_f real, m_half_Ca_f real) real:
+        m_inf real = 0
+        m_inf = 1 / exp(m_slope_Ca_f * (v - m_half_Ca_f))
+        return m_inf
+
+    function h_inf_Ca(v mV, h_slope_Ca_f real, h_half_Ca_f real) real:
+        h_inf real = 0
+        h_inf = 1 / exp(h_slope_Ca_f * (v - h_half_Ca_f))
+        return h_inf
+
+    function m_inf_K(Ca real, Ca_th_f real, exp_K_Ca_f real) real:
+        m_inf real = 0
+        m_inf = 1 / (1 + pow((Ca_th_f / Ca), exp_K_Ca_f))
+        return m_inf

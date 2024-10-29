@@ -37,6 +37,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {%- endwith -%}
 {%- endmacro %}
 
+//elementwise vector operations:
+#include <iostream>
+#include <stdexcept>
+#include <algorithm>
+
 namespace nest
 {
 
@@ -91,6 +96,11 @@ private:
 
     //zero recordable variable in case of zero contribution channel
     double zero_recordable = 0;
+
+    //Global dependencies
+    {% for state in channel_info["Dependencies"]["global"] %}
+    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }} = {};
+    {% endfor %}
 
 public:
     // constructor, destructor

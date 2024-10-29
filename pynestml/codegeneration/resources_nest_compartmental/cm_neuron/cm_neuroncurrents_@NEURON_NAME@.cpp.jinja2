@@ -82,6 +82,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 {% macro render_channel_function(function, ion_channel_name) -%}
 {%- with %}
+    {%- set printer = printer_no_origin %}
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channel_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
@@ -180,6 +181,10 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {{variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
+
+        {% for state in channel_info["Dependencies"]["global"] %}
+        {{ printer_no_origin.print(state) }}.push_back(0);
+        {% endfor %}
     }
 }
 
@@ -261,6 +266,10 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+ion_channel_name+"_channel_count") -}});
         {%- endfor %}
+
+        {% for state in channel_info["Dependencies"]["global"] %}
+        {{ printer_no_origin.print(state) }}.push_back(0);
+        {% endfor %}
     }
 }
 
@@ -299,9 +308,12 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
                         {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["global"]|length %}
                         {% endif %}{% for state in channel_info["Dependencies"]["global"] %}, {{ render_variable_type(state) }} point_{{ printer_no_origin.print(state) }}{% endfor %})
 {
+    #pragma omp simd
+    for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
     {% for state in channel_info["Dependencies"]["global"] %}
-    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}(neuron_{{ ion_channel_name }}_channel_count, point_{{ printer_no_origin.print(state) }});
+    {{ printer_no_origin.print(state) }}[i] = point_{{ printer_no_origin.print(state) }};
     {% endfor %}
+    }
     std::vector< double > g_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
     std::vector< double > i_val(neuron_{{ ion_channel_name }}_channel_count, 0.);
 

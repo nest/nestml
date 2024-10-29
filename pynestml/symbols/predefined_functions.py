@@ -61,6 +61,7 @@ class PredefinedFunctions:
         CONVOLVE              The callee name of the convolve function.
     """
 
+    HEAVISIDE = "Heaviside"
     TIME_RESOLUTION = "resolution"
     TIME_STEPS = "steps"
     EMIT_SPIKE = "emit_spike"

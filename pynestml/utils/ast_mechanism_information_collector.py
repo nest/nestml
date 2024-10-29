@@ -156,9 +156,6 @@ class ASTMechanismInformationCollector(object):
 
             mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
 
-            search_variables = list()
-            search_functions = list()
-
             found_variables = list()
             found_functions = list()
 
