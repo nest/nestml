@@ -1,13 +1,12 @@
 """
-dopa_second_order_synapse
-#########################
+CoCoOutputPortTypeIfEmitCall.nestml
+###################################
 
 
 Description
 +++++++++++
 
-This model is used to test second-order integration of dopamine spikes.
-
+This model is used to test if broken CoCos are identified correctly. Here, test that an error is raised when the emit_spike() function is called with different parameter types than are defined in the spiking output port.
 
 
 Copyright statement
@@ -30,32 +29,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model dopa_second_order_synapse:
-    state:
-        dopa_rate real = 0.
-        dopa_rate_d real = 0.
-
-    parameters:
-        tau_dopa ms = 100 ms
-        w real = 1
-        d ms = 1 ms
-
-    equations:
-        dopa_rate' = dopa_rate_d / ms
-        dopa_rate_d' = -dopa_rate / tau_dopa**2 * ms - 2 * dopa_rate_d / tau_dopa
-
-    input:
-        pre_spikes <- spike
-        dopa_spikes <- spike
-
+model output_port_types_neuron:
     output:
-        spike(weight real, delay ms)
-
-    onReceive(dopa_spikes):
-        dopa_rate_d += 1. / tau_dopa
-
-    onReceive(pre_spikes):
-        emit_spike(1., 1 ms)
+        spike
 
     update:
-        integrate_odes()
+        emit_spike(1 ms)

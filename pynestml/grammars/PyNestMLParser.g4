@@ -284,7 +284,7 @@ parser grammar PyNestMLParser;
     @attribute inputPort: A list of input ports.
   */
   inputBlock: INPUT_KEYWORD COLON
-              NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
+              NEWLINE INDENT ((spikeInputPort | continuousInputPort) (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)?)+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
       spike_in[3] <- spike
@@ -314,7 +314,9 @@ parser grammar PyNestMLParser;
       @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
   outputBlock: OUTPUT_KEYWORD COLON
-               NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) NEWLINE DEDENT;
+               NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD)
+               (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?
+               NEWLINE DEDENT;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):

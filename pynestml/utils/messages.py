@@ -138,7 +138,9 @@ class MessageCode(Enum):
     TIMESTEP_FUNCTION_LEGALLY_USED = 113
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
-    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 115
+    EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
 
 
 class Messages:
@@ -1057,6 +1059,14 @@ class Messages:
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
 
     @classmethod
+    def get_output_port_type_differs(cls) -> Tuple[MessageCode, str]:
+        """
+        Indicates that an emit_spike() function was called, but with different parameter types than the output port was defined with.
+        """
+        message = 'emit_spike() function was called, but with different parameter types than the output port was defined with!'
+        return MessageCode.EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS, message
+
+    @classmethod
     def get_kernel_wrong_type(cls,
                               kernel_name: str,
                               differential_order: int,
@@ -1374,3 +1384,8 @@ class Messages:
     def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
         message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in the definition of an onReceive block!"
         return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
+    def get_continuous_output_port_cannot_have_attributes(cls):
+        message = "continuous time output port may not have attributes."
+        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message

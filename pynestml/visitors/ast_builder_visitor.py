@@ -633,13 +633,21 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
+        attributes: List[ASTParameter] = []
+        if ctx.parameter() is not None:
+            if type(ctx.parameter()) is list:
+                for par in ctx.parameter():
+                    attributes.append(self.visit(par))
+            else:
+                attributes.append(self.visit(ctx.parameter()))
+
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, attributes=attributes, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
         if ctx.isContinuous is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, attributes=attributes, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
