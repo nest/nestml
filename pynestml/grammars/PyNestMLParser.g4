@@ -108,7 +108,8 @@ parser grammar PyNestMLParser;
   */
   variable : name=NAME
   (LEFT_SQUARE_BRACKET vectorParameter=expression RIGHT_SQUARE_BRACKET)?
-  (DIFFERENTIAL_ORDER)*;
+  (DIFFERENTIAL_ORDER)*
+  (FULLSTOP attribute=variable)?;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
