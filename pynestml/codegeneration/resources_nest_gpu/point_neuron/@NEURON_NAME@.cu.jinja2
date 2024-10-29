@@ -178,6 +178,12 @@ void NodeInit(int n_var, int n_param, double x, float *y, float *param,
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%- endfor %}
+
+  {# TODO #}
+  // Input port variables
+{%- for variable_symbol in neuron.get_spike_input_ports() %}
+    y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
+{%- endfor %}  
 }
 
 __device__
@@ -432,7 +438,7 @@ int {{ neuronName }}::Calibrate(double time_min, float time_resolution)
 int {{ neuronName }}::Update(long long it, double t1)
 {
 {%- if uses_numeric_solver %}
-   rk5_.Update<N_SCAL_VAR, N_SCAL_PARAM>(t1, h_min_, rk5_data_struct_); 
+   rk5_.Update<N_SCAL_VAR + N_PORT_VAR, N_SCAL_PARAM>(t1, h_min_, rk5_data_struct_); 
 {%- else %}
   {{ neuronName }}_Update<<<(n_node_+1023)/1024, 1024>>>
     (n_node_, i_node_0_, var_arr_, param_arr_, n_var_, n_param_);

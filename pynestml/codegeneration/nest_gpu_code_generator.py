@@ -145,93 +145,85 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
-    # def add_auxiliary_variables_for_input_ports(self, neuron: ASTModel):
-    #     for port in neuron.get_input_ports():
-    #         var_name = port.get_symbol_name()
-    #         type_str = "real"
-    #         expr = "0 " + type_str
-    #         ASTUtils.add_declaration_to_state_block(neuron, var_name, expr, type_str)
-    #
-    # def analyse_neuron(self, neuron: ASTModel) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment], List[ASTOdeEquation], List[ASTOdeEquation]]:
-    #     self.add_auxiliary_variables_for_input_ports(neuron)
-    #     return super().analyse_neuron(neuron)
-
     def generate_module_code(self, neurons: Sequence[ASTModel], synapses: Sequence[ASTModel]):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
-        for neuron in neurons:
-            self.copy_models_from_target_path(neuron)
-            self.add_model_name_to_neuron_header(neuron)
-            self.add_model_to_neuron_class(neuron)
-            self.add_files_to_makefile(neuron)
+        self.copy_models_from_target_path(neurons)
+        self.add_model_name_to_neuron_header(neurons)
+        self.add_model_to_neuron_class(neurons)
+        self.add_files_to_makefile(neurons)
 
-    def copy_models_from_target_path(self, neuron: ASTModel):
+    def copy_models_from_target_path(self, neurons: List[ASTModel]):
         """Copies all the files related to the neuron model to the NEST GPU src directory"""
-        file_match_str = f"*{neuron.get_name()}*"
+        types = ["*.h", "*.cu"]
         dst_path = os.path.join(self.nest_gpu_path, "src")
-        for file in glob.glob(os.path.join(FrontendConfiguration.get_target_path(), file_match_str)):
-            shutil.copy(file, dst_path)
+        for type in types:
+        # file_match_str = f"*{neuron.get_name()}*"
+            for file in glob.glob(os.path.join(FrontendConfiguration.get_target_path(), type)):
+                shutil.copy(file, dst_path)
 
-    def add_model_name_to_neuron_header(self, neuron: ASTModel):
+    def add_model_name_to_neuron_header(self, neurons: List[ASTModel]):
         """
         Modifies the ``neuron_models.h`` file to add the newly generated model's header files
         """
         neuron_models_h_path = str(os.path.join(self.nest_gpu_path, "src", "neuron_models.h"))
         shutil.copy(neuron_models_h_path, neuron_models_h_path + ".bak")
 
-        replace_str = "\ni_" + neuron.get_name() + "_model,\n"
-        replace_text_between_tags(neuron_models_h_path, replace_str)
+        neuron_indexes = []
+        neuron_names = []
+        for neuron in neurons:
+            neuron_indexes.append("\ni_" + neuron.get_name() + "_model,")
+            neuron_names.append("\n, \"" + neuron.get_name() + "\"")
+        
+        neuron_indexes = "".join(neuron_indexes) + "\n"
+        neuron_names = "".join(neuron_names) + "\n"
+        replace_text_between_tags(neuron_models_h_path, neuron_indexes)
+        replace_text_between_tags(neuron_models_h_path, neuron_names, rfind=True)
 
-        replace_str = "\n, \"" + neuron.get_name() + "\"\n"
-        replace_text_between_tags(neuron_models_h_path, replace_str, rfind=True)
-
-    def add_model_to_neuron_class(self, neuron: ASTModel):
+    def add_model_to_neuron_class(self, neurons: List[ASTModel]):
         """
         Modifies the ``neuron_models.cu`` file to add the newly generated model's .cu file
         """
         neuron_models_cu_path = str(os.path.join(self.nest_gpu_path, "src", "neuron_models.cu"))
         shutil.copy(neuron_models_cu_path, neuron_models_cu_path + ".bak")
 
-        replace_str = "\n#include \"" + neuron.get_name() + ".h\"\n"
-        replace_text_between_tags(neuron_models_cu_path, replace_str)
+        include_files = []
+        code_blocks = []
+        for neuron in neurons:
+            include_files.append("\n#include \"" + neuron.get_name() + ".h\"")
+            
 
-        model_name_index = "i_" + neuron.get_name() + "_model"
-        model_name = neuron.get_name()
-        n_ports = len(neuron.get_spike_input_ports())
-        code_block = "\n" \
-                     f"else if (model_name == neuron_model_name[{model_name_index}]) {{\n" \
-                     f"    n_port = {n_ports};\n" \
-                     f"    {model_name} *{model_name}_group = new {model_name};\n" \
-                     f"    node_vect_.push_back({model_name}_group);\n" \
-                     " }\n"
-        replace_text_between_tags(neuron_models_cu_path, code_block, rfind=True)
+            model_name_index = "i_" + neuron.get_name() + "_model"
+            model_name = neuron.get_name()
+            n_ports = len(neuron.get_spike_input_ports())
+            code_blocks.append("\n" \
+                                f"else if (model_name == neuron_model_name[{model_name_index}]) {{\n" \
+                                f"    n_port = {n_ports};\n" \
+                                f"    {model_name} *{model_name}_group = new {model_name};\n" \
+                                f"    node_vect_.push_back({model_name}_group);\n" \
+                                " }")
+        include_files = "".join(include_files) + "\n"
+        code_blocks = "".join(code_blocks) + "\n"
+        replace_text_between_tags(neuron_models_cu_path, include_files)
+        replace_text_between_tags(neuron_models_cu_path, code_blocks, rfind=True)
 
-    def add_files_to_makefile(self, neuron: ASTModel):
+    def add_files_to_makefile(self, neurons: ASTModel):
         """
         Modifies the Makefile in NEST GPU repository to compile the newly generated models.
         """
         cmakelists_path = str(os.path.join(self.nest_gpu_path, "src", "CMakeLists.txt"))
         shutil.copy(cmakelists_path, cmakelists_path + ".bak")
 
-        code_block = "\n" \
-                     f"    {neuron.get_name()}.h\n" \
-                     f"    {neuron.get_name()}.cu\n"
-        replace_text_between_tags(cmakelists_path, code_block,
+        gen_files = []
+        for neuron in neurons:
+            gen_files.append("\n" \
+                             f"    {neuron.get_name()}.h\n" \
+                             f"    {neuron.get_name()}.cu\n")
+        gen_files = "".join(gen_files) + "\n"
+        replace_text_between_tags(cmakelists_path, gen_files,
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
-
-    def add_model_header_to_rk5_interface(self, neuron: ASTModel):
-        """
-        Modifies the rk5_interface.h header file to add the model rk5 header file. This is only for 
-        neuron models with a numeric solver.
-        """
-        rk5_interface_path = str(os.path.join(self.nest_gpu_path, "src", "rk5_interface.h"))
-        shutil.copy(rk5_interface_path, rk5_interface_path + ".bak")
-
-        code_block = f"#include \"{neuron.get_name()}_rk5.h\""
-
-        replace_text_between_tags(rk5_interface_path, code_block)
 
     def _get_neuron_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode)
