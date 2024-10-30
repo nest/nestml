@@ -31,6 +31,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model fir_filter:
     state:
+        spike_in_buffer real = 0.
+
         # FIR filter output (to be recorded by NEST multimeter)
         y real = 0.
 
@@ -43,11 +45,16 @@ model fir_filter:
         h[N] real = 1.   # filter coefficients
 
     input:
-        spike_in <- spike
+        spike_in <- spike(weight real)
+
+
+    onReceive(spike_in):
+        spike_in_buffer += spike_in.weight
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in * s
+        x[i] = spike_in_buffer * s
+        spike_in_buffer = 0.
 
         # compute the new value of y
         j integer = 0

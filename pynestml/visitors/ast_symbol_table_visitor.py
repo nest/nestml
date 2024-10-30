@@ -629,7 +629,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             type_symbol = ErrorTypeSymbol()   # not allowed to use a bare spike input port name in expressions etc.
         else:
             for parameter in node.parameters:
-                type_symbol = parameter.get_data_type()
+                type_symbol = parameter.get_data_type().type_symbol
                 type_symbol.is_buffer = True  # set it as a buffer
                 if node.has_size_parameter():
                     if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():

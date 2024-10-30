@@ -34,11 +34,13 @@ class CppVariablePrinter(VariablePrinter):
         :param variable_name: a single name.
         :return: a string representation
         """
+        if "'" in variable_name:
+            import pdb;pdb.set_trace()
         differential_order = variable_name.count("\"")
         if differential_order > 0:
-            return variable_name.replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
+            return variable_name.replace(".", "__ATTR__").replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
 
-        return variable_name.replace("$", "__DOLLAR")
+        return variable_name.replace(".", "__ATTR__").replace("$", "__DOLLAR")
 
     def print_variable(self, node: ASTVariable) -> str:
         """
