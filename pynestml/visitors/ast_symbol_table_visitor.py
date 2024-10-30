@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
@@ -28,6 +29,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.scope import Scope, ScopeType
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -423,6 +425,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_rhs().update_scope(node.get_scope())
 
     def visit_expression(self, node):
+        print("Visiting expression: " + str(node))
         """
         Private method: Used to visit a single rhs and update its scope.
         :param node: an rhs.
@@ -457,6 +460,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a simple rhs.
         :type node: ast_simple_expression
         """
+        print("Visiting simple expression: " + str(node))
         if node.is_function_call():
             node.get_function_call().update_scope(node.get_scope())
         elif node.is_variable() or node.has_unit():
@@ -466,6 +470,24 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
+        print("Visiting variable: " + str(node))
+        if node.attribute:
+            ast_model = ASTUtils.find_parent_node_by_type(node, ASTModel)
+            assert ast_model
+            input_port = ASTUtils.get_input_port_by_name(ast_model.get_input_blocks(), node.get_name())
+            assert input_port
+
+            for parameter in input_port.get_parameters():
+                if parameter.get_name() == node.attribute:
+                    actual_type = parameter.get_data_type()
+                    node.data_type = actual_type
+                    node.set_type_symbol(actual_type)
+
+                    assert isinstance(node.get_parent(), ASTSimpleExpression)
+                    node.get_parent().type = actual_type
+                    print("reassigned data type of " + str(node) + " to " + str(node.data_type))
+
+
         if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
             node.get_vector_parameter().accept(self)
@@ -585,20 +607,39 @@ class ASTSymbolTableVisitor(ASTVisitor):
             else:
                 node.get_datatype().update_scope(node.get_scope())
 
-    def endvisit_input_port(self, node):
-        type_symbol = PredefinedTypes.get_type("s")**-1
-        if node.is_continuous() and node.has_datatype():
+    def endvisit_input_port(self, node: ASTInputPort):
+        if node.is_continuous():
+            assert node.has_datatype()
             type_symbol = node.get_datatype().get_type_symbol()
-        type_symbol.is_buffer = True  # set it as a buffer
-        if node.has_size_parameter():
-            if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
-                node.get_size_parameter().update_scope(node.get_scope())
-        symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
-                                block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
-                                is_predefined=False, is_inline_expression=False, is_recordable=False,
-                                type_symbol=type_symbol, variable_type=VariableType.BUFFER)
-        symbol.set_comment(node.get_comment())
-        node.get_scope().add_symbol(symbol)
+            type_symbol.is_buffer = True  # set it as a buffer
+            if node.has_size_parameter():
+                if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
+                    node.get_size_parameter().update_scope(node.get_scope())
+            symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
+                                    block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
+                                    is_predefined=False, is_inline_expression=False, is_recordable=False,
+                                    type_symbol=type_symbol, variable_type=VariableType.BUFFER)
+            symbol.set_comment(node.get_comment())
+            node.get_scope().add_symbol(symbol)
+            return
+
+        assert node.is_spike()
+
+        if len(node.parameters) == 0:
+            type_symbol = ErrorTypeSymbol()   # not allowed to use a bare spike input port name in expressions etc.
+        else:
+            for parameter in node.parameters:
+                type_symbol = parameter.get_data_type()
+                type_symbol.is_buffer = True  # set it as a buffer
+                if node.has_size_parameter():
+                    if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
+                        node.get_size_parameter().update_scope(node.get_scope())
+                symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name() + "." + parameter.get_name(),
+                                        block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
+                                        is_predefined=False, is_inline_expression=False, is_recordable=False,
+                                        type_symbol=type_symbol, variable_type=VariableType.BUFFER,
+                                        attribute=parameter.get_name())
+                node.get_scope().add_symbol(symbol)
 
     def visit_stmt(self, node: ASTStmt):
         """

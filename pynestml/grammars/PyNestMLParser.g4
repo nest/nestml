@@ -285,7 +285,7 @@ parser grammar PyNestMLParser;
     @attribute inputPort: A list of input ports.
   */
   inputBlock: INPUT_KEYWORD COLON
-              NEWLINE INDENT ((spikeInputPort | continuousInputPort) (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)?)+ DEDENT;
+              NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
       spike_in[3] <- spike
@@ -299,7 +299,7 @@ parser grammar PyNestMLParser;
   spikeInputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
-    LEFT_ANGLE_MINUS SPIKE_KEYWORD NEWLINE;
+    LEFT_ANGLE_MINUS SPIKE_KEYWORD (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)? NEWLINE;
 
   continuousInputPort:
     name = NAME

@@ -131,11 +131,7 @@ class TestCoCos:
 
     def test_invalid_no_values_assigned_to_input_ports(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoValueAssignedToInputPort.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
-
-    def test_valid_no_values_assigned_to_input_ports(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoValueAssignedToInputPort.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 2
 
     def test_invalid_order_of_equations_correct(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoNoOrderOfEquations.nestml'))
@@ -402,9 +398,18 @@ class TestCoCos:
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoInputPortsIllegal.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 8
 
-    def test_invalid_co_co_spike_input_ports_appear_only_in_equation_rhs_and_event_handlers2(self):
-        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoInputPortsIllegal2.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 8
+    def test_valid_co_co_spike_input_ports_appear_only_in_equation_rhs_and_event_handlers(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoInputPortsLegal.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
+
+    def test_invalid_co_co_spike_input_ports_illegal_missing_attribute(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoInputPortsIllegalMissingAttribute.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
+
+    def test_valid_co_co_spike_input_ports_illegal_missing_attribute(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoInputPortsIllegalMissingAttribute.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
+
 
     def _parse_and_validate_model(self, fname: str) -> Optional[str]:
         from pynestml.frontend.pynestml_frontend import generate_target

@@ -258,7 +258,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
-        attribute = ctx.attribute
+        if ctx.attribute:
+            attribute = ctx.attribute.getText()
+        else:
+            attribute = None
 
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
@@ -613,9 +616,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_parameter = None
         if ctx.sizeParameter is not None:
             size_parameter = self.visit(ctx.sizeParameter)
+        parameters_ast = None
+        if ctx.parameter:
+            parameters_ast = [self.visit(parameter) for parameter in ctx.parameter()]
         signal_type = PortSignalType.SPIKE
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=None,
                                                    signal_type=signal_type,
+                                                   parameters=parameters_ast,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
@@ -629,6 +636,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         signal_type = PortSignalType.CONTINUOUS
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
                                                    signal_type=signal_type,
+                                                   parameters=None,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret

@@ -100,6 +100,13 @@ class ASTVariable(ASTNode):
         """
         return self.name
 
+    def get_attribute(self) -> str:
+        r"""
+        Returns the attribute of the variable.
+        :return: the attribute of the variable.
+        """
+        return self.attribute
+
     def set_name(self, name: str) -> None:
         """
         Sets the name of the variable.
@@ -128,6 +135,9 @@ class ASTVariable(ASTNode):
         Returns the complete name, consisting of the name and the differential order.
         :return: the complete name.
         """
+        if self.attribute:
+            return self.get_name() + "." + self.attribute + '\'' * self.get_differential_order()
+
         return self.get_name() + '\'' * self.get_differential_order()
 
     def get_name_of_lhs(self) -> str:
@@ -137,6 +147,7 @@ class ASTVariable(ASTNode):
         """
         if self.get_differential_order() > 0:
             return self.get_name() + '\'' * (self.get_differential_order() - 1)
+
         return self.get_name()
 
     def get_type_symbol(self) -> TypeSymbol:

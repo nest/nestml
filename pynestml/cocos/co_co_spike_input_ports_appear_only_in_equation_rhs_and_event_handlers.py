@@ -21,10 +21,12 @@
 
 from typing import Optional
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -51,19 +53,31 @@ class CoCoSpikeInputPortsAppearOnlyInEquationRHSAndEventHandlers(CoCo):
 
 class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
 
-    def visit_variable(self, node):
+    def visit_variable(self, node: ASTVariable):
         in_port: Optional[ASTInputPort] = ASTUtils.get_input_port_by_name(self.model_.get_input_blocks(), node.get_name())
+
+        # only check spiking input ports
         if in_port is not None and in_port.is_spike():
+            if in_port.parameters and not node.attribute:
+                # input port has parameters (for instance, ``x`` in ``foo <- spike(x real)`` but the variable reference is missing an attribute (``foo`` instead of ``foo.x``)
+                code, message = Messages.get_spike_input_port_attribute_missing(node.get_name())
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
+
             _node = node
             while _node:
                 _node = _node.get_parent()
 
-                if isinstance(_node, ASTOnReceiveBlock) and _node.port_name == node.get_name():
-                    # spike input port was used inside an ``onReceive(spike_in_port)`` block; everything is OK
+                if isinstance(_node, ASTOnReceiveBlock):
+                    # spike input port was used inside an ``onReceive`` block; everything is OK
                     return
 
                 if isinstance(_node, ASTOdeEquation):
                     # spike input port was used inside the rhs of an equation; everything is OK
+                    return
+
+                if isinstance(_node, ASTInlineExpression):
+                    # spike input port was used inside the rhs of an inline expression; everything is OK
                     return
 
                 if isinstance(_node, ASTModel):
@@ -71,3 +85,4 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
                     code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node.get_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR)
+

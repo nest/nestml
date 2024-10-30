@@ -1474,6 +1474,17 @@ class ASTUtils:
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
+    def find_parent_node_by_type(cls, node: ASTNode, type_to_find):
+        _node = node.get_parent()
+        while _node:
+            if isinstance(_node, type_to_find):
+                return _node
+
+            _node = _node.get_parent()
+
+        return None
+
+    @classmethod
     def get_input_port_by_name(cls, input_blocks: List[ASTInputBlock], port_name: str) -> Optional[ASTInputPort]:
         """
         Get the input port given the port name

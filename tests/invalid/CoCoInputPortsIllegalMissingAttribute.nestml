@@ -31,20 +31,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model input_ports_illegal_neuron:
     state:
-        bar pA = 0 pA
-        foo_spikes pA = 0 pA
-        my_spikes_ip pA = 0 pA
+        foo real = 0.
 
     input:
-        AMPA_spikes <- spike
-        GABA_spikes <- spike
-        NMDA_spikes <- spike
-        foo[2] <- spike
-        my_spikes[3] <- spike
-        my_spikes2[3] <- spike
-        I_stim pA <- continuous
+        spike_in_port <- spike(foo real)
 
-    onReceive(AMPA_spikes):
-        bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)
-        foo_spikes += (foo[0] + 5.5 * foo[1]) * (pA * s)
-        my_spikes_ip += (my_spikes[0] + my_spikes[1] - my_spikes2[1]) * (pA * s)
+    onReceive(spike_in_port):
+        foo += spike_in_port

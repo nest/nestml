@@ -141,6 +141,7 @@ class MessageCode(Enum):
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
     CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
+    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 118
 
 
 class Messages:
@@ -1387,5 +1388,10 @@ class Messages:
 
     @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls):
-        message = "continuous time output port may not have attributes."
+        message = "Continuous time output port may not have attributes."
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
+
+    @classmethod
+    def get_spike_input_port_attribute_missing(cls, name: str):
+        message = "Spiking input port '" + name + "' reference is missing attribute."
+        return MessageCode.SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE, message

@@ -22,6 +22,7 @@
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -32,16 +33,16 @@ class ASTVariableVisitor(ASTVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visit_simple_expression(self, node):
+    def visit_simple_expression(self, node: ASTSimpleExpression):
         """
         Visits a single variable as contained in a simple expression and derives its type.
         :param node: a single simple expression
-        :type node: ASTSimpleExpression
         """
         assert isinstance(node, ASTSimpleExpression), \
             '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(node)
         assert (node.get_scope() is not None), \
             '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
+        print("in visit_simple_expression (" + str(node) + ") ")
 
         scope = node.get_scope()
         var_name = node.get_variable().get_complete_name()
@@ -49,6 +50,14 @@ class ASTVariableVisitor(ASTVisitor):
 
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
+            print("var_resolve is " + str(var_resolve))
+            # print("var_resolve.attribute is " + str(var_resolve.attribute))
+
+            # if var_resolve.attribute:
+            #     import pdb;pdb.set_trace()
+            #     node.type = var_resolve.attribute.get_type_symbol()
+            #     print("Setting type according to attribute: " + str(var_resolve.attribute) + " = " + str(node.type))
+            # else:
             node.type = var_resolve.get_type_symbol()
             node.type.referenced_object = node
             return

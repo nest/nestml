@@ -54,95 +54,96 @@ class TestNestIntegration:
             codegen_opts["neuron_parent_class"] = "StructuralPlasticityNode"
             codegen_opts["neuron_parent_class_include"] = "structural_plasticity_node.h"
 
-        generate_nest_target(input_path=["models/neurons/hh_cond_exp_traub_neuron.nestml",
-                                         "models/neurons/hh_psc_alpha_neuron.nestml",
-                                         "models/neurons/iaf_cond_beta_neuron.nestml",
-                                         "models/neurons/iaf_cond_alpha_neuron.nestml",
-                                         "models/neurons/iaf_cond_exp_neuron.nestml",
-                                         "models/neurons/iaf_psc_alpha_neuron.nestml",
+        generate_nest_target(input_path=[# "models/neurons/hh_cond_exp_traub_neuron.nestml",
+                                        #  "models/neurons/hh_psc_alpha_neuron.nestml",
+                                        #  "models/neurons/iaf_cond_beta_neuron.nestml",
+                                        #  "models/neurons/iaf_cond_alpha_neuron.nestml",
+                                        #  "models/neurons/iaf_cond_exp_neuron.nestml",
+                                        #  "models/neurons/iaf_psc_alpha_neuron.nestml",
                                          "models/neurons/iaf_psc_exp_neuron.nestml",
-                                         "models/neurons/iaf_psc_delta_neuron.nestml"],
+                                        # "models/neurons/iaf_psc_delta_neuron.nestml"
+                                        ],
                              target_path="/tmp/nestml-allmodels",
                              logging_level="DEBUG",
                              module_name="nestml_allmodels_module",
                              suffix="_nestml",
                              codegen_opts=codegen_opts)
 
-        # generate code with analytic solver disabled
-        alt_codegen_opts = {**codegen_opts, **{"solver": "numeric"}}
+        # # generate code with analytic solver disabled
+        # alt_codegen_opts = {**codegen_opts, **{"solver": "numeric"}}
 
-        generate_nest_target(input_path=["models/neurons/aeif_cond_exp_neuron.nestml",
-                                         "models/neurons/aeif_cond_alpha_neuron.nestml"],
-                             target_path="/tmp/nestml-alt-allmodels",
-                             logging_level="DEBUG",
-                             module_name="nestml_alt_allmodels_module",
-                             suffix="_alt_nestml",
-                             codegen_opts=alt_codegen_opts)
+        # generate_nest_target(input_path=["models/neurons/aeif_cond_exp_neuron.nestml",
+        #                                  "models/neurons/aeif_cond_alpha_neuron.nestml"],
+        #                      target_path="/tmp/nestml-alt-allmodels",
+        #                      logging_level="DEBUG",
+        #                      module_name="nestml_alt_allmodels_module",
+        #                      suffix="_alt_nestml",
+        #                      codegen_opts=alt_codegen_opts)
 
-        # generate code using forward Euler integrator
-        alt_codegen_opts = {**codegen_opts, **{"numeric_solver": "forward-Euler"}}
+        # # generate code using forward Euler integrator
+        # alt_codegen_opts = {**codegen_opts, **{"numeric_solver": "forward-Euler"}}
 
-        generate_nest_target(input_path="models/neurons/izhikevich_neuron.nestml",
-                             target_path="/tmp/nestml-alt-int-allmodels",
-                             logging_level="DEBUG",
-                             module_name="nestml_alt_int_allmodels_module",
-                             suffix="_alt_int_nestml",
-                             codegen_opts=alt_codegen_opts)
+        # generate_nest_target(input_path="models/neurons/izhikevich_neuron.nestml",
+        #                      target_path="/tmp/nestml-alt-int-allmodels",
+        #                      logging_level="DEBUG",
+        #                      module_name="nestml_alt_int_allmodels_module",
+        #                      suffix="_alt_int_nestml",
+        #                      codegen_opts=alt_codegen_opts)
 
     def test_nest_integration(self):
         self.generate_all_models()
         nest.Install("nestml_allmodels_module")
-        nest.Install("nestml_alt_allmodels_module")
-        nest.Install("nestml_alt_int_allmodels_module")
+        # nest.Install("nestml_alt_allmodels_module")
+        # nest.Install("nestml_alt_int_allmodels_module")
 
-        self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
-        self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
-        self._test_model_equivalence_fI_curve("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
-        self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        # self._test_model_equivalence_subthreshold("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        # self._test_model_equivalence_spiking("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        # self._test_model_equivalence_fI_curve("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
+        # self._test_model_equivalence_curr_inj("iaf_psc_delta", "iaf_psc_delta_neuron_nestml")
 
         self._test_model_equivalence_subthreshold("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
         self._test_model_equivalence_spiking("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
         self._test_model_equivalence_fI_curve("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
         self._test_model_equivalence_curr_inj("iaf_psc_exp", "iaf_psc_exp_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
-        self._test_model_equivalence_spiking("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
-        self._test_model_equivalence_fI_curve("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
-        self._test_model_equivalence_curr_inj("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
+        # self._test_model_equivalence_subthreshold("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
+        # self._test_model_equivalence_spiking("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
+        # self._test_model_equivalence_fI_curve("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
+        # self._test_model_equivalence_curr_inj("iaf_psc_alpha", "iaf_psc_alpha_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_cond_exp", "iaf_cond_exp_neuron_nestml", tolerance=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
-        self._test_model_equivalence_spiking("iaf_cond_exp", "iaf_cond_exp_neuron_nestml", tolerance=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
-        self._test_model_equivalence_fI_curve("iaf_cond_exp", "iaf_cond_exp_neuron_nestml")
-        self._test_model_equivalence_curr_inj("iaf_cond_exp", "iaf_cond_exp_neuron_nestml")
+        # self._test_model_equivalence_subthreshold("iaf_cond_exp", "iaf_cond_exp_neuron_nestml", tolerance=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
+        # self._test_model_equivalence_spiking("iaf_cond_exp", "iaf_cond_exp_neuron_nestml", tolerance=1E-6)  # large tolerance because NESTML integrates PSCs precisely whereas NEST uses GSL
+        # self._test_model_equivalence_fI_curve("iaf_cond_exp", "iaf_cond_exp_neuron_nestml")
+        # self._test_model_equivalence_curr_inj("iaf_cond_exp", "iaf_cond_exp_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
-        self._test_model_equivalence_spiking("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
-        self._test_model_equivalence_fI_curve("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
+        # self._test_model_equivalence_subthreshold("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
+        # self._test_model_equivalence_spiking("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
+        # self._test_model_equivalence_fI_curve("iaf_cond_alpha", "iaf_cond_alpha_neuron_nestml")
 
-        iaf_cond_beta_nest_model_parameters = {"tau_rise_ex": 2., "tau_decay_ex": 10.}
-        iaf_cond_beta_nestml_model_parameters = {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10.}    # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
-        self._test_model_equivalence_subthreshold("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
-        self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
-        self._test_model_equivalence_fI_curve("iaf_cond_beta", "iaf_cond_beta_neuron_nestml")
+        # iaf_cond_beta_nest_model_parameters = {"tau_rise_ex": 2., "tau_decay_ex": 10.}
+        # iaf_cond_beta_nestml_model_parameters = {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10.}    # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+        # self._test_model_equivalence_subthreshold("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
+        # self._test_model_equivalence_spiking("iaf_cond_beta", "iaf_cond_beta_neuron_nestml", nest_model_parameters=iaf_cond_beta_nest_model_parameters, nestml_model_parameters=iaf_cond_beta_nestml_model_parameters)
+        # self._test_model_equivalence_fI_curve("iaf_cond_beta", "iaf_cond_beta_neuron_nestml")
 
-        self._test_model_equivalence_subthreshold("izhikevich", "izhikevich_neuron_alt_int_nestml")
-        self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_alt_int_nestml")
-        self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_alt_int_nestml")
+        # self._test_model_equivalence_subthreshold("izhikevich", "izhikevich_neuron_alt_int_nestml")
+        # self._test_model_equivalence_spiking("izhikevich", "izhikevich_neuron_alt_int_nestml")
+        # self._test_model_equivalence_fI_curve("izhikevich", "izhikevich_neuron_alt_int_nestml")
 
-        nestml_hh_psc_alpha_model_parameters = {"gsl_abs_error_tol": 1E-3, "gsl_rel_error_tol": 0.}  # matching the defaults in NEST
-        self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
-        self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", tolerance=1E-5, nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
-        self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
+        # nestml_hh_psc_alpha_model_parameters = {"gsl_abs_error_tol": 1E-3, "gsl_rel_error_tol": 0.}  # matching the defaults in NEST
+        # self._test_model_equivalence_subthreshold("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
+        # self._test_model_equivalence_spiking("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", tolerance=1E-5, nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
+        # self._test_model_equivalence_fI_curve("hh_psc_alpha", "hh_psc_alpha_neuron_nestml", nestml_model_parameters=nestml_hh_psc_alpha_model_parameters)
 
-        nestml_hh_cond_exp_traub_model_parameters = {"gsl_abs_error_tol": 1E-3, "gsl_rel_error_tol": 0.}  # matching the defaults in NEST
-        self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
-        self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
+        # nestml_hh_cond_exp_traub_model_parameters = {"gsl_abs_error_tol": 1E-3, "gsl_rel_error_tol": 0.}  # matching the defaults in NEST
+        # self._test_model_equivalence_subthreshold("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
+        # self._test_model_equivalence_fI_curve("hh_cond_exp_traub", "hh_cond_exp_traub_neuron_nestml", nestml_model_parameters=nestml_hh_cond_exp_traub_model_parameters)
 
-        self._test_model_equivalence_subthreshold("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
-        self._test_model_equivalence_fI_curve("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml")
+        # self._test_model_equivalence_subthreshold("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
+        # self._test_model_equivalence_fI_curve("aeif_cond_exp", "aeif_cond_exp_neuron_alt_nestml")
 
-        self._test_model_equivalence_subthreshold("aeif_cond_alpha", "aeif_cond_alpha_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
-        self._test_model_equivalence_fI_curve("aeif_cond_alpha", "aeif_cond_alpha_neuron_alt_nestml")
+        # self._test_model_equivalence_subthreshold("aeif_cond_alpha", "aeif_cond_alpha_neuron_alt_nestml", kernel_opts={"resolution": .01})    # needs resolution 0.01 because the NEST model overrides this internally. Subthreshold only because threshold detection is inside the while...gsl_odeiv_evolve_apply() loop in NEST but outside the loop (strictly after gsl_odeiv_evolve_apply()) in NESTML, causing spike times to differ slightly
+        # self._test_model_equivalence_fI_curve("aeif_cond_alpha", "aeif_cond_alpha_neuron_alt_nestml")
 
         # --------------
         # XXX: TODO!

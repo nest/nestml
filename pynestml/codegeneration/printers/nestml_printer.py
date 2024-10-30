@@ -363,6 +363,11 @@ class NESTMLPrinter(ModelPrinter):
         ret += " <- "
         if node.is_spike():
             ret += "spike"
+            if node.get_parameters():
+                ret += "("
+                for parameter in node.get_parameters():
+                    ret += self.print_parameter(parameter)
+                ret += ")"
         else:
             ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
@@ -543,6 +548,9 @@ class NESTMLPrinter(ModelPrinter):
 
         for i in range(1, node.differential_order + 1):
             ret += "'"
+
+        if node.get_attribute():
+            ret += "." + node.get_attribute()
 
         return ret
 

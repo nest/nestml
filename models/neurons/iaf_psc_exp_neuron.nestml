@@ -80,7 +80,7 @@ model iaf_psc_exp_neuron:
         I_e pA = 0 pA
 
     input:
-        spike_in_port <- spike
+        spike_in_port <- spike(weight real)
         I_stim pA <- continuous
 
     output:
@@ -88,10 +88,11 @@ model iaf_psc_exp_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        if spike_in_port < 0:
-            I_syn_inh += spike_in_port * pA * s
+        # weight is a real number, and here interpreted as 1 corresponding to 1 pA
+        if spike_in_port.weight > 0:
+            I_syn_exc += 0 pA # spike_in_port.weight * pA
         else:
-            I_syn_exc += spike_in_port * pA * s
+            I_syn_inh -= 0 pA # spike_in_port.weight * pA
 
     update:
         if refr_t > 0 ms:

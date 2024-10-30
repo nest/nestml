@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from copy import copy
 from enum import Enum
 
@@ -86,7 +88,7 @@ class VariableSymbol(Symbol):
                  vector_parameter: str=None, delay_parameter: str=None, declaring_expression: ASTExpression=None,
                  is_predefined: bool=False, is_inline_expression: bool=False, is_recordable: bool=False,
                  type_symbol: TypeSymbol=None, initial_value: ASTExpression=None, variable_type: VariableType=None,
-                 decorators=None, namespace_decorators=None):
+                 decorators=None, namespace_decorators=None, attribute: Optional[str] = None):
         """
         Standard constructor.
         :param element_reference: a reference to the first element where this type has been used/defined
@@ -119,6 +121,7 @@ class VariableSymbol(Symbol):
         self.initial_value = initial_value
         self.variable_type = variable_type
         self.ode_or_kernel = None
+        self.attribute = attribute
         if decorators is None:
             decorators = []
         if namespace_decorators is None:

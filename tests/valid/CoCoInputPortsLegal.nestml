@@ -1,14 +1,12 @@
 """
-CoCoValueAssignedToInputPort.nestml
-###################################
+CoCoInputPortsIllegal.nestml
+############################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if assignment of values to input ports is detected.
-
-Positive case.
+This test is used to test the declaration of both vectorized and non-vectorized input ports.
 
 
 Copyright statement
@@ -31,9 +29,22 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model CoCoValueAssignedToInputPort:
-    input:
-        spikeInh <- spike
+model input_ports_legal_neuron:
+    state:
+        bar pA = 0 pA
+        foo_spikes pA = 0 pA
+        my_spikes_ip pA = 0 pA
 
-    update: # input port not assigned to, thus everything is correct
-        test integer = spikeInh * s + 10
+    input:
+        AMPA_spikes <- spike
+        GABA_spikes <- spike
+        NMDA_spikes <- spike
+        foo[2] <- spike
+        my_spikes[3] <- spike
+        my_spikes2[3] <- spike
+        I_stim pA <- continuous
+
+    onReceive(AMPA_spikes):
+        bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)
+        foo_spikes += (foo[0] + 5.5 * foo[1]) * (pA * s)
+        my_spikes_ip += (my_spikes[0] + my_spikes[1] - my_spikes2[1]) * (pA * s)
