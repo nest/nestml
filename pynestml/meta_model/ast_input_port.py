@@ -38,7 +38,7 @@ class ASTInputPort(ASTNode):
 
     .. code-block:: nestml
 
-       spike_in pA <- spike
+       spike_in <- spike(weight real)
 
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.

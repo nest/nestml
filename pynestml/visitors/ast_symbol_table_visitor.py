@@ -425,7 +425,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_rhs().update_scope(node.get_scope())
 
     def visit_expression(self, node):
-        print("Visiting expression: " + str(node))
         """
         Private method: Used to visit a single rhs and update its scope.
         :param node: an rhs.
@@ -460,7 +459,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a simple rhs.
         :type node: ast_simple_expression
         """
-        print("Visiting simple expression: " + str(node))
         if node.is_function_call():
             node.get_function_call().update_scope(node.get_scope())
         elif node.is_variable() or node.has_unit():
@@ -470,7 +468,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
-        # print("Visiting variable: " + str(node))
         # if node.attribute:
         #     ast_model = ASTUtils.find_parent_node_by_type(node, ASTModel)
         #     assert ast_model

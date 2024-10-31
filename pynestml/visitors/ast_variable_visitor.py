@@ -42,7 +42,6 @@ class ASTVariableVisitor(ASTVisitor):
             '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(node)
         assert (node.get_scope() is not None), \
             '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
-        print("in visit_simple_expression (" + str(node) + ") ")
 
         scope = node.get_scope()
         var_name = node.get_variable().get_complete_name()
@@ -50,7 +49,6 @@ class ASTVariableVisitor(ASTVisitor):
 
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
-            print("var_resolve is " + str(var_resolve))
             # print("var_resolve.attribute is " + str(var_resolve.attribute))
 
             # if var_resolve.attribute:

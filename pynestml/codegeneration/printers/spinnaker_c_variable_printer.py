@@ -130,7 +130,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
                 vector_parameter = ASTUtils.get_numeric_vector_size(variable)
                 var_name = var_name + "_" + str(vector_parameter)
 
-            return "input->inputs[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+            return "input->inputs_" + str(var_name)
 
         if variable_symbol.is_continuous_input_port():
             var_name = variable_symbol.get_symbol_name().upper()
@@ -138,7 +138,7 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
                 vector_parameter = ASTUtils.get_numeric_vector_size(variable)
                 var_name = var_name + "_" + str(vector_parameter)
 
-            return "input->inputs[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+            return "input->inputs_" + str(var_name)
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

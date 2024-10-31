@@ -13,16 +13,16 @@
 /**
  * {{ comment_string }}
 **/
-inline std::vector< {{data_type}} >& get_{{variable_name}}()
+inline {{ data_type }}& get_{{ variable_name }}_{{ suffix }}()
 {
 {%-     if is_in_struct %}
-    return {{variable_name}};
+    return {{ variable_name }}_{{ suffix }};
 {%-     else %}
-    return B_.get_{{variable_name}}();
+    return B_.get_{{ variable_name }}()_{{ suffix }};
 {%-     endif %}
 }
 {%-     if is_in_struct %}
-std::vector< {{data_type}} > {{variable_name}};
+{{ data_type }} {{ variable_name }}_{{ suffix }};
 {%-     endif %}
 {%- endfor %}
 
