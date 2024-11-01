@@ -77,11 +77,10 @@ class ASTInputBlock(ASTNode):
 
         return dup
 
-    def get_input_ports(self):
+    def get_input_ports(self) -> List[ASTInputPort]:
         """
         Returns the list of input ports.
         :return: a list of input ports
-        :rtype: list(ASTInputPort)
         """
         return self.input_definitions
 

@@ -239,7 +239,7 @@ parser grammar PyNestMLParser;
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
    */
-  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON
+  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortVariable=variable (COMMA constParameter)* RIGHT_PAREN COLON
                 block;
 
   /** ASTOnConditionBlock

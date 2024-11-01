@@ -694,12 +694,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
 
     def visitOnReceiveBlock(self, ctx):
+        input_port_variable = self.visit(ctx.inputPortVariable)
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        port_name = ctx.inputPortName.text
         const_parameters = {}
         for el in ctx.constParameter():
             const_parameters[el.name.text] = el.value.text
-        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, const_parameters=const_parameters, source_position=create_source_pos(ctx))
+        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, input_port_variable=input_port_variable, const_parameters=const_parameters, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

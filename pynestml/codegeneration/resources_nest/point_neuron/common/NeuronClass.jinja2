@@ -72,7 +72,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // uncomment the next line to enable printing of detailed debug information
 // #define DEBUG
 
-{%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%  if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
 {%-         for state_var in state_vars_that_need_continuous_buffering %}
@@ -147,24 +147,6 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
   }
 }
 
-{%  if neuron.get_spike_input_ports() | length > 1 or neuron.is_multisynapse_spikes() %}
-std::vector< size_t > {{ neuronName }}::rport_to_nestml_buffer_idx =
-{
-{%-     for rport, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-{%-         set ns = namespace(rport=rport) %}
-{%-         if ports[0].has_vector_parameter() %}
-{%-             set size = utils.get_numeric_vector_size(ports[0]) %}
-{%-             for i in range(size) %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport, index=i) }},
-{%-                 set ns.rport = ns.rport + 1 %}
-{%-             endfor %}
-{%-         else %}
-  {{ rport_to_port_map_entry.RportToBufferIndexEntry(ports, ns.rport) }},
-{%-         endif %}
-{%-     endfor %}
-};
-{%- endif %}
-
 {%- if has_state_vectors %}
   std::string {{ neuronName }}::get_var_name(size_t elem, std::string var_name)
   {
@@ -220,8 +202,8 @@ std::vector< size_t > {{ neuronName }}::rport_to_nestml_buffer_idx =
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_grid_sum_( 0. );
+  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
@@ -254,9 +236,11 @@ std::vector< size_t > {{ neuronName }}::rport_to_nestml_buffer_idx =
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_grid_sum_( 0. );
+  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-                 endfor %}
+{%-             else %}
+  ?????????????
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
@@ -484,7 +468,7 @@ void {{ neuronName }}::init_buffers_()
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_.clear();
+  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.clear();
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
@@ -725,9 +709,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
   for ( long lag = from ; lag < to ; ++lag )
   {
 {% if propagators_are_state_dependent %}
-  // the propagators are state dependent; update them!
-  V_.__h = nest::Time::get_resolution().get_ms();
-  recompute_internal_variables();
+    // the propagators are state dependent; update them!
+    V_.__h = nest::Time::get_resolution().get_ms();
+    recompute_internal_variables();
 
 {% endif %}
 
@@ -743,32 +727,32 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
 {%- if not gap_junction_membrane_potential_variable_is_numeric %}
 {#      in case V_m is solved analytically, need to compute __I_gap here so dV_m/dt can be computed below #}
-  // set I_gap depending on interpolation order
-  double __I_gap = 0.0;
+    // set I_gap depending on interpolation order
+    double __I_gap = 0.0;
 
-  const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
+    const double __t_gap = gap_junction_step / nest::Time::get_resolution().get_ms();
 
-  switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
-  {
-  case 0:
-    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ ];
-    break;
+    switch ( nest::kernel().simulation_manager.get_wfr_interpolation_order() )
+    {
+    case 0:
+      __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ ];
+      break;
 
-  case 1:
-    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 2 + 0 ]
-      + B_.interpolation_coefficients[ B_.lag_ * 2 + 1 ] * __t_gap;
-    break;
+    case 1:
+      __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 2 + 0 ]
+        + B_.interpolation_coefficients[ B_.lag_ * 2 + 1 ] * __t_gap;
+      break;
 
-  case 3:
-    __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
-      + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
-    break;
+    case 3:
+      __I_gap = -B_.sumj_g_ij_ * {{ gap_junction_membrane_potential_variable_cpp }} + B_.interpolation_coefficients[ B_.lag_ * 4 + 0 ]
+        + B_.interpolation_coefficients[ B_.lag_ * 4 + 1 ] * __t_gap
+        + B_.interpolation_coefficients[ B_.lag_ * 4 + 2 ] * __t_gap * __t_gap
+        + B_.interpolation_coefficients[ B_.lag_ * 4 + 3 ] * __t_gap * __t_gap * __t_gap;
+      break;
 
-  default:
-    throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
-  }
+    default:
+      throw nest::BadProperty( "Interpolation order must be 0, 1, or 3." );
+    }
 {%- endif %}
 
     if ( called_from_wfr_update )
@@ -809,7 +793,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_.get_value(lag);
+    B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
@@ -871,11 +855,11 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
      * Begin NESTML generated code for the onReceive block(s)
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
-{%-     set inport = blk.get_port_name() %}
+{%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
     if (B_.spike_input_{{ inport }}_spike_input_received_grid_sum_)
     {
       // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer into the "grid_sum" variables resets the RingBuffer entries
-      on_receive_block_{{ blk.get_port_name() }}();
+      on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}();
     }
 {%- endfor %}
 
@@ -1164,28 +1148,28 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
   assert(e.get_delay_steps() > 0);
   assert(e.get_rport() < {{ utils.nestml_input_port_to_nest_rport_dict(astnode) | length }});
 
-{%-     for spike_in_port in astnode.get_body().get_spike_input_ports() %}
-  if (e.get_rport() == {{ utils.nestml_input_port_to_nest_rport(astnode, spike_in_port.name) }})
+{%-     for spike_in_port_name, rport in utils.nestml_input_port_to_nest_rport_dict(astnode).items() %}
+{%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
+{%-         if astnode.get_body().get_spike_input_ports() | length > 1 %}
+  if (e.get_rport() == {{ rport }})
+{%-         endif %}
   {
 {%-         if spike_in_port.get_parameters() %}
 {%-             for attribute in spike_in_port.get_parameters() %}
-    B_.spike_input_{{ spike_in_port.name }}__DOT__{{ attribute.name }}_.add_value(
+    B_.spike_input_{{ spike_in_port_name }}__DOT__{{ attribute.name }}_.add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() );
 {%-             endfor %}
 {%-         else %}
 {#              no attributes defined for the spike event; in this case, there is only one single buffer #}
-    B_.spike_input_{{ spike_in_port.name }}_.add_value(
+    B_.spike_input_{{ spike_in_port_name }}_.add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() );
 {%-         endif %}
 
-
-  B_.spike_input_{{ spike_in_port.name }}_spike_input_received_.add_value(
-    e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-    1. );
-
-
+    B_.spike_input_{{ spike_in_port_name }}_spike_input_received_.add_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      1. );
   }
 {%-     endfor %}
 }
@@ -1218,7 +1202,7 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_block() %}
 void
-{{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()
+{{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
 {
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 

@@ -36,15 +36,34 @@ model input_ports:
         my_spikes_ip pA = 0 pA
 
     input:
-        AMPA_spikes <- spike
-        GABA_spikes <- spike
-        NMDA_spikes <- spike
-        foo[2] <- spike
-        my_spikes[3] <- spike
-        my_spikes2[3] <- spike
+        AMPA_spikes <- spike(weight pA)
+        GABA_spikes <- spike(weight pA)
+        NMDA_spikes <- spike(weight pA)
+        foo[2] <- spike(weight pA)
+        my_spikes[3] <- spike(weight pA)
+        my_spikes2[3] <- spike(weight pA)
         I_stim pA <- continuous
 
-    update:
-        bar += (NMDA_spikes + 2 * AMPA_spikes - 3 * GABA_spikes) * (pA * s)
-        foo_spikes += (foo[0] + 5.5 * foo[1]) * (pA * s)
-        my_spikes_ip += (my_spikes[0] + my_spikes[1] - my_spikes2[1]) * (pA * s)
+    onReceive(NMDA_spikes):
+        bar += NMDA_spikes.weight
+
+    onReceive(AMPA_spikes):
+        bar += 2 * AMPA_spikes.weight
+
+    onReceive(GABA_spikes):
+        bar += GABA_spikes.weight
+
+    onReceive(foo[0]):
+        foo_spikes += foo[0].weight
+
+    onReceive(foo[1]):
+        foo_spikes += 5.5 * foo[1].weight
+
+    onReceive(my_spikes[0]):
+        my_spikes_ip += my_spikes[0].weight
+
+    onReceive(my_spikes[1]):
+        my_spikes_ip += my_spikes[0].weight
+
+    onReceive(my_spikes2[1]):
+        my_spikes_ip -= my_spikes2[1].weight

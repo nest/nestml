@@ -159,7 +159,7 @@ The above code querying for ``receptor_types`` gives a list of port names and NE
      - 1
    * - NMDA_spikes
      - 2
-   * - FOO_0
+   * - FOO_0 XXXXX _VEC_IDX_
      - 3
    * - FOO_1
      - 4

@@ -524,7 +524,7 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += print_n_spaces(self.indent) + "onReceive(" + self.print(node.get_input_port_variable()) + "):" + print_sl_comment(node.in_comment) + "\n"
         ret += self.print(node.get_block())
         return ret
 

@@ -68,8 +68,8 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
             while _node:
                 _node = _node.get_parent()
 
-                if isinstance(_node, ASTOnReceiveBlock):
-                    # spike input port was used inside an ``onReceive`` block; everything is OK
+                if isinstance(_node, ASTOnReceiveBlock) and _node.input_port_variable.name == in_port.name:
+                    # spike input port was used inside an ``onReceive`` block for this spike port; everything is OK
                     return
 
                 if isinstance(_node, ASTOdeEquation):

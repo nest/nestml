@@ -475,7 +475,7 @@ public:
 
 {%  filter indent(2, True) -%}
 {%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ blk.get_port_name() }}();
+    void on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}();
 {%-     endfor %}
 {%- endfilter %}
 
@@ -541,12 +541,14 @@ private:
    * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
    *       Excluding port 0 avoids accidental connections.
   **/
-  const nest_port_t MAX_SPIKE_RECEPTOR = {{ len(utils.nestml_input_port_to_nest_rport_dict(astnode)) }};
+  const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_input_port_to_nest_rport_dict(astnode) | length }};
 {%- endif %}
 
+{#
 {% if neuron.get_spike_input_ports() | length > 1 or neuron.is_multisynapse_spikes() -%}
   static std::vector< size_t > rport_to_nestml_buffer_idx;
 {%- endif %}
+#}
 
   /**
    * Reset state of neuron.
@@ -789,15 +791,21 @@ private:
 
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+
+    // input port: {{ inputPort.name }}
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_;
-    double spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
+    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-                 endfor %}
+{%-             else %}
+    XXX: vector port, but no parameters
 {%-             endif %}
+    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_;
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
@@ -877,23 +885,33 @@ private:
   //   Getters/setters for spike input buffers
   // -------------------------------------------------------------------------
 {%  for inputPortSymbol in neuron.get_spike_input_ports() %}
+    // input port: {{ inputPortSymbol.name }}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_
+  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_()
   {
-    return B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_VEC_IDX_{{ i }}_;
+    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
   }
 
-  inline double& get_spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_
+  inline double get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_()
   {
-    return B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
+    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
   }
 {%                  endfor %}
 {%-             endif %}
+  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_()
+  {
+    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
+  }
+
+  inline double get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_()
+  {
+    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_;
+  }
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
@@ -902,7 +920,7 @@ private:
     return B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
   }
 
-  inline double& get_spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_()
+  inline double get_spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_()
   {
     return B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
   }
@@ -912,7 +930,7 @@ private:
     return B_.spike_input_{{ inputPort.name }}_spike_input_received_;
   }
 
-  inline double& get_spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_()
+  inline double get_spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_()
   {
     return B_.spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_;
   }
@@ -1098,19 +1116,12 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
 {%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
   DictionaryDatum __receptor_type = new Dictionary();
-{%-     for rport, ports in utils.get_spike_input_ports_in_pairs(neuron).items() %}
-{%-         set ns = namespace(rport=rport) %}
-{%-         for port in ports  %}
-{%-             if not port.has_vector_parameter() %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{ns.rport + 1}};
-{%-             else %}
-{%-                 set size = utils.get_numeric_vector_size(port) %}
-{%-                 for i in range(size)  %}
-    ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}_{{i}}" ] = {{ns.rport + i + 1}},
-{%-                 endfor %}
-{%-             endif %}
-{%-         endfor %}
+
+{%-     for spike_in_port_name, rport in utils.nestml_input_port_to_nest_rport_dict(astnode).items() %}
+{%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
+( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
 {%-     endfor %}
+
     ( *__d )[ "receptor_types" ] = __receptor_type;
 {%- endif %}
 

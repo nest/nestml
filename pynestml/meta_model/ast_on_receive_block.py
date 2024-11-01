@@ -21,32 +21,29 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Mapping
+from typing import List, Optional, Mapping
 
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class ASTOnReceiveBlock(ASTNode):
     r"""
-    This class is used to store a declaration of an onReceive block, for example:
-
-    .. code-block:: nestml
-
-       onReceive(pre_spikes):
-           pre_tr += 1
-
+    This class is used to store a declaration of an onReceive block.
     """
 
-    def __init__(self, block: ASTBlock, port_name: str, const_parameters: Optional[Mapping] = None, *args, **kwargs):
+    def __init__(self, input_port_variable: ASTVariable, block: ASTBlock, const_parameters: Optional[Mapping] = None, *args, **kwargs):
         r"""
         Standard constructor.
         :param block: a block of definitions.
+        :param input_port_variable: the variable referencing the corresponding input port.
+        :param const_parameters: constant parameters like priority.
         :param source_position: the position of this element in the source file.
         """
         super(ASTOnReceiveBlock, self).__init__(*args, **kwargs)
         self.block = block
-        self.port_name = port_name
+        self.input_port_variable = input_port_variable
         self.const_parameters = const_parameters
         if self.const_parameters is None:
             self.const_parameters = {}
@@ -58,7 +55,7 @@ class ASTOnReceiveBlock(ASTNode):
         :return: new AST node instance
         """
         dup = ASTOnReceiveBlock(block=self.block.clone(),
-                                port_name=self.port_name,
+                                input_port_variable=self.input_port_variable,
                                 const_parameters=self.const_parameters,
                                 # ASTNode common attributes:
                                 source_position=self.source_position,
@@ -80,12 +77,12 @@ class ASTOnReceiveBlock(ASTNode):
         """
         return self.block
 
-    def get_port_name(self) -> str:
+    def get_input_port_variable(self) -> ASTVariable:
         r"""
-        Returns the port name.
-        :return: the port name
+        Returns the port.
+        :return: the port
         """
-        return self.port_name
+        return self.input_port_variable
 
     def get_children(self) -> List[ASTNode]:
         r"""
@@ -101,4 +98,4 @@ class ASTOnReceiveBlock(ASTNode):
         if not isinstance(other, ASTOnReceiveBlock):
             return False
 
-        return self.get_block().equals(other.get_block()) and self.port_name == other.port_name
+        return self.get_block().equals(other.get_block()) and self.input_port.equals(other.input_port)

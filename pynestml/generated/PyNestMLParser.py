@@ -189,7 +189,7 @@ def serializedATN():
         447,1,0,0,0,454,448,1,0,0,0,454,449,1,0,0,0,454,450,1,0,0,0,454,
         451,1,0,0,0,454,452,1,0,0,0,454,453,1,0,0,0,455,456,1,0,0,0,456,
         454,1,0,0,0,456,457,1,0,0,0,457,458,1,0,0,0,458,459,5,2,0,0,459,
-        67,1,0,0,0,460,461,5,40,0,0,461,462,5,47,0,0,462,467,5,87,0,0,463,
+        67,1,0,0,0,460,461,5,40,0,0,461,462,5,47,0,0,462,467,3,18,9,0,463,
         464,5,72,0,0,464,466,3,90,45,0,465,463,1,0,0,0,466,469,1,0,0,0,467,
         465,1,0,0,0,467,468,1,0,0,0,468,470,1,0,0,0,469,467,1,0,0,0,470,
         471,5,48,0,0,471,472,5,80,0,0,472,473,3,28,14,0,473,69,1,0,0,0,474,
@@ -3410,7 +3410,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.inputPortName = None # Token
+            self.inputPortVariable = None # VariableContext
 
         def ON_RECEIVE_KEYWORD(self):
             return self.getToken(PyNestMLParser.ON_RECEIVE_KEYWORD, 0)
@@ -3428,8 +3428,9 @@ class PyNestMLParser ( Parser ):
             return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
 
 
-        def NAME(self):
-            return self.getToken(PyNestMLParser.NAME, 0)
+        def variable(self):
+            return self.getTypedRuleContext(PyNestMLParser.VariableContext,0)
+
 
         def COMMA(self, i:int=None):
             if i is None:
@@ -3468,7 +3469,7 @@ class PyNestMLParser ( Parser ):
             self.state = 461
             self.match(PyNestMLParser.LEFT_PAREN)
             self.state = 462
-            localctx.inputPortName = self.match(PyNestMLParser.NAME)
+            localctx.inputPortVariable = self.variable()
             self.state = 467
             self._errHandler.sync(self)
             _la = self._input.LA(1)
