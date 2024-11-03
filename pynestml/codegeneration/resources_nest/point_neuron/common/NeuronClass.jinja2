@@ -106,12 +106,11 @@ nest::RecordablesMap<{{ neuronName }}> {{ neuronName }}::recordablesMap_;
 namespace nest
 {
 
-  // Override the create() method with one call to RecordablesMap::insert_()
-  // for each quantity to be recorded.
+  // Override the create() method with one call to RecordablesMap::insert_() for each quantity to be recorded.
 {%- if has_state_vectors %}
-template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
+  template <> void DynamicRecordablesMap<{{ neuronName }}>::create({{ neuronName }}& host)
 {%- else %}
-template <> void RecordablesMap<{{ neuronName }}>::create()
+  template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- endif %}
   {
 
@@ -125,7 +124,7 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
 {%- else %}
     // add state variables to recordables map
 {%-   for variable in recordable_state_variables %}
-   insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
+    insert_({{names_namespace}}::_{{ variable.get_complete_name() }}, &{{ neuronName }}::get_{{ printer_no_origin.print(variable) }});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}
@@ -134,7 +133,7 @@ template <> void RecordablesMap<{{ neuronName }}>::create()
     // add recordable inline expressions to recordables map
 {%- for variable_symbol in recordable_inline_expressions %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-	insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
+	  insert_({{ names_namespace }}::_{{ variable_symbol.get_symbol_name() }}, &{{ neuronName }}::{{ printer_no_origin.print(variable)[:-2] }});
 {%- endfor %}
 {%- endif %}
 
@@ -457,10 +456,6 @@ void {{ neuronName }}::init_buffers_()
 {%- if neuron.get_spike_input_ports() | length > 0 %}
   // spike input buffers
 
-
-
-
-
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
 {%-     if inputPortSymbol.has_vector_parameter() %}
@@ -471,6 +466,7 @@ void {{ neuronName }}::init_buffers_()
   B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.clear();
 {%-                 endfor %}
 {%-             endif %}
+  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_.clear();
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
@@ -479,23 +475,8 @@ void {{ neuronName }}::init_buffers_()
   B_.spike_input_{{ inputPort.name }}_spike_input_received_.clear();
 {%-     endif %}
 {%- endfor %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {% endif %}
+
 {%- if neuron.get_continuous_input_ports() | length > 0 %}
 
   // continuous time input buffers
@@ -799,9 +780,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
-  B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
+    B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
 {%-         endfor %}
-  B_.spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_spike_input_received_.get_value(lag);
+    B_.spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_spike_input_received_.get_value(lag);
 {%-     endif %}
 {%- endfor %}
 

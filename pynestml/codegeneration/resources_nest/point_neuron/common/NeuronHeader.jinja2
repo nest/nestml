@@ -801,8 +801,6 @@ private:
     nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-                 endfor %}
-{%-             else %}
-    XXX: vector port, but no parameters
 {%-             endif %}
     nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_;
@@ -885,7 +883,7 @@ private:
   //   Getters/setters for spike input buffers
   // -------------------------------------------------------------------------
 {%  for inputPortSymbol in neuron.get_spike_input_ports() %}
-    // input port: {{ inputPortSymbol.name }}
+  // input port: {{ inputPortSymbol.name.split(".")[0] }}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
