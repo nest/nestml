@@ -341,7 +341,7 @@ class TestCoCos:
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) > 0
 
-    def test_valid_output_port_type_continuous(self):
+    def test_invalid_output_port_type_continuous(self):
         """test that an error is raised when a continous-time output port is defined as having attributes."""
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoOutputPortTypeContinuous.nestml'))
         assert model is not None
