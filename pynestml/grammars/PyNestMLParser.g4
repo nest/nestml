@@ -322,8 +322,7 @@ parser grammar PyNestMLParser;
       @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
   outputBlock: OUTPUT_KEYWORD COLON
-               NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD)
-               (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?
+               NEWLINE INDENT ((isSpike=SPIKE_KEYWORD (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?) | isContinuous=CONTINUOUS_KEYWORD)
                NEWLINE DEDENT;
 
   /** ASTFunction A single declaration of a user-defined function definition:

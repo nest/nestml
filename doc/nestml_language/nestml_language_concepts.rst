@@ -918,7 +918,7 @@ Each spiking output event can be parameterised by one or more attributes. For ex
        weight real = 10.
 
    update:
-       emit_spike(w, 1 ms)
+       emit_spike(weight, 1 ms)
 
 If spike event attributes are used, their names and types must be given as part the output port specification. The names are only used externally, for other models making reference to this one (it is allowed to have a state variable called ``weight`` and an output port attribute by the same name).
 

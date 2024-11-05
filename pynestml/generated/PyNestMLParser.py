@@ -57,8 +57,8 @@ def serializedATN():
         39,537,8,39,11,39,12,39,538,1,39,1,39,1,40,1,40,1,40,1,40,1,40,3,
         40,548,8,40,1,40,1,40,5,40,552,8,40,10,40,12,40,555,9,40,1,40,1,
         40,1,40,1,41,1,41,1,41,1,41,1,41,3,41,565,8,41,1,41,1,41,1,41,1,
-        41,1,41,1,42,1,42,3,42,574,8,42,1,43,1,43,1,43,1,43,1,43,1,43,3,
-        43,582,8,43,1,43,1,43,1,43,1,43,5,43,588,8,43,10,43,12,43,591,9,
+        41,1,41,1,42,1,42,3,42,574,8,42,1,43,1,43,1,43,1,43,1,43,1,43,1,
+        43,1,43,1,43,5,43,585,8,43,10,43,12,43,588,9,43,3,43,590,8,43,1,
         43,3,43,593,8,43,1,43,3,43,596,8,43,1,43,1,43,1,43,1,44,1,44,1,44,
         1,44,1,44,1,44,5,44,607,8,44,10,44,12,44,610,9,44,3,44,612,8,44,
         1,44,1,44,3,44,616,8,44,1,44,1,44,1,44,1,45,1,45,1,45,1,46,1,46,
@@ -223,12 +223,12 @@ def serializedATN():
         0,0,0,566,567,3,0,0,0,567,568,5,57,0,0,568,569,5,39,0,0,569,570,
         5,9,0,0,570,83,1,0,0,0,571,574,5,43,0,0,572,574,5,44,0,0,573,571,
         1,0,0,0,573,572,1,0,0,0,574,85,1,0,0,0,575,576,5,38,0,0,576,577,
-        5,82,0,0,577,578,5,9,0,0,578,581,5,1,0,0,579,582,5,42,0,0,580,582,
-        5,39,0,0,581,579,1,0,0,0,581,580,1,0,0,0,582,595,1,0,0,0,583,592,
-        5,49,0,0,584,589,3,90,45,0,585,586,5,74,0,0,586,588,3,90,45,0,587,
-        585,1,0,0,0,588,591,1,0,0,0,589,587,1,0,0,0,589,590,1,0,0,0,590,
-        593,1,0,0,0,591,589,1,0,0,0,592,584,1,0,0,0,592,593,1,0,0,0,593,
-        594,1,0,0,0,594,596,5,50,0,0,595,583,1,0,0,0,595,596,1,0,0,0,596,
+        5,82,0,0,577,578,5,9,0,0,578,595,5,1,0,0,579,592,5,42,0,0,580,589,
+        5,49,0,0,581,586,3,90,45,0,582,583,5,74,0,0,583,585,3,90,45,0,584,
+        582,1,0,0,0,585,588,1,0,0,0,586,584,1,0,0,0,586,587,1,0,0,0,587,
+        590,1,0,0,0,588,586,1,0,0,0,589,581,1,0,0,0,589,590,1,0,0,0,590,
+        591,1,0,0,0,591,593,5,50,0,0,592,580,1,0,0,0,592,593,1,0,0,0,593,
+        596,1,0,0,0,594,596,5,39,0,0,595,579,1,0,0,0,595,594,1,0,0,0,596,
         597,1,0,0,0,597,598,5,9,0,0,598,599,5,2,0,0,599,87,1,0,0,0,600,601,
         5,15,0,0,601,602,5,89,0,0,602,611,5,49,0,0,603,608,3,90,45,0,604,
         605,5,74,0,0,605,607,3,90,45,0,606,604,1,0,0,0,607,610,1,0,0,0,608,
@@ -241,7 +241,7 @@ def serializedATN():
         179,181,188,193,198,205,214,218,225,230,240,243,248,256,261,270,
         275,291,295,304,310,315,321,331,336,339,346,352,358,363,376,384,
         390,394,418,431,433,452,454,465,479,493,508,510,520,528,531,534,
-        538,547,553,564,573,581,589,592,595,608,611,615
+        538,547,553,564,573,586,589,592,595,608,611,615
     ]
 
 class PyNestMLParser ( Parser ):
@@ -4227,8 +4227,8 @@ class PyNestMLParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
             self.isSpike = None # Token
-            self.isContinuous = None # Token
             self.attribute = None # ParameterContext
+            self.isContinuous = None # Token
 
         def OUTPUT_KEYWORD(self):
             return self.getToken(PyNestMLParser.OUTPUT_KEYWORD, 0)
@@ -4248,11 +4248,11 @@ class PyNestMLParser ( Parser ):
         def DEDENT(self):
             return self.getToken(PyNestMLParser.DEDENT, 0)
 
-        def SPIKE_KEYWORD(self):
-            return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
-
         def CONTINUOUS_KEYWORD(self):
             return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
+
+        def SPIKE_KEYWORD(self):
+            return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
 
         def LEFT_PAREN(self):
             return self.getToken(PyNestMLParser.LEFT_PAREN, 0)
@@ -4300,49 +4300,49 @@ class PyNestMLParser ( Parser ):
             self.match(PyNestMLParser.NEWLINE)
             self.state = 578
             self.match(PyNestMLParser.INDENT)
-            self.state = 581
+            self.state = 595
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [42]:
                 self.state = 579
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
+                self.state = 592
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if _la==49:
+                    self.state = 580
+                    self.match(PyNestMLParser.LEFT_PAREN)
+                    self.state = 589
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if _la==89:
+                        self.state = 581
+                        localctx.attribute = self.parameter()
+                        self.state = 586
+                        self._errHandler.sync(self)
+                        _la = self._input.LA(1)
+                        while _la==74:
+                            self.state = 582
+                            self.match(PyNestMLParser.COMMA)
+                            self.state = 583
+                            localctx.attribute = self.parameter()
+                            self.state = 588
+                            self._errHandler.sync(self)
+                            _la = self._input.LA(1)
+
+
+
+                    self.state = 591
+                    self.match(PyNestMLParser.RIGHT_PAREN)
+
+
                 pass
             elif token in [39]:
-                self.state = 580
+                self.state = 594
                 localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             else:
                 raise NoViableAltException(self)
-
-            self.state = 595
-            self._errHandler.sync(self)
-            _la = self._input.LA(1)
-            if _la==49:
-                self.state = 583
-                self.match(PyNestMLParser.LEFT_PAREN)
-                self.state = 592
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                if _la==89:
-                    self.state = 584
-                    localctx.attribute = self.parameter()
-                    self.state = 589
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-                    while _la==74:
-                        self.state = 585
-                        self.match(PyNestMLParser.COMMA)
-                        self.state = 586
-                        localctx.attribute = self.parameter()
-                        self.state = 591
-                        self._errHandler.sync(self)
-                        _la = self._input.LA(1)
-
-
-
-                self.state = 594
-                self.match(PyNestMLParser.RIGHT_PAREN)
-
 
             self.state = 597
             self.match(PyNestMLParser.NEWLINE)

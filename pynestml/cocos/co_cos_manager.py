@@ -49,7 +49,6 @@ from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_model_name_unique import CoCoModelNameUnique
 from pynestml.cocos.co_co_nest_random_functions_legally_used import CoCoNestRandomFunctionsLegallyUsed
-from pynestml.cocos.co_co_no_attributes_on_continuous_port import CoCoNoAttributesOnContinuousPort
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
@@ -429,14 +428,6 @@ class CoCosManager:
         CoCoNestRandomFunctionsLegallyUsed.check_co_co(model)
 
     @classmethod
-    def check_co_co_no_attributes_on_continuous_port(cls, model: ASTModel):
-        """
-        Checks that no attributes are defined on continuous time output ports.
-        :param model: a single model object.
-        """
-        CoCoNoAttributesOnContinuousPort.check_co_co(model)
-
-    @classmethod
     def check_cocos(cls, model: ASTModel, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -491,6 +482,5 @@ class CoCosManager:
         cls.check_resolution_func_legally_used(model)
         cls.check_input_port_size_type(model)
         cls.check_timestep_func_legally_used(model)
-        cls.check_co_co_no_attributes_on_continuous_port(model)
 
         Logger.set_current_node(None)
