@@ -39,7 +39,7 @@ for dir_to_include in ["doc", "models", "extras"]:
 
 setup(
     name="NESTML",
-    version="8.0.0-rc2",
+    version="8.0.0-rc3-post-dev",
     description="NESTML is a domain specific language that supports the specification of neuron models in a"
                 " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
                 " as a simple string of mathematical notation or as an algorithm written in the built-in procedural"
