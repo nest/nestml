@@ -454,7 +454,7 @@ void {{ neuronName }}::init_buffers_()
 {%- endif %}
 
 {%- if neuron.get_spike_input_ports() | length > 0 %}
-  // spike input buffers
+  // spike input buffers -- note that .clear() includes a resize
 
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
@@ -777,6 +777,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
 {%-                 endfor %}
 {%-             endif %}
+    B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_.get_value(lag);
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
@@ -1123,7 +1124,7 @@ void {{ neuronName }}::handle(nest::DataLoggingRequest& e)
 void {{ neuronName }}::handle(nest::SpikeEvent &e)
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(SpikeEvent)" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::handle(SpikeEvent) on rport " << e.get_rport() << std::endl;
 #endif
 
   assert(e.get_delay_steps() > 0);
@@ -1177,7 +1178,7 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%- endif %}
 
 // -------------------------------------------------------------------------
-//   Methods corresponding to event handlers
+//   Methods corresponding to onReceive blocks
 // -------------------------------------------------------------------------
 
 {%- for blk in neuron.get_on_receive_blocks() %}
@@ -1186,6 +1187,14 @@ void
 {{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
 {
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+
+{%-     if blk.get_input_port_variable().has_vector_parameter() %}
+boop
+{{ blk.get_input_port_variable().get_vector_parameter() }}
+{% if utils.is_parameter(blk.get_input_port_variable().get_vector_parameter()) %}
+is_parameter
+{%-     endif %}
+{%-     endif %}
 
 {%-     filter indent(2, True) -%}
 {%-         include "directives_cpp/Block.jinja2" %}

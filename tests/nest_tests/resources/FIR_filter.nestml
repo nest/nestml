@@ -47,13 +47,12 @@ model fir_filter:
     input:
         spike_in <- spike(weight real)
 
-
     onReceive(spike_in):
         spike_in_buffer += spike_in.weight
 
     update:
         # circular buffer for input spike count per timestep
-        x[i] = spike_in_buffer * s
+        x[i] = spike_in_buffer
         spike_in_buffer = 0.
 
         # compute the new value of y

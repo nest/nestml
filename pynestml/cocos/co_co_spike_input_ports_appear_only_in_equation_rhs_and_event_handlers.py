@@ -58,6 +58,10 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
 
         # only check spiking input ports
         if in_port is not None and in_port.is_spike():
+            if isinstance(node.get_parent(), ASTOnReceiveBlock) and node.get_parent().get_input_port_variable() == node:
+                # input port appears inside the declaration of an onReceive block; everything is OK
+                return
+
             if in_port.parameters and not node.attribute:
                 # input port has parameters (for instance, ``x`` in ``foo <- spike(x real)`` but the variable reference is missing an attribute (``foo`` instead of ``foo.x``)
                 code, message = Messages.get_spike_input_port_attribute_missing(node.get_name())
@@ -69,8 +73,18 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
                 _node = _node.get_parent()
 
                 if isinstance(_node, ASTOnReceiveBlock) and _node.input_port_variable.name == in_port.name:
-                    # spike input port was used inside an ``onReceive`` block for this spike port; everything is OK
-                    return
+                    if not node.get_vector_parameter():
+                        # non-vector spike input port was used inside an ``onReceive`` block for this spike port; everything is OK
+                        return
+
+                    try:
+                        if int(str(node.get_vector_parameter())) == int(str(_node.get_input_port_variable().get_vector_parameter())):
+                            # vector spike input port was used inside an ``onReceive`` block for this spike port and numerical index is correct; everything is OK
+                            return
+                    except ValueError:
+                        # in case vector parameter was not an integer numeral
+                        return # XXX: DO MORE CHECKS!
+                        pass
 
                 if isinstance(_node, ASTOdeEquation):
                     # spike input port was used inside the rhs of an equation; everything is OK
@@ -82,7 +96,12 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
 
                 if isinstance(_node, ASTModel):
                     # we reached the top-level block without running into an ``update`` block on the way --> incorrect usage of the function
-                    code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node.get_name())
+
+                    node_name = node.get_name()
+                    if node.get_vector_parameter():
+                        node_name += "[" + str(node.get_vector_parameter()) + "]"
+
+                    code, message = Messages.get_spike_input_port_appears_outside_equation_rhs_and_event_handler(node_name)
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR)
 

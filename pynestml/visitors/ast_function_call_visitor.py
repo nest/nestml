@@ -53,6 +53,26 @@ class ASTFunctionCallVisitor(ASTVisitor):
         function_name = node.get_function_call().get_name()
         method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
 
+        # return type of the convolve function is the type of the second parameter (the spike input buffer)
+        if function_name == PredefinedFunctions.CONVOLVE:
+            buffer_parameter = node.get_function_call().get_args()[1]
+
+            if buffer_parameter.get_variable() is not None:
+                if not buffer_parameter.get_variable().get_attribute():
+                    # an attribute is missing for the spiking input port
+                    code, message = Messages.get_spike_input_port_attribute_missing(buffer_name)
+                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                       log_level=LoggingLevel.ERROR)
+                    node.type = ErrorTypeSymbol()
+                    return
+
+                buffer_name = buffer_parameter.get_variable().get_name() + "." + str(buffer_parameter.get_variable().get_attribute())
+                buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
+
+                assert buffer_symbol_resolve is not None
+                node.type = buffer_symbol_resolve.get_type_symbol()
+                return
+
         # check if this is a delay variable
         symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())
         if method_symbol is None and symbol is not None:
@@ -91,24 +111,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
                 return_type = ErrorTypeSymbol()
 
         return_type.referenced_object = node
-
-        # return type of the convolve function is the type of the second parameter multiplied by the unit of time (s)
-        if function_name == PredefinedFunctions.CONVOLVE:
-            buffer_parameter = node.get_function_call().get_args()[1]
-
-            if buffer_parameter.get_variable() is not None:
-                buffer_name = buffer_parameter.get_variable().get_name()
-                buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
-                if buffer_symbol_resolve is not None:
-                    node.type = buffer_symbol_resolve.get_type_symbol() * UnitTypeSymbol(PredefinedUnits.get_unit("s"))
-                    return
-
-            # getting here means there is an error with the parameters to convolve
-            code, message = Messages.get_convolve_needs_buffer_parameter()
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-            node.type = ErrorTypeSymbol()
-            return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
             code, message = Messages.get_void_function_on_rhs(function_name)

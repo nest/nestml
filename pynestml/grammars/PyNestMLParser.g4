@@ -101,18 +101,21 @@ parser grammar PyNestMLParser;
   logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
   /**
-    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    ASTVariable: A variable used in expressions. Can optionally be a vector, have a differential order, and attributes.
+
+    If it is a vector, the square brackets contain a variable declaration (used for example as in ``onReceive(my_vector_input_port[i integer])``).
+
     @attribute name: The name of the variable without the differential order, e.g. V_m
     @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptors]'.
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
   variable : name=NAME
-  (LEFT_SQUARE_BRACKET vectorParameter=expression RIGHT_SQUARE_BRACKET)?
-  (DIFFERENTIAL_ORDER)*
-  (FULLSTOP attribute=variable)?;
+             (LEFT_SQUARE_BRACKET vectorParameter=expressionOrParameter RIGHT_SQUARE_BRACKET)?
+             (DIFFERENTIAL_ORDER)*
+             (FULLSTOP attribute=variable)?;
 
   /**
-    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
+    ASTFunctionCall: Represents a function call, e.g. ``myFun("a", "b")``.
     @attribute calleeName: The (qualified) name of the functions
     @attribute args: Comma separated list of expressions representing parameters.
   */
@@ -170,7 +173,7 @@ parser grammar PyNestMLParser;
     (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?
     decorator=anyDecorator*;
 
-  declaration_newline: declaration NEWLINE;
+  declaration_newline : declaration NEWLINE;
 
   /** ...
   */
@@ -213,7 +216,7 @@ parser grammar PyNestMLParser;
   /** ASTNestMLCompilationUnit represents a collection of models.
     @attribute model: A list of processed models.
   */
-  nestMLCompilationUnit: ( model | NEWLINE )+ EOF;
+  nestMLCompilationUnit : ( model | NEWLINE )+ EOF;
 
 /*********************************************************************************************************************
   * NestML model and model blocks
@@ -233,19 +236,19 @@ parser grammar PyNestMLParser;
     @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute function: A block declaring a user-defined function.
   */
-  modelBody: COLON
+  modelBody : COLON
          NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
 
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics
    */
-  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortVariable=variable (COMMA constParameter)* RIGHT_PAREN COLON
+  onReceiveBlock : ON_RECEIVE_KEYWORD LEFT_PAREN inputPortVariable=variable (COMMA constParameter)* RIGHT_PAREN COLON
                 block;
 
   /** ASTOnConditionBlock
      @attribute block implementation of the dynamics
    */
-  onConditionBlock: ON_CONDITION_KEYWORD LEFT_PAREN condition=expression (COMMA constParameter)* RIGHT_PAREN COLON
+  onConditionBlock : ON_CONDITION_KEYWORD LEFT_PAREN condition=expression (COMMA constParameter)* RIGHT_PAREN COLON
                 block;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
@@ -257,7 +260,7 @@ parser grammar PyNestMLParser;
     @attribute internals: True iff the varblock is a state internals block.
     @attribute declaration: A list of corresponding declarations.
   */
-  blockWithVariables:
+  blockWithVariables :
     blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD)
     COLON
       NEWLINE INDENT declaration_newline+ DEDENT;
@@ -268,14 +271,14 @@ parser grammar PyNestMLParser;
               integrate(V)
      @attribute block Implementation of the dynamics.
    */
-  updateBlock: UPDATE_KEYWORD COLON
+  updateBlock : UPDATE_KEYWORD COLON
                 block;
 
   /** ASTEquationsBlock A block declaring equations and inline expressions.
      @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
    */
-  equationsBlock: EQUATIONS_KEYWORD COLON
+  equationsBlock : EQUATIONS_KEYWORD COLON
                    NEWLINE INDENT ( inlineExpression | odeEquation | kernel )+ DEDENT;
 
   /** ASTInputBlock represents a single input block, e.g.:
@@ -284,8 +287,8 @@ parser grammar PyNestMLParser;
         current_in pA <- continuous
     @attribute inputPort: A list of input ports.
   */
-  inputBlock: INPUT_KEYWORD COLON
-              NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
+  inputBlock : INPUT_KEYWORD COLON
+               NEWLINE INDENT (spikeInputPort | continuousInputPort)+ DEDENT;
 
   /** ASTInputPort represents a single input port, e.g.:
       spike_in[3] <- spike
@@ -296,12 +299,12 @@ parser grammar PyNestMLParser;
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous-time input.
   */
-  spikeInputPort:
+  spikeInputPort :
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
     LEFT_ANGLE_MINUS SPIKE_KEYWORD (LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN)? NEWLINE;
 
-  continuousInputPort:
+  continuousInputPort :
     name = NAME
     (LEFT_SQUARE_BRACKET sizeParameter=expression RIGHT_SQUARE_BRACKET)?
     dataType
@@ -314,7 +317,7 @@ parser grammar PyNestMLParser;
       @attribute isSpike: true if and only if the neuron has a spike output.
       @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
-  outputBlock: OUTPUT_KEYWORD COLON
+  outputBlock : OUTPUT_KEYWORD COLON
                NEWLINE INDENT (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD)
                (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?
                NEWLINE DEDENT;
@@ -327,7 +330,7 @@ parser grammar PyNestMLParser;
     @attribute returnType: An arbitrary return type, e.g. string or mV.
     @attribute block: Implementation of the function.
   */
-  function: FUNCTION_KEYWORD NAME LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN (returnType=dataType)?
+  function : FUNCTION_KEYWORD NAME LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN (returnType=dataType)?
            COLON
              block
            ;
@@ -339,12 +342,14 @@ parser grammar PyNestMLParser;
   */
   parameter : NAME dataType;
 
+  expressionOrParameter : parameter | expression;
+
   /** ASTConstParameter represents a single parameter consisting of a name and a literal default value, e.g. "foo=42".
     @attribute name: The name of the parameter.
     @attribute value: The corresponding default value.
   */
   constParameter : name=NAME EQUALS value=(BOOLEAN_LITERAL
-                                      | UNSIGNED_INTEGER
-                                      | FLOAT
-                                      | STRING_LITERAL
-                                      | INF_KEYWORD);
+                                          | UNSIGNED_INTEGER
+                                          | FLOAT
+                                          | STRING_LITERAL
+                                          | INF_KEYWORD);

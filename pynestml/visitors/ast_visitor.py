@@ -1302,6 +1302,8 @@ class ASTVisitor:
     def traverse_on_receive_block(self, node):
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
+        if node.input_port_variable is not None:
+            node.input_port_variable.accept(self.get_real_self())
 
     def traverse_on_condition_block(self, node):
         if node.get_cond_expr() is not None:

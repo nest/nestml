@@ -410,6 +410,13 @@ class TestCoCos:
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoInputPortsIllegalMissingAttribute.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
 
+    def test_valid_co_co_on_receive_vectors_should_be_constant_size(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoOnReceiveVectorsShouldBeConstantSize.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
+
+    def test_invalid_co_co_on_receive_vectors_should_be_constant_size(self):
+        model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoOnReceiveVectorsShouldBeConstantSize.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) > 0
 
     def _parse_and_validate_model(self, fname: str) -> Optional[str]:
         from pynestml.frontend.pynestml_frontend import generate_target

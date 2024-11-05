@@ -54,6 +54,7 @@ from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpac
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
+from pynestml.cocos.co_co_on_receive_vectors_should_be_constant_size import CoCoOnReceiveVectorsShouldBeConstantSize
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
@@ -421,6 +422,13 @@ class CoCosManager:
         CoCoVectorInputPortsCorrectSizeType.check_co_co(model)
 
     @classmethod
+    def check_on_receive_vectors_should_be_constant_size(cls, model: ASTModel):
+        """
+        :param model: a single model object
+        """
+        CoCoOnReceiveVectorsShouldBeConstantSize.check_co_co(model)
+
+    @classmethod
     def check_co_co_nest_random_functions_legally_used(cls, model: ASTModel):
         """
         Checks if the random number functions are used only in the update block.
@@ -476,12 +484,12 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
+            cls.check_expression_correct(model)
             if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
         cls.check_convolve_has_correct_parameter(model)
-        cls.check_expression_correct(model)
         cls.check_simple_delta_function(model)
         cls.check_function_argument_template_types_consistent(model)
         cls.check_vector_parameter_declaration(model)

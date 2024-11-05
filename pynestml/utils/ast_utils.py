@@ -50,6 +50,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
@@ -1366,8 +1367,8 @@ class ASTUtils:
 
     @classmethod
     def construct_kernel_X_spike_buf_name(cls, kernel_var_name: str, spike_input_port: ASTInputPort, order: int,
-                                          diff_order_symbol="__d", suffix=""):
-        """
+                                          diff_order_symbol="__d", suffix="", attribute: Optional[str] = None):
+        r"""
         Construct a kernel-buffer name as <KERNEL_NAME__X__INPUT_PORT_NAME>
 
         For example, if the kernel is
@@ -1396,7 +1397,12 @@ class ASTUtils:
             if spike_input_port.has_vector_parameter():
                 spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
 
-        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + diff_order_symbol * order + suffix
+        if attribute is not None:
+            attribute = "__DOT__" + attribute
+        else:
+            attribute = ""
+
+        return kernel_var_name.replace("$", "__DOLLAR") + suffix + "__X__" + spike_input_port_name + attribute + diff_order_symbol * order + suffix
 
     @classmethod
     def replace_rhs_variable(cls, expr: ASTExpression, variable_name_to_replace: str, kernel_var: ASTVariable,
@@ -2132,8 +2138,9 @@ class ASTUtils:
             for kernel_var in kernel.get_variables():
                 expr = cls.get_expr_from_kernel_var(kernel, kernel_var.get_complete_name())
                 kernel_order = kernel_var.get_differential_order()
+                attribute = spike_input_port.get_variable().get_attribute()
                 kernel_X_spike_buf_name_ticks = cls.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'")
+                    kernel_var.get_name(), spike_input_port, kernel_order, diff_order_symbol="'", attribute=attribute)
 
                 cls.replace_rhs_variables(expr, kernel_buffers)
 
@@ -2346,7 +2353,7 @@ class ASTUtils:
 
                 _expr.set_function_call(None)
                 buffer_var = cls.construct_kernel_X_spike_buf_name(
-                    var.get_name(), spike_input_port, var.get_differential_order() - 1)
+                    var.get_name(), spike_input_port, var.get_differential_order() - 1, attribute=spike_input_port.get_attribute())
                 if cls.is_delta_kernel(kernel):
                     # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
                     _expr.set_variable(None)
@@ -2585,3 +2592,7 @@ class ASTUtils:
             s += str(variable.get_vector_parameter())
 
         return s
+
+    @classmethod
+    def is_parameter(cls, variable) -> str:
+        return isinstance(variable, ASTParameter)

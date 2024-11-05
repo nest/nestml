@@ -51,7 +51,7 @@ model input_ports:
         bar += 2 * AMPA_spikes.weight
 
     onReceive(GABA_spikes):
-        bar += GABA_spikes.weight
+        bar += 3 * GABA_spikes.weight
 
     onReceive(foo[0]):
         foo_spikes += foo[0].weight
@@ -60,10 +60,13 @@ model input_ports:
         foo_spikes += 5.5 * foo[1].weight
 
     onReceive(my_spikes[0]):
+        print("SPIKE RECEIVED 1")
         my_spikes_ip += my_spikes[0].weight
 
     onReceive(my_spikes[1]):
-        my_spikes_ip += my_spikes[0].weight
+        print("SPIKE RECEIVED 2")
+        my_spikes_ip += my_spikes[1].weight
 
     onReceive(my_spikes2[1]):
+        print("SPIKE RECEIVED 3")
         my_spikes_ip -= my_spikes2[1].weight

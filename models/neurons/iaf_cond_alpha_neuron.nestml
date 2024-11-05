@@ -41,14 +41,14 @@ model iaf_cond_alpha_neuron:
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        kernel g_inh = (e/tau_syn_inh) * t * exp(-t/tau_syn_inh)
-        kernel g_exc = (e/tau_syn_exc) * t * exp(-t/tau_syn_exc)
+        kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
+        kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
-        inline I_leak pA = g_L * ( V_m - E_L )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * (V_m - E_exc)
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes.weight) * (V_m - E_inh)
+        inline I_leak pA = g_L * (V_m - E_L)
 
-        V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+        V_m' = (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
@@ -68,8 +68,8 @@ model iaf_cond_alpha_neuron:
         I_e pA = 0 pA
 
     input:
-        exc_spikes <- spike
-        inh_spikes <- spike
+        exc_spikes <- spike(weight nS)
+        inh_spikes <- spike(weight nS)
         I_stim pA <- continuous
 
     output:

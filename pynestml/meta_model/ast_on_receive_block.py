@@ -89,7 +89,7 @@ class ASTOnReceiveBlock(ASTNode):
         Returns the children of this node, if any.
         :return: List of children of this node.
         """
-        return [self.get_block()]
+        return [self.get_input_port_variable(), self.get_block()]
 
     def equals(self, other: ASTNode) -> bool:
         r"""

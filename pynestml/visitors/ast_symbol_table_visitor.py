@@ -25,6 +25,8 @@ from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -181,6 +183,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_block().update_scope(scope)
+
+        # if node.input_port_variable:
+        #     node.input_port_variable.update_scope(node.get_scope())
+
 
     def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
@@ -484,10 +490,39 @@ class ASTSymbolTableVisitor(ASTVisitor):
         #             node.get_parent().type = actual_type
         #             print("reassigned data type of " + str(node) + " to " + str(node.data_type))
 
-
         if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
             node.get_vector_parameter().accept(self)
+
+            # if ASTUtils.vector_parameter_is_variable(node.get_vector_parameter()):
+            #     symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
+            #                             block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
+            #                             is_predefined=False, is_inline_expression=False, is_recordable=False,
+            #                             type_symbol=type_symbol, variable_type=VariableType.BUFFER)
+            #     symbol.set_comment(node.get_comment())
+            #     node.get_scope().add_symbol(symbol)
+
+            print("in symboltablevisitor : variable is  " + str(node.get_vector_parameter()))
+
+            if isinstance(node.get_vector_parameter(), ASTParameter):
+                # vector parameter is a declaration
+                print("in symboltablevisitor : \tvector parameter is a declaration: adding " + node.get_vector_parameter().get_name())
+                symbol = VariableSymbol(element_reference=node,
+                                        scope=node.get_scope(),
+                                        name=node.get_vector_parameter().get_name(),
+                                        block_type=BlockType.ON_RECEIVE,
+                                        declaring_expression=None,
+                                        is_predefined=False,
+                                        is_inline_expression=False,
+                                        is_recordable=False,
+                                        type_symbol=node.get_vector_parameter().get_data_type(),
+                                        initial_value=None,
+                                        vector_parameter=None,
+                                        variable_type=VariableType.VARIABLE,
+                                        decorators=None,
+                                        namespace_decorators=None)
+                symbol.set_comment(node.get_vector_parameter().get_comment())
+                node.get_parent().get_scope().add_symbol(symbol)
 
     def visit_inline_expression(self, node: ASTInlineExpression):
         """

@@ -49,13 +49,6 @@ class ASTVariableVisitor(ASTVisitor):
 
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
-            # print("var_resolve.attribute is " + str(var_resolve.attribute))
-
-            # if var_resolve.attribute:
-            #     import pdb;pdb.set_trace()
-            #     node.type = var_resolve.attribute.get_type_symbol()
-            #     print("Setting type according to attribute: " + str(var_resolve.attribute) + " = " + str(node.type))
-            # else:
             node.type = var_resolve.get_type_symbol()
             node.type.referenced_object = node
             return

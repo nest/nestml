@@ -1,6 +1,12 @@
 """
-CoCoAssignmentToInlineExpression.nestml
-#######################################
+CoCoOnReceiveVectorsShouldBeConstantSize.nestml
+###############################################
+
+
+Description
++++++++++++
+
+This test is used to test the usage of onReceive blocks for vector ports of variable length.
 
 
 Copyright statement
@@ -23,16 +29,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model CoCoAssignmentToInlineExpression:
-    parameters:
-        tau_syn ms = 10 ms
+model CoCoOnReceiveVectorsShouldBeConstantSize:
+    state:
+        GABA_spikes_sum real = 0
 
-    equations:
-        kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
-        inline foo real = convolve(alpha_kernel, spikes_in.weight)
+    parameters:
+        N_buf integer = 5
 
     input:
-        spikes_in <- spike(weight real)
+        GABA_spikes[N_buf] <- spike(weight real)
 
-    update:
-        foo = 42.
+    onReceive(GABA_spikes[i integer]):
+        GABA_spikes_sum += GABA_spikes[i].weight

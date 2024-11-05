@@ -63,6 +63,7 @@ class BlockType(Enum):
     INPUT = 7
     OUTPUT = 8
     PREDEFINED = 9
+    ON_RECEIVE = 10
 
 
 class VariableSymbol(Symbol):

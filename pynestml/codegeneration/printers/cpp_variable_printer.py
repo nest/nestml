@@ -34,8 +34,6 @@ class CppVariablePrinter(VariablePrinter):
         :param variable_name: a single name.
         :return: a string representation
         """
-        if "'" in variable_name:
-            import pdb;pdb.set_trace()
         differential_order = variable_name.count("\"")
         if differential_order > 0:
             return variable_name.replace(".", "__DOT__").replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order

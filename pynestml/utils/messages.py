@@ -1384,7 +1384,7 @@ class Messages:
 
     @classmethod
     def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
-        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in the definition of an onReceive block!"
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
         return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
 
     @classmethod
@@ -1396,3 +1396,8 @@ class Messages:
     def get_spike_input_port_attribute_missing(cls, name: str):
         message = "Spiking input port '" + name + "' reference is missing attribute."
         return MessageCode.SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE, message
+
+    @classmethod
+    def get_vector_input_ports_should_be_of_constant_size(cls):
+        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
+        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
