@@ -181,10 +181,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_scope().add_scope(scope)
         node.get_block().update_scope(scope)
 
-        # if node.input_port_variable:
-        #     node.input_port_variable.update_scope(node.get_scope())
-
-
     def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
 

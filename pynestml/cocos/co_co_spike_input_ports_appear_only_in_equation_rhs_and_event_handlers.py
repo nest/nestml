@@ -83,8 +83,7 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
                             return
                     except ValueError:
                         # in case vector parameter was not an integer numeral
-                        return # XXX: DO MORE CHECKS!
-                        pass
+                        return    # XXX: DO MORE CHECKS!
 
                 if isinstance(_node, ASTOdeEquation):
                     # spike input port was used inside the rhs of an equation; everything is OK

@@ -234,20 +234,19 @@ class AutodocBuilder(Builder):
         spikegenerator = nest.Create("spike_generator",
                                      params={"spike_times": spike_times, "spike_weights":   spike_weights})
 
-
         nest.Connect(spikegenerator, neuron1, syn_spec=syn_spec)
         if len(neuron2.get("receptor_types")) > 1:
             # this NESTML neuron is written as having separate input ports for excitatory and inhibitory spikes
             spikegenerator_exc = nest.Create("spike_generator",
-                                         params={"spike_times": spike_times,
-                                                 "spike_weights": spike_weights})
+                                             params={"spike_times": spike_times,
+                                                     "spike_weights": spike_weights})
             spikegenerator_inh = nest.Create("spike_generator",
-                                         params={"spike_times": spike_times,
-                                                 "spike_weights": spike_weights})
+                                             params={"spike_times": spike_times,
+                                                     "spike_weights": spike_weights})
             nest.Connect(spikegenerator_exc, neuron2, syn_spec=syn_spec | {"receptor_type": neuron2.get("receptor_type")["EXC_SPIKES"]})
             spikegenerator_inh = nest.Create("spike_generator",
-                                         params={"spike_times": spike_times,
-                                                 "spike_weights": spike_weights})
+                                             params={"spike_times": spike_times,
+                                                     "spike_weights": spike_weights})
             nest.Connect(spikegenerator_inh, neuron2, syn_spec=syn_spec | {"receptor_type": neuron2.get("receptor_type")["INH_SPIKES"]})
         else:
             # this NESTML neuron is written as having one input port for excitatory and inhibitory spikes (with sign of the weight telling the difference)

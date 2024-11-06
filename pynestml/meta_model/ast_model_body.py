@@ -151,7 +151,7 @@ class ASTModelBody(ASTNode):
 
     def get_on_receive_block(self, port_name) -> Optional[ASTOnReceiveBlock]:
         for elem in self.get_body_elements():
-            assert not "." in elem.input_port_variable.name # XXX REMOVE
+            assert not "." in elem.input_port_variable.name    # XXX REMOVE
             if isinstance(elem, ASTOnReceiveBlock) and elem.input_port_variable.name == port_name:
                 return elem
 
