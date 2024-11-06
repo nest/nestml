@@ -650,7 +650,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         assert node.is_spike()
 
-        if len(node.parameters) == 0:
+        if node.parameters is None or len(node.parameters) == 0:
             type_symbol = ErrorTypeSymbol()   # not allowed to use a bare spike input port name in expressions etc.
         else:
             for parameter in node.parameters:
