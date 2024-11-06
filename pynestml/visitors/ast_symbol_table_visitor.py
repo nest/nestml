@@ -58,9 +58,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Used to visit a single model and create the corresponding global as well as local scopes.
         """
         Logger.set_current_node(node)
-        code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.DEBUG)
         scope = Scope(scope_type=ScopeType.GLOBAL,
                       source_position=node.get_source_position())
         node.update_scope(scope)

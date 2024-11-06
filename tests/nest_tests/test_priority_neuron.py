@@ -72,8 +72,8 @@ class TestNeuronPriority:
                                           port1_spike_times=port1_spike_times,
                                           port2_spike_times=port2_spike_times)
 
-        np.testing.assert_allclose(tr, 4.14159)
-        np.testing.assert_allclose(tr_inv, 6.28318)
+        np.testing.assert_allclose(tr, 1 + np.pi)
+        np.testing.assert_allclose(tr_inv, 2 * np.pi)
 
     def run_nest_simulation(self, neuron_model_name,
                             resolution=1.,  # [ms]

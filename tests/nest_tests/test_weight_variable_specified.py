@@ -112,9 +112,9 @@ class TestSynapseWeightGetSet:
         syn.w = 123.
         np.testing.assert_allclose(syn[0].get("w"), 123.)
         np.testing.assert_allclose(syn[0].get("weight"), 123.)
-        syn.weight = 3.14159
-        np.testing.assert_allclose(syn[0].get("w"), 3.14159)
-        np.testing.assert_allclose(syn[0].get("weight"), 3.14159)
+        syn.weight = np.pi
+        np.testing.assert_allclose(syn[0].get("w"), np.pi)
+        np.testing.assert_allclose(syn[0].get("weight"), np.pi)
 
     def test_synapse_weight_set_status_alt(self):
         nest.ResetKernel()
@@ -129,9 +129,9 @@ class TestSynapseWeightGetSet:
         syn.w = 123.
         np.testing.assert_allclose(syn[0].get("w"), 123.)
         np.testing.assert_allclose(syn[0].get("weight"), 123.)
-        syn.weight = 3.14159
-        np.testing.assert_allclose(syn[0].get("w"), 3.14159)
-        np.testing.assert_allclose(syn[0].get("weight"), 3.14159)
+        syn.weight = np.pi
+        np.testing.assert_allclose(syn[0].get("w"), np.pi)
+        np.testing.assert_allclose(syn[0].get("weight"), np.pi)
 
     @pytest.mark.parametrize("synapse_model_name", ["weight_test_plastic_synapse_nestml"])
     def test_synapse_weight(self, synapse_model_name: str):
