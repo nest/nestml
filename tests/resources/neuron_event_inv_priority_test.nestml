@@ -45,4 +45,4 @@ model event_inv_priority_test_neuron:
         tr += 1.
 
     onReceive(in_port2, priority=1):
-        tr *= 3.14159
+        tr *= pi

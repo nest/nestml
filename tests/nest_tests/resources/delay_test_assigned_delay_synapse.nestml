@@ -11,7 +11,7 @@ model delay_test_assigned_delay_synapse:
     pre_spikes <- spike
 
   output:
-    spike
+    spike(weight real, delay ms)
 
   onReceive(pre_spikes):
     d = 2 ms       # not allowed!

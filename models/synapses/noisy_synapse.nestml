@@ -17,7 +17,7 @@ model noisy_synapse:
         pre_spikes <- spike
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(pre_spikes):
         # temporary variable for the "weight" that will be transmitted
