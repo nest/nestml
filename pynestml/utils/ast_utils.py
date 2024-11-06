@@ -25,6 +25,7 @@ import re
 import sympy
 
 import odetoolbox
+from sympy import false
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
@@ -138,7 +139,21 @@ class ASTUtils:
         for var in variables_list:
             if var in variables_to_filter_by:
                 ret.append(var)
+                # Add higher order variables of var if not already in the filter list
+                ret.extend(cls.get_higher_order_variables(var, variables_list, variables_to_filter_by))
+        return ret
 
+    @classmethod
+    def get_higher_order_variables(cls, var, variables_list, variables_to_filter_by) -> List[str]:
+        """
+        Returns a list of higher order state variables of ``var`` from the ``variables_list`` that are not already present in ``variables_to_filter_by``.
+        """
+        ret = []
+        for v in variables_list:
+            order = v.count('__d')
+            if order > 0:
+                if v.split("__d")[0] == var and v not in variables_to_filter_by:
+                    ret.append(v)
         return ret
 
     @classmethod
