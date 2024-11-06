@@ -49,4 +49,4 @@ model event_inv_priority_test_synapse:
         emit_spike(1., d)
 
     onReceive(post_spikes, priority=1):
-        tr *= 3.14159
+        tr *= pi

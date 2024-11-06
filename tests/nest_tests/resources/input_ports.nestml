@@ -60,11 +60,9 @@ model input_ports:
         foo_spikes += 5.5 * foo[1].weight
 
     onReceive(my_spikes[0]):
-        print("SPIKE RECEIVED 1")
         my_spikes_ip += my_spikes[0].weight
 
     onReceive(my_spikes[1]):
-        print("SPIKE RECEIVED 2")
         my_spikes_ip += my_spikes[1].weight
 
     onReceive(my_spikes2[1]):

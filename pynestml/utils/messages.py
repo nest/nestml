@@ -35,7 +35,6 @@ class MessageCode(Enum):
     A mapping between codes and the corresponding messages.
     """
     START_PROCESSING_FILE = 0
-    START_SYMBOL_TABLE_BUILDING = 1
     FUNCTION_CALL_TYPE_ERROR = 2
     TYPE_NOT_DERIVABLE = 3
     IMPLICIT_CAST = 4
@@ -141,8 +140,9 @@ class MessageCode(Enum):
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
     CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
-    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 118
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 119
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 118
+    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 119
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 120
 
 
 class Messages:
@@ -225,15 +225,6 @@ class Messages:
         message = 'Implicit magnitude conversion from %s to %s with factor %s ' % (
             lhs.print_symbol(), rhs.print_symbol(), conversion_factor)
         return MessageCode.IMPLICIT_CAST, message
-
-    @classmethod
-    def get_start_building_symbol_table(cls):
-        """
-        Returns a message that the building for a model has been started.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        return MessageCode.START_SYMBOL_TABLE_BUILDING, 'Start building symbol table!'
 
     @classmethod
     def get_function_call_implicit_cast(
@@ -1386,6 +1377,11 @@ class Messages:
     def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
         message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
         return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
+    def get_continuous_output_port_cannot_have_attributes(cls):
+        message = "continuous time output port may not have attributes."
+        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
 
     @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls):

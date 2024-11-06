@@ -122,8 +122,8 @@ For example:
 .. code-block:: nestml
 
    parameters:
-       a real = 3.14159   @homogeneous
-       b real = 100.      @heterogeneous  # the default!
+       a real = pi        @homogeneous
+       b integer = 42     @heterogeneous  # the default!
 
 
 Third-factor plasticity
