@@ -138,6 +138,7 @@ lexer grammar PyNestMLLexer;
   DOUBLE_COLON : '::';
   SEMICOLON : ';';
   DIFFERENTIAL_ORDER : '\'';
+  FULLSTOP : '.';
 
 
   /**
@@ -174,8 +175,8 @@ lexer grammar PyNestMLLexer;
 
   FLOAT : POINT_FLOAT | EXPONENT_FLOAT;
 
-  fragment POINT_FLOAT : UNSIGNED_INTEGER? '.' UNSIGNED_INTEGER
-                       | UNSIGNED_INTEGER '.'
+  fragment POINT_FLOAT : UNSIGNED_INTEGER? FULLSTOP UNSIGNED_INTEGER
+                       | UNSIGNED_INTEGER FULLSTOP
                        ;
 
   fragment EXPONENT_FLOAT: ( UNSIGNED_INTEGER | POINT_FLOAT ) [eE] EXPONENT ;

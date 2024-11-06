@@ -56,7 +56,7 @@ model neuromodulated_stdp_synapse:
         mod_spikes <- spike
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(mod_spikes):
         n += 1. / tau_n

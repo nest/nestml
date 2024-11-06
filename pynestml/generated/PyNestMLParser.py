@@ -10,7 +10,7 @@ else:
 
 def serializedATN():
     return [
-        4,1,90,598,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
+        4,1,91,628,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
         6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,
         2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,
         7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,
@@ -52,17 +52,20 @@ def serializedATN():
         35,481,9,35,1,35,1,35,1,35,1,35,1,36,1,36,1,36,1,36,1,36,4,36,492,
         8,36,11,36,12,36,493,1,36,1,36,1,37,1,37,1,37,1,37,1,38,1,38,1,38,
         1,38,1,38,1,38,1,38,4,38,509,8,38,11,38,12,38,510,1,38,1,38,1,39,
-        1,39,1,39,1,39,1,39,1,39,4,39,521,8,39,11,39,12,39,522,1,39,1,39,
-        1,40,1,40,1,40,1,40,1,40,3,40,532,8,40,1,40,1,40,5,40,536,8,40,10,
-        40,12,40,539,9,40,1,40,1,40,1,40,1,41,1,41,1,41,1,41,1,41,3,41,549,
-        8,41,1,41,1,41,1,41,1,41,1,41,1,42,1,42,3,42,558,8,42,1,43,1,43,
-        1,43,1,43,1,43,1,43,3,43,566,8,43,1,43,1,43,1,43,1,44,1,44,1,44,
-        1,44,1,44,1,44,5,44,577,8,44,10,44,12,44,580,9,44,3,44,582,8,44,
-        1,44,1,44,3,44,586,8,44,1,44,1,44,1,44,1,45,1,45,1,45,1,46,1,46,
+        1,39,1,39,1,39,1,39,1,39,3,39,521,8,39,1,39,1,39,1,39,1,39,5,39,
+        527,8,39,10,39,12,39,530,9,39,3,39,532,8,39,1,39,3,39,535,8,39,4,
+        39,537,8,39,11,39,12,39,538,1,39,1,39,1,40,1,40,1,40,1,40,1,40,3,
+        40,548,8,40,1,40,1,40,5,40,552,8,40,10,40,12,40,555,9,40,1,40,1,
+        40,1,40,1,41,1,41,1,41,1,41,1,41,3,41,565,8,41,1,41,1,41,1,41,1,
+        41,1,41,1,42,1,42,3,42,574,8,42,1,43,1,43,1,43,1,43,1,43,1,43,1,
+        43,1,43,1,43,5,43,585,8,43,10,43,12,43,588,9,43,3,43,590,8,43,1,
+        43,3,43,593,8,43,1,43,3,43,596,8,43,1,43,1,43,1,43,1,44,1,44,1,44,
+        1,44,1,44,1,44,5,44,607,8,44,10,44,12,44,610,9,44,3,44,612,8,44,
+        1,44,1,44,3,44,616,8,44,1,44,1,44,1,44,1,45,1,45,1,45,1,46,1,46,
         1,46,1,46,1,46,0,2,2,6,47,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,
         30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,
-        74,76,78,80,82,84,86,88,90,92,0,4,2,0,51,51,75,75,1,0,89,90,1,0,
-        32,34,3,0,25,25,86,87,89,90,653,0,100,1,0,0,0,2,111,1,0,0,0,4,128,
+        74,76,78,80,82,84,86,88,90,92,0,4,2,0,51,51,75,75,1,0,90,91,1,0,
+        32,34,3,0,25,25,87,88,90,91,689,0,100,1,0,0,0,2,111,1,0,0,0,4,128,
         1,0,0,0,6,143,1,0,0,0,8,193,1,0,0,0,10,198,1,0,0,0,12,205,1,0,0,
         0,14,214,1,0,0,0,16,218,1,0,0,0,18,220,1,0,0,0,20,233,1,0,0,0,22,
         248,1,0,0,0,24,266,1,0,0,0,26,280,1,0,0,0,28,299,1,0,0,0,30,310,
@@ -71,21 +74,21 @@ def serializedATN():
         48,382,1,0,0,0,50,386,1,0,0,0,52,396,1,0,0,0,54,401,1,0,0,0,56,406,
         1,0,0,0,58,410,1,0,0,0,60,424,1,0,0,0,62,431,1,0,0,0,64,437,1,0,
         0,0,66,441,1,0,0,0,68,458,1,0,0,0,70,472,1,0,0,0,72,486,1,0,0,0,
-        74,497,1,0,0,0,76,501,1,0,0,0,78,514,1,0,0,0,80,526,1,0,0,0,82,543,
-        1,0,0,0,84,557,1,0,0,0,86,559,1,0,0,0,88,570,1,0,0,0,90,590,1,0,
-        0,0,92,593,1,0,0,0,94,101,5,10,0,0,95,101,5,11,0,0,96,101,5,12,0,
+        74,497,1,0,0,0,76,501,1,0,0,0,78,514,1,0,0,0,80,542,1,0,0,0,82,559,
+        1,0,0,0,84,573,1,0,0,0,86,575,1,0,0,0,88,600,1,0,0,0,90,620,1,0,
+        0,0,92,623,1,0,0,0,94,101,5,10,0,0,95,101,5,11,0,0,96,101,5,12,0,
         0,97,101,5,13,0,0,98,101,5,14,0,0,99,101,3,2,1,0,100,94,1,0,0,0,
         100,95,1,0,0,0,100,96,1,0,0,0,100,97,1,0,0,0,100,98,1,0,0,0,100,
         99,1,0,0,0,101,1,1,0,0,0,102,103,6,1,-1,0,103,104,5,49,0,0,104,105,
-        3,2,1,0,105,106,5,50,0,0,106,112,1,0,0,0,107,108,5,89,0,0,108,109,
-        5,79,0,0,109,112,3,2,1,2,110,112,5,88,0,0,111,102,1,0,0,0,111,107,
+        3,2,1,0,105,106,5,50,0,0,106,112,1,0,0,0,107,108,5,90,0,0,108,109,
+        5,79,0,0,109,112,3,2,1,2,110,112,5,89,0,0,111,102,1,0,0,0,111,107,
         1,0,0,0,111,110,1,0,0,0,112,124,1,0,0,0,113,116,10,3,0,0,114,117,
         5,77,0,0,115,117,5,79,0,0,116,114,1,0,0,0,116,115,1,0,0,0,117,118,
         1,0,0,0,118,123,3,2,1,4,119,120,10,4,0,0,120,121,5,78,0,0,121,123,
         3,4,2,0,122,113,1,0,0,0,122,119,1,0,0,0,123,126,1,0,0,0,124,122,
         1,0,0,0,124,125,1,0,0,0,125,3,1,0,0,0,126,124,1,0,0,0,127,129,7,
         0,0,0,128,127,1,0,0,0,128,129,1,0,0,0,129,130,1,0,0,0,130,131,5,
-        89,0,0,131,5,1,0,0,0,132,133,6,3,-1,0,133,134,5,49,0,0,134,135,3,
+        90,0,0,131,5,1,0,0,0,132,133,6,3,-1,0,133,134,5,49,0,0,134,135,3,
         6,3,0,135,136,5,50,0,0,136,144,1,0,0,0,137,138,3,10,5,0,138,139,
         3,6,3,9,139,144,1,0,0,0,140,141,5,28,0,0,141,144,3,6,3,4,142,144,
         3,8,4,0,143,132,1,0,0,0,143,137,1,0,0,0,143,140,1,0,0,0,143,142,
@@ -102,8 +105,8 @@ def serializedATN():
         148,1,0,0,0,179,155,1,0,0,0,179,161,1,0,0,0,179,165,1,0,0,0,179,
         169,1,0,0,0,179,173,1,0,0,0,180,183,1,0,0,0,181,179,1,0,0,0,181,
         182,1,0,0,0,182,7,1,0,0,0,183,181,1,0,0,0,184,194,3,20,10,0,185,
-        194,5,86,0,0,186,188,7,1,0,0,187,189,3,18,9,0,188,187,1,0,0,0,188,
-        189,1,0,0,0,189,194,1,0,0,0,190,194,5,87,0,0,191,194,5,25,0,0,192,
+        194,5,87,0,0,186,188,7,1,0,0,187,189,3,18,9,0,188,187,1,0,0,0,188,
+        189,1,0,0,0,189,194,1,0,0,0,190,194,5,88,0,0,191,194,5,25,0,0,192,
         194,3,18,9,0,193,184,1,0,0,0,193,185,1,0,0,0,193,186,1,0,0,0,193,
         190,1,0,0,0,193,191,1,0,0,0,193,192,1,0,0,0,194,9,1,0,0,0,195,199,
         5,51,0,0,196,199,5,75,0,0,197,199,5,52,0,0,198,195,1,0,0,0,198,196,
@@ -115,16 +118,16 @@ def serializedATN():
         213,215,5,64,0,0,214,207,1,0,0,0,214,208,1,0,0,0,214,209,1,0,0,0,
         214,210,1,0,0,0,214,211,1,0,0,0,214,212,1,0,0,0,214,213,1,0,0,0,
         215,15,1,0,0,0,216,219,5,26,0,0,217,219,5,27,0,0,218,216,1,0,0,0,
-        218,217,1,0,0,0,219,17,1,0,0,0,220,225,5,88,0,0,221,222,5,56,0,0,
+        218,217,1,0,0,0,219,17,1,0,0,0,220,225,5,89,0,0,221,222,5,56,0,0,
         222,223,3,6,3,0,223,224,5,58,0,0,224,226,1,0,0,0,225,221,1,0,0,0,
         225,226,1,0,0,0,226,230,1,0,0,0,227,229,5,85,0,0,228,227,1,0,0,0,
         229,232,1,0,0,0,230,228,1,0,0,0,230,231,1,0,0,0,231,19,1,0,0,0,232,
-        230,1,0,0,0,233,234,5,88,0,0,234,243,5,49,0,0,235,240,3,6,3,0,236,
+        230,1,0,0,0,233,234,5,89,0,0,234,243,5,49,0,0,235,240,3,6,3,0,236,
         237,5,74,0,0,237,239,3,6,3,0,238,236,1,0,0,0,239,242,1,0,0,0,240,
         238,1,0,0,0,240,241,1,0,0,0,241,244,1,0,0,0,242,240,1,0,0,0,243,
         235,1,0,0,0,243,244,1,0,0,0,244,245,1,0,0,0,245,246,5,50,0,0,246,
         21,1,0,0,0,247,249,5,29,0,0,248,247,1,0,0,0,248,249,1,0,0,0,249,
-        250,1,0,0,0,250,251,5,16,0,0,251,252,5,88,0,0,252,253,3,0,0,0,253,
+        250,1,0,0,0,250,251,5,16,0,0,251,252,5,89,0,0,252,253,3,0,0,0,253,
         254,5,76,0,0,254,256,3,6,3,0,255,257,5,84,0,0,256,255,1,0,0,0,256,
         257,1,0,0,0,257,261,1,0,0,0,258,260,3,42,21,0,259,258,1,0,0,0,260,
         263,1,0,0,0,261,259,1,0,0,0,261,262,1,0,0,0,262,264,1,0,0,0,263,
@@ -162,8 +165,8 @@ def serializedATN():
         0,0,0,366,367,3,38,19,0,367,368,5,9,0,0,368,41,1,0,0,0,369,377,5,
         45,0,0,370,377,5,46,0,0,371,372,5,47,0,0,372,373,3,44,22,0,373,374,
         5,83,0,0,374,375,3,46,23,0,375,377,1,0,0,0,376,369,1,0,0,0,376,370,
-        1,0,0,0,376,371,1,0,0,0,377,43,1,0,0,0,378,379,5,88,0,0,379,45,1,
-        0,0,0,380,381,5,88,0,0,381,47,1,0,0,0,382,384,5,17,0,0,383,385,3,
+        1,0,0,0,376,371,1,0,0,0,377,43,1,0,0,0,378,379,5,89,0,0,379,45,1,
+        0,0,0,380,381,5,89,0,0,381,47,1,0,0,0,382,384,5,17,0,0,383,385,3,
         6,3,0,384,383,1,0,0,0,384,385,1,0,0,0,385,49,1,0,0,0,386,390,3,52,
         26,0,387,389,3,54,27,0,388,387,1,0,0,0,389,392,1,0,0,0,390,388,1,
         0,0,0,390,391,1,0,0,0,391,394,1,0,0,0,392,390,1,0,0,0,393,395,3,
@@ -171,7 +174,7 @@ def serializedATN():
         18,0,0,397,398,3,6,3,0,398,399,5,82,0,0,399,400,3,28,14,0,400,53,
         1,0,0,0,401,402,5,19,0,0,402,403,3,6,3,0,403,404,5,82,0,0,404,405,
         3,28,14,0,405,55,1,0,0,0,406,407,5,20,0,0,407,408,5,82,0,0,408,409,
-        3,28,14,0,409,57,1,0,0,0,410,411,5,21,0,0,411,412,5,88,0,0,412,413,
+        3,28,14,0,409,57,1,0,0,0,410,411,5,21,0,0,411,412,5,89,0,0,412,413,
         5,23,0,0,413,414,3,6,3,0,414,415,5,48,0,0,415,416,3,6,3,0,416,418,
         5,24,0,0,417,419,5,75,0,0,418,417,1,0,0,0,418,419,1,0,0,0,419,420,
         1,0,0,0,420,421,7,1,0,0,421,422,5,82,0,0,422,423,3,28,14,0,423,59,
@@ -179,7 +182,7 @@ def serializedATN():
         3,28,14,0,428,61,1,0,0,0,429,432,3,64,32,0,430,432,5,9,0,0,431,429,
         1,0,0,0,431,430,1,0,0,0,432,433,1,0,0,0,433,431,1,0,0,0,433,434,
         1,0,0,0,434,435,1,0,0,0,435,436,5,0,0,1,436,63,1,0,0,0,437,438,5,
-        31,0,0,438,439,5,88,0,0,439,440,3,66,33,0,440,65,1,0,0,0,441,442,
+        31,0,0,438,439,5,89,0,0,439,440,3,66,33,0,440,65,1,0,0,0,441,442,
         5,82,0,0,442,443,5,9,0,0,443,452,5,1,0,0,444,453,3,72,36,0,445,453,
         3,76,38,0,446,453,3,78,39,0,447,453,3,86,43,0,448,453,3,88,44,0,
         449,453,3,68,34,0,450,453,3,70,35,0,451,453,3,74,37,0,452,444,1,
@@ -187,7 +190,7 @@ def serializedATN():
         0,0,0,452,449,1,0,0,0,452,450,1,0,0,0,452,451,1,0,0,0,453,454,1,
         0,0,0,454,452,1,0,0,0,454,455,1,0,0,0,455,456,1,0,0,0,456,457,5,
         2,0,0,457,67,1,0,0,0,458,459,5,40,0,0,459,460,5,49,0,0,460,465,5,
-        88,0,0,461,462,5,74,0,0,462,464,3,92,46,0,463,461,1,0,0,0,464,467,
+        89,0,0,461,462,5,74,0,0,462,464,3,92,46,0,463,461,1,0,0,0,464,467,
         1,0,0,0,465,463,1,0,0,0,465,466,1,0,0,0,466,468,1,0,0,0,467,465,
         1,0,0,0,468,469,5,50,0,0,469,470,5,82,0,0,470,471,3,28,14,0,471,
         69,1,0,0,0,472,473,5,41,0,0,473,474,5,49,0,0,474,479,3,6,3,0,475,
@@ -202,34 +205,43 @@ def serializedATN():
         3,22,11,0,506,509,3,24,12,0,507,509,3,26,13,0,508,505,1,0,0,0,508,
         506,1,0,0,0,508,507,1,0,0,0,509,510,1,0,0,0,510,508,1,0,0,0,510,
         511,1,0,0,0,511,512,1,0,0,0,512,513,5,2,0,0,513,77,1,0,0,0,514,515,
-        5,37,0,0,515,516,5,82,0,0,516,517,5,9,0,0,517,520,5,1,0,0,518,521,
+        5,37,0,0,515,516,5,82,0,0,516,517,5,9,0,0,517,536,5,1,0,0,518,521,
         3,80,40,0,519,521,3,82,41,0,520,518,1,0,0,0,520,519,1,0,0,0,521,
-        522,1,0,0,0,522,520,1,0,0,0,522,523,1,0,0,0,523,524,1,0,0,0,524,
-        525,5,2,0,0,525,79,1,0,0,0,526,531,5,88,0,0,527,528,5,56,0,0,528,
-        529,3,6,3,0,529,530,5,58,0,0,530,532,1,0,0,0,531,527,1,0,0,0,531,
-        532,1,0,0,0,532,533,1,0,0,0,533,537,5,57,0,0,534,536,3,84,42,0,535,
-        534,1,0,0,0,536,539,1,0,0,0,537,535,1,0,0,0,537,538,1,0,0,0,538,
-        540,1,0,0,0,539,537,1,0,0,0,540,541,5,42,0,0,541,542,5,9,0,0,542,
-        81,1,0,0,0,543,548,5,88,0,0,544,545,5,56,0,0,545,546,3,6,3,0,546,
-        547,5,58,0,0,547,549,1,0,0,0,548,544,1,0,0,0,548,549,1,0,0,0,549,
-        550,1,0,0,0,550,551,3,0,0,0,551,552,5,57,0,0,552,553,5,39,0,0,553,
-        554,5,9,0,0,554,83,1,0,0,0,555,558,5,43,0,0,556,558,5,44,0,0,557,
-        555,1,0,0,0,557,556,1,0,0,0,558,85,1,0,0,0,559,560,5,38,0,0,560,
-        561,5,82,0,0,561,562,5,9,0,0,562,565,5,1,0,0,563,566,5,42,0,0,564,
-        566,5,39,0,0,565,563,1,0,0,0,565,564,1,0,0,0,566,567,1,0,0,0,567,
-        568,5,9,0,0,568,569,5,2,0,0,569,87,1,0,0,0,570,571,5,15,0,0,571,
-        572,5,88,0,0,572,581,5,49,0,0,573,578,3,90,45,0,574,575,5,74,0,0,
-        575,577,3,90,45,0,576,574,1,0,0,0,577,580,1,0,0,0,578,576,1,0,0,
-        0,578,579,1,0,0,0,579,582,1,0,0,0,580,578,1,0,0,0,581,573,1,0,0,
-        0,581,582,1,0,0,0,582,583,1,0,0,0,583,585,5,50,0,0,584,586,3,0,0,
-        0,585,584,1,0,0,0,585,586,1,0,0,0,586,587,1,0,0,0,587,588,5,82,0,
-        0,588,589,3,28,14,0,589,89,1,0,0,0,590,591,5,88,0,0,591,592,3,0,
-        0,0,592,91,1,0,0,0,593,594,5,88,0,0,594,595,5,76,0,0,595,596,7,3,
-        0,0,596,93,1,0,0,0,63,100,111,116,122,124,128,143,152,158,179,181,
-        188,193,198,205,214,218,225,230,240,243,248,256,261,270,275,291,
-        295,304,310,315,321,331,336,339,346,352,358,363,376,384,390,394,
-        418,431,433,452,454,465,479,493,508,510,520,522,531,537,548,557,
-        565,578,581,585
+        534,1,0,0,0,522,531,5,49,0,0,523,528,3,90,45,0,524,525,5,74,0,0,
+        525,527,3,90,45,0,526,524,1,0,0,0,527,530,1,0,0,0,528,526,1,0,0,
+        0,528,529,1,0,0,0,529,532,1,0,0,0,530,528,1,0,0,0,531,523,1,0,0,
+        0,531,532,1,0,0,0,532,533,1,0,0,0,533,535,5,50,0,0,534,522,1,0,0,
+        0,534,535,1,0,0,0,535,537,1,0,0,0,536,520,1,0,0,0,537,538,1,0,0,
+        0,538,536,1,0,0,0,538,539,1,0,0,0,539,540,1,0,0,0,540,541,5,2,0,
+        0,541,79,1,0,0,0,542,547,5,89,0,0,543,544,5,56,0,0,544,545,3,6,3,
+        0,545,546,5,58,0,0,546,548,1,0,0,0,547,543,1,0,0,0,547,548,1,0,0,
+        0,548,549,1,0,0,0,549,553,5,57,0,0,550,552,3,84,42,0,551,550,1,0,
+        0,0,552,555,1,0,0,0,553,551,1,0,0,0,553,554,1,0,0,0,554,556,1,0,
+        0,0,555,553,1,0,0,0,556,557,5,42,0,0,557,558,5,9,0,0,558,81,1,0,
+        0,0,559,564,5,89,0,0,560,561,5,56,0,0,561,562,3,6,3,0,562,563,5,
+        58,0,0,563,565,1,0,0,0,564,560,1,0,0,0,564,565,1,0,0,0,565,566,1,
+        0,0,0,566,567,3,0,0,0,567,568,5,57,0,0,568,569,5,39,0,0,569,570,
+        5,9,0,0,570,83,1,0,0,0,571,574,5,43,0,0,572,574,5,44,0,0,573,571,
+        1,0,0,0,573,572,1,0,0,0,574,85,1,0,0,0,575,576,5,38,0,0,576,577,
+        5,82,0,0,577,578,5,9,0,0,578,595,5,1,0,0,579,592,5,42,0,0,580,589,
+        5,49,0,0,581,586,3,90,45,0,582,583,5,74,0,0,583,585,3,90,45,0,584,
+        582,1,0,0,0,585,588,1,0,0,0,586,584,1,0,0,0,586,587,1,0,0,0,587,
+        590,1,0,0,0,588,586,1,0,0,0,589,581,1,0,0,0,589,590,1,0,0,0,590,
+        591,1,0,0,0,591,593,5,50,0,0,592,580,1,0,0,0,592,593,1,0,0,0,593,
+        596,1,0,0,0,594,596,5,39,0,0,595,579,1,0,0,0,595,594,1,0,0,0,596,
+        597,1,0,0,0,597,598,5,9,0,0,598,599,5,2,0,0,599,87,1,0,0,0,600,601,
+        5,15,0,0,601,602,5,89,0,0,602,611,5,49,0,0,603,608,3,90,45,0,604,
+        605,5,74,0,0,605,607,3,90,45,0,606,604,1,0,0,0,607,610,1,0,0,0,608,
+        606,1,0,0,0,608,609,1,0,0,0,609,612,1,0,0,0,610,608,1,0,0,0,611,
+        603,1,0,0,0,611,612,1,0,0,0,612,613,1,0,0,0,613,615,5,50,0,0,614,
+        616,3,0,0,0,615,614,1,0,0,0,615,616,1,0,0,0,616,617,1,0,0,0,617,
+        618,5,82,0,0,618,619,3,28,14,0,619,89,1,0,0,0,620,621,5,89,0,0,621,
+        622,3,0,0,0,622,91,1,0,0,0,623,624,5,89,0,0,624,625,5,76,0,0,625,
+        626,7,3,0,0,626,93,1,0,0,0,69,100,111,116,122,124,128,143,152,158,
+        179,181,188,193,198,205,214,218,225,230,240,243,248,256,261,270,
+        275,291,295,304,310,315,321,331,336,339,346,352,358,363,376,384,
+        390,394,418,431,433,452,454,465,479,493,508,510,520,528,531,534,
+        538,547,553,564,573,586,589,592,595,608,611,615
     ]
 
 class PyNestMLParser ( Parser ):
@@ -257,7 +269,7 @@ class PyNestMLParser ( Parser ):
                      "'<<'", "'>>'", "'<'", "'>'", "'<='", "'+='", "'-='", 
                      "'*='", "'/='", "'=='", "'!='", "'<>'", "'>='", "','", 
                      "'-'", "'='", "'*'", "'**'", "'/'", "'%'", "'?'", "':'", 
-                     "'::'", "';'", "'''" ]
+                     "'::'", "';'", "'''", "'.'" ]
 
     symbolicNames = [ "<INVALID>", "INDENT", "DEDENT", "DOCSTRING_TRIPLEQUOTE", 
                       "KERNEL_JOINING", "WS", "LINE_ESCAPE", "DOCSTRING", 
@@ -283,8 +295,8 @@ class PyNestMLParser ( Parser ):
                       "RIGHT_ANGLE_EQUALS", "COMMA", "MINUS", "EQUALS", 
                       "STAR", "STAR_STAR", "FORWARD_SLASH", "PERCENT", "QUESTION", 
                       "COLON", "DOUBLE_COLON", "SEMICOLON", "DIFFERENTIAL_ORDER", 
-                      "BOOLEAN_LITERAL", "STRING_LITERAL", "NAME", "UNSIGNED_INTEGER", 
-                      "FLOAT" ]
+                      "FULLSTOP", "BOOLEAN_LITERAL", "STRING_LITERAL", "NAME", 
+                      "UNSIGNED_INTEGER", "FLOAT" ]
 
     RULE_dataType = 0
     RULE_unitType = 1
@@ -433,11 +445,12 @@ class PyNestMLParser ( Parser ):
     DOUBLE_COLON=83
     SEMICOLON=84
     DIFFERENTIAL_ORDER=85
-    BOOLEAN_LITERAL=86
-    STRING_LITERAL=87
-    NAME=88
-    UNSIGNED_INTEGER=89
-    FLOAT=90
+    FULLSTOP=86
+    BOOLEAN_LITERAL=87
+    STRING_LITERAL=88
+    NAME=89
+    UNSIGNED_INTEGER=90
+    FLOAT=91
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -525,7 +538,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 98
                 localctx.isVoid = self.match(PyNestMLParser.VOID_KEYWORD)
                 pass
-            elif token in [49, 88, 89]:
+            elif token in [49, 89, 90]:
                 self.enterOuterAlt(localctx, 6)
                 self.state = 99
                 localctx.unit = self.unitType(0)
@@ -624,7 +637,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 105
                 localctx.rightParentheses = self.match(PyNestMLParser.RIGHT_PAREN)
                 pass
-            elif token in [89]:
+            elif token in [90]:
                 self.state = 107
                 localctx.unitlessLiteral = self.match(PyNestMLParser.UNSIGNED_INTEGER)
                 self.state = 108
@@ -632,7 +645,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 109
                 localctx.right = self.unitType(2)
                 pass
-            elif token in [88]:
+            elif token in [89]:
                 self.state = 110
                 localctx.unit = self.match(PyNestMLParser.NAME)
                 pass
@@ -889,7 +902,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 141
                 localctx.term = self.expression(4)
                 pass
-            elif token in [25, 86, 87, 88, 89, 90]:
+            elif token in [25, 87, 88, 89, 90, 91]:
                 self.state = 142
                 self.simpleExpression()
                 pass
@@ -1121,7 +1134,7 @@ class PyNestMLParser ( Parser ):
                 self.enterOuterAlt(localctx, 3)
                 self.state = 186
                 _la = self._input.LA(1)
-                if not(_la==89 or _la==90):
+                if not(_la==90 or _la==91):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
@@ -1596,7 +1609,7 @@ class PyNestMLParser ( Parser ):
             self.state = 243
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 7318349696466944) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & 63489) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 7318349696466944) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & 126977) != 0):
                 self.state = 235
                 self.expression(0)
                 self.state = 240
@@ -1980,7 +1993,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 304 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 543621120) != 0) or _la==88):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 543621120) != 0) or _la==89):
                     break
 
             self.state = 306
@@ -2029,7 +2042,7 @@ class PyNestMLParser ( Parser ):
             self.state = 310
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [16, 17, 29, 88]:
+            if token in [16, 17, 29, 89]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 308
                 self.smallStmt()
@@ -2682,7 +2695,7 @@ class PyNestMLParser ( Parser ):
             self.state = 384
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 7318349696466944) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & 63489) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 7318349696466944) != 0) or ((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & 126977) != 0):
                 self.state = 383
                 self.expression(0)
 
@@ -3021,7 +3034,7 @@ class PyNestMLParser ( Parser ):
 
             self.state = 420
             _la = self._input.LA(1)
-            if not(_la==89 or _la==90):
+            if not(_la==90 or _la==91):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -3644,7 +3657,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 493 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==16 or _la==29 or _la==88):
+                if not (_la==16 or _la==29 or _la==89):
                     break
 
             self.state = 495
@@ -3789,7 +3802,7 @@ class PyNestMLParser ( Parser ):
                     self.state = 505
                     self.inlineExpression()
                     pass
-                elif token in [88]:
+                elif token in [89]:
                     self.state = 506
                     self.odeEquation()
                     pass
@@ -3803,7 +3816,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 510 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 1610678272) != 0) or _la==88):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & 1610678272) != 0) or _la==89):
                     break
 
             self.state = 512
@@ -3853,6 +3866,31 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.ContinuousInputPortContext,i)
 
 
+        def LEFT_PAREN(self, i:int=None):
+            if i is None:
+                return self.getTokens(PyNestMLParser.LEFT_PAREN)
+            else:
+                return self.getToken(PyNestMLParser.LEFT_PAREN, i)
+
+        def RIGHT_PAREN(self, i:int=None):
+            if i is None:
+                return self.getTokens(PyNestMLParser.RIGHT_PAREN)
+            else:
+                return self.getToken(PyNestMLParser.RIGHT_PAREN, i)
+
+        def parameter(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(PyNestMLParser.ParameterContext)
+            else:
+                return self.getTypedRuleContext(PyNestMLParser.ParameterContext,i)
+
+
+        def COMMA(self, i:int=None):
+            if i is None:
+                return self.getTokens(PyNestMLParser.COMMA)
+            else:
+                return self.getToken(PyNestMLParser.COMMA, i)
+
         def getRuleIndex(self):
             return PyNestMLParser.RULE_inputBlock
 
@@ -3880,7 +3918,7 @@ class PyNestMLParser ( Parser ):
             self.match(PyNestMLParser.NEWLINE)
             self.state = 517
             self.match(PyNestMLParser.INDENT)
-            self.state = 520 
+            self.state = 536 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
@@ -3898,13 +3936,43 @@ class PyNestMLParser ( Parser ):
                     pass
 
 
-                self.state = 522 
+                self.state = 534
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==88):
+                if _la==49:
+                    self.state = 522
+                    self.match(PyNestMLParser.LEFT_PAREN)
+                    self.state = 531
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if _la==89:
+                        self.state = 523
+                        self.parameter()
+                        self.state = 528
+                        self._errHandler.sync(self)
+                        _la = self._input.LA(1)
+                        while _la==74:
+                            self.state = 524
+                            self.match(PyNestMLParser.COMMA)
+                            self.state = 525
+                            self.parameter()
+                            self.state = 530
+                            self._errHandler.sync(self)
+                            _la = self._input.LA(1)
+
+
+
+                    self.state = 533
+                    self.match(PyNestMLParser.RIGHT_PAREN)
+
+
+                self.state = 538 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if not (_la==89):
                     break
 
-            self.state = 524
+            self.state = 540
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -3972,35 +4040,35 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 526
+            self.state = 542
             localctx.name = self.match(PyNestMLParser.NAME)
-            self.state = 531
+            self.state = 547
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==56:
-                self.state = 527
+                self.state = 543
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
-                self.state = 528
+                self.state = 544
                 localctx.sizeParameter = self.expression(0)
-                self.state = 529
+                self.state = 545
                 self.match(PyNestMLParser.RIGHT_SQUARE_BRACKET)
 
 
-            self.state = 533
+            self.state = 549
             self.match(PyNestMLParser.LEFT_ANGLE_MINUS)
-            self.state = 537
+            self.state = 553
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==43 or _la==44:
-                self.state = 534
+                self.state = 550
                 self.inputQualifier()
-                self.state = 539
+                self.state = 555
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 540
+            self.state = 556
             self.match(PyNestMLParser.SPIKE_KEYWORD)
-            self.state = 541
+            self.state = 557
             self.match(PyNestMLParser.NEWLINE)
         except RecognitionException as re:
             localctx.exception = re
@@ -4065,27 +4133,27 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 543
+            self.state = 559
             localctx.name = self.match(PyNestMLParser.NAME)
-            self.state = 548
+            self.state = 564
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==56:
-                self.state = 544
+                self.state = 560
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
-                self.state = 545
+                self.state = 561
                 localctx.sizeParameter = self.expression(0)
-                self.state = 546
+                self.state = 562
                 self.match(PyNestMLParser.RIGHT_SQUARE_BRACKET)
 
 
-            self.state = 550
+            self.state = 566
             self.dataType()
-            self.state = 551
+            self.state = 567
             self.match(PyNestMLParser.LEFT_ANGLE_MINUS)
-            self.state = 552
+            self.state = 568
             self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
-            self.state = 553
+            self.state = 569
             self.match(PyNestMLParser.NEWLINE)
         except RecognitionException as re:
             localctx.exception = re
@@ -4129,15 +4197,15 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 84, self.RULE_inputQualifier)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 557
+            self.state = 573
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [43]:
-                self.state = 555
+                self.state = 571
                 localctx.isInhibitory = self.match(PyNestMLParser.INHIBITORY_KEYWORD)
                 pass
             elif token in [44]:
-                self.state = 556
+                self.state = 572
                 localctx.isExcitatory = self.match(PyNestMLParser.EXCITATORY_KEYWORD)
                 pass
             else:
@@ -4159,6 +4227,7 @@ class PyNestMLParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
             self.isSpike = None # Token
+            self.attribute = None # ParameterContext
             self.isContinuous = None # Token
 
         def OUTPUT_KEYWORD(self):
@@ -4179,11 +4248,30 @@ class PyNestMLParser ( Parser ):
         def DEDENT(self):
             return self.getToken(PyNestMLParser.DEDENT, 0)
 
+        def CONTINUOUS_KEYWORD(self):
+            return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
+
         def SPIKE_KEYWORD(self):
             return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
 
-        def CONTINUOUS_KEYWORD(self):
-            return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
+        def LEFT_PAREN(self):
+            return self.getToken(PyNestMLParser.LEFT_PAREN, 0)
+
+        def RIGHT_PAREN(self):
+            return self.getToken(PyNestMLParser.RIGHT_PAREN, 0)
+
+        def parameter(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(PyNestMLParser.ParameterContext)
+            else:
+                return self.getTypedRuleContext(PyNestMLParser.ParameterContext,i)
+
+
+        def COMMA(self, i:int=None):
+            if i is None:
+                return self.getTokens(PyNestMLParser.COMMA)
+            else:
+                return self.getToken(PyNestMLParser.COMMA, i)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_outputBlock
@@ -4201,33 +4289,64 @@ class PyNestMLParser ( Parser ):
 
         localctx = PyNestMLParser.OutputBlockContext(self, self._ctx, self.state)
         self.enterRule(localctx, 86, self.RULE_outputBlock)
+        self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 559
+            self.state = 575
             self.match(PyNestMLParser.OUTPUT_KEYWORD)
-            self.state = 560
+            self.state = 576
             self.match(PyNestMLParser.COLON)
-            self.state = 561
+            self.state = 577
             self.match(PyNestMLParser.NEWLINE)
-            self.state = 562
+            self.state = 578
             self.match(PyNestMLParser.INDENT)
-            self.state = 565
+            self.state = 595
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [42]:
-                self.state = 563
+                self.state = 579
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
+                self.state = 592
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if _la==49:
+                    self.state = 580
+                    self.match(PyNestMLParser.LEFT_PAREN)
+                    self.state = 589
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if _la==89:
+                        self.state = 581
+                        localctx.attribute = self.parameter()
+                        self.state = 586
+                        self._errHandler.sync(self)
+                        _la = self._input.LA(1)
+                        while _la==74:
+                            self.state = 582
+                            self.match(PyNestMLParser.COMMA)
+                            self.state = 583
+                            localctx.attribute = self.parameter()
+                            self.state = 588
+                            self._errHandler.sync(self)
+                            _la = self._input.LA(1)
+
+
+
+                    self.state = 591
+                    self.match(PyNestMLParser.RIGHT_PAREN)
+
+
                 pass
             elif token in [39]:
-                self.state = 564
+                self.state = 594
                 localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 567
+            self.state = 597
             self.match(PyNestMLParser.NEWLINE)
-            self.state = 568
+            self.state = 598
             self.match(PyNestMLParser.DEDENT)
         except RecognitionException as re:
             localctx.exception = re
@@ -4301,45 +4420,45 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 570
+            self.state = 600
             self.match(PyNestMLParser.FUNCTION_KEYWORD)
-            self.state = 571
+            self.state = 601
             self.match(PyNestMLParser.NAME)
-            self.state = 572
+            self.state = 602
             self.match(PyNestMLParser.LEFT_PAREN)
-            self.state = 581
+            self.state = 611
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==88:
-                self.state = 573
+            if _la==89:
+                self.state = 603
                 self.parameter()
-                self.state = 578
+                self.state = 608
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==74:
-                    self.state = 574
+                    self.state = 604
                     self.match(PyNestMLParser.COMMA)
-                    self.state = 575
+                    self.state = 605
                     self.parameter()
-                    self.state = 580
+                    self.state = 610
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
 
 
-            self.state = 583
+            self.state = 613
             self.match(PyNestMLParser.RIGHT_PAREN)
-            self.state = 585
+            self.state = 615
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 562949953453056) != 0) or _la==88 or _la==89:
-                self.state = 584
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 562949953453056) != 0) or _la==89 or _la==90:
+                self.state = 614
                 localctx.returnType = self.dataType()
 
 
-            self.state = 587
+            self.state = 617
             self.match(PyNestMLParser.COLON)
-            self.state = 588
+            self.state = 618
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -4382,9 +4501,9 @@ class PyNestMLParser ( Parser ):
         self.enterRule(localctx, 90, self.RULE_parameter)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 590
+            self.state = 620
             self.match(PyNestMLParser.NAME)
-            self.state = 591
+            self.state = 621
             self.dataType()
         except RecognitionException as re:
             localctx.exception = re
@@ -4444,14 +4563,14 @@ class PyNestMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 593
+            self.state = 623
             localctx.name = self.match(PyNestMLParser.NAME)
-            self.state = 594
+            self.state = 624
             self.match(PyNestMLParser.EQUALS)
-            self.state = 595
+            self.state = 625
             localctx.value = self._input.LT(1)
             _la = self._input.LA(1)
-            if not(_la==25 or ((((_la - 86)) & ~0x3f) == 0 and ((1 << (_la - 86)) & 27) != 0)):
+            if not(_la==25 or ((((_la - 87)) & ~0x3f) == 0 and ((1 << (_la - 87)) & 27) != 0)):
                 localctx.value = self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)

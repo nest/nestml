@@ -12,7 +12,7 @@ model weight_test_plastic_synapse:
     pre_spikes <- spike
 
   output:
-    spike
+    spike(weight real, delay ms)
 
   onReceive(pre_spikes):
     emit_spike(w, d)
