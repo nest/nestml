@@ -43,7 +43,7 @@ model stdsp_synapse:
         dAP_trace pA <- continuous
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(post_spikes):
         time_since_last_spike ms = t - t_last_pre_spike
