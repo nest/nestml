@@ -25,7 +25,6 @@ import re
 import sympy
 
 import odetoolbox
-from sympy import false
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
