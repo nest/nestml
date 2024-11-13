@@ -44,7 +44,7 @@ model alpha_function_2nd_order_ode_neuron:
         if high_order:
             integrate_odes(x, y)
         else:
-            integrate_odes(x', x, y)
+            integrate_odes(x', x, y)    # equivalent to integrate_odes(x, y)
 
     onReceive(fX):
         x' += e*fX * s / ms

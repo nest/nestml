@@ -1121,7 +1121,7 @@ Integrating the ODEs needs to be triggered explicitly inside the ``update`` bloc
 
 The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
 
-In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution to ``x(t)`` can be integrated by just providing the variable ``x`` to the ``integrate_odes`` function. For example,
+In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x(t)`` can be integrated by just providing the variable ``x`` to the ``integrate_odes`` function. For example,
 
 .. code-block:: nestml
 
@@ -1134,7 +1134,7 @@ In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution to 
 
    update:
      integrate_odes(x)
-     # integrate_odes(x', x)  # similar to integrate_odes(x)
+     # integrate_odes(x', x)  # equivalent to integrate_odes(x)
 
 Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)`` and is equivalent to ``integrate_odes(x', x)``.
 
