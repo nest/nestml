@@ -561,7 +561,10 @@ The following functions are predefined in NESTML and can be used out of the box.
      - Convert a time into a number of simulation steps. See the section :ref:`Handling of time` for more information.
    * - ``resolution``
      -
-     - Returns the current resolution of the simulation in ms. See the section :ref:`Handling of time` for more information.
+     - In the ``update`` block, or in initialising expressions, returns the current timestep taken in milliseconds. See the section :ref:`Handling of time` for more information.
+   * - ``timestep``
+     -
+     - In the ``update`` block, returns the current timestep taken in milliseconds. See the section :ref:`Handling of time` for more information.
 
 
 Predefined variables and constants
@@ -825,7 +828,7 @@ Block types
 -  ``output`` *``<event_type>``* - Defines which type of event the model can send. Currently, only ``spike`` is supported.
 -  ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event).
 - ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
-- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds, within each (fixed resolution) simulation timestep. This makes the model more generic with respect to the simulator that is used.
+- ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
 
 
 Input
@@ -902,7 +905,31 @@ Each model can only send a single type of event. The type of the event has to be
    output:
        spike
 
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + resolution()``.
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Event attributes
+~~~~~~~~~~~~~~~~
+
+Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight, 1 ms)
+
+If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
+
+.. code-block:: nestml
+
+   output:
+       spike(weight real, delay ms)
+
+The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
+
+Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
 
 
 Equations
@@ -1084,7 +1111,7 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
 Handling of time
 ----------------
 
-Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model between timesteps or events. The statements in this block update the state of the model from the "current" time ``t``, to the next simulation timestep or time of next event ``t + resolution()``. The update step typically involves integration of the ODEs and corresponds to the "free-flight" or "subthreshold" integration; the events themselves are typically handled elsewhere, namely as a convolution with a kernel, or as an ``onReceive`` block.
+Inside the ``update`` block, the current time can be retrieved via the predefined, global variable ``t``. The statements executed in the block are reponsible for updating the state of the model between timesteps or events. The statements in this block update the state of the model from the "current" time ``t``, to the next simulation timestep or time of next event ``t + timestep()``. The update step typically involves integration of the ODEs and corresponds to the "free-flight" or "subthreshold" integration; the events themselves are typically handled elsewhere, namely as a convolution with a kernel, or as an ``onReceive`` block.
 
 
 Integrating the ODEs
@@ -1104,22 +1131,23 @@ Retrieving simulation timing parameters
 
 To retrieve timing parameters from the simulator kernel, two special functions are built into NESTML:
 
--  ``resolution`` returns the current resolution of the simulation in ms.
--  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+- ``resolution`` returns the current timestep taken. Can be used only inside the ``update`` block and in intialising expressions. The use of this function assumes that the simulator uses fixed resolution steps, therefore it is recommended to use ``timestep()`` instead in order to make the models more generic.
+- ``timestep`` returns the current timestep taken. Can be used only inside the ``update`` block.
+- ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution. This only makes sense in case of a fixed simulation resolution (such as in NEST); hence, use of this function is not recommended, because it precludes the models from being compatible with other simulation platforms where a non-constant simulation timestep is used.
 
-These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
-
-When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case the resolution is changed during the simulation. In some cases, as in the synapse ``update`` block, a step is made between spike events, unconstrained by the simulation resolution. For example:
 
 .. code-block:: nestml
 
    parameters:
-       h ms = resolution()   # !! NOT RECOMMENDED.
+       h ms = resolution()   # !! NOT RECOMMENDED
 
    update:
-       # update from t to t + resolution()
-       x *= exp(-resolution() / tau)   # let x' = -x / tau
-                                       # evolve the state of x one timestep
+       # update from t to t + timestep()
+       # let x' = -x / tau
+       # x *= exp(-h / tau)  # !! NOT RECOMMENDED
+       # x *= exp(-resolution() / tau)  # !! better but NOT RECOMMENDED
+       x *= exp(-timestep() / tau)  # recommended (supports any timestep)
 
 
 Integration order
@@ -1138,7 +1166,7 @@ The numeric results of a typical simulation run are shown below. Consider a leak
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/integrate_specific_odes/doc/fig/integration_order_example.png
    :alt: Numerical example for two different integration sequences.
 
-On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed resolution of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but because events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
+On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but because events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
 
 
 Guards

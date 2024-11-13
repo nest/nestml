@@ -51,7 +51,7 @@ class CppVariablePrinter(VariablePrinter):
         if node.get_name() == PredefinedVariables.E_CONSTANT:
             return "2.718281828459045235360287471352"    # not defined in C++11 stdlib
 
-        if node.get_name() == PredefinedVariables.E_CONSTANT:
+        if node.get_name() == PredefinedVariables.PI_CONSTANT:
             return "M_PI"    # from <cmath>
 
         return CppVariablePrinter._print_cpp_name(node.get_complete_name())

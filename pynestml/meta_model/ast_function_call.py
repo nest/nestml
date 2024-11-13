@@ -22,6 +22,7 @@
 from typing import List
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 
 
 class ASTFunctionCall(ASTNode):
@@ -91,12 +92,14 @@ class ASTFunctionCall(ASTNode):
         """
         return (self.args is not None) and len(self.args) > 0
 
-    def get_args(self):
+    def get_args(self) -> List[ASTParameter]:
         """
         Returns the list of arguments.
         :return: the list of arguments.
-        :rtype: list(ASTExpression)
         """
+        if self.args is None:
+            return []
+
         return self.args
 
     def get_children(self) -> List[ASTNode]:

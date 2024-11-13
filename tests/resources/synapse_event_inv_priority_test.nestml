@@ -42,11 +42,11 @@ model event_inv_priority_test_synapse:
         post_spikes <- spike
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(pre_spikes, priority=2):
         tr += 1.
         emit_spike(1., d)
 
     onReceive(post_spikes, priority=1):
-        tr *= 3.14159
+        tr *= pi

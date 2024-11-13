@@ -49,7 +49,7 @@ model dopa_second_order_synapse:
         dopa_spikes <- spike
 
     output:
-        spike
+        spike(weight real, delay ms)
 
     onReceive(dopa_spikes):
         dopa_rate_d += 1. / tau_dopa

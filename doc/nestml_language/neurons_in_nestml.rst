@@ -242,31 +242,54 @@ Output
 Implementing refractoriness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to model an absolute refractory state, in which the neuron cannot fire action potentials, an extra parameter (say, ``refr_T``) can be introduced, that defines the duration of the refractory period. A new state variable, ``refr_t``, then specifies the time of the refractory period that has already elapsed, and a second boolean state variable ``is_refactory`` identifies whether or not we are in the refractory state. In the initial state, the neuron is not refractory and the timer is set to zero. When a spike is emitted, the boolean flag is set to true and the timer is set to ``refr_T``. Using a separate flag allows us to freely formulate a condition on ending the timer without having to worry about special (for instance, negative) values representing a non-refactory condition. This is hazardous because of an imprecise floating point representation of real numbers. The check against :math:`\Delta t/2` instead of checking against 0 additionally guards against accumulated discretization errors. Integrating the ODE for :math:`V_\text{m}` is disabled while the flag is set to true. When the timer reaches zero, the flag is set to false. In the ``update`` block, the timer is decremented each timestep. An ``onCondition`` is formulated on ending the refractory period, which allows the time at which the condition becomes true to be determined precisely (whereas it would be aliased to the nearest simulation timestep interval if the condition had been checked in ``update``).
+In order to model an absolute refractory state, in which the neuron cannot fire action potentials, different approaches can be used. In general, an extra parameter (say, ``refr_T``) is introduced, that defines the duration of the refractory period. A new state variable (say, ``refr_t``) can then act as a timer, counting the time of the refractory period that has already elapsed. The dynamics of ``refr_t`` could be specified in the ``update`` block, as follows:
+
+.. code-block:: nestml
+
+   update:
+       refr_t -= resolution()
+
+The test for refractoriness can then be added in the ``onCondition`` block as follows:
+
+.. code-block:: nestml
+
+   # if not refractory and threshold is crossed...
+   onCondition(refr_t <= 0 ms and V_m > V_th):
+       V_m = E_L    # Reset the membrane potential
+       refr_t = refr_T    # Start the refractoriness timer
+       emit_spike()
+
+The disadvantage of this method is that it requires a call to the ``resolution()`` function, which is only supported by fixed-timestep simulators. To write the model in a more generic way, the refractoriness timer can alternatively be expressed as an ODE:
+
+.. code-block:: nestml
+
+   equations:
+       refr_t' = -1 / s    # a timer counting back down to zero
+
+Typically, the membrane potential should remain clamped to the reset or leak potential during the refractory period. It depends on the intended behavior of the model whether the synaptic currents and conductances also continue to be integrated or whether they are reset, and whether incoming spikes during the refractory period are taken into account or ignored.
+
+In order to hold the membrane potential at the reset voltage during refractoriness, it can be simply excluded from the integration call:
+
+.. code-block:: nestml
+
+       I_syn' = ...
+       V_m' = ...
+       refr_t' = -1 / s    # Count down towards zero
+
+   update:
+       if refr_t > 0 ms:
+           # neuron is absolute refractory, do not evolve V_m
+           integrate_odes(I_syn, refr_t)
+       else:
+           # neuron not refractory
+           integrate_odes(I_syn, V_m)
+
+Note that in some cases, the finite resolution by which real numbers are expressed (as floating point numbers) in computers, can cause unexpected behaviors. If the simulation resolution is not exactly representable as a float (say, Δt = 0.1 ms) then it could be the case that after 20 simulation steps, the timer has not reached zero, but a very small value very close to zero (say, 0.00000001 ms), causing the refractory period to end only in the next timestep. If this kind of behavior is undesired, the simulation resolution and refractory period can be chosen as powers of two (which can be represented exactly as floating points), or a small "epsilon" value can be included in the comparison in the model:
 
 .. code-block:: nestml
 
    parameters:
-       refr_T ms = 5 ms
+       float_epsilon ms = 1E-9 ms
 
-   state:
-       refr_t ms = 0 ms    # Refractory period timer
-       is_refractory boolean = false
-
-   equations:
-       I_syn' = ...
-       V_m' = ...
-
-   update:
-       if is_refractory:
-           # neuron is absolute refractory, do not evolve V_m
-           refr_t -= resolution()
-           integrate_odes(I_syn)
-       else:
-           # neuron not refractory, so evolve all ODEs
-           integrate_odes(V_m, I_syn)
-
-   onCondition(is_refractory and refr_t <= resolution() / 2):
-       # end of refractory period
-       refr_t = 0 ms
-       is_refractory = false
+   onCondition(refr_t <= float_epsilon ...):
+       # ...

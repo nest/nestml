@@ -73,17 +73,19 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // #define DEBUG
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 continuous_variable_histentry_{{ neuronName }}::continuous_variable_histentry_{{ neuronName }}( double t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %} )
+{%-         endfor %} )
 : t_( t )
 , access_counter_ ( 0 )
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
 , {{ state_var }}( {{ state_var }} )
-{%-     endfor %}
+{%-         endfor %}
 {
 }
+{%-     endif %}
 {%- endif %}
 
 {%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2")
@@ -367,7 +369,7 @@ void {{ neuronName }}::init_state_internal_()
   std::cout << "[neuron " << this << "] {{ neuronName }}::init_state_internal_()" << std::endl;
 #endif
 
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {%- if numeric_solver == "rk45" %}
   // by default, integrate all variables with a conservative tolerance, in the sense that we err on the side of integrating very precisely at the expense of extra computation
@@ -521,7 +523,7 @@ void {{ neuronName }}::init_buffers_()
 
 void {{ neuronName }}::recompute_internal_variables(bool exclude_timestep)
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
   if (exclude_timestep)
   {
@@ -643,7 +645,7 @@ bool {{ neuronName }}::update_( nest::Time const& origin, const long from, const
 void {{ neuronName }}::update(nest::Time const & origin, const long from, const long to)
 {%- endif %}
 {
-  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {%- if use_gap_junctions %}
   const size_t interpolation_order = nest::kernel().simulation_manager.get_wfr_interpolation_order();
@@ -867,7 +869,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     /**
      * handle continuous input ports
     **/
-{% for inputPort in neuron.get_continuous_input_ports() %}
+{%  for inputPort in neuron.get_continuous_input_ports() %}
 {%-     if use_gap_junctions %}
     if ( called_from_wfr_update )
     {
@@ -908,7 +910,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
         case 3:
           // find dV_m/dt
           {
-            gap_junction_step = __resolution;
+            gap_junction_step = __timestep;
             y_ip1 = {{ gap_junction_membrane_potential_variable_cpp }};
 {%-     if gap_junction_membrane_potential_variable_is_numeric %}
             double f_temp[ State_::STATE_VEC_SIZE ];
@@ -954,12 +956,17 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     endif %}
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
-    write_continuous_variable_history( nest::Time::step( origin.get_steps() + lag + 1 ),
-{%-     for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
-{%-         set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
+#ifdef DEBUG
+std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )).get_ms() << "\n";
+#endif
+    write_continuous_variable_history( nest::Time(nest::Time::step( origin.get_steps() + lag + 1 )),
+{%-         for state_var_name in state_vars_that_need_continuous_buffering_transformed %}
+{%-             set state_var = utils.get_variable_by_name(astnode, state_var_name) %}
       {{ printer.print(state_var) }}{% if not loop.last %}, {% endif %}
-{%-     endfor %}
+{%-         endfor %}
     );
+{%-     endif %}
 {%- endif %}
   }
 
@@ -989,12 +996,15 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 }
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
-
+{%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
 void {{neuronName}}::get_continuous_variable_history( double t1,
   double t2,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* start,
   std::deque< continuous_variable_histentry_{{ neuronName }} >::iterator* finish )
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_continuous_variable_history()" << std::endl;
+#endif
   *finish = continuous_variable_history_.end();
   if ( continuous_variable_history_.empty() )
   {
@@ -1023,13 +1033,17 @@ void {{neuronName}}::get_continuous_variable_history( double t1,
 }
 
 void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       const double {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %})
+{%-         endfor %})
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::write_continuous_variable_history()" << std::endl;
+#endif
   const double t_ms = t.get_ms();
 
   // prune all entries from history which are no longer needed except the penultimate one. we might still need it.
+  auto orig = continuous_variable_history_.size();
   while ( continuous_variable_history_.size() > 1 )
   {
     if ( continuous_variable_history_.front().access_counter_ >= n_incoming_ )
@@ -1042,11 +1056,21 @@ void {{neuronName}}::write_continuous_variable_history(nest::Time const &t,
     }
   }
 
+#ifdef DEBUG
+  if (continuous_variable_history_.size() != orig) {
+    std::cout << "[neuron " << this << "] \tpruning history, original size = " << orig << ", new size = " <<  continuous_variable_history_.size() << "\n";
+  }
+#endif
+
   continuous_variable_history_.push_back( continuous_variable_histentry_{{ neuronName }}( t_ms,
-{%-     for state_var in state_vars_that_need_continuous_buffering %}
+{%-         for state_var in state_vars_that_need_continuous_buffering %}
       {{ state_var }}{% if not loop.last %}, {% endif %}
-{%-     endfor %}) );
+{%-         endfor %}) );
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] \thistory size = " << continuous_variable_history_.size() << std::endl;
+#endif
 }
+{%-     endif %}
 {%- endif %}
 
 // Do not move this function as inline to h-file. It depends on
@@ -1096,6 +1120,9 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 
 void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{neuronName}}::handle(CurrentEvent)" << std::endl;
+#endif
   assert(e.get_delay_steps() > 0);
 
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
@@ -1118,6 +1145,8 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 void
 {{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()
 {
+  const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+
 {%-     filter indent(2, True) -%}
 {%-         include "directives_cpp/Block.jinja2" %}
 {%-     endfilter %}
@@ -1206,10 +1235,10 @@ void
 
   if ( n_incoming_ )
   {
-    // prune all spikes from history which are no longer needed
-    // only remove a spike if:
+    // Prune all spikes from history which are no longer needed. Only remove a spike if:
     // - its access counter indicates it has been read out by all connected STDP synapses, and
     // - there is another, later spike, that is strictly more than ``min_global_delay + max_delay_ + eps`` away from the new spike (at ``t_sp_ms``)
+    // for access counter logic, see https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg (Potjans et al. 2010)
     while ( history_.size() > 1 )
     {
       const double next_t_sp = history_[ 1 ].t_;
@@ -1247,7 +1276,6 @@ void
       {{ printer.print(utils.get_state_variable_by_name(astnode, var)) }} = {{ utils.initial_value_or_zero(astnode, var) }}; // initial value for convolution is always 0
 {%-     endfor %}
     }
-
 {%      if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
     /**
      * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
@@ -1260,7 +1288,6 @@ void
     if (V_.__h > 1E-12)
     {
       recompute_internal_variables(true);
-
 {%-         filter indent(6, True) -%}
 {#              emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%-             set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
@@ -1272,9 +1299,8 @@ void
       recompute_internal_variables(true);
     }
 {%- endif %}
-
     /**
-      * print extra on-emit statements transferred from synapse
+     * print extra on-emit statements transferred from synapse
     **/
 
 {%-     filter indent(4, True) %}
@@ -1297,13 +1323,19 @@ void
 
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{ neuronName }}( last_spike_
+        , 0 // access counter
 {%- for var in purely_numeric_state_variables_moved|sort %}
+        , get_{{var}}()
+{%- endfor %}
+{%- for var in analytic_state_variables_moved | sort %}
         , get_{{ var }}()
 {%- endfor %}
-{%- for var in analytic_state_variables_moved|sort %}
-        , get_{{ var }}()
-{%- endfor %}
-      , 0 // access counter
+{%- if state_vars_that_need_continuous_buffering | length > 0 and continuous_state_buffering_method == "post_spike_based" %}
+{%-     for var_name_post in state_vars_that_need_continuous_buffering | sort %}
+{%-         set var_name = utils.get_var_name_tuples_of_neuron_synapse_pair(continuous_post_ports, var_name_post) %}
+        , get_{{ var_name }}()
+{%-     endfor %}
+{%- endif %}
     ) );
   }
   else
@@ -1340,14 +1372,14 @@ double
 {{ neuronName }}::get_{{ var }}( double t, const bool before_increment )
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: getting value at t = " << t << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: getting value at t = " << t << std::endl;
 #endif
 
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \thistory empty, returning initial value = " << {{ var }}__iv << std::endl;
+    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
 #endif
 
     // return initial value
@@ -1366,7 +1398,7 @@ double
     if ( t - history_[ i ].t_ >= eps )
     {
 #ifdef DEBUG
-      std::cout << "{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+      std::cout<<"{{ neuronName }}::get_{{ var }}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
 {%- for var_ in purely_numeric_state_variables_moved %}
@@ -1375,7 +1407,6 @@ double
 {%- for var_ in analytic_state_variables_moved %}
       {{ printer.print(utils.get_variable_by_name(astnode, var_)) }} = history_[ i ].{{var_}}_;
 {%- endfor %}
-
 {%  if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
       /**
        * update state variables transferred from synapse from `history[i].t_` to `t`
@@ -1391,19 +1422,18 @@ double
         recompute_internal_variables(true);
 
 {#      emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
+{%- filter indent(8, True) %}
 {%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
 {%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%-     filter indent(8, True) %}
-{%-         include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
-{%-     endfilter %}
+{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%- endfilter %}
 
         V_.__h = old___h;
         recompute_internal_variables(true);
       }
 {%- endif %}
-
 #ifdef DEBUG
-      std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
+      std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \treturning " << {{ printer.print(utils.get_variable_by_name(astnode, var)) }} << std::endl;
 #endif
 
       return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};       // type: {{declarations.print_variable_type(variable_symbol)}}
@@ -1422,7 +1452,7 @@ double
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
+    std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }} << std::endl;
 #endif
 
     return {{ printer.print(utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name())) }};
@@ -1432,7 +1462,7 @@ double
   // return initial value propagated in time
 
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{ var }}: \tfall-through, returning initial value = " << {{ var }}__iv << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
 #endif
 
   if (t == 0.)
@@ -1447,7 +1477,7 @@ double
 {%- for var_ in analytic_state_variables_moved %}
   {{ printer.print(utils.get_state_variable_by_name(astnode, var_)) }} = 0.;  // initial value for convolution is always 0
 {%- endfor %}
-
+{%-     if paired_synapse is defined and (purely_numeric_state_variables_moved + analytic_state_variables_moved) | length > 0 %}
   /**
    * update state variables transferred from synapse from initial condition to `t`
    *
@@ -1462,22 +1492,21 @@ double
 
 {# emulate a call to ``integrate_odes(purely_numeric_state_variables_moved + analytic_state_variables_moved)`` #}
 {%- filter indent(8, True) %}
-{%- set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
-{%- set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
-{%- include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
+{%-     set args = utils.resolve_variables_to_expressions(astnode, purely_numeric_state_variables_moved + analytic_state_variables_moved) %}
+{%-     set ast = ASTNodeFactory.create_ast_function_call("integrate_odes", args) %}
+{%-     include "directives_cpp/PredefinedFunction_integrate_odes.jinja2" %}
 {%- endfilter %}
 
     V_.__h = old___h;
     recompute_internal_variables(true);
   }
-
+{%- endif %}
   return {{ printer.print(utils.get_variable_by_name(astnode, var)) }};
 }
 {%- endwith -%}
 {%- endfor %}
 
 {%- endif %}
-
 
 
 {%- if use_gap_junctions %}

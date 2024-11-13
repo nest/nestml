@@ -180,7 +180,7 @@ class Neuron_{{neuronName}}(Neuron):
     return "{{neuronName}}"
 
   def recompute_internal_variables(self, timestep: float, exclude_timestep: bool = False):
-    __resolution: float = timestep  # do not remove, this is necessary for the resolution() function
+    __timestep: float = timestep  # do not remove, this is necessary for the timestep() function
 
     if exclude_timestep:
   {%- filter indent(6,True) %}
@@ -283,7 +283,7 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endif %}
 
   def step(self, origin: float, timestep: float) -> None:
-    __resolution: float = timestep   # do not remove, this is necessary for the resolution() function
+    __timestep: float = timestep   # do not remove, this is necessary for the timestep() function
 
     # -------------------------------------------------------------------------
     #     integrate variables related to convolutions

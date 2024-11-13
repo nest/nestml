@@ -1,7 +1,7 @@
 Installing NESTML
 =================
 
-Please note that only Python 3.8 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
+Please note that only Python 3.9 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
 Installing the latest release from PyPI
 ---------------------------------------

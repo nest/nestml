@@ -1,16 +1,9 @@
 on:
-  pull_request_target:
-    types: [opened, reopened, edited, synchronize]
+  push:
+    branches: master
 
 jobs:
-  fork_pr_requires_review:
-    environment: ${{ (github.event.pull_request.head.repo.full_name == github.repository && 'internal') || 'external' }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: true
-
-  benchmark_fork_pr_branch:
-    needs: fork_pr_requires_review
+  benchmark_base_branch:
     name: Continuous Benchmarking Fork PRs with Bencher
     runs-on: ubuntu-latest
     steps:
@@ -23,10 +16,10 @@ jobs:
       - uses: bencherdev/bencher@main
 
       # Setup Python version
-      - name: Setup Python 3.8
+      - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       # Install dependencies
       - name: Install apt dependencies
@@ -62,7 +55,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.8/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
           #echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
@@ -75,17 +68,15 @@ jobs:
           LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest bencher run \
           --project nestml \
           --token '${{ secrets.BENCHER_API_TOKEN }}' \
-          --branch '${{ github.event.number }}/merge' \
-          --branch-start-point '${{ github.base_ref }}' \
-          --branch-start-point-hash '${{ github.event.pull_request.base.sha }}' \
-          --branch-reset \
+          --branch master \
+          --threshold-measure latency \
+          --threshold-test t_test \
+          --threshold-max-sample-size 64 \
+          --threshold-upper-boundary 0.99 \
+          --thresholds-reset \
           --github-actions "${{ secrets.GITHUB_TOKEN }}" \
           --testbed ubuntu-latest \
           --adapter python_pytest \
           --file results.json \
           --err \
           'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest python3 -m pytest --benchmark-json results.json -s $GITHUB_WORKSPACE/tests/nest_continuous_benchmarking/test_nest_continuous_benchmarking.py'
-
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3

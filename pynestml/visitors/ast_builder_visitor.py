@@ -52,16 +52,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         models = list()
         for child in ctx.model():
             models.append(self.visit(child))
+
         # extract the name of the artifact from the context
         if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed_from_string'
+
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_models=models,
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
-        # first ensure certain properties of the model
-        CoCosManager.check_model_names_unique(compilation_unit)
+
         return compilation_unit
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.
@@ -387,15 +388,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
 
-        # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
-        # # check if this variable was decorated as homogeneous
-        # import pynestml.generated.PyNestMLLexer
-        # is_homogeneous = any([isinstance(ch, pynestml.generated.PyNestMLParser.PyNestMLParser.AnyDecoratorContext) \
-        #   and len(ch.getTokens(pynestml.generated.PyNestMLLexer.PyNestMLLexer.DECORATOR_HOMOGENEOUS)) > 0 \
-        #   for ch in ctx.parentCtx.children])
-        # if is_homogeneous:
-        #     print("\t----> is homogeneous")
-
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
                                                             variables=variables,
                                                             data_type=data_type,
@@ -652,13 +644,21 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
+        attributes: List[ASTParameter] = []
+        if ctx.parameter() is not None:
+            if type(ctx.parameter()) is list:
+                for par in ctx.parameter():
+                    attributes.append(self.visit(par))
+            else:
+                attributes.append(self.visit(ctx.parameter()))
+
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, attributes=attributes, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 
         if ctx.isContinuous is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, attributes=attributes, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
 

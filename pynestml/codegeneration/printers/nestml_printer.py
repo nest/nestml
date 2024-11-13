@@ -431,6 +431,14 @@ class NESTMLPrinter(ModelPrinter):
         ret += print_n_spaces(self.indent) + "output:\n"
         ret += print_n_spaces(self.indent + 4)
         ret += "spike" if node.is_spike() else "continuous"
+        if node.get_attributes():
+            ret += "("
+            for i, attr in enumerate(node.get_attributes()):
+                ret += self.print(attr)
+                if i < len(node.get_attributes()) - 1:
+                    ret += ", "
+
+            ret += ")"
         ret += print_sl_comment(node.in_comment)
         ret += "\n"
         return ret

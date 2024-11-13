@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
@@ -53,16 +52,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.symbol_stack = Stack()
         self.scope_stack = Stack()
         self.block_type_stack = Stack()
-        self.after_ast_rewrite_ = False
 
     def visit_model(self, node: ASTModel) -> None:
         """
         Used to visit a single model and create the corresponding global as well as local scopes.
         """
         Logger.set_current_node(node)
-        code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
-                           message=message, log_level=LoggingLevel.DEBUG)
         scope = Scope(scope_type=ScopeType.GLOBAL,
                       source_position=node.get_source_position())
         node.update_scope(scope)
@@ -79,10 +74,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_scope().add_symbol(types[symbol])
 
     def endvisit_model(self, node: ASTModel):
-        # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(
-            node, after_ast_rewrite=self.after_ast_rewrite_)
-
         # update the equations
         for equation_block in node.get_equations_blocks():
             ASTUtils.assign_ode_to_variables(equation_block)
@@ -287,8 +278,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         namespace_decorators = {}
         for d in node.get_decorators():
             if isinstance(d, ASTNamespaceDecorator):
-                namespace_decorators[str(d.get_namespace())] = str(
-                    d.get_name())
+                namespace_decorators[str(d.get_namespace())] = str(d.get_name())
             else:
                 decorators.append(d)
 
@@ -296,6 +286,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         block_type = None
         if not self.block_type_stack.is_empty():
             block_type = self.block_type_stack.top()
+
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
 
@@ -324,11 +315,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)
             var.set_type_symbol(type_symbol)
+
         # the data type
         node.get_data_type().update_scope(node.get_scope())
+
         # the rhs update
         if node.has_expression():
             node.get_expression().update_scope(node.get_scope())
+
         # the invariant update
         if node.has_invariant():
             node.get_invariant().update_scope(node.get_scope())
