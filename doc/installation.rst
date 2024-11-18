@@ -80,51 +80,26 @@ After installation, correct operation can be tested by:
    python setup.py test
 
 
-Anaconda installation
----------------------
-
-In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies.
+Installation with conda
+-----------------------
 
 Please make sure to have the latest conda version installed and to create a new environment with the command below, i.e. installing all packages together at the start versus installing one by one.
 
+.. note::
+
+   We recommend using `miniforge <https://github.com/conda-forge/miniforge>`_ or `micromamba <https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html>`_ in place of Anaconda/miniconda.
+
 .. code-block:: bash
 
-   conda create --name wnestml
-   conda activate wnestml
-   conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython boost boost-cpp libboost cmake make
+   conda create --name <env_name>
+   conda activate <env_name>
+   conda install -c conda-forge nest-simulator ipython cxx-compiler boost boost-cpp libboost cmake make
    pip install nestml
 
-Test the path to ``c++``:
+Alternatively, NEST can also be installed from source in a conda environment. The instructions can be found `here <https://nest-simulator.readthedocs.io/en/stable/installation/condaenv_install.html#condaenv>`_.
 
-.. code-block:: bash
-
-   which c++
-   # '/home/graber/miniconda3/envs/wnestml/bin/c++'
-
-Edit ``nest-config`` and correct the entry under ``--compiler`` with the output returned by ``which c++``:
-
-.. code-block:: bash
-
-   nano /home/graber/miniconda3/envs/wnestml/bin/nest-config
-
-macOS users must in addition replace the ``-fopenmp=libomp`` entries with ``-Xclang -fopenmp`` under both ``--cflags`` and ``--libs`` in the ``nest-config``.
-
-Now set the correct paths and start ``ipython``:
-
-.. code-block:: bash
-
-   export PYTHONPATH=$PYTHONPATH:/home/graber/miniconda3/envs/wnestml/lib/python3.7/site-packages
-   export LD_LIBRARY_PATH=/tmp/nestml-component
-   ipython
-
-The corresponding paths in ``ipython`` are:
-
-.. code-block:: python
-
-   from pynestml.frontend.pynestml_frontend import generate_nest_target
-   generate_nest_target(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml",
-                        target_path="/tmp/nestml-component",
-                        logging_level="INFO")
+After installing NESTML, the neuron and synapse models can be found in the path ``$HOME/miniforge3/envs/<env_name>/models`` and the tutorial notebooks can be found under ``$HOME/miniforge3/envs/<env_name>/doc/tutorials``.
+For more information on how to run NESTML, please refer to `Running NESTML <https://nestml.readthedocs.io/en/latest/running/index.html>`_.
 
 
 Docker installation
