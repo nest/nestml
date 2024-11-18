@@ -33,7 +33,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model CoCoValueAssignedToInputPort:
     input:
-        spikeInh <- inhibitory spike
+        spike_in_port <- spike
 
     update:
-        spikeInh = 10 / s
+        spike_in_port = 10 / s

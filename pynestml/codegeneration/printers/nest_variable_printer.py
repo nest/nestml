@@ -165,7 +165,20 @@ class NESTVariablePrinter(CppVariablePrinter):
                     var_name += "_0 + " + variable.get_vector_parameter().get_variable().get_name()
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
-            return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+            if variable.has_vector_parameter():
+
+                # add variable attribute if it exists
+                if variable.attribute:
+                    return "spike_input_" + str(variable.name) + "_VEC_IDX_" + str(variable.get_vector_parameter()) + "__DOT__" + variable.attribute + "_grid_sum_"
+
+            else:
+                # add variable attribute if it exists
+                if variable.attribute:
+                    return "spike_input_" + str(variable.name) + "__DOT__" + variable.attribute + "_grid_sum_"
+
+            # no vector indices, no attributes
+            return "spike_input_" + str(variable) + "_grid_sum_"
 
         if self.cpp_variable_suffix:
             return variable_symbol.get_symbol_name() + self.cpp_variable_suffix

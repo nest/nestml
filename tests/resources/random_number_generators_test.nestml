@@ -34,10 +34,5 @@ model test_random:
         q' = random_normal(500, 25) / s
         r' = random_uniform(42, 123) / s
 
-    input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
-        currents pA <- continuous
-
     update:
         integrate_odes()

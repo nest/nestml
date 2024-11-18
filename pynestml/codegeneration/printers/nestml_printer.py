@@ -40,7 +40,6 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
@@ -362,22 +361,17 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_size_parameter():
             ret += "[" + self.print(node.get_size_parameter()) + "]"
         ret += " <- "
-        if node.has_input_qualifiers():
-            for qual in node.get_input_qualifiers():
-                ret += self.print(qual) + " "
         if node.is_spike():
             ret += "spike"
+            if node.get_parameters():
+                ret += "("
+                for parameter in node.get_parameters():
+                    ret += self.print_parameter(parameter)
+                ret += ")"
         else:
             ret += "continuous"
         ret += print_sl_comment(node.in_comment) + "\n"
         return ret
-
-    def print_input_qualifier(self, node: ASTInputQualifier) -> str:
-        if node.is_inhibitory:
-            return "inhibitory"
-        if node.is_excitatory:
-            return "excitatory"
-        return ""
 
     def print_logical_operator(self, node: ASTLogicalOperator) -> str:
         if node.is_logical_and:
@@ -530,7 +524,7 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        ret += print_n_spaces(self.indent) + "onReceive(" + self.print(node.get_input_port_variable()) + "):" + print_sl_comment(node.in_comment) + "\n"
         ret += self.print(node.get_block())
         return ret
 
@@ -554,6 +548,9 @@ class NESTMLPrinter(ModelPrinter):
 
         for i in range(1, node.differential_order + 1):
             ret += "'"
+
+        if node.get_attribute():
+            ret += "." + node.get_attribute()
 
         return ret
 

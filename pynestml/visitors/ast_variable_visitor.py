@@ -22,6 +22,7 @@
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import MessageCode
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -32,11 +33,10 @@ class ASTVariableVisitor(ASTVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visit_simple_expression(self, node):
+    def visit_simple_expression(self, node: ASTSimpleExpression):
         """
         Visits a single variable as contained in a simple expression and derives its type.
         :param node: a single simple expression
-        :type node: ASTSimpleExpression
         """
         assert isinstance(node, ASTSimpleExpression), \
             '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(node)

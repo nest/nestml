@@ -48,7 +48,6 @@ from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
@@ -320,14 +319,6 @@ class ModelParser:
         # type: (str) -> ASTInputPort
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.inputPort())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
-    def parse_input_qualifier(cls, string):
-        # type: (str) -> ASTInputQualifier
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.inputQualifier())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

@@ -65,21 +65,6 @@
 extern "C" inline int {{neuronName}}_dynamics( double, const double ode_state[], double f[], void* pnode );
 {% endif %}
 
-// Missing paired_synapse stuff here
-
-{% if has_multiple_synapses -%}
-  /**
-   * Synapse types to connect to
-   * @note Excluded lower and upper bounds are defined as MIN_, MAX_.
-   *       Excluding port 0 avoids accidental connections.
-  **/
-const long MIN_SPIKE_RECEPTOR = 1;
-{%-   set ns = namespace(count=1) %}
-{%- else %}
-const long MIN_SPIKE_RECEPTOR = 0;
-{%-   set ns = namespace(count=0) %}
-{%- endif %}
-
 enum input_indices
 {
 {%- set ns = namespace(count=0) %}
@@ -95,7 +80,7 @@ enum input_indices
 };
 
 typedef struct {
-{# Make shure count is |spike_input_ports| + |continous_input_ports| #}
+{# Make sure count is |spike_input_ports| + |continous_input_ports| #}
 // 0: exc, 1: inh, 2: Istim
 {%- if ns.count > 0 %}
     REAL inputs[{{ ns.count }}];

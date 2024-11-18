@@ -34,4 +34,8 @@ class NestMLVariablePrinter(VariablePrinter):
         :param node: the node to print
         :return: string representation
         """
-        return node.get_complete_name()
+        s = node.get_complete_name()
+        if node.get_attribute():
+            s += "." + node.get_attribute()
+
+        return s

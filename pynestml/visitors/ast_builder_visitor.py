@@ -258,9 +258,15 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             vector_parameter = self.visit(ctx.vectorParameter)
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
+        if ctx.attribute:
+            attribute = ctx.attribute.getText()
+        else:
+            attribute = None
+
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
                                                   vector_parameter=vector_parameter,
+                                                  attribute=attribute,
                                                   source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
@@ -610,13 +616,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_parameter = None
         if ctx.sizeParameter is not None:
             size_parameter = self.visit(ctx.sizeParameter)
-        input_qualifiers = []
-        if ctx.inputQualifier() is not None:
-            for qual in ctx.inputQualifier():
-                input_qualifiers.append(self.visit(qual))
+        parameters_ast = None
+        if ctx.parameter:
+            parameters_ast = [self.visit(parameter) for parameter in ctx.parameter()]
         signal_type = PortSignalType.SPIKE
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=None,
-                                                   input_qualifiers=input_qualifiers, signal_type=signal_type,
+                                                   signal_type=signal_type,
+                                                   parameters=parameters_ast,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
@@ -629,17 +635,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         signal_type = PortSignalType.CONTINUOUS
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
-                                                   input_qualifiers=None, signal_type=signal_type,
+                                                   signal_type=signal_type,
+                                                   parameters=None,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
-
-    # Visit a parse tree produced by PyNESTMLParser#inputQualifier.
-    def visitInputQualifier(self, ctx):
-        is_inhibitory = True if ctx.isInhibitory is not None else False
-        is_excitatory = True if ctx.isExcitatory is not None else False
-        return ASTNodeFactory.create_ast_input_qualifier(is_inhibitory=is_inhibitory, is_excitatory=is_excitatory,
-                                                         source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
@@ -694,12 +694,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
 
     def visitOnReceiveBlock(self, ctx):
+        input_port_variable = self.visit(ctx.inputPortVariable)
+        print("ctx.inputPortVariable =  " + str(input_port_variable))
+        print("ctx.inputPortVariable =  " + str(type(input_port_variable)))
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        port_name = ctx.inputPortName.text
         const_parameters = {}
         for el in ctx.constParameter():
             const_parameters[el.name.text] = el.value.text
-        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, const_parameters=const_parameters, source_position=create_source_pos(ctx))
+        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, input_port_variable=input_port_variable, const_parameters=const_parameters, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

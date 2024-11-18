@@ -1,14 +1,12 @@
 """
-CoCoConvolveNotCorrectlyProvided.nestml
-#######################################
+CoCoInputPortsIllegal.nestml
+############################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly provided with a state block defined variable and a spike input port.
-
-Positive case.
+This test is used to test the declaration of both vectorized and non-vectorized input ports.
 
 
 Copyright statement
@@ -31,13 +29,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model CoCoConvolveNotCorrectlyProvided:
-    equations:
-        kernel test = 10
-        inline testB pA = convolve(test, spikeExc) * pA # convolve provided with a kernel and a spike input port, thus correct
+model input_ports_illegal_neuron:
+    state:
+        foo real = 0.
 
     input:
-        spikeExc <- spike
+        spike_in_port <- spike(foo real)
 
-    update:
-        integrate_odes()
+    onReceive(spike_in_port):
+        foo += spike_in_port.foo
