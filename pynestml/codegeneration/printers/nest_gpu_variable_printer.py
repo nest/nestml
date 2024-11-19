@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_variable_printer.py
+# nest_gpu_variable_printer.py
 #
 # This file is part of NEST.
 #

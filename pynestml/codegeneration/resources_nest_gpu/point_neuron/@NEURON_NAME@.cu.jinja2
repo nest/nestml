@@ -205,7 +205,7 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 }
 
 {%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
-{%-         include "directives/NumericDifferentiationFunction.jinja2.jinja2" %}
+{%-         include "directives/NumericDifferentiationFunction.jinja2" %}
 {%-     endfor %}
 
  template<int NVAR, int NPARAM> //, class DataStruct>
@@ -289,8 +289,23 @@ void Derivatives(double x, float *y, float *dydx, float *param,
 		 {{ neuronName }}_rk5 data_struct)
 {
 {%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-    set parent = utils.get_integrate_odes_parent(ast) %}
+{%-    if parent is not none %}
+{%-       if  utils.is_if_clause(parent) %}
+    if({{ gsl_printer.print(parent.get_condition()) }})
+
+{%-       elif utils.is_elif_clause(parent) %}
+    else if({{ gsl_printer.print(parent.get_condition()) }})
+{%-       else  %}
+    else
+{%-       endif %}
+    {
+      {{ neuronName }}_ns::Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(x, y, dydx, param, data_struct);
+    }
+{%-    else %}
     {{ neuronName }}_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
 						 data_struct);
+{%-    endif  %}
 {%- endfor %}
 }
 

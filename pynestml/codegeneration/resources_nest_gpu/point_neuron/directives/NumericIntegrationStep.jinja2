@@ -7,10 +7,10 @@
 {%- for variable_name in numeric_state_variables %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
-  dydx[i_{{ variable_symbol.get_symbol_name() }}] = {{ gsl_printer.print(update_expr) }};
-  {% if ast.get_args() | length > 0 %}
-    {% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) %}
-      {{ gsl_printer.print(update_expr) }}
-    {% else %}0{% endif %}
-  {% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
+  dydx[i_{{ variable_symbol.get_symbol_name() }}] =
+  {%- if ast.get_args() | length > 0 -%}
+    {% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) -%}
+      {{ gsl_printer.print(update_expr) }};
+    {% else -%}0;{% endif -%}
+  {% else -%}{{ gsl_printer.print(update_expr) }};{% endif -%}
 {%- endfor %}

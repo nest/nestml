@@ -35,11 +35,13 @@ from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_elif_clause import ASTElifClause
+from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
+from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
@@ -54,6 +56,7 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -2640,4 +2643,33 @@ class ASTUtils:
                 if symbol and symbol.is_state():
                     return True
         return False
-    
+
+    @classmethod
+    def get_integrate_odes_parent(cls, node: ASTFunctionCall) -> ASTNode:
+        assert isinstance(node, ASTFunctionCall)
+        if node.get_name() == PredefinedFunctions.INTEGRATE_ODES:
+            parent = node
+            while parent:
+                parent = parent.get_parent()
+
+                if isinstance(parent, ASTIfClause) or isinstance(parent, ASTElifClause) \
+                        or isinstance(parent, ASTElseClause):
+                    return parent
+
+                if isinstance(parent, ASTUpdateBlock):
+                    # integrate_odes() is not in any if-else blocks but rather directly in the update block
+                    return None
+
+        return None
+
+    @classmethod
+    def is_if_clause(cls, node):
+        return isinstance(node, ASTIfClause)
+
+    @classmethod
+    def is_elif_clause(cls, node):
+        return isinstance(node, ASTElifClause)
+
+    @classmethod
+    def is_else_clause(cls, node):
+        return isinstance(node, ASTElseClause)
