@@ -43,7 +43,7 @@ model aeif_psc_exp_neuron:
         V_m mV = E_L       # Membrane potential
         w pA = 0 pA        # Spike-adaptation current
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = False
+        # is_refractory boolean = False
         I_syn_exc pA = 0 pA
         I_syn_inh pA = 0 pA
 
@@ -56,8 +56,10 @@ model aeif_psc_exp_neuron:
         
         I_syn_exc' = -I_syn_exc / tau_exc
         I_syn_inh' = -I_syn_inh / tau_inh
-        V_m' = is_refractory ? 0 : (-g_L * (V_bounded - E_L) + I_spike + I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
+        V_m' = (-g_L * (V_bounded - E_L) + I_spike + I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
         w' = (a * (V_bounded - E_L) - w) / tau_w
+
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
     parameters:
         # membrane parameters
@@ -91,12 +93,12 @@ model aeif_psc_exp_neuron:
         spike
 
     update:
-        if is_refractory:
+        if refr_t > 0 ms:
             # neuron is absolute refractory, do not evolve V_m
-            refr_t -= resolution()
-
-        # always evolve all ODEs; V_m 
-        integrate_odes()
+            integrate_odes(w, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(w, V_m)
     
     onReceive(exc_spikes):
         I_syn_exc += exc_spikes * pA * s
@@ -107,12 +109,6 @@ model aeif_psc_exp_neuron:
     onCondition(V_m >= V_th):
         # threshold crossing
         refr_t = refr_T    # start of the refractory period
-        is_refractory = True
         V_m = V_reset
         w += b
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = False

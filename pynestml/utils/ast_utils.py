@@ -2015,7 +2015,7 @@ class ASTUtils:
         return model.integrate_odes_combinations
 
     @classmethod
-    def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> None:
+    def get_all_integrate_odes_calls_unique(cls, model: ASTModel) -> List[ASTFunctionCall]:
         r"""Get a list of all unique ``integrate_odes()`` function calls in the model (i.e. each having a different set of parameters)."""
         model.integrate_odes_combinations = []
 
@@ -2640,3 +2640,4 @@ class ASTUtils:
                 if symbol and symbol.is_state():
                     return True
         return False
+    

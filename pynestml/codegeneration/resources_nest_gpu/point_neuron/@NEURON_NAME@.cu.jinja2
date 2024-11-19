@@ -204,15 +204,9 @@ void NodeCalibrate(int n_var, int n_param, double x, float *y,
 {%- endfilter %}
 }
 
- template<int NVAR, int NPARAM> //, class DataStruct>
-__device__
-    void Derivatives(double x, float *y, float *dydx, float *param,
-		     {{ neuronName }}_rk5 data_struct)
-{
-{%- filter indent(2,True) %}
-{%- include "directives/NumericIntegrationStep.jinja2" %}
-{%- endfilter %}
-}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%-         include "directives/NumericDifferentiationFunction.jinja2.jinja2" %}
+{%-     endfor %}
 
  template<int NVAR, int NPARAM> //, class DataStruct>
 __device__
@@ -294,8 +288,10 @@ __device__
 void Derivatives(double x, float *y, float *dydx, float *param,
 		 {{ neuronName }}_rk5 data_struct)
 {
+{%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
     {{ neuronName }}_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
 						 data_struct);
+{%- endfor %}
 }
 
 template<int NVAR, int NPARAM>
