@@ -21,6 +21,10 @@ Creating neuron models
 
   Create a model that emits spikes according to an inhomogeneous Poisson distribution.
 
+* :doc:`Galves-Löcherbach (GL) model </tutorials/gl_model/gl_model_tutorial>`
+
+  In the GL model, firing of the neuron is a stochastic event, whose probability of occurrence is a function of the membrane potential.
+
 
 Creating synapse models
 -----------------------
