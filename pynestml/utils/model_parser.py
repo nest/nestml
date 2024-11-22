@@ -68,7 +68,6 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.transformers.assign_implicit_conversion_factors_transformer import AssignImplicitConversionFactorsTransformer
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.error_listener import NestMLErrorListener
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -457,7 +456,7 @@ class ModelParser:
         # type: (str) -> ASTUpdateBlock
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.updateBlock())
-        ret.accept(ASTHigherOrderVisitor(log_sparse_included_fileet_added_source_position))
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
     @classmethod
