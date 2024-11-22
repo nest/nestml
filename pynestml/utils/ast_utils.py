@@ -701,11 +701,15 @@ class ASTUtils:
         return []
 
     @classmethod
-    def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port):
+    def get_var_name_tuples_of_neuron_synapse_pair(cls, post_port_names, post_port, reverse=False):
         for pair in post_port_names:
-            if pair[0] == post_port:
+            if reverse and pair[1] == post_port:
+                return pair[0]
+
+            if not reverse and pair[0] == post_port:
                 return pair[1]
-        return None
+
+        raise Exception("Port name not found!")
 
     @classmethod
     def replace_with_external_variable(cls, var_name, node: ASTNode, suffix: str, new_scope, alternate_name=None):
@@ -1604,6 +1608,27 @@ class ASTUtils:
                     if var.get_name() == var_name:
                         return decl
         return None
+
+    @classmethod
+    def replace_post_moved_variable_names(cls, astnode, post_connected_continuous_input_ports, post_variable_names):
+        if not isinstance(astnode, ASTNode):
+            for node in astnode:
+                ASTUtils.replace_post_moved_variable_names(node, post_connected_continuous_input_ports, post_variable_names)
+            return
+
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if var.get_name() in post_connected_continuous_input_ports:
+                idx = post_connected_continuous_input_ports.index(var.get_name())
+                var.set_name(post_variable_names[idx])
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
     @classmethod
     def replace_post_moved_variable_names(cls, astnode, post_connected_continuous_input_ports, post_variable_names):

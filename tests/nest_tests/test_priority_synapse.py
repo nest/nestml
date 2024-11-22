@@ -175,5 +175,5 @@ class TestSynapsePriority:
                                           post_spike_times=post_spike_times,
                                           fname_snip=fname_snip)
 
-        np.testing.assert_allclose(tr, 7.28318)
-        np.testing.assert_allclose(tr_inv, 5.14159)
+        np.testing.assert_allclose(tr, 1 + 2 * np.pi)
+        np.testing.assert_allclose(tr_inv, 2 + np.pi)
