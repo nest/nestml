@@ -41,6 +41,8 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.assign_implicit_conversion_factors_visitor import AssignImplicitConversionFactorsVisitor
+from pynestml.visitors.ast_include_statement_visitor import ASTIncludeStatementVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -404,7 +406,7 @@ def main() -> int:
 
 def get_parsed_models() -> List[ASTModel]:
     r"""
-   Handle the parsing and validation of the NESTML files
+    Handle the parsing and validation of the NESTML files
 
     Returns
     -------
@@ -438,6 +440,11 @@ def get_parsed_models() -> List[ASTModel]:
     # swap include statements for included file
     for model in models:
         model.accept(ASTIncludeStatementVisitor(os.path.dirname(model.file_path)))
+        model.accept(ASTSymbolTableVisitor())
+
+    # .......
+    for model in models:
+        model.accept(AssignImplicitConversionFactorsVisitor())
 
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)

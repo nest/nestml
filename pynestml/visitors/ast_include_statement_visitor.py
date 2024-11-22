@@ -19,11 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 from typing import Optional
+
+import os
+
 from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -59,11 +63,37 @@ class ASTIncludeStatementVisitor(ASTVisitor):
             filename = node.get_include_stmt().get_filename()
             if not os.path.isabs(filename):
                 filename = os.path.join(self.model_path, filename)
-            parsed_included_file = ModelParser.parse_included_file(filename)
-            print(parsed_included_file)
 
-            if isinstance(node.get_parent().get_parent(), ASTBlock):
-                idx = node.get_parent().get_parent().get_stmts().index(node.get_parent())
-                blk = node.get_parent().get_parent()
-                blk.get_stmts()[idx] = parsed_included_file
-                blk.accept(ASTParentVisitor())
+            parsed_included_file = ModelParser.parse_included_file(filename)
+
+            if isinstance(parsed_included_file, list):
+                new_stmts = parsed_included_file
+
+                if isinstance(node.get_parent().get_parent(), ASTBlock):
+                    blk = node.get_parent().get_parent()
+                    idx = blk.get_stmts().index(node.get_parent())
+                    blk.get_stmts().pop(idx)
+                    blk.stmts = blk.stmts[:idx] + new_stmts + blk.stmts[idx:]
+                    for new_stmt in new_stmts:
+                        new_stmt.parent_ = blk
+                        blk.accept(ASTParentVisitor())
+
+                elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
+                    print("not handled yet")
+
+
+            elif isinstance(parsed_included_file, ASTStmt):
+                new_stmt = parsed_included_file
+
+                if isinstance(node.get_parent().get_parent(), ASTBlock):
+                    blk = node.get_parent().get_parent()
+                    idx = blk.get_stmts().index(node.get_parent())
+                    blk.get_stmts()[idx] = new_stmt
+                    new_stmt.parent_ = blk
+                    blk.accept(ASTParentVisitor())
+
+                elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
+                    print("not handled yet")
+
+            else:
+                print("not handled yet!")

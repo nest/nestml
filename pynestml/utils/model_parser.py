@@ -19,11 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Tuple
+from typing import List, Tuple, Union
 
 from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 from antlr4.error.ErrorListener import ConsoleErrorListener
+from antlr4.error.Errors import ParseCancellationException
 from pynestml.cocos.co_cos_manager import CoCosManager
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -53,6 +54,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
@@ -146,9 +148,6 @@ class ModelParser:
         for model in ast.get_model_list():
             model.accept(ASTSymbolTableVisitor())
             SymbolTable.add_model_scope(model.get_name(), model.get_scope())
-            Logger.set_current_node(model)
-            model.accept(AssignImplicitConversionFactorsVisitor())
-            Logger.set_current_node(None)
 
         # store source paths
         for model in ast.get_model_list():
@@ -175,12 +174,22 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_stmt(cls, string):
+    def parse_stmt(cls, string: str) -> Union[ASTStmt, List[ASTStmt]]:
         # type: (str) -> ASTStmt
+        stmts = []
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.stmt())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
+        while True:
+            try:
+                stmt = builder.visit(parser.stmt())
+                stmts.append(stmt)
+            except ParseCancellationException:
+                # no more statements left to parse
+                break
+
+        if len(stmts) == 1:
+            return stmts[0]
+
+        return stmts
 
     @classmethod
     def parse_assignment(cls, string):
@@ -476,7 +485,7 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_included_file(cls, filename: str):
+    def parse_included_file(cls, filename: str) -> Union[ASTNode, List[ASTNode]]:
         with open(filename, 'r') as file:
             lines = file.read()
             ast = None
@@ -496,13 +505,13 @@ class ModelParser:
                     ast = ModelParser.parse_block_with_variables(lines)
                 except:
                     pass
-                
+
             if not ast:
                 try:
                     ast = ModelParser.parse_equations_block(lines)
                 except:
                     pass
-                
+
             if not ast:
                 try:
                     ast = ModelParser.parse_input_block(lines)
@@ -514,7 +523,7 @@ class ModelParser:
                     ast = ModelParser.parse_output_block(lines)
                 except:
                     pass
-                
+
             if not ast:
                 try:
                     ast = ModelParser.parse_on_receive_block(lines)
@@ -526,37 +535,25 @@ class ModelParser:
                     ast = ModelParser.parse_on_condition_block(lines)
                 except:
                     pass
-                
+
             if not ast:
                 try:
                     ast = ModelParser.parse_update_block(lines)
                 except:
                     pass
-                
-
-
-
-
-
-
-
-
-
-
-
 
             if not ast:
                 try:
                     ast = ModelParser.parse_block(lines)
                 except:
                     pass
-                
+
             if not ast:
                 try:
                     ast = ModelParser.parse_stmt(lines)
                 except:
                     pass
-                
+
             if not ast:
                 try:
                     ast = ModelParser.parse_small_stmt(lines)
