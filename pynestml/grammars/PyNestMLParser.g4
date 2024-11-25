@@ -279,7 +279,7 @@ parser grammar PyNestMLParser;
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   NEWLINE INDENT ( inlineExpression | odeEquation | kernel )+ DEDENT;
+                   NEWLINE INDENT ( inlineExpression | odeEquation | kernel | includeStmt_newline )+ DEDENT;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
