@@ -33,18 +33,12 @@ model alpha_function_2nd_order_ode_neuron:
     input:
         fX <- spike
 
-    parameters:
-        high_order boolean = true
-
     equations:
         x'' = - 2 * x' / ms - x / ms**2
         y' = (-y + 42) / s
 
     update:
-        if high_order:
-            integrate_odes(x, y)
-        else:
-            integrate_odes(x', x, y)    # equivalent to integrate_odes(x, y)
+        integrate_odes(x, y)
 
     onReceive(fX):
         x' += e*fX * s / ms

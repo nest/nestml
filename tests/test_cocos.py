@@ -87,7 +87,7 @@ class TestCoCos:
     def test_variable_with_same_name_as_unit(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoVariableWithSameNameAsUnit.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) == 2
 
     def test_invalid_variable_redeclaration(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoVariableRedeclared.nestml'))

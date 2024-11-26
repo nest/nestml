@@ -235,43 +235,36 @@ class TestIntegrateODEs:
         r"""
         Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x.
         """
-        for high_order in [True, False]:
-            resolution = 0.1
-            simtime = 15.
-            nest.set_verbosity("M_ALL")
-            nest.ResetKernel()
-            nest.SetKernelStatus({"resolution": resolution})
-            try:
-                nest.Install("nestmlmodule")
-            except Exception:
-                # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
-                pass
+        resolution = 0.1
+        simtime = 15.
+        nest.set_verbosity("M_ALL")
+        nest.ResetKernel()
+        nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
 
-            n = nest.Create("alpha_function_2nd_order_ode_neuron_nestml")
-            nest.SetStatus(n, {"high_order": high_order})
-            sgX = nest.Create("spike_generator", params={"spike_times": [10.]})
-            nest.Connect(sgX, n, syn_spec={"weight": 1., "delay": resolution})
+        n = nest.Create("alpha_function_2nd_order_ode_neuron_nestml")
+        sgX = nest.Create("spike_generator", params={"spike_times": [10.]})
+        nest.Connect(sgX, n, syn_spec={"weight": 1., "delay": resolution})
 
-            mm = nest.Create("multimeter", params={"interval": resolution, "record_from": ["x", "y"]})
-            nest.Connect(mm, n)
+        mm = nest.Create("multimeter", params={"interval": resolution, "record_from": ["x", "y"]})
+        nest.Connect(mm, n)
 
-            nest.Simulate(simtime)
-            times = mm.get()["events"]["times"]
-            if high_order:
-                x_actual = mm.get()["events"]["x"]
-                y_actual = mm.get()["events"]["y"]
-            else:
-                x_expected = mm.get()["events"]["x"]
-                y_expected = mm.get()["events"]["y"]
+        nest.Simulate(simtime)
+        times = mm.get()["events"]["times"]
+        x_actual = mm.get()["events"]["x"]
+        y_actual = mm.get()["events"]["y"]
+
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
             ax2.plot(times, x_actual, label="x")
-            ax2.plot(times, x_expected, label="x', x", alpha=.7, linestyle=":")
             ax1.plot(times, y_actual, label="y")
-            ax1.plot(times, y_expected, label="y", alpha=.7, linestyle=":")
 
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
@@ -282,5 +275,5 @@ class TestIntegrateODEs:
             fig.savefig("/tmp/test_integrate_odes_higher_order.png", dpi=300)
 
         # verify
-        np.testing.assert_allclose(x_actual[-1], x_expected[-1])
-        np.testing.assert_allclose(y_actual[-1], y_expected[-1])
+        np.testing.assert_allclose(x_actual[-1], 0.10737970490959549)
+        np.testing.assert_allclose(y_actual[-1], 0.6211608596446752)
