@@ -705,7 +705,7 @@ class ASTModel(ASTNode):
         extract_list = [var for var in self.get_state_symbols()
                         if any(input_port.get_symbol_name() in var.get_symbol_name() for input_port in self.get_spike_input_ports())]
         if extract_list:
-            diff =  list(set(self.get_state_symbols()) - set(extract_list))
+            diff = list(set(self.get_state_symbols()) - set(extract_list))
             extract_list = sorted(extract_list, key=lambda x: x.name)
             extract_list = sorted(extract_list, key=lambda x: (x.name.endswith("__d")))
             return diff + extract_list

@@ -2622,7 +2622,7 @@ class ASTUtils:
                 if symbol and symbol.is_parameters():
                     return True
         return False
-            
+
     @classmethod
     def is_declaring_expression_state_varible(cls, expr: ASTExpression) -> bool:
         if isinstance(expr, ASTSimpleExpression):

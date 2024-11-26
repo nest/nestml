@@ -167,7 +167,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         for neuron in neurons:
             neuron_indexes.append("\ni_" + neuron.get_name() + "_model,")
             neuron_names.append("\n, \"" + neuron.get_name() + "\"")
-        
+
         neuron_indexes = "".join(neuron_indexes) + "\n"
         neuron_names = "".join(neuron_names) + "\n"
         replace_text_between_tags(neuron_models_h_path, neuron_indexes)
@@ -187,12 +187,12 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
             model_name_index = "i_" + neuron.get_name() + "_model"
             model_name = neuron.get_name()
             n_ports = len(neuron.get_spike_input_ports())
-            code_blocks.append("\n" \
-                                f"else if (model_name == neuron_model_name[{model_name_index}]) {{\n" \
-                                f"    n_port = {n_ports};\n" \
-                                f"    {model_name} *{model_name}_group = new {model_name};\n" \
-                                f"    node_vect_.push_back({model_name}_group);\n" \
-                                " }")
+            code_blocks.append("\n"
+                               f"else if (model_name == neuron_model_name[{model_name_index}]) {{\n"
+                               f"    n_port = {n_ports};\n"
+                               f"    {model_name} *{model_name}_group = new {model_name};\n"
+                               f"    node_vect_.push_back({model_name}_group);\n"
+                               " }")
         include_files = "".join(include_files) + "\n"
         code_blocks = "".join(code_blocks) + "\n"
         replace_text_between_tags(neuron_models_cu_path, include_files)
@@ -207,14 +207,14 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
 
         gen_files = []
         for neuron in neurons:
-            gen_files.append("\n" \
-                             f"    {neuron.get_name()}.h\n" \
+            gen_files.append("\n"
+                             f"    {neuron.get_name()}.h\n"
                              f"    {neuron.get_name()}.cu\n")
         gen_files = "".join(gen_files) + "\n"
         replace_text_between_tags(cmakelists_path, gen_files,
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
-        
+
     def _get_neuron_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode)
         if namespace["uses_numeric_solver"]:

@@ -98,7 +98,6 @@ class NESTGPUVariablePrinter(CppVariablePrinter):
 
         if symbol.is_local():
             return variable_name
-        
         if with_origin:
             return NESTGPUCodeGeneratorUtils.print_symbol_origin(symbol, variable) % ("i_" + variable_name)
 

@@ -48,7 +48,7 @@ class NESTGPUNumericVariablePrinter(CppVariablePrinter):
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "M_E"
-        
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -89,13 +89,10 @@ class NESTGPUNumericVariablePrinter(CppVariablePrinter):
 
         if symbol.is_local():
             return var_cpp_name
-        
         if symbol.is_state() and not symbol.is_inline_expression:
             return "y[i_" + var_cpp_name + "]"
-        
         if symbol.is_parameters() or symbol.is_internals() or symbol.is_continuous_input_port():
             return "param[i_" + var_cpp_name + "]"
-        
         if symbol.is_spike_input_port():
             return "y[N_SCAL_VAR + i_" + symbol.get_symbol_name() + "]"
 
