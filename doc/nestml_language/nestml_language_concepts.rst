@@ -1134,9 +1134,8 @@ In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x
 
    update:
      integrate_odes(x)
-     # integrate_odes(x', x)  # equivalent to integrate_odes(x)
 
-Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)`` and is equivalent to ``integrate_odes(x', x)``.
+Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)``, in this case, ``x`` and ``x'``.
 
 Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 
