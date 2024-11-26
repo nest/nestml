@@ -183,6 +183,10 @@ class ModelParser:
                 stmt = builder.visit(parser.stmt())
                 stmts.append(stmt)
             except ParseCancellationException:
+                if not stmts:
+                    # this is the only the first statement to be visited, and it failed, so there is nothing here that can be parsed as a statement
+                    raise ParseCancellationException()
+
                 # no more statements left to parse
                 break
 
@@ -491,73 +495,73 @@ class ModelParser:
             ast = None
             try:
                 ast = ModelParser.parse_model(lines)
-            except:
+            except (ParseCancellationException, AttributeError):
                 pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_model_body(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_block_with_variables(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_equations_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_input_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_output_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_on_receive_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_on_condition_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_update_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_block(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_stmt(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
             if not ast:
                 try:
                     ast = ModelParser.parse_small_stmt(lines)
-                except:
+                except (ParseCancellationException, AttributeError):
                     pass
 
         assert ast
@@ -565,20 +569,7 @@ class ModelParser:
         return ast
 
 
-
-# def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
-#     lexer = PyNestMLLexer(InputStream(string))
-#     # create a token stream
-#     stream = CommonTokenStream(lexer)
-#     stream.fill()
-#     parser = PyNestMLParser(stream)
-#     builder = ASTBuilderVisitor(stream.tokens)
-#     return builder, parser
-
-
-
 def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
-
     lexer = PyNestMLLexer()
     lexer.removeErrorListeners()
     lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
@@ -600,25 +591,6 @@ def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
 
     builder = ASTBuilderVisitor(stream.tokens)
     return builder, parser
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def log_set_added_source_position(node):

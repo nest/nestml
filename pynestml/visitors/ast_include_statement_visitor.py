@@ -62,6 +62,15 @@ class ASTIncludeStatementVisitor(ASTVisitor):
         if node.is_include_stmt():
             self._handle_include_stmt(node.get_include_stmt())
 
+    def _replace_statements(self, include_stmt, new_stmts):
+        blk = include_stmt.get_parent()
+        idx = blk.get_stmts().index(include_stmt)
+        blk.get_stmts().pop(idx)
+        blk.stmts = blk.stmts[:idx] + new_stmts + blk.stmts[idx:]
+        for new_stmt in new_stmts:
+            new_stmt.parent_ = blk
+            blk.accept(ASTParentVisitor())
+
     def _handle_include_stmt(self, node: ASTIncludeStmt):
         filename = node.get_filename()
         if not os.path.isabs(filename):
@@ -71,48 +80,38 @@ class ASTIncludeStatementVisitor(ASTVisitor):
 
         if isinstance(parsed_included_file, list):
             new_stmts = parsed_included_file
+            include_stmt = node.get_parent().get_parent()
 
-            if isinstance(node.get_parent().get_parent(), ASTBlock):
-                blk = node.get_parent().get_parent()
-                idx = blk.get_stmts().index(node.get_parent())
-                blk.get_stmts().pop(idx)
-                blk.stmts = blk.stmts[:idx] + new_stmts + blk.stmts[idx:]
-                for new_stmt in new_stmts:
-                    new_stmt.parent_ = blk
-                    blk.accept(ASTParentVisitor())
+            if isinstance(include_stmt.get_parent(), ASTBlock):
+                self._replace_statements(include_stmt, new_stmts)
 
             elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
-                print("not handled yet")
-                import pdb;pdb.set_trace()
+                print("not handled yet 4")
+                assert False
 
         elif isinstance(parsed_included_file, ASTStmt):
             new_stmt = parsed_included_file
+            include_stmt = node.get_parent().get_parent()
 
-            if isinstance(node.get_parent().get_parent(), ASTBlock):
-                blk = node.get_parent().get_parent()
-                idx = blk.get_stmts().index(node.get_parent())
-                blk.get_stmts()[idx] = new_stmt
-                new_stmt.parent_ = blk
-                blk.accept(ASTParentVisitor())
+            if isinstance(include_stmt.get_parent(), ASTBlock):
+                self._replace_statements(include_stmt, [new_stmt])
 
             # elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
             else:
-                print("not handled yet")
-                import pdb;pdb.set_trace()
+                print("not handled yet 1")
+                assert False
 
-        elif isinstance(parsed_included_file, ASTBlockWithVariables):
+        elif isinstance(parsed_included_file, ASTBlockWithVariables) or isinstance(parsed_included_file, ASTUpdateBlock) or isinstance(parsed_included_file, ASTEquationsBlock):
             new_blk = parsed_included_file
             if isinstance(node.get_parent(), ASTModelBody):
                 idx = node.get_parent().get_body_elements().index(node)
                 node.get_parent().body_elements[idx] = new_blk
                 new_blk.parent_ = node
                 node.accept(ASTParentVisitor())
+                new_blk.accept(ASTParentVisitor())
             else:
-                print("not handled yet")
-                import pdb;pdb.set_trace()
+                print("not handled yet 2")
+                assert False
 
         else:
-            print("not handled yet!")
-            import pdb;pdb.set_trace()
-
-        import pdb;pdb.set_trace()
+            assert False

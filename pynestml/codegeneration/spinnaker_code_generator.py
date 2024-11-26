@@ -219,5 +219,5 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             cloned_models.append(cloned_model)
 
         self.codegen_cpp.generate_code(cloned_models)
-            CoCosManager.check_cocos(cloned_model)
+        CoCosManager.check_cocos(cloned_model)
         self.codegen_py.generate_code(cloned_models)

@@ -441,6 +441,8 @@ def get_parsed_models() -> List[ASTModel]:
     for model in models:
         model.accept(ASTIncludeStatementVisitor(os.path.dirname(model.file_path)))
         model.accept(ASTSymbolTableVisitor())
+        print("MODEL AFTER INCLUDES REPLACED:")
+        print(model)
 
     # .......
     for model in models:

@@ -1,2 +1,2 @@
 parameters:
-    A real = 42 / ms
+    A ms**-1 = 42 / ms
