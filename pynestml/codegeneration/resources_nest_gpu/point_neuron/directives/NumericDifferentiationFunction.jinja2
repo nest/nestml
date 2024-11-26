@@ -2,6 +2,7 @@
   Creates an implementation of the RK5 differentiation function for the system of ODEs.
 -#}
 
+ 
  template<int NVAR, int NPARAM> //, class DataStruct>
 __device__
     void Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(double x, float *y, float *dydx, float *param,

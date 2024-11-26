@@ -285,6 +285,20 @@ int Update(long long it, double t1);
 
 template<int NVAR, int NPARAM>
 __device__
+void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
+		    {{ neuronName }}_rk5 data_struct)
+{
+    {{ neuronName }}_ns::ExternalUpdate<NVAR, NPARAM>(x, y, param,
+						    end_time_step,
+						    data_struct);
+}
+
+{%- endif %}
+
+using namespace {{ neuronName }}_ns;
+
+template<int NVAR, int NPARAM>
+__device__
 void Derivatives(double x, float *y, float *dydx, float *param,
 		 {{ neuronName }}_rk5 data_struct)
 {
@@ -300,7 +314,7 @@ void Derivatives(double x, float *y, float *dydx, float *param,
     else
 {%-       endif %}
     {
-      {{ neuronName }}_ns::Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(x, y, dydx, param, data_struct);
+      {{ neuronName }}_ns::Derivatives{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}<NVAR, NPARAM>(x, y, dydx, param, data_struct);
     }
 {%-    else %}
     {{ neuronName }}_ns::Derivatives<NVAR, NPARAM>(x, y, dydx, param,
@@ -308,20 +322,6 @@ void Derivatives(double x, float *y, float *dydx, float *param,
 {%-    endif  %}
 {%- endfor %}
 }
-
-template<int NVAR, int NPARAM>
-__device__
-void ExternalUpdate(double x, float *y, float *param, bool end_time_step,
-		    {{ neuronName }}_rk5 data_struct)
-{
-    {{ neuronName }}_ns::ExternalUpdate<NVAR, NPARAM>(x, y, param,
-						    end_time_step,
-						    data_struct);
-}
-
-{%- endif %}
-
-using namespace {{ neuronName }}_ns;
 
 int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
 			 int i_group, unsigned long long *seed)

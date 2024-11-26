@@ -95,10 +95,10 @@ model aeif_psc_exp_neuron:
     update:
         if refr_t > 0 ms:
             # neuron is absolute refractory, do not evolve V_m
-            integrate_odes(w, refr_t)
+            integrate_odes(I_syn_exc, I_syn_inh, w, refr_t)
         else:
             # neuron not refractory
-            integrate_odes(w, V_m)
+            integrate_odes(I_syn_exc, I_syn_inh, w, V_m)
     
     onReceive(exc_spikes):
         I_syn_exc += exc_spikes * pA * s
