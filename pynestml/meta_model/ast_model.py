@@ -545,6 +545,7 @@ class ASTModel(ASTNode):
                 return True
 
         return False
+
     def get_input_ports(self) -> List[VariableSymbol]:
         """
         Returns a list of all defined input ports.

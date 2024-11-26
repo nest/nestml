@@ -2597,12 +2597,6 @@ class ASTUtils:
 
         return "0"
 
-
-    @classmethod
-    def print_spike_update_expressions(cls, neuron:ASTModel):
-        for port, update_exp in neuron.spike_updates.items():
-            print(f"Update expression for {port} is {update_exp}")
-
     @classmethod
     def get_first_spike_port_from_spike_updates(cls, neuron: ASTModel) -> ASTVariable:
         # Get the first variable in the sorted spike update expressions list
@@ -2621,12 +2615,6 @@ class ASTUtils:
         return neuron.get_spike_input_ports()[0].get_symbol_name()
 
     @classmethod
-    def get_exc_spike_variable(cls, neuron: ASTModel) -> ASTVariable:
-        for block in neuron.get_on_receive_blocks():
-            port_name = block.get_port_name()
-
-
-    @classmethod
     def is_declaring_expression_parameter(cls, expr: ASTExpression) -> bool:
         if isinstance(expr, ASTSimpleExpression):
             if expr.is_variable():
@@ -2634,7 +2622,7 @@ class ASTUtils:
                 if symbol and symbol.is_parameters():
                     return True
         return False
-        
+            
     @classmethod
     def is_declaring_expression_state_varible(cls, expr: ASTExpression) -> bool:
         if isinstance(expr, ASTSimpleExpression):

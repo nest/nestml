@@ -351,6 +351,7 @@ def generate_nest_gpu_target(input_path: Union[str, Sequence[str]], target_path:
                     logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
+
 def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
                               logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
                               suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
@@ -380,6 +381,7 @@ def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path
                     install_path=install_path,
                     logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
+
 
 def generate_nest_compartmental_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                                        install_path: Optional[str] = None, logging_level="ERROR",

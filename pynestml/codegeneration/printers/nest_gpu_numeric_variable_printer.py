@@ -35,7 +35,6 @@ class NESTGPUNumericVariablePrinter(CppVariablePrinter):
     """
     Variable printer for numeric (RK5) solver syntax for the NEST-GPU target
     """
-    
     def __init__(self, expression_printer: ExpressionPrinter, with_origin: bool = True, with_vector_parameter: bool = True) -> None:
         super().__init__(expression_printer)
         self.with_origin = with_origin

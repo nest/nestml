@@ -21,14 +21,7 @@
 import glob
 import os
 import shutil
-from typing import Dict, Sequence, Optional, Mapping, Any, List, Tuple
-
-from pynestml.utils.ast_utils import ASTUtils
-
-from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-
-from pynestml.meta_model.ast_assignment import ASTAssignment
-
+from typing import Dict, Sequence, Optional, Mapping, Any, List
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
@@ -158,9 +151,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         """Copies all the files related to the neuron model to the NEST GPU src directory"""
         types = ["*.h", "*.cu"]
         dst_path = os.path.join(self.nest_gpu_path, "src")
-        for type in types:
-        # file_match_str = f"*{neuron.get_name()}*"
-            for file in glob.glob(os.path.join(FrontendConfiguration.get_target_path(), type)):
+        for _type in types:
+            for file in glob.glob(os.path.join(FrontendConfiguration.get_target_path(), _type)):
                 shutil.copy(file, dst_path)
 
     def add_model_name_to_neuron_header(self, neurons: List[ASTModel]):
@@ -192,8 +184,6 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         code_blocks = []
         for neuron in neurons:
             include_files.append("\n#include \"" + neuron.get_name() + ".h\"")
-            
-
             model_name_index = "i_" + neuron.get_name() + "_model"
             model_name = neuron.get_name()
             n_ports = len(neuron.get_spike_input_ports())
@@ -224,7 +214,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         replace_text_between_tags(cmakelists_path, gen_files,
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
-
+        
     def _get_neuron_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_neuron_model_namespace(astnode)
         if namespace["uses_numeric_solver"]:
