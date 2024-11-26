@@ -257,7 +257,7 @@ class TestIntegrateODEs:
         times = mm.get()["events"]["times"]
         x_actual = mm.get()["events"]["x"]
         y_actual = mm.get()["events"]["y"]
-        
+
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
