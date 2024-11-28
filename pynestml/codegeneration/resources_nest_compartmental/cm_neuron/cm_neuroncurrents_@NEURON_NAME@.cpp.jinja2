@@ -85,8 +85,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channel_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives_cpp/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives_cpp/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }
@@ -98,8 +98,8 @@ inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channe
 {{ vectorized_function_declaration.FunctionDeclaration(function, "nest::"~ion_channel_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives_cpp/VectorizedBlock.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives_cpp/VectorizedStmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }
@@ -799,8 +799,8 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{synapse_name}}
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~synapse_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }
@@ -1002,8 +1002,8 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~continuous_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }

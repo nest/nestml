@@ -31,7 +31,7 @@ from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePri
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_elif_clause import ASTElifClause
@@ -518,7 +518,7 @@ class ASTUtils:
         return False
 
     @classmethod
-    def get_declaration_by_name(cls, blocks: Union[ASTBlock, List[ASTBlock]], var_name: str) -> Optional[ASTDeclaration]:
+    def get_declaration_by_name(cls, blocks: Union[ASTStmtsBody, List[ASTStmtsBody]], var_name: str) -> Optional[ASTDeclaration]:
         """
         Get a declaration by variable name.
         :param blocks: the block or blocks to look for the variable in
@@ -534,7 +534,7 @@ class ASTUtils:
         return None
 
     @classmethod
-    def all_variables_defined_in_block(cls, blocks: Union[ASTBlock, List[ASTBlock]]) -> List[ASTVariable]:
+    def all_variables_defined_in_block(cls, blocks: Union[ASTStmtsBody, List[ASTStmtsBody]]) -> List[ASTVariable]:
         """return a list of all variable declarations in a block or blocks"""
         if isinstance(blocks, ASTNode):
             blocks = [blocks]
@@ -998,7 +998,7 @@ class ASTUtils:
     @classmethod
     def get_statements_from_block(cls, var_name, block):
         """XXX: only simple statements such as assignments are supported for now. if..then..else compound statements and so are not yet supported."""
-        block = block.get_block()
+        block = block.get_stmts_body()
         all_stmts = block.get_stmts()
         stmts = []
         for node in all_stmts:
@@ -1200,9 +1200,9 @@ class ASTUtils:
                                               source_position=ASTSourceLocation.get_added_source_position())
         if not neuron.get_update_blocks():
             neuron.create_empty_update_block()
-        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
+        neuron.get_update_blocks()[0].get_stmts_body().get_stmts().append(stmt)
+        small_stmt.update_scope(neuron.get_update_blocks()[0].get_stmts_body().get_scope())
+        stmt.update_scope(neuron.get_update_blocks()[0].get_stmts_body().get_scope())
         return neuron
 
     @classmethod
@@ -1220,9 +1220,9 @@ class ASTUtils:
                                               source_position=ASTSourceLocation.get_added_source_position())
         if not neuron.get_update_blocks():
             neuron.create_empty_update_block()
-        neuron.get_update_blocks()[0].get_block().get_stmts().append(stmt)
-        small_stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
-        stmt.update_scope(neuron.get_update_blocks()[0].get_block().get_scope())
+        neuron.get_update_blocks()[0].get_stmts_body().get_stmts().append(stmt)
+        small_stmt.update_scope(neuron.get_update_blocks()[0].get_stmts_body().get_scope())
+        stmt.update_scope(neuron.get_update_blocks()[0].get_stmts_body().get_scope())
         return neuron
 
     @classmethod
@@ -1680,7 +1680,7 @@ class ASTUtils:
         return vars_used_
 
     @classmethod
-    def get_declarations_from_block(cls, var_name: str, block: ASTBlock) -> List[ASTDeclaration]:
+    def get_declarations_from_block(cls, var_name: str, block: ASTStmtsBody) -> List[ASTDeclaration]:
         """
         Get declarations from the given block containing the given variable on the left-hand side.
 
@@ -1928,7 +1928,7 @@ class ASTUtils:
                 cond_vars = ASTUtils.get_all_variables_names_in_expression(node.condition)
                 if var in cond_vars:
                     # collect all variables assigned to in the if-block -- they all depend on ``var``
-                    self.vars |= ASTUtils.get_all_variables_assigned_to(node.block)
+                    self.vars |= ASTUtils.get_all_variables_assigned_to(node.get_stmts_body())
 
             def visit_if_clause(self, node: ASTIfClause) -> None:
                 self._visit_if_clause(node)
@@ -2441,7 +2441,7 @@ class ASTUtils:
         return res
 
     @classmethod
-    def resolve_to_variable_symbol_in_blocks(cls, variable_name: str, blocks: List[ASTBlock]):
+    def resolve_to_variable_symbol_in_blocks(cls, variable_name: str, blocks: List[ASTStmtsBody]):
         r"""
         Resolve a variable (by name) to its corresponding ``Symbol`` within the AST blocks in ``blocks``.
         """
