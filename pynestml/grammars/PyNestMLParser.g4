@@ -226,7 +226,7 @@ parser grammar PyNestMLParser;
     @attribute Name:    The name of the model, e.g., ht_neuron.
     @attribute body:    The body of the model consisting of several sub-blocks.
   */
-  model : MODEL_KEYWORD NAME modelBody;
+  model : MODEL_KEYWORD NAME modelBody COLON;
 
   /** ASTBody The body of the model, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -236,8 +236,7 @@ parser grammar PyNestMLParser;
     @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute function: A block declaring a user-defined function.
   */
-  modelBody: COLON
-         NEWLINE INDENT ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
+  modelBody: NEWLINE INDENT ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
 
   /** ASTOnReceiveBlock
      @attribute block implementation of the dynamics

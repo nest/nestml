@@ -185,7 +185,7 @@ class ModelParser:
             except ParseCancellationException:
                 if not stmts:
                     # this is the only the first statement to be visited, and it failed, so there is nothing here that can be parsed as a statement
-                    raise ParseCancellationException()
+                    raise ParseCancellationException("Cannot parse as a statement")
 
                 # no more statements left to parse
                 break

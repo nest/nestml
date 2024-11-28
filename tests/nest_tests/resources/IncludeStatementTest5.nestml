@@ -30,7 +30,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 model include_statement5:
-    include "include_statement_model_test_state_block.nestml"
-    include "include_statement_model_test_parameters_block.nestml"
-    include "include_statement_model_test_update_block.nestml"
-    include "include_statement_model_test_equations_block.nestml"
+    include "includes/include_statement_model_test_state_block.nestml"
+    include "includes/include_statement_model_test_parameters_block.nestml"
+    include "includes/include_statement_model_test_update_block.nestml"
+    include "includes/include_statement_model_test_equations_block.nestml"

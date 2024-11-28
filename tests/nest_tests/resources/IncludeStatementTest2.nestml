@@ -35,4 +35,4 @@ model include_statement2:
         v mV = 42 mV
 
     update:
-        include "ModelB.nestml"
+        include "includes/ModelB.nestml"

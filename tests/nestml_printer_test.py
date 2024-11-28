@@ -74,7 +74,7 @@ class NestMLPrinterTest(unittest.TestCase):
     def test_assignment_with_comments(self):
         assignment = "    # pre\n" \
                      "    a = b # in\n"
-        model = ModelParser.parse_block(assignment)
+        model = ModelParser.parse_assignment(assignment)
         model_printer = NESTMLPrinter()
         self.assertEqual(assignment, model_printer.print(model))
 

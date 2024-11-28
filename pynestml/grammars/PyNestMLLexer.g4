@@ -43,7 +43,7 @@ lexer grammar PyNestMLLexer;
 
   DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) ('\n' | '\r' | '\n\r')? -> channel(2);
 
   // newline is defined as a token
   NEWLINE
