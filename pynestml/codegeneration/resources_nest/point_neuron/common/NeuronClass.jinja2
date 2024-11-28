@@ -588,8 +588,8 @@ void {{ neuronName }}::pre_run_hook()
 {{ function_declaration.FunctionDeclaration(function, neuronName + "::") }}
 {
 {%-         filter indent(2,True) %}
-{%-             with ast = function.get_block() %}
-{%-                 include "directives_cpp/Block.jinja2" %}
+{%-             with ast = function.get_stmts_body() %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
 {%-             endwith %}
 {%-         endfilter %}
 }
@@ -782,13 +782,13 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%  if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in neuron.get_update_blocks() %}
-{%-             set ast = block.get_block() %}
+{%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
 /*
  {{ast.print_comment('*')}}
  */
 {%-             endif %}
-{%-             include "directives_cpp/Block.jinja2" %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -853,14 +853,14 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-     for block in neuron.get_on_condition_blocks() %}
     if ({{ printer.print(block.get_cond_expr()) }})
     {
-{%-         set ast = block.get_block() %}
+{%-         set ast = block.get_stmts_body() %}
 {%-         if ast.print_comment('*') | length > 1 %}
 /*
  {{ast.print_comment('*')}}
  */
 {%-         endif %}
 {%-         filter indent(6) %}
-{%-             include "directives_cpp/Block.jinja2" %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfilter %}
     }
 {%-     endfor %}
@@ -1141,14 +1141,14 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 // -------------------------------------------------------------------------
 
 {%- for blk in neuron.get_on_receive_blocks() %}
-{%-     set ast = blk.get_block() %}
+{%-     set ast = blk.get_stmts_body() %}
 void
 {{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()
 {
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
 
 {%-     filter indent(2, True) -%}
-{%-         include "directives_cpp/Block.jinja2" %}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfilter %}
 }
 

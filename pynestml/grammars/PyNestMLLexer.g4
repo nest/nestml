@@ -29,7 +29,7 @@ lexer grammar PyNestMLLexer;
   }
 
   // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2
-  channels {COMMENT}
+  channels { COMMENT }
 
   DOCSTRING_TRIPLEQUOTE : '"""';
   fragment NEWLINE_FRAG : '\r'? '\n';  // non-capturing newline, as a helper to define the channel rules
@@ -43,21 +43,17 @@ lexer grammar PyNestMLLexer;
 
   DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) ('\n' | '\r' | '\n\r')? -> channel(2);
+  SL_COMMENT : ('#' (~('\n' | '\r'))* ) -> channel(2);  // we cannot capture the final \n here, because the comment might appear to the right of an expression
 
-  // newline is defined as a token
-  NEWLINE
-  : ( {self.atStartOfInput()}? WS
-   | ( '\r'? '\n' ) WS?
-   )
-   {self.onNewLine()}
-  ;
+  // newline is handled inside the ``onNewLine()`` method of the PyNestMLLexerBase class
+  NEWLINE : ( { self.atStartOfInput() }? WS | ('\r'? '\n') WS? )
+            { self.onNewLine() };
 
   /**
-  * Symbols and literals are parsed first
-  *
-  * Decorator (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a decorator keyword. (Rules are matched in the order in which they appear.)
-  */
+   * Symbols and literals are parsed first
+   *
+   * Decorator (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a decorator keyword. (Rules are matched in the order in which they appear.)
+   */
 
   INTEGER_KEYWORD : 'integer';
   REAL_KEYWORD : 'real';
@@ -143,16 +139,15 @@ lexer grammar PyNestMLLexer;
 
 
   /**
-  * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
-  * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
-  * the concept as currently used in NESTML with the lower case.
-  */
+   * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
+   * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
+   * the concept as currently used in NESTML with the lower case.
+   */
   BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
 
   /**
-  * String literals are always enclosed in "...".
-  */
-
+   * String literals are always enclosed in double quotation marks.
+   */
   STRING_LITERAL : '"' ('\\' (([ \t]+ ('\r'? '\n')?)|.) | ~[\\\r\n"])* '"';
 
   NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
@@ -177,9 +172,8 @@ lexer grammar PyNestMLLexer;
   FLOAT : POINT_FLOAT | EXPONENT_FLOAT;
 
   fragment POINT_FLOAT : UNSIGNED_INTEGER? FULLSTOP UNSIGNED_INTEGER
-                       | UNSIGNED_INTEGER FULLSTOP
-                       ;
+                         | UNSIGNED_INTEGER FULLSTOP;
 
-  fragment EXPONENT_FLOAT: ( UNSIGNED_INTEGER | POINT_FLOAT ) [eE] EXPONENT ;
+  fragment EXPONENT_FLOAT : ( UNSIGNED_INTEGER | POINT_FLOAT ) [eE] EXPONENT;
 
-  fragment EXPONENT: ( PLUS | MINUS )? UNSIGNED_INTEGER;
+  fragment EXPONENT : ( PLUS | MINUS )? UNSIGNED_INTEGER;

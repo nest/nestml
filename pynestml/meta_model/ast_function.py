@@ -23,7 +23,7 @@ from typing import List, Optional
 
 from copy import copy
 
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -54,7 +54,7 @@ class ASTFunction(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name: str, parameters: List[ASTParameter], return_type: Optional[ASTDataType], block: ASTBlock, type_symbol=None, *args, **kwargs):
+    def __init__(self, name: str, parameters: List[ASTParameter], return_type: Optional[ASTDataType], stmts_body: ASTStmtsBody, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -63,13 +63,13 @@ class ASTFunction(ASTNode):
         :param name: the name of the defined function.
         :param parameters: (Optional) Set of parameters.
         :param return_type: (Optional) Return type.
-        :param block: a block of declarations.
+        :param stmts_body: a body of declarations.
         """
         super(ASTFunction, self).__init__(*args, **kwargs)
-        self.block = block
-        self.return_type = return_type
-        self.parameters = parameters
         self.name = name
+        self.parameters = parameters
+        self.return_type = return_type
+        self.stmts_body = stmts_body
         self.type_symbol = type_symbol
 
     def clone(self):
@@ -79,9 +79,9 @@ class ASTFunction(ASTNode):
         :return: new AST node instance
         :rtype: ASTFunction
         """
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
         return_type_dup = None
         if self.return_type:
             return_type_dup = self.return_type.clone()
@@ -90,7 +90,7 @@ class ASTFunction(ASTNode):
         dup = ASTFunction(name=self.name,
                           parameters=parameters_dup,
                           return_type=return_type_dup,
-                          block=block_dup,
+                          stmts_body=stmts_body_dup,
                           type_symbol=self.type_symbol,
                           # ASTNode common attributes:
                           source_position=self.source_position,
@@ -140,13 +140,12 @@ class ASTFunction(ASTNode):
         """
         return self.return_type
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block containing the definitions.
-        :return: the block of the definitions.
-        :rtype: ast_block
+        Returns the body containing the statements.
+        :return: the body
         """
-        return self.block
+        return self.stmts_body
 
     def get_type_symbol(self):
         """
@@ -175,8 +174,8 @@ class ASTFunction(ASTNode):
         if self.has_return_type():
             children.append(self.get_return_type())
 
-        if self.get_block():
-            children.append(self.get_block())
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
 
         return children
 
@@ -206,4 +205,4 @@ class ASTFunction(ASTNode):
                 and not self.get_return_type().equals(other.get_return_type())):
             return False
 
-        return self.get_block().equals(other.get_block())
+        return self.get_stmts_body().equals(other.get_stmts_body())

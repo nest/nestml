@@ -851,8 +851,8 @@ void get_entry_from_continuous_variable_history(double t,
 **/
 {%          if synapse.get_on_receive_block(post_port) %}
 {%-             set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-             with ast = dynamics.get_block() %}
-{%-                 include "directives_cpp/Block.jinja2" %}
+{%-             with ast = dynamics.get_stmts_body() %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
 {%-             endwith %}
 {%-         endif %}
 {%-     endfor %}
@@ -903,9 +903,9 @@ void get_entry_from_continuous_variable_history(double t,
       **/
 {%      if synapse.get_on_receive_block(pre_port) %}
 {%-         set dynamics = synapse.get_on_receive_block(pre_port) %}
-{%-         with ast = dynamics.get_block() %}
+{%-         with ast = dynamics.get_stmts_body() %}
 {%-             filter indent(6, True) %}
-{%-                 include "directives_cpp/Block.jinja2" %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
 {%-             endfilter %}
 {%-         endwith %}
 {%-     endif %}
@@ -951,8 +951,8 @@ void get_entry_from_continuous_variable_history(double t,
 **/
 {%-         if synapse.get_on_receive_block(post_port) %}
 {%-             set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-             with ast = dynamics.get_block() %}
-{%-                 include "directives_cpp/Block.jinja2" %}
+{%-             with ast = dynamics.get_stmts_body() %}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
 {%-             endwith %}
 {%-         endif %}
 {%-     endfor %}
@@ -1027,8 +1027,8 @@ void
 
 {%- filter indent(4, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
-{%-     with ast = dynamics.get_block() %}
-{%-         include "directives_cpp/Block.jinja2" %}
+{%-     with ast = dynamics.get_stmts_body() %}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endwith %}
 {%- endfilter %}
     // process remaining dopa spikes in (t0, t1]
@@ -1047,8 +1047,8 @@ void
       **/
 {%- filter indent(6, True) %}
 {%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
-{%-     with ast = dynamics.get_block() %}
-{%-         include "directives_cpp/Block.jinja2" %}
+{%-     with ast = dynamics.get_stmts_body() %}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endwith %}
 {%- endfilter %}
 
@@ -1325,13 +1325,13 @@ inline void
 {%- if synapse.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in synapse.get_update_blocks() %}
-{%-             set ast = block.get_block() %}
+{%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
 /*
  {{ast.print_comment('*')}}
  */
 {%-             endif %}
-{%-             include "directives_cpp/Block.jinja2" %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -1410,8 +1410,8 @@ inline void
     **/
 
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-         with ast = dynamics.get_block() %}
-{%-             include "directives_cpp/Block.jinja2" %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endwith %}
 {%-     endfor %}
 {%- endif %}

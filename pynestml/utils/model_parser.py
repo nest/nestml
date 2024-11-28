@@ -23,15 +23,15 @@ from typing import List, Tuple, Union
 
 from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
-from antlr4.error.ErrorListener import ConsoleErrorListener
+from antlr4.error.ErrorListener import ConsoleErrorListener, ErrorListener
 from antlr4.error.Errors import ParseCancellationException
-from pynestml.cocos.co_cos_manager import CoCosManager
 
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -212,14 +212,6 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_block(cls, string):
-        # type: (str) -> ASTBlock
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.block())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
     def parse_block_with_variables(cls, string):
         # type: (str) -> ASTBlockWithVariables
         (builder, parser) = tokenize(string)
@@ -230,7 +222,7 @@ class ModelParser:
     @classmethod
     def parse_model_body(cls, string: str) -> ASTModelBody:
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.body())
+        ret = builder.visit(parser.modelBody())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
@@ -489,6 +481,14 @@ class ModelParser:
         return ret
 
     @classmethod
+    def parse_stmts_body(cls, string):
+        # type: (str) -> ASTStmtsBody
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.stmtsBody())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
     def parse_included_file(cls, filename: str) -> Union[ASTNode, List[ASTNode]]:
         with open(filename, 'r') as file:
             lines = file.read()
@@ -569,27 +569,23 @@ class ModelParser:
         return ast
 
 
+class BailConsoleErrorListener(ErrorListener):
+    """Print error message to the console as well as bail"""
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        s = "line " + str(line) + ":" + str(column) + " " + msg
+        print(s)
+        raise ParseCancellationException(s)
+
+
 def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
     lexer = PyNestMLLexer()
-    lexer.removeErrorListeners()
-    lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
-    lexer._errHandler.reset(lexer)
-    lexer.inputStream = InputStream(string)
-    # create a token stream
     stream = CommonTokenStream(lexer)
     stream.fill()
-    lexerErrorListener = NestMLErrorListener()
-    if lexerErrorListener._error_occurred:
-        raise Exception("Lexer error")
 
-    # parse the file
-    parser = PyNestMLParser(None)
-    parser.removeErrorListeners()
-    parser._errHandler = BailErrorStrategy()
-    parser._errHandler.reset(parser)
-    parser.setTokenStream(stream)
+    parser.addErrorListener(BailConsoleErrorListener())
 
     builder = ASTBuilderVisitor(stream.tokens)
+
     return builder, parser
 
 
