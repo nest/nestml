@@ -205,7 +205,7 @@ parser grammar PyNestMLParser;
 
   ifStmt : ifClause elifClause* (elseClause)?;
 
-  ifClause : IF_KEYWORD expression COLON 
+  ifClause : IF_KEYWORD expression COLON
              NEWLINE INDENT stmtsBody DEDENT;
 
   elifClause : ELIF_KEYWORD expression COLON

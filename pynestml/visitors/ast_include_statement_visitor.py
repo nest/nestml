@@ -23,7 +23,6 @@ from typing import Optional
 
 import os
 
-from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -31,6 +30,7 @@ from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -82,7 +82,7 @@ class ASTIncludeStatementVisitor(ASTVisitor):
             new_stmts = parsed_included_file
             include_stmt = node.get_parent().get_parent()
 
-            if isinstance(include_stmt.get_parent(), ASTBlock):
+            if isinstance(include_stmt.get_parent(), ASTStmtsBody):
                 self._replace_statements(include_stmt, new_stmts)
 
             elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
@@ -93,7 +93,7 @@ class ASTIncludeStatementVisitor(ASTVisitor):
             new_stmt = parsed_included_file
             include_stmt = node.get_parent().get_parent()
 
-            if isinstance(include_stmt.get_parent(), ASTBlock):
+            if isinstance(include_stmt.get_parent(), ASTStmtsBody):
                 self._replace_statements(include_stmt, [new_stmt])
 
             # elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
