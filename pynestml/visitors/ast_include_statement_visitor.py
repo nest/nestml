@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import List, Optional
 
 import os
 
@@ -28,6 +28,7 @@ from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_model_body import ASTModelBody
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
@@ -37,6 +38,7 @@ from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.string_type_symbol import StringTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode, Messages
 from pynestml.utils.model_parser import ModelParser
@@ -62,7 +64,7 @@ class ASTIncludeStatementVisitor(ASTVisitor):
         if node.is_include_stmt():
             self._handle_include_stmt(node.get_include_stmt())
 
-    def _replace_statements(self, include_stmt, new_stmts):
+    def _replace_statements(self, include_stmt: ASTIncludeStmt, new_stmts: List[ASTStmt]):
         blk = include_stmt.get_parent()
         idx = blk.get_stmts().index(include_stmt)
         blk.get_stmts().pop(idx)
@@ -70,6 +72,7 @@ class ASTIncludeStatementVisitor(ASTVisitor):
         for new_stmt in new_stmts:
             new_stmt.parent_ = blk
             blk.accept(ASTParentVisitor())
+            new_stmt.source_position.included_file = include_stmt.small_stmt.get_include_stmt().get_filename()
 
     def _handle_include_stmt(self, node: ASTIncludeStmt):
         filename = node.get_filename()
@@ -78,28 +81,23 @@ class ASTIncludeStatementVisitor(ASTVisitor):
 
         parsed_included_file = ModelParser.parse_included_file(filename)
 
-        if isinstance(parsed_included_file, list):
-            new_stmts = parsed_included_file
+        class IncludedFileSourcePositionVisitor(ASTVisitor):
+            def visit(self, node: ASTNode):
+                node.source_position.included_file = filename
+
+        parsed_included_file.accept(IncludedFileSourcePositionVisitor())
+
+        if isinstance(parsed_included_file, ASTStmtsBody):
+            new_stmts = parsed_included_file.get_stmts()
             include_stmt = node.get_parent().get_parent()
 
-            if isinstance(include_stmt.get_parent(), ASTStmtsBody):
-                self._replace_statements(include_stmt, new_stmts)
-
-            elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
-                print("not handled yet 4")
-                assert False
+            self._replace_statements(include_stmt, new_stmts)
 
         elif isinstance(parsed_included_file, ASTStmt):
             new_stmt = parsed_included_file
             include_stmt = node.get_parent().get_parent()
 
-            if isinstance(include_stmt.get_parent(), ASTStmtsBody):
-                self._replace_statements(include_stmt, [new_stmt])
-
-            # elif isinstance(node.get_parent().get_parent(), ASTEquationsBlock):
-            else:
-                print("not handled yet 1")
-                assert False
+            self._replace_statements(include_stmt, [new_stmt])
 
         elif isinstance(parsed_included_file, ASTBlockWithVariables) or isinstance(parsed_included_file, ASTUpdateBlock) or isinstance(parsed_included_file, ASTEquationsBlock):
             new_blk = parsed_included_file

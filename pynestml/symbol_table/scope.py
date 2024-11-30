@@ -41,6 +41,7 @@ class ScopeType(Enum):
     FUNCTION = 3
     ON_RECEIVE = 4
     ON_CONDITION = 5
+    INCLUDED_FILE = 6
 
 
 class Scope:

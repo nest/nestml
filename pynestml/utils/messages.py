@@ -196,6 +196,11 @@ class Messages:
         return MessageCode.PARSER_ERROR, message
 
     @classmethod
+    def get_parser_error_verbose(cls, string: str):
+        message = 'Parse error: ' + string
+        return MessageCode.PARSER_ERROR, message
+
+    @classmethod
     def get_binary_operation_not_defined(cls, lhs, operator, rhs):
         message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message

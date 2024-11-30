@@ -70,7 +70,6 @@ from pynestml.cocos.co_co_vector_input_port_correct_size_type import CoCoVectorI
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.utils.logger import Logger
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import Logger
 

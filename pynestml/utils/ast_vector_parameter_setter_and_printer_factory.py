@@ -20,12 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
-from pynestml.visitors.ast_visitor import ASTVisitor
-
-from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.symbol_table.scope import Scope, ScopeType, Symbol, SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
 
 
 class ASTVectorParameterSetterAndPrinterFactory:

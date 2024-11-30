@@ -348,7 +348,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         function_call = self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None
         declaration = self.visit(ctx.declaration()) if ctx.declaration() is not None else None
         return_stmt = self.visit(ctx.returnStmt()) if ctx.returnStmt() is not None else None
-        include_stmt = None#self.visit(ctx.includeStmt()) if ctx.includeStmt() is not None else None
+        include_stmt = self.visit(ctx.includeStmt()) if ctx.includeStmt() is not None else None
         node = ASTNodeFactory.create_ast_small_stmt(assignment=assignment, function_call=function_call,
                                                     declaration=declaration, return_stmt=return_stmt,
                                                     include_stmt=include_stmt,
@@ -523,9 +523,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         """
         body_elements = list()
         # visit all var_block children
-        # if ctx.includeStmt_newline() is not None:
-        #     for child in ctx.includeStmt_newline():
-        #         body_elements.append(child)
+        if ctx.includeStmt_newline() is not None:
+            for child in ctx.includeStmt_newline():
+                body_elements.append(child)
         if ctx.onReceiveBlock() is not None:
             for child in ctx.onReceiveBlock():
                 body_elements.append(child)

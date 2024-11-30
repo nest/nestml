@@ -57,6 +57,7 @@ class ASTSmallStmt(ASTNode):
         self.declaration = declaration
         self.return_stmt = return_stmt
         self.include_stmt = include_stmt
+        assert self.assignment or self.function_call or self.declaration or self.return_stmt or self.include_stmt
 
     def clone(self):
         """
