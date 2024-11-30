@@ -231,7 +231,7 @@ class TestCoCos:
 
     def test_invalid_convolve_correctly_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoConvolveNotCorrectlyProvided.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
 
     def test_valid_convolve_correctly_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoConvolveNotCorrectlyProvided.nestml'))
