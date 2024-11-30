@@ -330,7 +330,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.stmt() is not None:
             for stmt in ctx.stmt():
                 stmts.append(self.visit(stmt))
-        block = ASTNodeFactory.create_ast_block(stmts=stmts, source_position=create_source_pos(ctx))
+        block = ASTNodeFactory.create_stmts_body(stmts=stmts, source_position=create_source_pos(ctx))
         return block
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
