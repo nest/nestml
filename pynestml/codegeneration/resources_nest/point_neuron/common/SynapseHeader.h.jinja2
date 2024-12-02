@@ -1303,7 +1303,9 @@ inline void
 {
     if (timestep < 1E-12)
     {
+#ifdef DEBUG
         std::cout << "[synapse " << this << "] {{ synapseName }}: update_internal_state_() called with dt < 1E-12; skipping update" << std::endl;
+#endif
         return;
     }
 
