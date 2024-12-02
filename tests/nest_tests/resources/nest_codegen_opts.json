@@ -1,4 +1,4 @@
 {
-   "nest_path": "%NEST_PATH%",
-   "nest_version": "%NEST_VERSION%"
+   "nest_path": "/home/charl/julich/nest-simulator-install",
+   "nest_version": "master"
 }

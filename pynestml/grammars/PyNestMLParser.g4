@@ -151,7 +151,7 @@ parser grammar PyNestMLParser;
   //  Procedural
   // -------------------------------------------------------------------------
 
-  stmt : NEWLINE? (smallStmt | compoundStmt);
+  stmt : smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
                  | forStmt
@@ -195,7 +195,7 @@ parser grammar PyNestMLParser;
   /**
    * ASTStmtsBody A sequence of statements.
   **/
-  stmtsBody : stmt+;
+  stmtsBody : NEWLINE? stmt (NEWLINE | stmt)*;
 
   /**
    * ASTReturnStmt Models the return statement in a function.
@@ -205,7 +205,7 @@ parser grammar PyNestMLParser;
 
   ifStmt : ifClause elifClause* (elseClause)?;
 
-  ifClause : IF_KEYWORD expression COLON
+  ifClause : IF_KEYWORD expression COLON 
              NEWLINE INDENT stmtsBody DEDENT;
 
   elifClause : ELIF_KEYWORD expression COLON
@@ -335,7 +335,6 @@ parser grammar PyNestMLParser;
   outputBlock : OUTPUT_KEYWORD COLON
                 NEWLINE INDENT ((isSpike=SPIKE_KEYWORD (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?) | isContinuous=CONTINUOUS_KEYWORD)
                 NEWLINE DEDENT;
-
   /**
    * ASTFunction A single declaration of a user-defined function definition.
    * @attribute name: The name of the function.

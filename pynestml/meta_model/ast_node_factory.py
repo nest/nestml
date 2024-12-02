@@ -101,7 +101,7 @@ class ASTNodeFactory:
         return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
-    def create_ast_block(cls, stmts, source_position):
+    def create_ast_stmts_body(cls, stmts, source_position):
         # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTStmtsBody
         return ASTStmtsBody(stmts, source_position=source_position)
 

@@ -199,9 +199,6 @@ class ModelParser:
         builder, parser = tokenize(string, verbose=verbose)
         ret = builder.visit(parser.bitOperator())
 
-        return ret
-
-    @classmethod
     def parse_block_with_variables(cls, string: str, verbose: bool = True) -> ASTBlockWithVariables:
         (builder, parser) = tokenize(string, verbose=verbose)
         ret = builder.visit(parser.blockWithVariables())
@@ -443,9 +440,8 @@ class ModelParser:
     def parse_stmts_body(cls, string: str, verbose: bool = True) -> ASTStmtsBody:
         (builder, parser) = tokenize(string, verbose=verbose)
         ret = builder.visit(parser.stmtsBody())
-
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
-
     @classmethod
     def parse_included_file(cls, filename: str) -> Union[ASTNode, List[ASTNode]]:
         with open(filename, 'r') as file:
