@@ -339,7 +339,7 @@ class TestCoCos:
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoOutputPortTypeIfEmitCall-3.nestml'))
         assert model is not None
         assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 0
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)) > 0
+        assert any(["Implicit casting from (compatible) type 'real' to 'ms'." in log_entry[2] for log_entry in Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.WARNING)])
 
     def test_invalid_output_port_type_continuous(self):
         """test that an error is raised when a continous-time output port is defined as having attributes."""
