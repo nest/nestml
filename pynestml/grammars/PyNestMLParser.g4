@@ -151,7 +151,7 @@ parser grammar PyNestMLParser;
   //  Procedural
   // -------------------------------------------------------------------------
 
-  stmt : NEWLINE? (smallStmt | compoundStmt);
+  stmt : smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
                  | forStmt
