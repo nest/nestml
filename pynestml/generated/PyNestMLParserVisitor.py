@@ -24,6 +24,21 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#anyDecorator.
+    def visitAnyDecorator(self, ctx:PyNestMLParser.AnyDecoratorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorNamespace.
+    def visitNamespaceDecoratorNamespace(self, ctx:PyNestMLParser.NamespaceDecoratorNamespaceContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorName.
+    def visitNamespaceDecoratorName(self, ctx:PyNestMLParser.NamespaceDecoratorNameContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#expression.
     def visitExpression(self, ctx:PyNestMLParser.ExpressionContext):
         return self.visitChildren(ctx)
@@ -79,11 +94,6 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#block.
-    def visitBlock(self, ctx:PyNestMLParser.BlockContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by PyNestMLParser#stmt.
     def visitStmt(self, ctx:PyNestMLParser.StmtContext):
         return self.visitChildren(ctx)
@@ -114,18 +124,8 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#anyDecorator.
-    def visitAnyDecorator(self, ctx:PyNestMLParser.AnyDecoratorContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorNamespace.
-    def visitNamespaceDecoratorNamespace(self, ctx:PyNestMLParser.NamespaceDecoratorNamespaceContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorName.
-    def visitNamespaceDecoratorName(self, ctx:PyNestMLParser.NamespaceDecoratorNameContext):
+    # Visit a parse tree produced by PyNestMLParser#stmtsBody.
+    def visitStmtsBody(self, ctx:PyNestMLParser.StmtsBodyContext):
         return self.visitChildren(ctx)
 
 

@@ -221,11 +221,11 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
             symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
                                                                        SymbolKind.FUNCTION)
             # first ensure that the block contains at least one statement
-            if symbol is not None and len(userDefinedFunction.get_block().get_stmts()) > 0:
+            if symbol is not None and len(userDefinedFunction.get_stmts_body().get_stmts()) > 0:
                 # now check that the last statement is a return
                 self.__check_return_recursively(userDefinedFunction,
                                                 symbol.get_return_type(),
-                                                userDefinedFunction.get_block().get_stmts(),
+                                                userDefinedFunction.get_stmts_body().get_stmts(),
                                                 False)
             # now if it does not have a statement, but uses a return type, it is an error
             elif symbol is not None and userDefinedFunction.has_return_type() and \
@@ -300,23 +300,23 @@ class AssignImplicitConversionFactorsVisitor(ASTVisitor):
                 if stmt.is_if_stmt():
                     self.__check_return_recursively(processed_function,
                                                     type_symbol,
-                                                    stmt.get_if_stmt().get_if_clause().get_block().get_stmts(),
+                                                    stmt.get_if_stmt().get_if_clause().get_stmts_body().get_stmts(),
                                                     ret_defined)
                     for else_ifs in stmt.get_if_stmt().get_elif_clauses():
                         self.__check_return_recursively(processed_function,
-                                                        type_symbol, else_ifs.get_block().get_stmts(), ret_defined)
+                                                        type_symbol, else_ifs.get_stmts_body().get_stmts(), ret_defined)
                     if stmt.get_if_stmt().has_else_clause():
                         self.__check_return_recursively(processed_function,
                                                         type_symbol,
-                                                        stmt.get_if_stmt().get_else_clause().get_block().get_stmts(),
+                                                        stmt.get_if_stmt().get_else_clause().get_stmts_body().get_stmts(),
                                                         ret_defined)
                 elif stmt.is_while_stmt():
                     self.__check_return_recursively(processed_function,
-                                                    type_symbol, stmt.get_while_stmt().get_block().get_stmts(),
+                                                    type_symbol, stmt.get_while_stmt().get_stmts_body().get_stmts(),
                                                     ret_defined)
                 elif stmt.is_for_stmt():
                     self.__check_return_recursively(processed_function,
-                                                    type_symbol, stmt.get_for_stmt().get_block().get_stmts(),
+                                                    type_symbol, stmt.get_for_stmt().get_stmts_body().get_stmts(),
                                                     ret_defined)
             # now, if a return statement has not been defined in the corresponding higher level block, we have to ensure that it is defined here
             elif not ret_defined and stmts.index(c_stmt) == (len(stmts) - 1):
