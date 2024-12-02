@@ -33,7 +33,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.model_parser import ModelParser
 
 
-class TestNESTMLMLPrinter:
+class TestNESTMLPrinter:
     """
     Tests if NESTMLPrinter works as intended.
     """
