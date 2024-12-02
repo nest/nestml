@@ -191,7 +191,7 @@ parser grammar PyNestMLParser;
   /**
    * ASTStmtsBody A sequence of statements.
   **/
-  stmtsBody : stmt+;
+  stmtsBody : NEWLINE? stmt (NEWLINE | stmt)*;
 
   /**
    * ASTReturnStmt Models the return statement in a function.
