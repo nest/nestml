@@ -22,23 +22,15 @@
 from typing import List
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 
 
 class ASTForStmt(ASTNode):
-    """
-    This class is used to store a for-block.
-    Grammar:
-        forStmt : 'for' var=NAME 'in' vrom=rhs
-                    '...' to=rhs 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
-    Attributes:
-        variable = None
-        start_from = None
-        end_at = None
-        step = None
-        block = None
+    r"""
+    This class is used to store a "for" statement.
     """
 
-    def __init__(self, variable, start_from, end_at, step, block, *args, **kwargs):
+    def __init__(self, variable, start_from, end_at, step, stmts_body: ASTStmtsBody, *args, **kwargs):
         """
         Standard constructor.
 
@@ -52,15 +44,14 @@ class ASTForStmt(ASTNode):
         :type end_at: ast_expression
         :param step: the length of a single step.
         :type step: float/int
-        :param block: a block of statements.
-        :type block: ast_block
+        :param stmts_body: a body of statements.
         """
         super(ASTForStmt, self).__init__(*args, **kwargs)
-        self.block = block
-        self.step = step
-        self.end_at = end_at
-        self.start_from = start_from
         self.variable = variable
+        self.start_from = start_from
+        self.end_at = end_at
+        self.step = step
+        self.stmts_body = stmts_body
 
     def clone(self):
         """
@@ -81,14 +72,14 @@ class ASTForStmt(ASTNode):
         step_dup = None
         if self.step:
             step_dup = self.step
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
         dup = ASTForStmt(variable=variable_dup,
                          start_from=start_from_dup,
                          end_at=end_at_dup,
                          step=step_dup,
-                         block=block_dup,
+                         stmts_body=stmts_body_dup,
                          # ASTNode common attributes:
                          source_position=self.source_position,
                          scope=self.scope,
@@ -131,13 +122,12 @@ class ASTForStmt(ASTNode):
         """
         return self.step
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block of statements.
-        :return: the block of statements.
-        :rtype: ast_block
+        Returns the body of statements.
+        :return: the body of statements.
         """
-        return self.block
+        return self.stmts_body
 
     def get_children(self) -> List[ASTNode]:
         r"""
@@ -151,8 +141,8 @@ class ASTForStmt(ASTNode):
         if self.get_end_at():
             children.append(self.get_end_at())
 
-        if self.get_block():
-            children.append(self.get_block())
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
 
         return children
 
@@ -170,4 +160,4 @@ class ASTForStmt(ASTNode):
             return False
         if self.get_step() != other.get_step():
             return False
-        return self.get_block().equals(other.get_block())
+        return self.get_stmts_body().equals(other.get_stmts_body())

@@ -449,7 +449,7 @@ class ASTModel(ASTNode):
         """
         assert not self.get_update_blocks(), "create_empty_update_block() called although update block already present"
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
+        block = ASTNodeFactory.create_ast_stmts_body([], ASTSourceLocation.get_predefined_source_position())
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
         self.get_body().get_body_elements().append(update_block)
 

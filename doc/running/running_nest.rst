@@ -17,11 +17,7 @@ Simulation loop
 
 Note that NEST Simulator uses a hybrid integration strategy [Hanuschkin2010]_; see :numref:`fig_integration_order`, panel A for a graphical depiction.
 
-At the end of each timestep, incoming spikes are processed and their effects become visible in those variables that correspond to a convolution with the corresponding spiking input port. At the start of a timestep, the value is the one "just before" the update due to incoming spikes.
-
-Then, the code is run corresponding to the NESTML ``update`` block.
-
-At the end of the timestep, variables corresponding to convolutions are updated according to their ODE dynamics.
+At the start of a timestep, the value is the one "just before" the update due to incoming spikes. Then, the code is run corresponding to the NESTML ``update`` block, which makes appropriate calls to integrate the necessary ODEs. After that, incoming spikes are processed, that is, the code corresponding to ``onReceive`` blocks is run and the values of variables corresponding to convolutions are updated.
 
 
 Event-based updating of synapses

@@ -449,7 +449,7 @@ class PyNestMLLexer(PyNestMLLexerBase):
 
     def NEWLINE_action(self, localctx:RuleContext , actionIndex:int):
         if actionIndex == 0:
-            self.onNewLine()
+             self.onNewLine() 
      
 
     def sempred(self, localctx:RuleContext, ruleIndex:int, predIndex:int):
@@ -465,7 +465,7 @@ class PyNestMLLexer(PyNestMLLexerBase):
 
     def NEWLINE_sempred(self, localctx:RuleContext, predIndex:int):
             if predIndex == 0:
-                return self.atStartOfInput()
+                return  self.atStartOfInput() 
          
 
 

@@ -23,7 +23,7 @@ from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -77,7 +77,7 @@ class ModelPrinter(ASTPrinter):
     def print_bit_operator(self, node: ASTBitOperator) -> str:
         raise Exception("Printer does not support printing this node type")
 
-    def print_block(self, node: ASTBlock) -> str:
+    def print_stmts_body(self, node: ASTStmtsBody) -> str:
         raise Exception("Printer does not support printing this node type")
 
     def print_block_with_variables(self, node: ASTBlockWithVariables) -> str:
@@ -192,8 +192,8 @@ class ModelPrinter(ASTPrinter):
         if isinstance(node, ASTBitOperator):
             return self.print_bit_operator(node)
 
-        if isinstance(node, ASTBlock):
-            return self.print_block(node)
+        if isinstance(node, ASTStmtsBody):
+            return self.print_stmts_body(node)
 
         if isinstance(node, ASTBlockWithVariables):
             return self.print_block_with_variables(node)

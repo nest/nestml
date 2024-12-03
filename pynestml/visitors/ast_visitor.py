@@ -22,7 +22,7 @@
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -728,7 +728,7 @@ class ASTVisitor:
         if isinstance(node, ASTBitOperator):
             self.visit_bit_operator(node)
             return
-        if isinstance(node, ASTBlock):
+        if isinstance(node, ASTStmtsBody):
             self.visit_block(node)
             return
         if isinstance(node, ASTBlockWithVariables):
@@ -856,7 +856,7 @@ class ASTVisitor:
         if isinstance(node, ASTBitOperator):
             self.traverse_bit_operator(node)
             return
-        if isinstance(node, ASTBlock):
+        if isinstance(node, ASTStmtsBody):
             self.traverse_block(node)
             return
         if isinstance(node, ASTBlockWithVariables):
@@ -984,7 +984,7 @@ class ASTVisitor:
         if isinstance(node, ASTBitOperator):
             self.endvisit_bit_operator(node)
             return
-        if isinstance(node, ASTBlock):
+        if isinstance(node, ASTStmtsBody):
             self.endvisit_block(node)
             return
         if isinstance(node, ASTBlockWithVariables):
@@ -1152,12 +1152,12 @@ class ASTVisitor:
     def traverse_elif_clause(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_else_clause(self, node):
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_equations_block(self, node):
         if node.get_declarations() is not None:
@@ -1187,16 +1187,16 @@ class ASTVisitor:
             node.get_start_from().accept(self.get_real_self())
         if node.get_end_at() is not None:
             node.get_end_at().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_function(self, node):
         for sub_node in node.get_parameters():
             sub_node.accept(self.get_real_self())
         if node.get_return_type() is not None:
             node.get_return_type().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_function_call(self, node):
         if node.get_args() is not None:
@@ -1206,8 +1206,8 @@ class ASTVisitor:
     def traverse_if_clause(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_if_stmt(self, node):
         if node.get_if_clause() is not None:
@@ -1296,20 +1296,20 @@ class ASTVisitor:
             node.compound_unit.accept(self.get_real_self())
 
     def traverse_update_block(self, node):
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_on_receive_block(self, node):
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
         if node.input_port_variable is not None:
             node.input_port_variable.accept(self.get_real_self())
 
     def traverse_on_condition_block(self, node):
         if node.get_cond_expr() is not None:
             node.get_cond_expr().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_variable(self, node):
         if node.get_vector_parameter() is not None:
@@ -1318,8 +1318,8 @@ class ASTVisitor:
     def traverse_while_stmt(self, node):
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
-        if node.get_block() is not None:
-            node.get_block().accept(self.get_real_self())
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().accept(self.get_real_self())
 
     def traverse_stmt(self, node):
         if node.is_small_stmt():

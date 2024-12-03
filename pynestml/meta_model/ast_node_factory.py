@@ -24,7 +24,7 @@ from typing import List, Optional, Union
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
@@ -99,9 +99,9 @@ class ASTNodeFactory:
         return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
-    def create_ast_block(cls, stmts, source_position):
-        # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTBlock
-        return ASTBlock(stmts, source_position=source_position)
+    def create_ast_stmts_body(cls, stmts, source_position):
+        # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTStmtsBody
+        return ASTStmtsBody(stmts, source_position=source_position)
 
     @classmethod
     def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
@@ -161,12 +161,12 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):
-        # type: (ASTExpression|ASTSimpleExpression,ASTBlock,ASTSourceLocation) -> ASTElifClause
+        # type: (ASTExpression|ASTSimpleExpression,ASTStmtsBody,ASTSourceLocation) -> ASTElifClause
         return ASTElifClause(condition, block, source_position=source_position)
 
     @classmethod
     def create_ast_else_clause(cls, block, source_position):
-        # type: (ASTBlock,ASTSourceLocation) -> ASTElseClause
+        # type: (ASTStmtsBody,ASTSourceLocation) -> ASTElseClause
         return ASTElseClause(block, source_position=source_position)
 
     @classmethod
@@ -221,14 +221,14 @@ class ASTNodeFactory:
                             start_from,  # type: Union(ASTSimpleExpression,ASTExpression)
                             end_at,  # type: Union(ASTSimpleExpression,ASTExpression)
                             step=0,  # type: float
-                            block=None,  # type: ASTBlock
+                            block=None,  # type: ASTStmtsBody
                             source_position=None  # type: ASTSourceLocation
                             ):  # type: (...) -> ASTForStmt
         return ASTForStmt(variable, start_from, end_at, step, block, source_position=source_position)
 
     @classmethod
     def create_ast_function(cls, name, parameters, return_type, block, source_position):
-        # type: (str,(None|list(ASTParameter)),(ASTDataType|None),ASTBlock,ASTSourceLocation) -> ASTFunction
+        # type: (str,(None|list(ASTParameter)),(ASTDataType|None),ASTStmtsBody,ASTSourceLocation) -> ASTFunction
         return ASTFunction(name, parameters, return_type, block, source_position=source_position)
 
     @classmethod
@@ -238,7 +238,7 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_if_clause(cls, condition, block, source_position):
-        # type: (ASTSimpleExpression|ASTExpression,ASTBlock,ASTSourceLocation) -> ASTIfClause
+        # type: (ASTSimpleExpression|ASTExpression,ASTStmtsBody,ASTSourceLocation) -> ASTIfClause
         return ASTIfClause(condition, block, source_position=source_position)
 
     @classmethod
@@ -348,7 +348,7 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_update_block(cls, block, source_position):
-        # type: (ASTBlock,ASTSourceLocation) -> ASTUpdateBlock
+        # type: (ASTStmtsBody,ASTSourceLocation) -> ASTUpdateBlock
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
@@ -362,7 +362,7 @@ class ASTNodeFactory:
     @classmethod
     def create_ast_while_stmt(cls,
                               condition,  # type: Union(ASTSimpleExpression,ASTExpression)
-                              block,  # type: ASTBlock
+                              block,  # type: ASTStmtsBody
                               source_position  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTWhileStmt
         return ASTWhileStmt(condition, block, source_position=source_position)
