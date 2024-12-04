@@ -80,14 +80,14 @@ After installation, correct operation can be tested by:
    python setup.py test
 
 
-Installation with conda
------------------------
+Installation with conda (with NEST simulator)
+---------------------------------------------
 
 Please make sure to have the latest conda version installed and to create a new environment with the command below, i.e. installing all packages together at the start versus installing one by one.
 
 .. note::
 
-   We recommend using `miniforge <https://github.com/conda-forge/miniforge>`_ or `micromamba <https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html>`_ in place of Anaconda/miniconda.
+   We recommend using `miniforge <https://github.com/conda-forge/miniforge>`_ or `micromamba <https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html>`_ in place of Anaconda/miniconda as they have some advantages when installing in larger environments.
 
 .. code-block:: bash
 
