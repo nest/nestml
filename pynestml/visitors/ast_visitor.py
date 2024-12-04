@@ -37,6 +37,7 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
@@ -312,6 +313,22 @@ class ASTVisitor:
         Used to visit a single inline expression.
         :param node: a single inline expression.
         :type node: ASTInlineExpression
+        """
+        return
+
+    def visit_include_stmt(self, node):
+        """
+        Used to visit a single inline expression.
+        :param node: a single inline expression.
+        :type node: .....
+        """
+        return
+
+    def endvisit_include_stmt(self, node):
+        """
+        Used to visit a single inline expression.
+        :param node: a single inline expression.
+        :type node: .....
         """
         return
 
@@ -832,6 +849,9 @@ class ASTVisitor:
         if isinstance(node, ASTSimpleExpression):
             self.visit_simple_expression(node)
             return
+        if isinstance(node, ASTIncludeStmt):
+            self.visit_include_stmt(node)
+            return
         if isinstance(node, ASTSmallStmt):
             self.visit_small_stmt(node)
             return
@@ -963,6 +983,9 @@ class ASTVisitor:
         if isinstance(node, ASTSimpleExpression):
             self.traverse_simple_expression(node)
             return
+        if isinstance(node, ASTIncludeStmt):
+            self.traverse_include_stmt(node)
+            return
         if isinstance(node, ASTSmallStmt):
             self.traverse_small_stmt(node)
             return
@@ -1093,6 +1116,9 @@ class ASTVisitor:
             return
         if isinstance(node, ASTSimpleExpression):
             self.endvisit_simple_expression(node)
+            return
+        if isinstance(node, ASTIncludeStmt):
+            self.endvisit_include_stmt(node)
             return
         if isinstance(node, ASTSmallStmt):
             self.endvisit_small_stmt(node)
@@ -1295,6 +1321,9 @@ class ASTVisitor:
     def traverse_return_stmt(self, node):
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
+
+    def traverse_include_stmt(self, node):
+        pass
 
     def traverse_simple_expression(self, node):
         if node.get_function_call() is not None:
