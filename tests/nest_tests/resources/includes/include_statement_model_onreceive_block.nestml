@@ -1,0 +1,2 @@
+onReceive(exc_spikes):
+    I_syn_exc += exc_spikes * pA * s

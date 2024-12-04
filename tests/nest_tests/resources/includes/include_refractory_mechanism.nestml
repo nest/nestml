@@ -1,0 +1,20 @@
+state:
+    refr_t ms = 0 ms
+
+parameters:
+    refr_T ms = 1 ms
+
+equations:
+    refr_t' = -1e3 * ms/s
+
+onCondition(refr_t <= 0 ms and V_m >= V_th):
+    # threshold crossing
+    refr_t = refr_T    # start of the refractory period
+    V_m = V_reset
+    emit_spike()
+
+#function is_refractory() boolean:
+#    if refr_t > 0:
+#        return true
+#
+#    return false

@@ -27,8 +27,11 @@ from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_model_body import ASTModelBody
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_on_condition_block import ASTOnConditionBlock
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
@@ -99,7 +102,8 @@ class ASTIncludeStatementVisitor(ASTVisitor):
 
             self._replace_statements(include_stmt, [new_stmt])
 
-        elif isinstance(parsed_included_file, ASTBlockWithVariables) or isinstance(parsed_included_file, ASTUpdateBlock) or isinstance(parsed_included_file, ASTEquationsBlock):
+        elif isinstance(parsed_included_file, ASTBlockWithVariables) or isinstance(parsed_included_file, ASTUpdateBlock) \
+                or isinstance(parsed_included_file, ASTEquationsBlock) or isinstance(parsed_included_file, ASTOnReceiveBlock) or isinstance(parsed_included_file, ASTOnConditionBlock):
             new_blk = parsed_included_file
             if isinstance(node.get_parent(), ASTModelBody):
                 idx = node.get_parent().get_body_elements().index(node)
@@ -109,6 +113,18 @@ class ASTIncludeStatementVisitor(ASTVisitor):
                 new_blk.accept(ASTParentVisitor())
             else:
                 print("not handled yet 2")
+                assert False
+
+        elif isinstance(parsed_included_file, ASTModelBody):
+            new_model_body = parsed_included_file
+            model_body = node.get_parent()
+            if isinstance(model_body.get_parent(), ASTModel):
+                idx = model_body.get_body_elements().index(node)
+                model_body.get_body_elements().pop(idx)
+                model_body.body_elements = model_body.body_elements[:idx] + new_model_body.get_body_elements() + model_body.body_elements[idx:]
+                node.accept(ASTParentVisitor())
+                new_model_body.accept(ASTParentVisitor())
+            else:
                 assert False
 
         else:

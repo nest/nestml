@@ -240,7 +240,7 @@ parser grammar PyNestMLParser;
    * @attribute modelBody:    The body of the model consisting of several sub-blocks.
   **/
   model : MODEL_KEYWORD NAME COLON
-          modelBody;
+          NEWLINE INDENT modelBody DEDENT;
 
   /**
    * ASTBody The body of the model, e.g. internal, state, parameter...
@@ -253,8 +253,9 @@ parser grammar PyNestMLParser;
    * @attribute onConditionBlock: A block declaring condition statements.
    * @attribute updateBlock: A single update block containing the dynamic behavior.
   **/
-  modelBody : NEWLINE INDENT ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
+  modelBody : ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+;
 
+//  modelBlocks : NEWLINE? ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+
   /**
    * ASTOnReceiveBlock
    * @attribute stmtsBody implementation of the dynamics

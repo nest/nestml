@@ -166,3 +166,37 @@ class TestIncludeStatement:
 
         np.testing.assert_allclose(x[-1], 50.4)
         np.testing.assert_allclose(y[-1], 62.)
+
+    def test_include_statement6(self):
+        input_path = os.path.join(
+            os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "IncludeStatementTest6.nestml")))
+        target_path = "target"
+        logging_level = "DEBUG"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        nest.set_verbosity("M_ALL")
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
+
+    def test_include_refractory_mechanism(self):
+        input_path = os.path.join(
+            os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "IncludeStatementRefractory.nestml")))
+        target_path = "target"
+        logging_level = "DEBUG"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        nest.set_verbosity("M_ALL")
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
