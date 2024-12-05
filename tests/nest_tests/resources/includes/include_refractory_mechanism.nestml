@@ -13,8 +13,8 @@ onCondition(refr_t <= 0 ms and V_m >= V_th):
     V_m = V_reset
     emit_spike()
 
-#function is_refractory() boolean:
-#    if refr_t > 0:
-#        return true
-#
-#    return false
+function is_refractory() boolean:
+    if refr_t > 0:
+        return true
+
+    return false

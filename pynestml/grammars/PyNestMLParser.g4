@@ -255,7 +255,6 @@ parser grammar PyNestMLParser;
   **/
   modelBody : ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+;
 
-//  modelBlocks : NEWLINE? ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+
   /**
    * ASTOnReceiveBlock
    * @attribute stmtsBody implementation of the dynamics
