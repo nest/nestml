@@ -20,21 +20,18 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import List
+from pynestml.meta_model.ast_expression import ASTExpression
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 
 
 class ASTElifClause(ASTNode):
-    """
+    r"""
     This class is used to store elif-clauses.
-    Grammar:
-        elifClause : 'elif' rhs BLOCK_OPEN block;
-    Attribute:
-        condition = None
-        block = None
     """
 
-    def __init__(self, condition, block, *args, **kwargs):
+    def __init__(self, condition, stmts_body: ASTStmtsBody, *args, **kwargs):
         """
         Standard constructor.
 
@@ -42,11 +39,10 @@ class ASTElifClause(ASTNode):
 
         :param condition: the condition of the block.
         :type condition: ast_expression
-        :param block: a block of statements.
-        :type block: ast_block
+        :param stmts_body: a body of statements.
         """
         super(ASTElifClause, self).__init__(*args, **kwargs)
-        self.block = block
+        self.stmts_body = stmts_body
         self.condition = condition
 
     def clone(self):
@@ -56,13 +52,13 @@ class ASTElifClause(ASTNode):
         :return: new AST node instance
         :rtype: ASTElifClause
         """
-        block_dup = None
-        if self.block:
-            block_dup = self.block.clone()
+        stmts_body_dup = None
+        if self.stmts_body:
+            stmts_body_dup = self.stmts_body.clone()
         condition_dup = None
         if self.condition:
             condition_dup = self.condition.clone()
-        dup = ASTElifClause(block=block_dup,
+        dup = ASTElifClause(stmts_body=stmts_body_dup,
                             condition=condition_dup,
                             # ASTNode common attributes:
                             source_position=self.source_position,
@@ -74,21 +70,19 @@ class ASTElifClause(ASTNode):
 
         return dup
 
-    def get_condition(self):
+    def get_condition(self) -> ASTExpression:
         """
-        Returns the condition of the block.
+        Returns the condition of the elif.
         :return: the condition.
-        :rtype: ast_expression
         """
         return self.condition
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block of statements.
-        :return: the block of statements.
-        :rtype: ast_block
+        Returns the body of statements.
+        :return: the body of statements.
         """
-        return self.block
+        return self.stmts_body
 
     def get_children(self) -> List[ASTNode]:
         r"""
@@ -99,8 +93,8 @@ class ASTElifClause(ASTNode):
         if self.get_condition():
             children.append(self.get_condition())
 
-        if self.get_block():
-            children.append(self.get_block())
+        if self.get_stmts_body():
+            children.append(self.get_stmts_body())
 
         return children
 
@@ -111,4 +105,4 @@ class ASTElifClause(ASTNode):
         if not isinstance(other, ASTElifClause):
             return False
 
-        return self.get_condition().equals(other.get_condition()) and self.get_block().equals(other.get_block())
+        return self.get_condition().equals(other.get_condition()) and self.get_stmts_body().equals(other.get_stmts_body())

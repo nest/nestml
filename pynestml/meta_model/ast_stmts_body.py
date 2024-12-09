@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_block.py
+# ast_stmts_body.py
 #
 # This file is part of NEST.
 #
@@ -24,7 +24,7 @@ from typing import List
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTBlock(ASTNode):
+class ASTStmtsBody(ASTNode):
     """
     This class is used to store a single block of declarations, i.e., statements.
     Grammar:
@@ -49,7 +49,7 @@ class ASTBlock(ASTNode):
             assert (stmt is not None and isinstance(stmt, ASTStmt)), \
                 '(PyNestML.ASTBlock) No or wrong type of statement provided (%s)!' % type(stmt)
 
-        super(ASTBlock, self).__init__(*args, **kwargs)
+        super(ASTStmtsBody, self).__init__(*args, **kwargs)
         self.stmts = stmts
 
     def clone(self):
@@ -60,14 +60,14 @@ class ASTBlock(ASTNode):
         :rtype: ASTBlock
         """
         stmts_dup = [stmt.clone() for stmt in self.stmts]
-        dup = ASTBlock(stmts_dup,
-                       # ASTNode common attriutes:
-                       source_position=self.source_position,
-                       scope=self.scope,
-                       comment=self.comment,
-                       pre_comments=[s for s in self.pre_comments],
-                       in_comment=self.in_comment,
-                       implicit_conversion_factor=self.implicit_conversion_factor)
+        dup = ASTStmtsBody(stmts_dup,
+                           # ASTNode common attriutes:
+                           source_position=self.source_position,
+                           scope=self.scope,
+                           comment=self.comment,
+                           pre_comments=[s for s in self.pre_comments],
+                           in_comment=self.in_comment,
+                           implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -108,7 +108,7 @@ class ASTBlock(ASTNode):
         r"""
         The equality method.
         """
-        if not isinstance(other, ASTBlock):
+        if not isinstance(other, ASTStmtsBody):
             return False
         if len(self.get_stmts()) != len(other.get_stmts()):
             return False

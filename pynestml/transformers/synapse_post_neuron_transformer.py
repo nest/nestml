@@ -486,7 +486,7 @@ class SynapsePostNeuronTransformer(Transformer):
                 if self.is_post_port(port.name, new_neuron.name, new_synapse.name):
                     post_receive_blocks = ASTUtils.get_on_receive_blocks_by_input_port_name(new_synapse, port.name)
                     for post_receive_block in post_receive_blocks:
-                        stmts = post_receive_block.get_block().get_stmts()
+                        stmts = post_receive_block.get_stmts_body().get_stmts()
                         for stmt in stmts:
                             if stmt.is_small_stmt() \
                                and stmt.small_stmt.is_assignment() \

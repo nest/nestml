@@ -14,7 +14,9 @@ for ( {{ ast.get_variable() }} = {{ printer.print(ast.get_start_from()) }};
 {%- endif -%} {{ printer.print(ast.get_end_at()) }};
      {{ ast.get_variable() }} += {{ ast.get_step() }} )
 {
-{%- with ast = ast.get_block() %}
-{%-   include "directives_cpp/Block.jinja2" %}
-{%- endwith %}
+{%- filter indent(2) %}
+{%-     with ast = ast.get_stmts_body() %}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
+{%-     endwith %}
+{%- endfilter %}
 }

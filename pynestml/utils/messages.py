@@ -140,6 +140,7 @@ class MessageCode(Enum):
     EXPONENT_MUST_BE_INTEGER = 114
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
     CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
+    INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
 
 
 class Messages:
@@ -1299,6 +1300,11 @@ class Messages:
     def get_integrate_odes_wrong_arg(cls, arg: str) -> Tuple[MessageCode, str]:
         message = "Parameter provided to integrate_odes() function is not a state variable: '" + arg + "'"
         return MessageCode.INTEGRATE_ODES_WRONG_ARG, message
+
+    @classmethod
+    def get_integrate_odes_arg_higher_order(cls, arg: str) -> Tuple[MessageCode, str]:
+        message = "Parameter provided to integrate_odes() function is a state variable of higher order: '" + arg + "'"
+        return MessageCode.INTEGRATE_ODES_ARG_HIGHER_ORDER, message
 
     @classmethod
     def get_mechs_dictionary_info(cls, chan_info, syns_info, conc_info, con_in_info) -> Tuple[MessageCode, str]:
