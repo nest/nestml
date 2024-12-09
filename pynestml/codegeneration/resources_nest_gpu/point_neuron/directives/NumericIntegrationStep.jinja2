@@ -9,12 +9,13 @@
 {%-   set variable_symbol = variable_symbols[variable_name] %}
   dydx[i_{{ variable_symbol.get_symbol_name() }}] =
   {%- if ast.get_args() | length > 0 -%}
-    {% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) -%}
+    {% if variable_name in numeric_state_variables_to_be_integrated -%}
       {{ gsl_printer.print(update_expr) }};
     {% else -%}0;{% endif -%}
   {% else -%}{{ gsl_printer.print(update_expr) }};{% endif %}
 {%- endfor %}
+
   // Input port variables should always be set to 0
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
-    dydx[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
-{%- endfor %}  
+  dydx[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
+{%- endfor %}

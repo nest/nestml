@@ -9,6 +9,10 @@ __device__
 		     {{ neuronName }}_rk5 data_struct)
 {
 {%- filter indent(2,True) %}
+{%    set numeric_state_variables_to_be_integrated = numeric_state_variables %}
+{%-   if ast.get_args() | length > 0 %}
+{%-     set numeric_state_variables_to_be_integrated = utils.filter_variables_list(numeric_state_variables, ast.get_args()) %}
+{%-   endif %}
 {%- include "directives/NumericIntegrationStep.jinja2" %}
 {%- endfilter %}
 }
