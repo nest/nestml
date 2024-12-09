@@ -230,13 +230,13 @@ static void neuron_impl_do_timestep_update(
 {%- if neuron.get_update_blocks() %}
 {%-   filter indent(8) %}
 {%-     for block in neuron.get_update_blocks() %}
-{%-       set ast = block.get_block() %}
+{%-       set ast = block.get_stmts_body() %}
 {%-       if ast.print_comment('*')|length > 1 %}
 /*
  {{ast.print_comment('*')}}
  */
 {%-       endif %}
-{%-       include "directives_cpp/Block.jinja2" %}
+{%-       include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfor %}
 {%-   endfilter %}
 {%- endif %}

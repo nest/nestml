@@ -54,7 +54,9 @@ class TestIntegrateODEs:
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                        os.path.join("resources", "integrate_odes_test.nestml"))),
                                          os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                       os.path.join("resources", "integrate_odes_nonlinear_test.nestml")))],
+                                                                       os.path.join("resources", "integrate_odes_nonlinear_test.nestml"))),
+                                         os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                       os.path.join("resources", "alpha_function_2nd_order_ode_neuron.nestml"))),],
                              logging_level="INFO",
                              suffix="_nestml")
 
@@ -131,11 +133,9 @@ class TestIntegrateODEs:
             pass
 
         # create the network
-        spikedet = nest.Create("spike_recorder")
         neuron = nest.Create("integrate_odes_test_nestml")
         mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
         nest.Connect(mm, neuron)
-        nest.Connect(neuron, spikedet)
 
         # simulate
         nest.Simulate(sim_time)
@@ -182,11 +182,9 @@ class TestIntegrateODEs:
             pass
 
         # create the network
-        spikedet = nest.Create("spike_recorder")
         neuron = nest.Create("integrate_odes_nonlinear_test_nestml")
         mm = nest.Create("multimeter", params={"record_from": ["test_1", "test_2"]})
         nest.Connect(mm, neuron)
-        nest.Connect(neuron, spikedet)
 
         # simulate
         nest.Simulate(sim_time)
@@ -232,3 +230,49 @@ class TestIntegrateODEs:
         generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
 
         assert len(Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)) == 2
+
+    def test_integrate_odes_higher_order(self):
+        r"""
+        Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x.
+        """
+        resolution = 0.1
+        simtime = 15.
+        nest.set_verbosity("M_ALL")
+        nest.ResetKernel()
+        nest.SetKernelStatus({"resolution": resolution})
+        try:
+            nest.Install("nestmlmodule")
+        except Exception:
+            # ResetKernel() does not unload modules for NEST Simulator < v3.7; ignore exception if module is already loaded on earlier versions
+            pass
+
+        n = nest.Create("alpha_function_2nd_order_ode_neuron_nestml")
+        sgX = nest.Create("spike_generator", params={"spike_times": [10.]})
+        nest.Connect(sgX, n, syn_spec={"weight": 1., "delay": resolution})
+
+        mm = nest.Create("multimeter", params={"interval": resolution, "record_from": ["x", "y"]})
+        nest.Connect(mm, n)
+
+        nest.Simulate(simtime)
+        times = mm.get()["events"]["times"]
+        x_actual = mm.get()["events"]["x"]
+        y_actual = mm.get()["events"]["y"]
+
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(nrows=2)
+            ax1, ax2 = ax
+
+            ax2.plot(times, x_actual, label="x")
+            ax1.plot(times, y_actual, label="y")
+
+            for _ax in ax:
+                _ax.grid(which="major", axis="both")
+                _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+                _ax.set_xlim(0., simtime)
+                _ax.legend()
+
+            fig.savefig("/tmp/test_integrate_odes_higher_order.png", dpi=300)
+
+        # verify
+        np.testing.assert_allclose(x_actual[-1], 0.10737970490959549)
+        np.testing.assert_allclose(y_actual[-1], 0.6211608596446752)
