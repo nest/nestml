@@ -77,12 +77,13 @@ class NESTMLPrinter(ModelPrinter):
 
     def print_model(self, node: ASTModel) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        ret += "model " + node.get_name() + ":" + print_sl_comment(node.in_comment)
-        ret += "\n" + self.print(node.get_body())
-
+        ret += "model " + node.get_name() + ":" + print_sl_comment(node.in_comment) + "\n"
+        self.inc_indent()
+        ret += self.print(node.get_body())
+        self.dec_indent()
         return ret
 
-    def print_arithmetic_operator(celf, node: ASTArithmeticOperator) -> str:
+    def print_arithmetic_operator(self, node: ASTArithmeticOperator) -> str:
         if node.is_times_op:
             return " * "
 
@@ -169,12 +170,12 @@ class NESTMLPrinter(ModelPrinter):
         return ret
 
     def print_model_body(self, node: ASTModelBody) -> str:
-        self.inc_indent()
+        # self.inc_indent()
         ret = ""
         for elem in node.body_elements:
             ret += self.print(elem)
 
-        self.dec_indent()
+        # self.dec_indent()
 
         return ret
 

@@ -195,7 +195,7 @@ parser grammar PyNestMLParser;
   /**
    * ASTStmtsBody A sequence of statements.
   **/
-  stmtsBody : NEWLINE? stmt (NEWLINE | stmt)*;
+  stmtsBody : NEWLINE? stmt+;
 
   /**
    * ASTReturnStmt Models the return statement in a function.
@@ -253,7 +253,7 @@ parser grammar PyNestMLParser;
    * @attribute onConditionBlock: A block declaring condition statements.
    * @attribute updateBlock: A single update block containing the dynamic behavior.
   **/
-  modelBody : ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+;
+  modelBody : NEWLINE* ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+;
 
   /**
    * ASTOnReceiveBlock

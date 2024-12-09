@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import copy
 
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -897,7 +898,7 @@ class ASTVisitor:
             self.traverse_bit_operator(node)
             return
         if isinstance(node, ASTStmtsBody):
-            self.traverse_block(node)
+            self.traverse_stmts_body(node)
             return
         if isinstance(node, ASTBlockWithVariables):
             self.traverse_block_with_variables(node)
@@ -1160,10 +1161,15 @@ class ASTVisitor:
     def traverse_bit_operator(self, node):
         return
 
-    def traverse_block(self, node):
+    def traverse_stmts_body(self, node):
+        # Check if all statements are visited in case of an include statement
         if node.get_stmts() is not None:
-            for sub_node in node.get_stmts():
-                sub_node.accept(self.get_real_self())
+            visited_stmts = []
+            while len(visited_stmts) < len(node.get_stmts()):
+                for sub_node in node.get_stmts():
+                    if sub_node not in visited_stmts:
+                        sub_node.accept(self.get_real_self())
+                        visited_stmts.append(sub_node)
 
     def traverse_block_with_variables(self, _node):
         if _node.get_declarations() is not None:
@@ -1171,9 +1177,14 @@ class ASTVisitor:
                 sub_node.accept(self.get_real_self())
 
     def traverse_model_body(self, node):
+        # Check if all the body elements are processed in case of an include statement
         if node.get_body_elements() is not None:
-            for sub_node in node.get_body_elements():
-                sub_node.accept(self.get_real_self())
+            visited_elements = []
+            while len(visited_elements) < len(node.get_body_elements()):
+                for sub_node in node.get_body_elements():
+                    if sub_node not in visited_elements:
+                        sub_node.accept(self.get_real_self())
+                        visited_elements.append(sub_node)
 
     def traverse_comparison_operator(self, node):
         return

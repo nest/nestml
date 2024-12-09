@@ -122,7 +122,7 @@ class ASTIncludeStatementVisitor(ASTVisitor):
                 idx = model_body.get_body_elements().index(node)
                 model_body.get_body_elements().pop(idx)
                 model_body.body_elements = model_body.body_elements[:idx] + new_model_body.get_body_elements() + model_body.body_elements[idx:]
-                node.accept(ASTParentVisitor())
+                # node.accept(ASTParentVisitor())
                 new_model_body.accept(ASTParentVisitor())
             else:
                 assert False

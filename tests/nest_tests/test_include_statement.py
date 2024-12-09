@@ -132,7 +132,7 @@ class TestIncludeStatement:
         nest.Simulate(151.)
 
         v = mm.get("events")["v"]
-        np.testing.assert_allclose(v[-1], 27.)
+        np.testing.assert_allclose(v[-1], 3.71)
 
     def test_include_statement5(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "IncludeStatementTest5.nestml")))
