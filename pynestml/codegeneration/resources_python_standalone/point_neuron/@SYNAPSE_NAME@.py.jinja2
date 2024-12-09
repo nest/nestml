@@ -1,5 +1,5 @@
 {#-
-@NEURON_NAME@.py.jinja2
+@SYNAPSE_NAME@.py.jinja2
 
 This file is part of NEST.
 
@@ -20,7 +20,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
 {%- import 'directives_py/FunctionDeclaration.jinja2' as function_declaration with context %}
 """
-{{neuronName}}.py
+{{ astnode.name }}.py
 
 This file is part of NEST.
 
@@ -53,19 +53,19 @@ import numpy as np
 import scipy
 import scipy.integrate
 
-from .neuron import Neuron
+from .synapse import Synapse
 from .utils import steps
 
 DEBUG = 1
 
 
-{%- set stateSize = neuron.get_non_inline_state_symbols()|length %}
+{%- set stateSize = astnode.get_non_inline_state_symbols()|length %}
 
-class Neuron_{{neuronName}}(Neuron):
+class Synapse_{{ astnode.name }}(Synapse):
 
   class Parameters_:
 {%- filter indent(4, False) %}
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%- for variable_symbol in astnode.get_parameter_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include 'directives_py/MemberDeclaration.jinja2' %}
 {%- endfor %}
@@ -82,7 +82,7 @@ class Neuron_{{neuronName}}(Neuron):
 
 {% endif %}
 {%- filter indent(4, False) %}
-{%- for variable_symbol in neuron.get_state_symbols() %}
+{%- for variable_symbol in astnode.get_state_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include 'directives_py/MemberDeclaration.jinja2' %}
 {%- endfor %}
@@ -90,17 +90,17 @@ class Neuron_{{neuronName}}(Neuron):
 
   class Variables_:
 {%- filter indent(4, False) %}
-{%- for variable_symbol in neuron.get_internal_symbols() %}
+{%- for variable_symbol in astnode.get_internal_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include "directives_py/MemberDeclaration.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
   class Buffers_:
-{%- if neuron.get_spike_input_ports() | length > 0 %}
+{%- if astnode.get_spike_input_ports() | length > 0 %}
     # spiking input ports
 {%- endif %}
-{%- for port in neuron.get_spike_input_ports() %}
+{%- for port in astnode.get_spike_input_ports() %}
 {%-     if port.has_vector_parameter() %}
     {{ port.get_symbol_name() }}: List[float] = []
     spike_received_{{ port.get_symbol_name() }}: List[bool] = []
@@ -110,10 +110,10 @@ class Neuron_{{neuronName}}(Neuron):
 {%-     endif %}
 {%- endfor %}
 
-{%- if neuron.get_continuous_input_ports() | length > 0 %}
+{%- if astnode.get_continuous_input_ports() | length > 0 %}
     # continuous input ports
 {%- endif %}
-{%- for port in neuron.get_continuous_input_ports() %}
+{%- for port in astnode.get_continuous_input_ports() %}
 {%-     if port.has_vector_parameter() %}
     {{ port.get_symbol_name() }}: List[float] = []
 {%-     else %}
@@ -130,20 +130,22 @@ class Neuron_{{neuronName}}(Neuron):
     self.V_ = self.Variables_()
     self.B_ = self.Buffers_()
 
-{%- if parameter_vars_with_iv|length > 0 %}
-    # initial values for parameters
-{%- filter indent(4) %}
-{%- for variable in parameter_vars_with_iv %}
-{%-   set variable_symbol = neuron.get_scope().resolve_to_symbol(variable.get_name(), SymbolKind.VARIABLE) %}
-{%-   include "directives_py/MemberInitialization.jinja2" %}
+{%- filter indent(4, True) %}
+{%- for variable_symbol in synapse.get_parameter_symbols() %}
+{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
+{%-         if variable.get_name() != nest_codegen_opt_delay_variable %}
+{%-             include "directives_py/MemberInitialization.jinja2" %}
+{%-         endif %}
+{%-     endif %}
 {%- endfor %}
 {%- endfilter %}
-{%- endif %}
 
-{%- if neuron.get_state_symbols()|length > 0 %}
+{%- if astnode.get_state_symbols()|length > 0 %}
     # initial values for state variables
 {%- filter indent(4) %}
-{%- for variable_symbol in neuron.get_state_symbols() %}
+{%- for variable_symbol in astnode.get_state_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include "directives_py/MemberInitialization.jinja2" %}
 {%- endfor %}
@@ -153,15 +155,38 @@ class Neuron_{{neuronName}}(Neuron):
     self._timestep = timestep
     self.recompute_internal_variables(self._timestep)
 
+{%- if paired_synapse is defined %}
+    # -----------------------------
+    #    code for paired synapse
+    # -----------------------------
+
+    # state variables for archiving state for paired synapse
+    self.n_incoming_ = 0.
+    self.max_delay_ = 0.
+    self.last_spike_ = -1.
+
+    # cache initial values
+{%- for var in transferred_variables %}
+{%-   set variable_symbol = transferred_variables_syms[var] %}
+{%-   set variable = utils.get_variable_by_name(astnode, var) %}
+{%-   if not var == variable_symbol.get_symbol_name() %}
+    {{ raise('Error in resolving variable to symbol') }}
+{%-   endif %}
+    {{ var }}__iv = get_{{ printer.print(variable) }}()
+{%- endfor %}
+
+    self.clear_history()
+{%- endif %}
+
   def get_model(self) -> str:
-    return "{{neuronName}}"
+    return "{{ astnode.name }}"
 
   def recompute_internal_variables(self, timestep: float, exclude_timestep: bool = False):
     __timestep: float = timestep  # do not remove, this is necessary for the timestep() function
 
     if exclude_timestep:
   {%- filter indent(6,True) %}
-  {%- for variable_symbol in neuron.get_internal_symbols() %}
+  {%- for variable_symbol in astnode.get_internal_symbols() %}
   {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   {%-   if variable.name != "__h" %}
   {%-     include "directives_py/MemberInitialization.jinja2" %}
@@ -171,19 +196,19 @@ class Neuron_{{neuronName}}(Neuron):
     else:
       # internals V_
   {%- filter indent(6) %}
-  {%- for variable_symbol in neuron.get_internal_symbols() %}
+  {%- for variable_symbol in astnode.get_internal_symbols() %}
   {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
   {%-   include "directives_py/MemberInitialization.jinja2" %}
   {%- endfor %}
   {%- endfilter %}
 
-{%- if neuron.get_functions()|length > 0 %}
+{%- if astnode.get_functions()|length > 0 %}
 
   # ---------------------------------------------------------------------------
   #   Functions defined in the NESTML model
   # ---------------------------------------------------------------------------
-{% for function in neuron.get_functions() -%}
-  {{ function_declaration.FunctionDeclaration(function, neuronName) }}:
+{% for function in astnode.get_functions() -%}
+  {{ function_declaration.FunctionDeclaration(function, astnode.name) }}:
 {%-   filter indent(4,True) %}
 {%-   with ast = function.get_block() %}
 {%-     include "directives_py/Block.jinja2" %}
@@ -196,8 +221,8 @@ class Neuron_{{neuronName}}(Neuron):
   #   Getters/setters for state block
   # -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
+{%- for variable_symbol in astnode.get_state_symbols() %}
+{%-   if not is_delta_kernel(astnode.get_kernel_by_name(variable_symbol.get_symbol_name())) %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     include "directives_py/MemberVariableGetterSetter.jinja2" %}
 {%-   endif %}
@@ -208,18 +233,18 @@ class Neuron_{{neuronName}}(Neuron):
   #   Getters/setters for parameters block
   # -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
-{%- for variable_symbol in neuron.get_parameter_symbols() %}
+{%- for variable_symbol in astnode.get_parameter_symbols() %}
 {%-   set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-   include "directives_py/MemberVariableGetterSetter.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
-{% if neuron.get_equations_blocks()|length > 0 %}
+{% if astnode.get_equations_blocks()|length > 0 %}
   # -------------------------------------------------------------------------
   #   Numeric + analytic solver stepping function
   # -------------------------------------------------------------------------
 
-{%- for ast in utils.get_all_integrate_odes_calls_unique(neuron) %}
+{%- for ast in utils.get_all_integrate_odes_calls_unique(astnode) %}
 
 {%- if uses_numeric_solver %}
 {%  filter indent(2) %}
@@ -262,6 +287,8 @@ class Neuron_{{neuronName}}(Neuron):
   def step(self, origin: float, timestep: float) -> None:
     __timestep: float = timestep   # do not remove, this is necessary for the timestep() function
 
+    assert False, "Synapsese are not yet supported for the Python-standalone code generation target."
+
     # -------------------------------------------------------------------------
     #     integrate variables related to convolutions
     # -------------------------------------------------------------------------
@@ -274,13 +301,14 @@ class Neuron_{{neuronName}}(Neuron):
     #     NESTML generated code for the update block
     # -------------------------------------------------------------------------
 
-{%  if neuron.get_update_blocks() | length > 0 %}
+{%  if astnode.get_update_blocks() | length > 0 %}
 {%-     filter indent(4) %}
-{%-         for dynamics in neuron.get_update_blocks() %}
-{%-             set ast = dynamics.get_block() %}
-{%-             include "directives_py/Block.jinja2" %}
-{%-         endfor %}
+{%-     for dynamics in astnode.get_update_blocks() %}
+{%-         set ast = dynamics.get_block() %}
+{%-         include "directives_py/Block.jinja2" %}
+{%-     endfor %}
 {%-     endfilter %}
+
 {%- endif %}
 
     # -------------------------------------------------------------------------
@@ -302,7 +330,7 @@ class Neuron_{{neuronName}}(Neuron):
     #     begin NESTML generated code for the onReceive block(s)
     # -------------------------------------------------------------------------
 
-{%  for blk in neuron.get_on_receive_blocks() %}
+{%  for blk in astnode.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
     if self.B_.spike_received_{{ inport }}:
       self.on_receive_block_{{ blk.get_port_name() }}()
@@ -312,7 +340,7 @@ class Neuron_{{neuronName}}(Neuron):
     #     Clear spike buffers at end of timestep
     # -------------------------------------------------------------------------
 
-{%- for port in neuron.get_spike_input_ports() %}
+{%- for port in astnode.get_spike_input_ports() %}
     self.B_.{{port.get_symbol_name()}} = 0.
     self.B_.spike_received_{{port.get_symbol_name()}} = False
 {%- endfor %}
@@ -321,7 +349,7 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
     #     Begin NESTML generated code for the onCondition block(s)
     # -------------------------------------------------------------------------
-{%- for block in neuron.get_on_condition_blocks() %}
+{%- for block in astnode.get_on_condition_blocks() %}
     if {{ printer.print(block.get_cond_expr()) }}:
 {%-     set ast = block.get_block() %}
 {%-     if ast.print_comment('#') | length > 1 %}
@@ -333,33 +361,33 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 
 
-{%  if has_spike_input %}
   # -------------------------------------------------------------------------
   #   Spiking input handlers
   # -------------------------------------------------------------------------
 
-  def handle(self, t_spike: float, w: float, port_name: str) -> None:
-{%-     for port in neuron.get_spike_input_ports() %}
+  def handle(self, t_spike: float, port_name: str) -> None:
+    assert False, "Synapsese are not yet supported for the Python-standalone code generation target."
+
+{%-   for port in astnode.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
       self.B_.{{port.get_symbol_name()}} += abs(w)
       self.B_.spike_received_{{port.get_symbol_name()}} = True
       return
-{%-     endfor %}
+{%-   endfor %}
     raise Exception("Received a spike on unknown input port \"" + port_name + "\" at t = " + "{0:E}".format(t_spike))
 
   def get_spiking_input_ports(self) -> List[str]:
     return [
-{%-     for port in neuron.get_spike_input_ports() %}
+{%- for port in astnode.get_spike_input_ports() %}
             "{{port.name}}",
-{%-     endfor %}
+{%- endfor %}
     ]
-{%- endif %}
 
   # -------------------------------------------------------------------------
   #   Methods corresponding to event handlers
   # -------------------------------------------------------------------------
 
-{%- for blk in neuron.get_on_receive_blocks() %}
+{%- for blk in astnode.get_on_receive_blocks() %}
 {%-     set ast = blk.get_block() %}
   def on_receive_block_{{ blk.get_port_name() }}(self):
 {%-     filter indent(4, True) -%}
