@@ -21,41 +21,26 @@
 
 from typing import List
 
-from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_node import ASTNode
 
 
 class ASTUpdateBlock(ASTNode):
-    """
-    This class is used to store dynamic blocks.
-    ASTUpdateBlock is a special function definition:
-      update:
-          if r == 0: # not refractory
-              integrate(V)
-     @attribute block Implementation of the dynamics.
-
-    Grammar:
-        updateBlock:
-            'update'
-            BLOCK_OPEN
-              block
-            BLOCK_CLOSE;
-    Attributes:
-        block = None
+    r"""
+    The ``update`` block in the model.
     """
 
-    def __init__(self, block, *args, **kwargs):
+    def __init__(self, stmts_body: ASTStmtsBody, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param block: a block of definitions.
-        :type block: ASTBlock
         """
         super(ASTUpdateBlock, self).__init__(*args, **kwargs)
-        assert isinstance(block, ASTBlock)
-        self.block = block
+        assert isinstance(stmts_body, ASTStmtsBody)
+        self.stmts_body = stmts_body
 
     def clone(self):
         """
@@ -64,7 +49,7 @@ class ASTUpdateBlock(ASTNode):
         :return: new AST node instance
         :rtype: ASTUpdateBlock
         """
-        dup = ASTUpdateBlock(block=self.block.clone(),
+        dup = ASTUpdateBlock(stmts_body=self.stmts_body.clone(),
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,
@@ -75,20 +60,19 @@ class ASTUpdateBlock(ASTNode):
 
         return dup
 
-    def get_block(self):
+    def get_stmts_body(self) -> ASTStmtsBody:
         """
-        Returns the block of definitions.
-        :return: the block
-        :rtype: ASTBlock
+        Returns the body of statements.
+        :return: the statements body
         """
-        return self.block
+        return self.stmts_body
 
     def get_children(self) -> List[ASTNode]:
         r"""
         Returns the children of this node, if any.
         :return: List of children of this node.
         """
-        return [self.get_block()]
+        return [self.get_stmts_body()]
 
     def equals(self, other: ASTNode) -> bool:
         r"""
@@ -96,4 +80,5 @@ class ASTUpdateBlock(ASTNode):
         """
         if not isinstance(other, ASTUpdateBlock):
             return False
-        return self.get_block().equals(other.get_block())
+
+        return self.get_stmts_body().equals(other.get_stmts_body())

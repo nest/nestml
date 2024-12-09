@@ -113,8 +113,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.has_return_type():
             node.get_return_type().update_scope(scope)
 
-        if node.get_block() is not None:
-            node.get_block().update_scope(scope)
+        if node.get_stmts_body() is not None:
+            node.get_stmts_body().update_scope(scope)
 
     def endvisit_function(self, node):
         symbol = self.symbol_stack.pop()
@@ -158,7 +158,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         scope = Scope(scope_type=ScopeType.UPDATE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
+        node.get_stmts_body().update_scope(scope)
         return
 
     def endvisit_update_block(self, node=None):
@@ -175,7 +175,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         scope = Scope(scope_type=ScopeType.ON_RECEIVE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
+        node.get_stmts_body().update_scope(scope)
 
     def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
@@ -190,7 +190,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         scope = Scope(scope_type=ScopeType.ON_CONDITION, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
+        node.get_stmts_body().update_scope(scope)
         node.get_cond_expr().update_scope(node.get_scope())
 
     def endvisit_on_condition_block(self, node=None):
@@ -355,7 +355,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_if_clause
         """
         node.get_condition().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_elif_clause(self, node):
         """
@@ -364,7 +364,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_elif_clause
         """
         node.get_condition().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_else_clause(self, node):
         """
@@ -372,7 +372,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an else clause.
         :type node: ast_else_clause
         """
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_for_stmt(self, node):
         """
@@ -382,7 +382,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         node.get_start_from().update_scope(node.get_scope())
         node.get_end_at().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_while_stmt(self, node):
         """
@@ -391,7 +391,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_while_stmt
         """
         node.get_condition().update_scope(node.get_scope())
-        node.get_block().update_scope(node.get_scope())
+        node.get_stmts_body().update_scope(node.get_scope())
 
     def visit_data_type(self, node):
         """
