@@ -160,7 +160,8 @@ parser grammar PyNestMLParser;
   smallStmt : (assignment
               | functionCall
               | declaration
-              | returnStmt) NEWLINE;
+              | returnStmt
+              | includeStmt) NEWLINE;
 
   assignment : lhs_variable=variable
                 (directAssignment=EQUALS
@@ -169,6 +170,9 @@ parser grammar PyNestMLParser;
                  | compoundProduct=STAR_EQUALS
                  | compoundQuotient=FORWARD_SLASH_EQUALS)
                expression;
+
+  includeStmt : INCLUDE_KEYWORD filename=STRING_LITERAL;
+  includeStmt_newline : includeStmt NEWLINE;
 
   /**
    * ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables (``a,b,c real = 0``), or an function declaration ``function a = b + c``.
@@ -191,7 +195,7 @@ parser grammar PyNestMLParser;
   /**
    * ASTStmtsBody A sequence of statements.
   **/
-  stmtsBody : NEWLINE? stmt (NEWLINE | stmt)*;
+  stmtsBody : NEWLINE? stmt+;
 
   /**
    * ASTReturnStmt Models the return statement in a function.
@@ -236,7 +240,7 @@ parser grammar PyNestMLParser;
    * @attribute modelBody:    The body of the model consisting of several sub-blocks.
   **/
   model : MODEL_KEYWORD NAME COLON
-          modelBody;
+          NEWLINE INDENT modelBody DEDENT;
 
   /**
    * ASTBody The body of the model, e.g. internal, state, parameter...
@@ -249,7 +253,7 @@ parser grammar PyNestMLParser;
    * @attribute onConditionBlock: A block declaring condition statements.
    * @attribute updateBlock: A single update block containing the dynamic behavior.
   **/
-  modelBody : NEWLINE INDENT ( blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+ DEDENT;
+  modelBody : NEWLINE* ( includeStmt_newline | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | onConditionBlock | updateBlock )+;
 
   /**
    * ASTOnReceiveBlock
@@ -273,7 +277,7 @@ parser grammar PyNestMLParser;
    * @attribute declaration: A list of corresponding declarations.
   **/
   blockWithVariables : blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD) COLON
-                       NEWLINE INDENT declaration_newline+ DEDENT;
+                       NEWLINE INDENT (includeStmt_newline | declaration_newline)+ DEDENT;
 
   /**
    * ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated.
@@ -289,7 +293,7 @@ parser grammar PyNestMLParser;
    * @attribute kernel: A single kernel definition.
   **/
   equationsBlock : EQUATIONS_KEYWORD COLON
-                   NEWLINE INDENT ( inlineExpression | odeEquation | kernel )+ DEDENT;
+                   NEWLINE INDENT ( includeStmt_newline | inlineExpression | odeEquation | kernel )+ DEDENT;
 
   /**
    * ASTInputBlock represents a single input block.
@@ -331,7 +335,6 @@ parser grammar PyNestMLParser;
   outputBlock : OUTPUT_KEYWORD COLON
                 NEWLINE INDENT ((isSpike=SPIKE_KEYWORD (LEFT_PAREN (attribute=parameter (COMMA attribute=parameter)*)? RIGHT_PAREN)?) | isContinuous=CONTINUOUS_KEYWORD)
                 NEWLINE DEDENT;
-
   /**
    * ASTFunction A single declaration of a user-defined function definition.
    * @attribute name: The name of the function.
