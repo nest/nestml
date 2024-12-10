@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_tools.py
+# python_standalone_target_tools.py
 #
 # This file is part of NEST.
 #
