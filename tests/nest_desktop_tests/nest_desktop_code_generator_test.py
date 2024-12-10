@@ -39,26 +39,37 @@ class TestNestDesktopCodeGenerator:
         """
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
-        target_path = "target_nest_desktop"
+        target_path = "nest_desktop_module"
         target_platform = "NEST_DESKTOP"
         generate_target(input_path=input_path,
                         target_path=target_path,
                         target_platform=target_platform,
+                        module_name=target_path,
                         logging_level="INFO")
 
         # Read the parameters from the generated json file and match them with the actual values
         with open(os.path.join(target_path, "iaf_psc_exp_neuron.json")) as f:
             data = f.read()
         json_data = json.loads(data)
-        actual_params = {"C_m": "250.0",
-                         "tau_m": "10.0",
-                         "tau_syn_inh": "2.0",
-                         "tau_syn_exc": "2.0",
-                         "refr_T": "2.0",
-                         "E_L": "-70.0",
-                         "V_reset": "-70.0",
-                         "V_th": "-55.0",
-                         "I_e": "0.0"}
-        for param_data in json_data["params"]:
-            _id = param_data["id"]
-            assert param_data["value"] == actual_params[_id]
+        actual_params = {"C_m": "250",
+                         "tau_m": "10",
+                         "tau_syn_inh": "2",
+                         "tau_syn_exc": "2",
+                         "refr_T": "2",
+                         "E_L": "-70",
+                         "V_reset": "-70",
+                         "V_th": "-55",
+                         "I_e": "0"}
+        actual_state = {
+            "I_syn_exc": "0",
+            "I_syn_inh": "0",
+            "V_m": "-70",
+            "refr_t": "0"
+        }
+        for recordables_data in json_data["params"]:
+            _id = recordables_data["id"]
+            assert recordables_data["value"] == actual_params[_id]
+
+        for recordables_data in json_data["recordables"]:
+            _id = recordables_data["id"]
+            assert recordables_data["value"] == actual_state[_id]
