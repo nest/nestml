@@ -100,7 +100,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 {%- if neuron.get_update_blocks() %}
 {%-     filter indent(2) %}
 {%-         for block in neuron.get_update_blocks() %}
-{%-             set ast = block.get_block() %}
+{%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
 /*
  {{ast.print_comment('*')}}
@@ -118,7 +118,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 {%-     set inport = blk.get_port_name() %}
     if (var[N_SCAL_VAR + i_{{ inport }}])
     {
-{%-     set ast = blk.get_block() %}
+{%-     set ast = blk.get_stmts_body() %}
 {%-     filter indent(6, True) -%}
 {%-         include "directives/Block.jinja2" %}
 {%-     endfilter %}      
@@ -147,7 +147,7 @@ const {{ type_symbol_printer.print(var_symbol.type_symbol) }} {{variable_name}}_
 {%-     for block in neuron.get_on_condition_blocks() %}
     if ({{ printer.print(block.get_cond_expr()) }})
     {
-{%-         set ast = block.get_block() %}
+{%-         set ast = block.get_stmts_body() %}
 {%-         if ast.print_comment('*') | length > 1 %}
 /*
  {{ast.print_comment('*')}}
