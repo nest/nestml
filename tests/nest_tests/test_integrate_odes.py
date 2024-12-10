@@ -287,7 +287,7 @@ class TestIntegrateODEs:
         Tests for higher-order ODEs of the form F(x'',x',x)=0, integrate_odes(x) integrates the full dynamics of x with a numeric solver.
         """
         resolution = 0.1
-        simtime = 100.
+        simtime = 800.
         params_nestml = {"V_peak": 0.0, "a": 4.0, "b": 80.5, "E_L": -70.6,
                          "g_L": 300.0, 'E_exc': 20.0, 'E_inh': -85.0,
                          'tau_syn_exc': 40.0, 'tau_syn_inh': 20.0}
@@ -312,11 +312,12 @@ class TestIntegrateODEs:
                 nest.SetStatus(n, params_nest)
 
             spike = nest.Create("spike_generator")
-            spike_times = [10.0, 50.0]
+            spike_times = [10.0, 400.0]
             nest.SetStatus(spike, {"spike_times": spike_times})
-            nest.Connect(spike, n, syn_spec={"weight": 1., "delay": 1.0})
+            nest.Connect(spike, n, syn_spec={"weight": 0.1, "delay": 1.0})
+            nest.Connect(spike, n, syn_spec={"weight": -0.2, "delay": 100.})
 
-            mm = nest.Create("multimeter", params={"interval": resolution, "record_from": ["V_m"]})
+            mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
             nest.Connect(mm, n)
 
             nest.Simulate(simtime)
