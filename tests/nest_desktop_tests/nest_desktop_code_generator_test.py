@@ -30,9 +30,6 @@ class TestNestDesktopCodeGenerator:
     """
     Test for NEST-Desktop code generator
     """
-
-    @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
-                        reason="This test does not support NEST 2")
     def test_nest_desktop_code_generator(self):
         """
         Test to generate the json file for NEST Desktop target for the given neuron model
