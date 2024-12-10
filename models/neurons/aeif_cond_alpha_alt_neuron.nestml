@@ -62,7 +62,7 @@ model aeif_cond_alpha_alt_neuron:
         # inline I_syn_exc pA = g_exc / nS * pA
         # inline I_syn_inh pA = g_inh / nS * pA
 
-        V_m' = (-g_L * (V_bounded - E_L) + I_spike - g_exc * (V_bounded - E_exc) - g_inh * (V_bounded - E_exc) - w + I_e + I_stim) / C_m
+        V_m' = (-g_L * (V_bounded - E_L) + I_spike - g_exc * (V_bounded - E_exc) - g_inh * (V_bounded - E_inh) - w + I_e + I_stim) / C_m
         w' = (a * (V_bounded - E_L) - w) / tau_w
 
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
