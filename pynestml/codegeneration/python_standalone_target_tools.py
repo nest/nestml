@@ -44,7 +44,7 @@ class PythonStandaloneTargetTools:
                                           module_name=module_name,
                                           logging_level="INFO")
 
-        py_module_name = "nest_desktop_module." + model_name + suffix
+        py_module_name = module_name + "." + model_name + suffix
         module = importlib.import_module(py_module_name)
         neuron_name = "Neuron_" + model_name + suffix + "(1.0)"
         neuron = eval("module." + neuron_name)
