@@ -336,4 +336,4 @@ class TestIntegrateODEs:
 
             fig.savefig("/tmp/test_integrate_odes_numeric_higher_order.png")
 
-        np.testing.assert_allclose(v_m_nestml[-1], v_m_nest[-1])
+        np.testing.assert_allclose(v_m_nestml, v_m_nest)
