@@ -234,6 +234,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#expressionOrParameter.
+    def visitExpressionOrParameter(self, ctx:PyNestMLParser.ExpressionOrParameterContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#constParameter.
     def visitConstParameter(self, ctx:PyNestMLParser.ConstParameterContext):
         return self.visitChildren(ctx)

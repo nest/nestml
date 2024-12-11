@@ -128,7 +128,7 @@ parser grammar PyNestMLParser;
    * @attribute differentialOrder: The corresponding differential order, e.g. 2
   **/
   variable : name=NAME
-             (LEFT_SQUARE_BRACKET vectorParameter=expression RIGHT_SQUARE_BRACKET)?
+             (LEFT_SQUARE_BRACKET vectorParameter=expressionOrParameter RIGHT_SQUARE_BRACKET)?
              (DIFFERENTIAL_ORDER)*
              (FULLSTOP attribute=variable)?;
 
@@ -346,6 +346,8 @@ parser grammar PyNestMLParser;
    * @attribute dataType: The corresponding data type.
   **/
   parameter : NAME dataType;
+
+  expressionOrParameter : parameter | expression;
 
   /**
    * ASTConstParameter represents a single parameter consisting of a name and a literal default value, e.g. ``foo=42``.

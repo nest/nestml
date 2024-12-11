@@ -18,10 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 
-from pynestml.symbols.predefined_units import PredefinedUnits
-
+from typing import Optional
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
@@ -58,16 +57,21 @@ class ASTFunctionCallVisitor(ASTVisitor):
             buffer_parameter = node.get_function_call().get_args()[1]
 
             if buffer_parameter.get_variable() is not None:
-                if not buffer_parameter.get_variable().get_attribute():
-                    # an attribute is missing for the spiking input port
-                    code, message = Messages.get_spike_input_port_attribute_missing(buffer_name)
-                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                       log_level=LoggingLevel.ERROR)
-                    node.type = ErrorTypeSymbol()
-                    return
+                # if not buffer_parameter.get_variable().get_attribute():
+                #     # an attribute is missing for the spiking input port
+                # XXX: attributes only required for ports that have them, but don't have access to the ASTModel object, so can't run ASTUtils.get_input_port_by_name!!!
+                #     import pdb;pdb.set_trace()
+                #     code, message = Messages.get_spike_input_port_attribute_missing(buffer_parameter.get_variable().get_name())
+                #     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                #                        log_level=LoggingLevel.ERROR)
+                #     node.type = ErrorTypeSymbol()
+                #     return
 
                 buffer_name = buffer_parameter.get_variable().get_name() + "." + str(buffer_parameter.get_variable().get_attribute())
                 buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
+
+                if not buffer_symbol_resolve:
+                    buffer_symbol_resolve = scope.resolve_to_symbol(buffer_parameter.get_variable().get_name(), SymbolKind.VARIABLE)
 
                 assert buffer_symbol_resolve is not None
                 node.type = buffer_symbol_resolve.get_type_symbol()

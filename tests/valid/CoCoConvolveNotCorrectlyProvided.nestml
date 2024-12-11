@@ -33,7 +33,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model CoCoConvolveNotCorrectlyProvided:
     equations:
-        kernel test = 10
+        kernel test = delta(t)
         inline testB pA = convolve(test, spikeExc) * pA # convolve provided with a kernel and a spike input port, thus correct
 
     input:

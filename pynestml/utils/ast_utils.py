@@ -2585,7 +2585,7 @@ class ASTUtils:
                     continue
 
                 if input_port.get_size_parameter():
-                    for i in range(int(str(input_port.size_parameter))): # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
+                    for i in range(int(str(input_port.size_parameter))):    # XXX: should be able to convert size_parameter expression to an integer more generically (allowing for e.g. parameters)
                         input_port_to_rport[input_port.name + "_VEC_IDX_" + str(i)] = rport
                         rport += 1
                 else:

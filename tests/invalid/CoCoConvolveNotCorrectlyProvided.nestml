@@ -37,8 +37,8 @@ model CoCoConvolveNotCorrectlyProvided:
         g_ex mV = 10mV
 
     equations:
-        kernel test = 10
-        inline testB pA = convolve(g_ex, g_ex) + test
+        kernel test = delta(t)
+        inline testB pA = convolve(g_ex, g_ex)
         V_m' = 20 mV/ms
 
     input:

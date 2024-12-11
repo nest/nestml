@@ -252,12 +252,6 @@ class AutodocBuilder(Builder):
             # this NESTML neuron is written as having one input port for excitatory and inhibitory spikes (with sign of the weight telling the difference)
             nest.Connect(spikegenerator, neuron2, syn_spec=syn_spec)
 
-
-
-
-
-
-
         nest.Connect(spikegenerator, neuron)
 
         spike_recorder = nest.Create("spike_recorder")
