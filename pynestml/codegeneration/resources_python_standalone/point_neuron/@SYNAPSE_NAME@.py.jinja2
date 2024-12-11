@@ -56,8 +56,6 @@ import scipy.integrate
 from .synapse import Synapse
 from .utils import steps
 
-DEBUG = 1
-
 
 {%- set stateSize = astnode.get_non_inline_state_symbols()|length %}
 
@@ -287,7 +285,7 @@ class Synapse_{{ astnode.name }}(Synapse):
   def step(self, origin: float, timestep: float) -> None:
     __timestep: float = timestep   # do not remove, this is necessary for the timestep() function
 
-    assert False, "Synapsese are not yet supported for the Python-standalone code generation target."
+    assert False, "Synapses are not yet supported for the Python-standalone code generation target."
 
     # -------------------------------------------------------------------------
     #     integrate variables related to convolutions
@@ -366,7 +364,7 @@ class Synapse_{{ astnode.name }}(Synapse):
   # -------------------------------------------------------------------------
 
   def handle(self, t_spike: float, port_name: str) -> None:
-    assert False, "Synapsese are not yet supported for the Python-standalone code generation target."
+    assert False, "Synapses are not yet supported for the Python-standalone code generation target."
 
 {%-   for port in astnode.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
