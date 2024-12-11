@@ -89,7 +89,7 @@ class ModelParser:
         :rtype: ASTNestMLCompilationUnit
         """
         try:
-            input_file = FileStream(file_path)
+            input_file = FileStream(file_path, encoding='utf-8')
         except IOError:
             code, message = Messages.get_input_path_not_found(path=file_path)
             Logger.log_message(node=None, code=None, message=message,
@@ -101,7 +101,6 @@ class ModelParser:
         # create a lexer and hand over the input
         lexer = PyNestMLLexer()
         lexer.removeErrorListeners()
-        lexer.addErrorListener(ConsoleErrorListener())
         lexerErrorListener = NestMLErrorListener()
         lexer.addErrorListener(lexerErrorListener)
         lexer._errHandler = BailErrorStrategy()  # halt immediately on lexer errors
@@ -111,14 +110,18 @@ class ModelParser:
         stream = CommonTokenStream(lexer)
         stream.fill()
         if lexerErrorListener._error_occurred:
-            code, message = Messages.get_lexer_error()
+            error_location = ASTSourceLocation(lexerErrorListener.line,
+                                               lexerErrorListener.column,
+                                               lexerErrorListener.line,
+                                               lexerErrorListener.column)
+            code, message = Messages.get_lexer_error(lexerErrorListener.msg)
             Logger.log_message(node=None, code=None, message=message,
-                               error_position=None, log_level=LoggingLevel.ERROR)
+                               error_position=error_location, log_level=LoggingLevel.ERROR)
             return
+
         # parse the file
         parser = PyNestMLParser(None)
         parser.removeErrorListeners()
-        parser.addErrorListener(ConsoleErrorListener())
         parserErrorListener = NestMLErrorListener()
         parser.addErrorListener(parserErrorListener)
         # parser._errHandler = BailErrorStrategy()	# N.B. uncomment this line and the next to halt immediately on parse errors
@@ -126,9 +129,13 @@ class ModelParser:
         parser.setTokenStream(stream)
         compilation_unit = parser.nestMLCompilationUnit()
         if parserErrorListener._error_occurred:
-            code, message = Messages.get_parser_error()
+            error_location = ASTSourceLocation(parserErrorListener.line,
+                                               parserErrorListener.column,
+                                               parserErrorListener.line,
+                                               parserErrorListener.column)
+            code, message = Messages.get_parser_error(parserErrorListener.msg)
             Logger.log_message(node=None, code=None, message=message,
-                               error_position=None, log_level=LoggingLevel.ERROR)
+                               error_position=error_location, log_level=LoggingLevel.ERROR)
             return
 
         # create a new visitor and return the new AST
