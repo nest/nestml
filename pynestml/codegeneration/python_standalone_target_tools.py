@@ -49,10 +49,10 @@ class PythonStandaloneTargetTools:
         neuron_name = "Neuron_" + model_name + suffix + "(1.0)"
         neuron = eval("module." + neuron_name)
         parameters_list = [p for p in dir(neuron.Parameters_) if not "__" in p]
-        parameters = {p: eval("neuron.get_" + p + "()") for p in parameters_list}
+        parameters = {p: getattr(neuron, "get_" + p)() for p in parameters_list}
 
         state_list = [p for p in dir(neuron.State_) if not "__" in p]
-        state_vars = {p: eval("neuron.get_" + p + "()") for p in state_list}
+        state_vars = {p: getattr(neuron, "get_" + p)() for p in state_list}
 
         return parameters, state_vars
 
