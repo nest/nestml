@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import os
+
 from typing import Sequence, Optional, Mapping, Any, Dict
 
 from pynestml.codegeneration.code_generator import CodeGenerator
@@ -64,8 +64,10 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         """
         from pynestml.codegeneration.nest_tools import NESTTools
+
         namespace = dict()
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
         namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(neuron.get_name())
+
         return namespace
