@@ -22,9 +22,16 @@ and
 
 .. math::
 
- \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
+   \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
 
 Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
+
+.. note::
+
+   The default refractory period for ``aeif`` models is zero, consistent with the model definition in
+   Brette & Gerstner [1]_.  Thus, an ``aeif`` neuron with default parameters can fire multiple spikes in a single
+   time step, which can lead to exploding spike numbers and extreme slow-down of simulations.
+   To avoid such unphysiological behavior, you should set a refractory time ``refr_t > 0``.
 
 
 References

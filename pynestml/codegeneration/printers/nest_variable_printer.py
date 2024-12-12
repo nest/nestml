@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from pynestml.utils.ast_utils import ASTUtils
+from typing import Dict, Optional
 
 from pynestml.codegeneration.nest_code_generator_utils import NESTCodeGeneratorUtils
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
@@ -49,6 +49,12 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.with_vector_parameter = with_vector_parameter
         self.enforce_getter = enforce_getter
         self.variables_special_cases = variables_special_cases
+        self.cpp_variable_suffix = ""
+        self.postsynaptic_getter_string_ = "start->get_%s()"
+
+    def set_getter_string(self, s):
+        self.postsynaptic_getter_string_ = s
+        return ""
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -66,13 +72,22 @@ class NESTVariablePrinter(CppVariablePrinter):
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
+                if not variable._altscope:
+                    # get the value from the postsynaptic partner continuous-time buffer (for post_connected_continuous_input_ports); this has been buffered in a local temp variable starting with "__"
+                    return variable.get_alternate_name()
+
+                # get the value from the postsynaptic partner (without time specified)
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
                 return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
+            # grab the value from the postsynaptic spiking history buffer
+            return self.postsynaptic_getter_string_ % _name
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
-            return "numerics::e"
+            return "numerics::e"    # from nest::
+
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "numerics::pi"    # from nest::
 
         if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
             return "get_t()"
@@ -101,7 +116,9 @@ class NESTVariablePrinter(CppVariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += "B_." + self._print_buffer_value(variable)
+            if self.cpp_variable_suffix == "":
+                s += "B_."
+            s += self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -109,17 +126,17 @@ class NESTVariablePrinter(CppVariablePrinter):
         if symbol.is_inline_expression:
             # there might not be a corresponding defined state variable; insist on calling the getter function
             if self.enforce_getter:
-                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()"
+                return "get_" + self._print(variable, symbol, with_origin=False) + vector_param + "()" + self.cpp_variable_suffix
             # modification to not enforce getter function:
             else:
-                return self._print(variable, symbol, with_origin=False)
+                return self._print(variable, symbol, with_origin=False) + self.cpp_variable_suffix
 
         assert not symbol.is_kernel(), "Cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state() or symbol.is_inline_expression:
-            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+            return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + self.cpp_variable_suffix
 
-        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+        return self._print(variable, symbol, with_origin=self.with_origin) + vector_param + self.cpp_variable_suffix
 
     def _print_delay_variable(self, variable: ASTVariable) -> str:
         """
@@ -149,6 +166,9 @@ class NESTVariablePrinter(CppVariablePrinter):
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
             return "spike_inputs_grid_sum_[" + var_name + " - MIN_SPIKE_RECEPTOR]"
+
+        if self.cpp_variable_suffix:
+            return variable_symbol.get_symbol_name() + self.cpp_variable_suffix
 
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 

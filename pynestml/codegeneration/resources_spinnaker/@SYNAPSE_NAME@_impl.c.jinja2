@@ -189,8 +189,8 @@ static inline update_state_t timing_apply_post_spike(
 //
 
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
-{%-         with ast = dynamics.get_block() %}
-{%-             include "directives_cpp/Block.jinja2" %}
+{%-         with ast = dynamics.get_stmts_body() %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endwith %}
 {%-     endfor %}
 {%- endif %}
@@ -224,8 +224,8 @@ static inline update_state_t timing_apply_pre_spike(
 //
 
 {%-     set dynamics = synapse.get_on_receive_block(pre_port) %}
-{%-     with ast = dynamics.get_block() %}
-{%-         include "directives_cpp/Block.jinja2" %}
+{%-     with ast = dynamics.get_stmts_body() %}
+{%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endwith %}
 {%- endfor %}
 {%- endfilter %}

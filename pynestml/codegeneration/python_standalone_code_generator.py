@@ -59,16 +59,20 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         "templates": {
             "path": "resources_python_standalone/point_neuron",
             "model_templates": {
-                "neuron": ["@NEURON_NAME@.py.jinja2"]
+                "neuron": ["@NEURON_NAME@.py.jinja2"],
+                "synapse": ["@SYNAPSE_NAME@.py.jinja2"]
             },
-            "module_templates": ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2"]
+            "module_templates": ["simulator.py.jinja2", "test_python_standalone_module.py.jinja2", "neuron.py.jinja2", "synapse.py.jinja2", "spike_generator.py.jinja2", "utils.py.jinja2"]
         },
         "solver": "analytic",
-        "numeric_solver": "rk45"
+        "numeric_solver": "rk45",
+        "neuron_synapse_pairs": [],
+        "delay_variable": {},
+        "weight_variable": {}
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super(NESTCodeGenerator, self).__init__("python_standalone", {**PythonStandaloneCodeGenerator._default_options, **(options if options else {})})
+        super(NESTCodeGenerator, self).__init__({**PythonStandaloneCodeGenerator._default_options, **(options if options else {})})
 
         # make sure Python standalone code generator contains all options that are present in the NEST code generator, like gap junctions flags needed by the template
         for k, v in NESTCodeGenerator._default_options.items():
@@ -111,7 +115,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
 
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
-        print("In Python code generator: created self._gsl_variable_printer = " + str(self._gsl_variable_printer))
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
         self._gsl_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                                                             constant_printer=self._constant_printer,
