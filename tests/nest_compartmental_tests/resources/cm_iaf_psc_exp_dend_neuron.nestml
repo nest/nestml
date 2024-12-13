@@ -84,7 +84,7 @@ model iaf_psc_exp_cm_dend:
             refr_t = 0 ms
             is_refr = 0
 
-    function self_spikes() boolean:
+    onReceive(self_spikes):
         is_refr = 1
         refr_t = refr_T
 

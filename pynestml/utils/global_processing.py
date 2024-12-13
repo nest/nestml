@@ -120,7 +120,6 @@ class GlobalProcessing:
         via object references
         :param neuron: a single neuron instance.
         """
-        # breakpoint()
         return copy.deepcopy(cls.global_info[neuron.get_name()])
 
     @classmethod
@@ -133,7 +132,7 @@ class GlobalProcessing:
         # make sure we only run this a single time
         # subsequent calls will be after AST has been transformed
         # and there would be no kernels or inlines anymore
-        if cls.first_time_run[neuron]:
+        if cls.first_time_run[neuron.get_name()]:
             # collect root expressions and initialize collector
             info_collector = ASTGlobalInformationCollector(neuron)
 
@@ -147,7 +146,7 @@ class GlobalProcessing:
             global_info = info_collector.extend_variables_with_initialisations(neuron, global_info)
             global_info = cls.ode_toolbox_processing(neuron, global_info)
 
-            cls.global_info[neuron.get_name()] = global_info
+            cls.global_info[neuron.get_name()] = copy.deepcopy(global_info)
             cls.first_time_run[neuron.get_name()] = False
 
     @classmethod

@@ -18,11 +18,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import copy
 from collections import defaultdict
 
+import sympy
 from executing.executing import node_linenos
 
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -48,10 +51,14 @@ class SynsInfoEnricher:
 
     @classmethod
     def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict, con_in_info: dict):
+        specific_enricher_visitor = SynsInfoEnricherVisitor()
+        synapse.accept(specific_enricher_visitor)
         synapse_info = syns_info[synapse.get_name()]
         synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
         synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
         synapse_info = cls.extract_infunction_declarations(synapse_info)
+
+        synapse_info = cls.transform_convolutions_analytic_solutions(synapse, synapse_info)
         syns_info[synapse.get_name()] = synapse_info
 
         return syns_info
@@ -122,15 +129,12 @@ class SynsInfoEnricher:
                     synapse_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
                     synapse.accept(synapse_internal_declaration_collector)
 
-                    #breakpoint()
                     for variable in expression_variable_collector.all_variables:
                         for internal_declaration in synapse_internal_declaration_collector.internal_declarations:
-                            #breakpoint()
                             if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
                                     and internal_declaration.get_expression().is_function_call() \
                                     and internal_declaration.get_expression().get_function_call().callee_name == \
                                     PredefinedFunctions.TIME_RESOLUTION:
-                                #breakpoint()
                                 syns_info["time_resolution_var"] = variable
 
                 syns_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
@@ -141,12 +145,29 @@ class SynsInfoEnricher:
 
     @classmethod
     def confirm_dependencies(cls, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict, con_in_info: dict):
-        actual_dependencies = list()
-        for pot_dep in syns_info["PotentialDependencies"]:
-            mechanism_names = list(chan_info.keys()) + list(recs_info.keys()) + list(conc_info.keys()) + list(con_in_info.keys())
-            if pot_dep in mechanism_names:
-                actual_dependencies.append(pot_dep)
+        actual_dependencies = dict()
+        chan_deps = list()
+        rec_deps = list()
+        conc_deps = list()
+        con_in_deps = list()
+        for pot_dep, dep_info in syns_info["PotentialDependencies"].items():
+            for channel_name, channel_info in chan_info.items():
+                if pot_dep == channel_name:
+                    chan_deps.append(channel_info["root_expression"])
+            for receptor_name, receptor_info in recs_info.items():
+                if pot_dep == receptor_name:
+                    rec_deps.append(receptor_info["root_expression"])
+            for concentration_name, concentration_info in conc_info.items():
+                if pot_dep == concentration_name:
+                    conc_deps.append(concentration_info["root_expression"])
+            for continuous_name, continuous_info in con_in_info.items():
+                if pot_dep == continuous_name:
+                    con_in_deps.append(continuous_info["root_expression"])
 
+        actual_dependencies["channels"] = chan_deps
+        actual_dependencies["receptors"] = rec_deps
+        actual_dependencies["concentrations"] = conc_deps
+        actual_dependencies["continuous"] = con_in_deps
         syns_info["Dependencies"] = actual_dependencies
         return syns_info
 
@@ -171,6 +192,207 @@ class SynsInfoEnricher:
 
         syn_info["InFunctionDeclarationsVars"] = declaration_visitor.declarations #list(declaration_vars)
         return syn_info
+
+    @classmethod
+    def transform_convolutions_analytic_solutions(cls, neuron: ASTModel, cm_syns_info: dict):
+
+        enriched_syns_info = copy.copy(cm_syns_info)
+        for convolution_name in cm_syns_info["convolutions"].keys():
+            analytic_solution = enriched_syns_info[
+                "convolutions"][convolution_name]["analytic_solution"]
+            analytic_solution_transformed = defaultdict(
+                lambda: defaultdict())
+
+            for variable_name, expression_str in analytic_solution["initial_values"].items():
+                variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                          SymbolKind.VARIABLE)
+                if variable is None:
+                    ASTUtils.add_declarations_to_internals(
+                        neuron, analytic_solution["initial_values"])
+                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
+                        variable_name,
+                        SymbolKind.VARIABLE)
+
+                expression = ModelParser.parse_expression(expression_str)
+                # pretend that update expressions are in "equations" block,
+                # which should always be present, as synapses have been
+                # defined to get here
+                expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
+                expression.accept(ASTSymbolTableVisitor())
+
+                update_expr_str = analytic_solution["update_expressions"][variable_name]
+                update_expr_ast = ModelParser.parse_expression(
+                    update_expr_str)
+                # pretend that update expressions are in "equations" block,
+                # which should always be present, as differential equations
+                # must have been defined to get here
+                update_expr_ast.update_scope(
+                    neuron.get_equations_blocks()[0].get_scope())
+                update_expr_ast.accept(ASTSymbolTableVisitor())
+
+                analytic_solution_transformed['kernel_states'][variable_name] = {
+                    "ASTVariable": variable,
+                    "init_expression": expression,
+                    "update_expression": update_expr_ast,
+                }
+
+            for variable_name, expression_string in analytic_solution["propagators"].items(
+            ):
+                variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                                                                                          SymbolKind.VARIABLE)
+                if variable is None:
+                    ASTUtils.add_declarations_to_internals(
+                        neuron, analytic_solution["propagators"])
+                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(
+                        variable_name,
+                        SymbolKind.VARIABLE)
+
+                expression = ModelParser.parse_expression(
+                    expression_string)
+                # pretend that update expressions are in "equations" block,
+                # which should always be present, as synapses have been
+                # defined to get here
+                expression.update_scope(
+                    neuron.get_equations_blocks()[0].get_scope())
+                expression.accept(ASTSymbolTableVisitor())
+                analytic_solution_transformed['propagators'][variable_name] = {
+                    "ASTVariable": variable, "init_expression": expression, }
+
+            enriched_syns_info["convolutions"][convolution_name]["analytic_solution"] = \
+                analytic_solution_transformed
+
+        transformed_inlines = dict()
+        for inline in enriched_syns_info["Inlines"]:
+            transformed_inlines[inline.get_variable_name()] = dict()
+            transformed_inlines[inline.get_variable_name()]["inline_expression"] = \
+                SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline.get_variable_name()]
+            transformed_inlines[inline.get_variable_name()]["inline_expression_d"] = \
+                cls.compute_expression_derivative(
+                    transformed_inlines[inline.get_variable_name()]["inline_expression"])
+        enriched_syns_info["Inlines"] = transformed_inlines
+
+        # now also identify analytic helper variables such as __h
+        enriched_syns_info["analytic_helpers"] = cls.get_analytic_helper_variable_declarations(
+            enriched_syns_info)
+
+        neuron.accept(ASTParentVisitor())
+
+        return enriched_syns_info
+
+    @classmethod
+    def compute_expression_derivative(
+            cls, inline_expression: ASTInlineExpression) -> ASTExpression:
+        expr_str = str(inline_expression.get_expression())
+        sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+        sympy_expr = sympy.diff(sympy_expr, "v_comp")
+
+        ast_expression_d = ModelParser.parse_expression(str(sympy_expr))
+        # copy scope of the original inline_expression into the the derivative
+        ast_expression_d.update_scope(inline_expression.get_scope())
+        ast_expression_d.accept(ASTSymbolTableVisitor())
+
+        return ast_expression_d
+
+    @classmethod
+    def get_analytic_helper_variable_declarations(cls, single_synapse_info):
+        variable_names = cls.get_analytic_helper_variable_names(
+            single_synapse_info)
+        result = dict()
+        for variable_name in variable_names:
+            if variable_name not in SynsInfoEnricherVisitor.internal_variable_name_to_variable:
+                continue
+            variable = SynsInfoEnricherVisitor.internal_variable_name_to_variable[variable_name]
+            expression = SynsInfoEnricherVisitor.variables_to_internal_declarations[variable]
+            result[variable_name] = {
+                "ASTVariable": variable,
+                "init_expression": expression,
+            }
+            if expression.is_function_call() and expression.get_function_call(
+            ).callee_name == PredefinedFunctions.TIME_RESOLUTION:
+                result[variable_name]["is_time_resolution"] = True
+            else:
+                result[variable_name]["is_time_resolution"] = False
+
+        return result
+
+    @classmethod
+    def get_analytic_helper_variable_names(cls, single_synapse_info):
+        """get new variables that only occur on the right hand side of analytic solution Expressions
+        but for wich analytic solution does not offer any values
+        this can isolate out additional variables that suddenly appear such as __h
+        whose initial values are not inlcuded in the output of analytic solver"""
+
+        analytic_lhs_vars = set()
+
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items(
+        ):
+            analytic_sol = convolution_info["analytic_solution"]
+
+            # get variables representing convolutions by kernel
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items(
+            ):
+                analytic_lhs_vars.add(kernel_var_name)
+
+            # get propagator variable names
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items(
+            ):
+                analytic_lhs_vars.add(propagator_var_name)
+
+        return cls.get_new_variables_after_transformation(
+            single_synapse_info).symmetric_difference(analytic_lhs_vars)
+
+    @classmethod
+    def get_new_variables_after_transformation(cls, single_synapse_info):
+        return cls.get_all_synapse_variables(single_synapse_info).difference(
+            single_synapse_info["total_used_declared"])
+
+    @classmethod
+    def get_all_synapse_variables(cls, single_synapse_info):
+        """returns all variable names referenced by the synapse inline
+        and by the analytical solution
+        assumes that the model has already been transformed"""
+
+        inline_variables = set()
+        for inline_name, inline in single_synapse_info["Inlines"].items():
+            inline_variables = cls.get_variable_names_used(inline["inline_expression"])
+
+        analytic_solution_vars = set()
+        # get all variables from transformed analytic solution
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items(
+        ):
+            analytic_sol = convolution_info["analytic_solution"]
+            # get variables from init and update expressions
+            # for each kernel
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items(
+            ):
+                analytic_solution_vars.add(kernel_var_name)
+
+                update_vars = cls.get_variable_names_used(
+                    kernel_info["update_expression"])
+                init_vars = cls.get_variable_names_used(
+                    kernel_info["init_expression"])
+
+                analytic_solution_vars.update(update_vars)
+                analytic_solution_vars.update(init_vars)
+
+            # get variables from init expressions
+            # for each propagator
+            # include propagator variable itself
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items(
+            ):
+                analytic_solution_vars.add(propagator_var_name)
+
+                init_vars = cls.get_variable_names_used(
+                    propagator_info["init_expression"])
+
+                analytic_solution_vars.update(init_vars)
+
+        return analytic_solution_vars.union(inline_variables)
+
+    @classmethod
+    def get_variable_names_used(cls, node) -> set:
+        variable_names_extractor = ASTUsedVariableNamesExtractor(node)
+        return variable_names_extractor.variable_names
 
 
 
@@ -273,5 +495,80 @@ class ASTVariableNameReplacerVisitor(ASTVisitor):
 
     def endvisit_variable(self, node):
         self.inside_variable = False
+
+
+class SynsInfoEnricherVisitor(ASTVisitor):
+    variables_to_internal_declarations = {}
+    internal_variable_name_to_variable = {}
+    inline_name_to_transformed_inline = {}
+
+    # assuming depth first traversal
+    # collect declaratins in the order
+    # in which they were present in the neuron
+    declarations_ordered = []
+
+    def __init__(self):
+        super(SynsInfoEnricherVisitor, self).__init__()
+
+        self.inside_parameter_block = False
+        self.inside_state_block = False
+        self.inside_internals_block = False
+        self.inside_inline_expression = False
+        self.inside_inline_expression = False
+        self.inside_declaration = False
+        self.inside_simple_expression = False
+
+    def visit_inline_expression(self, node):
+        self.inside_inline_expression = True
+        inline_name = node.variable_name
+        SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_name] = node
+
+    def endvisit_inline_expression(self, node):
+        self.inside_inline_expression = False
+
+    def visit_block_with_variables(self, node):
+        if node.is_state:
+            self.inside_state_block = True
+        if node.is_parameters:
+            self.inside_parameter_block = True
+        if node.is_internals:
+            self.inside_internals_block = True
+
+    def endvisit_block_with_variables(self, node):
+        if node.is_state:
+            self.inside_state_block = False
+        if node.is_parameters:
+            self.inside_parameter_block = False
+        if node.is_internals:
+            self.inside_internals_block = False
+
+    def visit_simple_expression(self, node):
+        self.inside_simple_expression = True
+
+    def endvisit_simple_expression(self, node):
+        self.inside_simple_expression = False
+
+    def visit_declaration(self, node):
+        self.declarations_ordered.append(node)
+        self.inside_declaration = True
+        if self.inside_internals_block:
+            variable = node.get_variables()[0]
+            expression = node.get_expression()
+            SynsInfoEnricherVisitor.variables_to_internal_declarations[variable] = expression
+            SynsInfoEnricherVisitor.internal_variable_name_to_variable[variable.get_name(
+            )] = variable
+
+    def endvisit_declaration(self, node):
+        self.inside_declaration = False
+
+
+class ASTUsedVariableNamesExtractor(ASTVisitor):
+    def __init__(self, node):
+        super(ASTUsedVariableNamesExtractor, self).__init__()
+        self.variable_names = set()
+        node.accept(self)
+
+    def visit_variable(self, node):
+        self.variable_names.add(node.get_name())
 
 

@@ -22,6 +22,7 @@
 from collections import defaultdict
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -191,7 +192,7 @@ class ASTMechanismInformationCollector(object):
 
                 elif len(search_variables) > 0:
                     variable = search_variables[0]
-                    if not variable.name == "v_comp":
+                    if not (variable.name == "v_comp" or variable.name in PredefinedUnits.get_units()):
                         is_dependency = False
                         for inline in global_inlines:
                             if variable.name == inline.variable_name:
@@ -230,6 +231,9 @@ class ASTMechanismInformationCollector(object):
 
                         for ode in global_odes:
                             if variable.name == ode.lhs.name:
+                                if ode.lhs.name in global_info["States"]:
+                                    is_dependency = True
+                                    #mechanism_dependencies["global"].append(ode)
                                 if isinstance(ode.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                         is_dependency = True

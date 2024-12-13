@@ -50,6 +50,7 @@ class GlobalInfoEnricher:
     def enrich_with_additional_info(cls, neuron: ASTModel, global_info: dict):
         global_info = cls.transform_ode_solutions(neuron, global_info)
         global_info = cls.extract_infunction_declarations(global_info)
+        #global_info = cls.substituteNoneWithEmptyBlocks(global_info)
 
         return global_info
 
@@ -118,15 +119,12 @@ class GlobalInfoEnricher:
                     neuron_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
                     neuron.accept(neuron_internal_declaration_collector)
 
-                    #breakpoint()
                     for variable in expression_variable_collector.all_variables:
                         for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
-                            #breakpoint()
                             if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
                                     and internal_declaration.get_expression().is_function_call() \
                                     and internal_declaration.get_expression().get_function_call().callee_name == \
                                     PredefinedFunctions.TIME_RESOLUTION:
-                                #breakpoint()
                                 global_info["time_resolution_var"] = variable
 
                 global_info["ODEs"][ode_var_name]["transformed_solutions"].append(solution_transformed)
@@ -136,13 +134,13 @@ class GlobalInfoEnricher:
         return global_info
 
     @classmethod
-    def extract_infunction_declarations(cls, syn_info):
-        self_spike_function = syn_info["SelfSpikesFunction"]
-        update_block = syn_info["UpdateBlock"]
+    def extract_infunction_declarations(cls, global_info):
         declaration_visitor = ASTDeclarationCollectorAndUniqueRenamerVisitor()
-        if self_spike_function is not None:
+        if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
+            self_spike_function = global_info["SelfSpikesFunction"]
             self_spike_function.accept(declaration_visitor)
-        if update_block is not None:
+        if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
+            update_block = global_info["UpdateBlock"]
             update_block.accept(declaration_visitor)
 
         declaration_vars = list()
@@ -150,8 +148,20 @@ class GlobalInfoEnricher:
             for var in decl.get_variables():
                 declaration_vars.append(var.get_name())
 
-        syn_info["InFunctionDeclarationsVars"] = declaration_visitor.declarations
-        return syn_info
+        global_info["InFunctionDeclarationsVars"] = declaration_visitor.declarations
+        return global_info
+
+    @classmethod
+    def substituteNoneWithEmptyBlocks(cls, global_info):
+        if (not "UpdateBlock" in global_info) or (global_info["UpdateBlock"] is None):
+            empty = ModelParser.parse_block("")
+            global_info["UpdateBlock"] = empty.clone()
+        if (not "SelfSpikesFunction" in global_info) or (global_info["SelfSpikesFunction"] is None):
+            empty = ModelParser.parse_block("")
+            global_info["SelfSpikesFunction"] = empty.clone()
+
+        return global_info
+
 
 
 class ASTEnricherInfoCollectorVisitor(ASTVisitor):

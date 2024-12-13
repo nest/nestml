@@ -30,13 +30,19 @@ from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import O
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
 from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector, \
+    ASTKernelInformationCollectorVisitor
 from pynestml.utils.ast_utils import ASTUtils
 
 from odetoolbox import analysis
+
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class SynapseProcessing:
@@ -122,7 +128,7 @@ class SynapseProcessing:
     def determine_dependencies(cls, syn_info):
         for mechanism_name, mechanism_info in syn_info.items():
             dependencies = list()
-            for inline in mechanism_info["SecondaryInlineExpressions"]:
+            for inline in mechanism_info["Inlines"]:
                 if isinstance(inline.get_decorators(), list):
                     if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                         dependencies.append(inline)
@@ -145,6 +151,171 @@ class SynapseProcessing:
         return spiking_port_names, continuous_port_names
 
     @classmethod
+    def collect_kernels(cls, neuron, syn_info, neuron_synapse_pairs):
+        """
+        Collect internals, kernels, inputs and convolutions associated with the synapse.
+        """
+        syn_info["convolutions"] = defaultdict()
+        info_collector = ASTKernelInformationCollectorVisitor()
+        neuron.accept(info_collector)
+        for inline in syn_info["Inlines"]:
+            synapse_inline = inline
+            syn_info[
+                "internals_used_declared"] = info_collector.get_synapse_specific_internal_declarations(synapse_inline)
+            syn_info["total_used_declared"] = info_collector.get_variable_names_of_synapse(
+                synapse_inline)
+
+            kernel_arg_pairs = info_collector.get_extracted_kernel_args_by_name(
+                inline.get_variable_name())
+            for kernel_var, spikes_var in kernel_arg_pairs:
+                kernel_name = kernel_var.get_name()
+                spikes_name = spikes_var.get_name()
+                convolution_name = info_collector.construct_kernel_X_spike_buf_name(
+                    kernel_name, spikes_name, 0)
+                print(neuron.name)
+                print(spikes_name)
+                print(neuron_synapse_pairs)
+                breakpoint()
+                syn_info["convolutions"][convolution_name] = {
+                    "kernel": {
+                        "name": kernel_name,
+                        "ASTKernel": info_collector.get_kernel_by_name(kernel_name),
+                    },
+                    "spikes": {
+                        "name": spikes_name,
+                        "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
+                    },
+                    "post_port": (len([dict for dict in neuron_synapse_pairs if dict["synapse"]+"_nestml" == neuron.name and spikes_name in dict["post_ports"]]) > 0),
+                }
+        return syn_info
+
+    @classmethod
+    def collect_and_check_inputs_per_synapse(
+            cls,
+            syn_info: dict):
+        new_syn_info = copy.copy(syn_info)
+
+        # collect all buffers used
+        new_syn_info["buffers_used"] = set()
+        for convolution_name, convolution_info in syn_info["convolutions"].items(
+        ):
+            input_name = convolution_info["spikes"]["name"]
+            new_syn_info["buffers_used"].add(input_name)
+
+        return new_syn_info
+
+    @classmethod
+    def convolution_ode_toolbox_processing(cls, neuron, syn_info):
+        if not neuron.get_parameters_blocks():
+            return syn_info
+
+        parameters_block = neuron.get_parameters_blocks()[0]
+
+        for convolution_name, convolution_info in syn_info["convolutions"].items():
+            kernel_buffer = (convolution_info["kernel"]["ASTKernel"], convolution_info["spikes"]["ASTInputPort"])
+            convolution_solution = cls.ode_solve_convolution(neuron, parameters_block, kernel_buffer)
+            syn_info["convolutions"][convolution_name]["analytic_solution"] = convolution_solution
+        return syn_info
+
+    @classmethod
+    def ode_solve_convolution(cls,
+                              neuron: ASTModel,
+                              parameters_block: ASTBlockWithVariables,
+                              kernel_buffer):
+        odetoolbox_indict = cls.create_ode_indict(
+            neuron, parameters_block, kernel_buffer)
+        full_solver_result = analysis(
+            odetoolbox_indict,
+            disable_stiffness_check=True,
+            log_level=FrontendConfiguration.logging_level)
+        analytic_solver = None
+        analytic_solvers = [
+            x for x in full_solver_result if x["solver"] == "analytical"]
+        assert len(
+            analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+        if len(analytic_solvers) > 0:
+            analytic_solver = analytic_solvers[0]
+
+        return analytic_solver
+
+    @classmethod
+    def create_ode_indict(cls,
+                          neuron: ASTModel,
+                          parameters_block: ASTBlockWithVariables,
+                          kernel_buffer):
+        kernel_buffers = {tuple(kernel_buffer)}
+        odetoolbox_indict = cls.transform_ode_and_kernels_to_json(
+            neuron, parameters_block, kernel_buffers)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        return odetoolbox_indict
+
+    @classmethod
+    def transform_ode_and_kernels_to_json(
+            cls,
+            neuron: ASTModel,
+            parameters_block,
+            kernel_buffers):
+        """
+        Converts AST node to a JSON representation suitable for passing to ode-toolbox.
+
+        Each kernel has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
+
+            convolve(G, ex_spikes)
+            convolve(G, in_spikes)
+
+        then `kernel_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
+
+        :param parameters_block: ASTBlockWithVariables
+        :return: Dict
+        """
+        odetoolbox_indict = {"dynamics": []}
+
+        equations_block = neuron.get_equations_blocks()[0]
+
+        for kernel, spike_input_port in kernel_buffers:
+            if ASTUtils.is_delta_kernel(kernel):
+                continue
+            # delta function -- skip passing this to ode-toolbox
+
+            for kernel_var in kernel.get_variables():
+                expr = ASTUtils.get_expr_from_kernel_var(
+                    kernel, kernel_var.get_complete_name())
+                kernel_order = kernel_var.get_differential_order()
+                kernel_X_spike_buf_name_ticks = ASTUtils.construct_kernel_X_spike_buf_name(
+                    kernel_var.get_name(), spike_input_port.get_name(), kernel_order, diff_order_symbol="'")
+
+                ASTUtils.replace_rhs_variables(expr, kernel_buffers)
+
+                entry = {"expression": kernel_X_spike_buf_name_ticks + " = " + str(expr), "initial_values": {}}
+
+                # initial values need to be declared for order 1 up to kernel
+                # order (e.g. none for kernel function f(t) = ...; 1 for kernel
+                # ODE f'(t) = ...; 2 for f''(t) = ... and so on)
+                for order in range(kernel_order):
+                    iv_sym_name_ode_toolbox = ASTUtils.construct_kernel_X_spike_buf_name(
+                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
+                    symbol_name_ = kernel_var.get_name() + "'" * order
+                    symbol = equations_block.get_scope().resolve_to_symbol(
+                        symbol_name_, SymbolKind.VARIABLE)
+                    assert symbol is not None, "Could not find initial value for variable " + symbol_name_
+                    initial_value_expr = symbol.get_declaring_expression()
+                    assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = cls._ode_toolbox_printer.print(
+                        initial_value_expr)
+
+                odetoolbox_indict["dynamics"].append(entry)
+
+        odetoolbox_indict["parameters"] = {}
+        if parameters_block is not None:
+            for decl in parameters_block.get_declarations():
+                for var in decl.variables:
+                    odetoolbox_indict["parameters"][var.get_complete_name(
+                    )] = cls._ode_toolbox_printer.print(decl.get_expression())
+
+        return odetoolbox_indict
+
+    @classmethod
     def get_syn_info(cls, synapse: ASTModel):
         """
         returns previously generated syn_info
@@ -152,11 +323,10 @@ class SynapseProcessing:
         via object references
         :param synapse: a single synapse instance.
         """
-        #breakpoint()
         return copy.deepcopy(cls.syn_info)
 
     @classmethod
-    def process(cls, synapse: ASTModel):
+    def process(cls, synapse: ASTModel, neuron_synapse_pairs):
         """
         Checks if mechanism conditions apply for the handed over synapse.
         :param synapse: a single synapse instance.
@@ -180,10 +350,8 @@ class SynapseProcessing:
 
             # collect the onReceive function of pre- and post-spikes
             spiking_port_names, continuous_port_names = cls.get_port_names(syn_info)
-            #breakpoint()
             post_ports = FrontendConfiguration.get_codegen_opts()["neuron_synapse_pairs"][0]["post_ports"]
             pre_ports = list(set(spiking_port_names) - set(post_ports))
-            #breakpoint()
             syn_info = info_collector.collect_on_receive_blocks(synapse, syn_info, pre_ports, post_ports)
 
             # collect the update block
@@ -192,8 +360,11 @@ class SynapseProcessing:
             # collect dependencies (defined mechanism in neuron and no LHS appearance in synapse)
             syn_info = info_collector.collect_potential_dependencies(synapse, syn_info)
 
+            syn_info = cls.collect_kernels(synapse, syn_info, neuron_synapse_pairs)
+
+            syn_info = cls.convolution_ode_toolbox_processing(synapse, syn_info)
+
             cls.syn_info[synapse.get_name()] = syn_info
-            #breakpoint()
             cls.first_time_run[synapse.get_name()] = False
 
     @classmethod

@@ -51,7 +51,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         synapse_input_path = os.path.join(
             tests_path,
             "resources",
-            "stdp_synapse.nestml"
+            "third_factor_stdp_synapse.nestml"
         )
         target_path = os.path.join(
             tests_path,
@@ -76,7 +76,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 suffix="_nestml",
                 logging_level="DEBUG",
                 codegen_opts={"neuron_synapse_pairs": [{"neuron": "multichannel_test_model",
-                                                        "synapse": "stdp_synapse",
+                                                        "synapse": "third_factor_stdp_synapse",
                                                         "post_ports": ["post_spikes"]}],
                               "delay_variable": {"stdp_synapse": "d"},
                               "weight_variable": {"stdp_synapse": "w"}
@@ -105,11 +105,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
         print("comps")
         post_neuron.receptors = [
             {"comp_idx": 0, "receptor_type": "AMPA"},
-            {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 50.0}}
+            {"comp_idx": 0, "receptor_type": "AMPA_third_factor_stdp_synapse_nestml", "params": {'w': 50.0}}
         ]
         print("syns")
         mm = nest.Create('multimeter', 1, {
-            'record_from': ['v_comp0', 'w0', 'i_tot_AMPA0', 'i_tot_AMPA_stdp_synapse_nestml0', 'pre_trace0', 'post_trace0'], 'interval': .1})
+            'record_from': ['v_comp0', 'w0', 'i_tot_AMPA0', 'i_tot_AMPA_third_factor_stdp_synapse_nestml0', 'pre_trace0', 'post_trace0'], 'interval': .1})
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
 
@@ -131,9 +131,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
         axs[1].plot(res['times'], res['w0'], c='r', label="weight")
         #axs[1].plot(res['times'], res['pre_trace_AMPA0'], c='b', label="pre_trace")
         #axs[1].plot(res['times'], res['post_trace_AMPA0'], c='g', label="post_trace")
-        #breakpoint()
         axs[2].plot(res['times'], res['i_tot_AMPA0'], c='b', label="AMPA")
-        axs[2].plot(res['times'], res['i_tot_AMPA_stdp_synapse_nestml0'], c='g', label="AMPA STDP")
+        axs[2].plot(res['times'], res['i_tot_AMPA_third_factor_stdp_synapse_nestml0'], c='g', label="AMPA STDP")
         label_set = False
         for spike in pre_spikes_rec['times']:
             if(label_set):

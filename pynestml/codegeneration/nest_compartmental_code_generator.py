@@ -216,7 +216,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option(
             "neuron_models"), synapse_models=self.get_option("synapse_models"))
         synapses_per_neuron = self.arrange_synapses_per_neuron(neurons, synapses)
-        #breakpoint()
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_compartmental_neurons(neurons, synapses_per_neuron)
@@ -309,7 +308,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             code, message = Messages.get_analysing_transforming_model(
                 neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            #non_comp_neuron = neuron.clone()
             spike_updates = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
 
@@ -334,7 +332,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         for synapse in synapses:
             Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
-            SynapseProcessing.process(synapse)
+            SynapseProcessing.process(synapse, self.get_option("neuron_synapse_pairs"))
             self.analyse_synapse(synapse)
 
     def analyse_synapse(self, synapse: ASTModel):# -> Dict[str, ASTAssignment]:
@@ -342,10 +340,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
         """
+        """
+        equations_block = synapse.get_equations_blocks()[0]
+        ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
         ASTUtils.add_timestep_symbol(synapse)
         self.update_symbol_table(synapse)
-
         """
+
+
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
@@ -357,7 +359,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+            ASTUtils.make_inline_expressions_self_contained(list(equations_block.get_inline_expressions()))
             ASTUtils.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
@@ -391,11 +393,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # special case for NEST delay variable (state or parameter)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
-        assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
-        assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
+        #assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
+        #assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
 
         return spike_updates
-        """
+
 
     def create_ode_indict(self,
                           neuron: ASTModel,
@@ -843,14 +845,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         conc_info_string = MechanismProcessing.print_dictionary(namespace["conc_info"], 0)
         con_in_info_string = MechanismProcessing.print_dictionary(namespace["con_in_info"], 0)
         if paired_synapse:
-            syns_info_string = SynapseProcessing.print_dictionary(namespace["syns_info"], 0)
+            syns_info_string = MechanismProcessing.print_dictionary(namespace["syns_info"], 0)
         else:
             syns_info_string = ""
-        global_info_string = GlobalProcessing.print_dictionary(namespace["global_info"], 0)
-        #breakpoint()
+        global_info_string = MechanismProcessing.print_dictionary(namespace["global_info"], 0)
         code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string, global_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
-        #breakpoint()
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
@@ -863,6 +863,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         }
 
         namespace["types_printer"] = self._type_symbol_printer
+
+        # python utils
+        namespace["set"] = set
 
         return namespace
 
@@ -1091,7 +1094,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons.
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
-        #breakpoint()
         neuron_index = 0
         for neuron in neurons:
             paired_syn_exists = False
@@ -1115,10 +1117,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             paired_synapses[neuron.get_name()] = list()
 
         neuron_synapse_pairs = self.get_option("neuron_synapse_pairs")
-        #breakpoint()
         for pair in neuron_synapse_pairs:
             for synapse in synapses:
-                #breakpoint()
                 if synapse.get_name() == (pair["synapse"]+"_nestml"):
                     paired_synapses[pair["neuron"]+"_nestml"].append(synapse)
 

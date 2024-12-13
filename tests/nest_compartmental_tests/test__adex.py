@@ -62,92 +62,205 @@ class TestContinuousInput:
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
 
-        generate_nest_compartmental_target(
-            input_path=input_path,
-            target_path=target_path,
-            module_name="aeif_cond_alpha_neuron_module",
-            suffix="_nestml",
-            logging_level="DEBUG"
-        )
+        if True:
+            generate_nest_compartmental_target(
+                input_path=input_path,
+                target_path=target_path,
+                module_name="aeif_cond_alpha_neuron_module",
+                suffix="_nestml",
+                logging_level="DEBUG"
+            )
 
         nest.Install("aeif_cond_alpha_neuron_module.so")
 
     def test_continuous_input(self):
         """We test the continuous input mechanism by just comparing the input current at a certain critical point in
         time to a previously achieved value at this point"""
+        I_s = 300
+
+        aeif_dict = {
+            "a": 0.,
+            "b": 40.,
+            "t_ref": 0.,
+            "Delta_T": 2.,
+            "C_m": 200.,
+            "g_L": 10.,
+            "E_L": -63.,
+            "V_reset": -65.,
+            "tau_w": 500.,
+            "V_th": -50.,
+            "V_peak": -40.,
+        }
+
+        aeif = nest.Create("aeif_cond_alpha", params=aeif_dict)
+
         cm = nest.Create('aeif_cond_alpha_neuron_nestml')
 
-        self.soma_params = {'C_m': self.C_m_s,  # [pF] Soma capacitance
-                            'g_L': self.g_L_s,  # [nS] Soma leak conductance
-                            'e_L': self.e_L_s,  # [mV] Soma reversal potential
-                            'gbar_Na_Adex': self.g_L_s,  # [nS] Adex conductance
-                            'e_Na_Adex': self.e_Na_Adex,  # [mV] Adex threshold
-                            'delta_T': self.delta_T  # [mV] Adex slope factor
-                            }
+        soma_params = {
+            "C_m": 362.5648533496359,
+            "Ca_0": 0.0001,
+            "Ca_th": 0.00043,
+            "V_reset": -62.12885359171539,
+            "Delta_T": 2.0,
+            "E_K": -90.0,
+            "E_L": -58.656837907086036,
+            #"V_th": -50.0,
+            "exp_K_Ca": 4.8,
+            "g_C": 17.55192973190035,
+            "g_L": 6.666182946322264,
+            "g_Ca": 22.9883727668534,
+            "g_K": 18.361017565618574,
+            "h_half_Ca": -21.0,
+            "h_slope_Ca": -0.5,
+            "m_half_Ca": -9.0,
+            "m_slope_Ca": 0.5,
+            "phi_ca": 2.200252914099994e-08,
+            #"refr_T": 0.0,
+            "tau_Ca": 129.45363748885939,
+            "tau_h_Ca": 80.0,
+            "tau_m_Ca": 15.0,
+            "tau_K": 1.0,
+            "tau_w": 500.0,
+            "SthA": 0,
+            "b": 40.0,
+            "V_peak": -40.0,
+            "G_refr": 1000.
+        }
 
-        self.distal_params = {'C_m': self.C_m_d,  # [pF] Distal capacitance
-                              'g_L': self.g_L_d,  # [nS] Distal leak conductance
-                              'g_C': self.g_C_d,  # [nS] Soma-distal coupling conductance
-                              'e_L': self.e_L_d,  # [mV] Distal reversal potential
-                              'gbar_Ca': self.gbar_Ca,  # [nS] Ca maximal conductance
-                              'gbar_K_Ca': self.gbar_K_Ca,  # [nS] K_Ca maximal conductance
-                              'e_K': self.e_K,  # [mV] K reversal potential
-                              'tau_decay_Ca': self.tau_decay_Ca,  # [ms] decay of Ca concentration
-                              'phi': self.phi,  # [-] scale factor
-                              'm_half': self.m_half,  # [mV] m half-value for Ca
-                              'h_half': self.h_half,  # [mV] h half-value for Ca
-                              'm_slope': self.m_slope,  # [-] m slope factor for Ca
-                              'h_slope': self.h_slope,  # [-] h slope factor for Ca
-                              'tau_m': self.tau_m,  # [ms] m tau decay for Ca
-                              'tau_h': self.tau_h,  # [ms] h tau decay dor Ca
-                              'tau_m_K_Ca': self.tau_m_K_Ca,  # [ms] m tau decay for K_Ca
-                              'Ca_0': self.default_param["Ca_0"],  # [mM] Baseline intracellular Ca conc
-                              'Ca_th': self.Ca_th,  # [mM] Threshold Ca conc for Ca channel opening
-                              'exp_K_Ca': self.exp_K_Ca  # [-] Exponential factor in K_Ca current with Hay dyn
-                              }
+        dendritic_params ={
+            "C_m": 10.0,
+            "E_L": -80.0,
+            "g_L": 2.5088334130360064,
+            "g_Ca": 22.9883727668534,
+            "g_K": 18.361017565618574,
+        }
 
         cm.compartments = [
-            {"parent_idx": -1, "params": soma_params}
+            {"parent_idx": -1, "params": soma_params},
+            {"parent_idx": 0, "params": dendritic_params}
         ]
 
         cm.receptors = [
-            {"comp_idx": 0, "receptor_type": "con_in"},
-            {"comp_idx": 0, "receptor_type": "AMPA"}
+            {"comp_idx": 0, "receptor_type": "I_syn_exc"}
         ]
 
-        dcg = nest.Create("ac_generator", {"amplitude": 2.0, "start": 200, "stop": 800, "frequency": 20})
+        SimTime = 10
+        stimulusStart = 0.0
+        stimulusStop = SimTime
+        countWindow = stimulusStop - stimulusStart
 
-        nest.Connect(dcg, cm, syn_spec={"synapse_model": "static_synapse", "weight": 1.0, "delay": 0.1, "receptor_type": 0})
+        # Poisson parameters
+        spreading_factor = 4
+        basic_rate = 600.0
+        basic_weight = 0.6
+        weight = basic_weight * spreading_factor
+        rate = basic_rate / spreading_factor
 
-        sg1 = nest.Create('spike_generator', 1, {'spike_times': [205]})
+        cf = 1.
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 3.0, 'delay': 0.5, 'receptor_type': 1})
+        # Create and connct Poisson generator
+        pg0 = nest.Create('poisson_generator', 20, params={'rate': rate, 'start': stimulusStart, 'stop': stimulusStop})
+        nest.Connect(pg0, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': weight * cf, 'delay': 1.,
+                                        'receptor_type': 0})
+        nest.Connect(pg0, aeif, syn_spec={'synapse_model': 'static_synapse', 'weight': weight, 'delay': 1.})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'i_tot_con_in0', 'i_tot_AMPA0'], 'interval': .1})
+        # create multimeters to record compartment voltages and various state variables
+        rec_list = [
+            'v_comp0', 'w0', 'i_tot_I_spike0', 'i_tot_I_syn_exc0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0',
+        ]
+        mm_cm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'v_comp1', 'w0', 'i_tot_I_spike0', 'i_tot_I_syn_exc0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0'], 'interval': .1})
+        mm_aeif = nest.Create('multimeter', 1, {'record_from': ['V_m', 'w'], 'interval': .1})
+        nest.Connect(mm_cm, cm)
+        nest.Connect(mm_aeif, aeif)
 
-        nest.Connect(mm, cm)
+        # create and connect a spike recorder
+        sr_cm = nest.Create('spike_recorder')
+        sr_aeif = nest.Create('spike_recorder')
+        nest.Connect(cm, sr_cm)
+        nest.Connect(aeif, sr_aeif)
 
-        nest.Simulate(1000.)
+        nest.Simulate(SimTime)
 
-        res = nest.GetStatus(mm, 'events')[0]
+        print('I_s current = ', I_s)
 
-        fig, axs = plt.subplots(2)
+        res_cm = nest.GetStatus(mm_cm, 'events')[0]
+        events_cm = nest.GetStatus(sr_cm)[0]['events']
+        res_aeif = nest.GetStatus(mm_aeif, 'events')[0]
+        events_aeif = nest.GetStatus(sr_aeif)[0]['events']
 
-        axs[0].plot(res['times'], res['v_comp0'], c='b', label='V_m_0')
-        axs[1].plot(res['times'], res['i_tot_con_in0'], c='r', label='continuous')
-        axs[1].plot(res['times'], res['i_tot_AMPA0'], c='g', label='synapse')
+        totalSpikes_cm = sum(map(lambda x: x > stimulusStart and x < stimulusStop, events_cm['times']))
+        totalSpikes_aeif = sum(map(lambda x: x > stimulusStart and x < stimulusStop, events_aeif['times']))
+        print("Total spikes multiComp = ", totalSpikes_cm)
+        print("Total spikes adex      = ", totalSpikes_aeif)
+        print("FR multiComp           = ", totalSpikes_cm * 1000 / countWindow)
+        print("FR adex                = ", totalSpikes_aeif * 1000 / countWindow)
 
-        axs[0].set_title('V_m_0')
-        axs[1].set_title('inputs')
+        print("Spike times multiComp:\n")
+        print(events_cm['times'])
+        print("Spike times adex:\n")
+        print(events_aeif['times'])
 
-        axs[0].legend()
-        axs[1].legend()
+        stdtest = True
 
-        plt.savefig("continuous input test.png")
+        if stdtest:
+            plt.figure('ISI @ Is = ' + str(I_s))
+            ###############################################################################
+            plt.subplot(411)
+            plt.plot(res_aeif['times'], res_aeif['V_m'], c='r', label='v_m adex')
+            plt.plot(res_cm['times'], res_cm['v_comp0'], c='b', label='v_m soma cm')
+            plt.plot(res_cm['times'], res_cm['v_comp1'], c='g', label='v_m dist cm')
+            plt.legend()
+            plt.xlim(0, SimTime)
+            plt.ylabel('Vm [mV]')
+            plt.title('MultiComp (blue) and adex (red) voltage')
 
-        step_time_delta = res['times'][1] - res['times'][0]
-        data_array_index = int(212 / step_time_delta)
+            plt.subplot(412)
+            # plt.plot(res_cm['times'], res_cm['m_Ca_1'], c='b', ls='--', lw=2., label='m')
+            # plt.plot(res_cm['times'], res_cm['h_Ca_1'], c='r', ls='--', lw=2., label='h')
+            # plt.plot(res_cm['times'], res_cm['m_Ca_1']*res_cm['h_Ca_1'], c='k', ls='--', lw=2., label='g')
+            plt.legend()
+            plt.xlim(0, SimTime)
+            plt.ylabel('Ca')
+            plt.title('Distal Ca activation')
 
-        if not res['i_tot_con_in0'][data_array_index] > 19.9 and res['i_tot_con_in0'][data_array_index] < 20.1:
-            self.fail("the current (left) is not close enough to expected (right). (" + str(
-                res['i_tot_con_in0'][data_array_index]) + " != " + "20.0 +- 0.1" + ")")
+            plt.subplot(413)
+            plt.plot(res_cm['times'], res_cm['w0'], c='b', ls='--', lw=2., label='W cm')
+            plt.plot(res_aeif['times'], res_aeif['w'], c='r', ls='--', lw=2., label='W adex')
+            plt.legend()
+            plt.xlim(0, SimTime)
+            plt.ylabel('W')
+            plt.title('Adaptation')
+
+            plt.subplot(414)
+            events_cm = nest.GetStatus(sr_cm)[0]['events']
+            plt.eventplot(events_cm['times'], linelengths=0.2, color='b')
+            events_aeif = nest.GetStatus(sr_aeif)[0]['events']
+            plt.eventplot(events_aeif['times'], linelengths=0.2, color='r')
+            plt.xlim(0, SimTime)
+            plt.ylabel('Spikes')
+            plt.title('Raster - cm (blue) VS adex (red)')
+            plt.xlabel('Time [ms]')
+
+            #plt.show()
+        #else:
+            fig, axs = plt.subplots(7)
+
+            axs[0].plot(res_cm['times'], res_cm['i_tot_I_spike0'], c='b', label='I_spike0')
+            axs[1].plot(res_cm['times'], res_cm['i_tot_I_syn_exc0'], c='b', label='I_syn_exc0')
+            #plt.plot(res_cm['times'], res_cm['i_tot_I_syn_inh0'], c='b', label='3')
+            #plt.plot(res_cm['times'], res_cm['i_tot_external_stim0'], c='b', label='4')
+            axs[2].plot(res_cm['times'], res_cm['i_tot_refr0'], c='b', label='refr0')
+            axs[3].plot(res_cm['times'], res_cm['i_tot_adapt0'], c='b', label='adapt0')
+            axs[4].plot(res_cm['times'], res_cm['i_tot_I_Ca0'], c='b', label='I_Ca0')
+            axs[5].plot(res_cm['times'], res_cm['i_tot_I_K0'], c='b', label='I_K0')
+            axs[6].plot(res_cm['times'], res_cm['c_Ca0'], c='b', label='c_Ca0')
+
+            axs[0].legend()
+            axs[1].legend()
+            axs[2].legend()
+            axs[3].legend()
+            axs[4].legend()
+            axs[5].legend()
+            axs[6].legend()
+
+            plt.show()

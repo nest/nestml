@@ -90,7 +90,6 @@ class CoCoVCompDefined(CoCo):
                         return True
 
         cls.log_error(neuron, state_blocks[0].get_source_position(), enforced_variable_name)
-        #breakpoint()
         return False
 
     @classmethod

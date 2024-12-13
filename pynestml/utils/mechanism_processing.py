@@ -23,6 +23,7 @@ from collections import defaultdict
 
 import copy
 
+from build.lib.pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
@@ -187,6 +188,8 @@ class MechanismProcessing:
                 message += element.name
             elif isinstance(element, str):
                 message += element
+            elif isinstance(element, bool):
+                message += str(element)
             elif isinstance(element, dict):
                 message += "\n"
                 message += cls.print_dictionary(element, rec_step + 1)
@@ -196,6 +199,8 @@ class MechanismProcessing:
                     message += cls.print_element(str(index), element[index], rec_step + 1)
             elif isinstance(element, ASTExpression) or isinstance(element, ASTSimpleExpression):
                 message += cls._ode_toolbox_printer.print(element)
+            elif isinstance(element, ASTInlineExpression):
+                message += cls._ode_toolbox_printer.print(element.get_expression())
 
             message += "(" + type(element).__name__ + ")"
         return message

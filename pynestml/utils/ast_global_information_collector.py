@@ -24,6 +24,7 @@ from collections import defaultdict
 from build.lib.pynestml.meta_model.ast_node import ASTNode
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.symbols.predefined_units import PredefinedUnits
 #from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.port_signal_type import PortSignalType
@@ -50,11 +51,11 @@ class ASTGlobalInformationCollector(object):
 
     @classmethod
     def collect_self_spike_function(cls, neuron, global_info):
-        function_collector_visitor = ASTFunctionCollectorVisitor()
-        neuron.accept(function_collector_visitor)
+        on_receive_collector_visitor = ASTOnReceiveBlockCollectorVisitor()
+        neuron.accept(on_receive_collector_visitor)
 
-        for function in function_collector_visitor.all_functions:
-            if function.get_name() == "self_spikes":
+        for function in on_receive_collector_visitor.all_on_receive_blocks:
+            if function.get_port_name() == "self_spikes":
                 global_info["SelfSpikesFunction"] = function
 
         return global_info
@@ -147,21 +148,41 @@ class ASTGlobalInformationCollector(object):
         mechanism_dependencies["receptors"] = list()
         mechanism_dependencies["continuous"] = list()
 
-        mechanism_functions.append(global_info["SelfSpikesFunction"])
-
         search_variables = list()
         search_functions = list()
 
         found_variables = list()
         found_functions = list()
 
-        local_variable_collector = ASTVariableCollectorVisitor()
-        mechanism_functions[0].accept(local_variable_collector)
-        search_variables = local_variable_collector.all_variables
+        if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
+            local_variable_collector = ASTVariableCollectorVisitor()
+            global_info["SelfSpikesFunction"].accept(local_variable_collector)
+            search_variables_self_spike = local_variable_collector.all_variables
+            search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                              search_variables_self_spike,
+                                                                              search_variables)
 
-        local_function_call_collector = ASTFunctionCallCollectorVisitor()
-        mechanism_functions[0].accept(local_function_call_collector)
-        search_functions = local_function_call_collector.all_function_calls
+            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+            global_info["SelfSpikesFunction"].accept(local_function_call_collector)
+            search_functions_self_spike = local_function_call_collector.all_function_calls
+            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                   search_functions_self_spike,
+                                                                                   search_functions)
+
+        if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
+            local_variable_collector = ASTVariableCollectorVisitor()
+            global_info["UpdateBlock"].accept(local_variable_collector)
+            search_variables_update = local_variable_collector.all_variables
+            search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                              search_variables_update,
+                                                                              search_variables)
+
+            local_function_call_collector = ASTFunctionCallCollectorVisitor()
+            global_info["UpdateBlock"].accept(local_function_call_collector)
+            search_functions_update = local_function_call_collector.all_function_calls
+            search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                   search_functions_update,
+                                                                                   search_functions)
 
         while len(search_functions) > 0 or len(search_variables) > 0:
             if len(search_functions) > 0:
@@ -187,7 +208,7 @@ class ASTGlobalInformationCollector(object):
 
             elif len(search_variables) > 0:
                 variable = search_variables[0]
-                if not variable.name == "v_comp":
+                if not (variable.name == "v_comp" or variable.name in PredefinedUnits.get_units()):
                     is_dependency = False
                     for inline in global_inlines:
                         if variable.name == inline.variable_name:
@@ -286,7 +307,6 @@ class ASTGlobalInformationCollector(object):
                     for input in global_continuous_inputs:
                         if variable.name == input.name:
                             mechanism_continuous_inputs.append(input)
-
                 search_variables.remove(variable)
                 found_variables.append(variable)
                 # IMPLEMENT CATCH NONDEFINED!!!
@@ -525,3 +545,16 @@ class ASTContinuousInputDeclarationVisitor(ASTVisitor):
 
     def endvisit_input_port(self, node):
         self.inside_port = False
+
+class ASTOnReceiveBlockCollectorVisitor(ASTVisitor):
+    def __init__(self):
+        super(ASTOnReceiveBlockCollectorVisitor, self).__init__()
+        self.inside_on_receive_block = False
+        self.all_on_receive_blocks = list()
+
+    def visit_on_receive_block(self, node):
+        self.inside_on_receive_block = True
+        self.all_on_receive_blocks.append(node.clone())
+
+    def endvisit_on_receive_block(self, node):
+        self.inside_on_receive_block = False
