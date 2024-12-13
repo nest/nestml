@@ -802,6 +802,8 @@ private:
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-                 endfor %}
 {%-             endif %}
+    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
+    double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_;
     nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_;
 {%-         endfor %}
@@ -810,8 +812,10 @@ private:
     nest::RingBuffer spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
     double spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-         endfor %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}_spike_input_received_;
-    double spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_;
+    nest::RingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
+    nest::RingBuffer spike_input_{{ inputPort.name }}_spike_input_received_;    // buffer for the "spike received" boolean flag
+    double spike_input_{{ inputPort.name }}_grid_sum_;    // buffer for unweighted spikes
+    double spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_;    // buffer for the "spike received" boolean flag
 {%-     endif %}
 {%- endfor %}
 

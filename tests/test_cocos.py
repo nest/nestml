@@ -219,7 +219,7 @@ class TestCoCos:
 
     def test_invalid_convolve_correctly_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoConvolveNotCorrectlyProvided.nestml'))
-        assert any(["Type of 'convolve(g_ex,g_ex)' could not be derived!" in log_entry[2] for log_entry in Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)])
+        assert any(["Actual type different from expected. Expected: 'pA', got: 'mV'!" in log_entry[2] for log_entry in Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)])
 
     def test_valid_convolve_correctly_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoConvolveNotCorrectlyProvided.nestml'))

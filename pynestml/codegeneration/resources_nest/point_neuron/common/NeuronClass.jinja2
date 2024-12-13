@@ -211,6 +211,8 @@ namespace nest
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-         endfor %}
+  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
   , spike_input_{{ inputPort.name }}_spike_input_received_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
 {%-     endif %}
@@ -247,6 +249,8 @@ namespace nest
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-         endfor %}
+  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
+  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
   , spike_input_{{ inputPort.name }}_spike_input_received_( nest::RingBuffer() )
   , spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
 {%-     endif %}
@@ -466,12 +470,14 @@ void {{ neuronName }}::init_buffers_()
   B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.clear();
 {%-                 endfor %}
 {%-             endif %}
+  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_.clear();
   B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_.clear();
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
   B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.clear();
 {%-         endfor %}
+  B_.spike_input_{{ inputPort.name }}_.clear();
   B_.spike_input_{{ inputPort.name }}_spike_input_received_.clear();
 {%-     endif %}
 {%- endfor %}
@@ -777,12 +783,14 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
 {%-                 endfor %}
 {%-             endif %}
+    B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_.get_value(lag);
     B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_.get_value(lag);
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
     B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
 {%-         endfor %}
+    B_.spike_input_{{ inputPort.name }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_.get_value(lag);
     B_.spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_spike_input_received_.get_value(lag);
 {%-     endif %}
 {%- endfor %}
@@ -1142,13 +1150,14 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() );
 {%-             endfor %}
-{%-         else %}
-{#              no attributes defined for the spike event; in this case, there is only one single buffer #}
-    B_.spike_input_{{ spike_in_port_name }}_.add_value(
-      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-      e.get_weight() * e.get_multiplicity() );
 {%-         endif %}
 
+    // add an unweighted spike to the general "train of delta pulses" input buffer
+    B_.spike_input_{{ spike_in_port_name }}_.add_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      e.get_multiplicity() );
+
+    // set the "spike received" flag
     B_.spike_input_{{ spike_in_port_name }}_spike_input_received_.add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       1. );

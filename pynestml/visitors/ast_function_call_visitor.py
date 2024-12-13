@@ -20,12 +20,16 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Optional
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -45,7 +49,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
         :param node: a simple expression
         """
         assert isinstance(node, ASTSimpleExpression), \
-            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
+            "(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!" % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         scope = node.get_scope()
@@ -55,27 +59,56 @@ class ASTFunctionCallVisitor(ASTVisitor):
         # return type of the convolve function is the type of the second parameter (the spike input buffer)
         if function_name == PredefinedFunctions.CONVOLVE:
             buffer_parameter = node.get_function_call().get_args()[1]
+            print("var === " + str(buffer_parameter))
 
-            if buffer_parameter.get_variable() is not None:
-                # if not buffer_parameter.get_variable().get_attribute():
-                #     # an attribute is missing for the spiking input port
-                # XXX: attributes only required for ports that have them, but don't have access to the ASTModel object, so can't run ASTUtils.get_input_port_by_name!!!
-                #     import pdb;pdb.set_trace()
-                #     code, message = Messages.get_spike_input_port_attribute_missing(buffer_parameter.get_variable().get_name())
-                #     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                #                        log_level=LoggingLevel.ERROR)
-                #     node.type = ErrorTypeSymbol()
-                #     return
+            assert buffer_parameter.get_variable() is not None
 
-                buffer_name = buffer_parameter.get_variable().get_name() + "." + str(buffer_parameter.get_variable().get_attribute())
-                buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
-
-                if not buffer_symbol_resolve:
-                    buffer_symbol_resolve = scope.resolve_to_symbol(buffer_parameter.get_variable().get_name(), SymbolKind.VARIABLE)
-
-                assert buffer_symbol_resolve is not None
-                node.type = buffer_symbol_resolve.get_type_symbol()
+            if "." in buffer_parameter.get_variable().get_name():
+                # the type of the convolve call is [the type of the attribute] * [s]
+                input_port = ASTUtils.get_input_port_by_name(buffer_parameter.get_name())
+                assert input_port is not None
+                import pdb;pdb.set_trace()
+            else:
+                # convolve with a train of delta pulses --> the type of the convolve call is [1]
+                node.type = RealTypeSymbol()
                 return
+
+            # if not buffer_parameter.get_variable().get_attribute():
+            #     # an attribute is missing for the spiking input port
+            # XXX: attributes only required for ports that have them, but don't have access to the ASTModel object, so can't run ASTUtils.get_input_port_by_name!!!
+            #     import pdb;pdb.set_trace()
+            #     code, message = Messages.get_spike_input_port_attribute_missing(buffer_parameter.get_variable().get_name())
+            #     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+            #                        log_level=LoggingLevel.ERROR)
+            #     node.type = ErrorTypeSymbol()
+            #     return
+
+            # buffer_name = buffer_parameter.get_variable().get_name() + "." + str(buffer_parameter.get_variable().get_attribute())
+            # buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
+
+            # if not buffer_symbol_resolve:
+            #     buffer_symbol_resolve = scope.resolve_to_symbol(buffer_parameter.get_variable().get_name(), SymbolKind.VARIABLE)
+
+            # import pdb;pdb.set_trace()
+
+            # if buffer_symbol_resolve is None:
+            #     # the name of the input port is used without attributes
+            #     print("ASSIGN TO CONVOLVE CLAL?????????")
+
+            #     if ASTUtils.find_parent_node_by_type(node, ASTEquationsBlock):
+            #         # if this port name appears inside an equations block, it is interpreted as a train of delta pulses with units [1/s]; after applying the convolve() function, a unit of [1] remains
+            #         from astropy import units as u
+            #         from pynestml.utils.unit_type import UnitType
+            #         node.type = RealTypeSymbol() #UnitTypeSymbol(UnitType(name=str("1/s"), unit=1/u.si.s))
+            #         print("ASSIGNED REAL TO CONVOLVE CLAL")
+            #         return
+
+            #     # if this port name appears elsewhere, it cannot be interpreted by itself without an attribute
+            #     node.type = ErrorTypeSymbol()
+            #     return
+
+            # node.type = buffer_symbol_resolve.get_type_symbol()
+            # return
 
         # check if this is a delay variable
         symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())

@@ -180,6 +180,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_stmts_body().update_scope(scope)
+        node.get_input_port_variable().update_scope(scope)
 
     def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
@@ -650,21 +651,35 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         assert node.is_spike()
 
-        if node.parameters is None or len(node.parameters) == 0:
-            type_symbol = ErrorTypeSymbol()   # not allowed to use a bare spike input port name in expressions etc.
-        else:
+        if node.parameters:
             for parameter in node.parameters:
                 type_symbol = parameter.get_data_type().type_symbol
                 type_symbol.is_buffer = True  # set it as a buffer
-                if node.has_size_parameter():
-                    if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
-                        node.get_size_parameter().update_scope(node.get_scope())
                 symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name() + "." + parameter.get_name(),
                                         block_type=BlockType.INPUT, vector_parameter=node.get_size_parameter(),
                                         is_predefined=False, is_inline_expression=False, is_recordable=False,
                                         type_symbol=type_symbol, variable_type=VariableType.BUFFER,
                                         attribute=parameter.get_name())
                 node.get_scope().add_symbol(symbol)
+
+        # add a symbol for the bare input port (without any attributes)
+        symbol = VariableSymbol(element_reference=node,
+                                scope=node.get_scope(),
+                                name=node.get_name(),
+                                block_type=BlockType.INPUT,
+                                declaring_expression=None,
+                                is_predefined=False,
+                                is_inline_expression=False,
+                                is_recordable=False,
+                                type_symbol=PredefinedTypes.get_type("s")**-1,
+                                vector_parameter=node.get_size_parameter(),
+                                variable_type=VariableType.BUFFER)
+        symbol.set_comment(node.get_comment())
+        node.get_scope().add_symbol(symbol)
+
+        if node.has_size_parameter():
+            if isinstance(node.get_size_parameter(), ASTSimpleExpression) and node.get_size_parameter().is_variable():
+                node.get_size_parameter().update_scope(node.get_scope())
 
     def visit_stmt(self, node: ASTStmt):
         """
