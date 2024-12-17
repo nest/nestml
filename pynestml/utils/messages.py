@@ -184,8 +184,8 @@ class Messages:
         return MessageCode.NO_CODE_GENERATED, message
 
     @classmethod
-    def get_lexer_error(cls):
-        message = 'Error occurred during lexing: abort'
+    def get_lexer_error(cls, msg):
+        message = 'Error occurred during lexing: ' + msg
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
@@ -194,8 +194,8 @@ class Messages:
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
-    def get_parser_error(cls):
-        message = 'Error occurred during parsing: abort'
+    def get_parser_error(cls, msg):
+        message = 'Error occurred during parsing: ' + msg
         return MessageCode.PARSER_ERROR, message
 
     @classmethod
