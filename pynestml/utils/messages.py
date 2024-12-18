@@ -143,6 +143,7 @@ class MessageCode(Enum):
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
     SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 119
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 120
+    SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 121
 
 
 class Messages:
@@ -1402,3 +1403,8 @@ class Messages:
     def get_vector_input_ports_should_be_of_constant_size(cls):
         message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
         return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
+
+    @classmethod
+    def get_spike_input_port_in_equation_rhs_outside_convolve(cls):
+        message = "Spike input port appears in right-hand side of equation outside of convolve(). This is a known issue (see https://github.com/nest/nestml/pull/1050)."
+        return MessageCode.SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE, message

@@ -22,6 +22,7 @@
 from typing import Optional
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -63,11 +64,14 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
             assert buffer_parameter.get_variable() is not None
 
-            if "." in buffer_parameter.get_variable().get_name():
+            if "." in str(buffer_parameter):
                 # the type of the convolve call is [the type of the attribute] * [s]
-                input_port = ASTUtils.get_input_port_by_name(buffer_parameter.get_name())
-                assert input_port is not None
-                import pdb;pdb.set_trace()
+                # input_port = ASTUtils.get_input_port_by_name(buffer_parameter.get_variable().get_name())
+                input_port = ASTUtils.get_input_port_by_name(ASTUtils.find_parent_node_by_type(node, ASTModel).get_input_blocks(), buffer_parameter.get_variable().get_name())
+                node.type = input_port.get_parameters()[0].get_data_type().get_type_symbol()
+                return
+                # assert input_port is not None
+                # import pdb;pdb.set_trace()
             else:
                 # convolve with a train of delta pulses --> the type of the convolve call is [1]
                 node.type = RealTypeSymbol()

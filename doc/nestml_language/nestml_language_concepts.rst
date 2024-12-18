@@ -895,6 +895,8 @@ To specify in which sequence the event handlers should be called in case multipl
 In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
 
 
+XXX: mention no_spike_input_port_in_equation_rhs_outside_convolve
+
 Output
 ------
 

@@ -98,7 +98,7 @@ model aeif_cond_exp_neuron:
         I_e pA = 0 pA
 
     input:
-        spike_in_port <- spike
+        spike_in_port <- spike(weight nS)
         I_stim pA <- continuous
 
     output:
@@ -106,10 +106,10 @@ model aeif_cond_exp_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        if spike_in_port < 0:
-            g_syn_inh += spike_in_port * nS * s
+        if spike_in_port.weight < 0:
+            g_syn_inh += spike_in_port.weight
         else:
-            g_syn_exc += spike_in_port * nS * s
+            g_syn_exc += spike_in_port.weight
 
     update:
         if refr_t > 0 ms:

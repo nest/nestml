@@ -52,6 +52,7 @@ from pynestml.cocos.co_co_no_attributes_on_continuous_port import CoCoNoAttribut
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
+from pynestml.cocos.co_co_no_spike_input_port_in_equation_rhs_outside_convolve import CoCoNoSpikeInputPortInEquationRhsOutsideConvolve
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_on_receive_vectors_should_be_constant_size import CoCoOnReceiveVectorsShouldBeConstantSize
@@ -101,6 +102,13 @@ class CoCosManager:
         :param node: a single model instance
         """
         CoCoEachBlockDefinedAtMostOnce.check_co_co(node)
+
+    @classmethod
+    def check_no_spike_input_port_in_equation_rhs_outside_convolve(cls, node: ASTModel):
+        """
+        :param node: a single model instance
+        """
+        CoCoNoSpikeInputPortInEquationRhsOutsideConvolve.check_co_co(node)
 
     @classmethod
     def check_input_ports_appear_only_in_equation_rhs_and_event_handlers(cls, node: ASTModel):
@@ -500,5 +508,6 @@ class CoCosManager:
         cls.check_timestep_func_legally_used(model)
         cls.check_co_co_no_attributes_on_continuous_port(model)
         cls.check_input_ports_appear_only_in_equation_rhs_and_event_handlers(model)
+        cls.check_no_spike_input_port_in_equation_rhs_outside_convolve(model)
 
         Logger.set_current_node(None)

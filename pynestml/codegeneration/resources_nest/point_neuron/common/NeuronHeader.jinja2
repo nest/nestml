@@ -1116,16 +1116,13 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
   {{neuron_parent_class}}::get_status( __d );
 
-{%- if (neuron.get_multiple_receptors())|length > 1 or neuron.is_multisynapse_spikes() %}
+  // input ports to NEST rport number mapping
   DictionaryDatum __receptor_type = new Dictionary();
-
-{%-     for spike_in_port_name, rport in utils.nestml_input_port_to_nest_rport_dict(astnode).items() %}
-{%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
-( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
-{%-     endfor %}
-
-    ( *__d )[ "receptor_types" ] = __receptor_type;
-{%- endif %}
+{%- for spike_in_port_name, rport in utils.nestml_input_port_to_nest_rport_dict(astnode).items() %}
+{%-     set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}
+  ( *__receptor_type )[ "{{spike_in_port_name.upper()}}" ] = {{ rport }};
+{%- endfor %}
+  (*__d)["receptor_types"] = __receptor_type;
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 {%- if uses_numeric_solver %}

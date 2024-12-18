@@ -26,6 +26,7 @@ from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
@@ -163,17 +164,14 @@ class ASTSymbolTableVisitor(ASTVisitor):
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_stmts_body().update_scope(scope)
-        return
 
     def endvisit_update_block(self, node=None):
         self.block_type_stack.pop()
-        return
 
-    def visit_on_receive_block(self, node):
+    def visit_on_receive_block(self, node: ASTOnReceiveBlock) -> None:
         """
         Private method: Used to visit a single onReceive block and create the corresponding scope.
         :param node: an onReceive block object.
-        :type node: ASTOnReceiveBlock
         """
         self.block_type_stack.push(BlockType.LOCAL)
         scope = Scope(scope_type=ScopeType.ON_RECEIVE, enclosing_scope=node.get_scope(),
@@ -182,7 +180,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_stmts_body().update_scope(scope)
         node.get_input_port_variable().update_scope(scope)
 
-    def endvisit_on_receive_block(self, node=None):
+    def endvisit_on_receive_block(self, node: ASTOnReceiveBlock):
         self.block_type_stack.pop()
 
     def visit_on_condition_block(self, node):

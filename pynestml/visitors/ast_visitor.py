@@ -670,7 +670,7 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_input_port(self, node):
+    def endvisit_input_port(self, node) -> None:
         """
         Used to endvisit a single input port.
         :param node: a single input port.
@@ -678,7 +678,7 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_arithmetic_operator(self, node):
+    def endvisit_arithmetic_operator(self, node) -> None:
         """
         Used to endvisit a single arithmetic operator.
         :param node: a single arithmetic operator.
@@ -686,7 +686,7 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_parameter(self, node):
+    def endvisit_parameter(self, node) -> None:
         """
         Used to endvisit a single parameter.
         :param node: a single parameter.
@@ -694,11 +694,10 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_stmt(self, node):
+    def endvisit_stmt(self, node) -> None:
         """
         Used to endvisit a single stmt.
         :param node: a single stmt
-        :return: ASTStmt
         """
         return
 
@@ -709,15 +708,15 @@ class ASTVisitor:
     def get_real_self(self):
         return self.real_self
 
-    def handle(self, _node):
+    def handle(self, _node: ASTNode) -> None:
         self.get_real_self().visit(_node)
         self.get_real_self().traverse(_node)
         self.get_real_self().endvisit(_node)
 
-    def visit(self, node: ASTNode):
+    def visit(self, node: ASTNode) -> None:
         """
         Dispatcher for visitor pattern.
-        :param node: The ASTNode to visit
+        :param node: the node to visit
         """
         if isinstance(node, ASTArithmeticOperator):
             self.visit_arithmetic_operator(node)
@@ -841,11 +840,10 @@ class ASTVisitor:
             return
         return
 
-    def traverse(self, node):
+    def traverse(self, node: ASTNode) -> None:
         """
         Dispatcher for traverse method.
-        :param node: The ASTElement to visit
-        :type node: Inherited from ASTElement
+        :param node: the node to traverse
         """
         if isinstance(node, ASTArithmeticOperator):
             self.traverse_arithmetic_operator(node)
@@ -969,11 +967,10 @@ class ASTVisitor:
             return
         return
 
-    def endvisit(self, node):
+    def endvisit(self, node: ASTNode) -> None:
         """
         Dispatcher for endvisit.
-        :param node: The ASTElement to endvisit
-        :type node:  ASTElement or inherited
+        :param node: the node to end-visit
         """
         if isinstance(node, ASTArithmeticOperator):
             self.endvisit_arithmetic_operator(node)

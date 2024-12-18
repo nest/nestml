@@ -899,6 +899,16 @@ class NESTCodeGenerator(CodeGenerator):
                                             preserve_expressions=self.get_option("preserve_expressions"),
                                             simplify_expression=self.get_option("simplify_expression"),
                                             log_level=FrontendConfiguration.logging_level)
+
+        for solver in solver_result:
+            if "propagators" in solver.keys():
+                for k, v in solver["propagators"].items():
+                    solver["propagators"][k] = v.replace("__DOT__", ".")
+
+            if "update_expressions" in solver.keys():
+                for k, v in solver["update_expressions"].items():
+                    solver["update_expressions"][k] = v.replace("__DOT__", ".")
+
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"

@@ -38,7 +38,10 @@ class ODEToolboxUtils:
                                        "Float": sympy.Float,
                                        "Function": sympy.Function}
 
-        sympy_expr = sympy.parsing.sympy_parser.parse_expr(s, global_dict=_sympy_globals_no_functions)
+        pattern = r'(?<!\d)\.(?!\d)'    # pattern matches dots in variable names but not in numbers
+
+        import re
+        sympy_expr = sympy.parsing.sympy_parser.parse_expr(re.sub(pattern, '__DOT__', s), global_dict=_sympy_globals_no_functions)
 
         class MySympyPrinter(StrPrinter):
             """Resulting expressions will be parsed by NESTML parser. R
@@ -55,6 +58,6 @@ class ODEToolboxUtils:
 
                 return super()._print_Function(expr)
 
-        s_reformatted = MySympyPrinter().doprint(sympy_expr)
+        s_reformatted = MySympyPrinter().doprint(sympy_expr).replace("__DOT__", ".")
 
         return s_reformatted
