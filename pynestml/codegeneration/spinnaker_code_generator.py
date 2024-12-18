@@ -46,7 +46,6 @@ from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import
 from pynestml.codegeneration.printers.spinnaker_python_function_call_printer import SpinnakerPythonFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
-from pynestml.codegeneration.printers.unitless_c_simple_expression_printer import UnitlessCSimpleExpressionPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -85,7 +84,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._gsl_function_call_printer = SpinnakerGSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(
-            simple_expression_printer=UnitlessCSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+            simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
                                                                        constant_printer=self._constant_printer,
                                                                        function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
@@ -94,7 +93,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
-            simple_expression_printer=UnitlessCSimpleExpressionPrinter(
+            simple_expression_printer=CSimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
                 constant_printer=self._constant_printer,
                 function_call_printer=self._ode_toolbox_function_call_printer))
@@ -132,8 +131,6 @@ class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
                 function_call_printer=self._nest_function_call_printer_no_origin))
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
-
-        self._nest_unitless_function_call_printer = SpinnakerPythonFunctionCallPrinter(None)
 
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)

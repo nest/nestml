@@ -111,8 +111,6 @@ class PythonStandaloneCodeGenerator(NESTCodeGenerator):
         self._nest_variable_printer_no_origin._expression_printer = self._printer_no_origin
         self._nest_function_call_printer_no_origin._expression_printer = self._printer_no_origin
 
-        self._nest_unitless_function_call_printer = PythonFunctionCallPrinter(None)
-
         # GSL printers
         self._gsl_variable_printer = PythonSteppingFunctionVariablePrinter(None)
         self._gsl_function_call_printer = PythonSteppingFunctionFunctionCallPrinter(None)
