@@ -99,8 +99,8 @@ model iaf_psc_alpha_adapt_thresh_OU_neuron:
         A_noise pA = ((D_noise * tau_syn_exc / 2) * (1 - exp(-2 * resolution() / tau_syn_exc )))**.5
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

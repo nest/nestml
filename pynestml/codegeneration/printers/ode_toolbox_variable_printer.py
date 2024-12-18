@@ -20,7 +20,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.printers.variable_printer import VariablePrinter
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class ODEToolboxVariablePrinter(VariablePrinter):
@@ -34,4 +36,11 @@ class ODEToolboxVariablePrinter(VariablePrinter):
         :param node: the node to print
         :return: string representation
         """
-        return node.get_complete_name().replace("$", "__DOLLAR")
+        s = node.get_complete_name().replace("$", "__DOLLAR")
+
+        # input ports that appear here should be treated as trains of delta pulses
+        model = ASTUtils.find_parent_node_by_type(node, ASTModel)
+        if ASTUtils.get_input_port_by_name(model.get_input_blocks(), node.get_name()):
+            return "0.0"
+
+        return s

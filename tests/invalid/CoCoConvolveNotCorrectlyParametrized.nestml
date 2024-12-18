@@ -39,4 +39,4 @@ model CoCoConvolveNotCorrectlyParametrized:
         inline testB pA = convolve(V_m+V_m, spikeExc)
 
     input:
-        spikeExc <- excitatory spike
+        spikeExc <- spike

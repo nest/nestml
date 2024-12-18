@@ -55,7 +55,6 @@ class MessageCode(Enum):
     ARG_NOT_SPIKE_INPUT = 20
     NUMERATOR_NOT_ONE = 21
     ORDER_NOT_DECLARED = 22
-    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 23
     BLOCK_NOT_CORRECT = 24
     VARIABLE_NOT_IN_STATE_BLOCK = 25
     WRONG_NUMBER_OF_ARGS = 26
@@ -139,8 +138,12 @@ class MessageCode(Enum):
     RANDOM_FUNCTIONS_LEGALLY_USED = 113
     EXPONENT_MUST_BE_INTEGER = 114
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
-    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
+    SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
+    CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
+    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 119
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 120
+    SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 121
 
 
 class Messages:
@@ -529,23 +532,6 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % lhs
         message = 'Order of differential equation for %s is not declared!' % lhs
         return MessageCode.ORDER_NOT_DECLARED, message
-
-    @classmethod
-    def get_continuous_input_port_specified(cls, name, keyword):
-        """
-        Indicates that the continuous time input port has been specified with an `inputQualifier` keyword.
-        :param name: the name of the buffer
-        :type name: str
-        :param keyword: the keyword
-        :type keyword: list(str)
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (
-            name, keyword)
-        return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
     def get_block_not_defined_correctly(cls, block, missing):
@@ -1394,6 +1380,31 @@ class Messages:
         return MessageCode.RANDOM_FUNCTIONS_LEGALLY_USED, message
 
     @classmethod
+    def get_spike_input_port_appears_outside_equation_rhs_and_event_handler(cls, name):
+        message = "Spiking input port names (in this case '" + name + "') can only be used in the right-hand side of equations or in an onReceive block!"
+        return MessageCode.SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED, message
+
+    @classmethod
     def get_continuous_output_port_cannot_have_attributes(cls):
         message = "continuous time output port may not have attributes."
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
+
+    @classmethod
+    def get_continuous_output_port_cannot_have_attributes(cls):
+        message = "Continuous time output port may not have attributes."
+        return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
+
+    @classmethod
+    def get_spike_input_port_attribute_missing(cls, name: str):
+        message = "Spiking input port '" + name + "' reference is missing attribute."
+        return MessageCode.SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE, message
+
+    @classmethod
+    def get_vector_input_ports_should_be_of_constant_size(cls):
+        message = "Vector input ports should be of constant size (this is a limitation of NEST Simulator)"
+        return MessageCode.VECTOR_INPUT_PORTS_SHOULD_BE_OF_CONSTANT_SIZE, message
+
+    @classmethod
+    def get_spike_input_port_in_equation_rhs_outside_convolve(cls):
+        message = "Spike input port appears in right-hand side of equation outside of convolve(). This is a known issue (see https://github.com/nest/nestml/pull/1050)."
+        return MessageCode.SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE, message

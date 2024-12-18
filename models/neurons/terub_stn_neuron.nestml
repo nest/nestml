@@ -144,8 +144,8 @@ model terub_stn_neuron:
         I_e pA = 0 pA
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

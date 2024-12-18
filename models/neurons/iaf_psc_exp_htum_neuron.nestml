@@ -98,8 +98,8 @@ model iaf_psc_exp_htum_neuron:
         RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

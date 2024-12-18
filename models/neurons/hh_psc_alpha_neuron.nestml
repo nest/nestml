@@ -108,8 +108,8 @@ model hh_psc_alpha_neuron:
         beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
 
     input:
-        exc_spikes <- excitatory spike
-        inh_spikes <- inhibitory spike
+        exc_spikes <- spike
+        inh_spikes <- spike
         I_stim pA <- continuous
 
     output:

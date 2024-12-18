@@ -80,8 +80,8 @@ model iaf_chxk_2008_neuron:
         PSConInit_AHP real = G_ahp * e / tau_ahp * (ms/nS)
 
     input:
-        inh_spikes <- inhibitory spike
-        exc_spikes <- excitatory spike
+        inh_spikes <- spike
+        exc_spikes <- spike
         I_stim pA <- continuous
 
     output:
