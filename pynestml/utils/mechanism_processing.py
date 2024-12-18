@@ -23,12 +23,12 @@ from collections import defaultdict
 
 import copy
 
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -56,7 +56,7 @@ class MechanismProcessing:
     _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
     _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
     _ode_toolbox_printer = ODEToolboxExpressionPrinter(
-        simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+        simple_expression_printer=CppSimpleExpressionPrinter(
             variable_printer=_ode_toolbox_variable_printer,
             constant_printer=_constant_printer,
             function_call_printer=_ode_toolbox_function_call_printer))
