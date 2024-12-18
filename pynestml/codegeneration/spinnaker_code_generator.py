@@ -85,8 +85,8 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
         self._gsl_printer = CppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                       constant_printer=self._constant_printer,
-                                                                       function_call_printer=self._gsl_function_call_printer))
+                                                               constant_printer=self._constant_printer,
+                                                               function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
