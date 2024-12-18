@@ -234,7 +234,7 @@ class TestIntegrateODEs:
             os.path.join(os.path.dirname(__file__), os.path.join("resources", "integrate_odes_test_params2.nestml")))
         generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
 
-        assert len(Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)) == 2
+        assert any(["Type of 'test_3' could not be derived" in log_entry[2] for log_entry in Logger.get_all_messages_of_level_and_or_node("integrate_odes_test", LoggingLevel.ERROR)])
 
     def test_integrate_odes_higher_order(self):
         r"""
