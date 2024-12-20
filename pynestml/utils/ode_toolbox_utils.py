@@ -38,7 +38,7 @@ class ODEToolboxUtils:
                                        "Float": sympy.Float,
                                        "Function": sympy.Function}
 
-        pattern = r'(?<!\d)\.(?!\d)'    # pattern matches dots in variable names but not in numbers
+        pattern = r'\.(?!\d)'    # pattern matches dots in variable names but not in numbers
 
         import re
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(re.sub(pattern, '__DOT__', s), global_dict=_sympy_globals_no_functions)

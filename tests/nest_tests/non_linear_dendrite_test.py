@@ -48,7 +48,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
                         reason="This test does not support NEST 2")
     def test_non_linear_dendrite(self):
         I_dend_alias_name = "I_dend"  # synaptic current
-        I_dend_internal_name = "I_kernel2__X__I_2"  # alias for the synaptic current
+        I_dend_internal_name = "I_kernel2__X__I_2__DOT__weight"  # alias for the synaptic current
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
         target_path = "target"

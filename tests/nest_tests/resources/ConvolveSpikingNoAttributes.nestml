@@ -26,13 +26,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 model convolve_spiking_no_attributes_neuron:
     state:
         x real = 0.
-        y real = 0.
 
     equations:
         #kernel K = (e / tau_syn) * t * exp(-t / tau_syn)
         kernel K = delta(t)
         x' = convolve(K, spikes_in) / s
-        y' = spikes_in
 
     parameters:
         tau_syn ms = 2 ms

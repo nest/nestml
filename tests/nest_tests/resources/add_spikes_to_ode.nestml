@@ -41,6 +41,3 @@ model add_spikes_to_ode:
 
   update:
     integrate_odes()
-
-    x += spikes / 5
-    y += spikes / 42

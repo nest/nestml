@@ -39,6 +39,7 @@ model input_ports_loop:
         GABA_spikes_sum[N_spikes] real = 0
 
     parameters:
+        N_buf integer = 5
         N_spikes integer = 10
 
     input:

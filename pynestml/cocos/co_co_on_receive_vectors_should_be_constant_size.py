@@ -47,7 +47,7 @@ class CoCoOnReceiveVectorsShouldBeConstantSizeVisitor(ASTVisitor):
     def visit_input_port(self, node: ASTInputPort):
         if node.has_size_parameter():
             try:
-                int(node.get_size_parameter())
+                int(str(node.get_size_parameter()))
             except ValueError:
                 # exception converting size parameter to int; hence, not allowed
                 code, message = Messages.get_vector_input_ports_should_be_of_constant_size()

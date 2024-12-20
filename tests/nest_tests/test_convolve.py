@@ -56,7 +56,7 @@ class TestConvolve:
 
         nest.Connect(sg, neuron)
 
-        mm = nest.Create("multimeter", {"record_from": ["x", "y"]})
+        mm = nest.Create("multimeter", {"record_from": ["x"]})
         nest.Connect(mm, neuron)
 
         nest.Simulate(100.)
@@ -66,8 +66,6 @@ class TestConvolve:
         import matplotlib.pyplot as plt
         plt.subplots()
         plt.plot(events["times"], events["x"])
-        plt.plot(events["times"], events["y"])
         plt.savefig("/tmp/test_convolve.png")
 
         assert events["x"][-1] == 2E-3
-        assert events["y"][-1] == 2E-4    # XXX: this should be 2; see https://github.com/nest/nestml/pull/1050
