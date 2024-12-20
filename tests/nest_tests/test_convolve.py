@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_input_ports.py
+# test_convolve.py
 #
 # This file is part of NEST.
 #
@@ -34,7 +34,7 @@ class TestConvolve:
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
-    def test_input_ports_in_loop(self):
+    def test_convolve(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "ConvolveSpikingNoAttributes.nestml")))
         target_path = "target"

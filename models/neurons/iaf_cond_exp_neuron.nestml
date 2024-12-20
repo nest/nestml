@@ -35,8 +35,8 @@ model iaf_cond_exp_neuron:
         kernel g_inh = exp(-t/tau_syn_inh) # inputs from the inh conductance
         kernel g_exc = exp(-t/tau_syn_exc) # inputs from the exc conductance
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes.weight) * ( V_m - E_inh )
         inline I_leak pA = g_L * ( V_m - E_L )
 
         V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
@@ -59,8 +59,8 @@ model iaf_cond_exp_neuron:
         I_e pA = 0 pA
 
     input:
-        exc_spikes <- spike
-        inh_spikes <- spike
+        exc_spikes <- spike(weight nS)
+        inh_spikes <- spike(weight nS)
         I_stim pA <- continuous
 
     output:

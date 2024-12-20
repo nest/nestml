@@ -44,7 +44,7 @@ class ODEToolboxUtils:
         sympy_expr = sympy.parsing.sympy_parser.parse_expr(re.sub(pattern, '__DOT__', s), global_dict=_sympy_globals_no_functions)
 
         class MySympyPrinter(StrPrinter):
-            """Resulting expressions will be parsed by NESTML parser. R
+            """Resulting expressions will be parsed by NESTML parser.
             """
             def _print_Function(self, expr):
                 if expr.func.__name__ == "Piecewise":
@@ -58,6 +58,6 @@ class ODEToolboxUtils:
 
                 return super()._print_Function(expr)
 
-        s_reformatted = MySympyPrinter().doprint(sympy_expr).replace("__DOT__", ".")
+        s_reformatted = MySympyPrinter().doprint(sympy_expr)
 
         return s_reformatted

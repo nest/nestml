@@ -58,20 +58,21 @@ model izhikevich_neuron:
         I_e pA = 0 pA
 
     input:
-        spikes <- spike
+        spikes <- spike(weight mV)
         I_stim pA <- continuous
 
     output:
         spike
 
-    update:
-        integrate_odes()
-
-        # Add synaptic current
-        V_m += spikes * mV * s
+    onReceive(spikes):
+        # Add synaptic contribution
+        V_m += spikes.weight
 
         # lower bound of membrane potential
         V_m = max(V_min, V_m)
+
+    update:
+        integrate_odes()
 
     onCondition(V_m >= V_th):
         # threshold crossing

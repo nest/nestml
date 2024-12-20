@@ -59,8 +59,8 @@ model hh_cond_exp_destexhe_neuron:
         inline I_M pA = g_M * Noninact_p * (V_m - E_K)
         inline I_noise pA = (g_noise_exc * (V_m - E_exc) + g_noise_inh * (V_m - E_inh))
 
-        inline I_syn_exc pA = convolve(g_exc, exc_spikes) * nS * ( V_m - E_exc )
-        inline I_syn_inh pA = convolve(g_inh, inh_spikes) * nS * ( V_m - E_inh )
+        inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * ( V_m - E_exc )
+        inline I_syn_inh pA = convolve(g_inh, inh_spikes.weight) * ( V_m - E_inh )
 
         V_m' =( -I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
         refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
@@ -126,8 +126,8 @@ model hh_cond_exp_destexhe_neuron:
         D_inh uS**2/ms = 2 * sigma_noise_inh**2 / tau_syn_inh
 
     input:
-        inh_spikes <- spike
-        exc_spikes <- spike
+        inh_spikes <- spike(weight nS)
+        exc_spikes <- spike(weight nS)
         I_stim pA <- continuous
 
     output:

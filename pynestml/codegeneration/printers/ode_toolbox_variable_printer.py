@@ -40,7 +40,8 @@ class ODEToolboxVariablePrinter(VariablePrinter):
 
         # input ports that appear here should be treated as trains of delta pulses
         model = ASTUtils.find_parent_node_by_type(node, ASTModel)
-        if ASTUtils.get_input_port_by_name(model.get_input_blocks(), node.get_name()):
+        inport = ASTUtils.get_input_port_by_name(model.get_input_blocks(), node.get_name())
+        if inport and inport.is_spike():
             return "0.0"
 
         return s

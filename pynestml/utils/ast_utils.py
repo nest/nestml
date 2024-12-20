@@ -1391,7 +1391,7 @@ class ASTUtils:
 
         and the input port is
         .. code-block::
-            pre_spikes nS <- spike
+            pre_spikes <- spike
 
         then the constructed variable will be 'I_kernel__X__pre_pikes'
         """
@@ -1435,7 +1435,7 @@ class ASTUtils:
                     and node.get_variable().get_name() == variable_name_to_replace:
                 var_order = node.get_variable().get_differential_order()
                 new_variable_name = cls.construct_kernel_X_spike_buf_name(
-                    kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
+                    kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'", attribute=spike_buf.get_variable().get_attribute())
                 new_variable = ASTVariable(new_variable_name, var_order)
                 new_variable.set_source_position(node.get_variable().get_source_position())
                 node.set_variable(new_variable)
@@ -2164,7 +2164,7 @@ class ASTUtils:
                 # f(t) = ...; 1 for kernel ODE f'(t) = ...; 2 for f''(t) = ... and so on)
                 for order in range(kernel_order):
                     iv_sym_name_ode_toolbox = cls.construct_kernel_X_spike_buf_name(
-                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'")
+                        kernel_var.get_name(), spike_input_port, order, diff_order_symbol="'", attribute=attribute)
                     symbol_name_ = kernel_var.get_name() + "'" * order
                     symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
                     assert symbol is not None, "Could not find initial value for variable " + symbol_name_

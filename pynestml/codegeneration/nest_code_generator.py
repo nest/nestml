@@ -75,8 +75,8 @@ from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
-from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import \
-    ASTSetVectorParameterInUpdateExpressionVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
@@ -371,6 +371,8 @@ class NESTCodeGenerator(CodeGenerator):
         eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
         neuron.accept(eqns_with_vector_vars_visitor)
         equations_with_vector_vars = eqns_with_vector_vars_visitor.equations
+
+        neuron.accept(ASTParentVisitor())
 
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
@@ -995,13 +997,14 @@ class NESTCodeGenerator(CodeGenerator):
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
                         continue    # skip adding the statement if we are only adding zero
-
                     assignment_str = kernel_spike_buf_name + " += "
                     if "_is_post_port" in dir(spike_input_port.get_variable()) \
                        and spike_input_port.get_variable()._is_post_port:
                         assignment_str += "1."
                     else:
-                        assignment_str += "(" + str(spike_input_port) + ")"
+                        var_name = str(spike_input_port)
+                        assignment_str += "(" + var_name + ")"
+
                     if not expr in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + expr + ")"
 

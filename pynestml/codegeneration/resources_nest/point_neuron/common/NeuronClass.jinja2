@@ -1136,7 +1136,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 #endif
 
   assert(e.get_delay_steps() > 0);
-  assert(e.get_rport() < {{ utils.nestml_input_port_to_nest_rport_dict(astnode) | length }});
+  assert(e.get_rport() <= {{ utils.nestml_input_port_to_nest_rport_dict(astnode) | length }});
 
 {%-     for spike_in_port_name, rport in utils.nestml_input_port_to_nest_rport_dict(astnode).items() %}
 {%-         set spike_in_port = utils.get_input_port_by_name(astnode.get_input_blocks(), spike_in_port_name.split("_VEC_IDX_")[0]) %}

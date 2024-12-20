@@ -60,7 +60,7 @@ model iaf_psc_exp_htum_neuron:
     equations:
         kernel I_kernel_inh = exp(-t / tau_syn_inh)
         kernel I_kernel_exc = exp(-t / tau_syn_exc)
-        inline I_syn pA = convolve(I_kernel_exc, exc_spikes) * pA - convolve(I_kernel_inh, inh_spikes) * pA
+        inline I_syn pA = convolve(I_kernel_exc, exc_spikes.weight) - convolve(I_kernel_inh, inh_spikes.weight)
         V_m' = -V_m / tau_m + (I_syn + I_e + I_stim) / C_m
 
     parameters:
@@ -98,8 +98,8 @@ model iaf_psc_exp_htum_neuron:
         RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
 
     input:
-        exc_spikes <- spike
-        inh_spikes <- spike
+        exc_spikes <- spike(weight pA)
+        inh_spikes <- spike(weight pA)
         I_stim pA <- continuous
 
     output:

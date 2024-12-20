@@ -47,8 +47,8 @@ model hh_moto_5ht_neuron:
         # synapses: alpha functions
         kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
         kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
-        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes) * pA
-        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes) * pA
+        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes.weight)
+        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes.weight)
 
         inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in) * mV
 
@@ -108,8 +108,8 @@ model hh_moto_5ht_neuron:
         alpha mmol/pA = 1E-5 mmol/pA
 
     input:
-        inh_spikes <- spike
-        exc_spikes <- spike
+        inh_spikes <- spike(weight pA)
+        exc_spikes <- spike(weight pA)
         I_stim pA <- continuous
 
     output:

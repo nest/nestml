@@ -114,10 +114,10 @@ model aeif_cond_exp_neuron:
     update:
         if refr_t > 0 ms:
             # neuron is absolute refractory, do not evolve V_m
-            integrate_odes(w, refr_t)
+            integrate_odes(g_syn_exc, g_syn_inh, w, refr_t)
         else:
             # neuron not refractory
-            integrate_odes(w, V_m)
+            integrate_odes(g_syn_exc, g_syn_inh, w, V_m)
 
     onCondition(refr_t <= 0 ms and V_m >= V_peak):
         # threshold crossing

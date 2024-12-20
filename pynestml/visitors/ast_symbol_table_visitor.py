@@ -466,21 +466,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 node.get_variable().get_vector_parameter().update_scope(node.get_scope())
 
     def visit_variable(self, node: ASTVariable):
-        # if node.attribute:
-        #     ast_model = ASTUtils.find_parent_node_by_type(node, ASTModel)
-        #     assert ast_model
-        #     input_port = ASTUtils.get_input_port_by_name(ast_model.get_input_blocks(), node.get_name())
-        #     assert input_port
-
-        #     for parameter in input_port.get_parameters():
-        #         if parameter.get_name() == node.attribute:
-        #             actual_type = parameter.get_data_type()
-        #             node.data_type = actual_type
-        #             node.set_type_symbol(actual_type)
-
-        #             assert isinstance(node.get_parent(), ASTSimpleExpression)
-        #             node.get_parent().type = actual_type
-        #             print("reassigned data type of " + str(node) + " to " + str(node.data_type))
 
         if node.has_vector_parameter():
             node.get_vector_parameter().update_scope(node.get_scope())
@@ -494,11 +479,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
             #     symbol.set_comment(node.get_comment())
             #     node.get_scope().add_symbol(symbol)
 
-            print("in symboltablevisitor : variable is  " + str(node.get_vector_parameter()))
-
             if isinstance(node.get_vector_parameter(), ASTParameter):
                 # vector parameter is a declaration
-                print("in symboltablevisitor : \tvector parameter is a declaration: adding " + node.get_vector_parameter().get_name())
                 symbol = VariableSymbol(element_reference=node,
                                         scope=node.get_scope(),
                                         name=node.get_vector_parameter().get_name(),

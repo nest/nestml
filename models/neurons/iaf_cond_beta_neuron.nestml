@@ -63,8 +63,8 @@ model iaf_cond_beta_neuron:
         kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
                g_ex$' = -g_ex$ / tau_syn_decay_E
 
-        inline I_syn_exc pA = (F_E + convolve(g_ex, exc_spikes) * nS) * (V_m - E_ex)
-        inline I_syn_inh pA = (F_I + convolve(g_in, inh_spikes)* nS) * (V_m - E_in)
+        inline I_syn_exc pA = (F_E + convolve(g_ex, exc_spikes.weight)) * (V_m - E_ex)
+        inline I_syn_inh pA = (F_I + convolve(g_in, inh_spikes.weight)) * (V_m - E_in)
         inline I_leak pA = g_L * (V_m - E_L)  # pA = nS * mV
 
         V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
@@ -100,8 +100,8 @@ model iaf_cond_beta_neuron:
         g_I_const real = 1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
 
     input:
-        exc_spikes <- spike
-        inh_spikes <- spike
+        exc_spikes <- spike(weight nS)
+        inh_spikes <- spike(weight nS)
         I_stim pA <- continuous
 
     output:

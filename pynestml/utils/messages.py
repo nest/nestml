@@ -84,7 +84,6 @@ class MessageCode(Enum):
     TYPE_MISMATCH = 50
     NEURON_SOLVED_BY_GSL = 52
     NO_UNIT = 53
-    NOT_NEUROSCIENCE_UNIT = 54
     INTERNAL_WARNING = 55
     OPERATION_NOT_DEFINED = 56
     INPUT_PATH_NOT_FOUND = 58
@@ -908,21 +907,6 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'Unit does not exist (%s).' % name
         return MessageCode.NO_UNIT, message
-
-    @classmethod
-    def get_not_neuroscience_unit_used(cls, name):
-        """
-        Indicates that a non-neuroscientific unit, e.g., kg, has been used. Those units can not be converted to
-        a corresponding representation in the simulation and are therefore represented by the factor 1.
-        :param name: the name of the variable
-        :type name: str
-        :return: a nes code,message tuple
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Not convertible unit \'%s\' used, 1 assumed as factor!' % name
-        return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
     @classmethod
     def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):

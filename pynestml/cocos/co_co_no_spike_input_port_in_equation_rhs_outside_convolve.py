@@ -83,5 +83,4 @@ class NoSpikeInputPortInEquationRhsOutsideConvolveVisitor(ASTVisitor):
                 # it's an input port inside the equations block, but not inside a convolve() call -- error
                 code, message = Messages.get_spike_input_port_in_equation_rhs_outside_convolve()
                 Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
-                import pdb;pdb.set_trace()
                 return

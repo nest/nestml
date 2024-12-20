@@ -111,7 +111,7 @@ class NestFirFilterTest(unittest.TestCase):
         spike_times = nest.GetStatus(sr, keys="events")[0]["times"]
 
         # Scipy filtering
-        spikes, bin_edges = np.histogram(spike_times, np.arange(0, t_sim, resolution))
+        spikes, bin_edges = np.histogram(spike_times + resolution * 1.5, np.arange(0, t_sim, resolution))
         output = scipy.signal.lfilter(h, 1, spikes)
 
         # Plots

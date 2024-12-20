@@ -698,8 +698,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOnReceiveBlock(self, ctx):
         input_port_variable = self.visit(ctx.inputPortVariable)
         block = self.visit(ctx.stmtsBody()) if ctx.stmtsBody() is not None else None
-        print("ctx.inputPortVariable =  " + str(input_port_variable))
-        print("ctx.inputPortVariable =  " + str(type(input_port_variable)))
         const_parameters = {}
         for el in ctx.constParameter():
             const_parameters[el.name.text] = el.value.text
