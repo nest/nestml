@@ -1185,6 +1185,46 @@ The numeric results of a typical simulation run are shown below. Consider a leak
 On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
 
 
+Including files
+---------------
+
+To make models more modular, the contents of one NESTML file can be "included" into another, akin to the C ``#include`` directive. In NESTML, ``include`` is a statement taking one parameter, which gives the filename of the file to be included. The filename may include an absolute or relative path, with directories separated by a forward slash. Contents of the included file are interpreted as appearing at the point of the include statement (akin to the C ``#include``), but with indentation automatically adjusted to the indentation level of the ``include`` statement itself.
+
+For example, if the contents of a to-be included file ``includes/my_equations_block.nestml`` are
+
+.. code-block:: nestml
+
+   equations:
+       x' = A
+
+then this file can be included as follows:
+
+.. code-block:: nestml
+
+   model my_neuron_model:
+       include "includes/my_equations_block.nestml"
+
+The include statement can appear at any indentation level, for example, if the file ``my_included_stmts.nestml`` contains a list of statements:
+
+.. code-block:: nestml
+
+   println(i)
+   # check i
+   if i < 21:
+       i += 5
+   else:
+       i *= 2
+
+then these can be included as follows:
+
+.. code-block:: nestml
+
+   model my_neuron_model:
+       update:
+           while i < 42:
+               include "my_included_smts.nestml"
+
+
 Guards
 ------
 

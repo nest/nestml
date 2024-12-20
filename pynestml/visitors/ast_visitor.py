@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import copy
 
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -37,6 +38,7 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_include_stmt import ASTIncludeStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
@@ -312,6 +314,22 @@ class ASTVisitor:
         Used to visit a single inline expression.
         :param node: a single inline expression.
         :type node: ASTInlineExpression
+        """
+        return
+
+    def visit_include_stmt(self, node):
+        """
+        Used to visit a single inline expression.
+        :param node: a single inline expression.
+        :type node: .....
+        """
+        return
+
+    def endvisit_include_stmt(self, node):
+        """
+        Used to visit a single inline expression.
+        :param node: a single inline expression.
+        :type node: .....
         """
         return
 
@@ -832,6 +850,9 @@ class ASTVisitor:
         if isinstance(node, ASTSimpleExpression):
             self.visit_simple_expression(node)
             return
+        if isinstance(node, ASTIncludeStmt):
+            self.visit_include_stmt(node)
+            return
         if isinstance(node, ASTSmallStmt):
             self.visit_small_stmt(node)
             return
@@ -877,7 +898,7 @@ class ASTVisitor:
             self.traverse_bit_operator(node)
             return
         if isinstance(node, ASTStmtsBody):
-            self.traverse_block(node)
+            self.traverse_stmts_body(node)
             return
         if isinstance(node, ASTBlockWithVariables):
             self.traverse_block_with_variables(node)
@@ -962,6 +983,9 @@ class ASTVisitor:
             return
         if isinstance(node, ASTSimpleExpression):
             self.traverse_simple_expression(node)
+            return
+        if isinstance(node, ASTIncludeStmt):
+            self.traverse_include_stmt(node)
             return
         if isinstance(node, ASTSmallStmt):
             self.traverse_small_stmt(node)
@@ -1094,6 +1118,9 @@ class ASTVisitor:
         if isinstance(node, ASTSimpleExpression):
             self.endvisit_simple_expression(node)
             return
+        if isinstance(node, ASTIncludeStmt):
+            self.endvisit_include_stmt(node)
+            return
         if isinstance(node, ASTSmallStmt):
             self.endvisit_small_stmt(node)
             return
@@ -1134,10 +1161,15 @@ class ASTVisitor:
     def traverse_bit_operator(self, node):
         return
 
-    def traverse_block(self, node):
+    def traverse_stmts_body(self, node):
+        # Check if all statements are visited in case of an include statement
         if node.get_stmts() is not None:
-            for sub_node in node.get_stmts():
-                sub_node.accept(self.get_real_self())
+            visited_stmts = []
+            while len(visited_stmts) < len(node.get_stmts()):
+                for sub_node in node.get_stmts():
+                    if sub_node not in visited_stmts:
+                        sub_node.accept(self.get_real_self())
+                        visited_stmts.append(sub_node)
 
     def traverse_block_with_variables(self, _node):
         if _node.get_declarations() is not None:
@@ -1145,9 +1177,14 @@ class ASTVisitor:
                 sub_node.accept(self.get_real_self())
 
     def traverse_model_body(self, node):
+        # Check if all the body elements are processed in case of an include statement
         if node.get_body_elements() is not None:
-            for sub_node in node.get_body_elements():
-                sub_node.accept(self.get_real_self())
+            visited_elements = []
+            while len(visited_elements) < len(node.get_body_elements()):
+                for sub_node in node.get_body_elements():
+                    if sub_node not in visited_elements:
+                        sub_node.accept(self.get_real_self())
+                        visited_elements.append(sub_node)
 
     def traverse_comparison_operator(self, node):
         return
@@ -1295,6 +1332,9 @@ class ASTVisitor:
     def traverse_return_stmt(self, node):
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
+
+    def traverse_include_stmt(self, node):
+        pass
 
     def traverse_simple_expression(self, node):
         if node.get_function_call() is not None:

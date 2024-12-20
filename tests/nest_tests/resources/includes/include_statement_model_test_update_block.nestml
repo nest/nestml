@@ -1,0 +1,5 @@
+update:
+    integrate_odes()
+    if x > 100.:
+        x = 0.
+        y += 1

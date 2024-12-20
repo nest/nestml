@@ -67,7 +67,6 @@ class CoCoAllVariablesDefined(CoCo):
                     for equations_block in node.get_equations_blocks():
                         inline_expr_names.extend([inline_expr.variable_name for inline_expr in equations_block.get_inline_expressions()])
                         inline_exprs.extend(equations_block.get_inline_expressions())
-
                     if var.get_name() in inline_expr_names:
                         inline_expr_idx = inline_expr_names.index(var.get_name())
                         inline_expr = inline_exprs[inline_expr_idx]
@@ -78,7 +77,6 @@ class CoCoAllVariablesDefined(CoCo):
                                 # actually, no problem detected, skip error
                                 # XXX: TODO: check that differential order is less than or equal to that of the kernel
                                 continue
-
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
                     if symbol2 is not None:
@@ -115,6 +113,7 @@ class CoCoAllVariablesDefined(CoCo):
                     # now check that they are not defined recursively, e.g. V_m mV = V_m + 1
                     # todo: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position())
+                            and not symbol.get_referenced_object().get_source_position().included_file
                             and not symbol.get_referenced_object().get_source_position().is_added_source_position()):
                         code, message = Messages.get_variable_defined_recursively(var.get_name())
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
