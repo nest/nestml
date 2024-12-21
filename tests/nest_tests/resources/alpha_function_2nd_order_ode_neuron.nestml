@@ -26,19 +26,19 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 model alpha_function_2nd_order_ode_neuron:
     state:
-        x  real    = 0
-        x' ms**-1  = 0 * ms**-1
+        x real = 0
+        x' ms**-1 = 0 * ms**-1
         y real = 0
 
     input:
-        fX <- spike
+        fX <- spike(weight real)
 
     equations:
-        x'' = - 2 * x' / ms - x / ms**2
+        x'' = -2 * x' / ms - x / ms**2
         y' = (-y + 42) / s
 
     update:
         integrate_odes(x, y)
 
     onReceive(fX):
-        x' += e*fX * s / ms
+        x' += e * fX.weight / ms

@@ -475,7 +475,7 @@ public:
 
 {%  filter indent(2, True) -%}
 {%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}();
+    void on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag);
 {%-     endfor %}
 {%- endfilter %}
 
@@ -543,12 +543,6 @@ private:
   **/
   const nest_port_t MAX_SPIKE_RECEPTOR = {{ utils.nestml_input_port_to_nest_rport_dict(astnode) | length }};
 {%- endif %}
-
-{#
-{% if neuron.get_spike_input_ports() | length > 1 or neuron.is_multisynapse_spikes() -%}
-  static std::vector< size_t > rport_to_nestml_buffer_idx;
-{%- endif %}
-#}
 
   /**
    * Reset state of neuron.

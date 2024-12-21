@@ -30,8 +30,9 @@ model add_spikes_to_ode:
     y real = 0
 
   equations:
-    x' = -x + 42 * spikes      # linear eq
-    y' = -y**2 + 123 * spikes   # nonlinear eq
+    kernel K = delta(t)
+    x' = -x + 42 * convolve(K, spikes) / s      # linear eq    # XXX: this should just read ``x' = -x + 42 * spikes``; this is a known issue (see https://github.com/nest/nestml/pull/1050).
+    y' = -y**2 + 123 * convolve(K, spikes) / s   # nonlinear eq    # XXX: this should just read ``x' = -x + 42 * spikes``; this is a known issue (see https://github.com/nest/nestml/pull/1050).
 
   input:
     spikes <- spike

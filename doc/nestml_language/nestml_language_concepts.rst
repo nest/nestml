@@ -860,23 +860,63 @@ The unit of the Dirac delta function follows from its definition:
 
 Here :math:`f(t)` is a continuous function of :math:`t`. As the unit of the :math:`f()` is the same on both left-and right-hand side, the unit of :math:`dt \delta(t)` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is :math:`s^{-1}`. Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
 
-Physical units such as millivolts (:math:`\text{mV}`) and nanoamperes (:math:`\text{nA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current.
-In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity, such as :math:`\text{mV}` or :math:`\text{nA}`, to obtain a quantity with units of volts or amperes, respectively.
-For example, the product of a Dirac delta function and millivolt (:math:`\text{mV}`) unit can be written as :math:`\delta(t) \text{mV}`. This can be interpreted as an impulse in voltage with a magnitude of one millivolt.
+Given an input port ``spikes_in``, we can define the incoming spikes as a train of delta pulses:
+
+.. math::
+
+   \mathrm{spikes_in}(t) = \sum_k \delta(t - t_k)
+
+The units are the same as for a single delta function.
+
+Spiking input can be handled by convolutions with kernels (see :ref:`Integrating spiking input`) or by means of ``onReceive`` event handler blocks.
+
 
 Handling spiking input by convolutions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The spiking input port name ``spikes_in`` can subsequently be used in the right-hand side of ODEs:
+
+.. math::
+
+   \frac{dx}{dt} = -x / tau + \mathrm{spikes_in}(t)
+
+If ``x`` is a real number, then the units here are consistent. This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + spikes_in
+
+``spikes_in`` can also be used inside a convolution; for instance, if ``K`` is a kernel, then:
+
+.. math::
+
+   \frac{dx}{dt} = -x / tau + (K \ast \mathrm{spikes_in}) / s
+
+This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + convolve(K, spikes_in) / s
+
+Note that applying the convolution means integrating over time, hence dropping the [1/s] unit, leaving a unitless quantity. To make the units consistent in this case, an explicit division by seconds is required.
+
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes, for instance, if ``x`` is in ``pA``, then we can write:
+
+.. code-block:: nestml
+
+   x = -x / tau + pA * spikes_in
 
 
 XXX: mention no_spike_input_port_in_equation_rhs_outside_convolve
 
 
 
-
 Handling spiking input by event handlers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spiking input can be handled by convolutions with kernels (see :ref:`Integrating spiking input`) or by means of ``onReceive`` event handler blocks. An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
+An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
+
+
 
 .. code-block:: nestml
 
@@ -898,6 +938,20 @@ To specify in which sequence the event handlers should be called in case multipl
 
 In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
 
+Vector input ports of constant size can be used:
+
+.. code-block:: nestml
+
+    input:
+        foo[2] <- spike
+
+    onReceive(foo[0]):
+        # ... handle foo[0] spikes...
+
+    onReceive(foo[1]):
+        # ... handle foo[1] spikes...
+
+
 
 Output
 ------
@@ -912,6 +966,8 @@ Each model can only send a single type of event. The type of the event has to be
 Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
 
 XXX: mention attributes here?!
+
+
 
 Event attributes
 ~~~~~~~~~~~~~~~~

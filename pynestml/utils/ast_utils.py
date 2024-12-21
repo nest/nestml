@@ -1409,7 +1409,7 @@ class ASTUtils:
 
         if isinstance(spike_input_port, ASTVariable):
             if spike_input_port.has_vector_parameter():
-                spike_input_port_name += "_" + str(cls.get_numeric_vector_size(spike_input_port))
+                spike_input_port_name += "_" + str(spike_input_port.get_vector_parameter())
 
         if attribute is not None:
             attribute = "__DOT__" + attribute

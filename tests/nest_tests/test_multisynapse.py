@@ -75,7 +75,7 @@ class TestNestMultiSynapse:
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES3"], "weight": 500., "delay": 0.1})
 
         mm = nest.Create("multimeter", params={"record_from": [
-                         "I_syn", "I_kernel2__X__spikes2", "I_kernel3__X__spikes3"], "interval": nest.resolution})
+                         "I_syn", "I_kernel2__X__spikes2__DOT__weight", "I_kernel3__X__spikes3__DOT__weight"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
         vm_1 = nest.Create("voltmeter", params={"interval": nest.resolution})
@@ -98,10 +98,10 @@ class TestNestMultiSynapse:
             ax[1].plot(mm["times"], mm["I_syn"], label="I_syn")
             ax[1].set_ylabel("current")
 
-            ax[2].plot(mm["times"], mm["I_kernel2__X__spikes2"], label="I_kernel2")
+            ax[2].plot(mm["times"], mm["I_kernel2__X__spikes2__DOT__weight"], label="I_kernel2")
             ax[2].set_ylabel("current")
 
-            ax[3].plot(mm["times"], mm["I_kernel3__X__spikes3"], label="I_kernel3")
+            ax[3].plot(mm["times"], mm["I_kernel3__X__spikes3__DOT__weight"], label="I_kernel3")
             ax[3].set_ylabel("current")
 
             for _ax in ax:
@@ -117,7 +117,7 @@ class TestNestMultiSynapse:
             fig.savefig("/tmp/test_multisynapse.png")
 
         # testing
-        np.testing.assert_almost_equal(V_m[-1], -72.77625579314515)
+        np.testing.assert_almost_equal(V_m[-1], -72.58743039242219)
 
     def test_multisynapse_with_vector_input_ports(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
@@ -147,16 +147,16 @@ class TestNestMultiSynapse:
         receptor_types = nest.GetStatus(neuron, "receptor_types")[0]
 
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-        nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_0"], "weight": 1000., "delay": 0.1})
+        nest.Connect(sg, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_VEC_IDX_0"], "weight": 1000., "delay": 0.1})
 
         sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_1"], "weight": 1000., "delay": 0.1})
+        nest.Connect(sg2, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_VEC_IDX_1"], "weight": 1000., "delay": 0.1})
 
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-        nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_2"], "weight": 500., "delay": 0.1})
+        nest.Connect(sg3, neuron, syn_spec={"receptor_type": receptor_types["SPIKES_VEC_IDX_2"], "weight": 500., "delay": 0.1})
 
         mm = nest.Create("multimeter", params={"record_from": [
-            "I_kernel1__X__spikes_0", "I_kernel2__X__spikes_1", "I_kernel3__X__spikes_2"], "interval": nest.resolution})
+            "I_kernel1__X__spikes_0__DOT__weight", "I_kernel2__X__spikes_1__DOT__weight", "I_kernel3__X__spikes_2__DOT__weight"], "interval": nest.resolution})
         nest.Connect(mm, neuron)
 
         vm_1 = nest.Create("voltmeter", params={"interval": nest.resolution})
@@ -175,13 +175,13 @@ class TestNestMultiSynapse:
             ax[0].plot(V_m_timevec, V_m, label="V_m")
             ax[0].set_ylabel("voltage")
 
-            ax[1].plot(mm.events["times"], mm.events["I_kernel1__X__spikes_0"], label="I_kernel0")
+            ax[1].plot(mm.events["times"], mm.events["I_kernel1__X__spikes_0__DOT__weight"], label="I_kernel0")
             ax[1].set_ylabel("current")
 
-            ax[2].plot(mm.events["times"], mm.events["I_kernel2__X__spikes_1"], label="I_kernel1")
+            ax[2].plot(mm.events["times"], mm.events["I_kernel2__X__spikes_1__DOT__weight"], label="I_kernel1")
             ax[2].set_ylabel("current")
 
-            ax[3].plot(mm.events["times"], mm.events["I_kernel3__X__spikes_2"], label="I_kernel2")
+            ax[3].plot(mm.events["times"], mm.events["I_kernel3__X__spikes_2__DOT__weight"], label="I_kernel2")
             ax[3].set_ylabel("current")
 
             for _ax in ax:
