@@ -75,8 +75,8 @@ from pynestml.utils.string_utils import removesuffix
 from pynestml.visitors.ast_equations_with_delay_vars_visitor import ASTEquationsWithDelayVarsVisitor
 from pynestml.visitors.ast_equations_with_vector_variables import ASTEquationsWithVectorVariablesVisitor
 from pynestml.visitors.ast_mark_delay_vars_visitor import ASTMarkDelayVarsVisitor
-from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import \
-    ASTSetVectorParameterInUpdateExpressionVisitor
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
+from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
@@ -178,6 +178,7 @@ class NESTCodeGenerator(CodeGenerator):
         for model in neurons + synapses:
             # Check if the random number functions are used in the right blocks
             CoCosManager.check_co_co_nest_random_functions_legally_used(model)
+            CoCosManager.check_on_receive_vectors_should_be_constant_size(model)
 
             if Logger.has_errors(model.name):
                 raise Exception("Error(s) occurred during code generation")
@@ -370,6 +371,8 @@ class NESTCodeGenerator(CodeGenerator):
         eqns_with_vector_vars_visitor = ASTEquationsWithVectorVariablesVisitor()
         neuron.accept(eqns_with_vector_vars_visitor)
         equations_with_vector_vars = eqns_with_vector_vars_visitor.equations
+
+        neuron.accept(ASTParentVisitor())
 
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
@@ -898,6 +901,16 @@ class NESTCodeGenerator(CodeGenerator):
                                             preserve_expressions=self.get_option("preserve_expressions"),
                                             simplify_expression=self.get_option("simplify_expression"),
                                             log_level=FrontendConfiguration.logging_level)
+
+        for solver in solver_result:
+            if "propagators" in solver.keys():
+                for k, v in solver["propagators"].items():
+                    solver["propagators"][k] = v.replace("__DOT__", ".")
+
+            if "update_expressions" in solver.keys():
+                for k, v in solver["update_expressions"].items():
+                    solver["update_expressions"][k] = v.replace("__DOT__", ".")
+
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -958,7 +971,7 @@ class NESTCodeGenerator(CodeGenerator):
             spike_input_port_name = spike_input_port.get_variable().get_name()
 
             if not spike_input_port_name in spike_updates.keys():
-                spike_updates[str(spike_input_port)] = []
+                spike_updates[spike_input_port_name] = []
 
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
                and spike_input_port.get_variable()._is_post_port:
@@ -966,25 +979,32 @@ class NESTCodeGenerator(CodeGenerator):
                 orig_port_name = spike_input_port_name[:spike_input_port_name.index("__for_")]
                 buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
-                buffer_type = neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE).get_type_symbol()
+                # not a post port
+                if spike_input_port.get_variable().get_attribute():
+                    variable_name = spike_input_port_name + "." + str(spike_input_port.get_variable().get_attribute())
+                else:
+                    variable_name = spike_input_port_name
+
+                buffer_type = neuron.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE).get_type_symbol()
 
             assert not buffer_type is None
 
             for kernel_var in kernel.get_variables():
                 for var_order in range(ASTUtils.get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
-                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(kernel_var.get_name(), spike_input_port, var_order)
+                    kernel_spike_buf_name = ASTUtils.construct_kernel_X_spike_buf_name(kernel_var.get_name(), spike_input_port, var_order, attribute=spike_input_port.get_variable().get_attribute())
                     expr = ASTUtils.get_initial_value_from_ode_toolbox_result(kernel_spike_buf_name, solver_dicts)
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
                         continue    # skip adding the statement if we are only adding zero
-
                     assignment_str = kernel_spike_buf_name + " += "
                     if "_is_post_port" in dir(spike_input_port.get_variable()) \
                        and spike_input_port.get_variable()._is_post_port:
                         assignment_str += "1."
                     else:
-                        assignment_str += "(" + str(spike_input_port) + ")"
+                        var_name = str(spike_input_port)
+                        assignment_str += "(" + var_name + ")"
+
                     if not expr in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + expr + ")"
 
@@ -995,14 +1015,18 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_assignment.update_scope(neuron.get_scope())
                     ast_assignment.accept(ASTSymbolTableVisitor())
 
-                    if neuron.get_scope().resolve_to_symbol(spike_input_port_name, SymbolKind.VARIABLE) is None:
+                    spike_input_port_name_with_attr = spike_input_port_name
+                    if spike_input_port.get_variable().get_attribute():
+                        spike_input_port_name_with_attr += "." + str(spike_input_port.get_variable().get_attribute())
+
+                    if neuron.get_scope().resolve_to_symbol(spike_input_port_name_with_attr, SymbolKind.VARIABLE) is None:
                         # this case covers variables that were moved from synapse to the neuron
                         post_spike_updates[kernel_var.get_name()] = ast_assignment
                     elif "_is_post_port" in dir(spike_input_port.get_variable()) and spike_input_port.get_variable()._is_post_port:
                         Logger.log_message(None, None, "Adding post assignment string: " + str(ast_assignment), None, LoggingLevel.INFO)
-                        spike_updates[str(spike_input_port)].append(ast_assignment)
+                        spike_updates[spike_input_port_name].append(ast_assignment)
                     else:
-                        spike_updates[str(spike_input_port)].append(ast_assignment)
+                        spike_updates[spike_input_port_name].append(ast_assignment)
 
         for k, factor in delta_factors.items():
             var = k[0]

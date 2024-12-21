@@ -301,9 +301,8 @@ class Neuron_{{neuronName}}(Neuron):
     # -------------------------------------------------------------------------
 
 {%  for blk in neuron.get_on_receive_blocks() %}
-{%-     set inport = blk.get_port_name() %}
-    if self.B_.spike_received_{{ inport }}:
-      self.on_receive_block_{{ blk.get_port_name() }}()
+    if self.B_.spike_received_{{ utils.port_name_printer(blk.get_input_port_variable()) }}:
+      self.on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
 {%- endfor %}
 
     # -------------------------------------------------------------------------
@@ -359,7 +358,7 @@ class Neuron_{{neuronName}}(Neuron):
 
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_stmts_body() %}
-  def on_receive_block_{{ blk.get_port_name() }}(self):
+  def on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(self):
 {%-     filter indent(4, True) -%}
 {%-         include "directives_py/StmtsBody.jinja2" %}
 {%-     endfilter %}
