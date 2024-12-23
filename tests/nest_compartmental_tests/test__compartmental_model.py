@@ -23,7 +23,6 @@ import numpy as np
 import os
 import copy
 import pytest
-import unittest
 
 import nest
 
@@ -76,7 +75,7 @@ dend_params_active = {
 }
 
 
-class CMTest(unittest.TestCase):
+class TestCM():
 
     def reset_nest(self):
         nest.ResetKernel()
@@ -535,7 +534,7 @@ class CMTest(unittest.TestCase):
                 atol = 0.3
             else:
                 atol = 0.02
-            self.assertTrue(np.allclose(
+            assert (np.allclose(
                 res_act_nest[var_nest], res_act_nestml[var_nestml], atol=atol
             ))
         for var_nest, var_nestml in zip(
@@ -547,22 +546,18 @@ class CMTest(unittest.TestCase):
                     atol = 0.3
                 else:
                     atol = 0.02
-                self.assertTrue(np.allclose(
+                assert (np.allclose(
                     res_pas_nest[var_nest], res_pas_nestml[var_nestml], atol=atol
                 ))
 
         # check if synaptic conductances are equal
-        self.assertTrue(
+        assert (
             np.allclose(
                 res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
                 res_act_nestml['g_AN_AMPA1'],
                 5e-3))
-        self.assertTrue(
+        assert (
             np.allclose(
                 res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
                 res_act_nestml['g_AN_NMDA1'],
                 5e-3))
-
-
-if __name__ == "__main__":
-    unittest.main()

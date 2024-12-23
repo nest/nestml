@@ -74,7 +74,7 @@ class TestCompartmentalConcmech:
         nest.Install("concmech_mockup_module.so")
 
     def test_concmech(self):
-        """We test the concentration mechanism by just comparing the concentration value at a certain critical point in
+        """We test the concentration mechanism by comparing the concentration value at a certain critical point in
         time to a previously achieved value at this point"""
         cm = nest.Create('multichannel_test_model_nestml')
 
@@ -128,5 +128,4 @@ class TestCompartmentalConcmech:
 
         plt.savefig("concmech test.png")
 
-        if not res['c_Ca0'][data_array_index] == expected_conc:
-            self.fail("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")

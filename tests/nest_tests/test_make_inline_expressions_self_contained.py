@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# __init__.py
+# test_make_inline_expressions_self_contained.py
 #
 # This file is part of NEST.
 #
@@ -19,16 +19,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "8.0.0-rc2"
+import os
 
-__all__ = ['cocos',
-           'codegeneration',
-           'exceptions',
-           'frontend',
-           'generated',
-           'meta_model',
-           'symbols',
-           'symbol_table',
-           'transformers',
-           'utils',
-           'visitors']
+from pynestml.frontend.pynestml_frontend import generate_nest_target
+
+
+class TestMakeInlineExpressionsSelfContained:
+    r"""
+    Test the transformer that makes inline expressions self contained.
+    """
+
+    def test_make_inline_expression_self_contained(self):
+        r"""Generate the model code"""
+        input_files = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "beta_function_with_inline_expression_neuron.nestml")))]
+        generate_nest_target(input_path=input_files,
+                             logging_level="DEBUG",
+                             codegen_opts={"solver": "numeric"})

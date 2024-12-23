@@ -59,6 +59,8 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
 from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
+from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
@@ -557,13 +559,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
         # substitute inline expressions with each other
-        # such that no inline expression references another inline expression
-        ASTUtils.make_inline_expressions_self_contained(
-            equations_block.get_inline_expressions())
-
-        # dereference inline_expressions inside ode equations
-        ASTUtils.replace_inline_expressions_through_defining_expressions(
-            equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        # such that no inline expression references another inline expression;
+        # deference inline_expressions inside ode_equations
+        InlineExpressionExpansionTransformer().transform(neuron)
 
         # generate update expressions using ode toolbox
         # for each equation in the equation block attempt to solve analytically
@@ -712,7 +710,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
-        namespace["vector_printer"] = ASTVectorParameterSetterAndPrinter(neuron, self._printer_no_origin, "i")
+        namespace["vector_printer_factory"] = ASTVectorParameterSetterAndPrinterFactory(neuron, self._printer_no_origin)
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}

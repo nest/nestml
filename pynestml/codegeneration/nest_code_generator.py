@@ -61,6 +61,7 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -322,8 +323,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_blocks()[0]
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
-        ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-        ASTUtils.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        InlineExpressionExpansionTransformer().transform(neuron)
         delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
 
@@ -400,9 +400,7 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            ASTUtils.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-            ASTUtils.replace_inline_expressions_through_defining_expressions(
-                equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+            InlineExpressionExpansionTransformer().transform(synapse)
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
@@ -470,6 +468,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
 
+        # delay variables
+        namespace["has_delay_variables"] = astnode.has_delay_variables()
+
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -507,7 +508,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if "paired_neuron" in dir(synapse):
             # synapse is being co-generated with neuron
-            namespace["paired_neuron"] = synapse.paired_neuron.get_name()
+            namespace["paired_neuron"] = synapse.paired_neuron
+            namespace["paired_neuron_name"] = synapse.paired_neuron.get_name()
             namespace["post_ports"] = synapse.post_port_names
             namespace["spiking_post_ports"] = synapse.spiking_post_port_names
             namespace["vt_ports"] = synapse.vt_port_names
@@ -527,7 +529,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["has_state_vectors"] = False
         namespace["vector_symbols"] = []
-        namespace['has_delay_variables'] = synapse.has_delay_variables()
         namespace['names_namespace'] = synapse.get_name() + "_names"
 
         # event handlers priority
@@ -536,7 +537,7 @@ class NESTCodeGenerator(CodeGenerator):
         spiking_post_port = find_spiking_post_port(synapse, namespace)
         if spiking_post_port:
             post_spike_port_priority = None
-            if "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
+            if synapse.get_on_receive_block(spiking_post_port) and "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
                 post_spike_port_priority = int(synapse.get_on_receive_block(spiking_post_port).get_const_parameters()["priority"])
 
             if post_spike_port_priority \
@@ -629,7 +630,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
         namespace["has_state_vectors"] = neuron.has_state_vectors()
         namespace["vector_symbols"] = neuron.get_vector_symbols()
-        namespace["has_delay_variables"] = neuron.has_delay_variables()
         namespace["names_namespace"] = neuron.get_name() + "_names"
         namespace["has_multiple_synapses"] = len(neuron.get_multiple_receptors()) > 1 or len(neuron.get_single_receptors()) > 2 or neuron.is_multisynapse_spikes()
 
@@ -645,8 +645,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["uses_analytic_solver"] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
+        namespace["analytic_state_variables_moved"] = []
         if namespace["uses_analytic_solver"]:
-            namespace["analytic_state_variables_moved"] = []
             if "paired_synapse" in dir(neuron):
                 namespace["analytic_state_variables"] = []
                 for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:

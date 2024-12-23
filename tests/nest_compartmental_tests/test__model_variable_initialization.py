@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import unittest
 
 import pytest
 
@@ -39,9 +38,12 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
-class TestInitialization(unittest.TestCase):
+class TestInitialization():
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
+        nest.ResetKernel()
+        nest.SetKernelStatus(dict(resolution=0.1))
+
         tests_path = os.path.realpath(os.path.dirname(__file__))
         input_path = os.path.join(
             tests_path,
@@ -72,6 +74,10 @@ class TestInitialization(unittest.TestCase):
         nest.Install("concmech_module.so")
 
     def test_non_existing_param(self):
+        nest.ResetKernel()
+        nest.SetKernelStatus(dict(resolution=0.1))
+        nest.Install("concmech_module.so")
+
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1., 'e_L': -70.0, 'non_existing': 1.0}
 
         with pytest.raises(nest.NESTErrors.BadParameter):
@@ -82,6 +88,10 @@ class TestInitialization(unittest.TestCase):
         """Testing whether the python initialization of variables works by looking up the variables at the very start of
         the simulation. Since the values change dramatically in the very first step, before which we can not sample them
         we test whether they are still large enough and not whether they are the same"""
+        nest.ResetKernel()
+        nest.SetKernelStatus(dict(resolution=0.1))
+        nest.Install("concmech_module.so")
+
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1., 'e_L': -70.0, 'gbar_NaTa_t': 1.0, 'h_NaTa_t': 1000.0, 'c_Ca': 1000.0, 'v_comp': 1000.0}
 
         cm = nest.Create('multichannel_test_model_nestml')
@@ -114,14 +124,8 @@ class TestInitialization(unittest.TestCase):
 
         plt.savefig("initialization test.png")
 
-        if not res['v_comp0'][data_array_index] > 50.0:
-            self.fail("the voltage (left) is not as expected (right). (" + str(
-                res['v_comp0'][data_array_index]) + "<" + str(50.0) + ")")
+        assert res['v_comp0'][data_array_index] > 50.0, ("the voltage (left) is not as expected (right). (" + str(res['v_comp0'][data_array_index]) + "<" + str(50.0) + ")")
 
-        if not res['c_Ca0'][data_array_index] > 900.0:
-            self.fail("the concentration (left) is not as expected (right). (" + str(
-                res['c_Ca0'][data_array_index]) + "<" + str(900.0) + ")")
+        assert res['c_Ca0'][data_array_index] > 900.0, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "<" + str(900.0) + ")")
 
-        if not res['h_NaTa_t0'][data_array_index] > 5.0:
-            self.fail("the gating variable state (left) is not as expected (right). (" + str(
-                res['h_NaTa_t0'][data_array_index]) + "<" + str(5.0) + ")")
+        assert res['h_NaTa_t0'][data_array_index] > 5.0, ("the gating variable state (left) is not as expected (right). (" + str(res['h_NaTa_t0'][data_array_index]) + "<" + str(5.0) + ")")

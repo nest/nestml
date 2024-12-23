@@ -1,0 +1,59 @@
+"""
+beta_function_with_inline_expression_neuron
+###########################################
+
+Description
++++++++++++
+
+Used for testing processing of inline expressions.
+
+
+Copyright
++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+model beta_function_with_inline_expression_neuron:
+
+  parameters:
+    tau1 ms = 20 ms  ## decay time
+    tau2 ms = 10 ms  ## rise time
+
+  state:
+    x_ pA/ms = 0 pA/ms
+    x pA = 0 pA
+
+  internals:
+    alpha real = 42.
+
+  equations:
+    x' = x_ - x / tau2
+    x_' = - x_ / tau1
+
+    recordable inline z pA = x
+
+  input:
+    weighted_input_spikes  <- spike
+
+  output:
+    spike
+
+  update:
+    integrate_odes()
+
+  onReceive(weighted_input_spikes):
+    x_ += alpha * (1 / tau2 - 1 / tau1) * pA * weighted_input_spikes * s

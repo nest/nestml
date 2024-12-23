@@ -63,6 +63,9 @@ class SpinnakerCVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "REAL_CONST(2.718282)"
 
+        if variable.get_name() == PredefinedVariables.PI_CONSTANT:
+            return "REAL_CONST(3.14159)"
+
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
