@@ -1114,6 +1114,12 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_h
   {%- endfor %}
   {%- endfor %}
 
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+  {%- endfor %}
+  {%- endfor %}
+
     // initial values for kernel state variables, set to zero
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
@@ -1177,6 +1183,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
     //synaptic processing:
         //continuous synaptic processing
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+        //inlines and convolutions
     {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
       {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
@@ -1186,6 +1193,16 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
     {%- for inline, inline_info in synapse_info["Inlines"].items() %}
         {{ inline }}[i] = {{ vector_printer.print(inline_info["inline_expression"].get_expression(), "i") }};
     {%- endfor %}
+        //update block
+        {%- if synapse_info["UpdateBlock"] %}
+        {%- set function = synapse_info["UpdateBlock"] %}
+        {%-   filter indent(2,True) %}
+        {%-   with ast = function.get_block() %}
+        {%- set printer = vector_printer %}
+        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-   endwith %}
+        {%-   endfilter %}
+        {%- endif %}
     }
 
     {% if synapse_info["ODEs"].items()|length %}

@@ -152,7 +152,7 @@ void nest::Global{{cm_unique_suffix}}::f_self_spike()
     self_spikes = true;
     for(std::size_t i = 0; i < neuron_compartment_count; i++){
         double __resolution = Time::get_resolution().get_ms();
-        {%- if global_info["UpdateBlock"] %}
+        {%- if global_info["SelfSpikesFunction"] %}
         {%- set function = global_info["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
         {%-   with ast = function.get_block() %}

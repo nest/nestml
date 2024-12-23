@@ -86,6 +86,35 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest.Install("cm_stdp_module.so")
 
     def test_cm_stdp(self):
+        """
+        Test the interaction between the pre- and post-synaptic spikes using STDP (Spike-Timing-Dependent Plasticity).
+
+        This function sets up a simulation environment using NEST Simulator to demonstrate synaptic dynamics with pre-defined spike times for pre- and post-synaptic neurons. The function creates neuron models, assigns parameters, sets up connections, and records data from the simulation. It then plots the results for voltage, synaptic weight, spike timing, and pre- and post-synaptic traces.
+
+        Simulation Procedure:
+        1. Define pre- and post-synaptic spike timings and calculate simulation duration.
+        2. Set up neuron models:
+           a. `spike_generator` to provide external spike input.
+           b. `parrot_neuron` for relaying spikes.
+           c. Custom `multichannel_test_model_nestml` neuron for the postsynaptic side, with compartments and receptor configurations specified.
+        3. Create recording devices:
+           a. `multimeter` to record voltage, synaptic weights, currents, and traces.
+           b. `spike_recorder` to record spikes from pre- and post-synaptic neurons.
+        4. Establish connections:
+           a. Connect spike generators to pre and post-neurons with static synaptic configurations.
+           b. Connect pre-neuron to post-neuron using a configured STDP synapse.
+           c. Connect recording devices to the respective neurons.
+        5. Simulate the network for the specified time duration.
+        6. Retrieve data from the multimeter and spike recorders.
+        7. Plot the recorded data:
+           a. Membrane voltage of the post-synaptic neuron.
+           b. Synaptic weight change.
+           c. Pre- and post-spike timings marked with vertical lines.
+           d. Pre- and post-synaptic traces.
+
+        Results:
+        The plots generated illustrate the effects of spike timing on various properties of the post-synaptic neuron, highlighting STDP-driven synaptic weight changes and trace dynamics.
+        """
         pre_spike_times = [11, 50]
         post_spike_times = [12, 45]
         sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 20
@@ -115,7 +144,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.Connect(external_input_pre, pre_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 2.0, 'delay': 0.1})
         nest.Connect(external_input_post, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1, 'receptor_type': 0})
-        nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 0.1, 'delay': 0.1, 'receptor_type': 1})
+        nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 1.0, 'delay': 0.1, 'receptor_type': 1})
         nest.Connect(mm, post_neuron)
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)

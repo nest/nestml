@@ -1111,7 +1111,6 @@ public:
     {{ion_channel_name}}{{channel_suffix}}.get_currents_per_compartment({{ion_channel_name}}{{channel_suffix}}_shared_current);
 {% endfor -%}
 
-    global_dynamics.f_numstep(v_comp_vec);
 
   {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
@@ -1274,6 +1273,8 @@ public:
     }
     {% endfor -%}
   {% endwith -%}
+
+    global_dynamics.f_numstep(v_comp_vec);
 
     return comp_to_gi;
   };
