@@ -23,6 +23,8 @@ from collections import defaultdict
 
 import copy
 
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
+
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
@@ -56,7 +58,7 @@ class MechanismProcessing:
     _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
     _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
     _ode_toolbox_printer = ODEToolboxExpressionPrinter(
-        simple_expression_printer=CppSimpleExpressionPrinter(
+        simple_expression_printer=SympySimpleExpressionPrinter(
             variable_printer=_ode_toolbox_variable_printer,
             constant_printer=_constant_printer,
             function_call_printer=_ode_toolbox_function_call_printer))

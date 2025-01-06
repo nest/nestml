@@ -27,6 +27,7 @@ import os
 from jinja2 import TemplateRuntimeError
 
 from odetoolbox import analysis
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 
 import pynestml
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -180,7 +181,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
-            simple_expression_printer=CppSimpleExpressionPrinter(
+            simple_expression_printer=SympySimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
                 constant_printer=self._constant_printer,
                 function_call_printer=self._ode_toolbox_function_call_printer))

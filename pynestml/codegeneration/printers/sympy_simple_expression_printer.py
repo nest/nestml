@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
@@ -29,7 +30,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 
 
-class SympySimpleExpressionPrinter(SimpleExpressionPrinter):
+class SympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
     r"""
     Printer for ASTSimpleExpressions in Sympy syntax.
     """
