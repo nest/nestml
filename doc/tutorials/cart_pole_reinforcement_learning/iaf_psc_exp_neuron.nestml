@@ -1,0 +1,57 @@
+"""
+iaf_psc_exp - Leaky integrate-and-fire neuron model
+###################################################
+
+Description
++++++++++++
+
+...
+
+
+References
+++++++++++
+
+...
+
+See also
+++++++++
+
+"""
+model iaf_psc_exp_neuron:
+
+    state:
+        V_m mV = E_l    # Membrane potential
+        g_e real = 0.
+
+    equations:
+        g_e' = -g_e / tau_g
+        V_m' = (g_e * (E_e - V) + E_l - V + I_e + I_stim) / tau_m
+
+    parameters:
+        tau_m ms = 10 ms          # Membrane time constant
+        tau_g ms = 5 ms
+        E_e mV = 0 mV
+        E_l mV = -74 mV           # Resting potential
+        V_th mV = -54 mV          # Spike threshold potential
+        V_reset mV = -60 mV
+
+        # constant external input current
+        I_e real = 0
+
+    input:
+        spikes_in_port <- spike
+        I_stim real <- continuous
+
+    output:
+        spike
+
+    update:
+        integrate_odes()
+
+    onReceive(spikes_in_port):
+        g_e += spikes_in_port * s
+
+    onCondition(V_m >= V_th):
+        # threshold crossing
+        V_m = V_reset
+        emit_spike()
