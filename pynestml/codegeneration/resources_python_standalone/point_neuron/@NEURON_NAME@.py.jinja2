@@ -103,7 +103,11 @@ class Neuron_{{neuronName}}(Neuron):
     {{ port.get_symbol_name() }}: List[float] = []
     spike_received_{{ port.get_symbol_name() }}: List[bool] = []
 {%-     else %}
-    {{ port.get_symbol_name() }}: float = 0.
+{%         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
+{%-        for attribute in ast_input_port.get_parameters() %}
+    {{ port.get_symbol_name() }}__DOT__{{ attribute.name }}: float = 0.
+{%-        endfor %}
+    {{ port.get_symbol_name() }}: float = 0.    # buffer for the port name by itself (train of unweighted delta pulses)
     spike_received_{{ port.get_symbol_name() }}: bool = False
 {%-     endif %}
 {%- endfor %}
@@ -337,9 +341,17 @@ class Neuron_{{neuronName}}(Neuron):
 
   def handle(self, t_spike: float, w: float, port_name: str) -> None:
 {%-     for port in neuron.get_spike_input_ports() %}
-    if port_name == "{{port.name}}":
-      self.B_.{{port.get_symbol_name()}} += abs(w)
-      self.B_.spike_received_{{port.get_symbol_name()}} = True
+    if port_name == "{{ port.name }}":
+      self.B_.{{ port.get_symbol_name() }} += 1.    # unweighted spike port
+{%         set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
+{%-        for attribute in ast_input_port.get_parameters() %}
+{%             if attribute.name == "weight" %}
+      self.B_.{{ port.get_symbol_name() }}__DOT__{{ attribute.name }} += abs(w)    # unweighted spike port
+{%             else %}
+{{                 raise('The Python-standalone code generator only supports \'weight\' spike input port attribute for now') }}
+{%             endif %}
+{%          endfor %}
+      self.B_.spike_received_{{ port.get_symbol_name() }} = True
       return
 {%-     endfor %}
     raise Exception("Received a spike on unknown input port \"" + port_name + "\" at t = " + "{0:E}".format(t_spike))
