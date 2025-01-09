@@ -1,68 +1,55 @@
 """
-model neuromodulated_stdp_synapse:
+stdp - Synapse model for spike-timing dependent plasticity
+#########################################################
 
+...
+
+"""
+model neuromodulated_stdp_synapse:
     state:
-        w real = 1.
-        n real = 0.   # Neuromodulator concentration
-        c real = 0.   # Eligibility trace
-        pre_tr real = 0.
-        post_tr real = 0.
+        w real = 1    # Synaptic weight
+        pre_trace real = 0.
+        post_trace real = 0.
 
     parameters:
-        d ms = 1 ms
-        tau_tr_pre ms = 20 ms   # STDP time constant for weight changes caused by pre-before-post spike pairings.
-        tau_tr_post ms = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
-        tau_c ms = 1000 ms    # Time constant of eligibility trace
-        tau_n ms = 200 ms   # Time constant of dopaminergic trace
-        b real = 0.   # Dopaminergic baseline concentration
-        Wmax real = 200.    # Maximal synaptic weight
-        Wmin real = 0.    # Minimal synaptic weight
-        A_plus real = 1.    # Multiplier applied to weight changes caused by pre-before-post spike pairings. If b (dopamine baseline concentration) is zero, then A_plus is simply the multiplier for facilitation (as in the stdp_synapse model). If b is not zero, then A_plus will be the multiplier for facilitation only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_plus will be the multiplier for depression.
-        A_minus real = 1.5    # Multiplier applied to weight changes caused by post-before-pre spike pairings. If b (dopamine baseline concentration) is zero, then A_minus is simply the multiplier for depression (as in the stdp_synapse model). If b is not zero, then A_minus will be the multiplier for depression only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_minus will be the multiplier for facilitation.
-        A_vt real = 1.     # Multiplier applied to dopa spikes
+        n real = 0.    # neuromodulator concentration between 0 and 1
+        d ms = 1 ms    # Synaptic transmission delay
+        lambda real = .01
+        tau_tr_pre ms = 20 ms
+        tau_tr_post ms = 20 ms
+        alpha real = 1
+        mu_plus real = 1
+        mu_minus real = 1
+        Wmax real = 100.
+        Wmin real = 0.
 
     equations:
-        pre_tr' = -pre_tr / tau_tr_pre
-        post_tr' = -post_tr / tau_tr_post
-
-    internals:
-        tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
+        pre_trace' = -pre_trace / tau_tr_pre
+        post_trace' = -post_trace / tau_tr_post
 
     input:
         pre_spikes <- spike
         post_spikes <- spike
-        mod_spikes <- spike
 
     output:
         spike(weight real, delay ms)
 
-    onReceive(mod_spikes):
-        n += A_vt / tau_n
-
     onReceive(post_spikes):
-        post_tr += 1.
+        post_trace += 1
 
-        # facilitation
-        c += A_plus * pre_tr
+        # potentiate synapse
+        w_ real = Wmax * ( w / Wmax  + n * (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+        w = min(Wmax, w_)
 
     onReceive(pre_spikes):
-        pre_tr += 1.
+        pre_trace += 1
 
-        # depression
-        c -= A_minus * post_tr
+        # depress synapse
+        w_ real = Wmax * ( w / Wmax  - n * ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+        w = max(Wmin, w_)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
 
-    # update from time t to t + timestep()
     update:
         integrate_odes()
-
-        # timestep() returns the timestep to be made (in units of time)
-        # the sequence here matters: the update step for w requires the "old" values of c and n
-        w -= c * ( n / tau_s * expm1( -tau_s * timestep() ) \
-                 - b * tau_c * expm1( -timestep() / tau_c ))
-        w = max(0., w)
-        c = c * exp(-timestep() / tau_c)
-        n = n * exp(-timestep() / tau_n)
-"""
