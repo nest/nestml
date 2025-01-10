@@ -168,8 +168,6 @@ model aeif_cond_alpha_neuron:
         w_add = 1
         I_bp = 10
 
-        return True
-
     function m_inf_Ca(v mV, m_slope_Ca_f real, m_half_Ca_f real) real:
         m_inf real = 0
         m_inf = 1 / (1 + exp(m_slope_Ca_f * (v - m_half_Ca_f)))

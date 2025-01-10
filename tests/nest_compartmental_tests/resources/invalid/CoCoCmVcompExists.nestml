@@ -38,7 +38,8 @@ model cm_model_eight_invalid:
     state:
         # compartmental voltage variable,
         # rhs value is irrelevant but the state must exist so that the nestml parser doesn't complain
-        m_Na real = 0.0
+         m_Na real = 0.0
+         h_Na real = 0.0
 
     #sodium
     function m_inf_Na(v_comp real) real:
@@ -54,7 +55,8 @@ model cm_model_eight_invalid:
         return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
 
     equations:
-        inline Na real = m_Na**3 * h_Na**1
+        inline Na real = gbar_Na * m_Na**3 * h_Na * (e_Na - v_comp) @mechanism::channel
 
     parameters:
-        foo real = 1.
+        gbar_Na real = 0.
+        e_Na real = 50.

@@ -361,9 +361,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             equations_block = synapse.get_equations_blocks()[0]
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
-            ASTUtils.make_inline_expressions_self_contained(list(equations_block.get_inline_expressions()))
-            ASTUtils.replace_inline_expressions_through_defining_expressions(
-                equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+
+            # substitute inline expressions with each other
+            # such that no inline expression references another inline expression;
+            # deference inline_expressions inside ode_equations
+            InlineExpressionExpansionTransformer().transform(synapse)
+
             delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
@@ -710,7 +713,20 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace["nest_printer"] = self._nest_printer
         namespace["nestml_printer"] = NESTMLPrinter()
         namespace["type_symbol_printer"] = self._type_symbol_printer
-        namespace["vector_printer_factory"] = ASTVectorParameterSetterAndPrinterFactory(neuron, self._printer_no_origin)
+
+        class VectorPrinter():
+            def __init__(self, neuron, printer):
+                self.printer = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
+                self.std_vector_parameter = None
+
+            def print(self, expression, index = "i"):
+                self.std_vector_parameter = index
+                index_printer = self.printer.create_ast_vector_parameter_setter_and_printer(index)
+                return index_printer.print(expression)
+
+        vector_printer = VectorPrinter(neuron, self._printer_no_origin)
+
+        namespace["vector_printer"] = vector_printer
 
         # NESTML syntax keywords
         namespace["PyNestMLLexer"] = {}

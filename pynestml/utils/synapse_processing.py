@@ -172,10 +172,6 @@ class SynapseProcessing:
                 spikes_name = spikes_var.get_name()
                 convolution_name = info_collector.construct_kernel_X_spike_buf_name(
                     kernel_name, spikes_name, 0)
-                print(neuron.name)
-                print(spikes_name)
-                print(neuron_synapse_pairs)
-                breakpoint()
                 syn_info["convolutions"][convolution_name] = {
                     "kernel": {
                         "name": kernel_name,

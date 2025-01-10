@@ -21,7 +21,7 @@
 
 from collections import defaultdict
 
-from build.lib.pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.symbols.predefined_units import PredefinedUnits

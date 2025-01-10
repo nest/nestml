@@ -207,7 +207,7 @@ public:
     {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }}[concentration_id] = {{ vector_printer_factory.create_ast_vector_parameter_setter_and_printer("concentration_id").print(rhs_expression) }};
+        {{ variable.name }}[concentration_id] = {{ vector_printer.print(rhs_expression, "concentration_id") }};
     {%- endfor %}
     }
     };
