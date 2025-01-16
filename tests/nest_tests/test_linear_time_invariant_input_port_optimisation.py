@@ -28,11 +28,14 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 TestLinearTimeInvariantInputPortOptimisation_neuron_types = ["aeif_cond_exp", "iaf_psc_delta"]
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestLinearTimeInvariantInputPortOptimisation:
     """
     Test that the optimisations with the ``linear_time_invariant_spiking_input_ports`` NEST code generator option are working correctly.

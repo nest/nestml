@@ -26,9 +26,12 @@ import pytest
 
 import nest
 
+from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
+@pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
+                    reason="This test does not support NEST 2")
 class TestSimultaneousSpikesDifferentPorts:
     """
     Tests the code generation and running a little simulation. Check that the numerical membrane voltage at the end of the simulation is close to a hard-coded numeric value.
