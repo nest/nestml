@@ -15,7 +15,7 @@ model izhikevich_tutorial_neuron:
         # TODO: add remaining variables
 
     input:
-        spikes <- spike
+        spikes <- spike(weight mV)
         I_e pA <- continuous
 
     output:
@@ -26,7 +26,7 @@ model izhikevich_tutorial_neuron:
 
     onReceive(spikes):
         # add synaptic current
-        v += spikes * mV * s
+        v += spikes.weight
 
     onCondition(v >= 30mV):
         # TODO: implement threshold crossing check

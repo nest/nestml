@@ -1,8 +1,8 @@
 model izhikevich_tutorial_neuron:
 
     state:
-        v mV = -65 mV    # Membrane potential in mV
-        u real = 0    # Membrane potential recovery variable
+        v mV = -65 mV   # Membrane potential in mV
+        u real = 0      # Membrane potential recovery variable
 
     equations:
         v' = (.04 * v * v / mV + 5 * v + (140 - u) * mV + (I_e * GOhm)) / ms
@@ -10,12 +10,12 @@ model izhikevich_tutorial_neuron:
 
     parameters:
         a real = .02    # describes time scale of recovery variable
-        b real = .2    # sensitivity of recovery variable
-        c mV = -65 mV    # after-spike reset value of v
-        d real = 8.    # after-spike reset value of u
+        b real = .2     # sensitivity of recovery variable
+        c mV = -65 mV   # after-spike reset value of v
+        d real = 8.     # after-spike reset value of u
 
     input:
-        spikes <- spike
+        spikes <- spike(weight mV)
         I_e pA <- continuous
 
     output:
@@ -26,7 +26,7 @@ model izhikevich_tutorial_neuron:
 
     onReceive(spikes):
         # add synaptic current
-        v += spikes * mV * s
+        v += spikes.weight
 
     onCondition(v >= 30mV):
         # threshold crossing
