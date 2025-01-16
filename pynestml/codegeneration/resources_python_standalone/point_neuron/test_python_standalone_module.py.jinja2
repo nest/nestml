@@ -43,8 +43,8 @@ class TestSimulator:
         sg_inh = simulator.add_neuron(SpikeGenerator(interval=50.))
 {% for neuron in neurons %}
         neuron = simulator.add_neuron(Neuron_{{neuron.get_name()}}(timestep=simulator.timestep))
-        simulator.connect(sg_exc, neuron, "spike_in_port",w=1000.)
-        simulator.connect(sg_inh, neuron, "spike_in_port",w=-4000.)
+        simulator.connect(sg_exc, neuron, "spike_in_port", w=1000.)
+        simulator.connect(sg_inh, neuron, "spike_in_port", w=-4000.)
 {% endfor %}
 
         simulator.run(t_stop)

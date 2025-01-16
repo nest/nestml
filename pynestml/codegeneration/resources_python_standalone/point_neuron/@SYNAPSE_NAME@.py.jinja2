@@ -340,6 +340,10 @@ class Synapse_{{ astnode.name }}(Synapse):
 
 {%- for port in astnode.get_spike_input_ports() %}
     self.B_.{{port.get_symbol_name()}} = 0.
+{%-     set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
+{%-     for attribute in ast_input_port.get_parameters() %}
+    self.B_.{{ port.get_symbol_name() }}__DOT__{{ attribute.name }} = 0.
+{%-     endfor %}
     self.B_.spike_received_{{port.get_symbol_name()}} = False
 {%- endfor %}
 
@@ -368,7 +372,7 @@ class Synapse_{{ astnode.name }}(Synapse):
 
 {%-   for port in astnode.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
-      self.B_.{{port.get_symbol_name()}} += abs(w)
+      self.B_.{{port.get_symbol_name()}} += w
       self.B_.spike_received_{{port.get_symbol_name()}} = True
       return
 {%-   endfor %}

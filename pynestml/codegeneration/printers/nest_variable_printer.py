@@ -53,7 +53,13 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.postsynaptic_getter_string_ = "start->get_%s()"
 
     def set_getter_string(self, s):
+        r"""Returns the empty string, because this method can be called from inside the Jinja template"""
         self.postsynaptic_getter_string_ = s
+        return ""
+
+    def set_cpp_variable_suffix(self, s):
+        r"""Returns the empty string, because this method can be called from inside the Jinja template"""
+        self.cpp_variable_suffix = s
         return ""
 
     def print_variable(self, variable: ASTVariable) -> str:
@@ -167,22 +173,22 @@ class NESTVariablePrinter(CppVariablePrinter):
                     var_name += "_" + str(variable.get_vector_parameter())
 
             if variable.has_vector_parameter():
-
                 # add variable attribute if it exists
                 if variable.attribute:
-                    return "spike_input_" + str(variable.name) + "_VEC_IDX_" + str(variable.get_vector_parameter()) + "__DOT__" + variable.attribute + "_grid_sum_"
+                    return "__spike_input_" + str(variable.name) + "_VEC_IDX_" + str(variable.get_vector_parameter()) + "__DOT__" + variable.attribute
 
             else:
                 # add variable attribute if it exists
                 if variable.attribute:
-                    return "spike_input_" + str(variable.name) + "__DOT__" + variable.attribute + "_grid_sum_"
+                    return "__spike_input_" + str(variable.name) + "__DOT__" + variable.attribute
 
             # no vector indices, no attributes
-            return "spike_input_" + str(variable) + "_grid_sum_"
+            return "__spike_input_" + str(variable)
 
         if self.cpp_variable_suffix:
             return variable_symbol.get_symbol_name() + self.cpp_variable_suffix
 
+        # case of continuous-time input port
         return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
@@ -194,7 +200,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.is_delay_variable():
             return self._print_delay_variable(variable)
 
-        if with_origin and NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable):
+        with_origin_ = with_origin
+        if symbol.is_spike_input_port():
+            with_origin_ = False
+
+        if with_origin_ and NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable):
             return NESTCodeGeneratorUtils.print_symbol_origin(symbol, variable) % variable_name
 
         return variable_name

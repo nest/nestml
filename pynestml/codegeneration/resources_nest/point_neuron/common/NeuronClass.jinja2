@@ -70,7 +70,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
+// XXX RESTORE COMMENT LINE ABOVE
 
 {%  if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
@@ -201,20 +202,19 @@ namespace nest
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
+  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::ListRingBuffer() )
+  // , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
+  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::ListRingBuffer() )
+  //, spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-         endfor %}
-  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
+  , spike_input_{{ inputPort.name }}_( nest::ListRingBuffer() )
   , spike_input_{{ inputPort.name }}_spike_input_received_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
+  //, spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
 {%-     endif %}
 {%- endfor %}
 {%- endif %}
@@ -237,8 +237,8 @@ namespace nest
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
+  , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_( nest::ListRingBuffer() )
+  //, spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-                 endfor %}
 {%-             else %}
   ?????????????
@@ -246,13 +246,12 @@ namespace nest
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
+  , spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_( nest::ListRingBuffer() )
+  //, spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
 {%-         endfor %}
-  , spike_input_{{ inputPort.name }}_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_grid_sum_( 0. )
+  , spike_input_{{ inputPort.name }}_( nest::ListRingBuffer() )
   , spike_input_{{ inputPort.name }}_spike_input_received_( nest::RingBuffer() )
-  , spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
+  //, spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
 {%-     endif %}
 {%- endfor %}
 {%- endif %}
@@ -770,7 +769,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
 {%- endif %}
     /**
-     * buffer spikes from spiking input ports
+     * buffer spikes from spiking input ports -- in case of convolutions with spiking input ports
     **/
 
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
@@ -780,20 +779,17 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-    B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
+  const double __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }} = std::accumulate(B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag).begin(), spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag).end(), 0.0);
 {%-                 endfor %}
 {%-             endif %}
-    B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_.get_value(lag);
-    B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_.get_value(lag);
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
-    B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_value(lag);
+  const double  __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }} = std::accumulate(B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag).begin(), B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag).end(), 0.0);
 {%-         endfor %}
-    B_.spike_input_{{ inputPort.name }}_grid_sum_ = B_.spike_input_{{ inputPort.name }}_.get_value(lag);
-    B_.spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_ = B_.spike_input_{{ inputPort.name }}_spike_input_received_.get_value(lag);
 {%-     endif %}
 {%- endfor %}
+
 
 {%- if has_delay_variables %}
     /**
@@ -846,9 +842,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
-    if (B_.spike_input_{{ inport }}_spike_input_received_grid_sum_)
+    if (B_.spike_input_{{ inport }}_spike_input_received_.get_value(lag))
     {
-      // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer into the "grid_sum" variables resets the RingBuffer entries
+      // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer resets the RingBuffer entries
       on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(origin, lag);
     }
 {%- endfor %}
@@ -890,9 +886,11 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     /**
      * spike updates due to convolutions
     **/
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
 {%  filter indent(4) %}
 {%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
 {%- endfilter %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
 
     /**
      * Begin NESTML generated code for the onCondition block(s)
@@ -931,6 +929,61 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
 {%-     endif %}
 {%- endfor %}
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * clear spike buffers at end of timestep (all spikes have been processed at this point)
+    **/
+
+{#- if neuron.get_on_receive_blocks() | length == 0 and neuron.get_spike_input_ports() |length > 0 #}
+{%- if neuron.get_spike_input_ports() |length > 0 %}
+{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+{%-             if inputPort.get_parameters() %}
+{%-                 for parameter in inputPort.get_parameters() %}
+  std::list< double >& __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
+  __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.clear();
+{%-                 endfor %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
+{%-         for parameter in inputPort.get_parameters() %}
+  std::list< double >& __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
+  __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.clear();
+{%-         endfor %}
+{%-     endif %}
+
+    std::list< double >& __spike_input_{{ inputPort.name }}_list = B_.spike_input_{{ inputPort.name }}_.get_list(lag);
+    __spike_input_{{ inputPort.name }}_list.clear();
+{%- endfor %}
+{%- endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 {%- if use_gap_junctions %}
     if ( called_from_wfr_update )
@@ -1041,6 +1094,43 @@ std::cout << "[neuron " << this << "] Writing history at time " << nest::Time(ne
 
   return wfr_tol_exceeded;
 {%- endif %}
+
+
+
+
+
+/*
+{%- if neuron.get_spike_input_ports()|length > 0 %}
+{%- for inputPortSymbol in neuron.get_spike_input_ports() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+{%-             if inputPort.get_parameters() %}
+{%-                 for parameter in inputPort.get_parameters() %}
+  B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.clear();
+  // , spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
+{%-                 endfor %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
+{%-         for parameter in inputPort.get_parameters() %}
+  B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.clear();
+  //, spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_( 0. )
+{%-         endfor %}
+  B_.spike_input_{{ inputPort.name }}_.clear();
+  //, spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_( 0. )
+{%-     endif %}
+{%- endfor %}
+{%- endif %}
+*/
+
+
+
+
+
+
+
 }
 
 {%- if state_vars_that_need_continuous_buffering | length > 0 %}
@@ -1146,16 +1236,21 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
   {
 {%-         if spike_in_port.get_parameters() %}
 {%-             for attribute in spike_in_port.get_parameters() %}
-    B_.spike_input_{{ spike_in_port_name }}__DOT__{{ attribute.name }}_.add_value(
+    B_.spike_input_{{ spike_in_port_name }}__DOT__{{ attribute.name }}_.append_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() );
 {%-             endfor %}
 {%-         endif %}
 
     // add an unweighted spike to the general "train of delta pulses" input buffer
-    B_.spike_input_{{ spike_in_port_name }}_.add_value(
+    //std::cout << "\tappending spike at offset = " << e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()) << "; buffer size = " << B_.spike_input_{{ spike_in_port_name }}_.size() << "; nest::kernel().connection_manager.get_min_delay() = " << nest::kernel().connection_manager.get_min_delay() << "\n";
+    //std::cout << "\tappending spike at offset = " << e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()) << " to B_.spike_input_{{ spike_in_port_name }}_, before length = " << B_.spike_input_{{ spike_in_port_name }}_.get_list(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin())).size() << "\n";
+    // B_.spike_input_{{ spike_in_port_name }}_.resize();
+    B_.spike_input_{{ spike_in_port_name }}_.append_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_multiplicity() );
+
+    //std::cout << "\tappending spike to B_.spike_input_{{ spike_in_port_name }}_, after length = " << B_.spike_input_{{ spike_in_port_name }}_.get_list(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin())).size() << "\n";
 
     // set the "spike received" flag
     B_.spike_input_{{ spike_in_port_name }}_spike_input_received_.add_value(
@@ -1191,23 +1286,120 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 // -------------------------------------------------------------------------
 
 {%- for blk in neuron.get_on_receive_blocks() %}
+{%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
 {%-     set ast = blk.get_stmts_body() %}
+{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inport.split(".")[0]) %}
+{%-     set inputPortSymbol = astnode.get_scope().resolve_to_symbol(inputPort.name, SymbolKind.VARIABLE) %}
 void
 {{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag)
 {
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()" << std::endl;
+#endif
+
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+  auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
-{%-     if blk.get_input_port_variable().has_vector_parameter() %}
-boop
-{{ blk.get_input_port_variable().get_vector_parameter() }}
-{% if utils.is_parameter(blk.get_input_port_variable().get_vector_parameter()) %}
-is_parameter
-{%-     endif %}
+  // grab the lists of spike events from the buffers for the current timepoint
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+{%-             if inputPort.get_parameters() %}
+{%-                 for parameter in inputPort.get_parameters() %}
+  std::list< double >& __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
+  std::list< double >::iterator __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list_iterator = __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.begin();
+{%-                 endfor %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
+{%-         for parameter in inputPort.get_parameters() %}
+  std::list< double >& __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
+  std::list< double >::iterator __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list_iterator = __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.begin();
+{%-         endfor %}
 {%-     endif %}
 
-{%-     filter indent(2, True) -%}
+  std::list< double >& __spike_input_{{ inputPort.name }}_list = B_.spike_input_{{ inputPort.name }}_.get_list(lag);
+  std::list< double >::iterator __spike_input_{{ inputPort.name }}_list_iterator = __spike_input_{{ inputPort.name }}_list.begin();
+
+  const size_t n_spikes = __spike_input_{{ inputPort.name }}_list.size();
+  std::cout << "\tPROCESSING " << n_spikes << " spikes\n";
+  for (size_t spike_idx = 0; spike_idx < n_spikes; ++spike_idx)
+  {
+    /**
+     * Grab the actual spike event data from the buffers (for the current timepoint ``origin lag``)
+    **/
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+{%-             if inputPort.get_parameters() %}
+{%-                 for parameter in inputPort.get_parameters() %}
+    const double __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }} = *__spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list_iterator;
+{%-                 endfor %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
+{%-         for parameter in inputPort.get_parameters() %}
+    const double __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }} = *__spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list_iterator;
+{%-         endfor %}
+{%-     endif %}
+    const double __spike_input_{{ inputPort.name }} = *__spike_input_{{ inputPort.name }}_list_iterator;
+
+    /**
+     * Begin NESTML generated code for the onReceive() block statements
+    **/
+
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
+{%      filter indent(4, True) -%}
 {%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfilter %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+
+    /**
+     * Advance the iterators
+    **/
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+{%-             if inputPort.get_parameters() %}
+{%-                 for parameter in inputPort.get_parameters() %}
+    ++__spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list_iterator;
+{%-                 endfor %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
+{%-         for parameter in inputPort.get_parameters() %}
+    ++__spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list_iterator;
+{%-         endfor %}
+{%-     endif %}
+    ++__spike_input_{{ inputPort.name }}_list_iterator;
+  }
+/*
+  // clear the processed spike events from the list
+std::cout << "\tclearing spike buffers....\n";
+  std::cout << "\tbefore clearing " << __spike_input_{{ inputPort.name }}_list.size() << " spikes\n";
+
+{%-     if inputPortSymbol.has_vector_parameter() %}
+{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
+{%-         for i in range(size)  %}
+{%-             if inputPort.get_parameters() %}
+{%-                 for parameter in inputPort.get_parameters() %}
+  __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.clear();
+{%-                 endfor %}
+{%-             endif %}
+{%-         endfor %}
+{%-     else %}
+{%-         for parameter in inputPort.get_parameters() %}
+  __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.clear();
+{%-         endfor %}
+{%-     endif %}
+
+    __spike_input_{{ inputPort.name }}_list.clear();
+
+
+
+  std::cout << "\tafter clearing " << __spike_input_{{ inputPort.name }}_list.size() << " spikes\n";
+  std::cout << "\tafter clearing (orig list) " << B_.spike_input_{{ inputPort.name }}_.get_list(lag).size() << " spikes\n";
+*/
 }
 
 {% endfor %}

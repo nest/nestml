@@ -56,6 +56,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 // C++ includes:
 #include <cmath>
+#include <numeric>
 
 #include "config.h"
 {%- if norm_rng %}
@@ -792,23 +793,22 @@ private:
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
+    nest::ListRingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-                 endfor %}
 {%-             endif %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
+    nest::ListRingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_;
-    nest::RingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
+    nest::ListRingBuffer spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
     double spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_;
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
+    nest::ListRingBuffer spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
     double spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
 {%-         endfor %}
-    nest::RingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
+    nest::ListRingBuffer spike_input_{{ inputPort.name }}_;    // buffer for unweighted spikes
     nest::RingBuffer spike_input_{{ inputPort.name }}_spike_input_received_;    // buffer for the "spike received" boolean flag
-    double spike_input_{{ inputPort.name }}_grid_sum_;    // buffer for unweighted spikes
     double spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_;    // buffer for the "spike received" boolean flag
 {%-     endif %}
 {%- endfor %}
@@ -876,62 +876,6 @@ private:
 {%     endfor %}
 {%- endfor %}
 {%- endfilter %}
-
-  // -------------------------------------------------------------------------
-  //   Getters/setters for spike input buffers
-  // -------------------------------------------------------------------------
-{%  for inputPortSymbol in neuron.get_spike_input_ports() %}
-  // input port: {{ inputPortSymbol.name.split(".")[0] }}
-{%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
-{%-     if inputPortSymbol.has_vector_parameter() %}
-{%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
-{%-         for i in range(size)  %}
-{%-             if inputPort.get_parameters() %}
-{%-                 for parameter in inputPort.get_parameters() %}
-  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_()
-  {
-    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_;
-  }
-
-  inline double get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_()
-  {
-    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_grid_sum_;
-  }
-{%                  endfor %}
-{%-             endif %}
-  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_()
-  {
-    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_;
-  }
-
-  inline double get_spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_grid_sum_()
-  {
-    return B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}_spike_input_received_grid_sum_;
-  }
-{%-         endfor %}
-{%-     else %}
-{%-         for parameter in inputPort.get_parameters() %}
-  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}()
-  {
-    return B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_;
-  }
-
-  inline double get_spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_()
-  {
-    return B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_grid_sum_;
-  }
-{%          endfor %}
-  inline nest::RingBuffer& get_spike_input_{{ inputPort.name }}_spike_input_received_()
-  {
-    return B_.spike_input_{{ inputPort.name }}_spike_input_received_;
-  }
-
-  inline double get_spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_()
-  {
-    return B_.spike_input_{{ inputPort.name }}_spike_input_received_grid_sum_;
-  }
-{%      endif %}
-{%- endfor %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for continuous-time input buffers
