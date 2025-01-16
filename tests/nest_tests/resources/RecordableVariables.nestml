@@ -34,8 +34,8 @@ model recordable_variables:
         V_rel mV = 0 mV  # Membrane potential relative to the reset potential
 
     equations:
-        kernel I_kernel = exp(-1/tau_syn*t)
-        inline I_syn pA = convolve(I_kernel, spikes) * pA
+        kernel I_kernel = exp(-t / tau_syn)
+        inline I_syn pA = convolve(I_kernel, spike_in_port.weight)
         recordable inline V_m mV = V_rel + V_reset
         V_rel' = -V_rel / tau_m + (I_syn + I_e + I_stim) / C_m
 
@@ -48,7 +48,7 @@ model recordable_variables:
         V_thr mV = -55 mV
 
     input:
-        spikes <- spike
+        spike_in_port <- spike(weight pA)
         I_stim pA <- continuous
 
     update:
