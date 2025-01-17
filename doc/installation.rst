@@ -83,7 +83,7 @@ After installation, correct operation can be tested by:
 Installation with conda (with NEST simulator)
 ---------------------------------------------
 
-Please make sure to have the latest conda version installed and to create a new environment with the command below, i.e. installing all packages together at the start versus installing one by one.
+In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies:
 
 .. note::
 
@@ -93,7 +93,7 @@ Please make sure to have the latest conda version installed and to create a new 
 
    conda create --name <env_name>
    conda activate <env_name>
-   conda install -c conda-forge nest-simulator ipython cxx-compiler boost boost-cpp libboost cmake make
+   conda install -c conda-forge nest-simulator ipython cxx-compiler boost boost-cpp libboost
    pip install nestml
 
 Alternatively, NEST can also be installed from source in a conda environment. The instructions can be found `here <https://nest-simulator.readthedocs.io/en/stable/installation/condaenv_install.html#condaenv>`_.
