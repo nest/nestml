@@ -1,14 +1,6 @@
 """
-CoCoInputPortWithRedundantTypes.nestml
-######################################
-
-
-Description
-+++++++++++
-
-This model is used to test if broken CoCos are identified correctly. Here, if each input port is defined uniquely, i.e., no redundant keywords are used.
-
-Positive case.
+ConvolveSpikingNoAttributes - Test convolution with spiking input ports without attributes
+##########################################################################################
 
 
 Copyright statement
@@ -31,6 +23,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-model CoCoInputPortWithRedundantTypes:
+model convolve_spiking_no_attributes_neuron:
+    state:
+        x real = 0.
+
+    equations:
+        #kernel K = (e / tau_syn) * t * exp(-t / tau_syn)
+        kernel K = delta(t)
+        x' = convolve(K, spikes_in) / s
+
+    parameters:
+        tau_syn ms = 2 ms
+
     input:
-        spikeInh <- inhibitory spike # no redundant keywords used, thus correct
+        spikes_in <- spike
+
+    update:
+        integrate_odes()

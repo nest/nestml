@@ -48,8 +48,8 @@ model iaf_psc_exp_nonlineardendrite_neuron:
         kernel I_kernel3 = exp(-1/tau_syn3*t)
 
         # diff. eq. for membrane potential
-        inline I_syn pA = convolve(I_kernel1, I_1) * pA - convolve(I_kernel3, I_3) * pA + I_e
-        V_m' = -(V_m - E_L)/tau_m + (I_syn + I_dend) / C_m
+        inline I_syn pA = convolve(I_kernel1, I_1.weight) - convolve(I_kernel3, I_3.weight) + I_e
+        V_m' = -(V_m - E_L) / tau_m + (I_syn + I_dend) / C_m
 
         # diff. eq. for dAP trace
         dAP_trace' = -evolve_dAP_trace * dAP_trace / tau_h
@@ -81,15 +81,15 @@ model iaf_psc_exp_nonlineardendrite_neuron:
 
 
     input:
-        I_1 <- spike
-        I_2 <- spike
-        I_3 <- spike
+        I_1 <- spike(weight pA)
+        I_2 <- spike(weight real)
+        I_3 <- spike(weight pA)
 
     output:
         spike
 
     onReceive(I_2):
-        I_dend$ += I_2 * s * I_dend_incr
+        I_dend$ += I_2.weight * I_dend_incr
 
     update:
         # solve ODEs

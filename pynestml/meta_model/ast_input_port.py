@@ -25,8 +25,8 @@ from typing import Any, List, Optional, Union
 
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -38,31 +38,21 @@ class ASTInputPort(ASTNode):
 
     .. code-block:: nestml
 
-       spike_in pA <- excitatory spike
+       spike_in <- spike(weight real)
 
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.
     @attribute datatype: Optional data type of the port.
-    @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous time input.
-
-    Grammar:
-        inputPort:
-            name=NAME
-            (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
-            (dataType)?
-            LEFT_ANGLE_MINUS inputQualifier*
-            (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
-
     """
 
     def __init__(self,
                  name: str,
                  signal_type: PortSignalType,
+                 parameters: Optional[List[ASTParameter]] = None,
                  size_parameter: Optional[Union[ASTSimpleExpression, ASTExpression]] = None,
                  data_type: Optional[ASTDataType] = None,
-                 input_qualifiers: Optional[List[ASTInputQualifier]] = None,
                  *args, **kwargs):
         r"""
         Standard constructor.
@@ -70,19 +60,17 @@ class ASTInputPort(ASTNode):
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param name: the name of the port
+        :param signal_type: type of signal received, i.e., spikes or continuous
+        :param parameters: spike event parameters (for instance, ``foo ms`` in ``spike_in_port <- spike(foo ms)``)
         :param size_parameter: a parameter indicating the index in an array.
         :param data_type: the data type of this input port
-        :param input_qualifiers: a list of input qualifiers for this port.
-        :param signal_type: type of signal received, i.e., spikes or continuous
         """
         super(ASTInputPort, self).__init__(*args, **kwargs)
-        if input_qualifiers is None:
-            input_qualifiers = []
         self.name = name
         self.signal_type = signal_type
         self.size_parameter = size_parameter
         self.data_type = data_type
-        self.input_qualifiers = input_qualifiers
+        self.parameters = parameters
 
     def clone(self) -> ASTInputPort:
         r"""
@@ -93,11 +81,14 @@ class ASTInputPort(ASTNode):
         data_type_dup = None
         if self.data_type:
             data_type_dup = self.data_type.clone()
+        parameters_dup = None
+        if self.parameters:
+            parameters_dup = [parameter.clone() for parameter in self.parameters]
         dup = ASTInputPort(name=self.name,
                            signal_type=self.signal_type,
+                           parameters=parameters_dup,
                            size_parameter=self.size_parameter,
                            data_type=data_type_dup,
-                           input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
                            # ASTNode common attributes:
                            source_position=self.source_position,
                            scope=self.scope,
@@ -115,6 +106,16 @@ class ASTInputPort(ASTNode):
         """
         return self.name
 
+    def get_parameters(self) -> List[ASTParameter]:
+        r"""
+        Returns the parameters of the declared input port.
+        :return: the parameters.
+        """
+        if self.parameters is not None:
+            return self.parameters
+
+        return []
+
     def has_size_parameter(self) -> bool:
         r"""
         Returns whether a size parameter has been defined.
@@ -129,20 +130,6 @@ class ASTInputPort(ASTNode):
         """
         return self.size_parameter
 
-    def has_input_qualifiers(self) -> bool:
-        r"""
-        Returns whether input qualifiers have been defined.
-        :return: True, if at least one input qualifier has been defined.
-        """
-        return len(self.input_qualifiers) > 0
-
-    def get_input_qualifiers(self) -> List[ASTInputQualifier]:
-        r"""
-        Returns the list of input qualifiers.
-        :return: a list of input qualifiers.
-        """
-        return self.input_qualifiers
-
     def is_spike(self) -> bool:
         r"""
         Returns whether this is a spiking input port or not.
@@ -156,32 +143,6 @@ class ASTInputPort(ASTNode):
         :return: True if continuous time, False otherwise.
         """
         return self.signal_type is PortSignalType.CONTINUOUS
-
-    def is_excitatory(self) -> bool:
-        r"""
-        Returns whether this port is excitatory or not. For this, it has to be marked explicitly by the
-        excitatory keyword or no keywords at all shall occur (implicitly all types).
-        :return: True if excitatory, False otherwise.
-        """
-        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
-            return True
-        for in_type in self.get_input_qualifiers():
-            if in_type.is_excitatory:
-                return True
-        return False
-
-    def is_inhibitory(self) -> bool:
-        r"""
-        Returns whether this port is inhibitory or not. For this, it has to be marked explicitly by the
-        inhibitory keyword or no keywords at all shall occur (implicitly all types).
-        :return: True if inhibitory, False otherwise.
-        """
-        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
-            return True
-        for in_type in self.get_input_qualifiers():
-            if in_type.is_inhibitory:
-                return True
-        return False
 
     def has_datatype(self):
         r"""
@@ -206,9 +167,6 @@ class ASTInputPort(ASTNode):
         if self.has_datatype():
             children.append(self.get_datatype())
 
-        for qual in self.get_input_qualifiers():
-            children.append(qual)
-
         if self.get_size_parameter():
             children.append(self.get_size_parameter())
 
@@ -228,7 +186,7 @@ class ASTInputPort(ASTNode):
             return False
 
         if (self.has_size_parameter() and other.has_size_parameter()
-                and self.get_input_qualifiers() != other.get_size_parameter()):
+                and self.get_size_parameter() != other.get_size_parameter()):
             return False
 
         if self.has_datatype() + other.has_datatype() == 1:
@@ -236,14 +194,5 @@ class ASTInputPort(ASTNode):
 
         if self.has_datatype() and other.has_datatype() and not self.get_datatype().equals(other.get_datatype()):
             return False
-
-        if len(self.get_input_qualifiers()) != len(other.get_input_qualifiers()):
-            return False
-
-        my_input_qualifiers = self.get_input_qualifiers()
-        your_input_qualifiers = other.get_input_qualifiers()
-        for i in range(0, len(my_input_qualifiers)):
-            if not my_input_qualifiers[i].equals(your_input_qualifiers[i]):
-                return False
 
         return self.is_spike() == other.is_spike() and self.is_continuous() == other.is_continuous()
