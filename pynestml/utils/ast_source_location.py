@@ -97,13 +97,12 @@ class ASTSourceLocation:
         """
         return self.end_column
 
-    def equals(self, source_position):
+    def equals(self, source_position) -> bool:
         """
         Checks if the handed over position is equal to this.
         :param source_position: a source position.
         :type source_position: ASTSourceLocation
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         if not isinstance(source_position, ASTSourceLocation):
             return False
@@ -111,6 +110,12 @@ class ASTSourceLocation:
                 and self.get_start_column() == source_position.get_start_column()
                 and self.get_end_line() == source_position.get_end_line()
                 and self.get_end_column() == source_position.get_end_column())
+
+    def __eq__(self, other) -> bool:
+        return self.equals(other)
+
+    def __hash__(self) -> int:
+        return hash((self.get_start_line(), self.get_start_column(), self.get_end_line(), self.get_end_column()))
 
     def before(self, source_position):
         """

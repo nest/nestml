@@ -155,7 +155,7 @@ class TestCoCos:
 
     def test_invalid_names_of_neurons_unique(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoMultipleNeuronsWithEqualName.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 2
 
     def test_valid_names_of_neurons_unique(self):
         self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),  'CoCoMultipleNeuronsWithEqualName.nestml'))
