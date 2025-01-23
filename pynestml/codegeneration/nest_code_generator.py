@@ -923,15 +923,14 @@ class NESTCodeGenerator(CodeGenerator):
 
         return analytic_solver, numeric_solver
 
-    def update_symbol_table(self, neuron) -> None:
+    def update_symbol_table(self, model) -> None:
         """
         Update symbol table and scope.
         """
-        SymbolTable.delete_model_scope(neuron.get_name())
+        SymbolTable.delete_model_scope(model.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
-        neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
-        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+        model.accept(symbol_table_visitor)
+        SymbolTable.add_model_scope(model.get_name(), model.get_scope())
 
     def get_spike_update_expressions(self, neuron: ASTModel, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         r"""
