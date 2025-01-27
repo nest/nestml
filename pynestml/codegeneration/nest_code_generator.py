@@ -679,9 +679,11 @@ class NESTCodeGenerator(CodeGenerator):
                     namespace["state_vars_that_need_continuous_buffering_transformed_iv"][var_name] = self._nest_printer.print(neuron.get_initial_value(var_name_transformed))
             else:
                 namespace["state_vars_that_need_continuous_buffering"] = []
-            namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
+            if "extra_on_emit_spike_stmts_from_synapse" in dir(neuron):
+                namespace["extra_on_emit_spike_stmts_from_synapse"] = neuron.extra_on_emit_spike_stmts_from_synapse
             namespace["paired_synapse"] = neuron.paired_synapse
-            namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
+            if "paired_synapse_original_model" in dir(neuron):
+                namespace["paired_synapse_original_model"] = neuron.paired_synapse_original_model
             namespace["paired_synapse_name"] = neuron.paired_synapse.get_name()
             namespace["post_spike_updates"] = neuron.post_spike_updates
             namespace["transferred_variables"] = neuron._transferred_variables

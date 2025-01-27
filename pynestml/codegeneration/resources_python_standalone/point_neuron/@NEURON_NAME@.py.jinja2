@@ -56,8 +56,6 @@ import scipy.integrate
 from .neuron import Neuron
 from .utils import steps
 
-DEBUG = 1
-
 
 {%- set stateSize = neuron.get_non_inline_state_symbols()|length %}
 
@@ -152,29 +150,6 @@ class Neuron_{{neuronName}}(Neuron):
 
     self._timestep = timestep
     self.recompute_internal_variables(self._timestep)
-
-{%- if paired_synapse is defined %}
-    # -----------------------------
-    #    code for paired synapse
-    # -----------------------------
-
-    # state variables for archiving state for paired synapse
-    self.n_incoming_ = 0.
-    self.max_delay_ = 0.
-    self.last_spike_ = -1.
-
-    # cache initial values
-{%- for var in transferred_variables %}
-{%-   set variable_symbol = transferred_variables_syms[var] %}
-{%-   set variable = utils.get_variable_by_name(astnode, variable_name) %}
-{%-   if not var == variable_symbol.get_symbol_name() %}
-    {{ raise('Error in resolving variable to symbol') }}
-{%-   endif %}
-    {{var}}__iv = get_{{ printer.print(variable) }}()
-{%- endfor %}
-
-    self.clear_history()
-{%- endif %}
 
   def get_model(self) -> str:
     return "{{neuronName}}"
@@ -297,13 +272,13 @@ class Neuron_{{neuronName}}(Neuron):
     #     NESTML generated code for the update block
     # -------------------------------------------------------------------------
 
-{% if neuron.get_update_blocks()|length > 0 %}
-{%- filter indent(4) %}
-{%- for dynamics in neuron.get_update_blocks() %}
-{%-   set ast = dynamics.get_stmts_body() %}
-{%-   include "directives_py/StmtsBody.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
+{%  if neuron.get_update_blocks() | length > 0 %}
+{%-     filter indent(4) %}
+{%-         for dynamics in neuron.get_update_blocks() %}
+{%-             set ast = dynamics.get_stmts_body() %}
+{%-             include "directives_py/StmtsBody.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
 {%- endif %}
 
     # -------------------------------------------------------------------------
@@ -356,27 +331,27 @@ class Neuron_{{neuronName}}(Neuron):
 {%- endfor %}
 
 
-{% if has_spike_input %}
+{%  if has_spike_input %}
   # -------------------------------------------------------------------------
   #   Spiking input handlers
   # -------------------------------------------------------------------------
 
   def handle(self, t_spike: float, w: float, port_name: str) -> None:
-{%-   for port in neuron.get_spike_input_ports() %}
+{%-     for port in neuron.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
       self.B_.{{port.get_symbol_name()}} += abs(w)
       self.B_.spike_received_{{port.get_symbol_name()}} = True
       return
-{%-   endfor %}
-{%- endif %}
+{%-     endfor %}
     raise Exception("Received a spike on unknown input port \"" + port_name + "\" at t = " + "{0:E}".format(t_spike))
 
   def get_spiking_input_ports(self) -> List[str]:
     return [
-{%- for port in neuron.get_spike_input_ports() %}
+{%-     for port in neuron.get_spike_input_ports() %}
             "{{port.name}}",
-{%- endfor %}
+{%-     endfor %}
     ]
+{%- endif %}
 
   # -------------------------------------------------------------------------
   #   Methods corresponding to event handlers
