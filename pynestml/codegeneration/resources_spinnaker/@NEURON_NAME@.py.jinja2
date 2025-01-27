@@ -18,7 +18,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#  Generated from NESTML at time: {{now}}
+#  Generated from NESTML {{ nestml_version }} at time: {{ now }}
+
 from numpy import exp, ceil
 
 from spynnaker.pyNN.models.neuron import AbstractPyNNNeuronModel
@@ -54,7 +55,7 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 
 {%- for variable_symbol in neuron.get_spike_input_ports() %}
 {%-   if variable_symbol.get_initial_value() == None %}
-{{variable_symbol.get_symbol_name()}} = 0.0, 
+{{variable_symbol.get_symbol_name()}} = 0.0,
 {%-   else %}
 {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
 {%-   endif %}
@@ -62,7 +63,7 @@ class {{neuronName}}(AbstractPyNNNeuronModel):
 
 {%- for variable_symbol in neuron.get_continuous_input_ports() %}
 {%-   if variable_symbol.get_initial_value() == None %}
-{{variable_symbol.get_symbol_name()}} = 0.0, 
+{{variable_symbol.get_symbol_name()}} = 0.0,
 {%-   else %}
 {{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,
 {%-   endif %}

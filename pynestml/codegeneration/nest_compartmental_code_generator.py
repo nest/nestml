@@ -240,6 +240,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace = {"neurons": neurons,
                      "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
 
         # auto-detect NEST Simulator installed version
@@ -577,6 +578,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace = {}
 
+        namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
 

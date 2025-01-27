@@ -301,10 +301,13 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = {"neurons": neurons,
                      "synapses": synapses,
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
+
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+
         return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
@@ -469,9 +472,9 @@ class NESTCodeGenerator(CodeGenerator):
         return spike_updates
 
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
-
         namespace = {}
 
+        namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
 
