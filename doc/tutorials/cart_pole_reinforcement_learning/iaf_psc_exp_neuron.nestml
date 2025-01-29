@@ -25,7 +25,7 @@ model iaf_psc_exp_neuron:
 
     equations:
         g_e' = -g_e / tau_g
-        V_m' = (g_e * (E_e - V) + E_l - V + I_e + I_stim) / tau_m
+        V_m' = (g_e * (E_e - V_m) + E_l - V_m + I_e + I_stim) / tau_m
 
     parameters:
         tau_m ms = 10 ms          # Membrane time constant
@@ -37,6 +37,9 @@ model iaf_psc_exp_neuron:
 
         # constant external input current
         I_e real = 0
+
+        #scaling factor for incoming spikes
+        s real = 1000
 
     input:
         spikes_in_port <- spike
