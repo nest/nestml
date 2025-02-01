@@ -27,6 +27,7 @@ import os
 from jinja2 import TemplateRuntimeError
 
 from odetoolbox import analysis
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 
 import pynestml
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -46,7 +47,6 @@ from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -172,16 +172,16 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(
-            simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                         constant_printer=self._constant_printer,
-                                                                         function_call_printer=self._gsl_function_call_printer))
+            simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                                 constant_printer=self._constant_printer,
+                                                                 function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
-            simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+            simple_expression_printer=SympySimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
                 constant_printer=self._constant_printer,
                 function_call_printer=self._ode_toolbox_function_call_printer))
