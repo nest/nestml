@@ -140,9 +140,12 @@ class MessageCode(Enum):
     SPIKING_INPUT_PORT_NAME_ILLEGALLY_USED = 116
     CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 117
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
-    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 119
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 120
-    SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 121
+    SPIKING_INPUT_PORT_REFERENCE_MISSING_ATTRIBUTE = 118
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 119
+    SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE = 120
+    DELAY_VARIABLE_NOT_SPECIFIED = 121
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 122
+    DELAY_VARIABLE_NOT_FOUND = 123
 
 
 class Messages:
@@ -1392,3 +1395,27 @@ class Messages:
     def get_spike_input_port_in_equation_rhs_outside_convolve(cls):
         message = "Spike input port appears in right-hand side of equation outside of convolve(). This is a known issue (see https://github.com/nest/nestml/pull/1050)."
         return MessageCode.SPIKE_INPUT_PORT_IN_EQUATION_RHS_OUTSIDE_CONVOLVE, message
+
+    @classmethod
+    def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
+        message = "Delay variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.DELAY_VARIABLE_NOT_SPECIFIED, message
+
+    @classmethod
+    def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
+        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.WEIGHT_VARIABLE_NOT_SPECIFIED, message
+
+    @classmethod
+    def get_delay_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Delay variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.DELAY_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_weight_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Weight variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
