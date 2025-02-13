@@ -186,17 +186,12 @@ class NESTCodeGenerator(CodeGenerator):
             for model in synapses:
                 synapse_name_stripped = removesuffix(removesuffix(model.name.split("_with_")[0], "_"),
                                                      FrontendConfiguration.suffix)
-                # special case for NEST delay variable (state or parameter)
-                assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
-                assert ASTUtils.get_variable_by_name(model, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
 
-                # special case for NEST weight variable (state or parameter)
-                assert synapse_name_stripped in self.get_option("weight_variable").keys(), "Please specify a weight variable for synapse '" + synapse_name_stripped + "' in the code generator options (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
-                assert ASTUtils.get_variable_by_name(model, self.get_option("weight_variable")[synapse_name_stripped]), "Weight variable '" + self.get_option("weight_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "' (see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight)"
+                self._check_delay_variable_codegen_opt(model)
+                self._check_weight_variable_codegen_opt(model)
 
-                if self.option_exists("delay_variable") and synapse_name_stripped in self.get_option("delay_variable").keys():
-                    delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
-                    CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
+                delay_variable = self.get_option("delay_variable")[synapse_name_stripped]
+                CoCoNESTSynapseDelayNotAssignedTo.check_co_co(delay_variable, model)
 
                 if Logger.has_errors(model.name):
                     raise Exception("Error(s) occurred during code generation")
@@ -264,6 +259,9 @@ class NESTCodeGenerator(CodeGenerator):
     def generate_synapse_code(self, synapse: ASTModel) -> None:
         # special case for delay variable
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+
+        self._check_delay_variable_codegen_opt(synapse)
+
         variables_special_cases = {self.get_option("delay_variable")[synapse_name_stripped]: "get_delay()"}
         self._nest_variable_printer.variables_special_cases = variables_special_cases
         self._nest_variable_printer_no_origin.variables_special_cases = variables_special_cases
@@ -301,10 +299,13 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = {"neurons": neurons,
                      "synapses": synapses,
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
+
         # NEST version
         if self.option_exists("nest_version"):
             namespace["nest_version"] = self.get_option("nest_version")
+
         return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTModel]) -> None:
@@ -468,10 +469,41 @@ class NESTCodeGenerator(CodeGenerator):
 
         return spike_updates
 
-    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
+    def _check_weight_variable_codegen_opt(self, synapse: ASTModel) -> None:
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
 
+        # special case for NEST weight variable (state or parameter)
+        if not (synapse_name_stripped in self.get_option("weight_variable").keys()):
+            code, message = Messages.get_weight_variable_not_specified()
+            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
+
+            return
+
+        if not ASTUtils.get_variable_by_name(synapse, self.get_option("weight_variable")[synapse_name_stripped]):
+            code, message = Messages.get_weight_variable_not_found(variable_name=self.get_option("weight_variable")[synapse_name_stripped])
+            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
+
+            return
+
+    def _check_delay_variable_codegen_opt(self, synapse: ASTModel) -> None:
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+
+        if not self.get_option("delay_variable"):
+            code, message = Messages.get_delay_variable_not_specified()
+            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
+
+            return
+
+        if not (synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped])):
+            code, message = Messages.get_delay_variable_not_found(variable_name=self.get_option("delay_variable")[synapse_name_stripped])
+            Logger.log_message(synapse, code, message, None, LoggingLevel.ERROR)
+
+            return
+
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = {}
 
+        namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
 
@@ -644,10 +676,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["spike_updates"] = synapse.spike_updates
 
-        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-
         # special case for NEST delay variable (state or parameter)
-        assert synapse_name_stripped in self.get_option("delay_variable").keys() and ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "For synapse '" + synapse_name_stripped + "', a delay variable or parameter has to be specified for the NEST target; see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay"
+        self._check_delay_variable_codegen_opt(synapse)
+
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
         namespace["nest_codegen_opt_delay_variable"] = self.get_option("delay_variable")[synapse_name_stripped]
 
         # special case for NEST weight variable (state or parameter)
@@ -923,15 +955,14 @@ class NESTCodeGenerator(CodeGenerator):
 
         return analytic_solver, numeric_solver
 
-    def update_symbol_table(self, neuron) -> None:
+    def update_symbol_table(self, model) -> None:
         """
         Update symbol table and scope.
         """
-        SymbolTable.delete_model_scope(neuron.get_name())
+        SymbolTable.delete_model_scope(model.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
-        neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
-        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+        model.accept(symbol_table_visitor)
+        SymbolTable.add_model_scope(model.get_name(), model.get_scope())
 
     def get_spike_update_expressions(self, neuron: ASTModel, kernel_buffers, solver_dicts, delta_factors) -> Tuple[Dict[str, ASTAssignment], Dict[str, ASTAssignment]]:
         r"""
