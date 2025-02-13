@@ -878,7 +878,7 @@ The spiking input port name ``spikes_in`` can subsequently be used in the right-
 
 .. math::
 
-   \frac{dx}{dt} = -x / tau + \mathrm{spikes_in}(t)
+   \frac{dx}{dt} = -x / \tau + \mathrm{spikes\_in}(t)
 
 If ``x`` is a real number, then the units here are consistent. This can be written in NESTML as:
 
@@ -890,7 +890,7 @@ If ``x`` is a real number, then the units here are consistent. This can be writt
 
 .. math::
 
-   \frac{dx}{dt} = -x / tau + (K \ast \mathrm{spikes_in}) / s
+   \frac{dx}{dt} = -x / \tau + (K \ast \mathrm{spikes\_in}) / s
 
 This can be written in NESTML as:
 
@@ -916,8 +916,6 @@ Handling spiking input by event handlers
 
 An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
 
-
-
 .. code-block:: nestml
 
    onReceive(pre_spikes):
@@ -925,6 +923,8 @@ An ``onReceive`` block can be defined for every spiking input port, for example,
        # ... further statements go here ...
 
 The statements in the event handler will be executed when the event occurs.
+
+An event handler integrates the system from "just before" the event to "just after" the event. If the spike event occurs at time :math:`t_k`, then the event handler integrates the system in time from "just before the event" :math:`t_k^-` to "just after" the event :math:`t_k^+`.
 
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
 
@@ -1179,9 +1179,9 @@ Inside the ``update`` block, the current time can be retrieved via the predefine
 Integrating the ODEs
 ~~~~~~~~~~~~~~~~~~~~
 
-Integrating the ODEs needs to be triggered explicitly inside the ``update`` block by calling the ``integrate_odes()`` function. Making this call explicit forces the model to be precise about the sequence of steps that needs to be carried out to step the model state forward in time.
+Integrating the ODEs needs to be triggered explicitly inside the ``update`` block by calling the ``integrate_odes()`` function. Making this call explicit allows subtle differences in integration sequence to be expressed, as well as making it explicit that some variables but not others are integrated; for example, if a neuron is in an absolute refractory state, we might want to skip integrating the differential equation for the membrane potential.
 
-The ``integrate_odes()`` function numerically integrates the differential equations defined in the ``equations`` block. Integrating the ODEs from one timestep to the next has to be explicitly carried out in the model by calling the ``integrate_odes()`` function. If no parameters are given, all ODEs in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)`` in that the second call would use the already-updated values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
+The ``integrate_odes()`` function numerically integrates differential equations defined in the ``equations`` block. If no parameters are given, all ODEs defined in the model are integrated. Integration can be limited to a given set of ODEs by giving their left-hand side state variables as parameters to the function, for example ``integrate_odes(V_m, I_ahp)`` if ODEs exist for the variables ``V_m`` and ``I_ahp``. In this example, these variables are integrated simultaneously (as one single system of equations). This is different from calling ``integrate_odes(V_m)`` and then ``integrate_odes(I_ahp)``, in that the second call would use the already-updated state values from the first call. Variables not included in the call to ``integrate_odes()`` are assumed to remain constant (both inside the numeric solver stepping function as well as from before to after the call).
 
 In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x(t)`` is obtained by just providing the variable ``x`` to the ``integrate_odes`` function. For example,
 
@@ -1197,9 +1197,7 @@ In case of higher-order ODEs of the form ``F(x'', x', x) = 0``, the solution ``x
    update:
      integrate_odes(x)
 
-Here, ``integrate_odes(x)`` integrates the entire dynamics of ``x(t)``, in this case, ``x`` and ``x'``.
-
-Note that the dynamical equations that correspond to convolutions are always updated, regardless of whether ``integrate_odes()`` is called. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
+Here, ``integrate_odes(x)`` integrates variables of all order; in this case, ``x`` and ``x'``. The state variables affected by incoming events are updated at the end of each timestep, that is, within one timestep, the state as observed by statements in the ``update`` block will be those at :math:`t^-`, i.e. "just before" it has been updated due to the events. See also :ref:`Integrating spiking input` and :ref:`Integration order`.
 
 ODEs that can be solved analytically are integrated to machine precision from one timestep to the next using the propagators obtained from `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_. In case a numerical solver is used (such as Runge-Kutta or forward Euler), the same ODEs are also evaluated numerically by the numerical solver to allow more precise values for analytically solvable ODEs *within* a timestep. In this way, the long-term dynamics obeys the analytic (more exact) equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
