@@ -613,22 +613,27 @@ def print_n_spaces(n) -> str:
 def print_ml_comments(comments, indent=0, newline=False) -> str:
     if comments is None or len(list(comments)) == 0:
         return ""
+
     ret = ""
     for comment in comments:
-        if "\"\"\"" in comment:
-            return comment + "\n"
+        if comment.lstrip() == "":
+            ret += "# \n"
+
         for c_line in comment.splitlines(True):
             if c_line == "\n":
-                ret += print_n_spaces(indent) + "#" + "\n"
+                ret += print_n_spaces(indent) + "# " + "\n"
                 continue
-            elif c_line.lstrip() == "":
-                continue
+
             ret += print_n_spaces(indent)
+
             if c_line[len(c_line) - len(c_line.lstrip())] != "#":
-                ret += "#"
+                ret += "# "
+
             ret += c_line + "\n"
+
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
+
     if len(comments) > 0 and newline:
         ret += "\n"
 

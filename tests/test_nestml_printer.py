@@ -126,13 +126,13 @@ class TestNESTMLPrinter:
         assert neuron == model_printer.print(model)
 
     def test_neuron_with_docstring(self):
-        neuron = '"""hello, world\n" \
-                 "\n" \
-                 "3.141592653589793"""\n' \
+        neuron = "# hello, world\n" \
+                 "# \n" \
+                 "# 3.141592653589793\n" \
                  "model test:\n" \
                  "    parameters:\n" \
                  "        foo integer = 0\n"
-        model = ModelParser.parse_model(neuron)
+        model = ModelParser.parse_nestml_compilation_unit(neuron)
         model_printer = NESTMLPrinter()
         assert neuron == model_printer.print(model)
 
