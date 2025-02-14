@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# unitless_sympy_simple_expression_printer.py
+# sympy_simple_expression_printer.py
 #
 # This file is part of NEST.
 #
@@ -21,6 +21,7 @@
 
 from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
+from pynestml.codegeneration.printers.simple_expression_printer import SimpleExpressionPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -29,7 +30,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 
 
-class UnitlessSympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
+class SympySimpleExpressionPrinter(CppSimpleExpressionPrinter):
     r"""
     Printer for ASTSimpleExpressions in Sympy syntax.
     """
