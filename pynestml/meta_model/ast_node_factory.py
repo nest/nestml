@@ -40,7 +40,6 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -116,8 +115,8 @@ class ASTNodeFactory:
         return ASTNamespaceDecorator(namespace, name, source_position=source_position)
 
     @classmethod
-    def create_ast_on_receive_block(cls, block=None, port_name=None, const_parameters=None, source_position=None):
-        return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
+    def create_ast_on_receive_block(cls, input_port_variable: ASTInputPort, block=None, const_parameters=None, source_position=None):
+        return ASTOnReceiveBlock(input_port_variable, block, const_parameters, source_position=source_position)
 
     @classmethod
     def create_ast_on_condition_block(cls, block=None, cond_expr=None, const_parameters=None, source_position=None):
@@ -253,15 +252,9 @@ class ASTNodeFactory:
         return ASTInputBlock(input_definitions, source_position=source_position)
 
     @classmethod
-    def create_ast_input_port(cls, name, size_parameter, data_type, input_qualifiers, signal_type, source_position):
-        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),PortSignalType,ASTSourceLocation) -> ASTInputPort
-        return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type, input_qualifiers=input_qualifiers,
-                            signal_type=signal_type, source_position=source_position)
-
-    @classmethod
-    def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
-        # type: (bool,bool,ASTSourceLocation) -> ASTInputQualifier
-        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position=source_position)
+    def create_ast_input_port(cls, name: str, size_parameter: str, data_type: Optional[ASTDataType], signal_type: Optional[PortSignalType], parameters: Optional[List[ASTParameter]], source_position: ASTSourceLocation) -> ASTInputPort:
+        return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type,
+                            signal_type=signal_type, parameters=parameters, source_position=source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):
@@ -359,8 +352,8 @@ class ASTNodeFactory:
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
-    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
-        var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
+    def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, attribute: Optional[str] = None, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
+        var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, attribute=attribute, source_position=source_position)
         if scope:
             var.scope = scope
 

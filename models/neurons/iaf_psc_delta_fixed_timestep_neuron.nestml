@@ -55,7 +55,7 @@ model iaf_psc_delta_fixed_timestep_neuron:
         refr_counts integer = steps(refr_T)
 
     input:
-        spikes <- spike
+        spikes <- spike(weight mV)
         I_stim pA <- continuous
 
     output:
@@ -64,7 +64,7 @@ model iaf_psc_delta_fixed_timestep_neuron:
     onReceive(spikes):
         # discard spikes if neuron is refractory
         if refr_counter == 0:
-            V_m += spikes * mV * s
+            V_m += spikes.weight
 
     update:
         if refr_counter > 0:
