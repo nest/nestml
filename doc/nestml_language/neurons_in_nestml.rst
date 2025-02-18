@@ -51,14 +51,6 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
 Integrating spiking input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spikes arriving at the input port of a neuron can be written as a spike train :math:`s(t)`:
-
-.. math::
-
-   \large s(t) = \sum_{i=1}^N w_i \cdot \delta(t - t_i)
-
-where :math:`w_i` is the weight of spike :math:`i`.
-
 To model the effect that an arriving spike has on the state of the neuron, a convolution with a kernel can be used. The kernel defines the postsynaptic response kernel, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Kernel functions` for how to define a kernel.) The convolution of the kernel with the spike train is defined as follows:
 
 .. math::
@@ -69,16 +61,20 @@ To model the effect that an arriving spike has on the state of the neuron, a con
                         &= \sum_{i=1}^N w_i \cdot f(t - t_i)
    \end{align*}
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
+For example, say there is a spiking input port defined named ``spikes``, which receives weighted spike events:
+
+.. code-block:: nestml
+
+   input:
+       spikes <- spike(weight pA)
+
+A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve()`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
    equations:
        kernel G = exp(-t / tau_syn)
-       inline I_syn pA = convolve(G, spikes) * pA
-       V_m' = -V_m / tau_m + I_syn / C_m
-
-Note that in this example, the intended physical unit (pA) was assigned by multiplying the scalar convolution result with the unit literal. By the definition of convolution, ``convolve(G, spikes)`` will have the unit of kernel ``G`` multiplied by the unit of ``spikes`` and unit of time, i.e., ``[G] * [spikes] * s``. Kernel functions in NESTML are always untyped and the unit of spikes is :math:`1/s` as discussed above. As a result, the unit of convolution is :math:`(1/s) * s`, a scalar quantity without a unit.
+       inline I_syn pA = convolve(G, spikes.weight)
 
 The incoming spikes could have been equivalently handled with an ``onReceive`` event handler block:
 
@@ -89,12 +85,9 @@ The incoming spikes could have been equivalently handled with an ``onReceive`` e
 
    equations:
        I_syn' = -I_syn / tau_syn
-       V_m' = -V_m / tau_m + I_syn / C_m
 
    onReceive(spikes):
-       I_syn += spikes * pA * s
-
-Note that in this example, the intended physical unit (pA) was assigned by multiplying the type of the input port ``spikes`` (which is 1/s) by pA·s, resulting in a unit of pA for ``I_syn``.
+       I_syn += spikes.weight
 
 
 (Re)setting synaptic integration state

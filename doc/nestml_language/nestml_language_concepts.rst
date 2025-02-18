@@ -831,169 +831,6 @@ Block types
 - ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
 
 
-Input
------
-
-A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
-
-
-Continuous-time input ports
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t` (but that could, in practice, be implemented as a stepwise-continuous function of time).
-
-
-Spiking input ports
-~~~~~~~~~~~~~~~~~~~
-
-The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=0`, and whose integral is equal to 1:
-
-.. math::
-
-   \int \delta(t) dt = 1
-
-The unit of the Dirac delta function follows from its definition:
-
-.. math::
-
-   f(0) = \int \delta(t) f(t) dt
-
-Here :math:`f(t)` is a continuous function of :math:`t`. As the unit of the :math:`f()` is the same on both left-and right-hand side, the unit of :math:`dt \delta(t)` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is :math:`s^{-1}`. Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
-
-Given an input port ``spikes_in``, we can define the incoming spikes as a train of delta pulses:
-
-.. math::
-
-   \mathrm{spikes_in}(t) = \sum_k \delta(t - t_k)
-
-The units are the same as for a single delta function.
-
-Spiking input can be handled by convolutions with kernels (see :ref:`Integrating spiking input`) or by means of ``onReceive`` event handler blocks.
-
-
-Handling spiking input by convolutions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The spiking input port name ``spikes_in`` can subsequently be used in the right-hand side of ODEs:
-
-.. math::
-
-   \frac{dx}{dt} = -x / \tau + \mathrm{spikes\_in}(t)
-
-If ``x`` is a real number, then the units here are consistent. This can be written in NESTML as:
-
-.. code-block:: nestml
-
-   x' = -x / tau + spikes_in
-
-``spikes_in`` can also be used inside a convolution; for instance, if ``K`` is a kernel, then:
-
-.. math::
-
-   \frac{dx}{dt} = -x / \tau + (K \ast \mathrm{spikes\_in}) / s
-
-This can be written in NESTML as:
-
-.. code-block:: nestml
-
-   x' = -x / tau + convolve(K, spikes_in) / s
-
-Note that applying the convolution means integrating over time, hence dropping the [1/s] unit, leaving a unitless quantity. To make the units consistent in this case, an explicit division by seconds is required.
-
-Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes, for instance, if ``x`` is in ``pA``, then we can write:
-
-.. code-block:: nestml
-
-   x = -x / tau + pA * spikes_in
-
-
-XXX: mention no_spike_input_port_in_equation_rhs_outside_convolve
-
-
-
-Handling spiking input by event handlers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
-
-.. code-block:: nestml
-
-   onReceive(pre_spikes):
-       println("Info: processing a presynaptic spike at time t = {t}")
-       # ... further statements go here ...
-
-The statements in the event handler will be executed when the event occurs.
-
-An event handler integrates the system from "just before" the event to "just after" the event. If the spike event occurs at time :math:`t_k`, then the event handler integrates the system in time from "just before the event" :math:`t_k^-` to "just after" the event :math:`t_k^+`.
-
-To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
-
-.. code-block:: nestml
-
-   onReceive(pre_spikes, priority=1):
-       println("Info: processing a presynaptic spike at time t = {t}")
-
-   onReceive(post_spikes, priority=2):
-       println("Info: processing a postsynaptic spike at time t = {t}")
-
-In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
-
-Vector input ports of constant size can be used:
-
-.. code-block:: nestml
-
-    input:
-        foo[2] <- spike
-
-    onReceive(foo[0]):
-        # ... handle foo[0] spikes...
-
-    onReceive(foo[1]):
-        # ... handle foo[1] spikes...
-
-
-
-Output
-------
-
-Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
-
-.. code-block:: nestml
-
-   output:
-       spike
-
-Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
-
-XXX: mention attributes here?!
-
-
-
-Event attributes
-~~~~~~~~~~~~~~~~
-
-Each spiking output event can be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
-
-.. code-block:: nestml
-
-   parameters:
-       weight real = 10.
-
-   update:
-       emit_spike(weight, 1 ms)
-
-If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
-
-.. code-block:: nestml
-
-   output:
-       spike(weight real, delay ms)
-
-The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
-
-Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
-
-
 Equations
 ---------
 
@@ -1168,6 +1005,231 @@ A Dirac delta impulse kernel can be defined by using the predefined function ``d
 .. code-block:: nestml
 
    kernel g = delta(t)
+
+
+Output
+------
+
+Each model can only produce a single output. The type of the event has to be given in the `output` block. Currently, only spike output is supported.
+
+.. code-block:: nestml
+
+   output:
+       spike
+
+Calling the ``emit_spike()`` function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the simulation time at the end of the time interval ``t + timestep()``.
+
+Each spiking output event can optionally be parameterised by one or more attributes. For example, a synapse could assign a weight (as a real number) and delay (in milliseconds) to its spike events by including these values in the call to ``emit_spike()``:
+
+.. code-block:: nestml
+
+   parameters:
+       weight real = 10.
+
+   update:
+       emit_spike(weight, 1 ms)
+
+If spike event attributes are used, their names and types must be given as part of the output port specification, for example:
+
+.. code-block:: nestml
+
+   output:
+       spike(weight real, delay ms)
+
+The names are only used externally, so that other models can refer to the correct attribute (such as a downstream neuron that is receiving the spike through its input port). It is thus allowed to have a state variable called ``weight`` and an output port attribute by the same name; the output port attribute name does not refer to names declared inside the model.
+
+Specific code generators may support a specific set of attributes; please check the documentation of each individual code generator for more details.
+
+
+Input
+-----
+
+A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
+
+
+Continuous-time input ports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Continuous-time input ports receive a time-varying signal :math:`f(t)` (possibly, a vector :math:`\mathbf{f}(t)`) that is defined for all :math:`t` (but that could, in practice, be implemented as a stepwise-continuous function of time).
+
+For example, the following will add an external signal :math:`f(t)` with units of 1/s to a dynamical variable named :math:`x`.
+
+.. code-block:: nestml
+
+   state:
+       x real = 0
+
+   parameters:
+       tau ms = 20 ms
+
+   equations:
+       x' = -x / tau + f
+
+   input:
+       f 1/s <- continuous
+
+
+Spiking input ports
+~~~~~~~~~~~~~~~~~~~
+
+The incoming spikes at the spiking input port are modelled as Dirac delta functions. The Dirac delta function :math:`\delta(x)` is an impulsive function defined as zero at every value of :math:`x`, except for :math:`x=0`, and whose integral is equal to 1:
+
+.. math::
+
+   \int \delta(t) dt = 1
+
+The unit of the Dirac delta function follows from its definition:
+
+.. math::
+
+   f(0) = \int \delta(t) f(t) dt
+
+Here :math:`f(t)` is a continuous function of :math:`t`. As the unit of the :math:`f()` is the same on both left-and right-hand side, the unit of :math:`dt \delta(t)` must be equal to 1. Therefore, the unit of :math:`\delta(t)` must be equal to the inverse of the unit of :math:`t`, that is :math:`s^{-1}`. Therefore, all the incoming spikes defined in the input block will have an implicit unit of :math:`\text{1/s}`.
+
+Given an input port named ``spikes_in``, the semantics of using this name in expressions and ODEs is that it should be understood as a train of delta pulses:
+
+.. math::
+
+   \mathrm{spikes\_in}(t) = \sum_k \delta(t - t_k)
+
+The units are the same as for a single delta function.
+
+Each spike event can optionally contain one or more attributes, such as weight or delay. These are given numerical values by the sending side when calling ``emit_spike()``, and are read out by the receiving side, by appending a dot (fullstop) to the name of the spiking input port and then writing the name of the attribute.
+
+For example, say there is a train of weighted spike events, with each event :math:$k$ having weight :math:`w_k`:
+
+.. math::
+
+   \mathrm{spikes\_in}(t) = \sum_k w_k \delta(t - t_k)
+
+A spiking input port that is suitable for handling these events could be defined as such:
+
+.. code-block:: nestml
+
+   input:
+       spikes_in <- spike(w real)
+
+Note that the units of ``spikes_in`` are again in 1/s.
+
+If a physical unit is specified (such as pA or mV), the numeric value of the attribute is interpreted as having the units given in the definition of the input port. For example, if :math:`w_k` is assumed to be in units of mV, then in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` are in mV/s, and the input port can be defined as follows:
+
+.. code-block:: nestml
+
+   input:
+       spikes_in <- spike(w mV)
+
+In general, spiking input can be processed by referencing the input port in the right-hand side of an equation (see :ref:`Handling spiking input in equations`) or by means of ``onReceive`` event handlers (see :ref:`Handling spiking input by event handlers`).
+
+
+Handling spiking input in equations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The spiking input port name ``spikes_in`` can be used directly in the right-hand side of ODEs:
+
+.. math::
+
+   \frac{dx}{dt} = -\frac{x}{\tau} + \mathrm{spikes\_in}(t)
+
+If ``x`` is a real number, then the units here are consistent (in 1/s). This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + spikes_in
+
+``spikes_in`` can also be used inside a convolution; for instance, if ``K`` is a kernel, then:
+
+.. math::
+
+   \frac{dx}{dt} = -\frac{x}{\tau} + (K \ast \mathrm{spikes\_in}) / s
+
+Note that applying the convolution means integrating over time, hence dropping the [1/s] unit, leaving a unitless quantity. To make the units consistent in this case, an explicit division by seconds is required.
+
+This can be written in NESTML as:
+
+.. code-block:: nestml
+
+   x' = -x / tau + convolve(K, spikes_in) / s
+
+Physical units such as millivolts (:math:`\text{mV}`) and picoamperes (:math:`\text{pA}`) can be directly combined with the Dirac delta function to model an impulse with a physical quantity such as voltage or current. In such cases, the Dirac delta function is multiplied by the appropriate unit of the physical quantity to obtain a quantity with units of volts or amperes, for instance, if ``x`` is in ``pA``, then we can write:
+
+.. code-block:: nestml
+
+   x = -x / tau + spikes_in * pA
+
+However, note that this not account for different spikes carrying different weight (which typically results in different postsynaptic currents or potentials). In this example, each spike will result in a change in :math:`x` of 1 pA.
+
+To read out the attributes from events, for example the weight of the spike, the dot notation can be used, for example:
+
+.. code-block:: nestml
+
+   equations:
+       x' = -x / tau + spikes_in.w
+
+If ``spikes_in.w`` is defined as a real number, the units here are consistent (in 1/s). In case the weight is defined as having a unit in mV, it could be used for instance as follows:
+
+.. code-block:: nestml
+
+   state:
+       y mV = 0 mV
+
+   input:
+       spikes_in <- spike(w mV)
+
+   equations:
+       y' = -y / tau + spikes_in.w
+
+Note that again, the units are consistent if :math:`w_k` is assumed to be in units of mV; in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` are in mV/s.
+
+
+Handling spiking input by event handlers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An ``onReceive`` block can be defined for every spiking input port, for example, if a port named ``pre_spikes`` is defined, the corresponding event handler has the general structure:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+       println("Info: processing a presynaptic spike at time t = {t}")
+       # ... further statements go here ...
+
+The statements in the event handler will be executed when the event occurs and integrate the state of the system from "just before" the event (at :math:`t=t^-`) to "just after" the event (at :math:`t=t^+`):
+
+.. math::
+
+   \int_{t^-}^{t^+} \dot\mathbf{x}(t) dt
+
+Because the statements in the ``onReceive`` block are executed "instantaneously" at the time of the spike, the units of 1/s due to the definition of the delta function drop out. For instance, when a port is defined with an attribute "w" in units of mV, then the following has consistent units:
+
+.. code-block:: nestml
+
+   onReceive(in_spikes):
+       V_m mV = 42 mV
+       V_m += in_spikes.w    # consistent units
+
+To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes, priority=1):
+       println("Info: processing a presynaptic spike at time t = {t}")
+
+   onReceive(post_spikes, priority=2):
+       println("Info: processing a postsynaptic spike at time t = {t}")
+
+In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
+
+Vector input ports of constant size can be used:
+
+.. code-block:: nestml
+
+    input:
+        foo[2] <- spike
+
+    onReceive(foo[0]):
+        # ... handle foo[0] spikes...
+
+    onReceive(foo[1]):
+        # ... handle foo[1] spikes...
 
 
 Handling of time
