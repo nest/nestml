@@ -38,15 +38,15 @@ model neuromodulated_stdp_synapse:
         post_trace += 1
 
         # potentiate synapse
-        w_ real = Wmax * ( w / Wmax  + n * (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-        w = min(Wmax, w_)
+        w += n * (lambda * ( 1. -  w )**mu_plus * pre_trace )
+        w = min(Wmax, w)
 
     onReceive(pre_spikes):
         pre_trace += 1
 
         # depress synapse
-        w_ real = Wmax * ( w / Wmax  - n * ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
-        w = max(Wmin, w_)
+        w -= n * ( alpha * lambda * w**mu_minus * post_trace )
+        w = max(Wmin, w)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
