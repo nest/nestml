@@ -299,37 +299,10 @@ For example, the following model will result in one warning and one error:
            foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
-Documentation string
-~~~~~~~~~~~~~~~~~~~~
-
-Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
-
-.. code-block:: nestml
-
-   """
-   my_custom_neuron: My customized version of a Hodgkin-Huxley model
-   #################################################################
-
-   Description
-   +++++++++++
-
-   Long description follows here. We can typeset LaTeX math:
-
-   .. math::
-
-      E = mc^2
-
-   """
-   model my_custom_neuron:
-       # [...]
-
-This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
-
-
 Comments in the model
 ~~~~~~~~~~~~~~~~~~~~~
 
-When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it may be printed into the generated code.
 
 Example of single or multi-line comments:
 
@@ -341,14 +314,12 @@ Example of single or multi-line comments:
    #  a comment
    #   over several lines.
 
-To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target and the comment should be placed before the target line or on the same line as the target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach is used: there should be no white line separating the comment and its target, and the comment should be placed before the target line or on the same line as the target. For example:
 
 .. code-block:: nestml
 
    # I am a comment of the membrane potential
    V_m mV = -55 mV # I am a comment of the membrane potential
-
-   # I am not a comment of the membrane potential. A white line separates us.
 
 If a comment shall be attached to an element, no white lines are allowed.
 
@@ -356,7 +327,6 @@ If a comment shall be attached to an element, no white lines are allowed.
 
    # I am not a comment of the membrane potential.
 
-   # I am a comment of the membrane potential.
    V_m mV = -55 mV # I am a comment of the membrane potential
 
 Whitelines are therefore used to separate comment targets:
@@ -369,6 +339,28 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
+The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_.
+
+Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
+
+.. code-block:: nestml
+
+   # my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   # #################################################################
+   #
+   # Description
+   # +++++++++++
+   #
+   # Long description follows here. We can typeset LaTeX math:
+   #
+   # .. math::
+   #
+   #    E = mc^2
+   #
+   model my_custom_neuron:
+       # [...]
+
+The documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 Assignments
 ~~~~~~~~~~~

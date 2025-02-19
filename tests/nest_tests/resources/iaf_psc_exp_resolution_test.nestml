@@ -1,12 +1,11 @@
-"""
-iaf_psc_exp_resolution_test
-###########################
-
-Description
-+++++++++++
-
-Used to test resolution() function.
-"""
+# iaf_psc_exp_resolution_test
+# ###########################
+# 
+# Description
+# +++++++++++
+# 
+# Used to test resolution() function.
+#
 model iaf_psc_exp_resolution_test_neuron:
     state:
         V_m mV = E_L
