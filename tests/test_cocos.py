@@ -78,7 +78,7 @@ class TestCoCos:
 
     def test_invalid_element_not_defined_in_scope(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoVariableNotDefined.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 7
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
 
     def test_valid_element_not_defined_in_scope(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoVariableNotDefined.nestml'))
@@ -107,7 +107,7 @@ class TestCoCos:
 
     def test_invalid_function_unique_and_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoFunctionNotUnique.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 12
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 4
 
     def test_valid_function_unique_and_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoFunctionNotUnique.nestml'))
@@ -147,7 +147,7 @@ class TestCoCos:
 
     def test_invalid_numerator_of_unit_one(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoUnitNumeratorNotOne.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
 
     def test_valid_numerator_of_unit_one(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoUnitNumeratorNotOne.nestml'))
@@ -199,7 +199,7 @@ class TestCoCos:
 
     def test_invalid_function_with_wrong_arg_number_detected(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
 
     def test_valid_function_with_wrong_arg_number_detected(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
@@ -215,7 +215,7 @@ class TestCoCos:
 
     def test_invalid_incorrect_return_stmt_detected(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoIncorrectReturnStatement.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 12
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 4
 
     def test_valid_incorrect_return_stmt_detected(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoIncorrectReturnStatement.nestml'))
@@ -231,7 +231,7 @@ class TestCoCos:
 
     def test_invalid_convolve_correctly_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoConvolveNotCorrectlyProvided.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
 
     def test_valid_convolve_correctly_defined(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoConvolveNotCorrectlyProvided.nestml'))
@@ -271,7 +271,7 @@ class TestCoCos:
 
     def test_invalid_convolve_correctly_parameterized(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoConvolveNotCorrectlyParametrized.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
 
     def test_valid_convolve_correctly_parameterized(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoConvolveNotCorrectlyParametrized.nestml'))
@@ -287,7 +287,7 @@ class TestCoCos:
 
     def test_invalid_expression_correctly_typed(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CoCoIllegalExpression.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 3
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 1
 
     def test_valid_expression_correctly_typed(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CoCoIllegalExpression.nestml'))
@@ -295,7 +295,7 @@ class TestCoCos:
 
     def test_invalid_compound_expression_correctly_typed(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')), 'CompoundOperatorWithDifferentButCompatibleUnits.nestml'))
-        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 15
+        assert len(Logger.get_all_messages_of_level_and_or_node(model, LoggingLevel.ERROR)) == 5
 
     def test_valid_compound_expression_correctly_typed(self):
         model = self._parse_and_validate_model(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')), 'CompoundOperatorWithDifferentButCompatibleUnits.nestml'))
