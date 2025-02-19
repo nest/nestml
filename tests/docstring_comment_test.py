@@ -21,11 +21,9 @@
 
 import os
 import pytest
-import unittest
 
 from antlr4 import *
 from antlr4.error.ErrorStrategy import BailErrorStrategy
-from antlr4.error.Errors import ParseCancellationException
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -39,25 +37,26 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 
 
-# setups the infrastructure
-PredefinedUnits.register_units()
-PredefinedTypes.register_types()
-PredefinedFunctions.register_functions()
-PredefinedVariables.register_variables()
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-Logger.init_logger(LoggingLevel.ERROR)
-
-
 class DocstringCommentException(Exception):
     pass
 
 
-class DocstringCommentTest(unittest.TestCase):
+class TestDocstringComment:
+
+    @pytest.fixture(scope="module", autouse=True)
+    def setUp(self):
+        r"""sets up the infrastructure"""
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedFunctions.register_functions()
+        PredefinedVariables.register_variables()
+        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        Logger.init_logger(LoggingLevel.ERROR)
 
     def test_docstring_success(self):
         self.run_docstring_test('valid')
 
-    @pytest.mark.xfail(strict=True, raises=ParseCancellationException)
+    @pytest.mark.xfail(strict=True)
     def test_docstring_failure(self):
         self.run_docstring_test('invalid')
 
@@ -83,6 +82,4 @@ class DocstringCommentTest(unittest.TestCase):
 
         assert len(ast.get_model_list()) == 1, "Model failed to load correctly"
 
-
-if __name__ == '__main__':
-    unittest.main()
+        assert "\n".join(ast.get_model_list()[0].pre_comments) == "DocstringCommentTest.nestml\n###########################\n\n\nDescription\n+++++++++++\n\nThis model is used to test whether docstring comments are detected.\n\nPositive case.\n\n\nCopyright statement\n+++++++++++++++++++\n\nThis file is part of NEST.\n\nCopyright (C) 2004 The NEST Initiative\n\nNEST is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 2 of the License, or\n(at your option) any later version.\n\nNEST is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with NEST.  If not, see <http://www.gnu.org/licenses/>.\n"

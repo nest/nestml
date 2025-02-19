@@ -299,37 +299,10 @@ For example, the following model will result in one warning and one error:
            foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
-Documentation string
-~~~~~~~~~~~~~~~~~~~~
-
-Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
-
-.. code-block:: nestml
-
-   """
-   my_custom_neuron: My customized version of a Hodgkin-Huxley model
-   #################################################################
-
-   Description
-   +++++++++++
-
-   Long description follows here. We can typeset LaTeX math:
-
-   .. math::
-
-      E = mc^2
-
-   """
-   model my_custom_neuron:
-       # [...]
-
-This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
-
-
 Comments in the model
 ~~~~~~~~~~~~~~~~~~~~~
 
-When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it may be printed into the generated code.
 
 Example of single or multi-line comments:
 
@@ -341,14 +314,12 @@ Example of single or multi-line comments:
    #  a comment
    #   over several lines.
 
-To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target and the comment should be placed before the target line or on the same line as the target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach is used: there should be no white line separating the comment and its target, and the comment should be placed before the target line or on the same line as the target. For example:
 
 .. code-block:: nestml
 
    # I am a comment of the membrane potential
    V_m mV = -55 mV # I am a comment of the membrane potential
-
-   # I am not a comment of the membrane potential. A white line separates us.
 
 If a comment shall be attached to an element, no white lines are allowed.
 
@@ -356,7 +327,6 @@ If a comment shall be attached to an element, no white lines are allowed.
 
    # I am not a comment of the membrane potential.
 
-   # I am a comment of the membrane potential.
    V_m mV = -55 mV # I am a comment of the membrane potential
 
 Whitelines are therefore used to separate comment targets:
@@ -369,6 +339,28 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
+The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_.
+
+Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
+
+.. code-block:: nestml
+
+   # my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   # #################################################################
+   #
+   # Description
+   # +++++++++++
+   #
+   # Long description follows here. We can typeset LaTeX math:
+   #
+   # .. math::
+   #
+   #    E = mc^2
+   #
+   model my_custom_neuron:
+       # [...]
+
+The documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 Assignments
 ~~~~~~~~~~~
@@ -1183,6 +1175,46 @@ The numeric results of a typical simulation run are shown below. Consider a leak
    :alt: Numerical example for two different integration sequences.
 
 On the left, both pre-synaptic spikes are only processed at the end of the interval in which they occur. The statements in the ``update`` block are run every timestep for a fixed timestep of :math:`1~\text{ms}`, alternating with the statements in the ``onReceive`` handler for the spiking input port. Note that this means that the effect of the spikes becomes visible at the end of the timestep in :math:`I_\text{syn}`, but it takes another timestep before ``integrate_odes()`` is called again and consequently for the effect of the spikes to become visible in the membrane potential. This results in a threshold crossing and the neuron firing a spike. On the right half of the figure, the same presynaptic spike timing is used, but events are processed at their exact time of occurrence. In this case, the ``update`` statements are called once to update the neuron from time 0 to :math:`1~\text{ms}`, then again to update from :math:`1~\text{ms}` to the time of the first spike, then the spike is processed by running the statements in its ``onReceive`` block, then ``update`` is called to update from the time of the first spike to the second spike, and so on. The time courses of :math:`I_\text{syn}` and :math:`V_\text{m}` are such that the threshold is not reached and the neuron does not fire, illustrating the numerical differences that can occur when the same model is simulated using different strategies.
+
+
+Including files
+---------------
+
+To make models more modular, the contents of one NESTML file can be "included" into another, akin to the C ``#include`` directive. In NESTML, ``include`` is a statement taking one parameter, which gives the filename of the file to be included. The filename may include an absolute or relative path, with directories separated by a forward slash. Contents of the included file are interpreted as appearing at the point of the include statement (akin to the C ``#include``), but with indentation automatically adjusted to the indentation level of the ``include`` statement itself.
+
+For example, if the contents of a to-be included file ``includes/my_equations_block.nestml`` are
+
+.. code-block:: nestml
+
+   equations:
+       x' = A
+
+then this file can be included as follows:
+
+.. code-block:: nestml
+
+   model my_neuron_model:
+       include "includes/my_equations_block.nestml"
+
+The include statement can appear at any indentation level, for example, if the file ``my_included_stmts.nestml`` contains a list of statements:
+
+.. code-block:: nestml
+
+   println(i)
+   # check i
+   if i < 21:
+       i += 5
+   else:
+       i *= 2
+
+then these can be included as follows:
+
+.. code-block:: nestml
+
+   model my_neuron_model:
+       update:
+           while i < 42:
+               include "my_included_smts.nestml"
 
 
 Guards

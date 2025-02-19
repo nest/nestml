@@ -114,6 +114,16 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#includeStmt.
+    def visitIncludeStmt(self, ctx:PyNestMLParser.IncludeStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#includeStmt_newline.
+    def visitIncludeStmt_newline(self, ctx:PyNestMLParser.IncludeStmt_newlineContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#declaration.
     def visitDeclaration(self, ctx:PyNestMLParser.DeclarationContext):
         return self.visitChildren(ctx)

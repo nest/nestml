@@ -1,7 +1,6 @@
-"""
-delay_test_synapse
-##################
-"""
+# delay_test_synapse
+# ##################
+#
 model delay_test_synapse:
   state:
     x ms = 0 ms

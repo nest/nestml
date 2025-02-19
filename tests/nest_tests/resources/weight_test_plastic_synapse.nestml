@@ -1,7 +1,6 @@
-"""
-weight_test_plastic_synapse
-###########################
-"""
+# weight_test_plastic_synapse
+# ###########################
+#
 model weight_test_plastic_synapse:
   state:
     x real = 0
