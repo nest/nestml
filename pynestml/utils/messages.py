@@ -141,6 +141,10 @@ class MessageCode(Enum):
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
     CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
+    DELAY_VARIABLE_NOT_SPECIFIED = 118
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 119
+    DELAY_VARIABLE_NOT_FOUND = 120
+    WEIGHT_VARIABLE_NOT_FOUND = 121
 
 
 class Messages:
@@ -182,8 +186,8 @@ class Messages:
         return MessageCode.NO_CODE_GENERATED, message
 
     @classmethod
-    def get_lexer_error(cls):
-        message = 'Error occurred during lexing: abort'
+    def get_lexer_error(cls, msg):
+        message = 'Error occurred during lexing: ' + msg
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
@@ -192,8 +196,8 @@ class Messages:
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
-    def get_parser_error(cls):
-        message = 'Error occurred during parsing: abort'
+    def get_parser_error(cls, msg):
+        message = 'Error occurred during parsing: ' + msg
         return MessageCode.PARSER_ERROR, message
 
     @classmethod
@@ -1402,3 +1406,27 @@ class Messages:
     def get_continuous_output_port_cannot_have_attributes(cls):
         message = "continuous time output port may not have attributes."
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
+
+    @classmethod
+    def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
+        message = "Delay variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.DELAY_VARIABLE_NOT_SPECIFIED, message
+
+    @classmethod
+    def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
+        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.WEIGHT_VARIABLE_NOT_SPECIFIED, message
+
+    @classmethod
+    def get_delay_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Delay variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.DELAY_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_weight_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Weight variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message
