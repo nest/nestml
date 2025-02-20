@@ -287,14 +287,6 @@ Source file: `iaf_psc_delta_neuron.nestml <https://www.github.com/nest/nestml/bl
           Firing rate vs. current
 
 
-:doc:`iaf_psc_exp_dend_neuron <iaf_psc_exp_dend_neuron>`
---------------------------------------------------------
-
-iaf_psc_exp_dend - Leaky integrate-and-fire neuron model with exponential PSCs
-
-Source file: `iaf_psc_exp_dend_neuron.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/iaf_psc_exp_dend_neuron.nestml>`_
-
-
 :doc:`iaf_psc_exp_htum_neuron <iaf_psc_exp_htum_neuron>`
 --------------------------------------------------------
 
