@@ -22,14 +22,14 @@ import glob
 import os
 import shutil
 from typing import Dict, Sequence, Optional, Mapping, Any, List
+from pynestml.codegeneration.printers.c_simple_expression_printer import CSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_printer import CppPrinter
-from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_expression_printer import CppExpressionPrinter
 from pynestml.codegeneration.printers.nest_gpu_function_call_printer import NESTGPUFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_gpu_numeric_function_call_printer import NESTGPUNumericFunctionPrinter
 from pynestml.codegeneration.printers.nest_gpu_numeric_variable_printer import NESTGPUNumericVariablePrinter
 from pynestml.codegeneration.printers.nest_gpu_variable_printer import NESTGPUVariablePrinter
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
+from pynestml.codegeneration.printers.unitless_c_simple_expression_printer import UnitlessCSimpleExpressionPrinter
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -110,7 +110,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         self._nest_variable_printer = NESTGPUVariablePrinter(expression_printer=None, with_origin=True,
                                                              with_vector_parameter=False)
         self._nest_function_call_printer = NESTGPUFunctionCallPrinter(None)
-        self._printer = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(
+        self._printer = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(
             variable_printer=self._nest_variable_printer,
             constant_printer=self._constant_printer,
             function_call_printer=self._nest_function_call_printer))
@@ -122,7 +122,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         self._nest_variable_printer_no_origin = NESTGPUVariablePrinter(None, with_origin=False,
                                                                        with_vector_parameter=False)
         self._nest_function_call_printer_no_origin = NESTGPUFunctionCallPrinter(None)
-        self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CppSimpleExpressionPrinter(
+        self._printer_no_origin = CppExpressionPrinter(simple_expression_printer=CSimpleExpressionPrinter(
             variable_printer=self._nest_variable_printer_no_origin,
             constant_printer=self._constant_printer,
             function_call_printer=self._nest_function_call_printer_no_origin))
@@ -132,7 +132,7 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         # Printer for numeric solver
         self._gsl_variable_printer = NESTGPUNumericVariablePrinter(None)
         self._gsl_function_call_printer = NESTGPUNumericFunctionPrinter(None)
-        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+        self._gsl_printer = CppExpressionPrinter(simple_expression_printer=UnitlessCSimpleExpressionPrinter(
             variable_printer=self._gsl_variable_printer,
             constant_printer=self._constant_printer,
             function_call_printer=self._gsl_function_call_printer))
@@ -142,12 +142,12 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
         """
         Modify some header and CUDA files for the new models to be recognized
         """
-        self.copy_models_from_target_path(neurons)
+        self.copy_models_from_target_path()
         self.add_model_name_to_neuron_header(neurons)
         self.add_model_to_neuron_class(neurons)
         self.add_files_to_makefile(neurons)
 
-    def copy_models_from_target_path(self, neurons: List[ASTModel]):
+    def copy_models_from_target_path(self):
         """Copies all the files related to the neuron model to the NEST GPU src directory"""
         types = ["*.h", "*.cu"]
         dst_path = os.path.join(self.nest_gpu_path, "src")
@@ -215,8 +215,8 @@ class NESTGPUCodeGenerator(NESTCodeGenerator):
                                   begin_tag="# <<BEGIN_NESTML_GENERATED>>",
                                   end_tag="# <<END_NESTML_GENERATED>>")
 
-    def _get_neuron_model_namespace(self, astnode: ASTModel) -> Dict:
-        namespace = super()._get_neuron_model_namespace(astnode)
+    def _get_neuron_model_namespace(self, neuron: ASTModel) -> Dict:
+        namespace = super()._get_neuron_model_namespace(neuron)
         if namespace["uses_numeric_solver"]:
             namespace["printer"] = self._gsl_printer
             namespace["uses_analytic_solver"] = False

@@ -38,8 +38,7 @@ class TestNESTGPUCodeGenerator:
                                  suffix=suffix)
 
     def test_nest_gpu_code_generator_numeric(self):
-        # model_files = ["aeif_psc_exp_neuron.nestml"]
-        model_files = ["aeif_cond_alpha_alt_neuron.nestml"]
+        model_files = ["aeif_psc_exp_neuron.nestml", "aeif_cond_alpha_alt_neuron.nestml", "izhikevich_neuron.nestml"]
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", model)))) for model in model_files]
         target_path = "target_gpu_numeric"

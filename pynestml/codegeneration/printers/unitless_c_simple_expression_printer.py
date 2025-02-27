@@ -50,10 +50,11 @@ class UnitlessCSimpleExpressionPrinter(CSimpleExpressionPrinter):
             return self._constant_printer.print_constant(node.get_numeric_literal())
 
         if node.is_variable() and node.get_scope() is not None:
-            node_is_variable_symbol = node.get_scope().resolve_to_symbol(
-                node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
-            if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
-                # case for a literal unit, e.g. "ms"
-                return str(SpinnakerUnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
+            # node_is_variable_symbol = node.get_scope().resolve_to_symbol(
+            #     node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
+            # if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
+            #     # case for a literal unit, e.g. "ms"
+            #     return str(SpinnakerUnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
+            self._variable_printer.print_variable(node.get_variable())
 
         return super().print_simple_expression(node)

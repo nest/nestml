@@ -127,7 +127,7 @@ __device__
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = blk.get_port_name() %}
-    if (y[N_SCAL_VAR + i_{{ inport }}])
+    if (y[N_SCAL_VAR + i_{{ inport }}] > 0)
     {
 {%-     set ast = blk.get_stmts_body() %}
 {%-     filter indent(6, True) -%}
@@ -156,6 +156,11 @@ __device__
     }
 {%-     endfor %}
 {%- endif %}
+
+  // Reset the input port variables
+{%- for variable_symbol in neuron.get_spike_input_ports() %}
+    y[N_SCAL_VAR + i_{{ variable_symbol.get_symbol_name() }}] = 0;
+{%- endfor %} 
 }
 
 }; // namespace
@@ -264,7 +269,7 @@ int {{ neuronName }}::Init(int i_node_0, int n_node, int /*n_port*/,
   // process the input spikes
   port_input_arr_ = GetVarArr() + n_scal_var_ + GetPortVarIdx("{{ utils.get_first_excitatory_port(neuron) }}");
   port_input_arr_step_ = n_var_;
-  port_input_port_step_ = 1;
+  port_input_port_step_ = {{(neuron.get_spike_input_ports() | length) - 1}};
 
 {# TODO #}
 {#  den_delay_arr_ =  GetParamArr() + GetScalParamIdx("den_delay"); #}
