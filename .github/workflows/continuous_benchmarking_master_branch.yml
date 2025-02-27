@@ -25,7 +25,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       # Install Python dependencies
@@ -37,7 +37,7 @@ jobs:
       # Install NEST simulator
       - name: NEST simulator
         run: |
-          python -m pip install cython
+          python -m pip install "cython<=3.0.10"
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           NEST_SIMULATOR=$(pwd)/nest-simulator
           NEST_INSTALL=$(pwd)/nest_install
@@ -66,6 +66,7 @@ jobs:
         run: |
           echo "NEST_INSTALL = $NEST_INSTALL"
           LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest bencher run \
+          --iter 3 \
           --project nestml \
           --token '${{ secrets.BENCHER_API_TOKEN }}' \
           --branch master \

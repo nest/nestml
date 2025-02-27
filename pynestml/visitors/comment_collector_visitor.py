@@ -22,6 +22,7 @@
 from typing import List, Optional
 
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 
 
 class CommentCollectorVisitor(PyNestMLParserVisitor):
@@ -38,11 +39,29 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         tokens
             A list of all tokens representing the model.
         strip_delim
-            Whether to strip the comment delimiters (``#`` and ``\"\"\"``...``\"\"\"``).
+            Whether to strip the comment delimiters (``#``).
         """
 
         self.__tokens = tokens
         self.__strip_delim = strip_delim
+
+    @classmethod
+    def dedent(cls, strings):
+        # Find the minimum leading spaces among all non-empty lines
+        min_indent = None
+        for s in strings:
+            stripped = s.lstrip()
+            if stripped:  # ignore fully blank or whitespace-only lines for indent calculation
+                indent = len(s) - len(stripped)
+                if min_indent is None or indent < min_indent:
+                    min_indent = indent
+
+        # If all lines are empty or whitespace-only, set min_indent to 0
+        if min_indent is None:
+            min_indent = 0
+
+        # Dedent each line by the minimum indent found
+        return [s[min_indent:] for s in strings]
 
     def visitBlockWithVariables(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
@@ -163,15 +182,15 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
 
 
 def is_newline(tok):
-    return tok.type == 9  # NEWLINE token
+    return tok.type == PyNestMLParser.NEWLINE
 
 
 def is_indent(tok):
-    return tok.type == 1  # INDENT token
+    return tok.type == PyNestMLParser.INDENT
 
 
 def is_dedent(tok):
-    return tok.type == 2  # DEDENT token
+    return tok.type == PyNestMLParser.DEDENT
 
 
 def get_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
@@ -202,9 +221,10 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     :type tokens: list(Tokens)
     :return: the corresponding comments
     """
-    # first find the position of this token in the stream
     comments = list()
     empty_before = __no_definitions_before(ctx, tokens)
+
+    # first find the position of this token in the stream
     temp = None
     lastToken = None
     for possibleCommentToken in reversed(tokens[0:tokens.index(ctx.start)]):
@@ -212,19 +232,21 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
         if possibleCommentToken.channel == 0 \
                 and not (is_newline(possibleCommentToken)
                          or is_indent(possibleCommentToken) or is_dedent(possibleCommentToken)):
+
             # This is to omit the inline comments that are parsed
-            if is_newline(lastToken) and temp is not None:
+            if lastToken is not None and is_newline(lastToken) and temp is not None:
                 comments.append(temp)
+
             break
 
         # a newline on comment channel (2) by itself separates elements
         if possibleCommentToken.channel == 2 and is_newline(possibleCommentToken) and is_newline(lastToken):
             if temp is not None:
                 comments.append(temp)
+
             break
 
-        # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
-        # in the same line, since in this case, the comments does not belong to us
+        # if we have found a comment, put it on the "stack". we now have to check if there is an element defined in the same line, since in this case, the comments does not belong to us
         if possibleCommentToken.channel == 2 and not is_newline(possibleCommentToken):
             if temp is not None:
                 comments.append(temp)
@@ -232,25 +254,18 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
                 temp = replace_delimiters(possibleCommentToken.text)
             else:
                 temp = possibleCommentToken.text
+
         lastToken = possibleCommentToken
 
     # this last part is required in the case, that the very first token is a comment
     if empty_before and temp is not None and temp not in comments:
         comments.append(temp)
-    # strip leading newlines -- this removes the newline after an opening ``"""`` if present
-    for i, comment in enumerate(comments):
-        if len(comment) > 0 and comment[0] == '\n':
-            comments[i] = comment[1:]
-        if len(comment) > 1 and comment[0] == '\r' and comment[1] == '\n':
-            comments[i] = comment[2:]
-    # strip trailing newlines
-    for i, comment in enumerate(comments):
-        if len(comment) > 0 and comment[-1] == '\n':
-            comments[i] = comment[:-1]
-        if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
-            comments[i] = comment[:-2]
+
+    if strip_delim:
+        comments = CommentCollectorVisitor.dedent(comments)
+
     # we reverse it in order to get the right order of comments
-    return list(reversed(comments)) if len(comments) > 0 else list()
+    return list(reversed(comments))
 
 
 def __no_definitions_before(ctx, tokens):
@@ -303,13 +318,11 @@ def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
 
 def replace_delimiters(comment: str) -> str:
     """
-    Returns the raw comment, i.e., without the comment delimiters (``#`` or ``\"\"\"``...``\"\"\"``).
+    Returns the raw comment, i.e., without the comment delimiters (``#``).
     """
-    if len(comment) > 2 and comment[:2] == "\"\"\"":
-        # it's a docstring comment
-        return comment.replace("\"\"\"", "")
     # it's a hash comment
     if len(comment) > 0 and comment[0] == "#":
         # strip initial character hash
         comment = comment[1:]
+
     return comment.replace('\n#', '').replace('\r\n#', '')

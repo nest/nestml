@@ -672,17 +672,14 @@ class ASTModel(ASTNode):
     def get_on_receive_block(self, port_name: str) -> Optional[ASTOnReceiveBlock]:
         if not self.get_body():
             return None
+
         return self.get_body().get_on_receive_block(port_name)
 
     def get_on_condition_blocks(self) -> List[ASTOnConditionBlock]:
         if not self.get_body():
             return []
-        return self.get_body().get_on_condition_blocks()
 
-    def get_on_condition_block(self, port_name: str) -> Optional[ASTOnConditionBlock]:
-        if not self.get_body():
-            return None
-        return self.get_body().get_on_condition_block(port_name)
+        return self.get_body().get_on_condition_blocks()
 
     def get_input_buffers(self):
         """

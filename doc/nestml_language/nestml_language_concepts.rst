@@ -38,91 +38,39 @@ Similar to Python, a single line can be split into multiple lines by using a bac
 Data types and physical units
 -----------------------------
 
-Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
+Data types define types of variables, as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types, which can both be used to indicate types.
 
 
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
 
--  ``real`` corresponds to the ``double`` data type in C++. Example literals are: ``42.0``, ``-0.42``, ``.44``
--  ``integer`` corresponds to the ``long`` data type in C++. Example literals are: ``42``, ``-7``
--  ``boolean`` corresponds to the ``bool`` data type in C++. Its only literals are ``true`` and ``false``
--  ``string`` corresponds to the ``std::string`` data type in C++. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
--  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
+-  ``real`` indicates a real number. Example literals are: ``42.0``, ``-0.42``, ``.44``
+-  ``integer`` indicates a natural number (signed integer). Example literals are: ``42``, ``-7``
+-  ``boolean`` indicates a Boolean value. Its only literals are ``true`` and ``false``
+-  ``string`` indicates a text string. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
+-  ``void`` can only be used in the declaration of a function to indicate that it does not return a value.
 
 
 Physical units
 ~~~~~~~~~~~~~~
 
-A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
+A physical unit in NESTML can be either a base physical unit or a derived physical unit. The following table lists the seven base units as defined in `the SI standard <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
-The following table lists seven base units, which can be used to specify any physical unit. This idea is based on `the SI units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
++-----------+--------+---------------------+
+| Name      | Symbol | Quantity            |
+|===========|========|=====================|
+| meter     | m      | length              |
+| kilogram  | kg     | mass                |
+| second    | s      | time                |
+| Ampère    | A      | electric current    |
+| Kelvin    | K      | temperature         |
+| mole      | mol    | amount of substance |
+| candela   | cd     | luminous intensity  |
++-----------+--------+---------------------+
 
-+-----------------------+-------------+------------------+
-| Quantity              | Unit Name   | NESTML/SI unit   |
-+=======================+=============+==================+
-| length                | meter       | m                |
-+-----------------------+-------------+------------------+
-| mass                  | kilogram    | kg               |
-+-----------------------+-------------+------------------+
-| time                  | second      | s                |
-+-----------------------+-------------+------------------+
-| electric current      | ampere      | A                |
-+-----------------------+-------------+------------------+
-| temperature           | kelvin      | K                |
-+-----------------------+-------------+------------------+
-| amount of substance   | mole        | mol              |
-+-----------------------+-------------+------------------+
-| luminous intensity    | candela     | cd               |
-+-----------------------+-------------+------------------+
+Any other physical unit can be expressed as a combination of these seven units. For this, the operators ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parentheses) can be used (see below for examples).
 
-Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides a concept for the derivation of new physical units, i.e., by combining simple units (consisting of a prefix and an SI unit), the user is able to create arbitrary physical units.
-
-Units can have at most one of the following magnitude prefixes:
-
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
-+==========+===========+=================+==========+===========+=================+
-| 10^-1    | deci      | d               | 10^1     | deca      | da              |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-6    | micro     | u               | 10^6     | mega      | M               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-9    | nano      | n               | 10^9     | giga      | G               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-12   | pico      | p               | 10^12    | tera      | T               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-15   | femto     | f               | 10^15    | peta      | P               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-18   | atto      | a               | 10^18    | exa       | E               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
-+----------+-----------+-----------------+----------+-----------+-----------------+
-
-Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
-
-.. code-block:: nestml
-
-   mV*mV*nS**2/(mS*pA)
-
-Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
-
-.. code-block:: nestml
-
-   (ms*mV)**-1
-
-is equivalent to
-
-.. code-block:: nestml
-
-   1/(ms*mV)
-
-NESTML also supports the usage of named derived-units such as Newton, Henry or lux:
+NESTML also supports the usage of many named derived units such as Newton, Henry or lux. The following units are defined:
 
 .. list-table::
    :header-rows: 1
@@ -184,14 +132,14 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
    * - Ohm
-     - Ω
+     - Ohm
      - resistance, impedance, reactance
      - V/A
      - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )
    * - Siemens
      - S
      - electrical conductance
-     - Ω\ :sup:`−1`
+     - Ohm\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
    * - Weber
      - Wb
@@ -240,17 +188,61 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - mol⋅(s\ :sup:`−1`\ )
 
 
-Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
+These unit symbols can be used to define physical quantites, for instance:
 
 .. code-block:: nestml
 
-   x = 10 N * 22 Ohm / 0.5 V
+   x N/A = 10 N * 22 Ohm / 0.5 V
+
+Physical units can have at most one of the following magnitude prefixes:
+
++----------+-----------+-----------------+----------+-----------+-----------------+
+| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
++==========+===========+=================+==========+===========+=================+
+| 10^-1    | deci      | d               | 10^1     | deca      | da              |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-2    | centi     | c               | 10^2     | hecto     | h               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-3    | milli     | m               | 10^3     | kilo      | k               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-6    | micro     | u               | 10^6     | mega      | M               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-9    | nano      | n               | 10^9     | giga      | G               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-12   | pico      | p               | 10^12    | tera      | T               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-15   | femto     | f               | 10^15    | peta      | P               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-18   | atto      | a               | 10^18    | exa       | E               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-21   | zepto     | z               | 10^21    | zetta     | Z               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+| 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
++----------+-----------+-----------------+----------+-----------+-----------------+
+
+For example, the following defines a possible unit:
+
+.. code-block:: nestml
+
+   mV*mV*nS**2/(mS*pA)
+
+Units of the form ``<unit>**-1`` can also be expressed as ``1/<unit>``. For example
+
+.. code-block:: nestml
+
+   (ms*mV)**-1
+
+is equivalent to
+
+.. code-block:: nestml
+
+   1/(ms*mV)
 
 
 Type and unit checks
 ~~~~~~~~~~~~~~~~~~~~
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization, ODEs, and function calls. Conversion of ``integer``\ s to ``real``\ s is allowed. A conversion between ``unit``-typed and ``real``-typed variables is also allowed. However, these conversions are reported as warnings. No conversion is allowed between numeric types and Boolean or string types.
 
 
 Basic elements of the embedded programming language
@@ -299,37 +291,10 @@ For example, the following model will result in one warning and one error:
            foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
 
 
-Documentation string
-~~~~~~~~~~~~~~~~~~~~
-
-Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
-
-.. code-block:: nestml
-
-   """
-   my_custom_neuron: My customized version of a Hodgkin-Huxley model
-   #################################################################
-
-   Description
-   +++++++++++
-
-   Long description follows here. We can typeset LaTeX math:
-
-   .. math::
-
-      E = mc^2
-
-   """
-   model my_custom_neuron:
-       # [...]
-
-This documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
-
-
 Comments in the model
 ~~~~~~~~~~~~~~~~~~~~~
 
-When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it may be printed into the generated code.
 
 Example of single or multi-line comments:
 
@@ -341,14 +306,12 @@ Example of single or multi-line comments:
    #  a comment
    #   over several lines.
 
-To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target and the comment should be placed before the target line or on the same line as the target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach is used: there should be no white line separating the comment and its target, and the comment should be placed before the target line or on the same line as the target. For example:
 
 .. code-block:: nestml
 
    # I am a comment of the membrane potential
    V_m mV = -55 mV # I am a comment of the membrane potential
-
-   # I am not a comment of the membrane potential. A white line separates us.
 
 If a comment shall be attached to an element, no white lines are allowed.
 
@@ -356,7 +319,6 @@ If a comment shall be attached to an element, no white lines are allowed.
 
    # I am not a comment of the membrane potential.
 
-   # I am a comment of the membrane potential.
    V_m mV = -55 mV # I am a comment of the membrane potential
 
 Whitelines are therefore used to separate comment targets:
@@ -369,6 +331,28 @@ Whitelines are therefore used to separate comment targets:
    # I am a comment of the resting potential.
    V_rest mV = -60 mV
 
+The text of each comment is interpreted as `Sphinx reStructuredText format <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_.
+
+Documentation for a model may appear directly in front of the model definition, akin to Python "docstrings" (see `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_). For example:
+
+.. code-block:: nestml
+
+   # my_custom_neuron: My customized version of a Hodgkin-Huxley model
+   # #################################################################
+   #
+   # Description
+   # +++++++++++
+   #
+   # Long description follows here. We can typeset LaTeX math:
+   #
+   # .. math::
+   #
+   #    E = mc^2
+   #
+   model my_custom_neuron:
+       # [...]
+
+The documentation block is rendered as HTML on the :doc:`models library <models_library/index>`.
 
 Assignments
 ~~~~~~~~~~~
@@ -779,31 +763,34 @@ All variables, literals, and function calls are valid terms. Variables are names
 List of operators
 ~~~~~~~~~~~~~~~~~
 
-For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ ``c1``,\ ``c2``, and an integer expression ``n`` the following operators produce valid expressions.
+For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ ``b1``,\ ``b2``, and integer expressions ``n``,\ ``i`` the following operators produce valid expressions.
 
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
 | Operator                                       | Description                                                        | Examples                  |
 +================================================+====================================================================+===========================+
-| ``()``                                         | Expressions with parentheses                                       | ``(a)``                   |
+| ``()``                                         | Expressions with parentheses                                       | ``(x)``                   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``**``                                         | Power operator.                                                    | ``a ** b``                |
+| ``**``                                         | Power operator                                                     | ``x**y``                  |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``, ``~``                            | Unary plus, unary minus, bitwise negation                          | ``-a``, ``~c``            |
+| ``+``, ``-``, ``~``                            | Unary plus, unary minus                                            | ``-x``                    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``a * b``, ``a % b``      |
+| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``x * y``, ``x % y``      |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``                                   | Addition and subtraction                                           | ``a + b``, ``a - b``      |
+| ``+``, ``-``                                   | Addition and subtraction                                           | ``x + y``, ``x - y``      |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``a << n``, ``a >> n``    |
+| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``n << i``, ``n >> i``    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``a&b``, ``|``, ``a~b``   |
+| ``~``                                          | Bitwise negation                                                   | ``~b``                    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``a <= b``, ``a != b``    |
+| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``b1 & b2``, ``b1 ^ b2``  |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not c``, ``c1 or c2``   |
+| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``x <= y``, ``x != y``    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``?:``                                         | Ternary operator (return ``a`` if ``c`` is ``true``, ``b`` else)   | ``c ? a : b``             |
+| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not b``, ``b1 or b2``   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
+| ``?:``                                         | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise)  | ``b ? x : y``             |
++------------------------------------------------+--------------------------------------------------------------------+---------------------------+
+
 
 Blocks
 ------
@@ -825,7 +812,7 @@ Block types
 -  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the model can send. Currently, only ``spike`` is supported.
+-  ``output`` - Defines which type of event the model can send.
 -  ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event).
 - ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
 - ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
@@ -1171,7 +1158,7 @@ Integration order
 
 During simulation, the simulation kernel (for example, NEST Simulator) is responsible for invoking the model functions that update its state: those in ``update``, ``onReceive``, integrating the ODEs, etc. Different simulators may invoke these functions in a different sequence and with different steps of time, leading to different numerical results even though the same model was used. For example, "time-based" simulators take discrete steps of time of fixed duration (for example, 1 millisecond), whereas "event-based" simulators process events at their exact time of occurrence, without having to round off the time of occurrence of the event to the nearest timestep interval. The following section describes some of the variants of integration sequences that can be encountered and what this means for the outcome of a simulation.
 
-The recommended update sequence for a spiking neuron model is shown below (panel B), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
+The recommended update sequence for a spiking neuron model is shown below (panel A), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. _label:fig_integration_order
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order.png
@@ -1208,4 +1195,4 @@ References
 
 .. [1] Morrison A, Diesmann M (2008). Maintaining causality in discrete time neuronal network simulations. Lectures in Supercomputational Neurosciences: Dynamics in Complex Brain Networks, 267-278.
 
-.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381±402 (1999)
+.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381–402 (1999)

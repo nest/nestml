@@ -895,7 +895,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endfor %}
 {%- endif %}
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
 {%- for pre_port in pre_ports %}
 
       /**
@@ -910,7 +910,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%-         endwith %}
 {%-     endif %}
 {%- endfor %}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(get_t())") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
     }
 
     /**
@@ -1124,7 +1124,7 @@ void
 
   // state variables and parameters
 {%- filter indent(2,True) %}
-{%- for variable_symbol in synapse.get_state_symbols() + synapse.get_parameter_symbols() %}
+{%- for variable_symbol in synapse.get_parameter_symbols() + synapse.get_state_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if not isHomogeneous and not is_delta_kernel(synapse.get_kernel_by_name(variable_symbol.name)) and not variable_symbol.is_inline_expression %}
@@ -1228,6 +1228,17 @@ template < typename targetidentifierT >
 {%- endfor %}
 {%- endfilter %}
 
+  // initial values for internal variables
+{%- filter indent(2, True) %}
+{%- for variable_symbol in synapse.get_internal_symbols() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     if not isHomogeneous %}
+{%-         include "directives_cpp/MemberInitialization.jinja2" %}
+{%-     endif %}
+{%- endfor %}
+{%- endfilter %}
+
   V_.__h = nest::Time::get_resolution().get_ms();
   recompute_internal_variables();
 
@@ -1268,7 +1279,16 @@ template < typename targetidentifierT >
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if not isHomogeneous and variable.get_name() != synapse_weight_variable and variable.get_name() != nest_codegen_opt_delay_variable %}
-  {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
+  P_.{{ printer_no_origin.print(variable) }} = rhs.P_.{{ printer_no_origin.print(variable) }};
+{%-     endif %}
+{%- endfor %}
+
+  // internal variables
+{%- for variable_symbol in synapse.get_internal_symbols() %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable_symbol.get_decorators() %}
+{%-     set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-     if not isHomogeneous %}
+  V_.{{ printer_no_origin.print(variable) }} = rhs.V_.{{ printer_no_origin.print(variable) }};
 {%-     endif %}
 {%- endfor %}
 
@@ -1276,7 +1296,7 @@ template < typename targetidentifierT >
 {%- for variable_symbol in synapse.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
 {%-     if variable.get_name() != synapse_weight_variable and variable.get_name() != nest_codegen_opt_delay_variable %}
-  {{ printer.print(variable) }} = rhs.{{ printer.print(variable) }};
+  S_.{{ printer_no_origin.print(variable) }} = rhs.S_.{{ printer_no_origin.print(variable) }};
 {%-     endif %}
 {%- endfor %}
 

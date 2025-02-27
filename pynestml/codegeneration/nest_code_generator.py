@@ -96,7 +96,6 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
-    - **neuron_models**: List of neuron model names. Instructs the code generator that models with these names are neuron models.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
@@ -113,7 +112,7 @@ class NESTCodeGenerator(CodeGenerator):
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
-    - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
+    - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **redirect_build_output**: An optional boolean key for redirecting the build output. Setting the key to ``True``, two files will be created for redirecting the ``stdout`` and the ``stderr`. The ``target_path`` will be used as the default location for creating the two files.
@@ -125,7 +124,6 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
-        "neuron_models": [],
         "synapse_models": [],
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
@@ -267,7 +265,7 @@ class NESTCodeGenerator(CodeGenerator):
         super().generate_synapse_code(synapse)
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)
@@ -346,7 +344,6 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()] = []
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
-            ASTUtils.add_timestep_symbol(neuron)
 
             return {}, {}, [], []
 
@@ -404,7 +401,6 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.create_integrate_odes_combinations(neuron)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
-        ASTUtils.add_timestep_symbol(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
             neuron = ASTUtils.add_declarations_to_internals(
@@ -450,7 +446,6 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
-            ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
@@ -458,10 +453,7 @@ class NESTCodeGenerator(CodeGenerator):
                 synapse = ASTUtils.add_declarations_to_internals(
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
-            self.update_symbol_table(synapse)
-        else:
-            ASTUtils.add_timestep_symbol(synapse)
-            self.update_symbol_table(synapse)
+        self.update_symbol_table(synapse)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
 
@@ -516,6 +508,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["utils"] = ASTUtils
         namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
+
+        # the model itself
+        namespace["astnode"] = astnode
 
         # using random number generators?
         rng_visitor = ASTRandomNumberGeneratorVisitor()
@@ -606,7 +601,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["synapseName"] = synapse.get_name()
         namespace["synapse"] = synapse
-        namespace["astnode"] = synapse
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["assignments"] = NestAssignmentsHelper()
 
@@ -724,7 +718,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-        namespace["astnode"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
@@ -905,6 +898,14 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
+    def create_ode_toolbox_indict(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
+
+        return odetoolbox_indict
+
     def ode_toolbox_analysis(self, neuron: ASTModel, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
@@ -918,15 +919,14 @@ class NESTCodeGenerator(CodeGenerator):
             # no equations defined -> no changes to the neuron
             return None, None
 
-        odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
-        odetoolbox_indict["options"] = {}
-        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        odetoolbox_indict = self.create_ode_toolbox_indict(neuron, kernel_buffers)
+
+        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
                                             preserve_expressions=self.get_option("preserve_expressions"),
-                                            simplify_expression=self.get_option("simplify_expression"),
                                             log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
@@ -944,7 +944,6 @@ class NESTCodeGenerator(CodeGenerator):
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
                                                     preserve_expressions=self.get_option("preserve_expressions"),
-                                                    simplify_expression=self.get_option("simplify_expression"),
                                                     log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"

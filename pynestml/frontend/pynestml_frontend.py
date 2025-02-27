@@ -46,7 +46,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
 def get_known_targets():
-    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "nest_gpu", "none"]
+    targets = ["NEST", "NEST_compartmental", "python_standalone", "autodoc", "pretty_render", "spinnaker", "NEST_DESKTOP", "GeNN", "nest_gpu", "none"]
     targets = [s.upper() for s in targets]
     return targets
 
@@ -61,7 +61,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "SPINNAKER"]:
+    if target_name.upper() in ["NEST", "SPINNAKER", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP", "GENN"]:
+        from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
+
+        add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
+        transformers.append(add_timestep_to_internals_transformer)
+
+    if target_name.upper() in ["NEST", "SPINNAKER", "GENN"]:
         from pynestml.transformers.illegal_variable_name_transformer import IllegalVariableNameTransformer
 
         # rewrite all C++ keywords
@@ -121,10 +127,6 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.pretty_render_code_generator import PrettyRenderCodeGenerator
         return PrettyRenderCodeGenerator()
 
-    if target_name.upper() == "NEST_GPU":
-        from pynestml.codegeneration.nest_gpu_code_generator import NESTGPUCodeGenerator
-        return NESTGPUCodeGenerator(options)
-
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
         assert options is None or options == {
@@ -143,6 +145,10 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
         from pynestml.codegeneration.spinnaker_code_generator import SpiNNakerCodeGenerator
         return SpiNNakerCodeGenerator(options)
 
+    if target_name.upper() == "GENN":
+        from pynestml.codegeneration.genn_code_generator import GeNNCodeGenerator
+        return GeNNCodeGenerator(options)
+
     if target_name.upper() == "NONE":
         # dummy/null target: user requested to not generate any code (for instance, when just doing validation of a model)
         code, message = Messages.get_no_code_generated()
@@ -153,26 +159,23 @@ def code_generator_from_target_name(target_name: str, options: Optional[Mapping[
     assert "Unknown code generator requested: " + target_name
 
 
-def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Mapping[str, Any]]:
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]] = None) -> Tuple[Builder, Dict[str, Any]]:
     r"""Static factory method that returns a new instance of a child class of Builder"""
 
     assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
 
     if target_name.upper() in ["NEST", "NEST_COMPARTMENTAL"]:
         from pynestml.codegeneration.nest_builder import NESTBuilder
-        nest_builder = NESTBuilder(options)
-        remaining_options = nest_builder.set_options(options)
-        return nest_builder, remaining_options
-    if target_name.upper() == "NEST_GPU":
-        from pynestml.codegeneration.nest_gpu_builder import NESTGPUBuilder
-        nest_gpu_builder = NESTGPUBuilder(options)
-        remaining_options = nest_gpu_builder.set_options(options)
-        return nest_gpu_builder, remaining_options
+        builder = NESTBuilder(options)
+        remaining_options = builder.set_options(options)
+        return builder, remaining_options
+
     if target_name.upper() == "SPINNAKER":
         from pynestml.codegeneration.spinnaker_builder import SpiNNakerBuilder
         builder = SpiNNakerBuilder(options)
         remaining_options = builder.set_options(options)
         return builder, remaining_options
+
     if target_name.upper() == "AUTODOC":
         from pynestml.codegeneration.autodoc_builder import AutodocBuilder
         builder = AutodocBuilder(options)
@@ -329,6 +332,34 @@ def generate_python_standalone_target(input_path: Union[str, Sequence[str]], tar
                     codegen_opts=codegen_opts)
 
 
+def generate_genn_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                         logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool = False,
+                         suffix: str = "", dev: bool = False, codegen_opts: Optional[Mapping[str, Any]] = None):
+    r"""Generate and build code for the GeNN target.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        The name of the generated Python module.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        A suffix string that will be appended to the name of all generated models.
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_platform="GeNN", target_path=target_path,
+                    logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
+                    codegen_opts=codegen_opts)<Merge Conflict>
+
 def generate_nest_gpu_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
                              logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
                              suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
@@ -358,11 +389,11 @@ def generate_nest_gpu_target(input_path: Union[str, Sequence[str]], target_path:
                     logging_level=logging_level, store_log=store_log, suffix=suffix, dev=dev,
                     codegen_opts=codegen_opts)
 
-
 def generate_spinnaker_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, install_path: Optional[str] = None,
                               logging_level="ERROR", module_name: str = "nestmlmodule", store_log: bool=False,
                               suffix: str="", dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for the SpiNNaker target.
+
     Parameters
     ----------
     input_path : str **or** Sequence[str]
@@ -557,7 +588,7 @@ def process() -> bool:
         store_log_to_file()
 
     # return a boolean indicating whether errors occurred
-    return len(Logger.get_all_messages_of_level(LoggingLevel.ERROR)) > 0
+    return len(Logger.get_messages(level=LoggingLevel.ERROR)) > 0
 
 
 def init_predefined():

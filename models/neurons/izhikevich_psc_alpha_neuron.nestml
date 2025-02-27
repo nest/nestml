@@ -1,41 +1,62 @@
-"""
-izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
-###############################################################################################
-
-Description
-+++++++++++
-
-Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
-and current-based synapses.
-
-The dynamics are given by:
-
-.. math::
-
-   C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
-   \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
-
-   &\text{if}\;\;\; V_m \geq V_{th}:\\
-   &\;\;\;\; V_m \text{ is set to } c
-   &\;\;\;\; U_m \text{ is incremented by } d
-
-On each spike arrival, the membrane potential is subject to an alpha-kernel current of the form:
-
-.. math::
-
-  I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
-
-See also
-++++++++
-
-izhikevich, iaf_psc_alpha
-
-
-References
-++++++++++
-
-.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
-"""
+# izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
+# ###############################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
+# and current-based synapses.
+# 
+# The dynamics are given by:
+# 
+# .. math::
+# 
+#    C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
+#    \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
+# 
+#    &\text{if}\;\;\; V_m \geq V_{th}:\\
+#    &\;\;\;\; V_m \text{ is set to } c
+#    &\;\;\;\; U_m \text{ is incremented by } d
+# 
+# On each spike arrival, the membrane potential is subject to an alpha-kernel current of the form:
+# 
+# .. math::
+# 
+#    I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
+# 
+# See also
+# ++++++++
+# 
+# izhikevich, iaf_psc_alpha
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model izhikevich_psc_alpha_neuron:
     state:
         V_m mV = -65 mV # Membrane potential
