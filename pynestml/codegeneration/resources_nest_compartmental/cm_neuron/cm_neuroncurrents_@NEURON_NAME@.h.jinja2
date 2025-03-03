@@ -91,6 +91,20 @@ private:
     std::vector< {{ render_variable_type(variable) }} > {{ variable.name }} = {};
     {%- endfor %}
 
+      // propagators, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
+  // kernel state variables, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
     // ion-channel root-inline value
     std::vector< double > i_tot_{{ion_channel_name}} = {};
 
@@ -117,11 +131,10 @@ public:
 
     // initialization channel
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate() {
+    void calibrate();
 {%- else %}
-    void pre_run_hook() {
+    void pre_run_hook();
 {%- endif %}
-    };
 
     void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
 
@@ -177,6 +190,20 @@ private:
     std::vector< {{ render_variable_type(variable) }} > {{ variable.name }} = {};
     {%- endfor %}
 
+      // propagators, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
+  // kernel state variables, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
     // concentration value (root-ode state)
     std::vector< double > {{concentration_name}} = {};
 
@@ -198,19 +225,10 @@ public:
 
     // initialization concentration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
-    void calibrate() {
+    void calibrate();
 {%- else %}
-    void pre_run_hook() {
+    void pre_run_hook();
 {%- endif %}
-    for(std::size_t concentration_id = 0; concentration_id < neuron_{{ concentration_name }}_concentration_count; concentration_id++){
-    // states
-    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
-        {%- set variable = variable_info["ASTVariable"] %}
-        {%- set rhs_expression = variable_info["rhs_expression"] %}
-        {{ variable.name }}[concentration_id] = {{ vector_printer.print(rhs_expression, "concentration_id") }};
-    {%- endfor %}
-    }
-    };
     void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
 
     // numerical integration step
@@ -527,6 +545,20 @@ private:
   std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {}
         };
     {%- endfor %}
+
+  // propagators, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+
+  // kernel state variables, initialized via pre_run_hook() or calibrate()
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  std::vector< double > {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
 
   std::vector< double > i_tot_{{continuous_name}} = {};
 

@@ -51,6 +51,7 @@ class RecsInfoEnricher(MechsInfoEnricher):
         specific_enricher_visitor = RecsInfoEnricherVisitor()
         neuron.accept(specific_enricher_visitor)
         mechs_info = cls.transform_convolutions_analytic_solutions(neuron, mechs_info)
+        mechs_info = cls.compute_expression_derivative(mechs_info)
         mechs_info = cls.restore_order_internals(neuron, mechs_info)
         return mechs_info
 
@@ -59,56 +60,6 @@ class RecsInfoEnricher(MechsInfoEnricher):
 
         enriched_syns_info = copy.copy(cm_syns_info)
         for synapse_name, synapse_info in cm_syns_info.items():
-            for convolution_name in synapse_info["convolutions"].keys():
-                analytic_solution = enriched_syns_info[synapse_name][
-                    "convolutions"][convolution_name]["analytic_solution"]
-                analytic_solution_transformed = defaultdict(
-                    lambda: defaultdict())
-
-                for variable_name, expression_str in analytic_solution["initial_values"].items():
-                    variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                              SymbolKind.VARIABLE)
-
-                    expression = ModelParser.parse_expression(expression_str)
-                    # pretend that update expressions are in "equations" block,
-                    # which should always be present, as synapses have been
-                    # defined to get here
-                    expression.update_scope(neuron.get_equations_blocks()[0].get_scope())
-                    expression.accept(ASTSymbolTableVisitor())
-
-                    update_expr_str = analytic_solution["update_expressions"][variable_name]
-                    update_expr_ast = ModelParser.parse_expression(
-                        update_expr_str)
-                    # pretend that update expressions are in "equations" block,
-                    # which should always be present, as differential equations
-                    # must have been defined to get here
-                    update_expr_ast.update_scope(
-                        neuron.get_equations_blocks()[0].get_scope())
-                    update_expr_ast.accept(ASTSymbolTableVisitor())
-
-                    analytic_solution_transformed['kernel_states'][variable_name] = {
-                        "ASTVariable": variable,
-                        "init_expression": expression,
-                        "update_expression": update_expr_ast,
-                    }
-
-                for variable_name, expression_string in analytic_solution["propagators"].items(
-                ):
-                    variable = RecsInfoEnricherVisitor.internal_variable_name_to_variable[variable_name]
-                    expression = ModelParser.parse_expression(
-                        expression_string)
-                    # pretend that update expressions are in "equations" block,
-                    # which should always be present, as synapses have been
-                    # defined to get here
-                    expression.update_scope(
-                        neuron.get_equations_blocks()[0].get_scope())
-                    expression.accept(ASTSymbolTableVisitor())
-                    analytic_solution_transformed['propagators'][variable_name] = {
-                        "ASTVariable": variable, "init_expression": expression, }
-
-                enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = \
-                    analytic_solution_transformed
-
             # only one buffer allowed, so allow direct access
             # to it instead of a list
             if "buffer_name" not in enriched_syns_info[synapse_name]:
@@ -116,13 +67,6 @@ class RecsInfoEnricher(MechsInfoEnricher):
                     enriched_syns_info[synapse_name]["buffers_used"])
                 del enriched_syns_info[synapse_name]["buffers_used"]
                 enriched_syns_info[synapse_name]["buffer_name"] = buffers_used[0]
-
-            inline_expression_name = enriched_syns_info[synapse_name]["root_expression"].variable_name
-            enriched_syns_info[synapse_name]["root_expression"] = \
-                RecsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name]
-            enriched_syns_info[synapse_name]["inline_expression_d"] = \
-                cls.compute_expression_derivative(
-                    enriched_syns_info[synapse_name]["root_expression"])
 
             # now also identify analytic helper variables such as __h
             enriched_syns_info[synapse_name]["analytic_helpers"] = cls.get_analytic_helper_variable_declarations(
@@ -155,18 +99,21 @@ class RecsInfoEnricher(MechsInfoEnricher):
         return enriched_syns_info
 
     @classmethod
-    def compute_expression_derivative(
-            cls, inline_expression: ASTInlineExpression) -> ASTExpression:
-        expr_str = str(inline_expression.get_expression())
-        sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
-        sympy_expr = sympy.diff(sympy_expr, "v_comp")
+    def compute_expression_derivative(cls, chan_info):
+        for ion_channel_name, ion_channel_info in chan_info.items():
+            inline_expression = chan_info[ion_channel_name]["root_expression"]
+            expr_str = str(inline_expression.get_expression())
+            sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+            sympy_expr = sympy.diff(sympy_expr, "v_comp")
 
-        ast_expression_d = ModelParser.parse_expression(str(sympy_expr))
-        # copy scope of the original inline_expression into the the derivative
-        ast_expression_d.update_scope(inline_expression.get_scope())
-        ast_expression_d.accept(ASTSymbolTableVisitor())
+            ast_expression_d = ModelParser.parse_expression(str(sympy_expr))
+            # copy scope of the original inline_expression into the the derivative
+            ast_expression_d.update_scope(inline_expression.get_scope())
+            ast_expression_d.accept(ASTSymbolTableVisitor())
 
-        return ast_expression_d
+            chan_info[ion_channel_name]["inline_derivative"] = ast_expression_d
+
+        return chan_info
 
     @classmethod
     def get_variable_names_used(cls, node) -> set:

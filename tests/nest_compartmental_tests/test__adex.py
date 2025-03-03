@@ -166,9 +166,9 @@ class TestContinuousInput:
 
         # create multimeters to record compartment voltages and various state variables
         rec_list = [
-            'v_comp0', 'w0', 'i_tot_I_spike0', 'i_tot_I_syn_exc0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0',
+            'v_comp0', 'w_input0', 'i_tot_I_spike0', 'i_tot_input0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0',
         ]
-        mm_cm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'v_comp1', 'w0', 'i_tot_I_spike0', 'i_tot_I_syn_exc0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0'], 'interval': .1})
+        mm_cm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'v_comp1', 'w_input0', 'i_tot_I_spike0', 'i_tot_input0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0'], 'interval': .1})
         mm_aeif = nest.Create('multimeter', 1, {'record_from': ['V_m', 'w'], 'interval': .1})
         nest.Connect(mm_cm, cm)
         nest.Connect(mm_aeif, aeif)
@@ -224,7 +224,7 @@ class TestContinuousInput:
             plt.title('Distal Ca activation')
 
             plt.subplot(413)
-            plt.plot(res_cm['times'], res_cm['w0'], c='b', ls='--', lw=2., label='W cm')
+            plt.plot(res_cm['times'], res_cm['w_input0'], c='b', ls='--', lw=2., label='W cm')
             plt.plot(res_aeif['times'], res_aeif['w'], c='r', ls='--', lw=2., label='W adex')
             plt.legend()
             plt.xlim(0, SimTime)
@@ -246,7 +246,7 @@ class TestContinuousInput:
             fig, axs = plt.subplots(7)
 
             axs[0].plot(res_cm['times'], res_cm['i_tot_I_spike0'], c='b', label='I_spike0')
-            axs[1].plot(res_cm['times'], res_cm['i_tot_I_syn_exc0'], c='b', label='I_syn_exc0')
+            axs[1].plot(res_cm['times'], res_cm['i_tot_input0'], c='b', label='I_syn_exc0')
             #plt.plot(res_cm['times'], res_cm['i_tot_I_syn_inh0'], c='b', label='3')
             #plt.plot(res_cm['times'], res_cm['i_tot_external_stim0'], c='b', label='4')
             axs[2].plot(res_cm['times'], res_cm['i_tot_refr0'], c='b', label='refr0')

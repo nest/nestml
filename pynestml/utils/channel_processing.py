@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.utils.logger import Logger, LoggingLevel
+
+from pynestml.utils.messages import Messages
 
 from pynestml.utils.mechanism_processing import MechanismProcessing
 
@@ -37,6 +40,7 @@ class ChannelProcessing(MechanismProcessing):
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
         mechs_info = cls.write_key_zero_parameters_for_root_inlines(mechs_info)
+        cls.check_all_convolutions_with_self_spikes(mechs_info)
 
         return mechs_info
 

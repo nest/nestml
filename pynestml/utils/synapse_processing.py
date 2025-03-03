@@ -170,19 +170,20 @@ class SynapseProcessing:
             for kernel_var, spikes_var in kernel_arg_pairs:
                 kernel_name = kernel_var.get_name()
                 spikes_name = spikes_var.get_name()
-                convolution_name = info_collector.construct_kernel_X_spike_buf_name(
-                    kernel_name, spikes_name, 0)
-                syn_info["convolutions"][convolution_name] = {
-                    "kernel": {
-                        "name": kernel_name,
-                        "ASTKernel": info_collector.get_kernel_by_name(kernel_name),
-                    },
-                    "spikes": {
-                        "name": spikes_name,
-                        "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
-                    },
-                    "post_port": (len([dict for dict in neuron_synapse_pairs if dict["synapse"]+"_nestml" == neuron.name and spikes_name in dict["post_ports"]]) > 0),
-                }
+                if spikes_name != "self_spikes":
+                    convolution_name = info_collector.construct_kernel_X_spike_buf_name(
+                        kernel_name, spikes_name, 0)
+                    syn_info["convolutions"][convolution_name] = {
+                        "kernel": {
+                            "name": kernel_name,
+                            "ASTKernel": info_collector.get_kernel_by_name(kernel_name),
+                        },
+                        "spikes": {
+                            "name": spikes_name,
+                            "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
+                        },
+                        "post_port": (len([dict for dict in neuron_synapse_pairs if dict["synapse"]+"_nestml" == neuron.name and spikes_name in dict["post_ports"]]) > 0),
+                    }
         return syn_info
 
     @classmethod

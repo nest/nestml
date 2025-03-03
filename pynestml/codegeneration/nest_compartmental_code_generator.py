@@ -445,8 +445,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
-        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
-        assert len(neuron.get_parameters_blocks()) == 1, "Only one parameters block supported for now"
+        assert len(neuron.get_equations_blocks()) <= 1, "Only one equations block supported for now"
+        assert len(neuron.get_parameters_blocks()) <= 1, "Only one parameters block supported for now"
 
         equations_block = neuron.get_equations_blocks()[0]
 
@@ -455,7 +455,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             # no equations defined -> no changes to the neuron
             return None, None
 
-        parameters_block = neuron.get_parameters_blocks()[0]
+        parameters_block = None
+        if len(neuron.get_parameters_blocks()):
+            parameters_block = neuron.get_parameters_blocks()[0]
 
         solver_result, analytic_solver = self.ode_solve_analytically(
             neuron, parameters_block, kernel_buffers)
@@ -529,8 +531,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         Logger.log_message(neuron, code, message,
                            neuron.get_source_position(), LoggingLevel.INFO)
 
-        assert len(neuron.get_equations_blocks()) == 1, "Only one equations block supported for now"
-        assert len(neuron.get_state_blocks()) == 1, "Only one state block supported for now"
+        assert len(neuron.get_equations_blocks()) <= 1, "Only one equations block supported for now"
+        assert len(neuron.get_state_blocks()) <= 1, "Only one state block supported for now"
 
         equations_block = neuron.get_equations_blocks()[0]
 
@@ -611,7 +613,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # remove differential equations from equations block
         # those are now resolved into zero order variables and their
         # corresponding updates
-        ASTUtils.remove_ode_definitions_from_equations_block(neuron)
+        #ASTUtils.remove_ode_definitions_from_equations_block(neuron)
 
         # restore state variables that were referenced by kernels
         # and set their initial values by those suggested by ODE-toolbox

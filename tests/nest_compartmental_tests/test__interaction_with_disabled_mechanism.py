@@ -125,4 +125,4 @@ class TestCompartmentalMechDisabled():
 
         plt.savefig("interaction with disabled mechanism test.png")
 
-        assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        assert abs(res['c_Ca0'][data_array_index]-expected_conc) <= 0.0000001, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")

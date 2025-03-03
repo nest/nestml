@@ -130,6 +130,8 @@ class MessageCode(Enum):
     SYNS_BAD_BUFFER_COUNT = 107
     CM_NO_V_COMP = 108
     MECHS_DICTIONARY_INFO = 109
+    CM_VAR_MULTIUSE = 110
+    CM_INVALID_CONVOLUTION_BUFFER = 111
 
 
 class Messages:
@@ -1265,7 +1267,7 @@ class Messages:
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
         message = "Synapse `\'%s\' uses the following input buffers: %s" % (
             synapse_name, buffers)
-        message += " However exaxtly one spike input buffer per synapse is allowed."
+        message += " However exaxtly one spike input buffer aside the self_spikes buffer is allowed per synapse."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 
     @classmethod
@@ -1314,3 +1316,23 @@ class Messages:
         message += "global_info:\n" + global_info + "\n"
 
         return MessageCode.MECHS_DICTIONARY_INFO, message
+
+    @classmethod
+    def cm_shared_variables_not_allowed(cls, varname: str, mech_names: list):
+        message = "Multiple mechanisms ("
+        it = iter(mech_names)
+        for mech_name in mech_names:
+            message += mech_name
+            if mech_name == next(it, None):
+                message += ", "
+        message += ") are referencing the same variable: '" + varname + "'"
+
+        return MessageCode.CM_VAR_MULTIUSE, message
+
+    @classmethod
+    def cm_non_self_spike_convolution_in_mech(cls, mech_name: str, mech_type: str):
+        message = ("Only convolutions with buffer self_spikes are allowed in mechanisms of type '" + mech_type +
+                   "' but are contained in '" + mech_name + "'.")
+
+        return MessageCode.CM_INVALID_CONVOLUTION_BUFFER, message
+

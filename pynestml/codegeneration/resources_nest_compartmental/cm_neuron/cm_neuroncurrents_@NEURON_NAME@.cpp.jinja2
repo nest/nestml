@@ -185,6 +185,20 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {% for state in channel_info["Dependencies"]["global"] %}
         {{ printer_no_origin.print(state) }}.push_back(0);
         {% endfor %}
+
+            // set propagators to ode toolbox returned value
+      {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+        {{state_variable_name}}.push_back(0);
+      {%- endfor %}
+      {%- endfor %}
+
+        // initial values for kernel state variables, set to zero
+      {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+        {{state_variable_name}}.push_back(0);
+      {%- endfor %}
+      {%- endfor %}
     }
 }
 
@@ -270,6 +284,20 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::new_channel(std::size_t com
         {% for state in channel_info["Dependencies"]["global"] %}
         {{ printer_no_origin.print(state) }}.push_back(0);
         {% endfor %}
+
+            // set propagators to ode toolbox returned value
+          {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+          {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+            {{state_variable_name}}.push_back(0);
+          {%- endfor %}
+          {%- endfor %}
+
+            // initial values for kernel state variables, set to zero
+          {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+          {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+            {{state_variable_name}}.push_back(0);
+          {%- endfor %}
+          {%- endfor %}
     }
 }
 
@@ -302,6 +330,32 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   if(!found_rec) ( *recordables )[ Name( std::string("i_tot_{{ion_channel_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
 }
 
+    // initialization channel
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void calibrate() {
+{%- else %}
+void nest::{{ion_channel_name}}{{cm_unique_suffix}}::pre_run_hook() {
+{%- endif %}
+    {% if "time_resolution_var" in channel_info %}
+    std::vector< double > {{ printer_no_origin.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms());
+    {% endif %}
+    for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
+                    // set propagators to ode toolbox returned value
+  {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+  {%- endfor %}
+  {%- endfor %}
+
+    // initial values for kernel state variables, set to zero
+  {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}}[i] = 0;
+  {%- endfor %}
+  {%- endfor %}
+    }
+}
+
 std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_numstep(bool point_self_spikes, std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
@@ -314,7 +368,9 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
 
         std::vector< double > d_i_tot_dv(neuron_{{ ion_channel_name }}_channel_count, 0.);
 
-        {% if channel_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms()); {% endif %}
+        {% if "time_resolution_var" in channel_info %}
+    std::vector< double > {{ printer_no_origin.print(channel_info["time_resolution_var"]) }}(neuron_{{ ion_channel_name }}_channel_count, Time::get_resolution().get_ms());
+    {% endif %}
 
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
@@ -323,6 +379,13 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{ion_channel_na
         {%- endfor %}
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ ion_channel_name }}_channel_count; i++){
+        {%- for convolution, convolution_info in channel_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {%- endfor %}
+      {%- endfor %}
+
         {%- for ode_variable, ode_info in channel_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
             {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
@@ -419,6 +482,20 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
+
+            // set propagators to ode toolbox returned value
+  {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}.push_back(0);
+  {%- endfor %}
+  {%- endfor %}
+
+    // initial values for kernel state variables, set to zero
+  {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}}.push_back(0);
+  {%- endfor %}
+  {%- endfor %}
     }
 }
 
@@ -499,6 +576,20 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {%- set rhs_expression = variable_info["rhs_expression"] %}
         {{ variable.name}}.push_back({{ vector_printer.print(rhs_expression, "neuron_"+concentration_name+"_concentration_count") -}});
         {%- endfor %}
+
+        // set propagators to ode toolbox returned value
+      {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+        {{state_variable_name}}.push_back(0);
+      {%- endfor %}
+      {%- endfor %}
+
+        // initial values for kernel state variables, set to zero
+      {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+        {{state_variable_name}}.push_back(0);
+      {%- endfor %}
+      {%- endfor %}
     }
 }
 
@@ -531,6 +622,37 @@ nest::{{ concentration_name }}{{cm_unique_suffix}}::append_recordables(std::map<
     if(!found_rec) ( *recordables )[ Name( std::string("{{concentration_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
 }
 
+    // initialization concentration
+{%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::calibrate() {
+{%- else %}
+void nest::{{ concentration_name }}{{cm_unique_suffix}}::pre_run_hook() {
+{%- endif %}
+    std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
+    for(std::size_t concentration_id = 0; concentration_id < neuron_{{ concentration_name }}_concentration_count; concentration_id++){
+    // states
+    {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
+        {%- set variable = variable_info["ASTVariable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {{ variable.name }}[concentration_id] = {{ vector_printer.print(rhs_expression, "concentration_id") }};
+    {%- endfor %}
+
+            // set propagators to ode toolbox returned value
+  {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}[concentration_id] = {{ vector_printer.print(state_variable_info["init_expression"], "concentration_id") }};
+  {%- endfor %}
+  {%- endfor %}
+
+    // initial values for kernel state variables, set to zero
+  {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}}[concentration_id] = 0;
+  {%- endfor %}
+  {%- endfor %}
+    }
+}
+
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(bool point_self_spikes, std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
@@ -548,6 +670,13 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(bool point_se
 
         #pragma omp simd
         for(std::size_t i = 0; i < neuron_{{ concentration_name }}_concentration_count; i++){
+        {%- for convolution, convolution_info in concentration_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {%- endfor %}
+      {%- endfor %}
+
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
             {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
@@ -704,13 +833,13 @@ nest::{{receptor_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, 
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
   for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(recs_id) )] = &{{convolution}}[recs_id];
+        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}_input" + std::to_string(rec_idx[recs_id]) )] = &{{convolution}}[recs_id];
       }
   }
   {%- endfor %}
     for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_{{receptor_name}}" + std::to_string(recs_id) )] = &i_tot_{{receptor_name}}[recs_id];
+        ( *recordables )[ Name( "i_tot_input" + std::to_string(rec_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
       }
     }
 }
@@ -794,7 +923,11 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
       {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+          {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
+      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+          {%- else %}
       {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+          {%- endif %}
       {%- endfor %}
       {%- endfor %}
 
@@ -806,7 +939,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_expression_d"], "i") }};
+      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_derivative"], "i") }};
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv[i];
@@ -1063,31 +1196,31 @@ void
 nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recordables(std::map< Name, double* >* recordables, const long compartment_idx)
 {
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
-  for(size_t syns_id = 0; syns_id < neuron_{{ receptor_name }}_receptor_count; syns_id++){
-      if(compartment_association[syns_id] == compartment_idx){
-        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syns_id) )] = &{{convolution}}[syns_id];
+  for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
+      if(compartment_association[recs_id] == compartment_idx){
+        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}_input" + std::to_string(syn_idx[recs_id]) )] = &{{convolution}}[recs_id];
       }
   }
   {%- endfor %}
-    for(size_t syns_id = 0; syns_id < neuron_{{ receptor_name }}_receptor_count; syns_id++){
-      if(compartment_association[syns_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_{{receptor_name}}_{{synapse_name}}" + std::to_string(syns_id) )] = &i_tot_{{receptor_name}}[syns_id];
+    for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
+      if(compartment_association[recs_id] == compartment_idx){
+        ( *recordables )[ Name( "i_tot_input" + std::to_string(syn_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
       }
     }
 
     //synapse states
     {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
-  for(size_t syns_id = 0; syns_id < neuron_{{ receptor_name }}_receptor_count; syns_id++){
-      if(compartment_association[syns_id] == compartment_idx){
-        ( *recordables )[ Name( "{{pure_variable_name}}" + std::to_string(syns_id) )] = &{{pure_variable_name}}[syns_id];
+  for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
+      if(compartment_association[recs_id] == compartment_idx){
+        ( *recordables )[ Name( "{{pure_variable_name}}_input" + std::to_string(syn_idx[recs_id]) )] = &{{pure_variable_name}}[recs_id];
       }
   }
   {%- endfor %}
 
     {%- for inline_name, inline in synapse_info["Inlines"].items() %}
-    for(size_t syns_id = 0; syns_id < neuron_{{ receptor_name }}_receptor_count; syns_id++){
-      if(compartment_association[syns_id] == compartment_idx){
-        ( *recordables )[ Name( "{{inline_name}}" + std::to_string(syns_id) )] = &{{inline_name}}[syns_id];
+    for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
+      if(compartment_association[recs_id] == compartment_idx){
+        ( *recordables )[ Name( "{{inline_name}}_input" + std::to_string(syn_idx[recs_id]) )] = &{{inline_name}}[recs_id];
       }
     }
   {%- endfor %}
@@ -1256,7 +1389,11 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
       {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
       {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+          {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
+      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+          {%- else %}
       {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+          {%- endif %}
       {%- endfor %}
       {%- endfor %}
 
@@ -1268,7 +1405,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       // derivative of that expression
       // voltage derivative of total current
       // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_expression_d"], "i") }};
+      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_derivative"], "i") }};
 
       // for numerical integration
       g_val[i] = - d_i_tot_dv[i];
@@ -1343,6 +1480,20 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
   {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
+
+        // set propagators to ode toolbox returned value
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}.push_back(0);
+  {%- endfor %}
+  {%- endfor %}
+
+    // initial values for kernel state variables, set to zero
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}}.push_back(0);
+  {%- endfor %}
+  {%- endfor %}
 }
 
 void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::size_t comp_ass, const long con_in_index, const DictionaryDatum& con_in_params)
@@ -1394,6 +1545,20 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::new_continuous_input(std::si
   {%- for internal_name, internal_declaration in continuous_info["internals_used_declared"] %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
+
+        // set propagators to ode toolbox returned value
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}.push_back(0);
+  {%- endfor %}
+  {%- endfor %}
+
+    // initial values for kernel state variables, set to zero
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}}.push_back(0);
+  {%- endfor %}
+  {%- endfor %}
 }
 
 void
@@ -1401,7 +1566,7 @@ nest::{{continuous_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name
 {
     for(size_t con_in_id = 0; con_in_id < neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
       if(compartment_association[con_in_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_{{continuous_name}}" + std::to_string(con_in_id) )] = &i_tot_{{continuous_name}}[con_in_id];
+        ( *recordables )[ Name( "i_tot_input" + std::to_string(continuous_idx[con_in_id]))] = &i_tot_{{continuous_name}}[con_in_id];
       }
     }
 }
@@ -1412,13 +1577,29 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::calibrate()
 void nest::{{continuous_name}}{{cm_unique_suffix}}::pre_run_hook()
 {%- endif %}
 {
-
-      // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in continuous_info["Internals"] %}
+  {% if "time_resolution_var" in continuous_info %}
+    std::vector< double > {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
+    {% endif %}
+  for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+     // user declared internals in order they were declared
+    {%- for internal_name, internal_declaration in continuous_info["Internals"] %}
     {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
-  for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+        // set propagators to ode toolbox returned value
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+    {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+  {%- endfor %}
+  {%- endfor %}
+
+    // initial values for kernel state variables, set to zero
+  {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}}[i] = 0;
+  {%- endfor %}
+  {%- endfor %}
+
     {% for port_name, port_info in continuous_info["Continuous"].items() %}
     {{port_name}}_[i]->clear();
     {% endfor %}
@@ -1436,7 +1617,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
     std::vector< double > i_val(neuron_{{ continuous_name }}_continuous_input_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ continuous_name }}_continuous_input_count, 0.);
 
-    {% if continuous_info["ODEs"].items()|length %}
+    {% if "time_resolution_var" in continuous_info %}
     std::vector< double > {{ printer_no_origin.print(continuous_info["time_resolution_var"]) }}(neuron_{{ continuous_name }}_continuous_input_count, Time::get_resolution().get_ms());
     {% endif %}
 
@@ -1458,6 +1639,13 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{continuous_nam
 
   #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ continuous_name }}_continuous_input_count; i++){
+      {%- for convolution, convolution_info in continuous_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {%- endfor %}
+      {%- endfor %}
+
       //update ODE state variable
       {%- for ode_variable, ode_info in continuous_info["ODEs"].items() %}
           {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}

@@ -23,6 +23,7 @@ from typing import Union
 
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_cm_global import CoCoCmGlobal
+from pynestml.cocos.co_co_cm_mech_shared_code import CoCoCmMechSharedCode
 from pynestml.cocos.co_co_cm_synapse_model import CoCoCmSynapseModel
 from pynestml.cocos.co_co_inline_expression_not_assigned_to import CoCoInlineExpressionNotAssignedTo
 from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
@@ -155,6 +156,7 @@ class CoCosManager:
         CoCoCmConcentrationModel.check_co_co(neuron, global_info)
         CoCoCmReceptorModel.check_co_co(neuron, global_info)
         CoCoCmContinuousInputModel.check_co_co(neuron, global_info)
+        CoCoCmMechSharedCode.check_co_co(neuron)
 
     @classmethod
     def check_compartmental_synapse_model(cls, synapse: ASTModel) -> None:

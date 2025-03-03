@@ -138,7 +138,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         ]
         print("syns")
         mm = nest.Create('multimeter', 1, {
-            'record_from': ['v_comp0', 'w0', 'i_tot_AMPA0', 'i_tot_AMPA_third_factor_stdp_synapse_nestml0', 'pre_trace0', 'post_trace0'], 'interval': .1})
+            'record_from': ['v_comp0', 'w_input1', 'i_tot_input0', 'i_tot_input1', 'pre_trace_input1', 'post_trace_input1'], 'interval': .1})
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
 
@@ -157,11 +157,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
         fig, axs = plt.subplots(4)
 
         axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['w0'], c='r', label="weight")
-        #axs[1].plot(res['times'], res['pre_trace_AMPA0'], c='b', label="pre_trace")
-        #axs[1].plot(res['times'], res['post_trace_AMPA0'], c='g', label="post_trace")
-        axs[2].plot(res['times'], res['i_tot_AMPA0'], c='b', label="AMPA")
-        axs[2].plot(res['times'], res['i_tot_AMPA_third_factor_stdp_synapse_nestml0'], c='g', label="AMPA STDP")
+        axs[1].plot(res['times'], res['w_input1'], c='r', label="weight")
+        #axs[1].plot(res['times'], res['pre_trace_input1'], c='b', label="pre_trace")
+        #axs[1].plot(res['times'], res['post_trace_input1'], c='g', label="post_trace")
+        axs[2].plot(res['times'], res['i_tot_input0'], c='b', label="AMPA")
+        axs[2].plot(res['times'], res['i_tot_input1'], c='g', label="AMPA STDP")
         label_set = False
         for spike in pre_spikes_rec['times']:
             if(label_set):
@@ -178,8 +178,8 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 axs[2].axvline(x=spike, color='orange', linestyle='--', linewidth=1, label="post syn spikes")
                 label_set = True
 
-        axs[3].plot(res['times'], res['pre_trace0'], c='b', label="pre_trace")
-        axs[3].plot(res['times'], res['post_trace0'], c='g', label="post_trace")
+        axs[3].plot(res['times'], res['pre_trace_input1'], c='b', label="pre_trace")
+        axs[3].plot(res['times'], res['post_trace_input1'], c='g', label="post_trace")
 
 
         axs[0].set_title('V_m_0')

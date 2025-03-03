@@ -49,7 +49,7 @@ class ReceptorProcessing(MechanismProcessing):
             # otherwise tests may fail
             mechs_info = cls.collect_and_check_inputs_per_synapse(mechs_info)
 
-        mechs_info = cls.convolution_ode_toolbox_processing(neuron, mechs_info)
+        #mechs_info = cls.convolution_ode_toolbox_processing(neuron, mechs_info)
 
         return mechs_info
 
@@ -66,25 +66,7 @@ class ReceptorProcessing(MechanismProcessing):
                 "internals_used_declared"] = info_collector.get_synapse_specific_internal_declarations(synapse_inline)
             syns_info[synapse_name]["total_used_declared"] = info_collector.get_variable_names_of_synapse(
                 synapse_inline)
-            syns_info[synapse_name]["convolutions"] = defaultdict()
 
-            kernel_arg_pairs = info_collector.get_extracted_kernel_args(
-                synapse_inline)
-            for kernel_var, spikes_var in kernel_arg_pairs:
-                kernel_name = kernel_var.get_name()
-                spikes_name = spikes_var.get_name()
-                convolution_name = info_collector.construct_kernel_X_spike_buf_name(
-                    kernel_name, spikes_name, 0)
-                syns_info[synapse_name]["convolutions"][convolution_name] = {
-                    "kernel": {
-                        "name": kernel_name,
-                        "ASTKernel": info_collector.get_kernel_by_name(kernel_name),
-                    },
-                    "spikes": {
-                        "name": spikes_name,
-                        "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
-                    },
-                }
         return syns_info, info_collector
 
     @classmethod
@@ -99,15 +81,16 @@ class ReceptorProcessing(MechanismProcessing):
             for convolution_name, convolution_info in synapse_info["convolutions"].items(
             ):
                 input_name = convolution_info["spikes"]["name"]
-                new_syns_info[synapse_name]["buffers_used"].add(input_name)
+                if input_name != "self_spikes":
+                    new_syns_info[synapse_name]["buffers_used"].add(input_name)
 
-        # now make sure each synapse is using exactly one buffer
+        # now make sure each synapse is using exactly one buffer except self_spikes
         for synapse_name, synapse_info in syns_info.items():
             buffers = new_syns_info[synapse_name]["buffers_used"]
             if len(buffers) != 1:
                 code, message = Messages.get_syns_bad_buffer_count(
                     buffers, synapse_name)
-                causing_object = synapse_info["inline_expression"]
+                causing_object = synapse_info["root_expression"]
                 Logger.log_message(
                     code=code,
                     message=message,
@@ -117,19 +100,19 @@ class ReceptorProcessing(MechanismProcessing):
 
         return new_syns_info
 
-    @classmethod
-    def convolution_ode_toolbox_processing(cls, neuron, syns_info):
-        if not neuron.get_parameters_blocks():
-            return syns_info
-
-        parameters_block = neuron.get_parameters_blocks()[0]
-
-        for synapse_name, synapse_info in syns_info.items():
-            for convolution_name, convolution_info in synapse_info["convolutions"].items():
-                kernel_buffer = (convolution_info["kernel"]["ASTKernel"], convolution_info["spikes"]["ASTInputPort"])
-                convolution_solution = cls.ode_solve_convolution(neuron, parameters_block, kernel_buffer)
-                syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = convolution_solution
-        return syns_info
+    #@classmethod
+    #def convolution_ode_toolbox_processing(cls, neuron, syns_info):
+    #    if not neuron.get_parameters_blocks():
+    #        return syns_info
+    #
+    #    parameters_block = neuron.get_parameters_blocks()[0]
+#
+ #       for synapse_name, synapse_info in syns_info.items():
+  #          for convolution_name, convolution_info in synapse_info["convolutions"].items():
+   #             kernel_buffer = (convolution_info["kernel"]["ASTKernel"], convolution_info["spikes"]["ASTInputPort"])
+    #            convolution_solution = cls.ode_solve_convolution(neuron, parameters_block, kernel_buffer)
+    #            syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = convolution_solution
+    #    return syns_info
 
     @classmethod
     def ode_solve_convolution(cls,

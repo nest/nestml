@@ -126,3 +126,14 @@ class TestCoCos:
                 'CoCoCmVcompExists.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
             model.get_model_list()[0], LoggingLevel.ERROR)) == 0
+
+    def test_invalid_cm_mech_shared_code(self, setUp):
+        model=ModelParser.parse_file(
+            os.path.join(
+                os.path.realpath(
+                    os.path.join(
+                        os.path.dirname(__file__), 'resources',
+                        'invalid')),
+                'CoCoCmMechSharedCode.nestml'))
+        assert len(Logger.get_all_messages_of_level_and_or_node(
+            model.get_model_list()[0], LoggingLevel.ERROR)) == 4

@@ -1,0 +1,32 @@
+model self_spikes_convolutions:
+    state:
+        concentration real = 0.0
+
+    equations:
+        kernel kern = exp(-t / 10.0)
+        inline secondary real = convolve(kern, self_spikes)
+
+        inline chan_primary real = convolve(kern, self_spikes)                              @mechanism::channel
+
+        inline chan_secondary real = secondary                                              @mechanism::channel
+
+        inline rec_primary real = convolve(kern, in_spikes1) + convolve(kern, self_spikes)   @mechanism::receptor
+
+        inline rec_secondary real = convolve(kern, in_spikes2) + secondary                   @mechanism::receptor
+
+        inline con_in_primary real = in_continuous1*convolve(kern, self_spikes)              @mechanism::continuous_input
+
+        inline con_in_secondary real = in_continuous2*secondary                                            @mechanism::continuous_input
+
+        concentration' = (secondary-(concentration/2)) / 10 ms                              @mechanism::concentration
+
+    input:
+        self_spikes <- spike
+
+        in_spikes1 <- spike
+        in_spikes2 <- spike
+        in_continuous1 real <- continuous
+        in_continuous2 real <- continuous
+
+    output:
+        spike
