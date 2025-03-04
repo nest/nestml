@@ -120,7 +120,7 @@ class GlobalProcessing:
         via object references
         :param neuron: a single neuron instance.
         """
-        return copy.deepcopy(cls.global_info[neuron.get_name()])
+        return cls.global_info[neuron.get_name()]   # return direct refenrence with no copy due to intended external manipulation
 
     @classmethod
     def check_co_co(cls, neuron: ASTModel):

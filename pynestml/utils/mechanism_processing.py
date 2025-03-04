@@ -282,7 +282,7 @@ class MechanismProcessing:
             mechs_info = info_collector.detect_mechs(cls.mechType)
 
             # collect and process all basic mechanism information
-            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info)
+            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info, cls.mechType)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
             #mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
             #breakpoint()

@@ -113,26 +113,6 @@ nest::Global{{cm_unique_suffix}}::append_recordables(std::map< Name, double* >* 
 
 void nest::Global{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp)
 {
-    {% if global_info["ODEs"].items()|length %}
-    std::vector< double > {{ printer_no_origin.print(global_info["time_resolution_var"]) }}(neuron_compartment_count, Time::get_resolution().get_ms());
-    {% endif %}
-
-    {%- for ode_variable, ode_info in global_info["ODEs"].items() %}
-            {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-    std::vector< double > {{ propagator }}(neuron_compartment_count, 0);
-            {%- endfor %}
-    {%- endfor %}
-
-    for(std::size_t i = 0; i < neuron_compartment_count; i++){
-        //update ODE state variable
-        {%- for ode_variable, ode_info in global_info["ODEs"].items() %}
-          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-        {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
-          {%- endfor %}
-          {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-        {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
-          {%- endfor %}
-        {%- endfor %}
         double __resolution = Time::get_resolution().get_ms();
         {%- if global_info["UpdateBlock"] %}
         {%- set function = global_info["UpdateBlock"] %}

@@ -113,13 +113,20 @@ class ASTMechanismInformationCollector(object):
         return mechs_info
 
     @classmethod
-    def collect_mechanism_related_definitions(cls, neuron, mechs_info, global_info):
+    def collect_mechanism_related_definitions(cls, neuron, mechs_info, global_info, mech_type: str):
         """Collects all parts of the nestml code the root expressions previously collected depend on. search
         is cut at other mechanisms root expressions"""
         from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
         from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 
+        if "Dependencies" not in global_info:
+            global_info["Dependencies"] = dict()
+
         for mechanism_name, mechanism_info in mechs_info.items():
+            if mech_type not in global_info["Dependencies"]:
+                global_info["Dependencies"][mech_type] = dict()
+            global_info["Dependencies"][mech_type][mechanism_name] = list()
+
             variable_collector = ASTVariableCollectorVisitor()
             neuron.accept(variable_collector)
             global_states = variable_collector.all_states
@@ -238,8 +245,9 @@ class ASTMechanismInformationCollector(object):
                         for ode in global_odes:
                             if variable.name == ode.lhs.name:
                                 if ode.lhs.name in global_info["States"]:
-                                    is_dependency = True
-                                    #mechanism_dependencies["global"].append(ode)
+                                    global_info["Dependencies"][mech_type][mechanism_name].append(ode.lhs)
+                                    del global_info["States"][ode.lhs.name]
+                                    #is_dependency = True
                                 if isinstance(ode.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                         is_dependency = True
@@ -268,8 +276,10 @@ class ASTMechanismInformationCollector(object):
                         for state in global_states:
                             if variable.name == state.name:
                                 if state.name in global_info["States"]:
-                                    is_dependency = True
                                     mechanism_dependencies["global"].append(state)
+                                    global_info["Dependencies"][mech_type][mechanism_name].append(state)
+                                    del global_info["States"][state.name]
+
                                 if not is_dependency:
                                     mechanism_states.append(state)
 

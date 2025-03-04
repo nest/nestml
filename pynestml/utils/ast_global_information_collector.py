@@ -142,11 +142,11 @@ class ASTGlobalInformationCollector(object):
         mechanism_odes = list()
         synapse_kernels = list()
         mechanism_continuous_inputs = list()
-        mechanism_dependencies = defaultdict()
-        mechanism_dependencies["concentrations"] = list()
-        mechanism_dependencies["channels"] = list()
-        mechanism_dependencies["receptors"] = list()
-        mechanism_dependencies["continuous"] = list()
+        #mechanism_dependencies = defaultdict()
+        #mechanism_dependencies["concentrations"] = list()
+        #mechanism_dependencies["channels"] = list()
+        #mechanism_dependencies["receptors"] = list()
+        #mechanism_dependencies["continuous"] = list()
 
         search_variables = list()
         search_functions = list()
@@ -215,21 +215,21 @@ class ASTGlobalInformationCollector(object):
                             if isinstance(inline.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                     is_dependency = True
-                                    if not (isinstance(global_info["root_expression"],
-                                                       ASTInlineExpression) and inline.variable_name ==
-                                            global_info["root_expression"].variable_name):
-                                        if "channel" in [e.name for e in inline.get_decorators()]:
-                                            if not inline.variable_name in [i.variable_name for i in
-                                                                            mechanism_dependencies["channels"]]:
-                                                mechanism_dependencies["channels"].append(inline)
-                                        if "receptor" in [e.name for e in inline.get_decorators()]:
-                                            if not inline.variable_name in [i.variable_name for i in
-                                                                            mechanism_dependencies["receptors"]]:
-                                                mechanism_dependencies["receptors"].append(inline)
-                                        if "continuous" in [e.name for e in inline.get_decorators()]:
-                                            if not inline.variable_name in [i.variable_name for i in
-                                                                            mechanism_dependencies["continuous"]]:
-                                                mechanism_dependencies["continuous"].append(inline)
+                                    #if not (isinstance(global_info["root_expression"],
+                                    #                   ASTInlineExpression) and inline.variable_name ==
+                                    #        global_info["root_expression"].variable_name):
+                                    #    if "channel" in [e.name for e in inline.get_decorators()]:
+                                    #        if not inline.variable_name in [i.variable_name for i in
+                                    #                                        mechanism_dependencies["channels"]]:
+                                    #            mechanism_dependencies["channels"].append(inline)
+                                    #    if "receptor" in [e.name for e in inline.get_decorators()]:
+                                    #        if not inline.variable_name in [i.variable_name for i in
+                                    #                                        mechanism_dependencies["receptors"]]:
+                                    #            mechanism_dependencies["receptors"].append(inline)
+                                    #    if "continuous" in [e.name for e in inline.get_decorators()]:
+                                    #        if not inline.variable_name in [i.variable_name for i in
+                                    #                                        mechanism_dependencies["continuous"]]:
+                                    #            mechanism_dependencies["continuous"].append(inline)
 
                             if not is_dependency:
                                 mechanism_inlines.append(inline)
@@ -252,13 +252,13 @@ class ASTGlobalInformationCollector(object):
                             if isinstance(ode.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                     is_dependency = True
-                                    if not (isinstance(global_info["root_expression"],
-                                                       ASTOdeEquation) and ode.lhs.name == global_info[
-                                                "root_expression"].lhs.name):
-                                        if "concentration" in [e.name for e in ode.get_decorators()]:
-                                            if not ode.lhs.name in [o.lhs.name for o in
-                                                                    mechanism_dependencies["concentrations"]]:
-                                                mechanism_dependencies["concentrations"].append(ode)
+                                    #if not (isinstance(global_info["root_expression"],
+                                    #                   ASTOdeEquation) and ode.lhs.name == global_info[
+                                    #            "root_expression"].lhs.name):
+                                    #    if "concentration" in [e.name for e in ode.get_decorators()]:
+                                    #        if not ode.lhs.name in [o.lhs.name for o in
+                                    #                                mechanism_dependencies["concentrations"]]:
+                                    #            mechanism_dependencies["concentrations"].append(ode)
 
                             if not is_dependency:
                                 mechanism_odes.append(ode)
@@ -318,7 +318,7 @@ class ASTGlobalInformationCollector(object):
         global_info["SecondaryInlineExpressions"] = mechanism_inlines
         global_info["ODEs"] = mechanism_odes
         global_info["Continuous"] = mechanism_continuous_inputs
-        global_info["Dependencies"] = mechanism_dependencies
+        #global_info["Dependencies"] = mechanism_dependencies
 
         return global_info
 

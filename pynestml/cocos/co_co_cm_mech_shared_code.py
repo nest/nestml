@@ -40,7 +40,7 @@ class CoCoCmMechSharedCode(CoCo):
         used_vars = dict()
         all_info = chan_info | conc_info | rec_info | con_in_info
         for info_name, info in all_info.items():
-            all_vars = list(info['States'].keys()) + list(info["Parameters"].keys()) + list(info["Internals"].keys()) + [e.get_name() for e in info["Dependencies"]["global"]]
+            all_vars = list(info['States'].keys()) + list(info["Parameters"].keys()) + list(info["Internals"].keys())# + [e.get_name() for e in info["Dependencies"]["global"]]
             for var in all_vars:
                 if var not in used_vars.keys():
                     used_vars[var] = list()

@@ -10,21 +10,21 @@ private:
     {%- for pure_variable_name, variable_info in global_info["States"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    std::vector<{{ render_variable_type(variable) }}> {{ variable.name }};
+    std::vector<{{ render_variable_type(variable) }}*> {{ variable.name }};
     {%- endfor %}
 
     // parameters
     {%- for pure_variable_name, variable_info in global_info["Parameters"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    std::vector<{{ render_variable_type(variable) }}> {{ variable.name }};
+    std::vector<const {{ render_variable_type(variable) }}*> {{ variable.name }};
     {%- endfor %}
 
     // internals
     {%- for pure_variable_name, variable_info in global_info["Internals"].items() %}
         {%- set variable = variable_info["ASTVariable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    std::vector<{{ render_variable_type(variable) }}> {{ variable.name }};
+    std::vector<{{ render_variable_type(variable) }}*> {{ variable.name }};
     {%- endfor %}
 
       {%- with %}
