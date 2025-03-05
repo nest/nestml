@@ -96,7 +96,6 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
-    - **neuron_models**: List of neuron model names. Instructs the code generator that models with these names are neuron models.
     - **synapse_models**: List of synapse model names. Instructs the code generator that models with these names are synapse models.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
@@ -125,7 +124,6 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
-        "neuron_models": [],
         "synapse_models": [],
         "preserve_expressions": True,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
@@ -267,7 +265,7 @@ class NESTCodeGenerator(CodeGenerator):
         super().generate_synapse_code(synapse)
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         self.run_nest_target_specific_cocos(neurons, synapses)
         self.analyse_transform_neurons(neurons)

@@ -66,6 +66,12 @@ Sometimes it can be convenient to directly edit the generated code. To manually 
 where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home/nest/work/nest-install``).
 
 
+Generating code for synapses
+----------------------------
+
+In NEST, synapses derive from the C++ class ``Connection``, whereas neurons derive from ``Node``. To make it clear to the code generator whether a given NESTML model is a neuron or synapse model, the code generator option ``synapse_models`` can be used. If the model name ends with the string ``"synapse"`` (for instance, ``"stdp_synapse"``), the model is also interpreted as a synapse.
+
+
 Gap junctions (electrical synapses)
 -----------------------------------
 
