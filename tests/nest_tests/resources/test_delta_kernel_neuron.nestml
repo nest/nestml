@@ -1,12 +1,11 @@
-"""
-test_delta_kernel
-#################
-
-Description
-+++++++++++
-
-Used in NESTML unit testing.
-"""
+# test_delta_kernel
+# #################
+# 
+# Description
+# +++++++++++
+# 
+# Used in NESTML unit testing.
+#
 model test_delta_kernel_neuron:
     state:
         x mV = 0 mV
