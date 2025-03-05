@@ -61,7 +61,7 @@ class TestCoCos:
                         'invalid')),
                 'CoCoCmVariablesDeclared.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model, LoggingLevel.ERROR)) == 6
+            model, LoggingLevel.ERROR)) == 3
 
     def test_valid_cm_variables_declared(self):
         model = self._parse_and_validate_model(
