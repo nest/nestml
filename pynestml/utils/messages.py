@@ -552,24 +552,22 @@ class Messages:
         return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
-    def get_block_not_defined_correctly(cls, block, missing):
+    def get_block_not_defined_correctly(cls, block: str, missing: bool) -> Tuple[MessageCode, str]:
         """
         Indicates that a given block has been defined several times or non.
         :param block: the name of the block which is not defined or defined multiple times.
-        :type block: str
         :param missing: True if missing, False if multiple times.
-        :type missing: bool
-        :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (block is not None and isinstance(block, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(block)
         assert (missing is not None and isinstance(missing, bool)), \
             '(PyNestML.Utils.Message) Not a bool provided (%s)!' % type(missing)
+
         if missing:
             message = block + ' block not defined!'
         else:
             message = block + ' block defined more than once!'
+
         return MessageCode.BLOCK_NOT_CORRECT, message
 
     @classmethod
