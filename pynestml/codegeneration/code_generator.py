@@ -169,8 +169,6 @@ class CodeGenerator(WithOptions):
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
         for synapse in synapses:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Generating code for the synapse {}.".format(synapse.get_name()))
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
