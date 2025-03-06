@@ -55,7 +55,9 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.variable_symbol import BlockType
@@ -617,12 +619,42 @@ class ASTUtils:
         return expressions
 
     @classmethod
-    def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str):
-        """add suffix to variable names recursively throughout astnode"""
+    def add_suffix_to_variable_names(cls, astnode: Union[ASTNode, List], suffix: str, altscope: Optional[Scope] = None):
+        r"""Add suffix to variable names recursively throughout ``astnode``. Symbols will be resolved in the variable's default scope, unless ``altscope`` is set, in which case it will be used to try to resolve variables (this can be used in case of moved variables for neuron/synapse co-generation)."""
 
         if not isinstance(astnode, ASTNode):
             for node in astnode:
-                ASTUtils.add_suffix_to_variable_names(node, suffix)
+                ASTUtils.add_suffix_to_variable_names(node, suffix, altscope=altscope)
+            return
+
+        if altscope:
+            scope = altscope
+        else:
+            scope = astnode.get_scope()
+
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if not var.get_name() in PredefinedVariables.get_variables().keys() \
+               and not var.get_name().endswith(suffix):
+                symbol = scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                if symbol:    # make sure it is not a unit (like "ms")
+                    var.set_name(var.get_name() + suffix)
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+
+    @classmethod
+    def set_new_scope(cls, astnode: Union[ASTNode, List], new_scope: Scope):
+        r"""set new scope on variables recursively throughout astnode"""
+
+        if not isinstance(astnode, ASTNode):
+            for node in astnode:
+                ASTUtils.set_new_scope(node, new_scope)
             return
 
         def replace_var(_expr=None):
@@ -633,11 +665,10 @@ class ASTUtils:
             else:
                 return
 
-            if not var.get_name() == "t" \
-               and not var.get_name().endswith(suffix):
-                symbol = astnode.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+            if not var.get_name() in PredefinedVariables.get_variables().keys():
+                symbol = new_scope.resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                 if symbol:    # make sure it is not a unit (like "ms")
-                    var.set_name(var.get_name() + suffix)
+                    var.update_scope(new_scope)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
