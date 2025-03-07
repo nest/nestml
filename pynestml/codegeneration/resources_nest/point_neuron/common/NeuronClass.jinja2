@@ -801,7 +801,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     if (B_.spike_input_received_grid_sum_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR])
     {
       // B_.spike_input_received_[{{ inport.upper() }} - MIN_SPIKE_RECEPTOR] = false;  // no need to reset the flag -- reading from the RingBuffer into the "grid_sum" variables resets the RingBuffer entries
-      on_receive_block_{{ blk.get_port_name() }}();
+      on_receive_block_{{ blk.get_port_name() }}(origin, lag);
     }
 {%- endfor %}
 
@@ -1143,9 +1143,18 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%- for blk in neuron.get_on_receive_blocks() %}
 {%-     set ast = blk.get_stmts_body() %}
 void
-{{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()
+{{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag)
 {
+#ifdef DEBUG
+  std::cout << "[neuron " << this << "] {{ neuronName }}::on_receive_block_{{ blk.get_port_name() }}()" << std::endl;
+#endif
+
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
+  auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
+
+    /**
+     * Begin NESTML generated code for the onReceive() block statements
+    **/
 
 {%-     filter indent(2, True) -%}
 {%-         include "directives_cpp/StmtsBody.jinja2" %}

@@ -475,7 +475,7 @@ public:
 
 {%  filter indent(2, True) -%}
 {%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ blk.get_port_name() }}();
+    void on_receive_block_{{ blk.get_port_name() }}(nest::Time const &origin, const long lag);
 {%-     endfor %}
 {%- endfilter %}
 
