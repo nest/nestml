@@ -18,16 +18,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class GSLVariablePrinter(CppVariablePrinter):
     r"""
-    Reference converter for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
+    Variable printer for C++ syntax and using the GSL (GNU Scientific Library) API from inside the ``extern "C"`` stepping function.
     """
 
     def print_variable(self, node: ASTVariable) -> str:
@@ -38,6 +41,16 @@ class GSLVariablePrinter(CppVariablePrinter):
         """
         assert isinstance(node, ASTVariable)
         symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(), SymbolKind.VARIABLE)
+
+        if symbol is None:
+            # test if variable name can be resolved to a type
+            if PredefinedUnits.is_unit(node.get_complete_name()):
+                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.get_complete_name()).get_unit()))
+
+            code, message = Messages.get_could_not_resolve(node.get_name())
+            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
+                               error_position=node.get_source_position())
+            return ""
 
         if node.is_delay_variable():
             return self._print_delay_variable(node)

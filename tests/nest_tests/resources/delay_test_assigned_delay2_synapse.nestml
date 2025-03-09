@@ -1,7 +1,6 @@
-"""
-delay_test_assigned_delay2_synapse
-##################################
-"""
+# delay_test_assigned_delay2_synapse
+# ##################################
+#
 model delay_test_assigned_delay2_synapse:
   state:
     w real = 1    # Synaptic weight

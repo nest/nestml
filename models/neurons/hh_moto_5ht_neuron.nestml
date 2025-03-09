@@ -1,35 +1,35 @@
-"""
-hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
-#############################################################################
-
-Description
-+++++++++++
-
-hh_moto_5ht is an implementation of a spiking motor neuron using the Hodgkin-Huxley formalism according to [2]_. Basically this model is an implementation of the existing NEURON model [1]_.
-
-The parameter that represents 5HT modulation is ``g_K_Ca_5ht``. When it equals 1, no modulation happens. An application of 5HT corresponds to its decrease. The default value for it is 0.6. This value was used in the Neuron simulator model. The range of this parameter is (0, 1] but you are free to play with any value.
-
-Post-synaptic currents and spike detection are the same as in hh_psc_alpha.
-
-
-References
-++++++++++
-
-.. [1] Muscle spindle feedback circuit by Moraud EM and Capogrosso M.
-       https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=189786
-
-.. [2] Compartmental model of vertebrate motoneurons for Ca2+-dependent spiking and plateau potentials under pharmacological treatment.
-       Booth V, Rinzel J, Kiehn O.
-       http://refhub.elsevier.com/S0896-6273(16)00010-6/sref4
-
-.. [3] Repository: https://github.com/research-team/hh-moto-5ht
-
-
-See also
-++++++++
-
-hh_psc_alpha
-"""
+# hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation
+# #############################################################################
+# 
+# Description
+# +++++++++++
+# 
+# hh_moto_5ht is an implementation of a spiking motor neuron using the Hodgkin-Huxley formalism according to [2]_. Basically this model is an implementation of the existing NEURON model [1]_.
+# 
+# The parameter that represents 5HT modulation is ``g_K_Ca_5ht``. When it equals 1, no modulation happens. An application of 5HT corresponds to its decrease. The default value for it is 0.6. This value was used in the Neuron simulator model. The range of this parameter is (0, 1] but you are free to play with any value.
+# 
+# Post-synaptic currents and spike detection are the same as in hh_psc_alpha.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Muscle spindle feedback circuit by Moraud EM and Capogrosso M.
+# https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=189786
+# 
+# .. [2] Compartmental model of vertebrate motoneurons for Ca2+-dependent spiking and plateau potentials under pharmacological treatment.
+# Booth V, Rinzel J, Kiehn O.
+# http://refhub.elsevier.com/S0896-6273(16)00010-6/sref4
+# 
+# .. [3] Repository: https://github.com/research-team/hh-moto-5ht
+# 
+# 
+# See also
+# ++++++++
+# 
+# hh_psc_alpha
+#
+#
 model hh_moto_5ht_neuron:
     state:
         V_m mV = V_m_init    # Membrane potential

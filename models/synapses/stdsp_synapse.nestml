@@ -1,14 +1,14 @@
-"""
-stdsp_synapse - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
-#############################################################################################################
-
-Description
-+++++++++++
-
-References
-++++++++++
-
-"""
+# stdsp_synapse - Synapse model for spike-timing dependent plasticity with postsynaptic third-factor modulation
+# #############################################################################################################
+# 
+# Description
+# +++++++++++
+# 
+# References
+# ++++++++++
+# 
+#
+#
 model stdsp_synapse:
     state:
         permanence real = 1.
