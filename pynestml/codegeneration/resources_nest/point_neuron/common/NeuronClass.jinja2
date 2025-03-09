@@ -906,7 +906,7 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
      * Begin NESTML generated code for the update block(s)
     **/
 {%  if neuron.get_update_blocks() %}
-{%-     filter indent(2) %}
+{%-     filter indent(4) %}
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_stmts_body() %}
 {%-             if ast.print_comment('*')|length > 1 %}
@@ -1031,23 +1031,21 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 {%- for inputPortSymbol in neuron.get_spike_input_ports() %}
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inputPortSymbol.name.split(".")[0]) %}
 
-
 {%- if inputPortSymbol.name not in linear_time_invariant_spiking_input_ports %}
-
 
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}
 {%-         for i in range(size)  %}
 {%-             if inputPort.get_parameters() %}
 {%-                 for parameter in inputPort.get_parameters() %}
-  std::list< double >& __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
+    std::list< double >& __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
   __spike_input_{{ inputPort.name }}_VEC_IDX_{{ i }}__DOT__{{ parameter.get_name() }}_list.clear();
 {%-                 endfor %}
 {%-             endif %}
 {%-         endfor %}
 {%-     else %}
 {%-         for parameter in inputPort.get_parameters() %}
-  std::list< double >& __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
+    std::list< double >& __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list = B_.spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_.get_list(lag);
   __spike_input_{{ inputPort.name }}__DOT__{{ parameter.get_name() }}_list.clear();
 {%-         endfor %}
 
@@ -1059,19 +1057,6 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
 
 {%- endfor %}
 {%- endif %}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 {%- if use_gap_junctions %}
@@ -1468,7 +1453,7 @@ void
   for (size_t spike_idx = 0; spike_idx < n_spikes; ++spike_idx)
   {
     /**
-     * Grab the actual spike event data from the buffers (for the current timepoint ``origin lag``)
+     * Grab the actual spike event data from the buffers (for the current timepoint ``origin + / start rendered code for integrate_olag``)
     **/
 {%-     if inputPortSymbol.has_vector_parameter() %}
 {%-         set size = utils.get_numeric_vector_size(inputPortSymbol) %}

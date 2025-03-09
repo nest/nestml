@@ -1096,7 +1096,7 @@ The units are the same as for a single delta function.
 
 Each spike event can optionally contain one or more attributes, such as weight or delay. These are given numerical values by the sending side when calling ``emit_spike()``, and are read out by the receiving side, by appending a dot (fullstop) to the name of the spiking input port and then writing the name of the attribute.
 
-For example, say there is a train of weighted spike events, with each event :math:$k$ having weight :math:`w_k`:
+For example, say there is a train of weighted spike events, with each event :math:`k` having weight :math:`w_k`:
 
 .. math::
 
@@ -1109,9 +1109,7 @@ A spiking input port that is suitable for handling these events could be defined
    input:
        spikes_in <- spike(w real)
 
-Note that the units of ``spikes_in`` are again in 1/s.
-
-If a physical unit is specified (such as pA or mV), the numeric value of the attribute is interpreted as having the units given in the definition of the input port. For example, if :math:`w_k` is assumed to be in units of mV, then in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` are in mV/s, and the input port can be defined as follows:
+Note that the units of ``spikes_in.w`` are again in 1/s, as ``w`` has been defined as a dimensionless real number. If a physical unit is specified (such as pA or mV), the numeric value of the attribute is interpreted as having the units given in the definition of the input port. For example, if :math:`w_k` is assumed to be in units of mV, then in combination with the 1/s unit of the delta train, the units of ``spikes_in.w`` would be in mV/s, and the input port can be defined as follows:
 
 .. code-block:: nestml
 
@@ -1196,15 +1194,15 @@ The statements in the event handler will be executed when the event occurs and i
 
 .. math::
 
-   \int_{t^-}^{t^+} \dot\mathbf{x}(t) dt
+   \int_{t^-}^{t^+} \dot{\mathbf{x}}(t) dt
 
-Because the statements in the ``onReceive`` block are executed "instantaneously" at the time of the spike, the units of 1/s due to the definition of the delta function drop out. For instance, when a port is defined with an attribute "w" in units of mV, then the following has consistent units:
+Because the statements in the ``onReceive`` block are executed "instantaneously" at the time of the spike, the units of 1/s due to the definition of the delta function drop out. For instance, when a port is defined with an attribute "psp" in units of mV, then the following has consistent units:
 
 .. code-block:: nestml
 
    onReceive(in_spikes):
-       V_m mV = 42 mV
-       V_m += in_spikes.w    # consistent units
+       V_m mV = 0 mV
+       V_m += in_spikes.psp    # consistent units: lhs and rhs both in [mV]
 
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority. For example:
 
@@ -1218,7 +1216,7 @@ To specify in which sequence the event handlers should be called in case multipl
 
 In this case, if a pre- and postsynaptic spike are received at the exact same time, the higher-priority ``post_spikes`` handler will be invoked first.
 
-Vector input ports of constant size can be used:
+Vector input ports of constant size and with a constant numerical value for the index can be used:
 
 .. code-block:: nestml
 
