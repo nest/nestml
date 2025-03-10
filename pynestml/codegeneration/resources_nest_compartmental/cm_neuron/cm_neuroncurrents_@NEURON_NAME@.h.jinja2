@@ -883,6 +883,7 @@ public:
   {% endwith -%}
     if(!mech_found)
     {
+      throw BadProperty( type + " mechanism does not exist." );
       assert( false );
     }
   };
@@ -935,6 +936,7 @@ public:
   {% endwith -%}
     if(!mech_found)
     {
+      throw BadProperty( type + " mechanism does not exist." );
       assert( false );
     }
   };

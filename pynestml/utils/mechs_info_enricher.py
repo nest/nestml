@@ -38,7 +38,7 @@ from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 
-from build.lib.pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor

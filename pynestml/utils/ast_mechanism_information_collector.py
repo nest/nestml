@@ -365,6 +365,57 @@ class ASTMechanismInformationCollector(object):
                     }
         return mechs_info
 
+    @classmethod
+    def collect_update_block_dependencies_and_owned(cls, mech_info, global_info):
+        for mechanism_name, mechanism_info in mech_info.items():
+            dependencies = list()
+            updated_dependencies = list()
+            owned = list()
+            updated_owned = [v["ASTVariable"] for v_n, v in (mechanism_info["States"] | mechanism_info["Parameters"] | mechanism_info["Internals"]).items()]
+
+            loop_counter = 0
+            while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set([v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
+                owned = updated_owned
+                dependencies = updated_dependencies
+                collector = ASTUpdateBlockDependencyAndOwnedExtractor(owned, dependencies)
+                global_info["UpdateBlock"].accept(collector)
+                updated_owned = collector.owned
+                updated_dependencies = collector.dependencies
+                loop_counter += 1
+
+            if loop_counter > 1:
+                mechanism_info["UpdateBlockComputation"] = dict()
+                mechanism_info["UpdateBlockComputation"]["dependencies"] = dependencies
+                mechanism_info["UpdateBlockComputation"]["owned"] = owned
+
+    @classmethod
+    def recursive_update_block_reduction(cls, mech_info, eliminated, update_block):
+        reduced_update_blocks = dict()
+        reduced_update_blocks["Block"] = update_block
+        reduced_update_blocks["Reductions"] = dict()
+        for mechanism_name, mechanism_info in mech_info.items():
+            if mechanism_name not in eliminated:
+                if "UpdateBlockComputation" in mechanism_info:
+                    owned = mechanism_info["UpdateBlockComputation"]["owned"]
+                    exclusive_dependencies = mechanism_info["UpdateBlockComputation"]["dependencies"]
+                    leftovers_depend = False
+                    for comp_mechanism_name, comp_mechanism_info in mech_info.items():
+                        if mechanism_name != comp_mechanism_name:
+                            if "UpdateBlockComputation" in comp_mechanism_info:
+                                exclusive_dependencies = list(set(exclusive_dependencies)-set(comp_mechanism_info["UpdateBlockComputation"]["dependencies"]))
+                                leftovers_depend = leftovers_depend and len(set(comp_mechanism_info["UpdateBlockComputation"]["dependencies"] + comp_mechanism_info["UpdateBlockComputation"]["owned"]) & set(owned)) > 0
+                    if not leftovers_depend:
+                        new_update_block = update_block.clone()
+                        update_block_reductor = ASTUpdateBlockReductor(owned, exclusive_dependencies)
+                        new_update_block.accept(update_block_reductor)
+                        reduced_update_blocks["Reductions"][mechanism_name] = cls.recursive_update_block_reduction(mech_info, eliminated.append(mechanism_name), new_update_block)
+
+        return reduced_update_blocks
+
+
+
+
+
 
 class ASTMechanismInformationCollectorVisitor(ASTVisitor):
 
@@ -920,3 +971,188 @@ class ASTKernelInformationCollectorVisitor(ASTVisitor):
         assert type(diff_order_symbol) is str
         return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(
             spike_input_port) + diff_order_symbol * order
+
+
+class ASTUpdateBlockDependencyAndOwnedExtractor(ASTVisitor):
+    def __init__(self, init_owned, init_dep):
+        super(ASTUpdateBlockDependencyAndOwnedExtractor, self).__init__()
+
+        self.inside_block = None
+        self.dependencies = init_dep
+        self.owned = init_owned
+
+        self.block_with_dep = False
+        self.block_with_owned = False
+
+        self.control_depth = 0
+        self.current_control_vars = list()
+        self.inside_ctl_condition = False
+
+        self.expression_depth = 0
+
+        self.inside_small_stmt = False
+        self.inside_stmt = False
+        self.inside_variable = False
+        self.inside_if_stmt = False
+        self.inside_while_stmt = False
+        self.inside_for_stmt = False
+
+        self.inside_if_clause = False
+        self.inside_elif_clause = False
+        self.inside_else_clause = False
+        self.inside_for_clause = False
+        self.inside_while_clause = False
+
+    def visit_variable(self, node):
+        self.inside_variable = True
+
+    def endvisit_variable(self, node):
+        self.inside_variable = False
+
+    def visit_if_stmt(self, node):
+        self.inside_if_stmt = True
+        self.control_depth += 1
+        self.inside_ctl_condition = True
+
+    def endvisit_if_stmt(self, node):
+        self.control_depth -= 1
+        self.inside_ctl_condition = False
+        self.current_control_vars.pop()
+        self.inside_if_stmt = False
+
+    def visit_while_stmt(self, node):
+        self.inside_while_stmt = True
+        self.control_depth += 1
+        var_collector = ASTVariableCollectorVisitor()
+        node.condition.accept(var_collector)
+        self.current_control_vars.append(var_collector.all_variables)
+        self.inside_ctl_condition = True
+
+    def endvisit_while_stmt(self, node):
+        self.control_depth -= 1
+        self.inside_ctl_condition = False
+        self.current_control_vars.pop()
+        self.inside_while_stmt = False
+
+    def visit_for_stmt(self, node):
+        self.inside_for_stmt = True
+        self.control_depth += 1
+        var_collector = ASTVariableCollectorVisitor()
+        node.condition.accept(var_collector)
+        self.current_control_vars.append(var_collector.all_variables)
+        self.inside_ctl_condition = True
+
+    def endvisit_for_stmt(self, node):
+        self.control_depth -= 1
+        self.inside_ctl_condition = False
+        self.current_control_vars.pop()
+        self.inside_for_stmt = False
+
+    def visit_if_clause(self, node):
+        self.inside_if_clause = True
+        var_collector = ASTVariableCollectorVisitor()
+        node.condition.accept(var_collector)
+        self.current_control_vars.append(var_collector.all_variables)
+
+    def endvisit_if_clause(self, node):
+        self.inside_if_clause = False
+
+    def visit_elif_clause(self, node):
+        self.inside_elif_clause = True
+        var_collector = ASTVariableCollectorVisitor()
+        node.condition.accept(var_collector)
+        self.current_control_vars[-1].extend(var_collector.all_variables)
+
+    def endvisit_elif_clause(self, node):
+        self.inside_elif_clause = False
+
+    def visit_block(self, node):
+        self.inside_block = True
+        self.inside_ctl_condition = False
+
+    def endvisit_block(self, node):
+        self.inside_block = False
+        self.inside_ctl_condition = True
+
+    def visit_assignment(self, node):
+        self.inside_assignment = True
+        var_collector = ASTVariableCollectorVisitor()
+        node.rhs.accept(var_collector)
+        if node.lhs.get_name() in [n.get_name() for n in (self.dependencies + self.owned)]:
+            self.dependencies.extend(var_collector.all_variables)
+            for dep in self.current_control_vars:
+                self.dependencies.extend(dep)
+
+        if len(set([n.get_name() for n in self.owned]) & set([n.get_name() for n in var_collector.all_variables])):
+            self.owned.append(node.lhs)
+
+    def endvisit_assignment(self, node):
+        self.inside_assignment = False
+
+
+class ASTUpdateBlockReductor(ASTVisitor):
+    def __init__(self, init_owned, init_exclusive_dep):
+        super(ASTUpdateBlockReductor, self).__init__()
+
+        self.dependencies = init_exclusive_dep
+        self.owned = init_owned
+
+        self.delete_stmts = list()
+        self.current_stmt_index = list()
+        self.block_depth = -1
+
+        self.inside_stmt = False
+        self.inside_if_stmt = False
+        self.inside_while_stmt = False
+        self.inside_for_stmt = False
+
+
+    def visit_if_stmt(self, node):
+        self.inside_if_stmt = True
+
+    def endvisit_if_stmt(self, node):
+        all_empty = len(node.get_if_clause().get_block().get_stmts()) == 0
+        for block in [n.get_block() for n in node.get_elif_clauses()]:
+            all_empty = all_empty and len(block.get_stmts()) == 0
+        all_empty = all_empty and len(node.get_else_clause().get_block().get_stmts()) == 0
+        if all_empty:
+            self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
+        self.inside_if_stmt = False
+
+    def visit_while_stmt(self, node):
+        self.inside_while_stmt = True
+
+    def endvisit_while_stmt(self, node):
+        if len(node.get_block().get_stmts()) == 0:
+            self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
+        self.inside_while_stmt = False
+
+    def visit_for_stmt(self, node):
+        self.inside_for_stmt = True
+
+    def endvisit_for_stmt(self, node):
+        if len(node.get_block().get_stmts()) == 0:
+            self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
+        self.inside_for_stmt = False
+
+    def visit_block(self, node):
+        self.inside_block = True
+        self.block_depth += 1
+        self.delete_stmts.append(list())
+
+    def endvisit_block(self, node):
+        for stmt in self.delete_stmts[self.block_depth]:
+            node.delete_stmt(stmt)
+        self.delete_stmts.pop()
+        self.block_depth -= 1
+        self.inside_block = False
+
+    def visit_assignment(self, node):
+        self.inside_assignment = True
+        var_collector = ASTVariableCollectorVisitor()
+        node.rhs.accept(var_collector)
+        if node.lhs.get_name() in [n.get_name() for n in (self.dependencies + self.owned)]:
+            self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
+
+    def endvisit_assignment(self, node):
+        self.inside_assignment = False
