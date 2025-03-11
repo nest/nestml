@@ -112,7 +112,7 @@ class Logger:
         cls.curr_message = counter
 
     @classmethod
-    def log_message(cls, node: ASTNode = None, code: MessageCode = None, message: str = None, error_position: ASTSourceLocation = None, log_level: LoggingLevel = None):
+    def log_message(cls, node: ASTNode = None, code: MessageCode = None, message: str = None, error_position: ASTSourceLocation = None, log_level: LoggingLevel = None, allow_duplicates: bool = False):
         """
         Logs the handed over message on the handed over node. If the current logging is appropriate, the message is also printed.
 
@@ -121,6 +121,7 @@ class Logger:
         :param error_position: the position on which the error occurred.
         :param message: a message.
         :param log_level: the corresponding log level.
+        :param allow_duplicates: whether to ignore or suppress duplicate messages.
         """
         if cls.log_frozen:
             return
@@ -137,16 +138,19 @@ class Logger:
         from pynestml.meta_model.ast_model import ASTModel
 
         if isinstance(node, ASTModel):
-            cls.log[cls.curr_message] = (
-                node.get_artifact_name(), node, log_level, code, error_position, message)
+            new_log_entry = (node.get_artifact_name(), node, log_level, code, error_position, message)
         else:
             if cls.current_node is not None:
                 artifact_name = cls.current_node.get_artifact_name()
             else:
                 artifact_name = ""
 
-            cls.log[cls.curr_message] = (artifact_name, cls.current_node,
-                                         log_level, code, error_position, message)
+            new_log_entry = (artifact_name, cls.current_node, log_level, code, error_position, message)
+
+        if not allow_duplicates and new_log_entry in cls.log.values():
+            return
+
+        cls.log[cls.curr_message] = new_log_entry
 
         cls.curr_message += 1
         if cls.no_print:

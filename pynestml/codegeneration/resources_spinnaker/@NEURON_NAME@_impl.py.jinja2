@@ -18,7 +18,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#  Generated from NESTML at time: {{now}}
+#  Generated from NESTML {{ nestml_version }} at time: {{ now }}
 
 from spinn_front_end_common.interface.ds import DataType
 from spinn_front_end_common.utilities.constants import BYTES_PER_WORD
@@ -147,7 +147,7 @@ class {{neuronName}}Impl(AbstractNeuronImpl):
         return [
 {%- for sym in neuron.get_state_symbols() | sort(attribute="name")%}
             "{{sym.get_symbol_name()}}",
-{%- endfor %} 
+{%- endfor %}
         ]
 
     @overrides(AbstractNeuronImpl.get_recordable_data_types)
