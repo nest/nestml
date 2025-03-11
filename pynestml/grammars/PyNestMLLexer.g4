@@ -31,7 +31,6 @@ lexer grammar PyNestMLLexer;
   // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2
   channels { COMMENT }
 
-  DOCSTRING_TRIPLEQUOTE : '"""';
   fragment NEWLINE_FRAG : '\r'? '\n';  // non-capturing newline, as a helper to define the channel rules
 
   KERNEL_JOINING : COMMA NEWLINE_FRAG WS?;
@@ -40,8 +39,6 @@ lexer grammar PyNestMLLexer;
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' NEWLINE_FRAG -> channel(1);
-
-  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
 
   SL_COMMENT : ('#' (~('\n' | '\r'))* ) -> channel(2);  // we cannot capture the final \n here, because the comment might appear to the right of an expression
 
