@@ -1,22 +1,20 @@
-"""
-iaf_psc_exp - Leaky integrate-and-fire neuron model
-###################################################
-
-Description
-+++++++++++
-
-...
-
-
-References
-++++++++++
-
-...
-
-See also
-++++++++
-
-"""
+# iaf_psc_exp - Leaky integrate-and-fire neuron model
+# ###################################################
+#
+# Description
+# +++++++++++
+#
+# ...
+#
+#
+# References
+# ++++++++++
+#
+# ...
+#
+# See also
+# ++++++++
+#
 model iaf_psc_exp_neuron:
 
     state:

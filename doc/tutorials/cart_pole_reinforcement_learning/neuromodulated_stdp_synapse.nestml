@@ -1,27 +1,27 @@
-"""
-stdp - Synapse model for spike-timing dependent plasticity
-#########################################################
-
-...
-
-"""
+# stdp - Synapse model for spike-timing dependent plasticity
+# ##########################################################
+#
+# ...
+#
 model neuromodulated_stdp_synapse:
     state:
         w real = 1    # Synaptic weight
+        wtr real = 1
         pre_trace real = 0.
         post_trace real = 0.
 
     parameters:
         n real = 0.    # neuromodulator concentration between 0 and 1
         d ms = 1 ms    # Synaptic transmission delay
-        lambda real = .01
+        beta real = 0.01  # learning rate
         tau_tr_pre ms = 20 ms
         tau_tr_post ms = 20 ms
-        alpha real = 1
-        mu_plus real = 1
-        mu_minus real = 1
+        pre_trace_increment real = 1.
+        post_trace_increment real = 1.
         Wmax real = 100.
         Wmin real = 0.
+        wtr_max real = 0.1
+        wtr_min real = 0
 
     equations:
         pre_trace' = -pre_trace / tau_tr_pre
@@ -35,18 +35,18 @@ model neuromodulated_stdp_synapse:
         spike(weight real, delay ms)
 
     onReceive(post_spikes):
-        post_trace += 1
+        post_trace += -1.05E-7 #  XXX FIXME!!!! should be ``+= post_trace_increment``
 
-        # potentiate synapse
-        w += n * (lambda * ( 1. -  w )**mu_plus * pre_trace )
-        w = min(Wmax, w)
+        wtr += pre_trace
+        wtr = max(wtr_min, wtr)
+        wtr = min(wtr_max, wtr)
 
     onReceive(pre_spikes):
-        pre_trace += 1
+        pre_trace += pre_trace_increment
 
-        # depress synapse
-        w -= n * ( alpha * lambda * w**mu_minus * post_trace )
-        w = max(Wmin, w)
+        wtr += post_trace
+        wtr = max(wtr_min, wtr)
+        wtr = min(wtr_max, wtr)
 
         # deliver spike to postsynaptic partner
         emit_spike(w, d)
