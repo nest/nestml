@@ -24,6 +24,8 @@ from typing import Sequence, Optional, Mapping, Any, Dict
 import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
+from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 
 
@@ -68,6 +70,6 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         namespace["nestml_version"] = pynestml.__version__
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-        namespace["parameters"] = NESTTools.get_neuron_parameters(neuron.get_name())
+        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(neuron.get_name())
 
         return namespace

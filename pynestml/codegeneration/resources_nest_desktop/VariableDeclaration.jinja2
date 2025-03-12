@@ -1,0 +1,12 @@
+{%- for variable in symbols %}
+{%- set name = variable.get_symbol_name() %}
+{%- set type_symbol = variable.get_type_symbol().print_symbol() %}
+{%- set default_value = vars[variable.get_symbol_name()] %}
+{%- set last = loop.last %}
+    {
+        "id": "{{name}}",
+        "label": "{{variable.print_comment().strip()}}",
+        "unit": "{{type_symbol}}",
+        "value": "{{default_value}}"
+    }{%- if not last %},{%- endif %}
+{%- endfor %}
