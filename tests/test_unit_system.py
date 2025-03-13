@@ -28,7 +28,7 @@ from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSi
 from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
-from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
+from pynestml.codegeneration.printers.nestml_variable_printer import NESTMLVariablePrinter
 from pynestml.frontend.pynestml_frontend import generate_target
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -58,7 +58,7 @@ class TestUnitSystem:
 
         Logger.init_logger(LoggingLevel.INFO)
 
-        variable_printer = NestMLVariablePrinter(None)
+        variable_printer = NESTMLVariablePrinter(None)
         function_call_printer = NESTCppFunctionCallPrinter(None)
         cpp_variable_printer = CppVariablePrinter(None)
         self.printer = CppExpressionPrinter(CppSimpleExpressionPrinter(cpp_variable_printer,
@@ -72,7 +72,7 @@ class TestUnitSystem:
 
     def get_first_statement_in_update_block(self, model):
         if model.get_model_list()[0].get_update_blocks()[0]:
-            return model.get_model_list()[0].get_update_blocks()[0].get_stmts_body().get_stmts()[0]
+            return model.get_model_list()[0].get_update_blocks()[0].get_block().get_stmts()[0]
 
         return None
 
@@ -103,7 +103,7 @@ class TestUnitSystem:
 
     def print_first_return_statement_in_first_declared_function(self, model):
         func = self.get_first_declared_function(model)
-        return_expression = func.get_stmts_body().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
+        return_expression = func.get_block().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
         return self.printer.print(return_expression)
 
     def test_expression_after_magnitude_conversion_in_direct_assignment(self):
