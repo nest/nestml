@@ -31,12 +31,12 @@ class ODEToolboxVariablePrinter(VariablePrinter):
     """
 
     def print_variable(self, node: ASTVariable) -> str:
-        """
+        r"""
         Print variable.
         :param node: the node to print
         :return: string representation
         """
-        s = node.get_complete_name().replace("$", "__DOLLAR")
+        s = node.get_name().replace("$", "__DOLLAR") + "__d" * node.get_differential_order()
 
         # input ports that appear here should be treated as trains of delta pulses
         model = ASTUtils.find_parent_node_by_type(node, ASTModel)

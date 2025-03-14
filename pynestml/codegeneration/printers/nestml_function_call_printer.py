@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nestml_variable_printer.py
+# nestml_function_call_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,27 +19,22 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.printers.variable_printer import VariablePrinter
-from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 
 
-class NESTMLVariablePrinter(VariablePrinter):
+class NESTMLFunctionCallPrinter(FunctionCallPrinter):
     r"""
-    Print ``ASTVariable``s in NESTML syntax.
+    Printer for ASTFunctionCall in C++ syntax.
     """
 
-    def print_variable(self, node: ASTVariable):
-        assert isinstance(node, ASTVariable)
+    def print_function_call(self, node: ASTFunctionCall) -> str:
+        ret = str(node.get_name()) + "("
+        for i in range(0, len(node.get_args())):
+            ret += self._expression_printer.print(node.get_args()[i])
+            if i < len(node.get_args()) - 1:  # in the case that it is not the last arg, print also a comma
+                ret += ","
 
-        ret = node.name
-
-        if node.get_attribute():
-            s += "." + node.get_attribute()
-
-        if node.get_vector_parameter():
-            ret += "[" + self._expression_printer.print(node.get_vector_parameter()) + "]"
-
-        for i in range(1, node.differential_order + 1):
-            ret += "'"
+        ret += ")"
 
         return ret
