@@ -54,6 +54,16 @@ model update_block_variation_test:
         inline chan2 real = chan2_activation * (chan2_state + chan2_global_state)   @mechanism::channel
 
     update:
+        in_block_var real = global_state
+        chan1_global_state = 2 * in_block_var
+
         if global_state > 0:
-            chan1_global_state = chan2_global_state
+            chan2_global_state = 1
+        elif global_state < 0:
+            chan2_global_state = -1
+        else:
+            chan2_global_state = 0
+
+        chan1_global_state = global_state
+        chan2_global_state = global_state
 

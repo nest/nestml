@@ -263,6 +263,15 @@ class MechanismProcessing:
     #                                                                                     global_info["UpdateBlock"])
 
     @classmethod
+    def extract_mech_blocks(cls, info_collector, mechs_info, global_info):
+        info_collector.collect_block_dependencies_and_owned(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
+        info_collector.block_reduction(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
+
+        info_collector.collect_block_dependencies_and_owned(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
+        info_collector.block_reduction(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
+
+
+    @classmethod
     def get_mechs_info(cls, neuron: ASTModel):
         """
         returns previously generated mechs_info
@@ -290,9 +299,9 @@ class MechanismProcessing:
 
             # collect and process all basic mechanism information
             mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info, cls.mechType)
-            mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
             #mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
-            info_collector.collect_update_block_dependencies_and_owned(mechs_info, global_info)
+            cls.extract_mech_blocks(info_collector, mechs_info, global_info)
+            mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
 
             mechs_info = info_collector.collect_kernels(neuron, mechs_info)
             mechs_info = cls.convolution_ode_toolbox_processing(neuron, mechs_info)

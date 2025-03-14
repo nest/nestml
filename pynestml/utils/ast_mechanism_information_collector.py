@@ -366,27 +366,39 @@ class ASTMechanismInformationCollector(object):
         return mechs_info
 
     @classmethod
-    def collect_update_block_dependencies_and_owned(cls, mech_info, global_info):
+    def collect_block_dependencies_and_owned(cls, mech_info, block, block_type):
         for mechanism_name, mechanism_info in mech_info.items():
             dependencies = list()
             updated_dependencies = list()
             owned = list()
-            updated_owned = [v["ASTVariable"] for v_n, v in (mechanism_info["States"] | mechanism_info["Parameters"] | mechanism_info["Internals"]).items()]
+            updated_owned = mechanism_info["States"] + mechanism_info["Parameters"] + mechanism_info["Internals"]
 
             loop_counter = 0
             while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set([v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
                 owned = updated_owned
                 dependencies = updated_dependencies
                 collector = ASTUpdateBlockDependencyAndOwnedExtractor(owned, dependencies)
-                global_info["UpdateBlock"].accept(collector)
+                block.accept(collector)
                 updated_owned = collector.owned
                 updated_dependencies = collector.dependencies
                 loop_counter += 1
 
-            if loop_counter > 1:
-                mechanism_info["UpdateBlockComputation"] = dict()
-                mechanism_info["UpdateBlockComputation"]["dependencies"] = dependencies
-                mechanism_info["UpdateBlockComputation"]["owned"] = owned
+            if loop_counter > 0:
+                mechanism_info[block_type] = dict()
+                mechanism_info[block_type]["dependencies"] = dependencies
+                mechanism_info[block_type]["owned"] = owned
+
+    @classmethod
+    def block_reduction(cls, mech_info, block, block_type):
+        for mechanism_name, mechanism_info in mech_info.items():
+            if "UpdateBlockComputation" in mechanism_info:
+                owned = mechanism_info[block_type]["owned"]
+                dependencies = mechanism_info[block_type]["dependencies"]
+                new_update_block = block.clone()
+                update_block_reductor = ASTUpdateBlockReductor(owned, dependencies)
+                new_update_block.accept(update_block_reductor)
+                mechanism_info[block_type]["Block"] = new_update_block
+
 
     @classmethod
     def recursive_update_block_reduction(cls, mech_info, eliminated, update_block):
@@ -453,6 +465,13 @@ class VariableInitializationVisitor(ASTVisitor):
         self.parameters = defaultdict()
         self.internals = defaultdict()
         self.channel_info = channel_info
+        self.search_vars = channel_info["States"]+channel_info["Parameters"]+channel_info["Internals"]
+        if "UpdateBlock" in channel_info:
+            self.search_vars += channel_info["UpdateBlock"]["dependencies"]
+            self.search_vars += channel_info["UpdateBlock"]["owned"]
+        if "SelfSpikesFunction" in channel_info:
+            self.search_vars += channel_info["SelfSpikesFunction"]["dependencies"]
+            self.search_vars += channel_info["SelfSpikesFunction"]["owned"]
 
     def visit_declaration(self, node):
         self.inside_declaration = True
@@ -477,20 +496,18 @@ class VariableInitializationVisitor(ASTVisitor):
 
     def visit_variable(self, node):
         self.inside_variable = True
-        if self.inside_state_block and self.inside_declaration:
-            if any(node.name == variable.name for variable in self.channel_info["States"]):
+        if any(node.name == variable.name for variable in self.search_vars):
+            if self.inside_state_block and self.inside_declaration:
                 self.states[node.name] = defaultdict()
                 self.states[node.name]["ASTVariable"] = node.clone()
                 self.states[node.name]["rhs_expression"] = self.current_declaration.get_expression()
 
-        if self.inside_parameter_block and self.inside_declaration:
-            if any(node.name == variable.name for variable in self.channel_info["Parameters"]):
+            if self.inside_parameter_block and self.inside_declaration:
                 self.parameters[node.name] = defaultdict()
                 self.parameters[node.name]["ASTVariable"] = node.clone()
                 self.parameters[node.name]["rhs_expression"] = self.current_declaration.get_expression()
 
-        if self.inside_internal_block and self.inside_declaration:
-            if any(node.name == variable.name for variable in self.channel_info["Internals"]):
+            if self.inside_internal_block and self.inside_declaration:
                 self.internals[node.name] = defaultdict()
                 self.internals[node.name]["ASTVariable"] = node.clone()
                 self.internals[node.name]["rhs_expression"] = self.current_declaration.get_expression()

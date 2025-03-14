@@ -47,7 +47,7 @@ class GlobalInfoEnricher:
         pass
 
     @classmethod
-    def enrich_with_additional_info(cls, neuron: ASTModel, global_info: dict, all_mechs_info):
+    def enrich_with_additional_info(cls, neuron: ASTModel, global_info: dict):
         global_info = cls.transform_ode_solutions(neuron, global_info)
         global_info = cls.extract_infunction_declarations(global_info)
         #global_info = cls.substituteNoneWithEmptyBlocks(global_info)
@@ -139,8 +139,8 @@ class GlobalInfoEnricher:
         if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
             self_spike_function = global_info["SelfSpikesFunction"]
             self_spike_function.accept(declaration_visitor)
-        if "UpdateBlock" in global_info and global_info["UpdateBlock"]["Block"] is not None:
-            update_block = global_info["UpdateBlock"]["Block"]
+        if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
+            update_block = global_info["UpdateBlock"]
             update_block.accept(declaration_visitor)
 
         declaration_vars = list()
@@ -153,9 +153,9 @@ class GlobalInfoEnricher:
 
     @classmethod
     def substituteNoneWithEmptyBlocks(cls, global_info):
-        if (not "UpdateBlock" in global_info) or (global_info["UpdateBlock"]["Block"] is None):
+        if (not "UpdateBlock" in global_info) or (global_info["UpdateBlock"] is None):
             empty = ModelParser.parse_block("")
-            global_info["UpdateBlock"]["Block"] = empty.clone()
+            global_info["UpdateBlock"] = empty.clone()
         if (not "SelfSpikesFunction" in global_info) or (global_info["SelfSpikesFunction"] is None):
             empty = ModelParser.parse_block("")
             global_info["SelfSpikesFunction"] = empty.clone()
