@@ -184,7 +184,9 @@ class NESTMLPrinter(ModelPrinter):
         if node.get_declarations() is not None:
             for decl in node.get_declarations():
                 ret += self.print(decl)
+
         self.dec_indent()
+
         return ret
 
     def print_model_body(self, node: ASTModelBody) -> str:
@@ -253,11 +255,20 @@ class NESTMLPrinter(ModelPrinter):
         return ret
 
     def print_elif_clause(self, node: ASTElifClause) -> str:
-        return (print_n_spaces(self.indent) + "elif " + self.print(node.get_condition())
-                + ":\n" + self.print(node.get_stmts_body()))
+        ret = print_n_spaces(self.indent) + "elif " + self.print(node.get_condition()) + ":\n"
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
+        return ret
 
     def print_else_clause(self, node: ASTElseClause) -> str:
-        return print_n_spaces(self.indent) + "else:\n" + self.print(node.get_stmts_body())
+        ret = print_n_spaces(self.indent) + "else:\n"
+        self.inc_indent()
+        ret += self.print(node.get_stmts_body())
+        self.dec_indent()
+
+        return ret
 
     def print_equations_block(self, node: ASTEquationsBlock) -> str:
         temp_indent = self.indent
@@ -276,7 +287,9 @@ class NESTMLPrinter(ModelPrinter):
         ret += ("for " + node.get_variable() + " in " + self.print(node.get_start_from()) + "..."
                 + self.print(node.get_end_at()) + " step "
                 + str(node.get_step()) + ":" + print_sl_comment(node.in_comment) + "\n")
+        self.inc_indent()
         ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def print_function_call(self, node: ASTFunctionCall) -> str:
@@ -292,14 +305,18 @@ class NESTMLPrinter(ModelPrinter):
         if node.has_return_type():
             ret += " " + self.print(node.get_return_type())
         ret += ":" + print_sl_comment(node.in_comment) + "\n"
+        self.inc_indent()
         ret += self.print(node.get_stmts_body()) + "\n"
+        self.dec_indent()
         return ret
 
     def print_if_clause(self, node: ASTIfClause) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent)
         ret += print_n_spaces(self.indent) + "if " + self.print(node.get_condition()) + ":"
         ret += print_sl_comment(node.in_comment) + "\n"
+        self.inc_indent()
         ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def print_if_stmt(self, node: ASTIfStmt) -> str:
@@ -444,26 +461,34 @@ class NESTMLPrinter(ModelPrinter):
     def print_on_receive_block(self, node: ASTOnReceiveBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onReceive(" + node.port_name + "):" + print_sl_comment(node.in_comment) + "\n"
+        self.inc_indent()
         ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def print_on_condition_block(self, node: ASTOnConditionBlock) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "onCondition(" + self.print(node.get_cond_expr()) + "):" + print_sl_comment(node.in_comment) + "\n"
+        self.inc_indent()
         ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def print_update_block(self, node: ASTUpdateBlock):
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + "update:" + print_sl_comment(node.in_comment) + "\n"
+        self.inc_indent()
         ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def print_while_stmt(self, node: ASTWhileStmt) -> str:
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += (print_n_spaces(self.indent) + "while " + self.print(node.get_condition())
                 + ":" + print_sl_comment(node.in_comment) + "\n")
+        self.inc_indent()
         ret += self.print(node.get_stmts_body())
+        self.dec_indent()
         return ret
 
     def inc_indent(self):
@@ -482,20 +507,25 @@ def print_ml_comments(comments, indent=0, newline=False) -> str:
         return ""
     ret = ""
     for comment in comments:
-        if "\"\"\"" in comment:
-            return comment + "\n"
+        if comment.lstrip() == "":
+            ret += "# \n"
+
         for c_line in comment.splitlines(True):
             if c_line == "\n":
                 ret += print_n_spaces(indent) + "#" + "\n"
                 continue
             elif c_line.lstrip() == "":
                 continue
+
             ret += print_n_spaces(indent)
             if c_line[len(c_line) - len(c_line.lstrip())] != "#":
-                ret += "#"
+                ret += "# "
+
             ret += c_line + "\n"
+
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
+
     if len(comments) > 0 and newline:
         ret += "\n"
 

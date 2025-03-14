@@ -72,7 +72,7 @@ class TestUnitSystem:
 
     def get_first_statement_in_update_block(self, model):
         if model.get_model_list()[0].get_update_blocks()[0]:
-            return model.get_model_list()[0].get_update_blocks()[0].get_block().get_stmts()[0]
+            return model.get_model_list()[0].get_update_blocks()[0].get_stmts_body().get_stmts()[0]
 
         return None
 
@@ -103,7 +103,7 @@ class TestUnitSystem:
 
     def print_first_return_statement_in_first_declared_function(self, model):
         func = self.get_first_declared_function(model)
-        return_expression = func.get_block().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
+        return_expression = func.get_stmts_body().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
         return self.printer.print(return_expression)
 
     def test_expression_after_magnitude_conversion_in_direct_assignment(self):
