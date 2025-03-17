@@ -41,9 +41,8 @@ except Exception:
 @pytest.fixture(autouse=True,
                 scope="module")
 def nestml_generate_target():
-    r"""Generate the neuron model code"""
+    r"""Generate the NEST C++ code for neuron and synapse models"""
 
-    # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
     files = [os.path.join("models", "neurons", "iaf_psc_delta_neuron.nestml"),
              os.path.join("models", "neurons", "izhikevich_neuron.nestml"),
              os.path.join("models", "synapses", "stdp_synapse.nestml")]
@@ -121,14 +120,19 @@ def run_stdp_network(pre_spike_time, post_spike_time,
     nest.Connect(pre_neuron, spikedet_pre)
     nest.Connect(post_neuron, spikedet_post)
 
-    # get STDP synapse and weight before protocol
+    syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
+
     if custom_synapse_properties:
-        syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
         nest.SetStatus(syn, custom_synapse_properties)
 
+    # get STDP synapse and weight before protocol
     initial_weight = nest.GetStatus(syn)[0][weight_variable_name]
     np.testing.assert_allclose(initial_weight, 1)
+
+    # run the simulation
     nest.Simulate(sim_time)
+
+    # get STDP synapse and weight after protocol
     updated_weight = nest.GetStatus(syn)[0][weight_variable_name]
 
     actual_t_pre_sp = nest.GetStatus(spikedet_pre)[0]["events"]["times"][0]
