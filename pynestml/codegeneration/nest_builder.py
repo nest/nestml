@@ -71,10 +71,15 @@ def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
 
 
 class NESTBuilder(Builder):
-    r"""Compile, build and install the NEST C++ code and NEST extension module."""
+    r"""Compile, build and install the NEST C++ code and NEST extension module.
+
+    Options:
+    ``max_n_compiler_processes``: limit the maximum number of processes used for compilation. Used for ``-j`` compiler parameter.
+    """
 
     _default_options = {
-        "nest_path": None
+        "nest_path": None,
+        "max_n_compiler_processes": 4
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
@@ -130,9 +135,11 @@ class NESTBuilder(Builder):
         except AttributeError:
             n_cpu = os.cpu_count()
 
+        n_compiler_processes = min(n_cpu, self.get_option("max_n_compiler_processes"))
+
         nest_config_path = f"-Dwith-nest={os.path.join(nest_path, 'bin', 'nest-config')}"
         cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
-        make_all_cmd = ['make', f'-j{n_cpu}', 'all']
+        make_all_cmd = ['make', f'-j{n_compiler_processes}', 'all']
         make_install_cmd = ['make', 'install']
 
         # remove CMakeCache.txt if exists
