@@ -126,7 +126,7 @@ class Simulator:
         self.connection_ports[source][target] = port
         self.connections[source].append(target)
         if not port in self.neurons[target].get_spiking_input_ports():
-            raise Exception("Tried to connect to unknown input port \"" + port_name + "\" on neuron type \"" + self.neurons[target].get_model() + "\"")
+            raise Exception("Tried to connect to unknown input port \"" + port + "\" on neuron type \"" + self.neurons[target].get_model() + "\"")
 
     def handle(self, source: Neuron) -> None:
         r"""Handle incoming spike"""
