@@ -34,7 +34,7 @@ class NESTMLVariablePrinter(VariablePrinter):
         ret = node.name
 
         if node.get_attribute():
-            s += "." + node.get_attribute()
+            ret += "." + node.get_attribute()
 
         if node.get_vector_parameter():
             ret += "[" + self._expression_printer.print(node.get_vector_parameter()) + "]"

@@ -51,6 +51,11 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.variables_special_cases = variables_special_cases
         self.cpp_variable_suffix = ""
         self.postsynaptic_getter_string_ = "start->get_%s()"
+        self.buffers_are_zero = True
+
+    def set_buffers_to_zero(self, buffers_are_zero: bool):
+        self.buffers_are_zero = buffers_are_zero
+        return ""
 
     def set_getter_string(self, s):
         r"""Returns the empty string, because this method can be called from inside the Jinja template"""
@@ -98,7 +103,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         if variable.get_name() == PredefinedVariables.TIME_CONSTANT:
             return "get_t()"
 
-        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name().replace("__DOT__", "."), SymbolKind.VARIABLE)
 
         if symbol is None:
             # test if variable name can be resolved to a type
@@ -123,10 +128,15 @@ class NESTVariablePrinter(CppVariablePrinter):
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
             if self.cpp_variable_suffix == "":
+                if self.buffers_are_zero and symbol.is_spike_input_port():
+                    # XXX do this in a derived class
+                    return "0.0"
+
                 s += "B_."
             s += self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
+            import pdb;pdb.set_trace()
             return s
 
         if symbol.is_inline_expression:
@@ -156,14 +166,13 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         return ""
 
-    def _print_buffer_value(self, variable: ASTVariable) -> str:
-        """
-        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param variable: a single variable symbol.
-        :return: the corresponding representation as a string
-        """
-        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+    def __print_buffer_value(self, variable: ASTVariable) -> str:
+
+        variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name().replace("__DOT__", "."), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
+            if self.buffers_are_zero:
+                return "0.0" # XXX this should be spun off to a NESTVariablePrinterWithFactorsAsZeros
+
             var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():
                 if variable.get_vector_parameter().is_variable():
@@ -172,7 +181,6 @@ class NESTVariablePrinter(CppVariablePrinter):
                 else:
                     var_name += "_" + str(variable.get_vector_parameter())
 
-            if variable.has_vector_parameter():
                 # add variable attribute if it exists
                 if variable.attribute:
                     return "__spike_input_" + str(variable.name) + "_VEC_IDX_" + str(variable.get_vector_parameter()) + "__DOT__" + variable.attribute
@@ -190,6 +198,17 @@ class NESTVariablePrinter(CppVariablePrinter):
 
         # case of continuous-time input port
         return variable_symbol.get_symbol_name() + '_grid_sum_'
+
+    def _print_buffer_value(self, variable: ASTVariable) -> str:
+        """
+        Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
+        :param variable: a single variable symbol.
+        :return: the corresponding representation as a string
+        """
+        if variable.get_implicit_conversion_factor() and not variable.get_implicit_conversion_factor() == 1:
+            return "(" + str(variable.get_implicit_conversion_factor()) + " * (" + self.__print_buffer_value(variable) + "))"
+
+        return self.__print_buffer_value(variable)
 
     def _print(self, variable: ASTVariable, symbol, with_origin: bool = True) -> str:
         variable_name = CppVariablePrinter._print_cpp_name(variable.get_complete_name())

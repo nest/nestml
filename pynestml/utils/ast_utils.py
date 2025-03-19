@@ -27,7 +27,7 @@ import sympy
 import odetoolbox
 
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
-from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+from pynestml.codegeneration.printers.nestml_simple_expression_printer_units_as_factors import NESTMLSimpleExpressionPrinterUnitsAsFactors
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -2199,12 +2199,16 @@ class ASTUtils:
     def get_delta_factors_(cls, neuron: ASTModel, equations_block: ASTEquationsBlock) -> dict:
         r"""
         For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
+
+        For every occurrence of a mention of the input port `x^(n) = a * inport`, add the element `(x^(n), inport) --> a` to the set.
         """
         delta_factors = {}
 
         for ode_eq in equations_block.get_ode_equations():
             var = ode_eq.get_lhs()
             expr = ode_eq.get_rhs()
+
+            # add the convolutions
             conv_calls = ASTUtils.get_convolve_function_calls(expr)
             for conv_call in conv_calls:
                 assert len(
@@ -2223,7 +2227,203 @@ class ASTUtils:
                     factor_str = " + ".join(factor_str)
                     delta_factors[(var, inport)] = factor_str.replace("__DOT__", ".")
 
+            # add the mentions on an input port
+            input_port_terms = ASTUtils.get_spiking_input_port_terms(neuron, expr)
+            for input_port_term in input_port_terms:
+                expr_str = str(expr)
+                sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str.replace(".", "__DOT__"), global_dict=odetoolbox.Shape._sympy_globals)
+                sympy_expr = sympy.expand(sympy_expr)
+                sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(input_port_term.name.replace(".", "__DOT__"), global_dict=odetoolbox.Shape._sympy_globals)
+                factor_str = []
+                for term in sympy.Add.make_args(sympy_expr):
+                    if str(term).split("__DOT__")[0] == str(sympy_conv_expr):
+                        # factor_str.append(str(term.replace(sympy_conv_expr, 1)))
+                        factor_str.append("1")
+
+                factor_str = " + ".join(factor_str)
+                factor_str = factor_str.replace("__DOT__", ".")
+
+                if (var, input_port_term) in delta_factors.keys():
+                    delta_factors[(var, input_port_term)] += " + " + factor_str
+                else:
+                    delta_factors[(var, input_port_term)] = factor_str
+
+
         return delta_factors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @classmethod
+    def get_delta_factors_from_convolutions(cls, model: ASTModel) -> dict:
+        r"""
+        For every occurrence of a convolution of the form `x^(n) = a * convolve(kernel, inport) + ...` where `kernel` is a delta function, add the element `(x^(n), inport) --> a` to the set.
+        """
+        delta_factors = {}
+
+        for equations_block in model.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                expr = ode_eq.get_rhs()
+                conv_calls = ASTUtils.get_convolve_function_calls(expr)
+                for conv_call in conv_calls:
+                    assert len(conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
+                    kernel = conv_call.args[0]
+                    if ASTUtils.is_delta_kernel(model.get_kernel_by_name(kernel.get_variable().get_name())):
+                        inport = conv_call.args[1].get_variable()
+                        factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, str(conv_call))
+                        assert factor_str
+                        delta_factors[(var, inport)] = factor_str
+
+        return delta_factors
+
+    @classmethod
+    def get_factor_str_from_expr_and_inport(cls, expr, sub_expr):
+        from sympy.physics.units import Quantity, Unit, siemens, milli, micro, nano, pico, femto, kilo, mega, volt, ampere, ohm, farad, second, meter, hertz
+        from sympy import sympify
+
+        units = {
+            'V': volt,                      # Volt
+            'mV': milli * volt,             # Millivolt (10^-3 V)
+            'uV': micro * volt,             # Microvolt (10^-6 V)
+            'nV': nano * volt,              # Nanovolt (10^-9 V)
+
+            'S': siemens,                    # Ampere
+            'nS': nano * siemens,                    # Ampere
+
+            'A': ampere,                    # Ampere
+            'mA': milli * ampere,           # Milliampere (10^-3 A)
+            'uA': micro * ampere,           # Microampere (10^-6 A)
+            'nA': nano * ampere,            # Nanoampere (10^-9 A)
+
+            'Ohm': ohm,                     # Ohm
+            'kOhm': kilo * ohm,             # Kiloohm (10^3 Ohm)
+            'MOhm': mega * ohm,             # Megaohm (10^6 Ohm)
+
+            'F': farad,                     # Farad
+            'uF': micro * farad,            # Microfarad (10^-6 F)
+            'nF': nano * farad,             # Nanofarad (10^-9 F)
+            'pF': pico * farad,             # Picofarad (10^-12 F)
+            'fF': femto * farad,            # Femtofarad (10^-15 F)
+
+            's': second,                    # Second
+            'ms': milli * second,           # Millisecond (10^-3 s)
+            'us': micro * second,           # Microsecond (10^-6 s)
+            'ns': nano * second,            # Nanosecond (10^-9 s)
+
+            'Hz': hertz,                    # Hertz (1/s)
+            'kHz': kilo * hertz,            # Kilohertz (10^3 Hz)
+            'MHz': mega * hertz,            # Megahertz (10^6 Hz)
+
+            'm': meter,                     # Meter
+            'mm': milli * meter,            # Millimeter (10^-3 m)
+            'um': micro * meter,            # Micrometer (10^-6 m)
+            'nm': nano * meter,             # Nanometer (10^-9 m)
+        }
+
+        from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
+        from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
+        from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
+        from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
+        from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
+        from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
+
+        printer = NESTMLPrinter()
+        printer._expression_printer = ODEToolboxExpressionPrinter(simple_expression_printer=None)
+        printer._constant_printer = ConstantPrinter()
+        printer._function_call_printer = NESTCppFunctionCallPrinter(expression_printer=printer._expression_printer)
+        printer._variable_printer = ODEToolboxVariablePrinter(expression_printer=printer._expression_printer)
+        printer._simple_expression_printer = NESTMLSimpleExpressionPrinterUnitsAsFactors(variable_printer=printer._variable_printer, function_call_printer=printer._function_call_printer, constant_printer=printer._constant_printer)
+        printer._expression_printer._simple_expression_printer = printer._simple_expression_printer
+
+        expr_str = printer.print(expr)
+
+        print("In get_delta_factors_from_input_port_references(): parsing " + expr_str)
+        sympy_expr = sympify(expr_str, locals=units)
+        sympy_expr = sympy.expand(sympy_expr)
+        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr)
+        factor_str = []
+        for term in sympy.Add.make_args(sympy_expr):
+            if term.find(sympy_conv_expr):
+                _expr = str(term.replace(sympy_conv_expr, 1))
+                factor_str.append(_expr)
+
+        factor_str = " + ".join(factor_str)
+
+        return factor_str
+
+    @classmethod
+    def get_delta_factors_from_input_port_references(cls, model: ASTModel) -> dict:
+        r"""
+        For every occurrence of a convolution of the form ``x^(n) = a * inport + ...``, add the element `(x^(n), inport) --> a` to the set.
+        """
+        delta_factors = {}
+        print("-----")
+        print("get_delta_factors_from_input_port_references")
+
+        spike_inports = model.get_spike_input_ports()
+        for equations_block in model.get_equations_blocks():
+            for ode_eq in equations_block.get_ode_equations():
+                var = ode_eq.get_lhs()
+                expr = ode_eq.get_rhs()
+
+                for inport_sym in spike_inports:
+                    inport_ = ASTUtils.get_input_port_by_name(model.get_input_blocks(), inport_sym.name)
+
+                    inport_var = ASTNodeFactory.create_ast_variable(inport_sym.name)
+                    inport_var.update_scope(equations_block.get_scope())
+
+                    factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name)
+
+                    if factor_str:
+                        delta_factors[(var, inport_var)] = factor_str
+
+                    for param in inport_.get_parameters():
+                        inport_var = inport_var.clone()
+
+                        inport_var.attribute = param.get_name()
+
+                        factor_str = ASTUtils.get_factor_str_from_expr_and_inport(expr, inport_var.name + "__DOT__" + inport_var.attribute)
+
+                        if factor_str:
+                            delta_factors[(var, inport_var)] = factor_str
+
+        for k, v in delta_factors.items():
+            print("var = " + str(k[0]) + ", inport = " + str(k[1]) + ", expr = " + str(v))
+        print("-----")
+
+        return delta_factors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @classmethod
     def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> ASTDeclaration:
@@ -2610,3 +2810,19 @@ class ASTUtils:
     @classmethod
     def is_parameter(cls, variable) -> str:
         return isinstance(variable, ASTParameter)
+
+    def get_spiking_input_port_terms(model: ASTModel, expr):
+        r"""Collect all terms that refer to a spiking input inside ``expr``"""
+
+        spiking_input_port_terms = []
+        # print([str(s) for s in expr.get_variables()])
+        spike_inports = model.get_spike_input_ports()
+        spike_inport_names = [inport.name for inport in spike_inports]
+
+        for var in expr.get_variables():
+            if str(var).split(".")[0] in spike_inport_names:
+                spiking_input_port_terms.append(var)
+
+        return spiking_input_port_terms
+
+

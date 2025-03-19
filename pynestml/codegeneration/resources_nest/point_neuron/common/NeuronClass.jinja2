@@ -968,11 +968,14 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     /**
      * spike updates due to convolutions
     **/
+
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
 {%  filter indent(4) %}
 {%-     include "directives_cpp/ApplySpikesFromBuffers.jinja2" %}
 {%- endfilter %}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 
     /**
      * Begin NESTML generated code for the onCondition block(s)

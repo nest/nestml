@@ -483,9 +483,6 @@ class NESTMLPrinter(ModelPrinter):
         self.inc_indent()
         ret += self.print(node.get_stmts_body())
         self.dec_indent()
-
-        if node.get_attribute():
-            ret += "." + node.get_attribute()
         return ret
 
     def print_while_stmt(self, node: ASTWhileStmt) -> str:

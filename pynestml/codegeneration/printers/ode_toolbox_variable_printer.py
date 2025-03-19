@@ -36,12 +36,11 @@ class ODEToolboxVariablePrinter(VariablePrinter):
         :param node: the node to print
         :return: string representation
         """
-        s = node.get_name().replace("$", "__DOLLAR") + "__d" * node.get_differential_order()
+        s = node.get_name().replace("$", "__DOLLAR")
 
-        # input ports that appear here should be treated as trains of delta pulses
-        model = ASTUtils.find_parent_node_by_type(node, ASTModel)
-        inport = ASTUtils.get_input_port_by_name(model.get_input_blocks(), node.get_name())
-        if inport and inport.is_spike():
-            return "0.0"
+        if node.get_attribute():
+            s += "__DOT__" + node.get_attribute()
+
+        s += "__d" * node.get_differential_order()
 
         return s

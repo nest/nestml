@@ -23,15 +23,14 @@ from typing import Tuple
 
 import re
 
-from pynestml.symbols.symbol import SymbolKind
-
 from pynestml.codegeneration.printers.function_call_printer import FunctionCallPrinter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbol_table.scope import Scope
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.scope import Scope
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
