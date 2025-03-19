@@ -25,6 +25,7 @@ from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 
 
@@ -85,7 +86,7 @@ class NESTMLExpressionPrinter(ExpressionPrinter):
         if node.is_gt:
             return " > "
 
-        raise RuntimeError("(PyNestML.ComparisonOperator.Print) Type of comparison operator not specified!")
+        raise RuntimeError("Type of comparison operator not specified!")
 
     def print_unary_operator(self, node: ASTUnaryOperator) -> str:
         if node.is_unary_plus:
@@ -118,24 +119,47 @@ class NESTMLExpressionPrinter(ExpressionPrinter):
         if node.is_pow_op:
             return " ** "
 
-        raise RuntimeError("(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.")
+        raise RuntimeError("Arithmetic operator not specified.")
 
     def print_expression(self, node: ASTExpression) -> str:
         ret = ""
         if node.is_expression():
             if node.is_encapsulated:
                 ret += "("
+
             if node.is_logical_not:
                 ret += "not "
+
             if node.is_unary_operator():
-                ret += self.print(node.get_unary_operator())
-            ret += self.print(node.get_expression())
+                ret += self.print_unary_operator(node.get_unary_operator())
+
+            if isinstance(node.get_expression(), ASTExpression):
+                ret += self.print_expression(node.get_expression())
+            elif isinstance(node.get_expression(), ASTSimpleExpression):
+                ret += self._simple_expression_printer.print_simple_expression(node.get_expression())
+            else:
+                raise RuntimeError("Unknown node type")
+
             if node.is_encapsulated:
                 ret += ")"
+
         elif node.is_compound_expression():
-            ret += self.print(node.get_lhs())
+            if isinstance(node.get_lhs(), ASTExpression):
+                ret += self.print_expression(node.get_lhs())
+            elif isinstance(node.get_lhs(), ASTSimpleExpression):
+                ret += self._simple_expression_printer.print_simple_expression(node.get_lhs())
+            else:
+                raise RuntimeError("Unknown node type")
+
             ret += self.print(node.get_binary_operator())
-            ret += self.print(node.get_rhs())
+
+            if isinstance(node.get_rhs(), ASTExpression):
+                ret += self.print_expression(node.get_rhs())
+            elif isinstance(node.get_rhs(), ASTSimpleExpression):
+                ret += self._simple_expression_printer.print_simple_expression(node.get_rhs())
+            else:
+                raise RuntimeError("Unknown node type")
+
         elif node.is_ternary_operator():
             ret += self.print(node.get_condition()) + "?" + self.print(
                 node.get_if_true()) + ":" + self.print(node.get_if_not())
