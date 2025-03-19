@@ -96,7 +96,7 @@ class TestContinuousInput:
 
         nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 3.0, 'delay': 0.5, 'receptor_type': 1})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'i_tot_input0', 'i_tot_input1'], 'interval': .1})
+        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'con_in0', 'AMPA1'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -107,8 +107,8 @@ class TestContinuousInput:
         fig, axs = plt.subplots(2)
 
         axs[0].plot(res['times'], res['v_comp0'], c='b', label='V_m_0')
-        axs[1].plot(res['times'], res['i_tot_input0'], c='r', label='continuous')
-        axs[1].plot(res['times'], res['i_tot_input1'], c='g', label='synapse')
+        axs[1].plot(res['times'], res['con_in0'], c='r', label='continuous')
+        axs[1].plot(res['times'], res['AMPA1'], c='g', label='synapse')
 
         axs[0].set_title('V_m_0')
         axs[1].set_title('inputs')

@@ -342,8 +342,11 @@ class SynsInfoEnricher:
 
     @classmethod
     def get_new_variables_after_transformation(cls, single_synapse_info):
+        total = set()
+        if "total_used_declared" in single_synapse_info:
+            total = single_synapse_info["total_used_declared"]
         return cls.get_all_synapse_variables(single_synapse_info).difference(
-            single_synapse_info["total_used_declared"])
+            total)
 
     @classmethod
     def get_all_synapse_variables(cls, single_synapse_info):

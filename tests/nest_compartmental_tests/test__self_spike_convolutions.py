@@ -102,9 +102,9 @@ class TestSelfSpikeConvolutions:
         nest.Connect(dcg, cm,
                      syn_spec={'synapse_model': 'static_synapse', 'weight': 1.0, 'delay': 0.1, 'receptor_type': 3})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'i_tot_chan_primary0', 'i_tot_chan_secondary0',
-                                                           'i_tot_input0', 'i_tot_input1',
-                                                           'i_tot_input2', 'i_tot_input3',
+        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'chan_primary0', 'chan_secondary0',
+                                                           'rec_primary0', 'rec_secondary1',
+                                                           'con_in_primary2', 'con_in_secondary3',
                                                            'concentration0'], 'interval': .1})
 
         nest.Connect(mm, cm)
@@ -120,12 +120,12 @@ class TestSelfSpikeConvolutions:
         fig, axs = plt.subplots(8)
 
         axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['i_tot_chan_primary0'], c='g', label='chan_primary')
-        axs[2].plot(res['times'], res['i_tot_chan_secondary0'], c='g', label='chan_secondary')
-        axs[3].plot(res['times'], res['i_tot_input0'], c='orange', label='input0')
-        axs[4].plot(res['times'], res['i_tot_input1'], c='orange', label='input1')
-        axs[5].plot(res['times'], res['i_tot_input2'], c='orange', label='input2')
-        axs[6].plot(res['times'], res['i_tot_input3'], c='orange', label='input3')
+        axs[1].plot(res['times'], res['chan_primary0'], c='g', label='chan_primary')
+        axs[2].plot(res['times'], res['chan_secondary0'], c='g', label='chan_secondary')
+        axs[3].plot(res['times'], res['rec_primary0'], c='orange', label='input0')
+        axs[4].plot(res['times'], res['rec_secondary1'], c='orange', label='input1')
+        axs[5].plot(res['times'], res['con_in_primary2'], c='orange', label='input2')
+        axs[6].plot(res['times'], res['con_in_secondary3'], c='orange', label='input3')
         axs[7].plot(res['times'], res['concentration0'], c='b', label='concentration')
 
         label_set = False

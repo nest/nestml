@@ -383,7 +383,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
-            spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+            # spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
             if not self.analytic_solver[synapse.get_name()] is None:
                 synapse = ASTUtils.add_declarations_to_internals(

@@ -136,7 +136,7 @@ class TestCM():
             return [
                 'v_comp0', 'v_comp1',
                 'm_Na0', 'h_Na0', 'n_K0', 'm_Na1', 'h_Na1', 'n_K1',
-                'g_AN_AMPA_input1', 'g_AN_NMDA_input1'
+                'g_AN_AMPA1', 'g_AN_NMDA1'
             ]
         else:
             return [

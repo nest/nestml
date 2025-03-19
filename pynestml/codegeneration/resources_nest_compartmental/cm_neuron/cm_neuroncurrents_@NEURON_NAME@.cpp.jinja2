@@ -327,11 +327,11 @@ nest::{{ion_channel_name}}{{cm_unique_suffix}}::append_recordables(std::map< Nam
   found_rec = false;
   for(size_t chan_id = 0; chan_id < neuron_{{ ion_channel_name }}_channel_count; chan_id++){
       if(compartment_association[chan_id] == compartment_idx){
-        ( *recordables )[ Name( std::string("i_tot_{{ion_channel_name}}") + std::to_string(compartment_idx))] = &i_tot_{{ion_channel_name}}[chan_id];
+        ( *recordables )[ Name( std::string("{{ion_channel_name}}") + std::to_string(compartment_idx))] = &i_tot_{{ion_channel_name}}[chan_id];
         found_rec = true;
       }
   }
-  if(!found_rec) ( *recordables )[ Name( std::string("i_tot_{{ion_channel_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
+  if(!found_rec) ( *recordables )[ Name( std::string("{{ion_channel_name}}") + std::to_string(compartment_idx))] = &zero_recordable;
 }
 
     // initialization channel
@@ -921,13 +921,13 @@ nest::{{receptor_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name, 
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
   for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}_input" + std::to_string(rec_idx[recs_id]) )] = &{{convolution}}[recs_id];
+        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(rec_idx[recs_id]) )] = &{{convolution}}[recs_id];
       }
   }
   {%- endfor %}
     for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_input" + std::to_string(rec_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
+        ( *recordables )[ Name( "{{receptor_name}}" + std::to_string(rec_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
       }
     }
 }
@@ -1328,13 +1328,13 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
   {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
   for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}_input" + std::to_string(syn_idx[recs_id]) )] = &{{convolution}}[recs_id];
+        ( *recordables )[ Name( "{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx[recs_id]) )] = &{{convolution}}[recs_id];
       }
   }
   {%- endfor %}
     for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_input" + std::to_string(syn_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
+        ( *recordables )[ Name( "{{receptor_name}}_{{synapse_name}}" + std::to_string(syn_idx[recs_id]) )] = &i_tot_{{receptor_name}}[recs_id];
       }
     }
 
@@ -1342,7 +1342,7 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
     {%- for pure_variable_name, variable_info in synapse_info["States"].items() %}
   for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "{{pure_variable_name}}_input" + std::to_string(syn_idx[recs_id]) )] = &{{pure_variable_name}}[recs_id];
+        ( *recordables )[ Name( "{{pure_variable_name}}" + std::to_string(syn_idx[recs_id]) )] = &{{pure_variable_name}}[recs_id];
       }
   }
   {%- endfor %}
@@ -1350,7 +1350,7 @@ nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::append_recorda
     {%- for inline_name, inline in synapse_info["Inlines"].items() %}
     for(size_t recs_id = 0; recs_id < neuron_{{ receptor_name }}_receptor_count; recs_id++){
       if(compartment_association[recs_id] == compartment_idx){
-        ( *recordables )[ Name( "{{inline_name}}_input" + std::to_string(syn_idx[recs_id]) )] = &{{inline_name}}[recs_id];
+        ( *recordables )[ Name( "{{inline_name}}" + std::to_string(syn_idx[recs_id]) )] = &{{inline_name}}[recs_id];
       }
     }
   {%- endfor %}
@@ -1739,7 +1739,7 @@ nest::{{continuous_name}}{{cm_unique_suffix}}::append_recordables(std::map< Name
 {
     for(size_t con_in_id = 0; con_in_id < neuron_{{ continuous_name }}_continuous_input_count; con_in_id++){
       if(compartment_association[con_in_id] == compartment_idx){
-        ( *recordables )[ Name( "i_tot_input" + std::to_string(continuous_idx[con_in_id]))] = &i_tot_{{continuous_name}}[con_in_id];
+        ( *recordables )[ Name( "{{continuous_name}}" + std::to_string(continuous_idx[con_in_id]))] = &i_tot_{{continuous_name}}[con_in_id];
       }
     }
 }
