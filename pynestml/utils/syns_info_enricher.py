@@ -22,7 +22,6 @@ import copy
 from collections import defaultdict
 
 import sympy
-from executing.executing import node_linenos
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression

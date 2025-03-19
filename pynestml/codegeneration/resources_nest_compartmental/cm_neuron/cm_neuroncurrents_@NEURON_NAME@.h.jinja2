@@ -111,10 +111,7 @@ private:
     //zero recordable variable in case of zero contribution channel
     double zero_recordable = 0;
 
-    //Global dependencies
-    {% for state in channel_info["Dependencies"]["global"] %}
-    std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }} = {};
-    {% endfor %}
+    std::vector< bool > self_spikes;
 
 public:
     // constructor, destructor
@@ -139,11 +136,14 @@ public:
     void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
 
     // numerical integration step
-    std::pair< std::vector< double >, std::vector< double > > f_numstep( bool point_self_spikes, std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+    std::pair< std::vector< double >, std::vector< double > > f_numstep(std::vector< double > v_comp{% for ode in channel_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if channel_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in channel_info["Dependencies"]["global"] %}, std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}{% endfor %});
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+
+
+    void f_update();
+    void f_self_spike();
 
     // function declarations
 
@@ -210,6 +210,8 @@ private:
     //zero recordable variable in case of zero contribution concentration
     double zero_recordable = 0;
 
+    std::vector< bool > self_spikes;
+
 public:
     // constructor, destructor
     {{ concentration_name }}{{cm_unique_suffix}}(){};
@@ -232,11 +234,13 @@ public:
     void append_recordables(std::map< Name, double* >* recordables, const long compartment_idx);
 
     // numerical integration step
-    void f_numstep( bool point_self_spikes, std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+    void f_numstep(std::vector< double > v_comp{% for ode in concentration_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in concentration_info["Dependencies"]["global"] %}, std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}{% endfor %});
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+
+    void f_update();
+    void f_self_spike();
 
     // function declarations
 {%- for function in concentration_info["Functions"] %}
@@ -312,6 +316,8 @@ private:
   // spike buffer
   std::vector< RingBuffer* > {{receptor_info["buffer_name"]}}_;
 
+    std::vector< bool > self_spikes;
+
 public:
   // constructor, destructor
   {{receptor_name}}{{cm_unique_suffix}}(){};
@@ -326,11 +332,13 @@ public:
   std::vector< size_t > compartment_association = {};
 
   // numerical integration step
-  std::pair< std::vector< double >, std::vector< double > > f_numstep( bool point_self_spikes, std::vector< double > v_comp, const long lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
+  std::pair< std::vector< double >, std::vector< double > > f_numstep(std::vector< double > v_comp, const long lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in receptor_info["Dependencies"]["global"] %}, std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}{% endfor %});
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+
+    void f_update();
+    void f_self_spike();
 
   // calibration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -456,6 +464,7 @@ private:
   std::vector< double > {{inline_name}};
   {%- endfor %}
 
+    std::vector< bool > self_spikes;
 
 public:
   // constructor, destructor
@@ -476,12 +485,15 @@ public:
     {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
     {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
     {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
-  std::pair< std::vector< double >, std::vector< double > > f_numstep( bool point_self_spikes, std::vector< double > v_comp, const long lag {% for ode in conc_dep %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
+  std::pair< std::vector< double >, std::vector< double > > f_numstep(std::vector< double > v_comp, const long lag {% for ode in conc_dep %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if rec_dep|length %}
                         {% endif %}{% for inline in rec_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if chan_dep|length %}
                         {% endif %}{% for inline in chan_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if con_in_dep|length %}
-                        {% endif %}{% for inline in con_in_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if receptor_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in receptor_info["Dependencies"]["global"] %}, std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}{% endfor %});
+                        {% endif %}{% for inline in con_in_dep %}, std::vector< double > {{inline.variable_name}}{% endfor %});
     {%- endwith %}
+
+    void f_update();
+    void f_self_spike();
+
   void  postsynaptic_synaptic_processing();
 
   // calibration
@@ -574,6 +586,8 @@ private:
   std::vector< RingBuffer* > {{ port_name }}_;
   {% endfor %}
 
+    std::vector< bool > self_spikes;
+
 public:
   // constructor, destructor
   {{continuous_name}}{{cm_unique_suffix}}(){};
@@ -588,11 +602,13 @@ public:
   std::vector< size_t > compartment_association = {};
 
   // numerical integration step
-  std::pair< std::vector< double >, std::vector< double > > f_numstep( bool point_self_spikes, std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+  std::pair< std::vector< double >, std::vector< double > > f_numstep(std::vector< double > v_comp, const long lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, std::vector< double > {{ode.lhs.name}}{% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if continuous_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in continuous_info["Dependencies"]["global"] %}, std::vector<{{ render_variable_type(state) }}> {{ printer_no_origin.print(state) }}{% endfor %});
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %});
+
+    void f_update();
+    void f_self_spike();
 
   // calibration
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -626,9 +642,6 @@ public:
 
 {% endfor -%}
 {% endwith -%}
-
-
-{%- include "cm_global_dynamics.h.jinja2" %}
 
 
 ///////////////////////////////////////////// currents
@@ -716,9 +729,6 @@ private:
 
   //compartment gi states
   std::vector < std::pair < double, double > > comps_gi;
-
-  // global dynamics
-  Global{{cm_unique_suffix}} global_dynamics;
 
 public:
   NeuronCurrents{{cm_unique_suffix}}(){};
@@ -942,8 +952,6 @@ public:
   };
 
   void add_compartment(){
-    global_dynamics.new_compartment();
-
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     this->add_mechanism("{{ ion_channel_name }}", compartment_number);
     {% endfor -%}
@@ -979,8 +987,6 @@ public:
   };
 
   void add_compartment(const DictionaryDatum& compartment_params){
-    global_dynamics.new_compartment(compartment_params);
-
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     this->add_mechanism("{{ ion_channel_name }}", compartment_number, compartment_params);
     {% endfor -%}
@@ -1116,8 +1122,6 @@ public:
     {% endfor %}
     {% endwith %}
 
-    global_dynamics.append_recordables( &recordables, compartment_idx );
-
     return recordables;
   };
 
@@ -1149,11 +1153,10 @@ public:
   {%- with %}
     {%- for concentration_name, concentration_info in conc_info.items() %}
     // computation of {{ concentration_name }} concentration
-    {{ concentration_name }}{{concentration_suffix}}.f_numstep( global_dynamics.get_self_spikes(), {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
+    {{ concentration_name }}{{concentration_suffix}}.f_numstep({{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in concentration_info["Dependencies"]["concentrations"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if concentration_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["receptors"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{receptor_suffix}}_shared_current){% endfor %}{% if concentration_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %}{% if concentration_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in concentration_info["Dependencies"]["global"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector(global_dynamics.get_{{ printer_no_origin.print(state) }}()){% endfor %});
+                        {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, {{ concentration_name }}{{concentration_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     {% endfor -%}
   {% endwith -%}
@@ -1164,11 +1167,10 @@ public:
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
-    gi_mech = {{ion_channel_name}}{{channel_suffix}}.f_numstep( global_dynamics.get_self_spikes(), {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
+    gi_mech = {{ion_channel_name}}{{channel_suffix}}.f_numstep({{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector(v_comp_vec){% for ode in channel_info["Dependencies"]["concentrations"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if channel_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["receptors"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{receptor_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in channel_info["Dependencies"]["channels"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %}{% if channel_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in channel_info["Dependencies"]["global"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector(global_dynamics.get_{{ printer_no_origin.print(state) }}()){% endfor %});
+                        {% endif %}{% for inline in channel_info["Dependencies"]["continuous"] %}, {{ion_channel_name}}{{channel_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     con_area_count = {{ion_channel_name}}{{channel_suffix}}_con_area.size();
     if(con_area_count > 0){
@@ -1199,11 +1201,10 @@ public:
   {%- with %}
     {%- for receptor_name, receptor_info in recs_info.items() %}
     // contribution of {{receptor_name}} receptors
-    gi_mech = {{receptor_name}}{{receptor_suffix}}.f_numstep( global_dynamics.get_self_spikes(), {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
+    gi_mech = {{receptor_name}}{{receptor_suffix}}.f_numstep({{receptor_name}}{{receptor_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in receptor_info["Dependencies"]["concentrations"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if receptor_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["receptors"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{inline.variable_name}}{{receptor_suffix}}_shared_current){% endfor %}{% if receptor_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in receptor_info["Dependencies"]["channels"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if receptor_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %}{% if receptor_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in receptor_info["Dependencies"]["global"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector(global_dynamics.get_{{ printer_no_origin.print(state) }}()){% endfor %});
+                        {% endif %}{% for inline in receptor_info["Dependencies"]["continuous"] %}, {{receptor_name}}{{receptor_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     con_area_count = {{receptor_name}}{{receptor_suffix}}_con_area.size();
     if(con_area_count > 0){
@@ -1240,11 +1241,10 @@ public:
     {%- set rec_dep = set(receptor_info["Dependencies"]["receptors"]).union(synapse_info["Dependencies"]["receptors"])%}
     {%- set chan_dep = set(receptor_info["Dependencies"]["channels"]).union(synapse_info["Dependencies"]["channels"])%}
     {%- set con_in_dep = set(receptor_info["Dependencies"]["continuous"]).union(synapse_info["Dependencies"]["continuous"])%}
-    gi_mech = {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.f_numstep( global_dynamics.get_self_spikes(), {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector(v_comp_vec), lag {% for ode in conc_dep %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if rec_dep|length %}
+    gi_mech = {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.f_numstep({{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector(v_comp_vec), lag {% for ode in conc_dep %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if rec_dep|length %}
                         {% endif %}{% for inline in rec_dep %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector({{inline.variable_name}}{{receptor_suffix}}_shared_current){% endfor %}{% if chan_dep|length %}
                         {% endif %}{% for inline in chan_dep %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if con_in_dep|length %}
-                        {% endif %}{% for inline in con_in_dep %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %}{% if receptor_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in receptor_info["Dependencies"]["global"] %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector(global_dynamics.get_{{ printer_no_origin.print(state) }}()){% endfor %});
+                        {% endif %}{% for inline in con_in_dep %}, {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
     {%- endwith %}
     con_area_count = {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}_con_area.size();
     if(con_area_count > 0){
@@ -1276,11 +1276,10 @@ public:
   {%- with %}
     {%- for continuous_name, continuous_info in con_in_info.items() %}
     // contribution of {{continuous_name}} continuous inputs
-    gi_mech = {{continuous_name}}{{continuous_suffix}}.f_numstep( global_dynamics.get_self_spikes(), {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
+    gi_mech = {{continuous_name}}{{continuous_suffix}}.f_numstep({{continuous_name}}{{continuous_suffix}}.distribute_shared_vector(v_comp_vec), lag {% for ode in continuous_info["Dependencies"]["concentrations"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{ode.lhs.name}}{{concentration_suffix}}_shared_concentration){% endfor %}{% if continuous_info["Dependencies"]["receptors"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["receptors"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{receptor_suffix}}_shared_current){% endfor %}{% if continuous_info["Dependencies"]["channels"]|length %}
                         {% endif %}{% for inline in continuous_info["Dependencies"]["channels"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{channel_suffix}}_shared_current){% endfor %}{% if continuous_info["Dependencies"]["continuous"]|length %}
-                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %}{% if continuous_info["Dependencies"]["global"]|length %}
-                        {% endif %}{% for state in continuous_info["Dependencies"]["global"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector(global_dynamics.get_{{ printer_no_origin.print(state) }}()){% endfor %});
+                        {% endif %}{% for inline in continuous_info["Dependencies"]["continuous"] %}, {{continuous_name}}{{continuous_suffix}}.distribute_shared_vector({{inline.variable_name}}{{continuous_suffix}}_shared_current){% endfor %});
 
     con_area_count = {{continuous_name}}{{continuous_suffix}}_con_area.size();
     if(con_area_count > 0){
@@ -1308,8 +1307,6 @@ public:
     {% endfor -%}
   {% endwith -%}
 
-    global_dynamics.f_numstep(v_comp_vec);
-
     return comp_to_gi;
   };
 
@@ -1317,9 +1314,19 @@ public:
     {%- for receptor_name, receptor_info in recs_info.items() %}
         {%- for synapse_name, synapse_info in syns_info.items() %}
     {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.postsynaptic_synaptic_processing();
+    {{receptor_name}}{{receptor_suffix}}_con_{{synapse_name}}.f_self_spike();
         {% endfor -%}
+    {{receptor_name}}{{receptor_suffix}}.f_self_spike();
     {% endfor -%}
-    global_dynamics.f_self_spike();
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}}.f_self_spike();
+    {% endfor -%}
+    {%- for concentration_name, concentration_info in conc_info.items() %}
+    {{concentration_name}}{{concentration_suffix}}.f_self_spike();
+    {% endfor -%}
+    {%- for continuous_name, continuous_info in con_in_info.items() %}
+    {{continuous_name}}{{continuous_suffix}}.f_self_spike();
+    {% endfor -%}
   };
 };
 

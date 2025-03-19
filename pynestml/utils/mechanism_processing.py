@@ -264,11 +264,17 @@ class MechanismProcessing:
 
     @classmethod
     def extract_mech_blocks(cls, info_collector, mechs_info, global_info):
-        info_collector.collect_block_dependencies_and_owned(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
-        info_collector.block_reduction(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
-
-        info_collector.collect_block_dependencies_and_owned(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
-        info_collector.block_reduction(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
+        block_list = list()
+        if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
+            block_list.append(global_info["UpdateBlock"].block)
+        if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
+            block_list.append(global_info["SelfSpikesFunction"].block)
+        if len(block_list) > 0:
+            info_collector.collect_block_dependencies_and_owned(mechs_info, block_list, "UpdateBlock")
+            if "UpdateBlock" in global_info  and global_info["UpdateBlock"] is not None:
+                info_collector.block_reduction(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
+            if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
+                info_collector.block_reduction(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
 
 
     @classmethod

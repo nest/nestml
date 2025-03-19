@@ -21,6 +21,7 @@
 import copy
 from collections import defaultdict
 
+from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.meta_model.ast_expression import ASTExpression
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -273,26 +274,39 @@ class ASTMechanismInformationCollector(object):
                                         local_function_call_collector.all_function_calls,
                                         search_functions + found_functions)
 
-                        for state in global_states:
-                            if variable.name == state.name:
-                                if state.name in global_info["States"]:
-                                    mechanism_dependencies["global"].append(state)
-                                    global_info["Dependencies"][mech_type][mechanism_name].append(state)
-                                    del global_info["States"][state.name]
+                        for state_name, state in global_states.items():
+                            if variable.name == state_name:
+                                if state["ASTVariable"] in global_info["States"]:
+                                    mechanism_dependencies["global"].append(state["ASTVariable"])
+                                    global_info["Dependencies"][mech_type][mechanism_name].append(state["ASTVariable"])
+                                    del global_info["States"][state_name]
 
                                 if not is_dependency:
-                                    mechanism_states.append(state)
+                                    mechanism_states.append(state["ASTVariable"])
 
-                        for parameter in global_parameters:
-                            if variable.name == parameter.name:
-                                mechanism_parameters.append(parameter)
+                        for parameter_name, parameter in global_parameters.items():
+                            if variable.name == parameter_name:
+                                mechanism_parameters.append(parameter["ASTVariable"])
 
-                        for internal in global_internals:
-                            if variable.name == internal.name:
-                                mechanism_internals.append(internal)
+                        for internal_name, internal in global_internals.items():
+                            if variable.name == internal_name:
+                                mechanism_internals.append(internal["ASTVariable"])
+
+                                local_variable_collector = ASTVariableCollectorVisitor()
+                                internal["ASTExpression"].accept(local_variable_collector)
+                                search_variables = cls.extend_variable_list_name_based_restricted(search_variables,
+                                                                                                  local_variable_collector.all_variables,
+                                                                                                  search_variables + found_variables)
+
+                                local_function_call_collector = ASTFunctionCallCollectorVisitor()
+                                internal["ASTExpression"].accept(local_function_call_collector)
+                                search_functions = cls.extend_function_call_list_name_based_restricted(search_functions,
+                                                                                                       local_function_call_collector.all_function_calls,
+                                                                                                       search_functions + found_functions)
 
                         for kernel in global_kernels:
                             if variable.name == kernel.get_variables()[0].name:
+                                #breakpoint()
                                 synapse_kernels.append(kernel)
 
                                 local_variable_collector = ASTVariableCollectorVisitor()
@@ -366,7 +380,14 @@ class ASTMechanismInformationCollector(object):
         return mechs_info
 
     @classmethod
-    def collect_block_dependencies_and_owned(cls, mech_info, block, block_type):
+    def collect_block_dependencies_and_owned(cls, mech_info, blocks, block_type):
+        block = blocks[0].clone()
+        blocks.pop(0)
+        for next_block in blocks:
+            block.stmts += next_block.stmts
+
+        block.accept(ASTParentVisitor())
+
         for mechanism_name, mechanism_info in mech_info.items():
             dependencies = list()
             updated_dependencies = list()
@@ -383,21 +404,20 @@ class ASTMechanismInformationCollector(object):
                 updated_dependencies = collector.dependencies
                 loop_counter += 1
 
-            if loop_counter > 0:
-                mechanism_info[block_type] = dict()
-                mechanism_info[block_type]["dependencies"] = dependencies
-                mechanism_info[block_type]["owned"] = owned
+            mechanism_info["Blocks"] = dict()
+            mechanism_info["Blocks"]["dependencies"] = dependencies
+            mechanism_info["Blocks"]["owned"] = owned
 
     @classmethod
     def block_reduction(cls, mech_info, block, block_type):
         for mechanism_name, mechanism_info in mech_info.items():
-            if "UpdateBlockComputation" in mechanism_info:
-                owned = mechanism_info[block_type]["owned"]
-                dependencies = mechanism_info[block_type]["dependencies"]
-                new_update_block = block.clone()
-                update_block_reductor = ASTUpdateBlockReductor(owned, dependencies)
-                new_update_block.accept(update_block_reductor)
-                mechanism_info[block_type]["Block"] = new_update_block
+            owned = mechanism_info["Blocks"]["owned"]
+            dependencies = mechanism_info["Blocks"]["dependencies"]
+            new_update_block = block.clone()
+            new_update_block.accept(ASTParentVisitor())
+            update_block_reductor = ASTUpdateBlockReductor(owned, dependencies)
+            new_update_block.accept(update_block_reductor)
+            mechanism_info["Blocks"][block_type] = new_update_block
 
 
     @classmethod
@@ -460,22 +480,37 @@ class VariableInitializationVisitor(ASTVisitor):
         self.inside_parameter_block = False
         self.inside_state_block = False
         self.inside_internal_block = False
+        self.inside_expression = False
+
         self.current_declaration = None
         self.states = defaultdict()
         self.parameters = defaultdict()
         self.internals = defaultdict()
         self.channel_info = channel_info
         self.search_vars = channel_info["States"]+channel_info["Parameters"]+channel_info["Internals"]
-        if "UpdateBlock" in channel_info:
-            self.search_vars += channel_info["UpdateBlock"]["dependencies"]
-            self.search_vars += channel_info["UpdateBlock"]["owned"]
-        if "SelfSpikesFunction" in channel_info:
-            self.search_vars += channel_info["SelfSpikesFunction"]["dependencies"]
-            self.search_vars += channel_info["SelfSpikesFunction"]["owned"]
+        if "Blocks" in channel_info:
+            self.search_vars += channel_info["Blocks"]["dependencies"]
+            self.search_vars += channel_info["Blocks"]["owned"]
 
     def visit_declaration(self, node):
         self.inside_declaration = True
         self.current_declaration = node
+        for var in node.variables:
+            if any(var.name == variable.name for variable in self.search_vars):
+                if self.inside_state_block:
+                    self.states[var.name] = defaultdict()
+                    self.states[var.name]["ASTVariable"] = var.clone()
+                    self.states[var.name]["rhs_expression"] = node.get_expression().clone()
+
+                if self.inside_parameter_block:
+                    self.parameters[var.name] = defaultdict()
+                    self.parameters[var.name]["ASTVariable"] = var.clone()
+                    self.parameters[var.name]["rhs_expression"] = node.get_expression().clone()
+
+                if self.inside_internal_block:
+                    self.internals[var.name] = defaultdict()
+                    self.internals[var.name]["ASTVariable"] = var.clone()
+                    self.internals[var.name]["rhs_expression"] = node.get_expression().clone()
 
     def endvisit_declaration(self, node):
         self.inside_declaration = False
@@ -496,24 +531,16 @@ class VariableInitializationVisitor(ASTVisitor):
 
     def visit_variable(self, node):
         self.inside_variable = True
-        if any(node.name == variable.name for variable in self.search_vars):
-            if self.inside_state_block and self.inside_declaration:
-                self.states[node.name] = defaultdict()
-                self.states[node.name]["ASTVariable"] = node.clone()
-                self.states[node.name]["rhs_expression"] = self.current_declaration.get_expression()
-
-            if self.inside_parameter_block and self.inside_declaration:
-                self.parameters[node.name] = defaultdict()
-                self.parameters[node.name]["ASTVariable"] = node.clone()
-                self.parameters[node.name]["rhs_expression"] = self.current_declaration.get_expression()
-
-            if self.inside_internal_block and self.inside_declaration:
-                self.internals[node.name] = defaultdict()
-                self.internals[node.name]["ASTVariable"] = node.clone()
-                self.internals[node.name]["rhs_expression"] = self.current_declaration.get_expression()
 
     def endvisit_variable(self, node):
         self.inside_variable = False
+
+    def visit_expression(self, node):
+        self.inside_expression = True
+
+    def endvisit_expression(self, node):
+        self.inside_expression = False
+
 
 
 class ASTODEEquationCollectorVisitor(ASTVisitor):
@@ -535,9 +562,9 @@ class ASTVariableCollectorVisitor(ASTVisitor):
         super(ASTVariableCollectorVisitor, self).__init__()
         self.inside_variable = False
         self.inside_block_with_variables = False
-        self.all_states = list()
-        self.all_parameters = list()
-        self.all_internals = list()
+        self.all_states = dict()
+        self.all_parameters = dict()
+        self.all_internals = dict()
         self.inside_states_block = False
         self.inside_parameters_block = False
         self.inside_internals_block = False
@@ -545,12 +572,16 @@ class ASTVariableCollectorVisitor(ASTVisitor):
         self.inside_expression_inside_declaration = False
         self.expression_recursion = 0
         self.all_variables = list()
+        self.current_declaration_expression = None
 
     def visit_declaration(self, node):
         self.inside_declaration = True
+        if node.has_expression():
+            self.current_declaration_expression = node.get_expression().clone()
 
     def endvisit_declaration(self, node):
         self.inside_declaration = False
+        self.current_declaration_expression = None
 
     def visit_expression(self, node):
         if self.inside_declaration:
@@ -583,11 +614,11 @@ class ASTVariableCollectorVisitor(ASTVisitor):
         if not self.inside_expression_inside_declaration:
             self.all_variables.append(node.clone())
             if self.inside_states_block:
-                self.all_states.append(node.clone())
+                self.all_states[node.get_name()] = {"ASTVariable": node.clone(), "ASTExpression": self.current_declaration_expression}
             if self.inside_parameters_block:
-                self.all_parameters.append(node.clone())
+                self.all_parameters[node.get_name()] = {"ASTVariable": node.clone(), "ASTExpression": self.current_declaration_expression}
             if self.inside_internals_block:
-                self.all_internals.append(node.clone())
+                self.all_internals[node.get_name()] = {"ASTVariable": node.clone(), "ASTExpression": self.current_declaration_expression}
 
     def endvisit_variable(self, node):
         self.inside_variable = False
@@ -1168,7 +1199,7 @@ class ASTUpdateBlockReductor(ASTVisitor):
         self.inside_assignment = True
         var_collector = ASTVariableCollectorVisitor()
         node.rhs.accept(var_collector)
-        if node.lhs.get_name() in [n.get_name() for n in (self.dependencies + self.owned)]:
+        if node.lhs.get_name() not in [n.get_name() for n in (self.dependencies + self.owned)]:
             self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
 
     def endvisit_assignment(self, node):

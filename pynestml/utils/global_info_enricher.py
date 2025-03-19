@@ -19,10 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
-
-from executing.executing import node_linenos
-
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
