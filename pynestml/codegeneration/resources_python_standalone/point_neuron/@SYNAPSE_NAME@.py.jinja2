@@ -191,6 +191,7 @@ class Synapse_{{ astnode.name }}(Synapse):
   {%-   endif %}
   {%- endfor %}
   {%- endfilter %}
+      pass    # in case no variables
     else:
       # internals V_
   {%- filter indent(6) %}
@@ -199,6 +200,7 @@ class Synapse_{{ astnode.name }}(Synapse):
   {%-   include "directives_py/MemberInitialization.jinja2" %}
   {%- endfor %}
   {%- endfilter %}
+      pass    # in case no variables
 
 {%- if astnode.get_functions()|length > 0 %}
 

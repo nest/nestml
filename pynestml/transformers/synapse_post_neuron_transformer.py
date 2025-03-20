@@ -556,9 +556,8 @@ class SynapsePostNeuronTransformer(Transformer):
             None, -1, "Adding suffix to variables in spike updates", None, LoggingLevel.INFO)
 
         for stmt in new_neuron.extra_on_emit_spike_stmts_from_synapse:
-            if stmt.small_stmt.is_assignment():
-                new_name: str = stmt.small_stmt.get_assignment().get_variable().get_name() + var_name_suffix
-                stmt.small_stmt.get_assignment().get_variable().set_name(new_name)
+            ASTUtils.add_suffix_to_variable_names(stmt, var_name_suffix, altscope=synapse.get_scope())
+            ASTUtils.set_new_scope(stmt, new_neuron.get_scope())
 
         #
         #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
