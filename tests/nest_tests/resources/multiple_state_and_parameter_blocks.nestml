@@ -1,0 +1,12 @@
+model multiple_state_and_parameter_blocks:
+    parameters:
+        a integer = 42
+
+    state:
+        x integer = a
+
+    parameters:
+        b integer = a * x
+
+    state:
+        y integer = a * x * b
