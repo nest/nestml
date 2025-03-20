@@ -23,15 +23,20 @@ from pynestml.codegeneration.printers.variable_printer import VariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class NestMLVariablePrinter(VariablePrinter):
+class NESTMLVariablePrinter(VariablePrinter):
     r"""
     Print ``ASTVariable``s in NESTML syntax.
     """
 
-    def print_variable(self, node: ASTVariable) -> str:
-        """
-        Print a variable node
-        :param node: the node to print
-        :return: string representation
-        """
-        return node.get_complete_name()
+    def print_variable(self, node: ASTVariable):
+        assert isinstance(node, ASTVariable)
+
+        ret = node.name
+
+        if node.get_vector_parameter():
+            ret += "[" + self._expression_printer.print(node.get_vector_parameter()) + "]"
+
+        for i in range(1, node.differential_order + 1):
+            ret += "'"
+
+        return ret
