@@ -1,18 +1,18 @@
 # stdp_triplet_synapse - Synapse type with triplet spike-timing dependent plasticity
 # ##################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # A connection with spike time dependent plasticity accounting for spike triplet effects (as defined in [1]_).
-# 
+#
 # Nearest-neighbour variant of pre- and postsynaptic spike coupling.
-# 
+#
 # .. note::
-# 
+#
 # See https://github.com/nest/nestml/issues/703 for a potential edge-case issue with this model.
-# 
-# 
+#
+#
 # References
 # ++++++++++
 # .. [1] Pfister JP, Gerstner W (2006). Triplets of spikes in a model
@@ -60,7 +60,7 @@ model stdp_triplet_synapse:
 
     onReceive(post_spikes):
         # potentiate synapse
-        w_ nS = w + tr_r1 * ( A2_plus + A3_plus * (tr_o2 - 1) )  # ``tr_o2 - 1`` to get the value just before the increment; see https://github.com/nest/nestml/issues/703
+        w_ nS = w + tr_r1 * (A2_plus + A3_plus * tr_o2)
         w = min(Wmax, w_)
 
         # increment post trace values
@@ -69,7 +69,7 @@ model stdp_triplet_synapse:
 
     onReceive(pre_spikes):
         # depress synapse
-        w_ nS = w - tr_o1 * ( A2_minus + A3_minus * tr_r2 )
+        w_ nS = w - tr_o1 * (A2_minus + A3_minus * tr_r2)
         w = max(Wmin, w_)
 
         # increment pre trace values

@@ -170,6 +170,7 @@ class Neuron_{{neuronName}}(Neuron):
   {%-   endif %}
   {%- endfor %}
   {%- endfilter %}
+      pass    # in case no variables
     else:
       # internals V_
   {%- filter indent(6) %}
@@ -178,6 +179,7 @@ class Neuron_{{neuronName}}(Neuron):
   {%-   include "directives_py/MemberInitialization.jinja2" %}
   {%- endfor %}
   {%- endfilter %}
+      pass    # in case no variables
 
 {%- if neuron.get_functions()|length > 0 %}
 

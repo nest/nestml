@@ -1398,6 +1398,10 @@ void
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
   auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
+    /**
+     * Begin NESTML generated code for the onReceive() block statements
+    **/
+
 {%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
 {#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
     /**

@@ -50,7 +50,9 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.enforce_getter = enforce_getter
         self.variables_special_cases = variables_special_cases
         self.cpp_variable_suffix = ""
-        self.postsynaptic_getter_string_ = "start->get_%s()"
+        # self.postsynaptic_getter_string_ = "start->get_%s()"   # XXX: TODO: see https://github.com/nest/nestml/issues/1163
+        # self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(t_hist_entry_ms)"
+        self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(get_t())"
         self.buffers_are_zero = True
 
     def set_buffers_to_zero(self, buffers_are_zero: bool):
