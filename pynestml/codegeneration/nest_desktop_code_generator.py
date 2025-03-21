@@ -34,7 +34,6 @@ class NESTDesktopCodeGenerator(CodeGenerator):
     Code generator for NEST Desktop
     """
     _default_options = {
-        "neuron_models": [],
         "synapse_models": [],
         "templates": {
             "path": "resources_nest_desktop",
@@ -53,7 +52,7 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         Generate the .json files for the given neuron and synapse models
         :param models: list of neuron models
         """
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"),
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models,
                                                                           synapse_models=self.get_option("synapse_models"))
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
