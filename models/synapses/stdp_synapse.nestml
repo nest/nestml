@@ -19,19 +19,19 @@
 # ++++++++++
 #
 # .. [1] Guetig et al. (2003) Learning Input Correlations through Nonlinear
-# Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
+#        Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
 #
 # .. [2] Rubin, J., Lee, D. and Sompolinsky, H. (2001). Equilibrium
-# properties of temporally asymmetric Hebbian plasticity, PRL
-# 86,364-367
+#        properties of temporally asymmetric Hebbian plasticity, PRL
+#        86,364-367
 #
 # .. [3] Song, S., Miller, K. D. and Abbott, L. F. (2000). Competitive
-# Hebbian learning through spike-timing-dependent synaptic
-# plasticity,Nature Neuroscience 3:9,919--926
+#        Hebbian learning through spike-timing-dependent synaptic
+#        plasticity,Nature Neuroscience 3:9,919--926
 #
 # .. [4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
-# Stable Hebbian learning from spike timing-dependent
-# plasticity, Journal of Neuroscience, 20:23,8812--8821
+#        Stable Hebbian learning from spike timing-dependent
+#        plasticity, Journal of Neuroscience, 20:23,8812--8821
 #
 #
 # Copyright statement

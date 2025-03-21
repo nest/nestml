@@ -26,12 +26,33 @@
 # ++++++++++
 # 
 # .. [1] Hill S, Tononi G (2005). Modeling sleep and wakefulness in the
-# thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
-# DOI: https://doi.org/10.1152/jn.00915.2004
+#        thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
+#        DOI: https://doi.org/10.1152/jn.00915.2004
 # .. [2] Vargas-Caballero M, Robinson HPC (2003). A slow fraction of Mg2+
-# unblock of NMDA receptors limits their  contribution to spike generation
-# in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
-# DOI: https://doi.org/10.1152/jn.01038.2002
+#        unblock of NMDA receptors limits their  contribution to spike generation
+#        in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
+#        DOI: https://doi.org/10.1152/jn.01038.2002
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
 model hill_tononi_neuron:
