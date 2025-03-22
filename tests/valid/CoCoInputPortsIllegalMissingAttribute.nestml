@@ -1,14 +1,10 @@
-# CoCoInputPortWithRedundantTypes.nestml
-# ######################################
-# 
+# CoCoInputPortsIllegal.nestml
+# ############################
 # 
 # Description
 # +++++++++++
 # 
-# This model is used to test if broken CoCos are identified correctly. Here, if each input port is defined uniquely, i.e., no redundant keywords are used.
-# 
-# Negative case.
-# 
+# This test is used to test the declaration of both vectorized and non-vectorized input ports.
 # 
 # Copyright statement
 # +++++++++++++++++++
@@ -30,6 +26,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-model CoCoInputPortWithRedundantTypes:
+model input_ports_illegal_neuron:
+    state:
+        foo real = 0.
+
     input:
-        spikeInhX2 <- inhibitory inhibitory spike # spike redundant keywords used
+        spike_in_port <- spike(foo real)
+
+    onReceive(spike_in_port):
+        foo += spike_in_port.foo

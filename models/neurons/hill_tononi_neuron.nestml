@@ -57,10 +57,10 @@ model hill_tononi_neuron:
         # V_m
         #############
 
-        inline I_syn_ampa pA = -convolve(g_AMPA, AMPA) * nS * ( V_m - AMPA_E_rev )
-        inline I_syn_nmda pA = -convolve(g_NMDA, NMDA) * nS * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-        inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * nS * ( V_m - GABA_A_E_rev )
-        inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * nS * ( V_m - GABA_B_E_rev )
+        inline I_syn_ampa pA = -convolve(g_AMPA, AMPA.weight) * ( V_m - AMPA_E_rev )
+        inline I_syn_nmda pA = -convolve(g_NMDA, NMDA.weight) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+        inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A.weight) * ( V_m - GABA_A_E_rev )
+        inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B.weight) * ( V_m - GABA_B_E_rev )
         inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
         inline I_Na pA = -g_NaL * ( V_m - E_Na )
@@ -182,10 +182,10 @@ model hill_tononi_neuron:
         GABA_BInitialValue real = compute_synapse_constant( GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak )
 
     input:
-        AMPA <- spike
-        NMDA <- spike
-        GABA_A <- spike
-        GABA_B <- spike
+        AMPA <- spike(weight nS)
+        NMDA <- spike(weight nS)
+        GABA_A <- spike(weight nS)
+        GABA_B <- spike(weight nS)
         I_stim pA <- continuous
 
     output:

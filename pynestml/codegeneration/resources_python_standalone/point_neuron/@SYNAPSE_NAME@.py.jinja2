@@ -210,8 +210,8 @@ class Synapse_{{ astnode.name }}(Synapse):
 {% for function in astnode.get_functions() -%}
   {{ function_declaration.FunctionDeclaration(function, astnode.name) }}:
 {%-   filter indent(4,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives_py/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives_py/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 {%- endfor %}
@@ -304,8 +304,8 @@ class Synapse_{{ astnode.name }}(Synapse):
 {%  if astnode.get_update_blocks() | length > 0 %}
 {%-     filter indent(4) %}
 {%-     for dynamics in astnode.get_update_blocks() %}
-{%-         set ast = dynamics.get_block() %}
-{%-         include "directives_py/Block.jinja2" %}
+{%-         set ast = dynamics.get_stmts_body() %}
+{%-         include "directives_py/StmtsBody.jinja2" %}
 {%-     endfor %}
 {%-     endfilter %}
 
@@ -342,6 +342,10 @@ class Synapse_{{ astnode.name }}(Synapse):
 
 {%- for port in astnode.get_spike_input_ports() %}
     self.B_.{{port.get_symbol_name()}} = 0.
+{%-     set ast_input_port = utils.get_input_port_by_name(astnode.get_input_blocks(), port.name) %}
+{%-     for attribute in ast_input_port.get_parameters() %}
+    self.B_.{{ port.get_symbol_name() }}__DOT__{{ attribute.name }} = 0.
+{%-     endfor %}
     self.B_.spike_received_{{port.get_symbol_name()}} = False
 {%- endfor %}
 
@@ -351,12 +355,12 @@ class Synapse_{{ astnode.name }}(Synapse):
     # -------------------------------------------------------------------------
 {%- for block in astnode.get_on_condition_blocks() %}
     if {{ printer.print(block.get_cond_expr()) }}:
-{%-     set ast = block.get_block() %}
+{%-     set ast = block.get_stmts_body() %}
 {%-     if ast.print_comment('#') | length > 1 %}
 # {{ast.print_comment('#')}}
 {%-     endif %}
 {%-     filter indent(6) %}
-{%-             include "directives_py/Block.jinja2" %}
+{%-             include "directives_py/StmtsBody.jinja2" %}
 {%-     endfilter %}
 {%- endfor %}
 
@@ -370,7 +374,7 @@ class Synapse_{{ astnode.name }}(Synapse):
 
 {%-   for port in astnode.get_spike_input_ports() %}
     if port_name == "{{port.name}}":
-      self.B_.{{port.get_symbol_name()}} += abs(w)
+      self.B_.{{port.get_symbol_name()}} += w
       self.B_.spike_received_{{port.get_symbol_name()}} = True
       return
 {%-   endfor %}
@@ -388,9 +392,9 @@ class Synapse_{{ astnode.name }}(Synapse):
   # -------------------------------------------------------------------------
 
 {%- for blk in astnode.get_on_receive_blocks() %}
-{%-     set ast = blk.get_block() %}
+{%-     set ast = blk.get_stmts_body() %}
   def on_receive_block_{{ blk.get_port_name() }}(self):
 {%-     filter indent(4, True) -%}
-{%-         include "directives_py/Block.jinja2" %}
+{%-         include "directives_py/StmtsBody.jinja2" %}
 {%-     endfilter %}
 {% endfor %}

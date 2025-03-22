@@ -43,12 +43,18 @@ class ASTEquationsBlock(ASTNode):
         """
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
+
+        if declarations is None:
+            declarations = []
+
         for decl in declarations:
             assert decl is not None and (isinstance(decl, ASTKernel)
                                          or isinstance(decl, ASTOdeEquation)
                                          or isinstance(decl, ASTInlineExpression)), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
+
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
+
         self.declarations = declarations
 
     def clone(self):
