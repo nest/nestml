@@ -108,6 +108,9 @@ class NESTVariablePrinter(CppVariablePrinter):
         symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name().replace("__DOT__", "."), SymbolKind.VARIABLE)
 
         if symbol is None:
+            symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+
+        if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
                 return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
@@ -138,7 +141,6 @@ class NESTVariablePrinter(CppVariablePrinter):
             s += self._print_buffer_value(variable)
             if not units_conversion_factor == 1:
                 s += ")"
-            import pdb;pdb.set_trace()
             return s
 
         if symbol.is_inline_expression:
@@ -173,7 +175,7 @@ class NESTVariablePrinter(CppVariablePrinter):
         variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name().replace("__DOT__", "."), SymbolKind.VARIABLE)
         if variable_symbol.is_spike_input_port():
             if self.buffers_are_zero:
-                return "0.0" # XXX this should be spun off to a NESTVariablePrinterWithFactorsAsZeros
+                return "0.0"   # XXX this should be spun off to a NESTVariablePrinterWithFactorsAsZeros
 
             var_name = variable_symbol.get_symbol_name().upper()
             if variable.has_vector_parameter():

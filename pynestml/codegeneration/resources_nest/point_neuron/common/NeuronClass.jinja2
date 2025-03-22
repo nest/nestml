@@ -1398,10 +1398,7 @@ void
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
   auto get_t = [origin, lag](){ return nest::Time( nest::Time::step( origin.get_steps() + lag + 1) ).get_ms(); };
 
-    /**
-     * Begin NESTML generated code for the onReceive() block statements
-    **/
-
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
 {%- if inputPortSymbol.name in linear_time_invariant_spiking_input_ports %}
 {#-     linear, time-invariant input port: all spike events for a specific buffer slot can be added together into a single number #}
     /**
@@ -1422,13 +1419,14 @@ void
 {%-         endfor %}
 {%-     endif %}
     const double __spike_input_{{ inputPort.name }} = B_.spike_input_{{ inputPort.name }}_grid_sum_;
-
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 
     /**
      * Begin NESTML generated code for the onReceive() block statements
     **/
 
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
+
 {%      filter indent(4, True) -%}
 {%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfilter %}
@@ -1482,11 +1480,13 @@ void
      * Begin NESTML generated code for the onReceive() block statements
     **/
 
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
 {%      filter indent(4, True) -%}
 {%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfilter %}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 
     /**
      * Advance the iterators

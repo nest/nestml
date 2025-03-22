@@ -358,8 +358,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         kernel_buffers = ASTUtils.generate_kernel_buffers(neuron, equations_block)
         InlineExpressionExpansionTransformer().transform(neuron)
-        #delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
-        print(neuron)
         delta_factors = ASTUtils.get_delta_factors_from_input_port_references(neuron)
         delta_factors |= ASTUtils.get_delta_factors_from_convolutions(neuron)
         ASTUtils.replace_convolve_calls_with_buffers_(neuron, equations_block)
@@ -442,7 +440,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             kernel_buffers = ASTUtils.generate_kernel_buffers(synapse, equations_block)
             InlineExpressionExpansionTransformer().transform(synapse)
-            delta_factors = ASTUtils.get_delta_factors_(synapse, equations_block)
+            delta_factors = ASTUtils.get_delta_factors_from_input_port_references(synapse)
+            delta_factors |= ASTUtils.get_delta_factors_from_convolutions(synapse)
             ASTUtils.replace_convolve_calls_with_buffers_(synapse, equations_block)
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
