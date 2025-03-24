@@ -2357,25 +2357,7 @@ class ASTUtils:
                         if factor_str:
                             delta_factors[(var, inport_var)] = factor_str
 
-        for k, v in delta_factors.items():
-            print("var = " + str(k[0]) + ", inport = " + str(k[1]) + ", expr = " + str(v))
-        print("-----")
-
         return delta_factors
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @classmethod
     def remove_kernel_definitions_from_equations_block(cls, model: ASTModel) -> ASTDeclaration:
@@ -2767,7 +2749,6 @@ class ASTUtils:
         r"""Collect all terms that refer to a spiking input inside ``expr``"""
 
         spiking_input_port_terms = []
-        # print([str(s) for s in expr.get_variables()])
         spike_inports = model.get_spike_input_ports()
         spike_inport_names = [inport.name for inport in spike_inports]
 
