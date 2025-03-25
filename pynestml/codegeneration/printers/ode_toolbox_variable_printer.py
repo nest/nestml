@@ -37,10 +37,16 @@ class ODEToolboxVariablePrinter(VariablePrinter):
         :return: string representation
         """
         s = node.get_name().replace("$", "__DOLLAR")
+        print("PRINTING VARIABLE " + s)
+
+        if node.get_vector_parameter():
+            s += "_VEC_IDX_" + self._expression_printer.print(node.get_vector_parameter())
+        print("\tPRINTING VARIABLE " + s)
 
         if node.get_attribute():
             s += "__DOT__" + node.get_attribute()
+        print("\tPRINTING VARIABLE " + s)
 
         s += "__d" * node.get_differential_order()
-
+        print("\tPRINTING VARIABLE " + s)
         return s

@@ -1,25 +1,25 @@
 # iaf_psc_exp_multisynapse - Leaky integrate-and-fire neuron model with multiple ports
 # ####################################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Used in NESTML unit testing.
-# 
+#
 # For more information about the model, see iaf_psc_exp in the ``models`` directory.
-# 
+#
 # For more information about "multisynapse" models, please refer to the NESTML documentation.
 #
 model iaf_psc_exp_multisynapse_vectors_neuron:
     state:
-        V_m mV = E_L                 # membrane potential
-        refr_t ms = 0 ms    # Refractory period timer
+        V_m mV = E_L           # membrane potential
+        refr_t ms = 0 ms       # Refractory period timer
         is_refractory boolean = false
 
     equations:
-        kernel I_kernel1 = exp(-1/tau_syn1*t)
-        kernel I_kernel2 = exp(-1/tau_syn2*t)
-        kernel I_kernel3 = -exp(-1/tau_syn3*t)
+        kernel I_kernel1 = exp(-t / tau_syn1)
+        kernel I_kernel2 = exp(-t / tau_syn2)
+        kernel I_kernel3 = -exp(-t / tau_syn3)
 
         inline I_syn pA = convolve(I_kernel1, spikes[0].weight) - convolve(I_kernel2, spikes[1].weight) + convolve(I_kernel3, spikes[2].weight)
 

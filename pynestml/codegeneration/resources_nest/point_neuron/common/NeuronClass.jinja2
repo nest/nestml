@@ -1425,11 +1425,13 @@ void
      * Begin NESTML generated code for the onReceive() block statements
     **/
 
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(False) }}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix(" ") }}  {# prevent printing origin #}
 
 {%      filter indent(4, True) -%}
 {%-         include "directives_cpp/StmtsBody.jinja2" %}
 {%-     endfilter %}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_buffers_to_zero(True) }}
 {{ printer._expression_printer._simple_expression_printer._variable_printer.set_cpp_variable_suffix("") }}
 {%- else %}
 {#-     generic input port: use lists of spike events for each buffer slot #}

@@ -354,6 +354,7 @@ class ASTNodeFactory:
     @classmethod
     def create_ast_variable(cls, name: str, differential_order: int = 0, vector_parameter=None, is_homogeneous=False, attribute: Optional[str] = None, source_position: Optional[ASTSourceLocation] = None, scope: Optional[Scope] = None) -> ASTVariable:
         var = ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, attribute=attribute, source_position=source_position)
+
         if scope:
             var.scope = scope
 

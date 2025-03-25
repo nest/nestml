@@ -31,7 +31,7 @@ import nest
 from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-TestLinearTimeInvariantInputPortOptimisation_neuron_types = ["aeif_cond_exp", "iaf_psc_delta"]
+TestLinearTimeInvariantInputPortOptimisation_neuron_types = ["iaf_psc_delta", "iaf_psc_exp"]
 
 
 @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),

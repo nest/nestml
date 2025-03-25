@@ -105,7 +105,7 @@ class TestNESTMLPrinter:
 
     def test_function_call_with_comments(self):
         function_call = "# pre\n" \
-                        "min(1,2) # in\n"
+                        "min(1, 2) # in\n"
         model = ModelParser.parse_stmts_body(function_call)
         model_printer = NESTMLPrinter()
         assert function_call == model_printer.print(model)

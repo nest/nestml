@@ -2312,7 +2312,7 @@ class ASTUtils:
 
         sympy_expr = sympify(expr_str, locals=units)
         sympy_expr = sympy.expand(sympy_expr)
-        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr)
+        sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(sub_expr.replace(".", "__DOT__"))
         factor_str = []
         for term in sympy.Add.make_args(sympy_expr):
             coeff = term.coeff(sympy_conv_expr)
@@ -2356,6 +2356,8 @@ class ASTUtils:
 
                         if factor_str:
                             delta_factors[(var, inport_var)] = factor_str
+
+                    # XXX: what about vectors?????
 
         return delta_factors
 
