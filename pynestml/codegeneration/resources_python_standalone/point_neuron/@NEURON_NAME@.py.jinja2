@@ -313,7 +313,8 @@ class Neuron_{{neuronName}}(Neuron):
 {%  for blk in neuron.get_on_receive_blocks() %}
     if self.B_.spike_received_{{ utils.port_name_printer(blk.get_input_port_variable()) }}:
       # loop over all spikes received since last timestep
-      for i in range(len(self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }})):
+      n_spikes_received: int = len(self.B_.{{ utils.port_name_printer(blk.get_input_port_variable()) }})
+      for i in range(n_spikes_received):
         self.on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()
 {%- endfor %}
 
