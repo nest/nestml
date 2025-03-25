@@ -111,7 +111,7 @@ class TestNESTMLPrinter:
         assert function_call == model_printer.print(model)
 
     def test_function_call_without_comments(self):
-        function_call = "min(1,2)\n"
+        function_call = "min(1, 2)\n"
         model = ModelParser.parse_stmt(function_call)
         model_printer = NESTMLPrinter()
         assert function_call == model_printer.print(model)
