@@ -18,8 +18,6 @@ model neuromodulated_stdp_synapse:
         tau_tr_post ms = 20 ms
         pre_trace_increment real = 1.
         post_trace_increment real = 1.
-        Wmax real = 100.
-        Wmin real = 0.
         wtr_max real = 0.1
         wtr_min real = 0
 
