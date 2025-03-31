@@ -27,20 +27,41 @@
 # ++++++++++
 # 
 # .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
-# populations, plasticity. New York: Cambridge University Press
+#        populations, plasticity. New York: Cambridge University Press
 # .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
-# mathematical modeling of neural systems. Cambridge, MA: MIT Press.
-# https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
+#        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+#        https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
 # .. [3] Hodgkin AL and Huxley A F (1952). A quantitative description of
-# membrane current and its application to conduction and excitation in
-# nerve. The Journal of Physiology 117.
-# DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
+#        membrane current and its application to conduction and excitation in
+#        nerve. The Journal of Physiology 117.
+#        DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
 # 
 # 
 # See also
 # ++++++++
 # 
 # hh_cond_exp_traub
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
 model hh_psc_alpha_neuron:
