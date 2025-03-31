@@ -36,7 +36,7 @@ class CppVariablePrinter(VariablePrinter):
         """
         differential_order = variable_name.count("'")
         if differential_order > 0:
-            return variable_name.replace(".", "__DOT__").replace("\'", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
+            return variable_name.replace(".", "__DOT__").replace("'", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
 
         return variable_name.replace(".", "__DOT__").replace("$", "__DOLLAR")
 

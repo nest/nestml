@@ -32,7 +32,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install libltdl-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       # Install Python dependencies
@@ -81,6 +81,11 @@ jobs:
           --branch-reset \
           --github-actions "${{ secrets.GITHUB_TOKEN }}" \
           --testbed ubuntu-latest \
+          --threshold-measure latency \
+          --threshold-test percentage \
+          --threshold-max-sample-size 64 \
+          --threshold-upper-boundary 0.10 \
+          --thresholds-reset \
           --adapter python_pytest \
           --file results.json \
           --err \

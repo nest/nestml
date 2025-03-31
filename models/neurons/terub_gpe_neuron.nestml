@@ -19,14 +19,35 @@
 # ++++++++++
 # 
 # .. [1] Terman, D. and Rubin, J.E. and Yew, A. C. and Wilson, C.J.
-# Activity Patterns in a Model for the Subthalamopallidal Network
-# of the Basal Ganglia
-# The Journal of Neuroscience, 22(7), 2963-2976 (2002)
+#        Activity Patterns in a Model for the Subthalamopallidal Network
+#        of the Basal Ganglia
+#        The Journal of Neuroscience, 22(7), 2963-2976 (2002)
 # 
 # .. [2] Rubin, J.E. and Terman, D.
-# High Frequency Stimulation of the Subthalamic Nucleus Eliminates
-# Pathological Thalamic Rhythmicity in a Computational Model
-# Journal of Computational Neuroscience, 16, 211-235 (2004)
+#        High Frequency Stimulation of the Subthalamic Nucleus Eliminates
+#        Pathological Thalamic Rhythmicity in a Computational Model
+#        Journal of Computational Neuroscience, 16, 211-235 (2004)
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
 model terub_gpe_neuron:

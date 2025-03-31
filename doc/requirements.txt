@@ -14,7 +14,7 @@ sphinx-design
 # the following list is a direct copy from requirements.txt in the root directory (requirements for NESTML itself rather than for doc building)
 numpy >= 1.8.2
 scipy
-sympy >= 1.1.1,!= 1.11, != 1.11.1
+sympy
 antlr4-python3-runtime == 4.13.2
 setuptools
 Jinja2 >= 2.10
