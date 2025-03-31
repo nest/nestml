@@ -81,6 +81,11 @@ jobs:
           --branch-reset \
           --github-actions "${{ secrets.GITHUB_TOKEN }}" \
           --testbed ubuntu-latest \
+          --threshold-measure latency \
+          --threshold-test percentage \
+          --threshold-max-sample-size 64 \
+          --threshold-upper-boundary 0.10 \
+          --thresholds-reset \
           --adapter python_pytest \
           --file results.json \
           --err \
