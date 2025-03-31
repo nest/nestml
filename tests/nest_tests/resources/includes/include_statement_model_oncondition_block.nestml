@@ -1,0 +1,5 @@
+onCondition(refr_t <= 0 ms and V_m >= V_th):
+    # threshold crossing
+    refr_t = refr_T    # start of the refractory period
+    V_m = V_reset
+    emit_spike()

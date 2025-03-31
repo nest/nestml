@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import sys
 
 
@@ -47,6 +48,7 @@ class ASTSourceLocation:
         self.start_column = start_column
         self.end_line = end_line
         self.end_column = end_column
+        self.included_file = None
 
     @classmethod
     def make_ast_source_position(cls, start_line, start_column, end_line, end_column):
@@ -202,16 +204,23 @@ class ASTSourceLocation:
         else:
             return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         A string representation of this source position.
         :return: a string representation
-        :rtype: str
         """
+        s = "["
+        if self.included_file:
+            s += "In code included from '" + self.included_file + "': "
+
         if self.is_added_source_position():
-            return '<ADDED_BY_SOLVER>'
+            s += "ADDED_BY_SOLVER"
         elif self.is_predefined_source_position():
-            return '<PREDEFINED>'
+            s += "PREDEFINED"
         else:
-            return '[' + str(self.get_start_line()) + ':' + str(self.get_start_column()) + ';' + \
-                   str(self.get_end_line()) + ':' + str(self.get_end_column()) + ']'
+            s += str(self.get_start_line()) + ':' + str(self.get_start_column()) + ';' \
+                + str(self.get_end_line()) + ':' + str(self.get_end_column())
+
+        s += "]"
+
+        return s

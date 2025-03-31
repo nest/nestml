@@ -48,19 +48,19 @@ class TestNESTMLPrinter:
         Logger.init_logger(LoggingLevel.INFO)
 
     def test_block_with_variables_with_comments(self):
-        block = "    # pre1\n" \
-                "    state: # in\n" \
-                "        # real pre\n" \
-                "        # real pre2\n" \
-                "        r real = 0\n"
+        block = "# pre1\n" \
+                "state: # in\n" \
+                "    # real pre\n" \
+                "    # real pre2\n" \
+                "    r real = 0\n"
         model = ModelParser.parse_model_body(block)
         model_printer = NESTMLPrinter()
         assert block == model_printer.print(model)
 
     def test_block_with_variables_with_in_comments(self):
-        block = "    # pre1\n" \
-                "    state:\n" \
-                "        r real = 0 # in comment\n"
+        block = "# pre1\n" \
+                "state:\n" \
+                "    r real = 0 # in comment\n"
         model = ModelParser.parse_model_body(block)
         model_printer = NESTMLPrinter()
         assert block == model_printer.print(model)
@@ -86,11 +86,11 @@ class TestNESTMLPrinter:
         assert assignment == model_printer.print(model)
 
     def test_function_with_comments(self):
-        t_function = "    # pre func\n" \
-                     "    function test(Tau_1 ms) real: # in func\n" \
-                     "        # decl pre\n" \
-                     "        exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms # decl in\n" \
-                     "        return normalisation_factor\n"
+        t_function = "# pre func\n" \
+                     "function test(Tau_1 ms) real: # in func\n" \
+                     "    # decl pre\n" \
+                     "    exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms # decl in\n" \
+                     "    return normalisation_factor\n"
         model = ModelParser.parse_model_body(t_function)
         model_printer = NESTMLPrinter()
         assert t_function == model_printer.print(model)
@@ -150,11 +150,11 @@ class TestNESTMLPrinter:
         assert declaration == model_printer.print(model)
 
     def test_equations_block_with_comments(self):
-        block = "    # pre\n" \
-                "    equations: # in\n" \
-                "        # pre1 v\n" \
-                "        # pre2 v\n" \
-                "        v' = -v / t\n"
+        block = "# pre\n" \
+                "equations: # in\n" \
+                "    # pre1 v\n" \
+                "    # pre2 v\n" \
+                "    v' = -v / t\n"
         model = ModelParser.parse_model_body(block)
         model_printer = NESTMLPrinter()
         assert block == model_printer.print(model)
@@ -197,9 +197,9 @@ class TestNESTMLPrinter:
         assert stmt == model_printer.print(model)
 
     def test_update_block_with_comments(self):
-        block = "    # pre\n" \
-                "    update: # in\n" \
-                "        j = 0\n"
+        block = "# pre\n" \
+                "update: # in\n" \
+                "    j = 0\n"
         model = ModelParser.parse_model_body(block)
         model_printer = NESTMLPrinter()
         assert block == model_printer.print(model)

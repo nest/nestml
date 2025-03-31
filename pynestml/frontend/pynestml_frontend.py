@@ -41,6 +41,8 @@ from pynestml.transformers.transformer import Transformer
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.assign_implicit_conversion_factors_visitor import AssignImplicitConversionFactorsVisitor
+from pynestml.visitors.ast_include_statement_visitor import ASTIncludeStatementVisitor
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
@@ -411,7 +413,7 @@ def main() -> int:
 
 def get_parsed_models() -> List[ASTModel]:
     r"""
-   Handle the parsing and validation of the NESTML files
+    Handle the parsing and validation of the NESTML files
 
     Returns
     -------
@@ -441,6 +443,17 @@ def get_parsed_models() -> List[ASTModel]:
     for compilation_unit in compilation_units:
         CoCosManager.check_model_names_unique(compilation_unit)
         models.extend(compilation_unit.get_model_list())
+
+    # swap include statements for included file
+    for model in models:
+        model.accept(ASTIncludeStatementVisitor(os.path.dirname(model.file_path)))
+        model.accept(ASTSymbolTableVisitor())
+        print("MODEL AFTER INCLUDES REPLACED:")
+        print(model)
+
+    # .......
+    for model in models:
+        model.accept(AssignImplicitConversionFactorsVisitor())
 
     # check that no models with duplicate names have been defined
     CoCosManager.check_no_duplicate_compilation_unit_names(models)
@@ -491,15 +504,14 @@ def process() -> bool:
     # validation -- check cocos for models that do not have errors already
     excluded_models = []
     for model in models:
-        if not Logger.has_errors(model.name):
-            CoCosManager.check_cocos(model)
-
         if Logger.has_errors(model.name):
             code, message = Messages.get_model_contains_errors(model.get_name())
             Logger.log_message(node=model, code=code, message=message,
                                error_position=model.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             excluded_models.append(model)
+        else:
+            CoCosManager.check_cocos(model)
 
     # exclude models that have errors
     models = list(set(models) - set(excluded_models))

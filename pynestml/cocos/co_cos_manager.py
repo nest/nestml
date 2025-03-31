@@ -440,7 +440,6 @@ class CoCosManager:
         cls.check_variables_unique_in_scope(model)
         cls.check_inline_expression_not_assigned_to(model)
         cls.check_state_variables_initialized(model)
-        cls.check_variables_defined_before_usage(model)
         if FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             # XXX: TODO: refactor this out; define a ``cocos_from_target_name()`` in the frontend instead.
             cls.check_v_comp_requirement(model)
@@ -461,6 +460,7 @@ class CoCosManager:
         cls.check_integrate_odes_params_correct(model)
         cls.check_output_port_defined_if_emit_call(model)
         if not after_ast_rewrite:
+            cls.check_variables_defined_before_usage(model)
             # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
             cls.check_odes_have_consistent_units(model)
             # ODE functions have been removed at this point
@@ -468,12 +468,12 @@ class CoCosManager:
             cls.check_ode_functions_have_consistent_units(model)
             cls.check_correct_usage_of_kernels(model)
             cls.check_resolution_func_used(model)    # ``__h = resolution()`` is added after transformations; put this check inside the ``if`` to make sure it's not always triggered
+            cls.check_expression_correct(model)
             if FrontendConfiguration.get_target_platform().upper() != 'NEST_COMPARTMENTAL':
                 cls.check_integrate_odes_called_if_equations_defined(model)
         cls.check_invariant_type_correct(model)
         cls.check_vector_in_non_vector_declaration_detected(model)
         cls.check_convolve_has_correct_parameter(model)
-        cls.check_expression_correct(model)
         cls.check_simple_delta_function(model)
         cls.check_function_argument_template_types_consistent(model)
         cls.check_vector_parameter_declaration(model)
