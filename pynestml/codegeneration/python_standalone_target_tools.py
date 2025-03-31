@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import importlib
+import multiprocessing
 import os
 import sys
 import tempfile
@@ -37,14 +38,17 @@ class PythonStandaloneTargetTools:
     """
     @classmethod
     def _get_model_parameters_and_state(cls, nestml_file_name: str):
-        suffix = "_nestml"
+        suffix = ""
         module_name = FrontendConfiguration.get_module_name()
         target_path = tempfile.mkdtemp(prefix="nestml_python_target_", suffix="", dir=".")    # dir = "." is necessary for Python import
-        generate_python_standalone_target(input_path=nestml_file_name,
-                                          target_path=target_path,
-                                          suffix=suffix,
-                                          module_name=module_name,
-                                          logging_level="ERROR")
+        # this has to run in a different process, because otherwise the frontend configuration gets overwritten
+        process = multiprocessing.Process(target=generate_python_standalone_target, kwargs={"input_path": nestml_file_name,
+                                                                                            "target_path": target_path,
+                                                                                            "suffix": suffix,
+                                                                                            "module_name": module_name,
+                                                                                            "logging_level": "ERROR"})
+        process.start()
+        process.join()    # wait for code generation to complete
 
         ast_compilation_unit = ModelParser.parse_file(nestml_file_name)
         if ast_compilation_unit is None or len(ast_compilation_unit.get_model_list()) == 0:
