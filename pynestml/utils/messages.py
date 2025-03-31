@@ -41,7 +41,6 @@ class MessageCode(Enum):
     CAST_NOT_POSSIBLE = 5
     TYPE_DIFFERENT_FROM_EXPECTED = 6
     ADD_SUB_TYPE_MISMATCH = 7
-    BUFFER_SET_TO_CONDUCTANCE_BASED = 8
     NO_VARIABLE_FOUND = 9
     SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 10
     MODEL_CONTAINS_ERRORS = 11
@@ -191,11 +190,6 @@ class Messages:
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
-    def get_could_not_determine_cond_based(cls, type_str, name):
-        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
-        return MessageCode.LEXER_ERROR, message
-
-    @classmethod
     def get_parser_error(cls, msg):
         message = 'Error occurred during parsing: ' + msg
         return MessageCode.PARSER_ERROR, message
@@ -327,20 +321,6 @@ class Messages:
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
             expected_type.print_symbol(), got_type.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
-
-    @classmethod
-    def get_buffer_set_to_conductance_based(cls, buffer):
-        """
-        Returns a message indicating that a buffer has been set to conductance based.
-        :param buffer: the name of the buffer
-        :type buffer: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (buffer is not None and isinstance(buffer, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer)
-        message = 'Buffer \'%s\' set to conductance based!' % buffer
-        return MessageCode.BUFFER_SET_TO_CONDUCTANCE_BASED, message
 
     @classmethod
     def get_no_variable_found(cls, variable_name):

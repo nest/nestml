@@ -123,6 +123,9 @@ class NESTCodeGeneratorUtils:
                 with open(synapse_fn, "w") as f:
                     print(nestml_synapse_model, file=f)
 
+            # explicitly mark this as a synapse model, even if the name does not end in "_synapse"
+            _codegen_opts["synapse_models"] = [synapse_model_name]
+
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
                                                       "synapse": synapse_model_name,

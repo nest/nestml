@@ -40,7 +40,6 @@ class PrettyRenderCodeGenerator(CodeGenerator):
     """
 
     _default_options = {
-        "neuron_models": [],
         "synapse_models": [],
         "templates": {
             "path": "resources_pretty_render",
@@ -53,7 +52,7 @@ class PrettyRenderCodeGenerator(CodeGenerator):
     }
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"), synapse_models=self.get_option("synapse_models"))
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
 
         # Load the custom lexer
         lexer_fname = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'extras', 'syntax-highlighting', 'pygments', 'pygments_nestml.py'))
