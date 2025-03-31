@@ -8,17 +8,17 @@
 # 
 # .. math::
 # 
-# dV_{m}/dt &= 0.04 V_{m}^2 + 5 V_{m} + 140 - U_{m} + I\\
-# dU_{m}/dt &= a (b V_{m} - U_{m})
+#    dV_{m}/dt &= 0.04 V_{m}^2 + 5 V_{m} + 140 - U_{m} + I\\
+#    dU_{m}/dt &= a (b V_{m} - U_{m})
 # 
 # 
 # .. math::
 # 
-# &\text{if}\;\; V_{m} \geq V_{th}:\\
-# &\;\;\;\; V_{m} \text{ is set to } c\\
-# &\;\;\;\; U_{m} \text{ is incremented by } d\\
-# & \, \\
-# &V_{m} \text{ jumps on each spike arrival by the weight of the spike}
+#    &\text{if}\;\; V_{m} \geq V_{th}:\\
+#    &\;\;\;\; V_{m} \text{ is set to } c\\
+#    &\;\;\;\; U_{m} \text{ is incremented by } d\\
+#    & \, \\
+#    &V_{m} \text{ jumps on each spike arrival by the weight of the spike}
 # 
 # Incoming spikes cause an instantaneous jump in the membrane potential proportional to the strength of the synapse.
 # 
@@ -34,6 +34,27 @@
 # ++++++++++
 # 
 # .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
 model izhikevich_neuron:
