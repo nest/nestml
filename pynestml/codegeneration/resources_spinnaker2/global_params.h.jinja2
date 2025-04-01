@@ -1,0 +1,10 @@
+#pragma once
+
+struct global_params {
+    uint32_t n_used_neurons;
+    uint32_t record_spikes; // use like bool
+    uint32_t record_v; // 0: recording off, 1: record voltage in all timesteps, 2: record last voltage
+    uint32_t profiling; // use like bool
+    uint32_t reset_by_subtraction; // use like bool
+    uint32_t record_time_done; // use like bool
+};
