@@ -64,6 +64,8 @@ This software was initially supported by the JARA-HPC Seed Fund *NESTML - A mode
 
 This software was developed in part or in whole in the Human Brain Project, funded from the European Union's Horizon 2020 Framework Programme for Research and Innovation under Specific Grant Agreements No. 720270, No. 785907 and No. 945539 (Human Brain Project SGA1, SGA2 and SGA3).
 
+This project has received funding from the European Union's Horizon Europe Programme under the Specific Grant Agreement No. 101147319 (EBRAINS 2.0 Project).
+
 This research has received funding by the `Helmholtz Association <https://www.helmholtz.de/>`_ through the Helmholtz Portfolio Theme *Supercomputing and Modeling for the Human Brain*.
 
 Neuron and synapse illustration: copyright Angela Fischer <a.fischer@fz-juelich.de>, INM-6, Forschungszentrum Jülich GmbH (CC-BY-SA)
