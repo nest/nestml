@@ -1,0 +1,30 @@
+#include {{ '<' }}stdint.h{{ '>' }}
+#include {{ '<' }}math.h{{ '>' }}
+#include {{ '<' }}float.h{{ '>' }}
+
+#include {{ '<' }}spinn2.h{{ '>' }}
+#include {{ '<' }}spinn_log.h{{ '>' }}
+
+#define {{ neuronName }}_DATA_SPEC 0x00010000
+#define {{ neuronName }}_DATA_BASE 0x0001b000
+
+#define {{ neuronName }}_STATUS 0
+#define {{ neuronName }}_DEBUG_START 3
+#define {{ neuronName }}_DEBUG_SIZE (4000 * 4)
+
+#define {{ neuronName }}_STATUS_RUNNING 0
+#define {{ neuronName }}_STATUS_DONE 1 // not used
+#define {{ neuronName }}_STATUS_READY 2 // not used
+
+#define {{ neuronName }}_SYNAPSE_TYPE_EXCITATORY 0 // not used
+#define {{ neuronName }}_SYNAPSE_TYPE_INHIBITORY 1 // not used
+#define {{ neuronName }}_N_SYNAPSES 2
+
+#define {{ neuronName }}_CONNECTION_TYPE_ONE_TO_ONE 0 // not used
+#define {{ neuronName }}_CONNECTION_TYPE_FIXED_PROB 1 // not used
+
+// enums data specification
+
+inline uint32_t {{ neuronName }}_mem_pos(uint32_t offset) {
+    return {{ neuronName }}_DATA_BASE + (offset * 4);
+}

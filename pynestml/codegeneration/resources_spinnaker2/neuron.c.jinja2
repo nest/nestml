@@ -1,0 +1,150 @@
+#include "neuron.h"
+#include "global_params.h"
+#include "simulation.h"
+
+uint32_t n_neurons;
+extern input_t input_buffers[INPUT_BUFFER_SIZE];
+neuron_t neuron_array[N_NEURONS];
+neuron_params_t neuron_params_array[N_NEURONS] __attribute__((section(".myNeuronParamsSection")));
+global_neuron_params_t global_neuron_params;
+
+// spike records for current timestep
+uint32_t spike_records[SPIKE_RECORD_LENGTH] __attribute__((aligned(0x10)));
+uint32_t spike_records_count[SPIKE_RECORD_COUNTER_LENGTH];
+
+extern uint32_t* spike_records_all_timesteps;
+extern uint32_t* voltage_records_all_timesteps;
+extern uint32_t systicks;
+extern uint32_t pe_id;
+extern uint32_t qpe_x;
+extern uint32_t qpe_y;
+extern volatile routing_info* routing_info_ptr;
+extern volatile struct global_params* global_params_ptr;
+extern simulation_config sim_config;
+
+bool neuron_initialise() {
+    n_neurons = N_NEURONS;
+    clear_spike_record();
+
+    // neuron states
+    for (index_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
+        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
+        neuron_pointer_t neuron = &neuron_array[neuron_index];
+//        neuron->V_membrane = neuron_params->V_init;
+//        neuron->refract_timer = 0;
+    }
+
+    return true;
+}
+
+void print_neuron_params() {
+    log_info("Neuron params:\n");
+    uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+    for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+        neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
+        log_info("%u: C_m=%i, tau_m=%i, tau_syn_inh=%i, tau_syn_exc=%i, refr_T=%i, E_L=%i, V_reset=%i, V_th=%i, I_e=%i\n",
+            neuron_index,
+            (int32_t) (neuron_params->C_m*1000),
+            (int32_t) (neuron_params->tau_m*1000),
+            (int32_t) (neuron_params->tau_syn_inh*1000),
+            (int32_t) (neuron_params->tau_syn_exc*1000),
+            (int32_t) (neuron_params->refr_T*1000),
+            (int32_t) (neuron_params->E_L*1000),
+            (int32_t) (neuron_params->V_reset*1000),
+            (int32_t) (neuron_params->V_th*1000),
+            (int32_t) (neuron_params->I_e*1000));
+    }
+}
+
+void neuron_reset(){
+	clear_spike_record();
+}
+
+void neuron_do_timestep_update() {
+//    clear_spike_record();
+//    uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+//    for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+//
+//    neuron_pointer_t neuron = &neuron_array[neuron_index];
+//    neuron_params_t* neuron_params = &neuron_params_array[neuron_index];
+//    input_t exc_input = synapse_types_get_excitatory_input(input_buffers, neuron_index);
+//    input_t inh_input = synapse_types_get_inhibitory_input(input_buffers, neuron_index);
+//    REAL result = neuron_model_state_update(
+//        exc_input, inh_input, neuron, neuron_params);
+//    check_spike(result, neuron_params->threshold, neuron_index);
+//    }
+//    send_spike_record();
+//    record_voltages();
+}
+
+void check_spike(REAL result, REAL threshold, index_t neuron_index){
+	if(result >= threshold) {  // neuron spike
+    neuron_pointer_t neuron = &neuron_array[neuron_index];
+    neuron_params_t * params = &neuron_params_array[neuron_index];
+		neuron_model_has_spiked(neuron, params);
+		record_spike(neuron_index);
+    // log_info("Neuron %u spiked at time %u\n", neuron_index, systicks);
+    send_spikes_to_all_targets(routing_info_ptr->key_offset + neuron_index);
+	}
+}
+
+void record_spike(uint32_t neuron_id){
+	spike_records[neuron_id/32+2] |= 1 << ( neuron_id - neuron_id/32*32);
+	spike_records_count[neuron_id/32]++;
+}
+
+void send_spike_record(){
+    if (global_params_ptr->record_spikes) {
+        spike_records[0]=pe_id;
+        spike_records[1]=systicks;
+        for(uint32_t i = 0; i < SPIKE_RECORD_LENGTH; i++){
+            *spike_records_all_timesteps = spike_records[i];
+            spike_records_all_timesteps++;
+        }
+    }
+}
+
+void clear_spike_record(){
+	for (uint32_t i = 0; i < SPIKE_RECORD_LENGTH ; i++){
+    spike_records[i]=0;
+	}
+	for (uint32_t i = 0 ; i < SPIKE_RECORD_COUNTER_LENGTH ; i++){
+		spike_records_count[i]=0;
+	}
+}
+
+bool input_buffer_initialise() {
+    for (uint32_t i = 0; i < INPUT_BUFFER_SIZE; i++) {
+        input_buffers[i] = 0;
+    }
+    return true;
+}
+
+//void record_voltages() {
+//    if (global_params_ptr->record_v == 1) { // record all voltages
+//        // log_info("Recording Voltages");
+//        *voltage_records_all_timesteps = systicks;
+//        voltage_records_all_timesteps++;
+//
+//        uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+//        // neuron states
+//        for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+//            *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].V_membrane);
+//            voltage_records_all_timesteps++;
+//        }
+//    }
+//    else if (global_params_ptr->record_v == 2) { // record last voltage only
+//        if (systicks == sim_config.n_simulation_ticks - 1) {
+//            log_info("Recording voltages at last time step %i", systicks);
+//            *voltage_records_all_timesteps = systicks;
+//            voltage_records_all_timesteps++;
+//
+//            uint32_t n_used_neurons = global_params_ptr->n_used_neurons;
+//            // neuron states
+//            for (index_t neuron_index = 0; neuron_index < n_used_neurons; neuron_index++) {
+//                *voltage_records_all_timesteps = f2ui(neuron_array[neuron_index].V_membrane);
+//                voltage_records_all_timesteps++;
+//            }
+//        }
+//    }
+//}

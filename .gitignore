@@ -7,7 +7,7 @@ target/
 build/
 buildNest/
 venv/
-spinnaker-install/
+tests/spinnaker_tests/bak/spinnaker-install/
 spinnaker-target/
 report/
 reports/

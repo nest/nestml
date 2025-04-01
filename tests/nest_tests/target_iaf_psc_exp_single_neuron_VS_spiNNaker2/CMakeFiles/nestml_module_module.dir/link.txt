@@ -1,0 +1,1 @@
+/home/weih/miniconda3/envs/spinnaker2/bin/x86_64-conda-linux-gnu-c++ -fPIC -L/home/weih/miniconda3/envs/spinnaker2/lib/nest -lnest -lsli /home/weih/miniconda3/envs/spinnaker2/x86_64-conda-linux-gnu/sysroot/usr/lib/libpthread.so -shared  -o nestml_module.so CMakeFiles/nestml_module_module.dir/nestml_module.o CMakeFiles/nestml_module_module.dir/iaf_psc_exp_neuron.o

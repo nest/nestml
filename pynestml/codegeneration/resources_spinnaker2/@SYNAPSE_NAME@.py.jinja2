@@ -1,0 +1,13 @@
+# TODO: This should be class of SynapseDynamicSTDP with default values set to generated timing and weight
+from spynnaker.pyNN.models.neuron.synapse_dynamics.synapse_dynamics_stdp import SynapseDynamicsSTDP
+
+from python_models8.neuron.builds.{{synapseName}}_timing import MyTimingDependence
+from python_models8.neuron.builds.{{synapseName}}_weight import MyWeightDependence
+
+class {{synapseName}}_synapse_impl(SynapseDynamicsSTDP):
+
+    def __init__(self):
+        super().__init__(
+            timing_dependence=MyTimingDependence(my_potentiation_parameter=2., my_depression_parameter=0.1),
+            weight_dependence=MyWeightDependence(w_min=0., w_max=10., my_weight_parameter=0.5),
+        )

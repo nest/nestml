@@ -1,0 +1,36 @@
+#ifndef _NEURON_H_
+#define _NEURON_H_
+
+#include "s2app.h"
+#include "common/neuron-typedefs.h"
+#include "neuron_model_{{ neuronName }}_impl.h"
+#include "synapse_types/synapse_types_exponential_impl.h"
+#include "neuron_model.h"
+#include "param_defs.h"
+#include {{ '<' }}string.h{{ '>' }}
+#include "spinn_log.h"
+#include "spike_processing.h"
+
+extern input_t input_buffers[INPUT_BUFFER_SIZE];
+
+bool neuron_initialise();
+
+void neuron_reset();
+
+void neuron_do_timestep_update();
+
+void record_spike(uint32_t neuron_id);
+
+void clear_spike_record();
+
+void check_spike(REAL result, REAL threshold, index_t neuron_index);
+
+bool input_buffer_initialise();
+
+void print_neuron_params();
+
+// write spike record to predefined memory location in SRAM
+void send_spike_record();
+
+void record_voltages();
+#endif // _NEURON_H_

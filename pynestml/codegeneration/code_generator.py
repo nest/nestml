@@ -79,11 +79,11 @@ class CodeGenerator(WithOptions):
                 self._setup_template_env(neuron_model_templates, templates_root_dir))
 
         # Setup synapse template environment
-        if "synapse" in self.get_option("templates")["model_templates"]:
-            synapse_model_templates = self.get_option("templates")["model_templates"]["synapse"]
-            if synapse_model_templates:
-                self._model_templates["synapse"].extend(
-                    self._setup_template_env(synapse_model_templates, templates_root_dir))
+        # if "synapse" in self.get_option("templates")["model_templates"]:
+        #     synapse_model_templates = self.get_option("templates")["model_templates"]["synapse"]
+        #     if synapse_model_templates:
+        #         self._model_templates["synapse"].extend(
+        #             self._setup_template_env(synapse_model_templates, templates_root_dir))
 
         # Setup modules template environment
         if "module_templates" in self.get_option("templates"):

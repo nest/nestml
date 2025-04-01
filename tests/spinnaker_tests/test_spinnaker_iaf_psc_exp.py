@@ -54,6 +54,9 @@ class TestSpiNNakerIafPscExp:
                                   suffix=suffix)
         #                          codegen_opts=codegen_opts)
 
+    def test_generate_code(self):
+        self.generate_code()
+
     def test_iaf_psc_exp(self):
         # import spynnaker and plotting stuff
         import pyNN.spiNNaker as p

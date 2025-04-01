@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2017-2019 The University of Manchester
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//! \file
+//! \brief Standard layout of DSG regions in neuron code.
+//!
+//! Note that not all models use all of these regions, but they all use the same
+//! region identifier mapping.
+#pragma once
+
+//! DSG region identifiers
+typedef enum neuron_regions_e {
+    ROUTING_TABLE_REGION,       //!< routing table, 0
+    SIMULATION_REGION,          //!< simulation (tick & duration), 1
+    GLOBAL_PARAMS_REGION,       //!< global parameters, 2
+    POPULATION_TABLE_REGION,    //!< master population table; 3
+    SYNAPSE_ROWS_REGION,        //!< synaptic matrix; 4
+    NEURON_PARAMS_REGION,       //!< neuron parameters; 5
+    NEURON_RECORDING_REGION,    //!< spike recording; 6
+    VOLTAGE_RECORDING_REGION,   //!< voltage recording; 7
+    TIME_DONE_RECORDING_REGION, //!< time done recording; 8
+    LOG_INFO_REGION             //!< log_info start address; 9
+} regions_e;

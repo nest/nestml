@@ -1570,6 +1570,20 @@ class ASTUtils:
         return None
 
     @classmethod
+    def generate_parameter_value_dict(cls, node: ASTModel, parameters_block: ASTEquationsBlock) -> dict:
+        parameter_value_dict = {}
+        for decl in parameters_block.get_declarations():
+            if isinstance(decl.expression, ASTSimpleExpression):
+                for var in decl.variables:
+                    parameter_value_dict[var.get_name()] = int(decl.expression.numeric_literal)
+            if isinstance(decl.expression, ASTExpression):
+                for var in decl.variables:
+                    parameter_value_dict[var.get_name()] = int(str(decl.expression.unary_operator) + str(decl.expression.expression.numeric_literal))
+                pass
+        return parameter_value_dict
+
+
+    @classmethod
     def get_internal_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:
         """
         Get the declaration based on the name of the internal parameter
