@@ -2,7 +2,7 @@ ipykernel
 nbsphinx
 docutils
 sphinx>=6
-MarkupSafe==2.1.5
+MarkupSafe==3.0.2
 readthedocs-sphinx-ext==2.2.0
 nbformat==5.10.4
 nbsphinx==0.9.1
