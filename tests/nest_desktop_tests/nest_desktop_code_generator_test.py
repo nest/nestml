@@ -42,7 +42,7 @@ class TestNestDesktopCodeGenerator:
                         target_path=target_path,
                         target_platform=target_platform,
                         module_name=target_path,
-                        logging_level="INFO")
+                        logging_level="DEBUG")
 
         # Read the parameters from the generated json file and match them with the actual values
         with open(os.path.join(target_path, "iaf_psc_exp_neuron.json")) as f:

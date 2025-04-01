@@ -69,6 +69,6 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         namespace["nestml_version"] = pynestml.__version__
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(neuron.get_name())
+        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(neuron.file_path)
 
         return namespace
