@@ -1,1 +1,0 @@
-/home/weih/miniconda3/envs/spinnaker2/lib/nest/nestml_module.so
