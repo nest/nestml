@@ -208,12 +208,5 @@ class SpiNNakerCodeGenerator(CodeGenerator):
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
-        cloned_models = []
-        for model in models:
-            cloned_model = model.clone()
-            cloned_model.accept(ASTSymbolTableVisitor())
-            CoCosManager.check_cocos(cloned_model)
-            cloned_models.append(cloned_model)
-
-        self.codegen_cpp.generate_code(cloned_models)
-        self.codegen_py.generate_code(cloned_models)
+        self.codegen_cpp.generate_code(models)
+        self.codegen_py.generate_code(models)
