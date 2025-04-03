@@ -52,7 +52,7 @@ class ASTSimpleExpression(ASTExpressionNode):
 
     def __init__(self, function_call: ASTFunctionCall = None, boolean_literal: bool = None,
                  numeric_literal: Union[int, float] = None, is_inf: bool = False,
-                 variable: ASTVariable = None, string: str = None, has_delay: bool = False, *args, **kwargs):
+                 variable: ASTVariable = None, string: str = None, physicalUnitExpression=None, has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
 
@@ -91,6 +91,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
+        self.physicalUnitExpression = physicalUnitExpression
         self.has_delay = has_delay
 
     def clone(self):
