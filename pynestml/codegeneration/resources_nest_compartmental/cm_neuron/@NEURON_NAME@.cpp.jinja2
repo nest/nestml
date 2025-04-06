@@ -205,6 +205,19 @@ nest::{{neuronSpecificFileNamesCmSyns["main"]}}::set_status( const DictionaryDat
    * recordables map
    */
   init_recordables_pointers_();
+
+  /**
+   * Set new values for any recordable and potentially evolving states
+   * explicitly defined in the model or implicitly created during
+   * code generation.
+   */
+  std::map< Name, double* > recordables = c_tree_.get_recordables();
+  for(auto recordable : recordables){
+      if(statusdict->known(recordable.first)){
+          *recordable.second = getValue< double >(statusdict, recordable.first);
+          statusdict->remove(recordable.first);
+      }
+  }
 }
 void
 nest::{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment_( DictionaryDatum& dd )

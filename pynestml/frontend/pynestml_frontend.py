@@ -471,6 +471,7 @@ def process():
                                                                            options=codegen_and_builder_opts)
 
     code_generator = code_generator_from_target_name(FrontendConfiguration.get_target_platform())
+
     codegen_and_builder_opts = code_generator.set_options(codegen_and_builder_opts)
 
     _builder, codegen_and_builder_opts = builder_from_target_name(FrontendConfiguration.get_target_platform(), options=codegen_and_builder_opts)

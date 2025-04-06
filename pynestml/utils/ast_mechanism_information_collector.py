@@ -306,7 +306,6 @@ class ASTMechanismInformationCollector(object):
 
                         for kernel in global_kernels:
                             if variable.name == kernel.get_variables()[0].name:
-                                #breakpoint()
                                 synapse_kernels.append(kernel)
 
                                 local_variable_collector = ASTVariableCollectorVisitor()

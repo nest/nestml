@@ -51,6 +51,7 @@ class ConcInfoEnricher(MechsInfoEnricher):
             fake_conc_info = cls.transform_ode_solutions(neuron, fake_conc_info)
 
             conc_info[concentration_name]["ODEs"] = {**conc_info[concentration_name]["ODEs"], **fake_conc_info["fake"]["ODEs"]}
-            conc_info[concentration_name]["time_resolution_var"] = fake_conc_info["fake"]["time_resolution_var"]
+            if "time_resolution_var" in fake_conc_info["fake"]:
+                conc_info[concentration_name]["time_resolution_var"] = fake_conc_info["fake"]["time_resolution_var"]
 
         return conc_info

@@ -674,7 +674,9 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::calibrate() {
 {%- else %}
 void nest::{{ concentration_name }}{{cm_unique_suffix}}::pre_run_hook() {
 {%- endif %}
+    {% if "time_resolution_var" in concentration_info %}
     std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
+    {% endif %}
     for(std::size_t concentration_id = 0; concentration_id < neuron_{{ concentration_name }}_concentration_count; concentration_id++){
     // states
     {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
@@ -704,7 +706,9 @@ void nest::{{ concentration_name }}{{cm_unique_suffix}}::f_numstep(std::vector< 
                         {% endif %}{% for inline in concentration_info["Dependencies"]["channels"] %}, std::vector< double > {{inline.variable_name}}{% endfor %}{% if concentration_info["Dependencies"]["continuous"]|length %}
                         {% endif %}{% for inline in concentration_info["Dependencies"]["continuous"] %}, std::vector< double > {{inline.variable_name}}{% endfor %})
 {
+    {% if "time_resolution_var" in concentration_info %}
         std::vector< double > {{ printer_no_origin.print(concentration_info["time_resolution_var"]) }}(neuron_{{ concentration_name }}_concentration_count, Time::get_resolution().get_ms());
+    {% endif %}
 
         {%- for ode_variable, ode_info in concentration_info["ODEs"].items() %}
             {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
