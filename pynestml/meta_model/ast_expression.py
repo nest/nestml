@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
@@ -67,12 +67,11 @@ class ASTExpression(ASTExpressionNode):
         simple_expression = None
     """
 
-    def __init__(self, is_encapsulated: bool = False, unary_operator: ASTUnaryOperator = None,
-                 is_logical_not: bool = False, expression: ASTExpression = None, lhs: ASTExpression = None,
-                 binary_operator: Union[ASTLogicalOperator, ASTComparisonOperator, ASTBitOperator,
-                                        ASTArithmeticOperator] = None,
-                 rhs: ASTExpression = None, condition: ASTExpression = None, if_true: ASTExpression = None,
-                 if_not: ASTExpression = None, has_delay: bool = False, *args, **kwargs):
+    def __init__(self, is_encapsulated: bool = False, unary_operator: Optional[ASTUnaryOperator] = None,
+                 is_logical_not: bool = False, expression: Optional[ASTExpression] = None, lhs: Optional[ASTExpression] = None,
+                 binary_operator: Optional[Union[ASTLogicalOperator, ASTComparisonOperator, ASTBitOperator, ASTArithmeticOperator]] = None,
+                 rhs: Optional[ASTExpression] = None, condition: Optional[ASTExpression] = None, if_true: Optional[ASTExpression] = None,
+                 if_not: Optional[ASTExpression] = None, has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
 

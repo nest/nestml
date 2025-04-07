@@ -22,20 +22,21 @@
 from typing import List, Optional
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.string_utils import removesuffix
 
 
 class CodeGeneratorUtils:
 
     @classmethod
-    def get_model_types_from_names(cls, models: List[str], neuron_models: Optional[List[str]] = None, synapse_models: Optional[List[str]] = None):
+    def get_model_types_from_names(cls, models: List[ASTModel], synapse_models: Optional[List[str]] = None):
         r"""
-        Returns a prefix corresponding to the origin of the variable symbol.
-        :param variable_symbol: a single variable symbol.
-        :return: the corresponding prefix
+        Determine which models are neuron models, and which are synapse models. All model names given in ``synapse_models``, as well as models of which the name ends in ``synapse``, are taken to be synapse models. All others are taken to be neuron models.
+
+        :param models: a list of models
+        :param synapse_models: a list of model names that should be interpreted as synapse models.
+        :return: a tuple ``(neurons, synapses)``, each element a list of strings containing model names.
         """
-        if neuron_models is None:
-            neuron_models = []
 
         if synapse_models is None:
             synapse_models = []
@@ -43,10 +44,10 @@ class CodeGeneratorUtils:
         neurons = []
         synapses = []
         for model in models:
-            pure_name = removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
-            if pure_name in synapse_models \
-               or (pure_name.endswith("synapse")
-                   and not pure_name in neuron_models):
+            stripped_model_name = removesuffix(removesuffix(model.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+
+            if stripped_model_name in synapse_models \
+               or stripped_model_name.endswith("synapse"):
                 synapses.append(model)
             else:
                 neurons.append(model)

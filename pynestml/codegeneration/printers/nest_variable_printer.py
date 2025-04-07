@@ -51,6 +51,13 @@ class NESTVariablePrinter(CppVariablePrinter):
         self.enforce_getter = enforce_getter
         self.variables_special_cases = variables_special_cases
         self.cpp_variable_suffix = ""
+        # self.postsynaptic_getter_string_ = "start->get_%s()"   # XXX: TODO: see https://github.com/nest/nestml/issues/1163
+        # self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(t_hist_entry_ms)"
+        self.postsynaptic_getter_string_ = "((post_neuron_t*)(__target))->get_%s(get_t())"
+
+    def set_getter_string(self, s):
+        self.postsynaptic_getter_string_ = s
+        return ""
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -68,10 +75,16 @@ class NESTVariablePrinter(CppVariablePrinter):
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
             if variable.get_alternate_name():
+                if not variable._altscope:
+                    # get the value from the postsynaptic partner continuous-time buffer (for post_connected_continuous_input_ports); this has been buffered in a local temp variable starting with "__"
+                    return variable.get_alternate_name()
+
+                # get the value from the postsynaptic partner (without time specified)
                 # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
                 return "((post_neuron_t*)(__target))->get_" + variable.get_alternate_name() + "()"
 
-            return "((post_neuron_t*)(__target))->get_" + _name + "(_tr_t)"
+            # grab the value from the postsynaptic spiking history buffer
+            return self.postsynaptic_getter_string_ % _name
 
         if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return "numerics::e"    # from nest::

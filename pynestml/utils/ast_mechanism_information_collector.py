@@ -169,8 +169,6 @@ class ASTMechanismInformationCollector(object):
             mechanism_dependencies["continuous"] = list()
             mechanism_dependencies["global"] = list()
 
-            #mechanism_inlines.append(mechs_info[mechanism_name]["root_expression"])
-
             found_variables = list()
             found_functions = list()
 

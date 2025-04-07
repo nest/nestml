@@ -1,37 +1,57 @@
-"""
-terub_stn - Terman Rubin neuron model
-#####################################
-
-Description
-+++++++++++
-
-terub_stn is an implementation of a spiking neuron using the Terman Rubin model
-based on the Hodgkin-Huxley formalism.
-
-(1) **Post-syaptic currents:** Incoming spike events induce a post-synaptic change of current modelled
-    by an alpha function. The alpha function is normalised such that an event of
-    weight 1.0 results in a peak current of 1 pA.
-
-(2) **Spike Detection:** Spike detection is done by a combined threshold-and-local-maximum search: if there
-    is a local maximum above a certain threshold of the membrane potential, it is considered a spike.
-
-
-References
-++++++++++
-
-.. [1] Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J. Activity Patterns in a Model for the Subthalamopallidal Network
-       of the Basal Ganglia. The Journal of Neuroscience, 22(7), 2963-2976 (2002)
-
-.. [2] Rubin, J.E. and Terman, D. High Frequency Stimulation of the Subthalamic Nucleus Eliminates
-       Pathological Thalamic Rhythmicity in a Computational Model Journal of Computational Neuroscience, 16, 211-235 (2004)
-"""
+# terub_stn - Terman Rubin neuron model
+# #####################################
+# 
+# Description
+# +++++++++++
+# 
+# terub_stn is an implementation of a spiking neuron using the Terman Rubin model
+# based on the Hodgkin-Huxley formalism.
+# 
+# (1) **Post-syaptic currents:** Incoming spike events induce a post-synaptic change of current modelled
+# by an alpha function. The alpha function is normalised such that an event of
+# weight 1.0 results in a peak current of 1 pA.
+# 
+# (2) **Spike Detection:** Spike detection is done by a combined threshold-and-local-maximum search: if there
+# is a local maximum above a certain threshold of the membrane potential, it is considered a spike.
+# 
+# 
+# References
+# ++++++++++
+# 
+# .. [1] Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J. Activity Patterns in a Model for the Subthalamopallidal Network
+# of the Basal Ganglia. The Journal of Neuroscience, 22(7), 2963-2976 (2002)
+# 
+# .. [2] Rubin, J.E. and Terman, D. High Frequency Stimulation of the Subthalamic Nucleus Eliminates
+# Pathological Thalamic Rhythmicity in a Computational Model Journal of Computational Neuroscience, 16, 211-235 (2004)
+#
+#
+# Copyright statement
+# +++++++++++++++++++
+#
+# This file is part of NEST.
+# 
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 model terub_stn_neuron:
     state:
-        V_m mV = E_L #  Membrane potential
+        V_m mV = E_L    # Membrane potential
         V_m_old mV = E_L    # Membrane potential at previous timestep for threshold check
 
         refr_t ms = 0 ms    # Refractory period timer
-        is_refractory boolean = false
 
         gate_h real = 0.0 # gating variable h
         gate_n real = 0.0 # gating variable n
@@ -39,9 +59,9 @@ model terub_stn_neuron:
         Ca_con real = 0.0 # calcium concentration
 
     equations:
-        #Parameters for Terman Rubin STN Neuron
+        # Parameters for Terman Rubin STN Neuron
 
-        #time constants for slow gating variables
+        # time constants for slow gating variables
         inline tau_n_0 ms = 1.0 ms
         inline tau_n_1 ms = 100.0 ms
         inline theta_n_tau mV = -80.0 mV
@@ -108,8 +128,9 @@ model terub_stn_neuron:
 
         # V dot -- synaptic input are currents, inhib current is negative
         V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_exc_mod + I_inh_mod) / C_m
+        refr_t' = -1e3 * ms/s    # refractoriness is implemented as an ODE, representing a timer counting back down to zero. XXX: TODO: This should simply read ``refr_t' = -1 / s`` (see https://github.com/nest/nestml/issues/984)
 
-        #channel dynamics
+        # channel dynamics
         gate_h' = phi_h *((h_inf - gate_h) / tau_h)  # h-variable
         gate_n' = phi_n *((n_inf - gate_n) / tau_n)  # n-variable
         gate_r' = phi_r *((r_inf - gate_r) / tau_r)  # r-variable
@@ -152,19 +173,16 @@ model terub_stn_neuron:
         spike
 
     update:
-        if is_refractory:
-            refr_t -= resolution()
-
+        # Hodgkin-Huxley type model: ODEs are always integrated, regardless of refractory state
         V_m_old = V_m
-        integrate_odes()
+        if refr_t > 0 ms:
+            # neuron is absolute refractory
+            integrate_odes(V_m, gate_h, gate_n, gate_r, Ca_con, refr_t)
+        else:
+            # neuron not refractory
+            integrate_odes(V_m, gate_h, gate_n, gate_r, Ca_con)
 
-    onCondition(not is_refractory and V_m > 0 mV and V_m_old > V_m):
+    onCondition(refr_t <= 0 ms and V_m > 0 mV and V_m_old > V_m):
         # threshold crossing and maximum
         refr_t = refr_T    # start of the refractory period
-        is_refractory = true
         emit_spike()
-
-    onCondition(is_refractory and refr_t <= resolution() / 2):
-        # end of refractory period
-        refr_t = 0 ms
-        is_refractory = false

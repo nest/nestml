@@ -32,12 +32,14 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
+
+from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -65,7 +67,7 @@ class MechanismProcessing:
     _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
     _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
     _ode_toolbox_printer = ODEToolboxExpressionPrinter(
-        simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+        simple_expression_printer=SympySimpleExpressionPrinter(
             variable_printer=_ode_toolbox_variable_printer,
             constant_printer=_constant_printer,
             function_call_printer=_ode_toolbox_function_call_printer))
@@ -305,7 +307,6 @@ class MechanismProcessing:
 
             # collect and process all basic mechanism information
             mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info, cls.mechType)
-            #mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
             cls.extract_mech_blocks(info_collector, mechs_info, global_info)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
 

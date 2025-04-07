@@ -26,7 +26,12 @@ import datetime
 import os
 
 from jinja2 import TemplateRuntimeError
+
+from odetoolbox import analysis
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
+
 import pynestml
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
@@ -45,7 +50,6 @@ from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -61,6 +65,8 @@ from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
+from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
+from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
 from pynestml.utils.concentration_processing import ConcentrationProcessing
@@ -80,10 +86,6 @@ from pynestml.utils.recs_info_enricher import RecsInfoEnricher
 from pynestml.utils.receptor_processing import ReceptorProcessing
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from odetoolbox import analysis
-
-#DEBUGGING
-from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
 
 
 class NESTCompartmentalCodeGenerator(CodeGenerator):
@@ -132,7 +134,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
     _module_templates = list()
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("NEST_COMPARTMENTAL", options)
+        super().__init__(options)
 
         self._nest_code_generator = NESTCodeGenerator(options)
 
@@ -188,16 +190,16 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         self._gsl_function_call_printer = NESTGSLFunctionCallPrinter(None)
 
         self._gsl_printer = CppExpressionPrinter(
-            simple_expression_printer=UnitlessCppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
-                                                                         constant_printer=self._constant_printer,
-                                                                         function_call_printer=self._gsl_function_call_printer))
+            simple_expression_printer=CppSimpleExpressionPrinter(variable_printer=self._gsl_variable_printer,
+                                                                 constant_printer=self._constant_printer,
+                                                                 function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
         # ODE-toolbox printers
         self._ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
         self._ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
         self._ode_toolbox_printer = ODEToolboxExpressionPrinter(
-            simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+            simple_expression_printer=SympySimpleExpressionPrinter(
                 variable_printer=self._ode_toolbox_variable_printer,
                 constant_printer=self._constant_printer,
                 function_call_printer=self._ode_toolbox_function_call_printer))
@@ -261,6 +263,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         namespace = {"neurons": neurons,
                      "nest_version": self.get_option("nest_version"),
                      "moduleName": FrontendConfiguration.get_module_name(),
+                     "nestml_version": pynestml.__version__,
                      "now": datetime.datetime.utcnow()}
 
         # auto-detect NEST Simulator installed version
@@ -610,11 +613,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         ASTUtils.update_initial_values_for_odes(
             neuron, [analytic_solver, numeric_solver])
 
-        # remove differential equations from equations block
-        # those are now resolved into zero order variables and their
-        # corresponding updates
-        #ASTUtils.remove_ode_definitions_from_equations_block(neuron)
-
         # restore state variables that were referenced by kernels
         # and set their initial values by those suggested by ODE-toolbox
         ASTUtils.create_initial_values_for_kernels(
@@ -694,6 +692,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace = {}
 
+        namespace["nestml_version"] = pynestml.__version__
         namespace["now"] = datetime.datetime.utcnow()
         namespace["tracing"] = FrontendConfiguration.is_dev
 
@@ -741,7 +740,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-        #namespace["synapse"] = synapse
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["has_spike_input"] = ASTUtils.has_spike_input(
             neuron.get_body())
@@ -867,6 +865,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         global_info_string = MechanismProcessing.print_dictionary(namespace["global_info"], 0)
         code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string, global_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
+
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
             "main": self.get_cm_syns_main_file_prefix(neuron),
@@ -891,8 +890,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         """
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
-        symbol_table_visitor.after_ast_rewrite_ = True
         neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:

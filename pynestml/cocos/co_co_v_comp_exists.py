@@ -45,9 +45,6 @@ class CoCoVCompDefined(CoCo):
         Models which are supposed to be compartmental but do not contain
         state variable called v_comp are not correct.
         :param neuron: a single neuron instance.
-        :param after_ast_rewrite: indicates whether this coco is checked
-            after the code generator has done rewriting of the abstract syntax tree.
-            If True, checks are not as rigorous. Use False where possible.
         """
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
         from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils

@@ -40,13 +40,14 @@ from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.model_parser import ModelParser
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class MechsInfoEnricher:
@@ -209,6 +210,7 @@ class MechsInfoEnricher:
 
                         neuron_internal_declaration_collector = ASTEnricherInfoCollectorVisitor()
                         neuron.accept(neuron_internal_declaration_collector)
+
                         for variable in expression_variable_collector.all_variables:
                             for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
                                 if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
@@ -291,10 +293,6 @@ class MechsInfoEnricher:
                 inline_expression_name = inline.variable_name
                 transformed_inlines.append(SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name])
             enriched_syns_info[mechanism_name]["secondary_inline_expressions"] = transformed_inlines
-
-            # now also identify analytic helper variables such as __h
-            #enriched_syns_info[mechanism_name]["analytic_helpers"] = cls.get_analytic_helper_variable_declarations(
-            #    enriched_syns_info[mechanism_name])
 
         return enriched_syns_info
 

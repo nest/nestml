@@ -42,7 +42,7 @@ class SpiNNakerBuilder(Builder):
     }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("SPINNAKER", options)
+        super().__init__(options)
 
     def build(self) -> None:
         r"""

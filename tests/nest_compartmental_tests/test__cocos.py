@@ -21,41 +21,39 @@
 
 from __future__ import print_function
 
+from typing import Optional
+
 import os
 import pytest
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
-
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.meta_model.ast_model import ASTModel
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.model_parser import ModelParser
 
 
-@pytest.fixture
-def setUp():
-    Logger.init_logger(LoggingLevel.INFO)
-    SymbolTable.initialize_symbol_table(
-        ASTSourceLocation(
-            start_line=0,
-            start_column=0,
-            end_line=0,
-            end_column=0))
-    PredefinedUnits.register_units()
-    PredefinedTypes.register_types()
-    PredefinedVariables.register_variables()
-    PredefinedFunctions.register_functions()
-    FrontendConfiguration.target_platform = "NEST_COMPARTMENTAL"
-
-
 class TestCoCos:
 
-    def test_invalid_cm_variables_declared(self, setUp):
-        model = ModelParser.parse_file(
+    @pytest.fixture(scope="module", autouse=True)
+    def setUp(self):
+        SymbolTable.initialize_symbol_table(
+            ASTSourceLocation(
+                start_line=0,
+                start_column=0,
+                end_line=0,
+                end_column=0))
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedVariables.register_variables()
+        PredefinedFunctions.register_functions()
+
+    def test_invalid_cm_variables_declared(self):
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -63,11 +61,10 @@ class TestCoCos:
                         'invalid')),
                 'CoCoCmVariablesDeclared.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 5
+            model, LoggingLevel.ERROR)) == 6
 
-    def test_valid_cm_variables_declared(self, setUp):
-        Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_file(
+    def test_valid_cm_variables_declared(self):
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -75,12 +72,12 @@ class TestCoCos:
                         'valid')),
                 'CoCoCmVariablesDeclared.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 0
+            model, LoggingLevel.ERROR)) == 0
 
     # it is currently not enforced for the non-cm parameter block, but cm
     # needs that
-    def test_invalid_cm_variable_has_rhs(self, setUp):
-        model = ModelParser.parse_file(
+    def test_invalid_cm_variable_has_rhs(self):
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -88,11 +85,11 @@ class TestCoCos:
                         'invalid')),
                 'CoCoCmVariableHasRhs.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 2
+            model, LoggingLevel.ERROR)) == 2
 
-    def test_valid_cm_variable_has_rhs(self, setUp):
+    def test_valid_cm_variable_has_rhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_file(
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -100,12 +97,12 @@ class TestCoCos:
                         'valid')),
                 'CoCoCmVariableHasRhs.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 0
+            model, LoggingLevel.ERROR)) == 0
 
     # it is currently not enforced for the non-cm parameter block, but cm
     # needs that
-    def test_invalid_cm_v_comp_exists(self, setUp):
-        model = ModelParser.parse_file(
+    def test_invalid_cm_v_comp_exists(self):
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -113,11 +110,11 @@ class TestCoCos:
                         'invalid')),
                 'CoCoCmVcompExists.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 4
+            model, LoggingLevel.ERROR)) == 4
 
-    def test_valid_cm_v_comp_exists(self, setUp):
+    def test_valid_cm_v_comp_exists(self):
         Logger.set_logging_level(LoggingLevel.INFO)
-        model = ModelParser.parse_file(
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -125,10 +122,29 @@ class TestCoCos:
                         'valid')),
                 'CoCoCmVcompExists.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 0
+            model, LoggingLevel.ERROR)) == 0
+
+    def _parse_and_validate_model(self, fname: str) -> Optional[str]:
+        from pynestml.frontend.pynestml_frontend import generate_target
+
+        Logger.init_logger(LoggingLevel.DEBUG)
+
+        try:
+            generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+        except BaseException:
+            return None
+
+        ast_compilation_unit = ModelParser.parse_file(fname)
+        if ast_compilation_unit is None or len(ast_compilation_unit.get_model_list()) == 0:
+            return None
+
+        model: ASTModel = ast_compilation_unit.get_model_list()[0]
+        model_name = model.get_name()
+
+        return model_name
 
     def test_invalid_cm_mech_shared_code(self, setUp):
-        model=ModelParser.parse_file(
+        model=self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(
@@ -136,4 +152,4 @@ class TestCoCos:
                         'invalid')),
                 'CoCoCmMechSharedCode.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model.get_model_list()[0], LoggingLevel.ERROR)) == 4
+            model, LoggingLevel.ERROR)) == 4
