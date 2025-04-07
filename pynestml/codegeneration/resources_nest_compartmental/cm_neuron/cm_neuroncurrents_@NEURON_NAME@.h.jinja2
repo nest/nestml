@@ -653,6 +653,8 @@ public:
 
 class NeuronCurrents{{cm_unique_suffix}} {
 private:
+
+    bool initialized = false;
   //mechanisms
   // ion channels
 {% with %}
@@ -778,6 +780,8 @@ public:
     {{continuous_name}}{{continuous_suffix}}.pre_run_hook();
     {% endfor -%}
 {%- endif %}
+
+    if(!initialized){
     int con_end_index;
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     if({{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count){
@@ -842,6 +846,8 @@ public:
     }
     {% endfor -%}
   {% endwith -%}
+    initialized = true;
+  }
   };
 
   void add_mechanism( const std::string& type, const std::size_t compartment_id, const long multi_mech_index = 0)

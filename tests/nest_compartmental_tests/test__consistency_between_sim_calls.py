@@ -104,7 +104,7 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         Results:
         The plots generated illustrate the effects of spike timing on various properties of the post-synaptic neuron, highlighting STDP-driven synaptic weight changes and trace dynamics.
         """
-        spike_times = [11, 50]
+        spike_times = [10, 20]
 
         sim_time = 100
         repeats = 10
@@ -124,7 +124,9 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
 
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Na': 1.0}
         neuron.compartments = [
-            {"parent_idx": -1, "params": params}
+            {"parent_idx": -1, "params": params},
+            {"parent_idx": 0, "params": {}},
+            {"parent_idx": 1, "params": params}
         ]
         print("comps")
         neuron.receptors = [
@@ -144,7 +146,7 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         res = nest.GetStatus(mm, 'events')[0]
 
         run_len = list(res['times']).index(sim_time - 0.1) + 1
-        res['times'] = np.insert(res['times'], 0, res['times'][run_len])
+        res['times'] = np.insert(res['times'], 0, 0.0)
         res['v_comp0'] = np.insert(res['v_comp0'], 0, res['v_comp0'][run_len])
         res['Na0'] = np.insert(res['Na0'], 0, res['Na0'][run_len])
         res['AMPA0'] = np.insert(res['AMPA0'], 0, res['AMPA0'][run_len])
@@ -152,6 +154,7 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         run_len += 1
         max_deviation = 0.0
         deviations = []
+
         for i in range(repeats+1):
             for ii in range(run_len):
                 deviation = abs(res['v_comp0'][ii+(i*run_len)]-res['v_comp0'][ii])

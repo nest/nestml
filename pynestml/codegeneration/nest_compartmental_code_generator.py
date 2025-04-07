@@ -423,7 +423,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
 
-        breakpoint()
         full_solver_result = analysis(
             odetoolbox_indict,
             disable_stiffness_check=True,
