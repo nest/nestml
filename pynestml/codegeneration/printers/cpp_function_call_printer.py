@@ -32,6 +32,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class CppFunctionCallPrinter(FunctionCallPrinter):
@@ -83,6 +84,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
         """
         function_name = function_call.get_name()
 
+        if function_name == PredefinedFunctions.HEAVISIDE:
+            return '({!s} > 0)'
+
         if function_name == PredefinedFunctions.CLIP:
             # the arguments of this function must be swapped and are therefore [v_max, v_min, v]
             return 'std::min({2!s}, std::max({1!s}, {0!s}))'
@@ -91,6 +95,9 @@ class CppFunctionCallPrinter(FunctionCallPrinter):
             return 'std::max({!s}, {!s})'
 
         if function_name == PredefinedFunctions.MIN:
+            return 'std::min({!s}, {!s})'
+
+        if function_name == 'Min':
             return 'std::min({!s}, {!s})'
 
         if function_name == PredefinedFunctions.ABS:
