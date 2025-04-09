@@ -28,7 +28,8 @@ from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
+
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -61,7 +62,7 @@ class SynapseProcessing:
     _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
     _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
     _ode_toolbox_printer = ODEToolboxExpressionPrinter(
-        simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+        simple_expression_printer=SympySimpleExpressionPrinter(
             variable_printer=_ode_toolbox_variable_printer,
             constant_printer=_constant_printer,
             function_call_printer=_ode_toolbox_function_call_printer))

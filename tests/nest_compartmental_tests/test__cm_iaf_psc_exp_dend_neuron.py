@@ -92,7 +92,7 @@ class TestCompartmentalIAF:
 
         nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 1000.0, 'delay': 0.5, 'receptor_type': 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'i_tot_leak0', 'i_tot_refr0'], 'interval': .1})
+        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'leak0', 'refr0'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -106,8 +106,8 @@ class TestCompartmentalIAF:
         fig, axs = plt.subplots(3)
 
         axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['i_tot_leak0'], c='y', label='leak0')
-        axs[2].plot(res['times'], res['i_tot_refr0'], c='b', label='refr0')
+        axs[1].plot(res['times'], res['leak0'], c='y', label='leak0')
+        axs[2].plot(res['times'], res['refr0'], c='b', label='refr0')
 
         axs[0].set_title('V_m_0')
         axs[1].set_title('leak0')

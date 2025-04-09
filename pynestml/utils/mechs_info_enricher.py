@@ -22,11 +22,14 @@ import copy
 from collections import defaultdict
 
 from odetoolbox import analysis
+from pynestml.cocos.co_cos_manager import CoCosManager
+
+from pynestml.symbol_table.symbol_table import SymbolTable
+
+from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-
-from pynestml.codegeneration.printers.unitless_cpp_simple_expression_printer import UnitlessCppSimpleExpressionPrinter
 
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
 
@@ -61,7 +64,7 @@ class MechsInfoEnricher:
     _ode_toolbox_variable_printer = ODEToolboxVariablePrinter(None)
     _ode_toolbox_function_call_printer = ODEToolboxFunctionCallPrinter(None)
     _ode_toolbox_printer = ODEToolboxExpressionPrinter(
-        simple_expression_printer=UnitlessCppSimpleExpressionPrinter(
+        simple_expression_printer=SympySimpleExpressionPrinter(
             variable_printer=_ode_toolbox_variable_printer,
             constant_printer=_constant_printer,
             function_call_printer=_ode_toolbox_function_call_printer))
@@ -77,6 +80,10 @@ class MechsInfoEnricher:
         neuron.accept(SynsInfoEnricherVisitor())
         mechs_info = cls.get_transformed_ode_equations(mechs_info)
         mechs_info = cls.ode_toolbox_processing(neuron, mechs_info)
+
+        cls.add_propagators_to_internals(neuron, mechs_info)
+        neuron.accept(SynsInfoEnricherVisitor())
+
         mechs_info = cls.transform_ode_solutions(neuron, mechs_info)
         mechs_info = cls.transform_convolutions_analytic_solutions_generall(neuron, mechs_info)
         mechs_info = cls.enrich_mechanism_specific(neuron, mechs_info)
@@ -148,6 +155,25 @@ class MechsInfoEnricher:
         return mechs_info
 
     @classmethod
+    def add_propagators_to_internals(cls, neuron, mechs_info):
+        for mechanism_name, mechanism_info in mechs_info.items():
+            for ode_var_name, ode_info in mechanism_info["ODEs"].items():
+                for ode_solution_index in range(len(ode_info["ode_toolbox_output"])):
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
+                        ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
+
+            if "convolutions" in mechanism_info:
+                for convolution_name, convolution_info in mechanism_info["convolutions"].items():
+                    for variable_name, rhs_str in convolution_info["analytic_solution"]["propagators"].items():
+                        ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
+
+        SymbolTable.delete_model_scope(neuron.get_name())
+        symbol_table_visitor = ASTSymbolTableVisitor()
+        neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
+
+    @classmethod
     def transform_ode_solutions(cls, neuron, mechs_info):
         for mechanism_name, mechanism_info in mechs_info.items():
             for ode_var_name, ode_info in mechanism_info["ODEs"].items():
@@ -188,6 +214,7 @@ class MechsInfoEnricher:
                     for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
                         prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                        SymbolKind.VARIABLE)
+
                         if prop_variable is None:
                             ASTUtils.add_declarations_to_internals(
                                 neuron, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])

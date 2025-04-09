@@ -217,8 +217,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         return ret
 
     def generate_code(self, models: List[ASTModel]) -> None:
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option(
-            "neuron_models"), synapse_models=self.get_option("synapse_models"))
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
         synapses_per_neuron = self.arrange_synapses_per_neuron(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
@@ -633,9 +632,9 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         ASTUtils.add_timestep_symbol(neuron)
 
         # add propagator variables calculated by odetoolbox into internal blocks
-        if self.analytic_solver[neuron.get_name()] is not None:
-            neuron = ASTUtils.add_declarations_to_internals(
-                neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+        # if self.analytic_solver[neuron.get_name()] is not None:
+        #     neuron = ASTUtils.add_declarations_to_internals(
+        #         neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         # generate how to calculate the next spike update
         self.update_symbol_table(neuron)

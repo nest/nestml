@@ -100,13 +100,14 @@ class TestCM():
             f"Compiled nestml model 'cm_main_cm_default_nestml' not found, installing in:"
             f"    {target_path}")
 
-        generate_nest_compartmental_target(
-            input_path=input_path,
-            target_path=target_path,
-            module_name="cm_defaultmodule",
-            suffix="_nestml",
-            logging_level="ERROR"
-        )
+        if True:
+            generate_nest_compartmental_target(
+                input_path=input_path,
+                target_path=target_path,
+                module_name="cm_defaultmodule",
+                suffix="_nestml",
+                logging_level="ERROR"
+            )
 
     def get_model(self, reinstall_flag=True):
         if self.nestml_flag:
@@ -504,17 +505,17 @@ class TestCM():
             ax_dend.set_title('NESTML')
             ax_dend.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['g_AN_AMPA_input1'],
+                res_pas_nestml['g_AN_AMPA1'],
                 c='b',
                 label='AMPA passive dend')
             ax_dend.plot(
                 res_pas_nestml['times'],
-                res_pas_nestml['g_AN_NMDA_input1'],
+                res_pas_nestml['g_AN_NMDA1'],
                 c='r',
                 label='NMDA passive dend')
-            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_AMPA_input1'],
+            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_AMPA1'],
                          c='b', ls='--', lw=2., label='AMPA active dend')
-            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_NMDA_input1'],
+            ax_dend.plot(res_act_nestml['times'], res_act_nestml['g_AN_NMDA1'],
                          c='r', ls='--', lw=2., label='NMDA active dend')
             ax_dend.set_xlabel(r'$t$ (ms)')
             ax_dend.set_ylabel(r'$g_{syn1}$ (uS)')
@@ -554,10 +555,10 @@ class TestCM():
         assert (
             np.allclose(
                 res_act_nest['g_r_AN_AMPA_1'] + res_act_nest['g_d_AN_AMPA_1'],
-                res_act_nestml['g_AN_AMPA_input1'],
+                res_act_nestml['g_AN_AMPA1'],
                 5e-3))
         assert (
             np.allclose(
                 res_act_nest['g_r_AN_NMDA_1'] + res_act_nest['g_d_AN_NMDA_1'],
-                res_act_nestml['g_AN_NMDA_input1'],
+                res_act_nestml['g_AN_NMDA1'],
                 5e-3))

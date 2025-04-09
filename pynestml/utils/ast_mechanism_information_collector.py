@@ -1156,10 +1156,11 @@ class ASTUpdateBlockReductor(ASTVisitor):
         self.inside_if_stmt = True
 
     def endvisit_if_stmt(self, node):
-        all_empty = len(node.get_if_clause().get_block().get_stmts()) == 0
-        for block in [n.get_block() for n in node.get_elif_clauses()]:
+        all_empty = len(node.get_if_clause().get_stmts_body().get_stmts()) == 0
+        for block in [n.get_stmts_body() for n in node.get_elif_clauses()]:
             all_empty = all_empty and len(block.get_stmts()) == 0
-        all_empty = all_empty and len(node.get_else_clause().get_block().get_stmts()) == 0
+        if node.get_else_clause() is not None:
+            all_empty = all_empty and len(node.get_else_clause().get_stmts_body().get_stmts()) == 0
         if all_empty:
             self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
         self.inside_if_stmt = False
@@ -1168,7 +1169,7 @@ class ASTUpdateBlockReductor(ASTVisitor):
         self.inside_while_stmt = True
 
     def endvisit_while_stmt(self, node):
-        if len(node.get_block().get_stmts()) == 0:
+        if len(node.get_stmts_body().get_stmts()) == 0:
             self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
         self.inside_while_stmt = False
 
@@ -1176,7 +1177,7 @@ class ASTUpdateBlockReductor(ASTVisitor):
         self.inside_for_stmt = True
 
     def endvisit_for_stmt(self, node):
-        if len(node.get_block().get_stmts()) == 0:
+        if len(node.get_stmts_body().get_stmts()) == 0:
             self.delete_stmts[self.block_depth].append(node.get_parent().get_parent())
         self.inside_for_stmt = False
 

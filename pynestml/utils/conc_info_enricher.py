@@ -48,6 +48,7 @@ class ConcInfoEnricher(MechsInfoEnricher):
 
             fake_conc_info = cls.get_transformed_ode_equations(fake_conc_info)
             fake_conc_info = cls.ode_toolbox_processing(neuron, fake_conc_info)
+            cls.add_propagators_to_internals(neuron, fake_conc_info)
             fake_conc_info = cls.transform_ode_solutions(neuron, fake_conc_info)
 
             conc_info[concentration_name]["ODEs"] = {**conc_info[concentration_name]["ODEs"], **fake_conc_info["fake"]["ODEs"]}

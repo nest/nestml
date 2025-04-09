@@ -110,7 +110,7 @@ class TestCoCos:
                         'invalid')),
                 'CoCoCmVcompExists.nestml'))
         assert len(Logger.get_all_messages_of_level_and_or_node(
-            model, LoggingLevel.ERROR)) == 4
+            model, LoggingLevel.ERROR)) == 6
 
     def test_valid_cm_v_comp_exists(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -130,7 +130,7 @@ class TestCoCos:
         Logger.init_logger(LoggingLevel.DEBUG)
 
         try:
-            generate_target(input_path=fname, target_platform="NONE", logging_level="DEBUG")
+            generate_target(input_path=fname, target_platform="NEST_COMPARTMENTAL", logging_level="DEBUG")
         except BaseException:
             return None
 

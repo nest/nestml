@@ -268,9 +268,9 @@ class MechanismProcessing:
     def extract_mech_blocks(cls, info_collector, mechs_info, global_info):
         block_list = list()
         if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
-            block_list.append(global_info["UpdateBlock"].block)
+            block_list.append(global_info["UpdateBlock"].get_stmts_body())
         if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
-            block_list.append(global_info["SelfSpikesFunction"].block)
+            block_list.append(global_info["SelfSpikesFunction"].get_stmts_body())
         if len(block_list) > 0:
             info_collector.collect_block_dependencies_and_owned(mechs_info, block_list, "UpdateBlock")
             if "UpdateBlock" in global_info  and global_info["UpdateBlock"] is not None:

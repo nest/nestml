@@ -117,9 +117,9 @@ void nest::Global{{cm_unique_suffix}}::f_numstep(std::vector< double > v_comp)
         {%- if global_info["UpdateBlock"] %}
         {%- set function = global_info["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -135,9 +135,9 @@ void nest::Global{{cm_unique_suffix}}::f_self_spike()
         {%- if global_info["SelfSpikesFunction"] %}
         {%- set function = global_info["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -146,9 +146,9 @@ void nest::Global{{cm_unique_suffix}}::f_self_spike()
 
 {%- for function in global_info["Functions"] %}
     {%-   filter indent(2,True) %}
-    {%-   with ast = function.get_block() %}
+    {%-   with ast = function.get_stmts_body() %}
     {%- set printer = printer_no_origin %}
-    {%-     include "cm_directives_cpp/Block.jinja2" %}
+    {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
     {%-   endwith %}
     {%-   endfilter %}
 {%- endfor %}

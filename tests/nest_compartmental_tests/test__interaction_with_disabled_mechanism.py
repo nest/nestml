@@ -93,7 +93,7 @@ class TestCompartmentalMechDisabled():
 
         nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'i_tot_Ca_LVAst0', 'i_tot_Ca_HVA0', 'i_tot_SK_E20'], 'interval': .1})
+        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'Ca_LVAst0', 'Ca_HVA0', 'SK_E20'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -110,8 +110,8 @@ class TestCompartmentalMechDisabled():
 
         axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
         axs[1].plot(res['times'], res['c_Ca0'], c='y', label='c_Ca_0')
-        axs[2].plot(res['times'], res['i_tot_Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
-        axs[3].plot(res['times'], res['i_tot_SK_E20'], c='b', label='i_tot_SK_E20')
+        axs[2].plot(res['times'], res['Ca_HVA0'], c='b', label='i_tot_Ca_HVA0')
+        axs[3].plot(res['times'], res['SK_E20'], c='b', label='i_tot_SK_E20')
 
         axs[0].set_title('V_m_0')
         axs[1].set_title('c_Ca_0')

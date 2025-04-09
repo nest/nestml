@@ -86,8 +86,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channel_name~cm_unique_suffix~"::", true) }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives_cpp/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives_cpp/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }
@@ -99,7 +99,7 @@ inline {{ function_declaration.FunctionDeclaration(function, "nest::"~ion_channe
 {{ vectorized_function_declaration.FunctionDeclaration(function, "nest::"~ion_channel_name~cm_unique_suffix~"::", true) }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
+{%-   with ast = function.get_stmts_body() %}
 {%-     include "directives_cpp/VectorizedBlock.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
@@ -422,9 +422,9 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_update()
         {%- if channel_info["Blocks"]["UpdateBlock"] %}
         {%- set function = channel_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -442,9 +442,9 @@ void nest::{{ion_channel_name}}{{cm_unique_suffix}}::f_self_spike()
         {%- if channel_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = channel_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -746,9 +746,9 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::f_update()
         {%- if concentration_info["Blocks"]["UpdateBlock"] %}
         {%- set function = concentration_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -766,9 +766,9 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::f_self_spike()
         {%- if concentration_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = concentration_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1050,9 +1050,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_update()
         {%- if receptor_info["Blocks"]["UpdateBlock"] %}
         {%- set function = receptor_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1070,9 +1070,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_self_spike()
         {%- if receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1084,8 +1084,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::f_self_spike()
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~receptor_name~cm_unique_suffix~"::", true) }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }
@@ -1407,9 +1407,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::postsynap
     for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++) {
         {%- set function = synapse_info["PostSpikeFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
             {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
     }
@@ -1463,9 +1463,9 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
         {%- if synapse_info["UpdateBlock"] %}
         {%- set function = synapse_info["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1496,9 +1496,9 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       if(s_val[i]!=0) {
             {%- set function = synapse_info["PreSpikeFunction"] %}
             {%-   filter indent(2,True) %}
-            {%-   with ast = function.get_block() %}
+            {%-   with ast = function.get_stmts_body() %}
                 {%- set printer = vector_printer %}
-            {%-     include "cm_directives_cpp/Block.jinja2" %}
+            {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
             {%-   endwith %}
             {%-   endfilter %}
       }
@@ -1559,9 +1559,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_update(
         {%- if receptor_info["Blocks"]["UpdateBlock"] %}
         {%- set function = receptor_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1579,9 +1579,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_self_sp
         {%- if receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = receptor_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1593,9 +1593,9 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::f_self_sp
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~receptor_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
+{%-   with ast = function.get_stmts_body() %}
     {%- set printer = vector_printer %}
-{%-     include "directives/Block.jinja2" %}
+{%-     include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }
@@ -1859,9 +1859,9 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_update()
         {%- if continuous_info["Blocks"]["UpdateBlock"] %}
         {%- set function = continuous_info["Blocks"]["UpdateBlock"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1879,9 +1879,9 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_self_spike()
         {%- if continuous_info["Blocks"]["SelfSpikesFunction"] %}
         {%- set function = continuous_info["Blocks"]["SelfSpikesFunction"] %}
         {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_block() %}
+        {%-   with ast = function.get_stmts_body() %}
         {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/Block.jinja2" %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
         {%-   endwith %}
         {%-   endfilter %}
         {%- endif %}
@@ -1893,8 +1893,8 @@ void nest::{{continuous_name}}{{cm_unique_suffix}}::f_self_spike()
 inline {{ function_declaration.FunctionDeclaration(function, "nest::"~continuous_name~cm_unique_suffix~"::") }}
 {
 {%-   filter indent(2,True) %}
-{%-   with ast = function.get_block() %}
-{%-     include "directives/Block.jinja2" %}
+{%-   with ast = function.get_stmts_body() %}
+{%-     include "directives/StmtsBody.jinja2" %}
 {%-   endwith %}
 {%-   endfilter %}
 }

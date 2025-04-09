@@ -168,10 +168,7 @@ class TestContinuousInput:
         nest.Connect(pg0, aeif, syn_spec={'synapse_model': 'static_synapse', 'weight': weight, 'delay': 1.})
 
         # create multimeters to record compartment voltages and various state variables
-        rec_list = [
-            'v_comp0', 'w0', 'i_tot_I_spike0', 'i_tot_input0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0',
-        ]
-        mm_cm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'v_comp1', 'w0', 'i_tot_I_spike0', 'i_tot_input0', 'i_tot_refr0', 'i_tot_adapt0', 'i_tot_I_Ca0', 'i_tot_I_K0', 'c_Ca0'], 'interval': .1})
+        mm_cm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'v_comp1', 'w0', 'I_spike0', 'I_syn_exc0', 'refr0', 'adapt0', 'I_Ca0', 'I_K0', 'c_Ca0'], 'interval': .1})
         mm_aeif = nest.Create('multimeter', 1, {'record_from': ['V_m', 'w'], 'interval': .1})
         nest.Connect(mm_cm, cm)
         nest.Connect(mm_aeif, aeif)
@@ -248,14 +245,14 @@ class TestContinuousInput:
         #else:
             fig, axs = plt.subplots(7)
 
-            axs[0].plot(res_cm['times'], res_cm['i_tot_I_spike0'], c='b', label='I_spike0')
-            axs[1].plot(res_cm['times'], res_cm['i_tot_input0'], c='b', label='I_syn_exc0')
+            axs[0].plot(res_cm['times'], res_cm['I_spike0'], c='b', label='I_spike0')
+            axs[1].plot(res_cm['times'], res_cm['I_syn_exc0'], c='b', label='I_syn_exc0')
             #plt.plot(res_cm['times'], res_cm['i_tot_I_syn_inh0'], c='b', label='3')
             #plt.plot(res_cm['times'], res_cm['i_tot_external_stim0'], c='b', label='4')
-            axs[2].plot(res_cm['times'], res_cm['i_tot_refr0'], c='b', label='refr0')
-            axs[3].plot(res_cm['times'], res_cm['i_tot_adapt0'], c='b', label='adapt0')
-            axs[4].plot(res_cm['times'], res_cm['i_tot_I_Ca0'], c='b', label='I_Ca0')
-            axs[5].plot(res_cm['times'], res_cm['i_tot_I_K0'], c='b', label='I_K0')
+            axs[2].plot(res_cm['times'], res_cm['refr0'], c='b', label='refr0')
+            axs[3].plot(res_cm['times'], res_cm['adapt0'], c='b', label='adapt0')
+            axs[4].plot(res_cm['times'], res_cm['I_Ca0'], c='b', label='I_Ca0')
+            axs[5].plot(res_cm['times'], res_cm['I_K0'], c='b', label='I_K0')
             axs[6].plot(res_cm['times'], res_cm['c_Ca0'], c='b', label='c_Ca0')
 
             axs[0].legend()

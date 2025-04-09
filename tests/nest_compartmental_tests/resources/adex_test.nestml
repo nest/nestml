@@ -1,44 +1,43 @@
-"""
-aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
-###############################################################################
-
-Description
-+++++++++++
-
-aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
-
-The membrane potential is given by the following differential equation:
-
-.. math::
-
-   C_m \frac{dv_comp}{dt} =
-   -g_L(v_comp-E_L)+g_L\Delta_T\exp\left(\frac{v_comp-V_{th}}{\Delta_T}\right) -
- g_e(t)(v_comp-E_e) \\
-                                                     -g_i(t)(v_comp-E_i)-w + I_e
-
-and
-
-.. math::
-
- \tau_w \frac{dw}{dt} = a(v_comp-E_L) - w
-
-Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`v_comp`, the value :math:`\min(v_comp,V_{peak})` is used in the dynamical equations.
-
-
-References
-++++++++++
-
-.. [1] Brette R and Gerstner W (2005). Adaptive exponential
-       integrate-and-fire model as an effective description of neuronal
-       activity. Journal of Neurophysiology. 943637-3642
-       DOI: https://doi.org/10.1152/jn.00686.2005
-
-
-See also
-++++++++
-
-iaf_cond_alpha, aeif_cond_exp
-"""
+# aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
+# ###############################################################################
+#
+# Description
+# +++++++++++
+#
+# aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
+#
+# The membrane potential is given by the following differential equation:
+#
+# .. math::
+#
+#    C_m \frac{dv_comp}{dt} =
+#    -g_L(v_comp-E_L)+g_L\Delta_T\exp\left(\frac{v_comp-V_{th}}{\Delta_T}\right) -
+#  g_e(t)(v_comp-E_e) \\
+#                                                      -g_i(t)(v_comp-E_i)-w + I_e
+#
+# and
+#
+# .. math::
+#
+#  \tau_w \frac{dw}{dt} = a(v_comp-E_L) - w
+#
+# Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`v_comp`, the value :math:`\min(v_comp,V_{peak})` is used in the dynamical equations.
+#
+#
+# References
+# ++++++++++
+#
+# .. [1] Brette R and Gerstner W (2005). Adaptive exponential
+#        integrate-and-fire model as an effective description of neuronal
+#        activity. Journal of Neurophysiology. 943637-3642
+#        DOI: https://doi.org/10.1152/jn.00686.2005
+#
+#
+# See also
+# ++++++++
+#
+# iaf_cond_alpha, aeif_cond_exp
+#
 model aeif_cond_alpha_neuron:
 
     state:
