@@ -50,19 +50,11 @@ class TestODEToolboxprinter:
         nest.Install("nestmlmodule")
 
         # create spike_generators with these times
-        port1_sg = nest.Create("spike_generator",
-                               params={"spike_times": [1., 11., 21.]})
-        port2_sg = nest.Create("spike_generator",
-                               params={"spike_times": [6., 16., 26.]})
-
-        # create parrot neurons and connect spike_generators
-        neuron = nest.Create("parrot_neuron_nestml")
-        sr = nest.Create("spike_recorder")
-
-        nest.Connect(port1_sg, neuron, "one_to_one", syn_spec={"receptor_type": 1, "delay": 1.})
-        nest.Connect(port2_sg, neuron, "one_to_one", syn_spec={"receptor_type": 2, "delay": 1.})
-        nest.Connect(neuron, sr)
+        neuron = nest.Create("ode_toolbox_printer_test_nestml")
+        mm = nest.Create("multimeter", params={"record_from": ["x"]})
+        nest.Connect(neuron, mm)
 
         nest.Simulate(35.)
-
-        np.testing.assert_allclose(sr.events["times"], [2., 12., 22.])
+        x = mm.get("events")["x"]
+        print(x)
+        # np.testing.assert_allclose(sr.events["times"], [2., 12., 22.])

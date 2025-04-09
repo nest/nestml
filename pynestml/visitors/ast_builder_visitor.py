@@ -26,6 +26,7 @@ import re
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -199,13 +200,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         else:
             numeric_literal = None
         is_inf = (True if ctx.isInf is not None else False)
-        physicalUnitExpression = (self.visit(ctx.physicalUnitExpression()) if ctx.physicalUnitExpression() is not None else None)
+        # physicalUnitExpression = (self.visit(ctx.physicalUnitExpression()) if ctx.physicalUnitExpression() is not None else None)
+        unitType = self.visit(ctx.unitType()) if ctx.unitType() is not None else None
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
         string = (str(ctx.string.text) if ctx.string is not None else None)
         node = ASTNodeFactory.create_ast_simple_expression(function_call=function_call,
                                                            boolean_literal=boolean_literal,
                                                            numeric_literal=numeric_literal,
-                                                           physicalUnitExpression=physicalUnitExpression,
+                                                           physicalUnitExpression=unitType,
                                                            is_inf=is_inf, variable=variable,
                                                            string=string,
                                                            source_position=create_source_pos(ctx))
@@ -265,6 +267,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                                                   differential_order=differential_order,
                                                   vector_parameter=vector_parameter,
                                                   source_position=create_source_pos(ctx))
+
+    # # Visit a parse tree produced by PyNESTMLParser#physicalUnitExpression
+    # def visitPhysicalUnitExpression(self, ctx:PyNestMLParser.PhysicalUnitExpressionContext):
+
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):

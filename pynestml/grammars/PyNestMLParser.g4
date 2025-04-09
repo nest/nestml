@@ -94,7 +94,7 @@ parser grammar PyNestMLParser;
   **/
   simpleExpression : functionCall
                      | BOOLEAN_LITERAL
-                     | (UNSIGNED_INTEGER | FLOAT) physicalUnitExpression?
+                     | (UNSIGNED_INTEGER | FLOAT) unitType?
                      | string=STRING_LITERAL
                      | isInf=INF_KEYWORD
                      | variable;
@@ -122,12 +122,12 @@ parser grammar PyNestMLParser;
 
   /**
   **/
-  physicalUnitExpression : leftParentheses=LEFT_PAREN term=physicalUnitExpression rightParentheses=RIGHT_PAREN
-                         | <assoc=right> left=physicalUnitExpression powOp=STAR_STAR right=physicalUnitExpression
-                         | left=physicalUnitExpression (timesOp=STAR | divOp=FORWARD_SLASH) right=physicalUnitExpression
-                         | physicalUnit;
-
-  physicalUnit : name=NAME;
+//  physicalUnitExpression : leftParentheses=LEFT_PAREN term=physicalUnitExpression rightParentheses=RIGHT_PAREN
+//                         | <assoc=right> left=physicalUnitExpression powOp=STAR_STAR right=physicalUnitExpression
+//                         | left=physicalUnitExpression (timesOp=STAR | divOp=FORWARD_SLASH) right=physicalUnitExpression
+//                         | physicalUnit;
+//
+//  physicalUnit : name=NAME;
 
   /**
    * ASTVariable Provides a 'marker' AST node to identify variables used in expressions.

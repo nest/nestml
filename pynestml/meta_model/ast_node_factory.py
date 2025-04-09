@@ -309,16 +309,16 @@ class ASTNodeFactory:
         return ASTReturnStmt(expression, source_position=source_position)
 
     @classmethod
-    def create_ast_simple_expression(cls, function_call=None,  # type: Union(ASTFunctionCall,None)
-                                     boolean_literal=None,  # type: Union(bool,None)
-                                     numeric_literal=None,  # type: Union(float,int)
+    def create_ast_simple_expression(cls, function_call=None,  # type: Union[ASTFunctionCall, None]
+                                     boolean_literal=None,  # type: Union[bool, None]
+                                     numeric_literal=None,  # type: Union[float, int]
                                      is_inf=False,  # type: bool
                                      physicalUnitExpression=None,
                                      variable=None,  # type: ASTVariable
-                                     string=None,  # type: Union(str,None)
+                                     string=None,  # type: Union[str, None]
                                      source_position=None  # type: ASTSourceLocation
                                      ):  # type: (...) -> ASTSimpleExpression
-        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string, physicalUnitExpression
+        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string, physicalUnitExpression,
                                    source_position=source_position)
 
     @classmethod
