@@ -271,10 +271,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                                                   vector_parameter=vector_parameter,
                                                   source_position=create_source_pos(ctx))
 
-    # # Visit a parse tree produced by PyNESTMLParser#physicalUnitExpression
-    # def visitPhysicalUnitExpression(self, ctx:PyNestMLParser.PhysicalUnitExpressionContext):
-
-
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
         name = (str(ctx.calleeName.text))
