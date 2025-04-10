@@ -313,12 +313,12 @@ class ASTNodeFactory:
                                      boolean_literal=None,  # type: Union[bool, None]
                                      numeric_literal=None,  # type: Union[float, int]
                                      is_inf=False,  # type: bool
-                                     physicalUnitExpression=None,
+                                     unitType=None,
                                      variable=None,  # type: ASTVariable
                                      string=None,  # type: Union[str, None]
                                      source_position=None  # type: ASTSourceLocation
                                      ):  # type: (...) -> ASTSimpleExpression
-        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string, physicalUnitExpression,
+        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string, unitType,
                                    source_position=source_position)
 
     @classmethod

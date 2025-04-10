@@ -21,6 +21,8 @@
 
 from typing import List, Optional, Union
 
+from pynestml.meta_model.ast_unit_type import ASTUnitType
+
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
@@ -52,7 +54,8 @@ class ASTSimpleExpression(ASTExpressionNode):
 
     def __init__(self, function_call: ASTFunctionCall = None, boolean_literal: bool = None,
                  numeric_literal: Union[int, float] = None, is_inf: bool = False,
-                 variable: ASTVariable = None, string: str = None, physicalUnitExpression=None, has_delay: bool = False, *args, **kwargs):
+                 variable: ASTVariable = None, string: str = None, unitType: ASTUnitType = None,
+                 has_delay: bool = False, *args, **kwargs):
         """
         Standard constructor.
 
@@ -91,7 +94,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
-        self.physicalUnitExpression = physicalUnitExpression
+        self.unitType = unitType
         self.has_delay = has_delay
 
     def clone(self):
@@ -114,7 +117,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         if self.is_boolean_false:
             boolean_literal = False
         assert function_call_dup or (boolean_literal is not None) or (
-            numeric_literal_dup is not None) or self.is_inf_literal or variable_dup or self.string
+                numeric_literal_dup is not None) or self.is_inf_literal or variable_dup or self.string
         dup = ASTSimpleExpression(function_call=function_call_dup,
                                   boolean_literal=boolean_literal,
                                   numeric_literal=numeric_literal_dup,
@@ -122,6 +125,7 @@ class ASTSimpleExpression(ASTExpressionNode):
                                   variable=variable_dup,
                                   string=self.string,
                                   has_delay=self.has_delay,
+                                  unitType=self.unitType,
                                   # ASTNode common attributes:
                                   source_position=self.source_position,
                                   scope=self.scope,
@@ -274,6 +278,18 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.string
 
+    def get_unitType(self):
+        """
+        Returns the unitType of the simple expression.
+        """
+        return self.unitType
+
+    def set_unitType(self, unitType):
+        """
+        Sets the unitType of the simple expression.
+        """
+        self.unitType = unitType
+
     def get_children(self) -> List[ASTNode]:
         r"""
         Returns the children of this node, if any.
@@ -340,6 +356,9 @@ class ASTSimpleExpression(ASTExpressionNode):
             return False
 
         if self.get_string() != other.get_string():
+            return False
+
+        if self.get_unitType() != other.get_unitType():
             return False
 
         return True

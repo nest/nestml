@@ -44,7 +44,7 @@ class TestODEToolboxprinter:
 
     @pytest.mark.skipif(NESTTools.detect_nest_version().startswith("v2"),
                         reason="This test does not support NEST 2")
-    def test_neuron_event_priority(self):
+    def test_ode_toolbox_printer(self):
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
         nest.Install("nestmlmodule")
@@ -52,7 +52,7 @@ class TestODEToolboxprinter:
         # create spike_generators with these times
         neuron = nest.Create("ode_toolbox_printer_test_nestml")
         mm = nest.Create("multimeter", params={"record_from": ["x"]})
-        nest.Connect(neuron, mm)
+        nest.Connect(mm, neuron)
 
         nest.Simulate(35.)
         x = mm.get("events")["x"]
