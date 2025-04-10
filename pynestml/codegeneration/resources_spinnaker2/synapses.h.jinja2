@@ -1,0 +1,46 @@
+#ifndef _SYNAPSES_H_
+#define _SYNAPSES_H_
+
+#include "common/neuron-typedefs.h"
+#include "synapse_row.h"
+#include "param_defs.h"
+#include "synapse_types/synapse_types_exponential_impl.h"
+
+
+#define INPUT_BUFFER_SIZE (1 << (SYNAPSE_TYPE_BITS + SYNAPSE_INDEX_BITS))
+#define RING_BUFFER_SIZE (1 << (SYNAPSE_DELAY_BITS + SYNAPSE_TYPE_BITS\
+                                + SYNAPSE_INDEX_BITS))
+static inline index_t synapses_get_ring_buffer_index(
+        uint32_t simuation_timestep, uint32_t synapse_type_index,
+        uint32_t neuron_index) {
+    return (((simuation_timestep & SYNAPSE_DELAY_MASK)
+             << SYNAPSE_TYPE_INDEX_BITS)
+            | (synapse_type_index << SYNAPSE_INDEX_BITS)
+            | neuron_index);
+}
+
+static inline index_t synapses_get_ring_buffer_index_combined(
+        uint32_t simulation_timestep, uint32_t combined_synapse_neuron_index) {
+    return (((simulation_timestep & SYNAPSE_DELAY_MASK)
+             << SYNAPSE_TYPE_INDEX_BITS)
+            | combined_synapse_neuron_index);
+}
+
+static inline input_t synapses_convert_weight_to_input(weight_t weight,
+                                                       uint32_t left_shift) {
+    return ((REAL)weight)/((uint32_t)1<<left_shift);
+}
+bool synapses_initialise();
+
+void synapses_reset();
+
+// process received spikes
+void synapses_process_spikes();
+void synapses_do_timestep_update(uint32_t time);
+
+// process on synaptic row based on the received spike
+// adds the weights to respective positions in the ring buffer
+bool synapses_process_synaptic_row(uint32_t time, synaptic_row_t row);
+
+
+#endif // _SYNAPSES_H_
