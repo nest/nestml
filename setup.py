@@ -56,6 +56,7 @@ setup(
                                "codegeneration/resources_nest/point_neuron/setup/common/*.jinja2",
                                "codegeneration/resources_nest_compartmental/cm_neuron/*.jinja2",
                                "codegeneration/resources_nest_compartmental/cm_neuron/directives_cpp/*.jinja2",
+                               "codegeneration/resources_nest_compartmental/cm_neuron/cm_directives_cpp/*.jinja2",
                                "codegeneration/resources_nest_compartmental/cm_neuron/setup/*.jinja2",
                                "codegeneration/resources_nest_compartmental/cm_neuron/setup/common/*.jinja2",
                                "codegeneration/resources_python_standalone/point_neuron/*.jinja2",
