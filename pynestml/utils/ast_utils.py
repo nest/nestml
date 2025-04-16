@@ -2257,18 +2257,6 @@ class ASTUtils:
         return decl_to_remove
 
     @classmethod
-    def add_timestep_symbol(cls, model: ASTModel) -> None:
-        """
-        Add timestep variable to the internals block
-        """
-        from pynestml.utils.model_parser import ModelParser
-        assert model.get_initial_value(
-            "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        assert not "__h" in [sym.name for sym in model.get_internal_symbols(
-        )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        model.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
-
-    @classmethod
     def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:
         """
         For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(kernel, spike_buf)` to the set, with `kernel` being the kernel that contains variable `var`.
