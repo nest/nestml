@@ -433,7 +433,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # if they have delta kernels, use sympy to expand the expression, then
         # find the convolve calls and replace them with constant value 1
         # then return every subexpression that had that convolve() replaced
-        delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
+        delta_factors = ASTUtils.get_delta_factors_from_input_port_references(neuron)
+        delta_factors |= ASTUtils.get_delta_factors_from_convolutions(neuron)
 
         # goes through all convolve() inside equations block
         # extracts what kernel is paired with what spike buffer

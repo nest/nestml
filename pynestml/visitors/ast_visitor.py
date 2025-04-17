@@ -39,7 +39,6 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
@@ -371,14 +370,6 @@ class ASTVisitor:
         """
         return
 
-    def visit_input_qualifier(self, node):
-        """
-        Used to visit a single input port qualifier.
-        :param node: a single input port qualifier node.
-        :type node: ASTInputQualifier
-        """
-        return
-
     def visit_arithmetic_operator(self, node):
         """
         Used to visit a single arithmetic operator.
@@ -679,7 +670,7 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_input_port(self, node):
+    def endvisit_input_port(self, node) -> None:
         """
         Used to endvisit a single input port.
         :param node: a single input port.
@@ -687,15 +678,7 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_input_qualifier(self, node):
-        """
-        Used to endvisit a single input port qualifier.
-        :param node: a single input port qualifier node.
-        :type node: ASTInputQualifer
-        """
-        return
-
-    def endvisit_arithmetic_operator(self, node):
+    def endvisit_arithmetic_operator(self, node) -> None:
         """
         Used to endvisit a single arithmetic operator.
         :param node: a single arithmetic operator.
@@ -703,7 +686,7 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_parameter(self, node):
+    def endvisit_parameter(self, node) -> None:
         """
         Used to endvisit a single parameter.
         :param node: a single parameter.
@@ -711,11 +694,10 @@ class ASTVisitor:
         """
         return
 
-    def endvisit_stmt(self, node):
+    def endvisit_stmt(self, node) -> None:
         """
         Used to endvisit a single stmt.
         :param node: a single stmt
-        :return: ASTStmt
         """
         return
 
@@ -726,15 +708,15 @@ class ASTVisitor:
     def get_real_self(self):
         return self.real_self
 
-    def handle(self, _node):
+    def handle(self, _node: ASTNode) -> None:
         self.get_real_self().visit(_node)
         self.get_real_self().traverse(_node)
         self.get_real_self().endvisit(_node)
 
-    def visit(self, node: ASTNode):
+    def visit(self, node: ASTNode) -> None:
         """
         Dispatcher for visitor pattern.
-        :param node: The ASTNode to visit
+        :param node: the node to visit
         """
         if isinstance(node, ASTArithmeticOperator):
             self.visit_arithmetic_operator(node)
@@ -799,9 +781,6 @@ class ASTVisitor:
         if isinstance(node, ASTInputPort):
             self.visit_input_port(node)
             return
-        if isinstance(node, ASTInputQualifier):
-            self.visit_input_qualifier(node)
-            return
         if isinstance(node, ASTLogicalOperator):
             self.visit_logical_operator(node)
             return
@@ -861,11 +840,10 @@ class ASTVisitor:
             return
         return
 
-    def traverse(self, node):
+    def traverse(self, node: ASTNode) -> None:
         """
         Dispatcher for traverse method.
-        :param node: The ASTElement to visit
-        :type node: Inherited from ASTElement
+        :param node: the node to traverse
         """
         if isinstance(node, ASTArithmeticOperator):
             self.traverse_arithmetic_operator(node)
@@ -930,9 +908,6 @@ class ASTVisitor:
         if isinstance(node, ASTInputPort):
             self.traverse_input_port(node)
             return
-        if isinstance(node, ASTInputQualifier):
-            self.traverse_input_qualifier(node)
-            return
         if isinstance(node, ASTLogicalOperator):
             self.traverse_logical_operator(node)
             return
@@ -992,11 +967,10 @@ class ASTVisitor:
             return
         return
 
-    def endvisit(self, node):
+    def endvisit(self, node: ASTNode) -> None:
         """
         Dispatcher for endvisit.
-        :param node: The ASTElement to endvisit
-        :type node:  ASTElement or inherited
+        :param node: the node to end-visit
         """
         if isinstance(node, ASTArithmeticOperator):
             self.endvisit_arithmetic_operator(node)
@@ -1060,9 +1034,6 @@ class ASTVisitor:
             return
         if isinstance(node, ASTInputPort):
             self.endvisit_input_port(node)
-            return
-        if isinstance(node, ASTInputQualifier):
-            self.endvisit_input_qualifier(node)
             return
         if isinstance(node, ASTLogicalOperator):
             self.endvisit_logical_operator(node)
@@ -1248,14 +1219,6 @@ class ASTVisitor:
             for sub_node in node.get_input_ports():
                 sub_node.accept(self.get_real_self())
 
-    def traverse_input_port(self, node):
-        if node.get_input_qualifiers() is not None:
-            for sub_node in node.get_input_qualifiers():
-                sub_node.accept(self.get_real_self())
-
-    def traverse_input_qualifier(self, node):
-        return
-
     def traverse_logical_operator(self, node):
         return
 
@@ -1279,6 +1242,9 @@ class ASTVisitor:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
+
+    def traverse_input_port(self, node):
+        return
 
     def traverse_kernel(self, node):
         for var, expr in zip(node.get_variables(), node.get_expressions()):
@@ -1333,6 +1299,8 @@ class ASTVisitor:
     def traverse_on_receive_block(self, node):
         if node.get_stmts_body() is not None:
             node.get_stmts_body().accept(self.get_real_self())
+        if node.input_port_variable is not None:
+            node.input_port_variable.accept(self.get_real_self())
 
     def traverse_on_condition_block(self, node):
         if node.get_cond_expr() is not None:
