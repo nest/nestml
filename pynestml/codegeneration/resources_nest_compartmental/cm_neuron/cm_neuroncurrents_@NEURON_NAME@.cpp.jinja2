@@ -969,6 +969,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}::pre_run_hook()
     {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
+  s_val = std::vector<double>(neuron_{{ receptor_name }}_receptor_count, 0);
+
   {{receptor_info["buffer_name"]}}_[i]->clear();
   }
 }
@@ -989,8 +991,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
     {%- endfor %}
 
     {% if receptor_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms()); {% endif %}
-
-    std::vector < double > s_val(neuron_{{ receptor_name }}_receptor_count, 0);
 
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
@@ -1399,6 +1399,8 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::pre_run_h
     {{internal_name}}[i] = {{ vector_printer.print(internal_declaration.get_expression(), "i") }};
   {%- endfor %}
 
+  s_val = std::vector<double>(neuron_{{ receptor_name }}_receptor_count, 0);
+
   {{receptor_info["buffer_name"]}}_[i]->clear();
   }
 }
@@ -1438,11 +1440,49 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
 
     {% if receptor_info["ODEs"].items()|length %} std::vector< double > {{ printer_no_origin.print(receptor_info["analytic_helpers"]["__h"]["ASTVariable"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms()); {% endif %}
 
-    std::vector < double > s_val(neuron_{{ receptor_name }}_receptor_count, 0);
 
+
+      //update ODE state variable
+  #pragma omp simd
   for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+      {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
+          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+          {%- endfor %}
+          {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+          {%- endfor %}
+      {%- endfor %}
+
+      // update kernel state variable / compute synaptic conductance
+      {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+          {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
+      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+          {%- else %}
+      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+          {%- endif %}
+      {%- endfor %}
+      {%- endfor %}
+
+      // total current
+      // this expression should be the transformed inline expression
+
+      this->i_tot_{{receptor_name}}[i] = {{ vector_printer.print(receptor_info["root_expression"].get_expression(), "i") }};
+
+      // derivative of that expression
+      // voltage derivative of total current
+      // compute derivative with respect to current with sympy
+      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_derivative"], "i") }};
+
+      // for numerical integration
+      g_val[i] = - d_i_tot_dv[i];
+      i_val[i] = this->i_tot_{{receptor_name}}[i] - d_i_tot_dv[i] * v_comp[i];
+
+        for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
       // get spikes
-      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
+    s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
   }
 
 
@@ -1504,45 +1544,6 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       }
   }
     //presynaptic spike processing end
-
-
-      //update ODE state variable
-  #pragma omp simd
-  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      {%- for ode_variable, ode_info in receptor_info["ODEs"].items() %}
-          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
-          {%- endfor %}
-          {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
-          {%- endfor %}
-      {%- endfor %}
-
-      // update kernel state variable / compute synaptic conductance
-      {%- for convolution, convolution_info in receptor_info["convolutions"].items() %}
-      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-          {%- if convolution_info["spikes"]["name"] == "self_spikes" %}
-      {{state_variable_name}}[i] += self_spikes[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
-          {%- else %}
-      {{state_variable_name}}[i] += s_val[i] * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
-          {%- endif %}
-      {%- endfor %}
-      {%- endfor %}
-
-      // total current
-      // this expression should be the transformed inline expression
-
-      this->i_tot_{{receptor_name}}[i] = {{ vector_printer.print(receptor_info["root_expression"].get_expression(), "i") }};
-
-      // derivative of that expression
-      // voltage derivative of total current
-      // compute derivative with respect to current with sympy
-      d_i_tot_dv[i] = {{ vector_printer.print(receptor_info["inline_derivative"], "i") }};
-
-      // for numerical integration
-      g_val[i] = - d_i_tot_dv[i];
-      i_val[i] = this->i_tot_{{receptor_name}}[i] - d_i_tot_dv[i] * v_comp[i];
   }
 
   f_update();

@@ -306,6 +306,8 @@ private:
         };
     {%- endfor %}
 
+  std::vector < double > s_val = {};
+
   std::vector< double > i_tot_{{receptor_name}} = {};
 
   // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
@@ -409,6 +411,8 @@ private:
   std::vector<{{ render_variable_type(variable) }}> {{ variable.name }} = {}
         };
     {%- endfor %}
+
+  std::vector < double > s_val = {};
 
   std::vector< double > i_tot_{{receptor_name}} = {};
 
