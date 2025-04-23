@@ -51,9 +51,21 @@ class TestODEToolboxprinter:
 
         # create spike_generators with these times
         neuron = nest.Create("ode_toolbox_printer_test_nestml")
-        mm = nest.Create("multimeter", params={"record_from": ["I_syn"]})
+        mm = nest.Create("multimeter", params={"record_from": ["I_syn", "foo"]})
         nest.Connect(mm, neuron)
+        I_syn = neuron.get("I_syn")
+        foo = neuron.get("foo")
+        rate = neuron.get("rate")
+
+        # Assert all values are as expected before simulation
+        np.testing.assert_allclose(I_syn, 0)
+        np.testing.assert_allclose(foo, 4.0)
+        np.testing.assert_allclose(rate, 1e-05)
 
         nest.Simulate(35.)
         I_syn = mm.get("events")["I_syn"]
-        np.testing.assert_allclose(I_syn[-1], 4.45069954)
+        foo = mm.get("events")["foo"]
+
+        # Assert after simulation
+        np.testing.assert_allclose(I_syn[-1], 5.5493)
+        np.testing.assert_allclose(foo[-1], 7.4)
