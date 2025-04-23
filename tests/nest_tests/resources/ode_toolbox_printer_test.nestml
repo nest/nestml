@@ -1,0 +1,13 @@
+model ode_toolbox_printer_test:
+    state:
+        I_syn pA**-1 = 0 pA**-1
+
+    parameters:
+        tau_m ms = 42 ms
+        I_e pA = 10 pA
+
+    equations:
+        I_syn' = (-I_syn + I_e) / tau_m
+
+    update:
+        integrate_odes()
