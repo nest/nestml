@@ -56,8 +56,8 @@ class ODEToolboxExpressionPrinter(CppExpressionPrinter):
             # For example, if an expression is of the form ``x pA = 0 pA**-1``, simple expression on the lhs is ``0pA``, and the rhs is ``-1``.
             # This simple expression will have 0 stored as a numeric literal and ``pA`` as a variable.
             # In this case, the printer must only print the lhs, which is the numeric literal, as the rhs is the exponent of the unit pA.
-            if (isinstance(node.get_lhs(), ASTSimpleExpression) and node.get_lhs().get_variable() is not None and
-                    node.get_lhs().get_variable().get_name() == node.get_lhs().type.get_symbol_name()):
+            if isinstance(node.get_lhs(), ASTSimpleExpression) and node.get_lhs().get_variable() is not None \
+                    and node.get_lhs().get_variable().get_name() == node.get_lhs().type.get_symbol_name():
                 return lhs
             return lhs + "**" + rhs
 
