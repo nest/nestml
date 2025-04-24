@@ -29,9 +29,9 @@ class ODEToolboxVariablePrinter(VariablePrinter):
     """
 
     def print_variable(self, node: ASTVariable) -> str:
-        """
+        r"""
         Print variable.
         :param node: the node to print
         :return: string representation
         """
-        return node.get_complete_name().replace("$", "__DOLLAR")
+        return node.get_name().replace("$", "__DOLLAR") + "__d" * node.get_differential_order()

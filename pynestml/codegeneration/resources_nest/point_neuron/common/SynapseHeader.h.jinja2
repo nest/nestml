@@ -955,7 +955,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%-     endfor %}
 {%- endif %}
 
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(_tr_t)") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
 {%- for pre_port in pre_ports %}
 
       /**
@@ -970,7 +970,7 @@ void get_entry_from_continuous_variable_history(double t,
 {%-         endwith %}
 {%-     endif %}
 {%- endfor %}
-{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("start->get_%s()") }}
+{{ printer._expression_printer._simple_expression_printer._variable_printer.set_getter_string("((post_neuron_t*)(__target))->get_%s(get_t())") }} {# XXX: TODO: see https://github.com/nest/nestml/issues/1163 #}
     }
 
     /**

@@ -26,7 +26,7 @@ from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 
 class ODEToolboxExpressionPrinter(CppExpressionPrinter):
     r"""
-    Printer for ``ASTExpression`` nodes in ODE-toolbox syntax.
+    Printer for ``ASTExpression`` nodes in ODE-toolbox (sympy) syntax.
     """
 
     def _print_ternary_operator_expression(self, node: ASTExpression) -> str:
