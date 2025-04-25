@@ -61,12 +61,12 @@ class TestSpiNNakerIafPscExp:
         import matplotlib.pyplot as plt
 
         # import models
-        from python_models8.neuron.builds.iaf_psc_exp_nestml import iaf_psc_exp_nestml
+        from python_models8.neuron.builds.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml
 
         # TODO: Set names for exitatory input, membrane potential and synaptic response
         exc_input = "exc_spikes"
         membranePot = "V_m"
-        synapticRsp = "I_kernel_exc__X__exc_spikes"
+        synapticRsp = "I_syn_exc"
 
         # Set the run time of the execution
         run_time = 150
@@ -93,14 +93,14 @@ class TestSpiNNakerIafPscExp:
             n_neurons, p.SpikeSourceArray(**spikeArray), label="input")
 
         spiking_neuron = p.Population(
-            n_neurons, iaf_psc_exp_nestml(), label="iaf_psc_exp_nestml_spiking")
+            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_spiking")
         p.Projection(
             excitation, spiking_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
             synapse_type=p.StaticSynapse(weight=weight))
 
         receiving_neuron = p.Population(
-            n_neurons, iaf_psc_exp_nestml(), label="iaf_psc_exp_nestml_receiving")
+            n_neurons, iaf_psc_exp_neuron_nestml(), label="iaf_psc_exp_neuron_nestml_receiving")
         p.Projection(
             spiking_neuron, receiving_neuron,
             p.OneToOneConnector(), receptor_type=exc_input,
