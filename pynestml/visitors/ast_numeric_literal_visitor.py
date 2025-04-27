@@ -49,12 +49,15 @@ class ASTNumericLiteralVisitor(ASTVisitor):
             variable_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
             if variable_symbol_resolve is not None:
                 node.type = variable_symbol_resolve.get_type_symbol()
+            node.type.referenced_object = node
+            return
+
+        if node.get_unitType() is not None:
+            type_symbol = node.get_unitType().get_type_symbol()
+            if type_symbol is not None:
+                node.type = type_symbol
             else:
-                type_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
-                if type_symbol_resolve is not None:
-                    node.type = type_symbol_resolve
-                else:
-                    node.type = ErrorTypeSymbol()
+                node.type = ErrorTypeSymbol()
             node.type.referenced_object = node
             return
 
