@@ -168,6 +168,3 @@ class TestSpiNNakerIafPscExp:
         plt.savefig("spinnaker.png")
 
         p.end()
-
-
-        p.end()
