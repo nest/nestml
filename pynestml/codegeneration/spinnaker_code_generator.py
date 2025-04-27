@@ -216,4 +216,3 @@ class SpiNNakerCodeGenerator(CodeGenerator):
             cloned_model = model.clone()
             cloned_model.accept(ASTSymbolTableVisitor())
             self.codegen_py.generate_code([cloned_model])
-degen_py.generate_code([cloned_model])
