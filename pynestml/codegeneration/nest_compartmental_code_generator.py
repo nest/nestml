@@ -516,9 +516,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # conventions of ODE-toolbox
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
 
-        # add variable __h to internals block
-        ASTUtils.add_timestep_symbol(neuron)
-
         # add propagator variables calculated by odetoolbox into internal blocks
         if self.analytic_solver[neuron.get_name()] is not None:
             neuron = ASTUtils.add_declarations_to_internals(
