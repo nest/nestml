@@ -114,15 +114,16 @@ namespace {{names_namespace}}
     const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
 {%- endfor %}
 {%- endif %}
-}
+} // end namespace;
 
 {%- if uses_numeric_solver %}
 {%- for s in utils.create_integrate_odes_combinations(astnode) %}
-extern "C" inline int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+extern "C" inline int {{synapseName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%- endfor %}
 {%- endif %}
 
-class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
+class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties
+{
 public:
 
     {{synapseName}}CommonSynapseProperties()
@@ -233,49 +234,7 @@ public:
     }
 
 {%- endif %}
-};
-
-{%  if uses_numeric_solver %}
-{%-     for ast in utils.get_all_integrate_odes_calls_unique(synapse) %}
-{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
-{%-     endfor %}
-{%- endif %}
-
-template < typename targetidentifierT >
-class {{synapseName}} : public Connection< targetidentifierT >
-{
-{%- if paired_neuron_name | length > 0 %}
-  typedef {{ paired_neuron_name }} post_neuron_t;
-
-{% endif %}
-{%- if vt_ports is defined and vt_ports|length > 0  %}
-public:
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-  void trigger_update_weight( size_t t,
-    const std::vector< spikecounter >& vt_spikes,
-    double t_trig,
-    const {{synapseName}}CommonSynapseProperties& cp );
-{%- else %}
-  void trigger_update_weight( thread t,
-    const std::vector< spikecounter >& vt_spikes,
-    double t_trig,
-    const {{synapseName}}CommonSynapseProperties& cp );
-{%- endif %}
-{%- endif %}
-private:
-  double t_lastspike_;
-{%- if vt_ports is defined and vt_ports|length > 0  %}
-  // time of last update, which is either time of last presyn. spike or time-driven update
-  double t_last_update_;
-
-  // vt_spikes_idx_ refers to the vt spike that has just been processed after trigger_update_weight
-  // a pseudo vt spike at t_trig is stored at index 0 and vt_spikes_idx_ = 0
-{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
-  size_t vt_spikes_idx_;
-{%- else %}
-  index vt_spikes_idx_;
-{%- endif %}
-{%- endif %}
+}; // end class {{synapseName}}CommonSynapseProperties
 
   /**
    * Dynamic state of the synapse.
@@ -328,7 +287,7 @@ private:
 {%- endif %}
 
     State_() {};
-  };
+  }; // end State_
 
   /**
    * Free parameters of the synapse.
@@ -366,7 +325,44 @@ private:
 
     /** Initialize parameters to their default values. */
     Parameters_() {};
-  };
+  }; // end Parameters_
+
+
+template < typename targetidentifierT >
+class {{synapseName}} : public Connection< targetidentifierT >
+{
+{%- if paired_neuron_name | length > 0 %}
+  typedef {{ paired_neuron_name }} post_neuron_t;
+
+{% endif %}
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+public:
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  void trigger_update_weight( size_t t,
+    const std::vector< spikecounter >& vt_spikes,
+    double t_trig,
+    const {{synapseName}}CommonSynapseProperties& cp );
+{%- else %}
+  void trigger_update_weight( thread t,
+    const std::vector< spikecounter >& vt_spikes,
+    double t_trig,
+    const {{synapseName}}CommonSynapseProperties& cp );
+{%- endif %}
+{%- endif %}
+private:
+  double t_lastspike_;
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+  // time of last update, which is either time of last presyn. spike or time-driven update
+  double t_last_update_;
+
+  // vt_spikes_idx_ refers to the vt spike that has just been processed after trigger_update_weight
+  // a pseudo vt spike at t_trig is stored at index 0 and vt_spikes_idx_ = 0
+{%- if not (nest_version.startswith("v2") or nest_version.startswith("v3.0") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") or nest_version.startswith("v3.4")) %}
+  size_t vt_spikes_idx_;
+{%- else %}
+  index vt_spikes_idx_;
+{%- endif %}
+{%- endif %}
 
   /**
    * Internal variables of the synapse.
@@ -388,13 +384,6 @@ private:
 
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-   struct Buffers_
-  {
-
-    // -----------------------------------------------------------------------
-    //   GSL ODE solver data structures
-    // -----------------------------------------------------------------------
-
     gsl_odeiv_step* __s;    //!< stepping function
     gsl_odeiv_control* __c; //!< adaptive stepsize control function
     gsl_odeiv_evolve* __e;  //!< evolution function
@@ -406,21 +395,15 @@ private:
     // it is safe to place both here.
     double __step;             //!< step size in ms
     double __integration_step; //!< current integration time step, updated by GSL
-
-    Buffers_() {};
-  };
 {%-     endif %}
 {%- endif %}
 
   Parameters_ P_;  //!< Free parameters.
   State_      S_;  //!< Dynamic state.
   Variables_  V_;  //!< Internal Variables
-{%- if synapse.get_state_symbols()|length > 0 or synapse.get_parameter_symbols()|length > 0 %}
-{%-     if numeric_solver == "rk45" %}
-  Buffers_    B_;  //!< Buffers.
-{%-     endif %}
+
 {%-     for s in utils.create_integrate_odes_combinations(astnode) %}
-  friend int {{neuronName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
+  friend int {{synapseName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%-     endfor %}
 {%- endif %}
 
@@ -1130,6 +1113,14 @@ void
 }
 {%- endif %}
 
+/*
+** Synapse dynamics
+*/
+{%  if uses_numeric_solver %}
+{%-     for ast in utils.get_all_integrate_odes_calls_unique(synapse) %}
+{%-         include "directives_cpp/GSLDifferentiationFunction.jinja2" %}
+{%-     endfor %}
+{%- endif %}
 
 template < typename targetidentifierT >
 void
@@ -1323,6 +1314,41 @@ template < typename targetidentifierT >
 {%-     endif %}
 {%- endif %}
 
+{%- if uses_numeric_solver and numeric_solver == "rk45" %}
+  if ( not __s )
+  {
+    __s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, State_::STATE_VEC_SIZE );
+  }
+  else
+  {
+    gsl_odeiv_step_reset( __s );
+  }
+
+  if ( not __c )
+  {
+    __c = gsl_odeiv_control_y_new( P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol );
+  }
+  else
+  {
+    gsl_odeiv_control_init( __c, P_.__gsl_abs_error_tol, P_.__gsl_rel_error_tol, 1.0, 0.0 );
+  }
+
+  if ( not __e )
+  {
+    __e = gsl_odeiv_evolve_alloc( State_::STATE_VEC_SIZE );
+  }
+  else
+  {
+    gsl_odeiv_evolve_reset( __e );
+  }
+
+  __sys.jacobian = nullptr;
+  __sys.dimension = State_::STATE_VEC_SIZE;
+  __sys.params = reinterpret_cast< void* >( &P_ );
+  __step = nest::Time::get_resolution().get_ms();
+  __integration_step = nest::Time::get_resolution().get_ms();
+{%- endif %}
+
   t_lastspike_ = 0.;
 {%- if vt_ports is defined and vt_ports|length > 0  %}
   t_last_update_ = 0.;
@@ -1357,6 +1383,16 @@ template < typename targetidentifierT >
   t_last_update_ = rhs.t_last_update_;
 {%- endif %}
   t_lastspike_ = rhs.t_lastspike_;
+
+{%- if uses_numeric_solver and numeric_solver == "rk45" %}
+  // Numeric solver variables
+  __s = rhs.__s;
+  __c = rhs.__c;
+  __e = rhs.__e;
+  __sys = rhs.__sys;
+  __step = rhs.__step;
+  __integration_step = rhs.__integration_step;
+{%- endif %}
 
   // special treatment of NEST delay
   set_delay(rhs.get_delay());
