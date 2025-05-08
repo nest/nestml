@@ -8,13 +8,16 @@
 {%- endif %}
 extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}_{{ utils.integrate_odes_args_str_from_function_call(ast) }}{% endif %}(double __time, const double ode_state[], double f[], void* pnode)
 {
-  typedef {{modelName}}::State_ State_;
-  // get access to node so we can almost work as in a member function
-  assert( pnode );
 {%- if neuronName is defined  %}
+  typedef {{modelName}}::State_ State_;
+   // get access to node so we can almost work as in a member function
+  assert( pnode );
   const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
 {%- else %}
-  const {{synapseName}}& node = *( reinterpret_cast< {{Parameters_}}* >( pnode ) );
+  typedef nest::State_ State_;
+  // get access to node so we can almost work as in a member function
+  assert( pnode );
+  const Parameters_& node = *( reinterpret_cast< Parameters_* >( pnode ) );
 {%- endif %}
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
@@ -92,7 +95,7 @@ extern "C" inline int {{modelName}}_dynamics{% if ast.get_args() | length > 0 %}
 {%- for variable_name in numeric_state_variables %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_symbol = variable_symbols[variable_name] %}
-  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer.print(update_expr) }}{% endif %};
+  f[State_::{{ variable_symbol.get_symbol_name() }}] = {% if ast.get_args() | length > 0 %}{% if variable_name in utils.integrate_odes_args_strs_from_function_call(ast) + utils.all_convolution_variable_names(astnode) %}{{ gsl_printer_no_origin.print(update_expr) }}{% else %}0{% endif %}{% else %}{{ gsl_printer_no_origin.print(update_expr) }}{% endif %};
 {%- endfor %}
 {%- endif %}
 

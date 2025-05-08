@@ -280,8 +280,10 @@ public:
 {#    // state variables from state block#}
 {%-     filter indent(4,True) %}
 {%-     for variable_symbol in synapse.get_state_symbols() %}
-{%-         set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-{%-         include "directives_cpp/MemberDeclaration.jinja2" %}
+{%          if variable_symbol.get_symbol_name() not in numeric_state_variables %}
+{%-           set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
+{%-           include "directives_cpp/MemberDeclaration.jinja2" %}
+{%-         endif %}
 {%-     endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -322,6 +324,8 @@ public:
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+    double __gsl_abs_error_tol;
+    double __gsl_rel_error_tol;
 
     /** Initialize parameters to their default values. */
     Parameters_() {};
@@ -405,7 +409,6 @@ private:
 {%-     for s in utils.create_integrate_odes_combinations(astnode) %}
   friend int {{synapseName}}_dynamics{% if s | length > 0 %}_{{ s }}{% endif %}( double, const double ode_state[], double f[], void* pnode );
 {%-     endfor %}
-{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters and state variables
@@ -1272,13 +1275,7 @@ template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
-{%- if uses_numeric_solver %}
-{%-     if numeric_solver == "rk45" %}
 
-  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
-  P_.__gsl_error_tol = 1e-3;
-{%-     endif %}
-{%- endif %}
   // initial values for parameters
 {%- filter indent(2, True) %}
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
