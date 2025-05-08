@@ -388,9 +388,9 @@ private:
 
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
-    gsl_odeiv_step* __s;    //!< stepping function
-    gsl_odeiv_control* __c; //!< adaptive stepsize control function
-    gsl_odeiv_evolve* __e;  //!< evolution function
+    gsl_odeiv_step* __s = nullptr;    //!< stepping function
+    gsl_odeiv_control* __c = nullptr; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* __e = nullptr;  //!< evolution function
     gsl_odeiv_system __sys; //!< struct describing system
 
     // __integration_step should be reset with the neuron on ResetNetwork,
@@ -1275,7 +1275,6 @@ template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
-
   // initial values for parameters
 {%- filter indent(2, True) %}
 {%- for variable_symbol in synapse.get_parameter_symbols() %}
@@ -1287,6 +1286,10 @@ template < typename targetidentifierT >
 {%-         endif %}
 {%-     endif %}
 {%- endfor %}
+{%- if uses_numeric_solver and numeric_solver == "rk45" %}
+P_.__gsl_abs_error_tol = 1e-6;
+P_.__gsl_rel_error_tol = 1e-6;
+{%- endif %}
 {%- endfilter %}
 
   V_.__h = nest::Time::get_resolution().get_ms();
