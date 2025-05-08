@@ -30,6 +30,7 @@ class PredefinedFunctions:
     This class is used to represent all predefined functions of NESTML.
     """
 
+    HEAVISIDE = "Heaviside"
     TIME_RESOLUTION = "resolution"
     TIME_TIMESTEP = "timestep"
     TIME_STEPS = "steps"
