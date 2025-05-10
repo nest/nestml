@@ -56,9 +56,9 @@ class PythonVariablePrinter(VariablePrinter):
         """
         differential_order = variable_name.count("\"")
         if differential_order > 0:
-            return variable_name.replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
+            return variable_name.replace(".", "__DOT__").replace("\"", "").replace("$", "__DOLLAR") + "__" + "d" * differential_order
 
-        return variable_name.replace("$", "__DOLLAR")
+        return variable_name.replace(".", "__DOT__").replace("$", "__DOLLAR")
 
     def print_variable(self, variable: ASTVariable) -> str:
         """
@@ -112,10 +112,18 @@ class PythonVariablePrinter(VariablePrinter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+
+            if symbol.is_spike_input_port():
+                # spike buffer variables are prefixed with "B__" as the values are grabbed from the buffers one-by-one
+                s += "B__" + self._print(variable, symbol, with_origin=False) + vector_param
+            else:
+                assert symbol.is_continuous_input_port()
+                s += self._print(variable, symbol, with_origin=self.with_origin) + vector_param
+
             s += vector_param
             if not units_conversion_factor == 1:
                 s += ")"
+
             return s
 
         if symbol.is_inline_expression:
