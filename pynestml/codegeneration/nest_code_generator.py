@@ -509,6 +509,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["nest_codegen_utils"] = NESTCodeGeneratorUtils
         namespace["declarations"] = NestDeclarationsHelper(self._type_symbol_printer)
 
+        # the model itself
+        namespace["astnode"] = astnode
+
         # using random number generators?
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         astnode.accept(rng_visitor)
@@ -598,7 +601,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["synapseName"] = synapse.get_name()
         namespace["synapse"] = synapse
-        namespace["astnode"] = synapse
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["assignments"] = NestAssignmentsHelper()
 
@@ -716,7 +718,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-        namespace["astnode"] = neuron
         namespace["moduleName"] = FrontendConfiguration.get_module_name()
         namespace["has_spike_input"] = ASTUtils.has_spike_input(neuron.get_body())
         namespace["has_continuous_input"] = ASTUtils.has_continuous_input(neuron.get_body())
