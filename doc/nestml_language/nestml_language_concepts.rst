@@ -771,34 +771,31 @@ All variables, literals, and function calls are valid terms. Variables are names
 List of operators
 ~~~~~~~~~~~~~~~~~
 
-For any two valid numeric expressions ``x``, ``y``, boolean expressions ``b``,\ ``b1``,\ ``b2``, and integer expressions ``n``,\ ``i`` the following operators produce valid expressions.
+For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ ``c1``,\ ``c2``, and an integer expression ``n`` the following operators produce valid expressions.
 
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
 | Operator                                       | Description                                                        | Examples                  |
 +================================================+====================================================================+===========================+
-| ``()``                                         | Expressions with parentheses                                       | ``(x)``                   |
+| ``()``                                         | Expressions with parentheses                                       | ``(a)``                   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``**``                                         | Power operator                                                     | ``x**y``                  |
+| ``**``                                         | Power operator.                                                    | ``a ** b``                |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``, ``~``                            | Unary plus, unary minus                                            | ``-x``                    |
+| ``+``, ``-``, ``~``                            | Unary plus, unary minus, bitwise negation                          | ``-a``, ``~c``            |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``x * y``, ``x % y``      |
+| ``*``, ``/``, ``%``                            | Multiplication, division and modulo operator                       | ``a * b``, ``a % b``      |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``+``, ``-``                                   | Addition and subtraction                                           | ``x + y``, ``x - y``      |
+| ``+``, ``-``                                   | Addition and subtraction                                           | ``a + b``, ``a - b``      |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``n << i``, ``n >> i``    |
+| ``<<``, ``>>``                                 | Left and right bit shifts                                          | ``a << n``, ``a >> n``    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``~``                                          | Bitwise negation                                                   | ``~b``                    |
+| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``a&b``, ``|``, ``a~b``   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``&``, ``|``, ``^``                            | Bitwise ``and``, ``or`` and ``xor``                                | ``b1 & b2``, ``b1 ^ b2``  |
+| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``a <= b``, ``a != b``    |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``<``, ``<=``, ``==``, ``!=``, ``>=``, ``>``   | Comparison operators                                               | ``x <= y``, ``x != y``    |
+| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not c``, ``c1 or c2``   |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``not``, ``and``, ``or``                       | Logical conjunction, disjunction and negation                      | ``not b``, ``b1 or b2``   |
+| ``?:``                                         | Ternary operator (return ``a`` if ``c`` is ``true``, ``b`` else)   | ``c ? a : b``             |
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-| ``?:``                                         | Ternary operator (return ``x`` if ``b`` is true, ``y`` otherwise)  | ``b ? x : y``             |
-+------------------------------------------------+--------------------------------------------------------------------+---------------------------+
-
 
 Blocks
 ------
@@ -820,7 +817,7 @@ Block types
 -  ``state`` - This block is composed of a list of variable declarations that describe parts of the model which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the model can send. Currently, only ``spike`` is supported.
+-  ``output`` - Defines which type of event the model can send.
 -  ``update`` - Contains statements that are executed once every simulation timestep (on a fixed grid or from event to event).
 - ``onReceive`` - Can be defined for each spiking input port; contains statements that are executed whenever an incoming spike event arrives. Optional event parameters, such as the weight, can be accessed by referencing the input port name. Priorities can optionally be defined for each ``onReceive`` block; these resolve ambiguity in the model specification of which event handler should be called after which, in case multiple events occur at the exact same moment in time on several input ports, triggering multiple event handlers.
 - ``onCondition`` - Contains statements that are executed when a particular condition holds. The condition is expressed as a (boolean typed) expression. The advantage of having conditions separate from the ``update`` block is that a root-finding algorithm can be used to find the precise time at which a condition holds (with a higher resolution than the simulation timestep). This makes the model more generic with respect to the simulator that is used.
@@ -1166,7 +1163,7 @@ Integration order
 
 During simulation, the simulation kernel (for example, NEST Simulator) is responsible for invoking the model functions that update its state: those in ``update``, ``onReceive``, integrating the ODEs, etc. Different simulators may invoke these functions in a different sequence and with different steps of time, leading to different numerical results even though the same model was used. For example, "time-based" simulators take discrete steps of time of fixed duration (for example, 1 millisecond), whereas "event-based" simulators process events at their exact time of occurrence, without having to round off the time of occurrence of the event to the nearest timestep interval. The following section describes some of the variants of integration sequences that can be encountered and what this means for the outcome of a simulation.
 
-The recommended update sequence for a spiking neuron model is shown below (panel B), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
+The recommended update sequence for a spiking neuron model is shown below (panel A), which is optimal ("gives the fewest surprises") in the case the simulator uses a minimum synaptic transmission delay (this includes NEST). In this sequence, first the subthreshold dynamics are evaluated (that is, ``integrate_odes()`` is called; in the simplest case, all equations are solved simultaneously) and only afterwards, incoming spikes are processed.
 
 .. _label:fig_integration_order
 .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/integration_order.png
@@ -1203,4 +1200,4 @@ References
 
 .. [1] Morrison A, Diesmann M (2008). Maintaining causality in discrete time neuronal network simulations. Lectures in Supercomputational Neurosciences: Dynamics in Complex Brain Networks, 267-278.
 
-.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381±402 (1999)
+.. [2] Stefan Rotter and Markus Diesmann. Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biol. Cybern. 81, 381–402 (1999)
