@@ -60,7 +60,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 model iaf_psc_delta_neuron:
     state:
         V_m mV = E_L     # Membrane potential
@@ -74,11 +73,9 @@ model iaf_psc_delta_neuron:
         tau_m   ms = 10 ms              # Membrane time constant
         C_m     pF = 250 pF             # Capacity of the membrane
         refr_T  ms = 2 ms               # Duration of refractory period
-        tau_syn ms = 2 ms               # Time constant of synaptic current
         E_L     mV = -70 mV             # Resting membrane potential
         V_reset mV = -70 mV             # Reset potential of the membrane
         V_th    mV = -55 mV             # Spike threshold
-        V_min   mV = -inf * 1 mV        # Absolute lower value for the membrane potential
 
         # constant external input current
         I_e pA = 0 pA
