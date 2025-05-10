@@ -12,6 +12,12 @@ After NESTML completes, the NEST extension module (by default called ``"nestmlmo
    Several code generator options are available; for an overview see :class:`pynestml.codegeneration.nest_code_generator.NESTCodeGenerator`.
 
 
+Data types
+----------
+
+- The NESTML data type ``real`` will be rendered as ``double``.
+- The NESTML data type ``integer`` will be rendered as ``long``.
+
 Simulation loop
 ---------------
 
