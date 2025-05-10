@@ -20,6 +20,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
 
 import pygenn
+from numpy import exp
 
 {%- if astnode.print_comment('#') | length > 1 %}
 {{ astnode.print_comment('# ') }}
@@ -45,25 +46,35 @@ import pygenn
 
     sim_code=
         """
-{%- filter indent(8, True) %}
-{%- for internals_block in neuron.get_internals_blocks() %}
-{%-     for decl in internals_block.get_declarations() %}
-{%-         for variable in decl.get_variables() %}
-{%-             set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%- set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%- if variable.name != "__h" %}
-            const scalar {{ printer.print(variable) }} = {{printer.print(sym.get_declaring_expression())}}; // as {{sym.get_type_symbol().print_symbol()}}
-{%- endif %}
-{%-         endfor %}
-{%-     endfor %}
-{%- endfor %}
-{%- endfilter %}
-
-{%  if neuron.get_update_blocks() %}
+{%-  if neuron.get_update_blocks() %}
 {%-     filter indent(8) %}
+
+// -------------------------------------------------------------------------
+//   Begin generated code for the update block
+// -------------------------------------------------------------------------
+
 {%-         for block in neuron.get_update_blocks() %}
 {%-             set ast = block.get_stmts_body() %}
 {%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfor %}
+{%-     endfilter %}
+{%- endif %}
+
+
+{%- if neuron.get_on_receive_blocks() %}
+{%-     filter indent(8) %}
+
+// -------------------------------------------------------------------------
+//   Begin generated code for the event handler blocks
+// -------------------------------------------------------------------------
+
+{%-         for blk in neuron.get_on_receive_blocks() %}
+{%-             set ast = blk.get_stmts_body() %}
+if ({{ blk.get_port_name() }} != 0) {
+{%-             filter indent(4, True) -%}
+{%-                 include "directives_cpp/StmtsBody.jinja2" %}
+{%-             endfilter %}
+}
 {%-         endfor %}
 {%-     endfilter %}
 {%- endif %}
@@ -74,6 +85,7 @@ import pygenn
 {{ printer.print(threshold_condition) }}
 {%- endfilter %}
         """,
+
     reset_code="""
 {%-         set ast = threshold_reset_stmts %}
 {%-         filter indent(8) %}
@@ -86,11 +98,29 @@ import pygenn
 {%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
             "{{ CppVariablePrinter._print_cpp_name(variable.get_complete_name()) }}",
 {%- endfor %}
-    ],
+        ],
 
     vars=[
 {%- for variable_symbol in neuron.get_state_symbols() %}
 {%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}
-            ("{{ CppVariablePrinter._print_cpp_name(variable.get_complete_name()) }}", "scalar", pygenn.VarAccess.READ_WRITE),
+          ("{{ CppVariablePrinter._print_cpp_name(variable.get_complete_name()) }}", "scalar", pygenn.VarAccess.READ_WRITE),
 {%- endfor %}
+        ],
+
+{%  if neuron.get_internals_blocks() %}
+    derived_params=[("__h", lambda pars, dt: dt),
+
+{%-     for internals_block in neuron.get_internals_blocks() %}
+{%-         for decl in internals_block.get_declarations() %}
+{%-             for variable in decl.get_variables() %}
+{%-                 set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-                 set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
+{%-                 if variable.name != "__h" %}
+                    ("{{ printer.print(variable) }}", lambda pars, dt: {{ genn_derived_params_printer.print(sym.get_declaring_expression()) }}),
+{%-                 endif %}
+{%-             endfor %}
+{%-         endfor %}
+{%-     endfor %}
+{%- endif %}
+
         ])

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_izhikevich.py
+# test_iaf_psc_exp.py
 #
 # This file is part of NEST.
 #
@@ -38,22 +38,22 @@ except BaseException as e:
     TEST_PLOTS = False
 
 
-class TestGeNNIzhikevich:
+class TestGeNNIAFPSCexp:
     """
     Tests the code generation and running a little simulation.
 
-    izhikevich_neuron uses convolutions, and uses the forward Euler numeric integrator.
+    iaf_psc_exp_neuron uses onReceive blocks, and uses the analytic integrator.
     """
 
     @pytest.fixture(scope="module", autouse=True)
-    def test_genn_izhikevich(self):
+    def test_genn_iaf_psc_exp(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", "izhikevich_neuron.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp_neuron.nestml"))))
         target_path = "nestmlmodule"
         logging_level = "DEBUG"
         suffix = "_nestml"
         module_name = "nestmlmodule"
-        codegen_opts = {"numeric_solver": "forward-Euler"}
+        codegen_opts = {}
 
         generate_genn_target(input_path, target_path,
                              module_name=module_name,
@@ -61,24 +61,27 @@ class TestGeNNIzhikevich:
                              suffix=suffix,
                              codegen_opts=codegen_opts)
 
-    def test_genn_izhikevich_current_injection(self):
-        from nestmlmodule.izhikevich_neuron_nestml import izhikevich_neuron_nestml_model
+    def test_genn_iaf_psc_exp_current_injection(self):
+        from nestmlmodule.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml_model
 
         # Simulation timestep of model in ms
         TIMESTEP = 1.0
         SIM_TIMESTEPS = 100
 
-        izk_init = {"V_m": -65.0,
-                    "U_m": -65.0 * .2}
+        iaf_psc_exp_init = {"V_m": -70.0,
+                            "refr_t": 0.,
+                            "I_syn_exc": 0.,
+                            "I_syn_inh": 0.}
 
-        izk_params = {"a": 0.02,
-                      "b": 0.2,
-                      "c": -65.0,
-                      "d": 8.0,
-                      "V_m_init": -65.0,
-                      "V_min": -999,
-                      "V_th": 29.99,
-                      "I_e": 0.}
+        iaf_psc_exp_params = {"C_m": 250.,
+                              "tau_m": 10.,
+                              "tau_syn_inh": 2.,
+                              "tau_syn_exc": 2.,
+                              "refr_T": 2.,
+                              "E_L": -70.,
+                              "V_reset": -70.,
+                              "V_th": 55.,
+                              "I_e": 0.}
 
         cs_model = create_current_source_model("cs_model",
                                                vars=[("magnitude", "scalar")],
@@ -86,7 +89,7 @@ class TestGeNNIzhikevich:
         model = GeNNModel("float", "tutorial_1")
         model.dt = TIMESTEP
         neuron_pop = model.add_neuron_population("neuron0", 1,
-                                                 izhikevich_neuron_nestml_model, izk_params, izk_init)
+                                                 iaf_psc_exp_neuron_nestml_model, iaf_psc_exp_params, iaf_psc_exp_init)
         neuron_pop.spike_recording_enabled = True
         current_input = model.add_current_source("current_input", cs_model,
                                                  neuron_pop, {}, {"magnitude": 200.0})
@@ -111,34 +114,37 @@ class TestGeNNIzhikevich:
             ax.set_ylabel("Neuron ID")
             ax.set_xlim((0, SIM_TIMESTEPS * TIMESTEP))
 
-            fig.savefig("/tmp/genn_izhikevich_current_injection.png")
+            fig.savefig("/tmp/genn_iaf_psc_exp_current_injection.png")
             plt.close(fig)
 
         assert len(spike_times) > 52
 
-    def test_genn_izhikevich_postsynaptic_response(self):
-        from nestmlmodule.izhikevich_neuron_nestml import izhikevich_neuron_nestml_model
+    def test_genn_iaf_psc_exp_postsynaptic_response(self):
+        from nestmlmodule.iaf_psc_exp_neuron_nestml import iaf_psc_exp_neuron_nestml_model
 
         # Simulation timestep of model in ms
         TIMESTEP = 1.0
         SIM_TIMESTEPS = 100
 
-        izk_init = {"V_m": -65.0,
-                    "U_m": -65.0 * .2}
+        iaf_psc_exp_init = {"V_m": -70.0,
+                            "refr_t": 0.,
+                            "I_syn_exc": 0.,
+                            "I_syn_inh": 0.}
 
-        izk_params = {"a": 0.02,
-                      "b": 0.2,
-                      "c": -65.0,
-                      "d": 8.0,
-                      "V_m_init": -65.0,
-                      "V_min": -999,
-                      "V_th": 29.99,
-                      "I_e": 0.}
+        iaf_psc_exp_params = {"C_m": 250.,
+                              "tau_m": 10.,
+                              "tau_syn_inh": 2.,
+                              "tau_syn_exc": 2.,
+                              "refr_T": 2.,
+                              "E_L": -70.,
+                              "V_reset": -70.,
+                              "V_th": 55.,
+                              "I_e": 0.}
 
         model = GeNNModel("float", "tutorial_1")
         model.dt = TIMESTEP
         neuron_pop = model.add_neuron_population("neuron0", 1,
-                                                 izhikevich_neuron_nestml_model, izk_params, izk_init)
+                                                 iaf_psc_exp_neuron_nestml_model, iaf_psc_exp_params, iaf_psc_exp_init)
         neuron_pop.spike_recording_enabled = True
 
         poisson_gen_pop = model.add_neuron_population("my_poisson_gen", 1,
@@ -148,7 +154,7 @@ class TestGeNNIzhikevich:
                                                poisson_gen_pop, neuron_pop,
                                                init_weight_update("StaticPulse", {}, {"g": 100.}),
                                                init_postsynaptic("DeltaCurr"))
-        syn_pop.post_target_var = "spikes"
+        syn_pop.post_target_var = "exc_spikes"
 
         model.build()
         model.load(num_recording_timesteps=SIM_TIMESTEPS)
@@ -164,14 +170,13 @@ class TestGeNNIzhikevich:
         spike_times, spike_ids = neuron_pop.spike_recording_data[0]
 
         if TEST_PLOTS:
-            fig, ax = plt.subplots(figsize=(5,1.5))
+            fig, ax = plt.subplots()
 
             ax.scatter(spike_times, spike_ids, s=1)
             ax.set_ylabel("Neuron ID")
             ax.set_xlim((0, SIM_TIMESTEPS * TIMESTEP))
-            fig.tight_layout()
 
-            fig.savefig("/tmp/genn_izhikevich_postsynaptic_response.png",dpi=300)
+            fig.savefig("/tmp/genn_iaf_psc_exp_postsynaptic_response.png")
             plt.close(fig)
 
         assert len(spike_times) > 10

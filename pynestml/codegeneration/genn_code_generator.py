@@ -27,6 +27,7 @@ from pynestml.codegeneration.printers.cpp_printer import CppPrinter
 from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.genn_c_variable_printer import GeNNCVariablePrinter
+from pynestml.codegeneration.printers.genn_derived_variable_printer import GeNNDerivedVariablePrinter
 from pynestml.codegeneration.printers.genn_function_call_printer import GeNNFunctionCallPrinter
 from pynestml.codegeneration.printers.nest2_cpp_function_call_printer import NEST2CppFunctionCallPrinter
 from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
@@ -131,6 +132,27 @@ class GeNNCodeGenerator(NESTCodeGenerator):
                                                                                                       function_call_printer=self._gsl_function_call_printer))
         self._gsl_function_call_printer._expression_printer = self._gsl_printer
 
+
+
+
+
+
+        # Python printers
+        self._py_variable_printer = GeNNDerivedVariablePrinter(expression_printer=None, with_origin=True, with_vector_parameter=True)
+        self._py_function_call_printer = PythonFunctionCallPrinter(None)
+        self._py_function_call_printer_no_origin = PythonFunctionCallPrinter(None)
+
+        self._py_expr_printer = PythonExpressionPrinter(simple_expression_printer=PythonSimpleExpressionPrinter(variable_printer=self._py_variable_printer,
+                                                                                                        constant_printer=self._constant_printer,
+                                                                                                        function_call_printer=self._py_function_call_printer))
+        self._py_variable_printer._expression_printer = self._py_expr_printer
+        self._py_function_call_printer._expression_printer = self._py_expr_printer
+        self._genn_derived_params_printer = PythonStandalonePrinter(expression_printer=self._py_expr_printer)
+
+
+
+
+
     def _get_model_namespace(self, astnode: ASTModel) -> Dict:
         namespace = super()._get_model_namespace(astnode)
 
@@ -138,6 +160,7 @@ class GeNNCodeGenerator(NESTCodeGenerator):
         namespace["threshold_reset_stmts"] = self._get_model_threshold_condition_block(astnode).get_stmts_body()
 
         namespace["CppVariablePrinter"] = CppVariablePrinter
+        namespace["genn_derived_params_printer"] = self._genn_derived_params_printer
 
         return namespace
 
