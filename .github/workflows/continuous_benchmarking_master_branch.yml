@@ -66,6 +66,7 @@ jobs:
         run: |
           echo "NEST_INSTALL = $NEST_INSTALL"
           LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.NEST_INSTALL }}/lib/nest bencher run \
+          --iter 3 \
           --project nestml \
           --token '${{ secrets.BENCHER_API_TOKEN }}' \
           --branch master \

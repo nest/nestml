@@ -344,7 +344,6 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()] = []
             self.non_equations_state_variables[neuron.get_name()].extend(
                 ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
-            ASTUtils.add_timestep_symbol(neuron)
 
             return {}, {}, [], []
 
@@ -402,7 +401,6 @@ class NESTCodeGenerator(CodeGenerator):
         ASTUtils.create_integrate_odes_combinations(neuron)
         ASTUtils.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
-        ASTUtils.add_timestep_symbol(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
             neuron = ASTUtils.add_declarations_to_internals(
@@ -448,7 +446,6 @@ class NESTCodeGenerator(CodeGenerator):
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
-            ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
             spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
@@ -456,10 +453,7 @@ class NESTCodeGenerator(CodeGenerator):
                 synapse = ASTUtils.add_declarations_to_internals(
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
-            self.update_symbol_table(synapse)
-        else:
-            ASTUtils.add_timestep_symbol(synapse)
-            self.update_symbol_table(synapse)
+        self.update_symbol_table(synapse)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
 
