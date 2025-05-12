@@ -745,6 +745,7 @@ public:
 {%- else %}
   void pre_run_hook() {
 {%- endif %}
+    if(!initialized){
     // initialization of ion channels
   {%- with %}
 {%- if nest_version.startswith("v2") or nest_version.startswith("v3.1") or nest_version.startswith("v3.2") or nest_version.startswith("v3.3") %}
@@ -785,7 +786,6 @@ public:
     {% endfor -%}
 {%- endif %}
 
-    if(!initialized){
     int con_end_index;
     {%- for ion_channel_name, channel_info in chan_info.items() %}
     if({{ion_channel_name}}{{channel_suffix}}.neuron_{{ ion_channel_name }}_channel_count){

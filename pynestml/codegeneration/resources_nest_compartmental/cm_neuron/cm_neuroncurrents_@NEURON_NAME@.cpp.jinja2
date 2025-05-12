@@ -1428,6 +1428,68 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
 {
     {%- endwith %}
 
+    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+      // get spikes
+      s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
+    }
+        //synaptic processing:
+        //presynaptic spike processing
+  #pragma omp simd
+  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+      if(s_val[i]!=0) {
+            {%- set function = synapse_info["PreSpikeFunction"] %}
+            {%-   filter indent(2,True) %}
+            {%-   with ast = function.get_stmts_body() %}
+                {%- set printer = vector_printer %}
+            {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
+            {%-   endwith %}
+            {%-   endfilter %}
+      }
+  }
+    //presynaptic spike processing end
+        //continuous synaptic processing
+    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+        //inlines and convolutions
+    {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
+      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
+      {{state_variable_name}}[i] += {%- if convolution_info["post_port"] %}self_spikes[i]{%- else %}s_val[i]{%- endif %} * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
+      {%- endfor %}
+    {%- endfor %}
+    {%- for inline, inline_info in synapse_info["Inlines"].items() %}
+        {{ inline }}[i] = {{ vector_printer.print(inline_info["inline_expression"].get_expression(), "i") }};
+    {%- endfor %}
+        //update block
+        {%- if synapse_info["UpdateBlock"] %}
+        {%- set function = synapse_info["UpdateBlock"] %}
+        {%-   filter indent(2,True) %}
+        {%-   with ast = function.get_stmts_body() %}
+        {%- set printer = vector_printer %}
+        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
+        {%-   endwith %}
+        {%-   endfilter %}
+        {%- endif %}
+    }
+
+    {% if synapse_info["ODEs"].items()|length %}
+    std::vector< double > {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms());
+    {% endif %}
+    {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
+          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+      std::vector< double > {{ propagator }}(neuron_{{ receptor_name }}_receptor_count, 0);
+          {%- endfor %}
+    {%- endfor %}
+    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
+        {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
+          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
+      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
+          {%- endfor %}
+          {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
+      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
+          {%- endfor %}
+      {%- endfor %}
+    }
+
     std::vector< double > g_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > i_val(neuron_{{ receptor_name }}_receptor_count, 0.);
     std::vector< double > d_i_tot_dv(neuron_{{ receptor_name }}_receptor_count, 0.);
@@ -1479,72 +1541,7 @@ std::pair< std::vector< double >, std::vector< double > > nest::{{receptor_name}
       // for numerical integration
       g_val[i] = - d_i_tot_dv[i];
       i_val[i] = this->i_tot_{{receptor_name}}[i] - d_i_tot_dv[i] * v_comp[i];
-
-        for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      // get spikes
-    s_val[i] = {{receptor_info["buffer_name"]}}_[i]->get_value( lag ); //  * g_norm_;
-  }
-
-
-    //synaptic processing:
-        //continuous synaptic processing
-    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        //inlines and convolutions
-    {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-      {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items() %}
-      {{state_variable_name}}[i] = {{ vector_printer.print(state_variable_info["update_expression"], "i") }};
-      {{state_variable_name}}[i] += {%- if convolution_info["post_port"] %}self_spikes[i]{%- else %}s_val[i]{%- endif %} * {{ vector_printer.print(state_variable_info["init_expression"], "i") }};
-      {%- endfor %}
-    {%- endfor %}
-    {%- for inline, inline_info in synapse_info["Inlines"].items() %}
-        {{ inline }}[i] = {{ vector_printer.print(inline_info["inline_expression"].get_expression(), "i") }};
-    {%- endfor %}
-        //update block
-        {%- if synapse_info["UpdateBlock"] %}
-        {%- set function = synapse_info["UpdateBlock"] %}
-        {%-   filter indent(2,True) %}
-        {%-   with ast = function.get_stmts_body() %}
-        {%- set printer = vector_printer %}
-        {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
-        {%-   endwith %}
-        {%-   endfilter %}
-        {%- endif %}
     }
-
-    {% if synapse_info["ODEs"].items()|length %}
-    std::vector< double > {{ printer_no_origin.print(synapse_info["time_resolution_var"]) }}(neuron_{{ receptor_name }}_receptor_count, Time::get_resolution().get_ms());
-    {% endif %}
-    {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
-          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      std::vector< double > {{ propagator }}(neuron_{{ receptor_name }}_receptor_count, 0);
-          {%- endfor %}
-    {%- endfor %}
-    for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-        {%- for ode_variable, ode_info in synapse_info["ODEs"].items() %}
-          {%- for propagator, propagator_info in ode_info["transformed_solutions"][0]["propagators"].items() %}
-      {{ propagator }}[i] = {{ vector_printer.print(propagator_info["init_expression"], "i") }};
-          {%- endfor %}
-          {%- for state, state_solution_info in ode_info["transformed_solutions"][0]["states"].items() %}
-      {{state}}[i] = {{ vector_printer.print(state_solution_info["update_expression"], "i") }};
-          {%- endfor %}
-      {%- endfor %}
-    }
-
-    //presynaptic spike processing
-  #pragma omp simd
-  for(std::size_t i = 0; i < neuron_{{ receptor_name }}_receptor_count; i++){
-      if(s_val[i]!=0) {
-            {%- set function = synapse_info["PreSpikeFunction"] %}
-            {%-   filter indent(2,True) %}
-            {%-   with ast = function.get_stmts_body() %}
-                {%- set printer = vector_printer %}
-            {%-     include "cm_directives_cpp/StmtsBody.jinja2" %}
-            {%-   endwith %}
-            {%-   endfilter %}
-      }
-  }
-    //presynaptic spike processing end
-  }
 
   f_update();
 

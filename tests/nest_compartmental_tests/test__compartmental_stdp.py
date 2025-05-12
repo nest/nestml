@@ -51,7 +51,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         synapse_input_path = os.path.join(
             tests_path,
             "resources",
-            "third_factor_stdp_synapse.nestml"
+            "stdp_synapse.nestml"
         )
         target_path = os.path.join(
             tests_path,
@@ -68,7 +68,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.ResetKernel()
         nest.SetKernelStatus(dict(resolution=.1))
-        if True:
+        if False:
             generate_nest_compartmental_target(
                 input_path=[neuron_input_path, synapse_input_path],
                 target_path=target_path,
@@ -76,7 +76,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                 suffix="_nestml",
                 logging_level="DEBUG",
                 codegen_opts={"neuron_synapse_pairs": [{"neuron": "multichannel_test_model",
-                                                        "synapse": "third_factor_stdp_synapse",
+                                                        "synapse": "stdp_synapse",
                                                         "post_ports": ["post_spikes"]}],
                               "delay_variable": {"stdp_synapse": "d"},
                               "weight_variable": {"stdp_synapse": "w"}
@@ -85,7 +85,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.Install("cm_stdp_module.so")
 
-    def test_cm_stdp(self):
+    def run_model(self, model_case):
         """
         Test the interaction between the pre- and post-synaptic spikes using STDP (Spike-Timing-Dependent Plasticity).
 
@@ -115,77 +115,140 @@ class TestCompartmentalConcmech(unittest.TestCase):
         Results:
         The plots generated illustrate the effects of spike timing on various properties of the post-synaptic neuron, highlighting STDP-driven synaptic weight changes and trace dynamics.
         """
-        pre_spike_times = [11, 50]
-        post_spike_times = [12, 45]
-        sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 20
-        #wr = nest.Create("weight_recorder")
-        #nest.CopyModel("stdp_synapse_nestml__with_multichannel_test_model_nestml", "stdp_nestml_rec",
-        #               {"weight_recorder": wr[0], "w": 1., "d": 1., "receptor_type": 0})
+        nest.ResetKernel()
+        nest.SetKernelStatus(dict(resolution=.1))
+        nest.Install("cm_stdp_module.so")
+
+        pre_spike_times = [2]
+        post_spike_times = [12]
+        sim_time = 30
+
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
         external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create('multichannel_test_model_nestml')
         print("created")
 
-        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Ca_HVA': 1.0, 'gbar_SK_E2': 1.0}
+        params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0} #, 'gbar_Ca_HVA': 1.0, 'gbar_SK_E2': 1.0}
         post_neuron.compartments = [
             {"parent_idx": -1, "params": params}
         ]
         print("comps")
-        post_neuron.receptors = [
-            {"comp_idx": 0, "receptor_type": "AMPA"},
-            {"comp_idx": 0, "receptor_type": "AMPA_third_factor_stdp_synapse_nestml", "params": {'w': 50.0}}
-        ]
-        print("syns")
-        mm = nest.Create('multimeter', 1, {
-            'record_from': ['v_comp0', 'w1', 'AMPA0', 'AMPA_third_factor_stdp_synapse_nestml1', 'pre_trace1', 'post_trace1'], 'interval': .1})
+        if model_case == "nestml":
+            post_neuron.receptors = [
+                {"comp_idx": 0, "receptor_type": "AMPA"},
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 0.1}}
+            ]
+            mm = nest.Create('multimeter', 1, {
+                'record_from': ['v_comp0', 'w1', 'AMPA0', 'AMPA_stdp_synapse_nestml1', 'pre_trace1',
+                                'post_trace1'], 'interval': .1})
+        elif model_case == "nest":
+            post_neuron.receptors = [
+                {"comp_idx": 0, "receptor_type": "AMPA"},
+                {"comp_idx": 0, "receptor_type": "AMPA", "params": {'w': 0.0}}
+                ]
+            mm = nest.Create('multimeter', 1, {
+                'record_from': ['v_comp0', 'AMPA0', 'AMPA1'], 'interval': .1})
+
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
 
         nest.Connect(external_input_pre, pre_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 2.0, 'delay': 0.1})
         nest.Connect(external_input_post, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1, 'receptor_type': 0})
-        nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 1.0, 'delay': 0.1, 'receptor_type': 1})
+        if model_case == "nestml":
+            nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 0.1, 'delay': 0.1, 'receptor_type': 1})
+        elif model_case == "nest":
+            wr = nest.Create("weight_recorder")
+            nest.CopyModel(
+                "stdp_synapse",
+                "stdp_synapse_rec",
+                {"weight_recorder": wr[0], "receptor_type": 1},
+            )
+            nest.Connect(
+                pre_neuron,
+                post_neuron,
+                "all_to_all",
+                syn_spec={
+                    "synapse_model": "stdp_synapse_rec",
+                    "delay": 0.1,
+                    "weight": 0.1,
+                    "Wmax": 20.0,
+                    "alpha": 1.0,
+                    "lambda": 0.05,
+                    "tau_plus": 20.0,
+                    "mu_plus": 1.0,
+                    "mu_minus": 1.0,
+                    "receptor_type": 1,
+                },
+            )
         nest.Connect(mm, post_neuron)
+
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)
-        print("pre sim")
-        nest.Simulate(sim_time)
+
+        chunk_size = 0.1
+        if model_case == "nest":
+            pre_trace_nest = list()
+            post_trace_nest = list()
+            weight_nest = list()
+            conns = nest.GetConnections(source=pre_neuron, target=post_neuron)
+
+            for t in range(int(sim_time/chunk_size)):
+                nest.Simulate(chunk_size)
+                breakpoint()
+                if t < sim_time/chunk_size-1:
+                    conn_status = nest.GetStatus(conns)
+                    neuron_status = nest.GetStatus(post_neuron)
+                    pre_trace_nest.append(conn_status[0]["Kplus"])
+                    #breakpoint()
+                    weight_nest.append(conn_status[0]["weight"])
+                    post_trace_nest.append(neuron_status[0]["post_trace"])
+
+        elif model_case == "nestml":
+            for t in range(int(sim_time/chunk_size)):
+                nest.Simulate(chunk_size)
+            #nest.Simulate(sim_time)
         res = nest.GetStatus(mm, 'events')[0]
         pre_spikes_rec = nest.GetStatus(spikedet_pre, 'events')[0]
         post_spikes_rec = nest.GetStatus(spikedet_post, 'events')[0]
+        recorded = dict()
+        if model_case == "nest":
+            breakpoint()
+            recorded["weight"] = nest.GetStatus(wr, "events")[0]["weights"]
+            recorded["post_trace"] = post_trace_nest
+            recorded["pre_trace"] = pre_trace_nest
+        elif model_case == "nestml":
+            recorded["weight"] = res['w1']
+            recorded["pre_trace"] = res['pre_trace1']
+            recorded["post_trace"] = res['post_trace1']
+
+        recorded["v_comp"] = res['v_comp0']
+        recorded["times"] = res['times']
+
+        return recorded
+
+    def test__compartmental_stdp(self):
+        rec_nest = self.run_model("nest")
+        rec_nestml = self.run_model("nestml")
 
         fig, axs = plt.subplots(4)
 
-        axs[0].plot(res['times'], res['v_comp0'], c='r', label='V_m_0')
-        axs[1].plot(res['times'], res['w1'], c='r', label="weight")
-        #axs[1].plot(res['times'], res['pre_trace_input1'], c='b', label="pre_trace")
-        #axs[1].plot(res['times'], res['post_trace_input1'], c='g', label="post_trace")
-        axs[2].plot(res['times'], res['AMPA0'], c='b', label="AMPA")
-        axs[2].plot(res['times'], res['AMPA_third_factor_stdp_synapse_nestml1'], c='g', label="AMPA STDP")
-        label_set = False
-        for spike in pre_spikes_rec['times']:
-            if(label_set):
-                axs[2].axvline(x=spike, color='purple', linestyle='--', linewidth=1)
-            else:
-                axs[2].axvline(x=spike, color='purple', linestyle='--', linewidth=1, label="pre syn spikes")
-                label_set = True
+        axs[0].plot(rec_nest['times'], rec_nest['v_comp'], c='r', label='nest')
+        axs[0].plot(rec_nestml['times'], rec_nestml['v_comp'], c='g', label="nestml")
 
-        label_set = False
-        for spike in post_spikes_rec['times']:
-            if(label_set):
-                axs[2].axvline(x=spike, color='orange', linestyle='--', linewidth=1)
-            else:
-                axs[2].axvline(x=spike, color='orange', linestyle='--', linewidth=1, label="post syn spikes")
-                label_set = True
+        axs[1].plot(rec_nest['times'], rec_nest['post_trace'], c='r', label='nest')
+        axs[1].plot(rec_nestml['times'], rec_nestml['post_trace'], c='g', label="nestml")
 
-        axs[3].plot(res['times'], res['pre_trace1'], c='b', label="pre_trace")
-        axs[3].plot(res['times'], res['post_trace1'], c='g', label="post_trace")
+        axs[2].plot(rec_nest['times'], rec_nest['pre_trace'], c='r', label='nest')
+        axs[2].plot(rec_nestml['times'], rec_nestml['pre_trace'], c='g', label="nestml")
 
+        axs[3].plot(rec_nest['times'], rec_nest['weight'], c='r', label='nest')
+        axs[3].plot(rec_nestml['times'], rec_nestml['weight'], c='g', label="nestml")
 
-        axs[0].set_title('V_m_0')
-        axs[1].set_title('weight')
-        axs[2].set_title('spikes')
-        axs[3].set_title('traces')
+        axs[0].set_title('v_comp')
+        axs[1].set_title('post_trace')
+        axs[2].set_title('pre_trace')
+        axs[3].set_title('weight')
 
         axs[0].legend()
         axs[1].legend()

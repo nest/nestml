@@ -22,6 +22,9 @@ import copy
 from collections import defaultdict
 
 import sympy
+from pynestml.cocos.co_cos_manager import CoCosManager
+
+from pynestml.symbol_table.symbol_table import SymbolTable
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -51,7 +54,10 @@ class SynsInfoEnricher:
     @classmethod
     def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict, con_in_info: dict):
         specific_enricher_visitor = SynsInfoEnricherVisitor()
+
+        cls.add_propagators_to_internals(synapse, syns_info)
         synapse.accept(specific_enricher_visitor)
+
         synapse_info = syns_info[synapse.get_name()]
         synapse_info = cls.transform_ode_solutions(synapse, synapse_info)
         synapse_info = cls.confirm_dependencies(synapse_info, chan_info, recs_info, conc_info, con_in_info)
@@ -62,6 +68,25 @@ class SynsInfoEnricher:
 
         return syns_info
 
+    @classmethod
+    def add_propagators_to_internals(cls, neuron, mechs_info):
+        for mechanism_name, mechanism_info in mechs_info.items():
+            for ode_var_name, ode_info in mechanism_info["ODEs"].items():
+                for ode_solution_index in range(len(ode_info["ode_toolbox_output"])):
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
+                        "propagators"].items():
+                        ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
+
+            if "convolutions" in mechanism_info:
+                for convolution_name, convolution_info in mechanism_info["convolutions"].items():
+                    for variable_name, rhs_str in convolution_info["analytic_solution"]["propagators"].items():
+                        ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
+
+        SymbolTable.delete_model_scope(neuron.get_name())
+        symbol_table_visitor = ASTSymbolTableVisitor()
+        neuron.accept(symbol_table_visitor)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+        SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     @classmethod
     def transform_ode_solutions(cls, synapse, syns_info):
@@ -103,12 +128,12 @@ class SynsInfoEnricher:
                     }
                 for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
                     "propagators"].items():
-                    prop_variable = synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
+                    prop_variable = synapse.get_internals_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                    SymbolKind.VARIABLE)
                     if prop_variable is None:
                         ASTUtils.add_declarations_to_internals(
                             synapse, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])
-                        prop_variable = synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(
+                        prop_variable = synapse.get_internals_blocks()[0].get_scope().resolve_to_symbol(
                             variable_name,
                             SymbolKind.VARIABLE)
 
