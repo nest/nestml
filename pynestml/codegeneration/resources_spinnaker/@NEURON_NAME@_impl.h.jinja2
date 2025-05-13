@@ -193,6 +193,33 @@ static void neuron_impl_store_neuron_parameters(
             n_neurons * sizeof(neuron_impl_t));
 }
 
+
+
+{%- if neuron.get_on_receive_blocks() %}
+
+// -------------------------------------------------------------------------
+//   Methods corresponding to onReceive blocks
+// -------------------------------------------------------------------------
+
+{%-     for blk in neuron.get_on_receive_blocks() %}
+{%-         set ast = blk.get_stmts_body() %}
+void on_receive_block_{{ blk.port_name }}()
+{
+{%          filter indent(4, True) -%}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfilter %}
+}
+{%-     endfor %}
+{%- endif %}
+
+
+
+
+
+
+
+
+
 // This should handle incoming input events (spike and additional inputs e.g. current)
 // For implementation follow the nestml "handle"- function
 // Weights are already applied ?
@@ -245,6 +272,20 @@ static void neuron_impl_do_timestep_update(
 {%-   endfilter %}
 {%- endif %}
 
+
+{%- if neuron.get_on_receive_blocks() %}
+{%-     filter indent(8) %}
+// -------------------------------------------------------------------------
+// Begin NESTML generated code for the onReceive block(s)
+// -------------------------------------------------------------------------
+{%           for blk in neuron.get_on_receive_blocks() %}
+if (input->inputs[{{ blk.port_name.upper() }}])
+{
+    on_receive_block_{{ blk.port_name.upper() }}();
+}
+{%-          endfor %}
+{%-   endfilter %}
+{%- endif %}
 
 {% if neuron.get_on_condition_blocks() %}
 {%-   filter indent(8) %}
