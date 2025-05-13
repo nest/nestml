@@ -1173,7 +1173,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in synapse_info["Internals"] %}
+  {%- for internal_name, internal_declaration in synapse_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 
@@ -1297,7 +1297,7 @@ void nest::{{receptor_name}}{{cm_unique_suffix}}_con_{{synapse_name}}::new_recep
     {%- endfor %}
 
     // user declared internals in order they were declared
-  {%- for internal_name, internal_declaration in synapse_info["Internals"] %}
+  {%- for internal_name, internal_declaration in synapse_info["Internals"].items() %}
     {{internal_name}}.push_back(0);
   {%- endfor %}
 

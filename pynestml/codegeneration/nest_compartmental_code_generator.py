@@ -383,17 +383,15 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
-            ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
             # spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-            if not self.analytic_solver[synapse.get_name()] is None:
-                synapse = ASTUtils.add_declarations_to_internals(
-                    synapse, self.analytic_solver[synapse.get_name()]["propagators"])
+            # if not self.analytic_solver[synapse.get_name()] is None:
+            #     synapse = ASTUtils.add_declarations_to_internals(
+            #         synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
             self.update_symbol_table(synapse)
         else:
-            ASTUtils.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse)
 
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
@@ -861,6 +859,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         global_info_string = MechanismProcessing.print_dictionary(namespace["global_info"], 0)
         code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string, global_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
+        breakpoint()
 
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),

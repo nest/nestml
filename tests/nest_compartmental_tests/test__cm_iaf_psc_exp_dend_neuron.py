@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test__concmech_model.py
+# test__cm_iaf_psc_exp_dend_neuron.py
 #
 # This file is part of NEST.
 #
@@ -120,4 +120,4 @@ class TestCompartmentalIAF:
         plt.show()
         plt.savefig("cm_iaf_test.png")
 
-        #assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        # assert res['c_Ca0'][data_array_index] == expected_conc, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")

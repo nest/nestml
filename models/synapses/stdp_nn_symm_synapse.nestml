@@ -68,6 +68,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+
 model stdp_nn_symm_synapse:
     state:
         w real = 1    # Synaptic weight

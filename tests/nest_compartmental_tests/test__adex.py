@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test__continuous_input.py
+# test__adex.py
 #
 # This file is part of NEST.
 #
@@ -104,7 +104,6 @@ class TestContinuousInput:
             "Delta_T": 2.0,
             "E_K": -90.0,
             "E_L": -58.656837907086036,
-            #"V_th": -50.0,
             "exp_K_Ca": 4.8,
             "g_C": 17.55192973190035,
             "g_L": 6.666182946322264,
@@ -115,7 +114,6 @@ class TestContinuousInput:
             "m_half_Ca": -9.0,
             "m_slope_Ca": 0.5,
             "phi_ca": 2.200252914099994e-08,
-            #"refr_T": 0.0,
             "tau_Ca": 129.45363748885939,
             "tau_h_Ca": 80.0,
             "tau_m_Ca": 15.0,
@@ -130,7 +128,7 @@ class TestContinuousInput:
             "G_refr": 1000.
         }
 
-        dendritic_params ={
+        dendritic_params = {
             "C_m": 10.0,
             "E_L": -80.0,
             "g_L": 2.5088334130360064,
@@ -241,14 +239,12 @@ class TestContinuousInput:
             plt.title('Raster - cm (blue) VS adex (red)')
             plt.xlabel('Time [ms]')
 
-            #plt.show()
-        #else:
             fig, axs = plt.subplots(7)
 
             axs[0].plot(res_cm['times'], res_cm['I_spike0'], c='b', label='I_spike0')
             axs[1].plot(res_cm['times'], res_cm['I_syn_exc0'], c='b', label='I_syn_exc0')
-            #plt.plot(res_cm['times'], res_cm['i_tot_I_syn_inh0'], c='b', label='3')
-            #plt.plot(res_cm['times'], res_cm['i_tot_external_stim0'], c='b', label='4')
+            # plt.plot(res_cm['times'], res_cm['i_tot_I_syn_inh0'], c='b', label='3')
+            # plt.plot(res_cm['times'], res_cm['i_tot_external_stim0'], c='b', label='4')
             axs[2].plot(res_cm['times'], res_cm['refr0'], c='b', label='refr0')
             axs[3].plot(res_cm['times'], res_cm['adapt0'], c='b', label='adapt0')
             axs[4].plot(res_cm['times'], res_cm['I_Ca0'], c='b', label='I_Ca0')

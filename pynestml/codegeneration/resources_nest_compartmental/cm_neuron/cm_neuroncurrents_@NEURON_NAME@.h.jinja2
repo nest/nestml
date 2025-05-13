@@ -440,7 +440,7 @@ private:
     {%- endfor %}
 
     // user declared internals in order they were declared, initialized via pre_run_hook() or calibrate()
-  {%- for internal_name, internal_declaration in synapse_info["Internals"] %}
+  {%- for internal_name, internal_declaration in synapse_info["Internals"].items() %}
   std::vector< double > {{internal_name}};
   {%- endfor %}
 

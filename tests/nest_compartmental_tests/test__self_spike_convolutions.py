@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test__concmech_model.py
+# test__self_spike_convolutions.py
 #
 # This file is part of NEST.
 #

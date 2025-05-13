@@ -144,7 +144,7 @@ class TestCoCos:
         return model_name
 
     def test_invalid_cm_mech_shared_code(self, setUp):
-        model=self._parse_and_validate_model(
+        model = self._parse_and_validate_model(
             os.path.join(
                 os.path.realpath(
                     os.path.join(

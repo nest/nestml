@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# compartmental_stdp_test.py
+# test__consistency_between_sim_calls.py
 #
 # This file is part of NEST.
 #

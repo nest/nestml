@@ -492,8 +492,9 @@ def process() -> bool:
         if opt_key in unused_opts_transformer.keys() and opt_key in unused_opts_codegen.keys() and opt_key in unused_opts_builder.keys():
             raise CodeGeneratorOptionsException("The code generator option \"" + opt_key + "\" does not exist.")
 
+    breakpoint()
     models = get_parsed_models()
-
+    breakpoint()
     # validation -- check cocos for models that do not have errors already
     excluded_models = []
     for model in models:
@@ -506,6 +507,7 @@ def process() -> bool:
                                error_position=model.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             excluded_models.append(model)
+            breakpoint()
 
     # exclude models that have errors
     models = list(set(models) - set(excluded_models))
