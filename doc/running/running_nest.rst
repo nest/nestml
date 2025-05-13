@@ -244,8 +244,6 @@ By default, the "continuous-time" based buffer is selected. This covers the most
 As a computationally more efficient alternative, a spike-based buffer can be selected. In this case, the third factor is not stored every timestep, but only upon the occurrence of postsynaptic (somatic) spikes. Because of the existence of a nonzero dendritic delay, the time at which the somatic spike is observed at the synapse is delayed, and the time at which the third factor is sampled should match the time of the spike at the synapse, rather than the soma. When the spike-based buffering method is used, the dendritic delay is therefore ignored, because the third factor is sampled instead at the time of the somatic spike.
 
 
-
-
 Dendritic delay and synaptic weight
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -295,6 +293,44 @@ Random numbers
 --------------
 
 In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
+
+
+Performance optimisations
+-------------------------
+
+In neuron models, incoming spikes are by default buffered into a queue (a ``std::vector``) before being processed. This implementation is the most generic, allowing, for example, spikes with both positive and negative weights arriving at one and the same input port to be handled differently according to the sign. However, the queue can cause a degradation in runtime performance on the order of 10%. If no conditional processing of the incoming spikes is necessary, and all spikes are treated in the same, linear, time-invariant (LTI) manner, then no queue is necessary as all spike weights can be simply added together into a single floating-point variable. The code generator option ``linear_time_invariant_spiking_input_ports`` can be used to indicate for which ports the spikes can be treated in an LTI-manner.
+
+For instance, if spikes arriving at the same port are handled differently according to sign of the weight:
+
+.. code:: nestml
+
+   input:
+       spike_in_port <- spike(weight pA)
+
+   onReceive(spike_in_port):
+       # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
+       if spike_in_port.weight > 0:
+           I_syn_exc += spike_in_port.weight
+       else:
+           I_syn_inh -= spike_in_port.weight
+
+then the system is not LTI and a queue is necessary.
+
+However, if two separate ports are used (and weights are subsequently processed in an LTI manner), the model can be formulated in a mathematically equivalent way:
+
+.. code:: nestml
+
+   input:
+       spike_in_port_exc <- spike(weight pA)
+       spike_in_port_inh <- spike(weight pA)
+
+   onReceive(spike_in_port_exc):
+        I_syn_exc += spike_in_port.weight
+
+   onReceive(spike_in_port_exc):
+        I_syn_inh += spike_in_port.weight
+
+In this case, the ``linear_time_invariant_spiking_input_ports`` option can be used to specify that both ``spike_in_port_exc`` and ``spike_in_port_inh`` are LTI ports, for better runtime performance.
 
 
 References
