@@ -229,6 +229,10 @@ static void neuron_impl_do_timestep_update(
 
 {%- if neuron.get_update_blocks() %}
 {%-   filter indent(8) %}
+// -------------------------------------------------------------------------
+// Begin generated code for the neuron update block
+// -------------------------------------------------------------------------
+
 {%-     for block in neuron.get_update_blocks() %}
 {%-       set ast = block.get_stmts_body() %}
 {%-       if ast.print_comment('*')|length > 1 %}
@@ -241,7 +245,29 @@ static void neuron_impl_do_timestep_update(
 {%-   endfilter %}
 {%- endif %}
 
-        // neuron_recording_record_bit(SPIKE_RECORDING_BITFIELD, neuron_index);   // ?
+
+{% if neuron.get_on_condition_blocks() %}
+{%-   filter indent(8) %}
+// -------------------------------------------------------------------------
+// Begin NESTML generated code for the onCondition block(s)
+// -------------------------------------------------------------------------
+
+{%-     for block in neuron.get_on_condition_blocks() %}
+if ({{ printer.print(block.get_cond_expr()) }})
+{
+{%-         set ast = block.get_stmts_body() %}
+{%-         if ast.print_comment('*') | length > 1 %}
+/*
+ {{ast.print_comment('*')}}
+ */
+{%-         endif %}
+{%-         filter indent(4) %}
+{%-             include "directives_cpp/StmtsBody.jinja2" %}
+{%-         endfilter %}
+}
+{%-     endfor %}
+{%-   endfilter %}
+{%- endif %}
 
 {%- for variable in neuron.get_spike_input_ports() %}
         input->inputs[{{ variable.get_symbol_name().upper() }}] = ZERO;
