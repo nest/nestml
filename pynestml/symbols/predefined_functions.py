@@ -512,10 +512,10 @@ class PredefinedFunctions:
         Registers the convolve function into the system.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_real_type())    # kernel
+        params.append(PredefinedTypes.get_template_type(0))    # spike input buffer
         symbol = FunctionSymbol(name=cls.CONVOLVE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.CONVOLVE] = symbol
 
