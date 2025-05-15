@@ -287,16 +287,6 @@ class SpiNNakerBuilder(Builder):
                 except subprocess.CalledProcessError:
                     pass
 
-            """# call make clean
-            try:
-                subprocess.check_call(["make", "clean"],
-                                      stderr=subprocess.STDOUT,
-                                      shell=shell,
-                                      cwd=str(os.path.join(install_path, "c_models")))
-            except subprocess.CalledProcessError:
-                raise GeneratedCodeBuildException(
-                    'Error occurred during \'make clean\'! More detailed error messages can be found in stdout.')"""
-
             # call make
             try:
                 subprocess.check_call(make_cmd,
