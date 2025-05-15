@@ -31,7 +31,7 @@
 {%- endif %}
 
 // uncomment the next line to enable printing of detailed debug information
-#define DEBUG
+// #define DEBUG
 
 
 {% set ns = namespace(count=0) %}
@@ -210,7 +210,6 @@ void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t 
 {
 #ifdef DEBUG
     log_info("on_receive_block_{{ blk.port_name }}()\n");
-
 #endif
 
 {%          filter indent(4, True) -%}
@@ -220,29 +219,11 @@ void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t 
 {%-     endfor %}
 {%- endif %}
 
-
-
-
-
-
-
-
-
 // This handles incoming input events (spike and additional inputs e.g. current)
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_add_inputs(
         index_t synapse_type_index, index_t neuron_index,
         input_t weights_this_timestep) {
-
-#ifdef DEBUG
-    log_info("neuron_impl_add_inputs()\n\t");
-    log_info(synapse_type_index);
-    log_info("\n\t");
-    log_info(neuron_index);
-    log_info("\n\t");
-    log_info(weights_this_timestep);
-    log_info("\n");
-#endif
 
     neuron_impl_t *neuron = &neuron_array[neuron_index];
     neuron_input_t *input = &neuron->input;
@@ -254,7 +235,6 @@ static void neuron_impl_add_inputs(
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_do_timestep_update(
         uint32_t timer_count, uint32_t time, uint32_t n_neurons) {
-    log_error("abcdefghijk");
     for (uint32_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
         // Get the neuron itself
         neuron_impl_t *neuron = &neuron_array[neuron_index];
