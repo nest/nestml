@@ -30,6 +30,9 @@
 #include <gsl/gsl_odeiv.h>
 {%- endif %}
 
+// uncomment the next line to enable printing of detailed debug information
+#define DEBUG
+
 
 {% set ns = namespace(count=0) %}
 {%-  for variable in neuron.get_state_symbols() | sort(attribute="name") %}
@@ -203,8 +206,13 @@ static void neuron_impl_store_neuron_parameters(
 
 {%-     for blk in neuron.get_on_receive_blocks() %}
 {%-         set ast = blk.get_stmts_body() %}
-void on_receive_block_{{ blk.port_name }}()
+void on_receive_block_{{ blk.port_name }}(neuron_state_t *state, neuron_input_t *input, neuron_parameter_t *parameter)
 {
+#ifdef DEBUG
+    log_info("on_receive_block_{{ blk.port_name }}()\n");
+
+#endif
+
 {%          filter indent(4, True) -%}
 {%-             include "directives_cpp/StmtsBody.jinja2" %}
 {%-         endfilter %}
@@ -220,15 +228,21 @@ void on_receive_block_{{ blk.port_name }}()
 
 
 
-// This should handle incoming input events (spike and additional inputs e.g. current)
-// For implementation follow the nestml "handle"- function
-// Weights are already applied ?
-// Apply synapse type before adding to buffer (delta, exp, ...)
+// This handles incoming input events (spike and additional inputs e.g. current)
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_add_inputs(
         index_t synapse_type_index, index_t neuron_index,
         input_t weights_this_timestep) {
-    // Get the neuron itself
+
+#ifdef DEBUG
+    log_info("neuron_impl_add_inputs()\n\t");
+    log_info(synapse_type_index);
+    log_info("\n\t");
+    log_info(neuron_index);
+    log_info("\n\t");
+    log_info(weights_this_timestep);
+    log_info("\n");
+#endif
 
     neuron_impl_t *neuron = &neuron_array[neuron_index];
     neuron_input_t *input = &neuron->input;
@@ -240,6 +254,7 @@ static void neuron_impl_add_inputs(
 __attribute__((unused)) // Marked unused as only used sometimes
 static void neuron_impl_do_timestep_update(
         uint32_t timer_count, uint32_t time, uint32_t n_neurons) {
+    log_error("abcdefghijk");
     for (uint32_t neuron_index = 0; neuron_index < n_neurons; neuron_index++) {
         // Get the neuron itself
         neuron_impl_t *neuron = &neuron_array[neuron_index];
@@ -247,6 +262,9 @@ static void neuron_impl_do_timestep_update(
         neuron_input_t *input = &neuron->input;
         neuron_parameter_t *parameter = &neuron->parameter;
 
+#ifdef DEBUG
+        log_info("neuron_impl_do_timestep_update()");
+#endif
         // Store the recorded membrane voltage
 {%- for variable in neuron.get_state_symbols() %}
 {%-   if variable.is_recordable %}
@@ -276,12 +294,12 @@ static void neuron_impl_do_timestep_update(
 {%- if neuron.get_on_receive_blocks() %}
 {%-     filter indent(8) %}
 // -------------------------------------------------------------------------
-// Begin NESTML generated code for the onReceive block(s)
+// Begin NESTML generated code for invoking the onReceive block(s)
 // -------------------------------------------------------------------------
 {%           for blk in neuron.get_on_receive_blocks() %}
 if (input->inputs[{{ blk.port_name.upper() }}])
 {
-    on_receive_block_{{ blk.port_name.upper() }}();
+    on_receive_block_{{ blk.port_name }}(state, input, parameter);
 }
 {%-          endfor %}
 {%-   endfilter %}
