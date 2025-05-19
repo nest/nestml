@@ -210,7 +210,6 @@ class TestCompartmentalConcmech(unittest.TestCase):
         post_spikes_rec = nest.GetStatus(spikedet_post, 'events')[0]
         recorded = dict()
         if model_case == "nest":
-            breakpoint()
             recorded["weight"] = nest.GetStatus(wr, "events")[0]["weights"]
             recorded["post_trace"] = post_trace_nest
             recorded["pre_trace"] = pre_trace_nest

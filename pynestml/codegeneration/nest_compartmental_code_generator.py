@@ -859,7 +859,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         global_info_string = MechanismProcessing.print_dictionary(namespace["global_info"], 0)
         code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string, global_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
-        breakpoint()
 
         neuron_specific_filenames = {
             "neuroncurrents": self.get_cm_syns_neuroncurrents_file_prefix(neuron),
