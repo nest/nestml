@@ -38,6 +38,7 @@ except BaseException as e:
     # always set TEST_PLOTS to False if matplotlib can not be imported
     TEST_PLOTS = False
 
+
 class TestConsistencyBetweenSimCalls(unittest.TestCase):
     @pytest.fixture(scope="module", autouse=True)
     def setup(self):
@@ -111,11 +112,10 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
 
         spike_times_tm1 = spike_times
         for i in range(repeats):
-            spike_times_t = [n+sim_time for n in spike_times_tm1]
+            spike_times_t = [n + sim_time for n in spike_times_tm1]
             spike_times_tm1 = spike_times_t
 
             spike_times = spike_times + spike_times_t
-
 
         external_input_pre = nest.Create("spike_generator", params={"spike_times": spike_times})
 
@@ -136,12 +136,15 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         mm = nest.Create('multimeter', 1, {
             'record_from': ['v_comp0', 'Na0', 'AMPA0'], 'interval': .1})
 
-        nest.Connect(external_input_pre, neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1})
+        nest.Connect(external_input_pre, neuron, "one_to_one",
+                     syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1})
         nest.Connect(mm, neuron)
         print("pre sim")
         nest.Simulate(sim_time)
         for i in range(repeats):
-            nest.SetStatus(neuron, {'v_comp0': -70.0, 'm_Na0': 0.01696863, 'h_Na0': 0.83381407, 'Na0': 0.0, 'AMPA0': 0.0, 'g_AMPA0': 0.0})
+            nest.SetStatus(neuron,
+                           {'v_comp0': -70.0, 'm_Na0': 0.01696863, 'h_Na0': 0.83381407, 'Na0': 0.0, 'AMPA0': 0.0,
+                            'g_AMPA0': 0.0})
             nest.Simulate(sim_time)
         res = nest.GetStatus(mm, 'events')[0]
 
@@ -155,9 +158,9 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         max_deviation = 0.0
         deviations = []
 
-        for i in range(repeats+1):
+        for i in range(repeats + 1):
             for ii in range(run_len):
-                deviation = abs(res['v_comp0'][ii+(i*run_len)]-res['v_comp0'][ii])
+                deviation = abs(res['v_comp0'][ii + (i * run_len)] - res['v_comp0'][ii])
                 deviations.append(deviation)
                 if deviation > max_deviation:
                     max_deviation = deviation
@@ -171,8 +174,6 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         axs[2].plot(res['times'], res['AMPA0'], c='b', label="AMPA")
         axs[3].plot(list(res['times']), deviations, c='orange', label="dev")
 
-
-
         axs[0].set_title('V_m')
         axs[1].set_title('Na')
         axs[2].set_title('AMPA')
@@ -185,4 +186,4 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
 
         plt.savefig("consistency sim calls test.png")
 
-        assert max_deviation < 0.0001, ("There should be no deviation between simulation calls! The maximum deviation in this run is ("+str(max_deviation)+").")
+        assert max_deviation < 0.0001, ("There should be no deviation between simulation calls! The maximum deviation in this run is (" + str(max_deviation) + ").")

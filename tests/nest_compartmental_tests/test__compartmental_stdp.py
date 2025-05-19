@@ -147,11 +147,11 @@ class TestCompartmentalConcmech(unittest.TestCase):
             post_neuron.receptors = [
                 {"comp_idx": 0, "receptor_type": "AMPA"},
                 {"comp_idx": 0, "receptor_type": "AMPA", "params": {'w': 0.0, "Wmax": 20.0,
-                    "alpha": 1.0,
-                    "lambda": 0.05,
-                    "tau_plus": 20.0,
-                    "mu_plus": 1.0,
-                    "mu_minus": 1.0,}}
+                                                                    "alpha": 1.0,
+                                                                    "lambda": 0.05,
+                                                                    "tau_plus": 20.0,
+                                                                    "mu_plus": 1.0,
+                                                                    "mu_minus": 1.0, }}
             ]
             mm = nest.Create('multimeter', 1, {
                 'record_from': ['v_comp0', 'AMPA0', 'AMPA1'], 'interval': .1})
@@ -159,10 +159,13 @@ class TestCompartmentalConcmech(unittest.TestCase):
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
 
-        nest.Connect(external_input_pre, pre_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 2.0, 'delay': 0.1})
-        nest.Connect(external_input_post, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1, 'receptor_type': 0})
+        nest.Connect(external_input_pre, pre_neuron, "one_to_one",
+                     syn_spec={'synapse_model': 'static_synapse', 'weight': 2.0, 'delay': 0.1})
+        nest.Connect(external_input_post, post_neuron, "one_to_one",
+                     syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1, 'receptor_type': 0})
         if model_case == "nestml":
-            nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'static_synapse', 'weight': 0.1, 'delay': 0.1, 'receptor_type': 1})
+            nest.Connect(pre_neuron, post_neuron, "one_to_one",
+                         syn_spec={'synapse_model': 'static_synapse', 'weight': 0.1, 'delay': 0.1, 'receptor_type': 1})
         elif model_case == "nest":
             wr = nest.Create("weight_recorder")
             nest.CopyModel(

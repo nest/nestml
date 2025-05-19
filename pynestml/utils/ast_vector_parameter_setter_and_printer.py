@@ -27,6 +27,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.symbol_table.scope import Scope, ScopeType, Symbol, SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
 
+
 class ASTVectorParameterSetterAndPrinter(ASTPrinter):
     def __init__(self):
         super(ASTVectorParameterSetterAndPrinter, self).__init__()

@@ -318,7 +318,8 @@ class MechsInfoEnricher:
             transformed_inlines = list()
             for inline in cm_mechs_info[mechanism_name]["SecondaryInlineExpressions"]:
                 inline_expression_name = inline.variable_name
-                transformed_inlines.append(SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name])
+                transformed_inlines.append(
+                    SynsInfoEnricherVisitor.inline_name_to_transformed_inline[inline_expression_name])
             enriched_syns_info[mechanism_name]["secondary_inline_expressions"] = transformed_inlines
 
         return enriched_syns_info
@@ -437,7 +438,7 @@ class MechsInfoEnricher:
             for internal_declaration in neuron_internal_declaration_collector.internal_declarations:
                 if variable.get_name() == internal_declaration.get_variables()[0].get_name() \
                         and (isinstance(internal_declaration.get_expression(), ASTSmallStmt)
-                        or isinstance(internal_declaration.get_expression(), ASTSimpleExpression)) \
+                             or isinstance(internal_declaration.get_expression(), ASTSimpleExpression)) \
                         and internal_declaration.get_expression().is_function_call() \
                         and internal_declaration.get_expression().get_function_call().callee_name == \
                         PredefinedFunctions.TIME_RESOLUTION:
@@ -573,6 +574,7 @@ class SynsInfoEnricherVisitor(ASTVisitor):
 
     def endvisit_declaration(self, node):
         self.inside_declaration = False
+
 
 class ASTUsedVariableNamesExtractor(ASTVisitor):
     def __init__(self, node):

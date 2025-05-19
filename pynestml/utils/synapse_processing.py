@@ -183,7 +183,9 @@ class SynapseProcessing:
                             "name": spikes_name,
                             "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
                         },
-                        "post_port": (len([dict for dict in neuron_synapse_pairs if dict["synapse"]+"_nestml" == neuron.name and spikes_name in dict["post_ports"]]) > 0),
+                        "post_port": (len([dict for dict in neuron_synapse_pairs if
+                                           dict["synapse"] + "_nestml" == neuron.name and spikes_name in dict[
+                                               "post_ports"]]) > 0),
                     }
         return syn_info
 

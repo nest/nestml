@@ -52,7 +52,8 @@ class SynsInfoEnricher:
         pass
 
     @classmethod
-    def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict, con_in_info: dict):
+    def enrich_with_additional_info(cls, synapse: ASTModel, syns_info: dict, chan_info: dict, recs_info: dict,
+                                    conc_info: dict, con_in_info: dict):
         specific_enricher_visitor = SynsInfoEnricherVisitor()
 
         cls.add_propagators_to_internals(synapse, syns_info)
@@ -73,8 +74,7 @@ class SynsInfoEnricher:
         for mechanism_name, mechanism_info in mechs_info.items():
             for ode_var_name, ode_info in mechanism_info["ODEs"].items():
                 for ode_solution_index in range(len(ode_info["ode_toolbox_output"])):
-                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                        "propagators"].items():
+                    for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
                         ASTUtils.add_declaration_to_internals(neuron, variable_name, rhs_str)
 
             if "convolutions" in mechanism_info:
@@ -98,10 +98,9 @@ class SynsInfoEnricher:
                 solution_transformed["states"] = defaultdict()
                 solution_transformed["propagators"] = defaultdict()
 
-                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                    "initial_values"].items():
+                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
                     variable = synapse.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                              SymbolKind.VARIABLE)
+                                                                                               SymbolKind.VARIABLE)
 
                     expression = ModelParser.parse_expression(rhs_str)
                     # pretend that update expressions are in "equations" block,
@@ -126,10 +125,8 @@ class SynsInfoEnricher:
                         "init_expression": expression,
                         "update_expression": update_expr_ast,
                     }
-                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                    "propagators"].items():
-                    prop_variable = synapse.get_internals_blocks()[0].get_scope().resolve_to_symbol(variable_name,
-                                                                                                   SymbolKind.VARIABLE)
+                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
+                    prop_variable = synapse.get_internals_blocks()[0].get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
                     if prop_variable is None:
                         ASTUtils.add_declarations_to_internals(
                             synapse, ode_info["ode_toolbox_output"][ode_solution_index]["propagators"])
@@ -168,7 +165,8 @@ class SynsInfoEnricher:
         return syns_info
 
     @classmethod
-    def confirm_dependencies(cls, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict, con_in_info: dict):
+    def confirm_dependencies(cls, syns_info: dict, chan_info: dict, recs_info: dict, conc_info: dict,
+                             con_in_info: dict):
         actual_dependencies = dict()
         chan_deps = list()
         rec_deps = list()
@@ -200,7 +198,7 @@ class SynsInfoEnricher:
         pre_spike_function = syn_info["PreSpikeFunction"]
         post_spike_function = syn_info["PostSpikeFunction"]
         update_block = syn_info["UpdateBlock"]
-        #general_functions = syn_info["Functions"]
+        # general_functions = syn_info["Functions"]
         declaration_visitor = ASTDeclarationCollectorAndUniqueRenamerVisitor()
         if pre_spike_function is not None:
             pre_spike_function.accept(declaration_visitor)
@@ -214,7 +212,7 @@ class SynsInfoEnricher:
             for var in decl.get_variables():
                 declaration_vars.append(var.get_name())
 
-        syn_info["InFunctionDeclarationsVars"] = declaration_visitor.declarations #list(declaration_vars)
+        syn_info["InFunctionDeclarationsVars"] = declaration_visitor.declarations  # list(declaration_vars)
         return syn_info
 
     @classmethod
@@ -422,8 +420,6 @@ class SynsInfoEnricher:
         return variable_names_extractor.variable_names
 
 
-
-
 class ASTEnricherInfoCollectorVisitor(ASTVisitor):
 
     def __init__(self):
@@ -597,5 +593,3 @@ class ASTUsedVariableNamesExtractor(ASTVisitor):
 
     def visit_variable(self, node):
         self.variable_names.add(node.get_name())
-
-

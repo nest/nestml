@@ -25,7 +25,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.symbols.predefined_units import PredefinedUnits
-#from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+# from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -142,11 +142,11 @@ class ASTGlobalInformationCollector(object):
         mechanism_odes = list()
         synapse_kernels = list()
         mechanism_continuous_inputs = list()
-        #mechanism_dependencies = defaultdict()
-        #mechanism_dependencies["concentrations"] = list()
-        #mechanism_dependencies["channels"] = list()
-        #mechanism_dependencies["receptors"] = list()
-        #mechanism_dependencies["continuous"] = list()
+        # mechanism_dependencies = defaultdict()
+        # mechanism_dependencies["concentrations"] = list()
+        # mechanism_dependencies["channels"] = list()
+        # mechanism_dependencies["receptors"] = list()
+        # mechanism_dependencies["continuous"] = list()
 
         search_variables = list()
         search_functions = list()
@@ -215,7 +215,7 @@ class ASTGlobalInformationCollector(object):
                             if isinstance(inline.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                     is_dependency = True
-                                    #if not (isinstance(global_info["root_expression"],
+                                    # if not (isinstance(global_info["root_expression"],
                                     #                   ASTInlineExpression) and inline.variable_name ==
                                     #        global_info["root_expression"].variable_name):
                                     #    if "channel" in [e.name for e in inline.get_decorators()]:
@@ -252,7 +252,7 @@ class ASTGlobalInformationCollector(object):
                             if isinstance(ode.get_decorators(), list):
                                 if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                     is_dependency = True
-                                    #if not (isinstance(global_info["root_expression"],
+                                    # if not (isinstance(global_info["root_expression"],
                                     #                   ASTOdeEquation) and ode.lhs.name == global_info[
                                     #            "root_expression"].lhs.name):
                                     #    if "concentration" in [e.name for e in ode.get_decorators()]:
@@ -318,7 +318,7 @@ class ASTGlobalInformationCollector(object):
         global_info["SecondaryInlineExpressions"] = mechanism_inlines
         global_info["ODEs"] = mechanism_odes
         global_info["Continuous"] = mechanism_continuous_inputs
-        #global_info["Dependencies"] = mechanism_dependencies
+        # global_info["Dependencies"] = mechanism_dependencies
 
         return global_info
 
@@ -545,6 +545,7 @@ class ASTContinuousInputDeclarationVisitor(ASTVisitor):
 
     def endvisit_input_port(self, node):
         self.inside_port = False
+
 
 class ASTOnReceiveBlockCollectorVisitor(ASTVisitor):
     def __init__(self):

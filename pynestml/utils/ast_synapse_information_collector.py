@@ -28,7 +28,7 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
-#from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+# from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.utils.port_signal_type import PortSignalType
 
@@ -250,7 +250,8 @@ class ASTSynapseInformationCollector(object):
                                 if isinstance(inline.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                         is_dependency = True
-                                        if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
+                                        if not (isinstance(mechanism_info["root_expression"],
+                                                           ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
                                             if "channel" in [e.name for e in inline.get_decorators()]:
                                                 if not inline.variable_name in [i.variable_name for i in
                                                                                 mechanism_dependencies["channels"]]:
@@ -285,7 +286,8 @@ class ASTSynapseInformationCollector(object):
                                 if isinstance(ode.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                         is_dependency = True
-                                        if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
+                                        if not (isinstance(mechanism_info["root_expression"],
+                                                           ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
                                             if "concentration" in [e.name for e in ode.get_decorators()]:
                                                 if not ode.lhs.name in [o.lhs.name for o in
                                                                         mechanism_dependencies["concentrations"]]:
@@ -353,6 +355,7 @@ class ASTSynapseInformationCollector(object):
             syn_info[mechanism_name]["Dependencies"] = mechanism_dependencies
 
         return syn_info
+
 
 class ASTKernelInformationCollectorVisitor(ASTVisitor):
     def __init__(self):
@@ -512,7 +515,8 @@ class ASTKernelInformationCollectorVisitor(ASTVisitor):
         return self.inline_expression_to_kernel_args[inline_expression]
 
     def get_extracted_kernel_args_by_name(self, inline_name: str) -> set:
-        inline_expression = [inline for inline in self.inline_expression_to_kernel_args.keys() if inline.get_variable_name() == inline_name]
+        inline_expression = [inline for inline in self.inline_expression_to_kernel_args.keys() if
+                             inline.get_variable_name() == inline_name]
 
         return self.inline_expression_to_kernel_args[inline_expression[0]]
 
@@ -918,6 +922,7 @@ class ASTUpdateBlockVisitor(ASTVisitor):
     def endvisit_update_block(self, node):
         self.inside_update_block = False
 
+
 class ASTPortVisitor(ASTVisitor):
     def __init__(self):
         super(ASTPortVisitor, self).__init__()
@@ -934,6 +939,7 @@ class ASTPortVisitor(ASTVisitor):
 
     def endvisit_input_port(self, node):
         self.inside_port = False
+
 
 class ASTNonDeclaringAssignmentVisitor(ASTVisitor):
     def __init__(self):
@@ -969,4 +975,3 @@ class ASTNonDeclaringAssignmentVisitor(ASTVisitor):
 
     def endvisit_assignment(self, node):
         self.inside_assignment = False
-

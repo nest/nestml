@@ -46,7 +46,7 @@ class GlobalInfoEnricher:
     def enrich_with_additional_info(cls, neuron: ASTModel, global_info: dict):
         global_info = cls.transform_ode_solutions(neuron, global_info)
         global_info = cls.extract_infunction_declarations(global_info)
-        #global_info = cls.substituteNoneWithEmptyBlocks(global_info)
+        # global_info = cls.substituteNoneWithEmptyBlocks(global_info)
 
         return global_info
 
@@ -60,8 +60,7 @@ class GlobalInfoEnricher:
                 solution_transformed["states"] = defaultdict()
                 solution_transformed["propagators"] = defaultdict()
 
-                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                    "initial_values"].items():
+                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["initial_values"].items():
                     variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                               SymbolKind.VARIABLE)
 
@@ -88,8 +87,7 @@ class GlobalInfoEnricher:
                         "init_expression": expression,
                         "update_expression": update_expr_ast,
                     }
-                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index][
-                    "propagators"].items():
+                for variable_name, rhs_str in ode_info["ode_toolbox_output"][ode_solution_index]["propagators"].items():
                     prop_variable = neuron.get_equations_blocks()[0].get_scope().resolve_to_symbol(variable_name,
                                                                                                    SymbolKind.VARIABLE)
                     if prop_variable is None:
@@ -164,7 +162,6 @@ class GlobalInfoEnricher:
             info_collector.collect_update_block_dependencies_and_owned(mechs_info, global_info)
             global_info["UpdateBlock"] = info_collector.recursive_update_block_reduction(mechs_info, [],
                                                                                          global_info["UpdateBlock"])
-
 
 
 class ASTEnricherInfoCollectorVisitor(ASTVisitor):

@@ -257,8 +257,8 @@ class MechanismProcessing:
 
         return odetoolbox_indict
 
-    #@classmethod
-    #def compute_update_block_variations(cls, info_collector, mechs_info, global_info):
+    # @classmethod
+    # def compute_update_block_variations(cls, info_collector, mechs_info, global_info):
     #    if global_info["UpdateBlock"] is not None:
     #        info_collector.collect_update_block_dependencies_and_owned(mechs_info, global_info)
     #        global_info["UpdateBlock"] = info_collector.recursive_update_block_reduction(mechs_info, [],
@@ -273,11 +273,10 @@ class MechanismProcessing:
             block_list.append(global_info["SelfSpikesFunction"].get_stmts_body())
         if len(block_list) > 0:
             info_collector.collect_block_dependencies_and_owned(mechs_info, block_list, "UpdateBlock")
-            if "UpdateBlock" in global_info  and global_info["UpdateBlock"] is not None:
+            if "UpdateBlock" in global_info and global_info["UpdateBlock"] is not None:
                 info_collector.block_reduction(mechs_info, global_info["UpdateBlock"], "UpdateBlock")
             if "SelfSpikesFunction" in global_info and global_info["SelfSpikesFunction"] is not None:
                 info_collector.block_reduction(mechs_info, global_info["SelfSpikesFunction"], "SelfSpikesFunction")
-
 
     @classmethod
     def get_mechs_info(cls, neuron: ASTModel):
@@ -306,7 +305,8 @@ class MechanismProcessing:
             mechs_info = info_collector.detect_mechs(cls.mechType)
 
             # collect and process all basic mechanism information
-            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info, cls.mechType)
+            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info,
+                                                                              cls.mechType)
             cls.extract_mech_blocks(info_collector, mechs_info, global_info)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
 

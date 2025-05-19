@@ -39,6 +39,7 @@ from pynestml.utils.ast_utils import ASTUtils
 
 from odetoolbox import analysis
 
+
 class GlobalProcessing:
     """Manages the collection of basic information necesary for all types of mechanisms and uses the
     collect_information_for_specific_mech_types interface that needs to be implemented by the specific mechanism type
@@ -121,7 +122,8 @@ class GlobalProcessing:
         via object references
         :param neuron: a single neuron instance.
         """
-        return cls.global_info[neuron.get_name()]   # return direct refenrence with no copy due to intended external manipulation
+        return cls.global_info[
+            neuron.get_name()]  # return direct refenrence with no copy due to intended external manipulation
 
     @classmethod
     def check_co_co(cls, neuron: ASTModel):

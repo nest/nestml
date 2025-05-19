@@ -391,7 +391,7 @@ class Messages:
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
         message = 'Successfully generated code for the model: \'' + \
-            model_name + '\' in: \'' + path + '\' !'
+                  model_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -931,13 +931,13 @@ class Messages:
         message = 'ODE definition for \''
         if differential_order > 1:
             message += 'd^' + str(differential_order) + ' ' + \
-                name + ' / dt^' + str(differential_order) + '\''
+                       name + ' / dt^' + str(differential_order) + '\''
         if differential_order > 0:
             message += 'd ' + name + ' / dt\''
         else:
             message += '\'' + str(name) + '\''
         message += ' has inconsistent units: expected \'' + \
-            lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+                   lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
@@ -946,7 +946,7 @@ class Messages:
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + \
-            declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+                  declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
         return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
@@ -989,7 +989,8 @@ class Messages:
         return MessageCode.ASSIGNING_TO_INLINE, message
 
     @classmethod
-    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str,
+                                         other_type_str):
         """
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
         :param name: the name of the model
@@ -998,9 +999,9 @@ class Messages:
         :rtype: (MessageCode,str)
         """
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
-            str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
-            ', '.join([str(_ + 1) for _ in other_args_idx]) + \
-            ', which has/have type \'' + other_type_str + '\''
+                  str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
+                  ', '.join([str(_ + 1) for _ in other_args_idx]) + \
+                  ', which has/have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod
@@ -1064,8 +1065,7 @@ class Messages:
     def get_kernel_wrong_type(cls,
                               kernel_name: str,
                               differential_order: int,
-                              actual_type: str) -> Tuple[MessageCode,
-                                                         str]:
+                              actual_type: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the type of a kernel is wrong.
         :param kernel_name: the name of the kernel
@@ -1087,8 +1087,7 @@ class Messages:
     def get_kernel_iv_wrong_type(cls,
                                  iv_name: str,
                                  actual_type: str,
-                                 expected_type: str) -> Tuple[MessageCode,
-                                                              str]:
+                                 expected_type: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the type of a kernel initial value is wrong.
         :param iv_name: the name of the state variable with an initial value
@@ -1118,25 +1117,25 @@ class Messages:
     def get_template_root_path_created(cls, templates_root_dir: str):
         message = "Given template root path is not an absolute path. " \
                   "Creating the absolute path with default templates directory '" + \
-            templates_root_dir + "'"
+                  templates_root_dir + "'"
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
 
     @classmethod
     def get_vector_parameter_wrong_block(cls, var, block):
         message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
-                  "The vector parameter can only be declared in parameters or internals block."
+                                                                                                  "The vector parameter can only be declared in parameters or internals block."
         return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
 
     @classmethod
     def get_vector_parameter_wrong_type(cls, var):
         message = "The vector parameter '" + var + "' is of the wrong type. " \
-                  "The vector parameter can be only of type integer."
+                                                   "The vector parameter can be only of type integer."
         return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
 
     @classmethod
     def get_vector_parameter_wrong_size(cls, var, value):
         message = "The vector parameter '" + var + "' has value '" + value + "' " \
-                  "which is less than or equal to 0."
+                                                                             "which is less than or equal to 0."
         return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
 
     @classmethod
@@ -1169,9 +1168,9 @@ class Messages:
         """
 
         message = "No gating variables found inside declaration of '" + \
-            cm_inline_expr.variable_name + "', "
+                  cm_inline_expr.variable_name + "', "
         message += "\nmeaning no variable ends with the suffix '_" + \
-            ion_channel_name + "' here. "
+                   ion_channel_name + "' here. "
         message += "This suffix indicates that a variable is a gating variable. "
         message += "At least one gating variable is expected to exist."
 
@@ -1184,7 +1183,7 @@ class Messages:
             bad_variable_name: str,
             ion_channel_name: str):
         message = "Variable name '" + bad_variable_name + \
-            "' seems to be used multiple times"
+                  "' seems to be used multiple times"
         message += "' inside inline expression '" + cm_inline_expr.variable_name + "'. "
         message += "\nVariables are not allowed to occur multiple times here."
 
@@ -1198,23 +1197,23 @@ class Messages:
             function_name: str):
         message = "Implementation of a function called '" + function_name + "' not found. "
         message += "It is expected because of variable '" + \
-            variable_name + "' in the ion channel '" + ion_channel_name + "'"
+                   variable_name + "' in the ion channel '" + ion_channel_name + "'"
         return MessageCode.CM_FUNCTION_MISSING, message
 
     @classmethod
     def get_expected_cm_function_wrong_args_count(
             cls, ion_channel_name: str, variable_name, astfun: ASTFunction):
         message = "Function '" + astfun.name + \
-            "' is expected to have exactly one Argument. "
+                  "' is expected to have exactly one Argument. "
         message += "It is related to variable '" + variable_name + \
-            "' in the ion channel '" + ion_channel_name + "'"
+                   "' in the ion channel '" + ion_channel_name + "'"
         return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
 
     @classmethod
     def get_expected_cm_function_bad_return_type(
             cls, ion_channel_name: str, astfun: ASTFunction) -> Tuple[MessageCode, str]:
         message = "'" + ion_channel_name + "' channel function '" + \
-            astfun.name + "' must return real. "
+                  astfun.name + "' must return real. "
         return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message
 
     @classmethod
@@ -1225,7 +1224,7 @@ class Messages:
         for missing_var, proper_location in missing_variable_to_proper_block.items():
             message += "Variable with name '" + missing_var
             message += "' not found but expected to exist inside of " + \
-                proper_location + " because of position "
+                       proper_location + " because of position "
             message += str(
                 expected_variables_to_reason[missing_var].get_source_position()) + "\n"
         return MessageCode.CM_VARIABLES_NOT_DECLARED, message
@@ -1318,8 +1317,7 @@ class Messages:
 
     @classmethod
     def cm_non_self_spike_convolution_in_mech(cls, mech_name: str, mech_type: str):
-        message = ("Only convolutions with buffer self_spikes are allowed in mechanisms of type '" + mech_type +
-                   "' but are contained in '" + mech_name + "'.")
+        message = ("Only convolutions with buffer self_spikes are allowed in mechanisms of type '" + mech_type + "' but are contained in '" + mech_name + "'.")
 
         return MessageCode.CM_INVALID_CONVOLUTION_BUFFER, message
 

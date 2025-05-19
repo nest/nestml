@@ -91,9 +91,11 @@ class TestCompartmentalMechDisabled():
 
         sg1 = nest.Create('spike_generator', 1, {'spike_times': [100.]})
 
-        nest.Connect(sg1, cm, syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
+        nest.Connect(sg1, cm,
+                     syn_spec={'synapse_model': 'static_synapse', 'weight': 4.0, 'delay': 0.5, 'receptor_type': 0})
 
-        mm = nest.Create('multimeter', 1, {'record_from': ['v_comp0', 'c_Ca0', 'Ca_LVAst0', 'Ca_HVA0', 'SK_E20'], 'interval': .1})
+        mm = nest.Create('multimeter', 1,
+                         {'record_from': ['v_comp0', 'c_Ca0', 'Ca_LVAst0', 'Ca_HVA0', 'SK_E20'], 'interval': .1})
 
         nest.Connect(mm, cm)
 
@@ -125,4 +127,4 @@ class TestCompartmentalMechDisabled():
 
         plt.savefig("interaction with disabled mechanism test.png")
 
-        assert abs(res['c_Ca0'][data_array_index]-expected_conc) <= 0.0000001, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")
+        assert abs(res['c_Ca0'][data_array_index] - expected_conc) <= 0.0000001, ("the concentration (left) is not as expected (right). (" + str(res['c_Ca0'][data_array_index]) + "!=" + str(expected_conc) + ")")

@@ -40,7 +40,8 @@ class CoCoCmMechSharedCode(CoCo):
         used_vars = dict()
         all_info = chan_info | conc_info | rec_info | con_in_info
         for info_name, info in all_info.items():
-            all_vars = list(set(info['States'].keys()) | set(info["Parameters"].keys()) | set(info["Internals"].keys()))# + [e.get_name() for e in info["Dependencies"]["global"]]
+            all_vars = list(set(info['States'].keys()) | set(info["Parameters"].keys()) | set(
+                info["Internals"].keys()))  # + [e.get_name() for e in info["Dependencies"]["global"]]
             for var in all_vars:
                 if var not in used_vars.keys():
                     used_vars[var] = list()
@@ -52,6 +53,3 @@ class CoCoCmMechSharedCode(CoCo):
                 Logger.log_message(error_position=None,
                                    code=code, message=message,
                                    log_level=LoggingLevel.ERROR)
-
-
-

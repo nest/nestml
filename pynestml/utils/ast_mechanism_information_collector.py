@@ -211,7 +211,8 @@ class ASTMechanismInformationCollector(object):
                                 if isinstance(inline.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in inline.get_decorators()]:
                                         is_dependency = True
-                                        if not (isinstance(mechanism_info["root_expression"], ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
+                                        if not (isinstance(mechanism_info["root_expression"],
+                                                           ASTInlineExpression) and inline.variable_name == mechanism_info["root_expression"].variable_name):
                                             if "channel" in [e.name for e in inline.get_decorators()]:
                                                 if not inline.variable_name in [i.variable_name for i in
                                                                                 mechanism_dependencies["channels"]]:
@@ -246,14 +247,14 @@ class ASTMechanismInformationCollector(object):
                                 if ode.lhs.name in global_info["States"]:
                                     global_info["Dependencies"][mech_type][mechanism_name].append(ode.lhs)
                                     del global_info["States"][ode.lhs.name]
-                                    #is_dependency = True
+                                    # is_dependency = True
                                 if isinstance(ode.get_decorators(), list):
                                     if "mechanism" in [e.namespace for e in ode.get_decorators()]:
                                         is_dependency = True
-                                        if not (isinstance(mechanism_info["root_expression"], ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
+                                        if not (isinstance(mechanism_info["root_expression"],
+                                                           ASTOdeEquation) and ode.lhs.name == mechanism_info["root_expression"].lhs.name):
                                             if "concentration" in [e.name for e in ode.get_decorators()]:
-                                                if not ode.lhs.name in [o.lhs.name for o in
-                                                                        mechanism_dependencies["concentrations"]]:
+                                                if not ode.lhs.name in [o.lhs.name for o in mechanism_dependencies["concentrations"]]:
                                                     mechanism_dependencies["concentrations"].append(ode)
 
                                 if not is_dependency:
@@ -346,9 +347,9 @@ class ASTMechanismInformationCollector(object):
             mechanism_info["convolutions"] = defaultdict()
             info_collector = ASTKernelInformationCollectorVisitor()
             neuron.accept(info_collector)
-            #mech_info[
+            # mech_info[
             #    "internals_used_declared"] = info_collector.get_synapse_specific_internal_declarations(mech_info["root_expression"])
-            #mech_info["total_used_declared"] = info_collector.get_variable_names_of_synapse(
+            # mech_info["total_used_declared"] = info_collector.get_variable_names_of_synapse(
             #    mech_info["root_expression"])
 
             inlines = list()
@@ -361,7 +362,7 @@ class ASTMechanismInformationCollector(object):
                 for kernel_var, spikes_var in kernel_arg_pairs:
                     kernel_name = kernel_var.get_name()
                     spikes_name = spikes_var.get_name()
-                    #if spikes_name == "self_spikes":
+                    # if spikes_name == "self_spikes":
                     convolution_name = info_collector.construct_kernel_X_spike_buf_name(
                         kernel_name, spikes_name, 0)
                     mechanism_info["convolutions"][convolution_name] = {
@@ -392,7 +393,8 @@ class ASTMechanismInformationCollector(object):
             updated_owned = mechanism_info["States"] + mechanism_info["Parameters"] + mechanism_info["Internals"]
 
             loop_counter = 0
-            while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set([v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
+            while set([v.get_name() for v in owned]) != set([v.get_name() for v in updated_owned]) or set(
+                    [v.get_name() for v in dependencies]) != set([v.get_name() for v in updated_dependencies]):
                 owned = updated_owned
                 dependencies = updated_dependencies
                 collector = ASTUpdateBlockDependencyAndOwnedExtractor(owned, dependencies)
@@ -416,7 +418,6 @@ class ASTMechanismInformationCollector(object):
             new_update_block.accept(update_block_reductor)
             mechanism_info["Blocks"][block_type] = new_update_block
 
-
     @classmethod
     def recursive_update_block_reduction(cls, mech_info, eliminated, update_block):
         reduced_update_blocks = dict()
@@ -431,19 +432,17 @@ class ASTMechanismInformationCollector(object):
                     for comp_mechanism_name, comp_mechanism_info in mech_info.items():
                         if mechanism_name != comp_mechanism_name:
                             if "UpdateBlockComputation" in comp_mechanism_info:
-                                exclusive_dependencies = list(set(exclusive_dependencies)-set(comp_mechanism_info["UpdateBlockComputation"]["dependencies"]))
+                                exclusive_dependencies = list(set(exclusive_dependencies) - set(
+                                    comp_mechanism_info["UpdateBlockComputation"]["dependencies"]))
                                 leftovers_depend = leftovers_depend and len(set(comp_mechanism_info["UpdateBlockComputation"]["dependencies"] + comp_mechanism_info["UpdateBlockComputation"]["owned"]) & set(owned)) > 0
                     if not leftovers_depend:
                         new_update_block = update_block.clone()
                         update_block_reductor = ASTUpdateBlockReductor(owned, exclusive_dependencies)
                         new_update_block.accept(update_block_reductor)
-                        reduced_update_blocks["Reductions"][mechanism_name] = cls.recursive_update_block_reduction(mech_info, eliminated.append(mechanism_name), new_update_block)
+                        reduced_update_blocks["Reductions"][mechanism_name] = cls.recursive_update_block_reduction(
+                            mech_info, eliminated.append(mechanism_name), new_update_block)
 
         return reduced_update_blocks
-
-
-
-
 
 
 class ASTMechanismInformationCollectorVisitor(ASTVisitor):
@@ -484,7 +483,7 @@ class VariableInitializationVisitor(ASTVisitor):
         self.parameters = defaultdict()
         self.internals = defaultdict()
         self.channel_info = channel_info
-        self.search_vars = channel_info["States"]+channel_info["Parameters"]+channel_info["Internals"]
+        self.search_vars = channel_info["States"] + channel_info["Parameters"] + channel_info["Internals"]
         if "Blocks" in channel_info:
             self.search_vars += channel_info["Blocks"]["dependencies"]
             self.search_vars += channel_info["Blocks"]["owned"]
@@ -537,7 +536,6 @@ class VariableInitializationVisitor(ASTVisitor):
 
     def endvisit_expression(self, node):
         self.inside_expression = False
-
 
 
 class ASTODEEquationCollectorVisitor(ASTVisitor):
@@ -611,11 +609,14 @@ class ASTVariableCollectorVisitor(ASTVisitor):
         if not self.inside_expression_inside_declaration:
             self.all_variables.append(node.clone())
             if self.inside_states_block:
-                self.all_states[node.get_name()] = {"ASTVariable": node.clone(), "ASTExpression": self.current_declaration_expression}
+                self.all_states[node.get_name()] = {"ASTVariable": node.clone(),
+                                                    "ASTExpression": self.current_declaration_expression}
             if self.inside_parameters_block:
-                self.all_parameters[node.get_name()] = {"ASTVariable": node.clone(), "ASTExpression": self.current_declaration_expression}
+                self.all_parameters[node.get_name()] = {"ASTVariable": node.clone(),
+                                                        "ASTExpression": self.current_declaration_expression}
             if self.inside_internals_block:
-                self.all_internals[node.get_name()] = {"ASTVariable": node.clone(), "ASTExpression": self.current_declaration_expression}
+                self.all_internals[node.get_name()] = {"ASTVariable": node.clone(),
+                                                       "ASTExpression": self.current_declaration_expression}
 
     def endvisit_variable(self, node):
         self.inside_variable = False
@@ -692,6 +693,7 @@ class ASTContinuousInputDeclarationVisitor(ASTVisitor):
 
     def endvisit_input_port(self, node):
         self.inside_port = False
+
 
 class ASTKernelInformationCollectorVisitor(ASTVisitor):
     def __init__(self):
@@ -851,7 +853,8 @@ class ASTKernelInformationCollectorVisitor(ASTVisitor):
         return self.inline_expression_to_kernel_args[inline_expression]
 
     def get_extracted_kernel_args_by_name(self, inline_name: str) -> set:
-        inline_expression = [inline for inline in self.inline_expression_to_kernel_args.keys() if inline.get_variable_name() == inline_name]
+        inline_expression = [inline for inline in self.inline_expression_to_kernel_args.keys() if
+                             inline.get_variable_name() == inline_name]
         if len(inline_expression):
             return self.inline_expression_to_kernel_args[inline_expression[0]]
         else:
@@ -1150,7 +1153,6 @@ class ASTUpdateBlockReductor(ASTVisitor):
         self.inside_if_stmt = False
         self.inside_while_stmt = False
         self.inside_for_stmt = False
-
 
     def visit_if_stmt(self, node):
         self.inside_if_stmt = True

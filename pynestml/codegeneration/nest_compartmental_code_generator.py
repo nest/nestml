@@ -217,7 +217,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         return ret
 
     def generate_code(self, models: List[ASTModel]) -> None:
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option("synapse_models"))
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, synapse_models=self.get_option(
+            "synapse_models"))
         synapses_per_neuron = self.arrange_synapses_per_neuron(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
@@ -322,9 +323,11 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
             delta_factors = ASTUtils.get_delta_factors_(neuron, equations_block)
 
-            spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron, kernel_buffers,
-                                                                                  [analytic_solver, numeric_solver],
-                                                                                  delta_factors)
+            spike_updates, post_spike_updates = self._nest_code_generator.get_spike_update_expressions(neuron,
+                                                                                                       kernel_buffers,
+                                                                                                       [analytic_solver,
+                                                                                                        numeric_solver],
+                                                                                                       delta_factors)
 
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
@@ -335,11 +338,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         :param synapses: a list of synapses.
         """
         for synapse in synapses:
-            Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None, LoggingLevel.INFO)
+            Logger.log_message(None, None, "Analysing/transforming synapse {}.".format(synapse.get_name()), None,
+                               LoggingLevel.INFO)
             SynapseProcessing.process(synapse, self.get_option("neuron_synapse_pairs"))
             self.analyse_synapse(synapse)
 
-    def analyse_synapse(self, synapse: ASTModel):# -> Dict[str, ASTAssignment]:
+    def analyse_synapse(self, synapse: ASTModel):  # -> Dict[str, ASTAssignment]:
         """
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
@@ -350,7 +354,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         ASTUtils.add_timestep_symbol(synapse)
         self.update_symbol_table(synapse)
         """
-
 
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
@@ -394,32 +397,24 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         else:
             self.update_symbol_table(synapse)
 
-        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"), FrontendConfiguration.suffix)
+        synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"),
+                                             FrontendConfiguration.suffix)
         # special case for NEST delay variable (state or parameter)
 
         ASTUtils.update_blocktype_for_common_parameters(synapse)
-        #assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
-        #assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
+        # assert synapse_name_stripped in self.get_option("delay_variable").keys(), "Please specify a delay variable for synapse '" + synapse_name_stripped + "' in the code generator options"
+        # assert ASTUtils.get_variable_by_name(synapse, self.get_option("delay_variable")[synapse_name_stripped]), "Delay variable '" + self.get_option("delay_variable")[synapse_name_stripped] + "' not found in synapse '" + synapse_name_stripped + "'"
 
         return spike_updates
 
-
-    def create_ode_indict(self,
-                          neuron: ASTModel,
-                          parameters_block: ASTBlockWithVariables,
-                          kernel_buffers: Mapping[ASTKernel,
-                                                  ASTInputPort]):
+    def create_ode_indict(self, neuron: ASTModel, parameters_block: ASTBlockWithVariables, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         odetoolbox_indict = self.transform_ode_and_kernels_to_json(
             neuron, parameters_block, kernel_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         return odetoolbox_indict
 
-    def ode_solve_analytically(self,
-                               neuron: ASTModel,
-                               parameters_block: ASTBlockWithVariables,
-                               kernel_buffers: Mapping[ASTKernel,
-                                                       ASTInputPort]):
+    def ode_solve_analytically(self, neuron: ASTModel, parameters_block: ASTBlockWithVariables, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         odetoolbox_indict = self.create_ode_indict(
             neuron, parameters_block, kernel_buffers)
 
@@ -714,7 +709,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 self.printer = ASTVectorParameterSetterAndPrinterFactory(neuron, printer)
                 self.std_vector_parameter = None
 
-            def print(self, expression, index = "i"):
+            def print(self, expression, index="i"):
                 self.std_vector_parameter = index
                 index_printer = self.printer.create_ast_vector_parameter_setter_and_printer(index)
                 return index_printer.print(expression)
@@ -841,7 +836,12 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         if paired_synapse:
             namespace["syns_info"] = SynapseProcessing.get_syn_info(paired_synapse)
-            namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapse, namespace["syns_info"], namespace["chan_info"], namespace["recs_info"], namespace["conc_info"], namespace["con_in_info"])
+            namespace["syns_info"] = SynsInfoEnricher.enrich_with_additional_info(paired_synapse,
+                                                                                  namespace["syns_info"],
+                                                                                  namespace["chan_info"],
+                                                                                  namespace["recs_info"],
+                                                                                  namespace["conc_info"],
+                                                                                  namespace["con_in_info"])
         else:
             namespace["syns_info"] = dict()
 
@@ -857,7 +857,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         else:
             syns_info_string = ""
         global_info_string = MechanismProcessing.print_dictionary(namespace["global_info"], 0)
-        code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string, con_in_info_string, syns_info_string, global_info_string)
+        code, message = Messages.get_mechs_dictionary_info(chan_info_string, recs_info_string, conc_info_string,
+                                                           con_in_info_string, syns_info_string, global_info_string)
         Logger.log_message(None, code, message, None, LoggingLevel.DEBUG)
 
         neuron_specific_filenames = {
@@ -1090,7 +1091,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return odetoolbox_indict
 
-    def generate_compartmental_neuron_code(self, neuron: ASTModel, paired_synapse = None) -> None:
+    def generate_compartmental_neuron_code(self, neuron: ASTModel, paired_synapse=None) -> None:
         self.generate_model_code(neuron.get_name(),
                                  model_templates=self._model_templates["neuron"],
                                  template_namespace=self._get_neuron_model_namespace(neuron, paired_synapse),
@@ -1110,7 +1111,8 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
                 paired_syn_exists = True
                 self.generate_compartmental_neuron_code(neuron, synapse)
                 if not Logger.has_errors(neuron):
-                    code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
+                    code, message = Messages.get_code_generated(neuron.get_name(),
+                                                                FrontendConfiguration.get_target_path())
                     Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
             if not paired_syn_exists:
                 self.generate_compartmental_neuron_code(neuron)
@@ -1128,8 +1130,7 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         neuron_synapse_pairs = self.get_option("neuron_synapse_pairs")
         for pair in neuron_synapse_pairs:
             for synapse in synapses:
-                if synapse.get_name() == (pair["synapse"]+"_nestml"):
-                    paired_synapses[pair["neuron"]+"_nestml"].append(synapse)
+                if synapse.get_name() == (pair["synapse"] + "_nestml"):
+                    paired_synapses[pair["neuron"] + "_nestml"].append(synapse)
 
         return paired_synapses
-
