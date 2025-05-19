@@ -108,14 +108,13 @@ if ({{ blk.get_port_name() }} != 0) {
         ],
 
 {%  if neuron.get_internals_blocks() %}
-    derived_params=[("__h", lambda pars, dt: dt),
-
+    derived_params=[
 {%-     for internals_block in neuron.get_internals_blocks() %}
 {%-         for decl in internals_block.get_declarations() %}
 {%-             for variable in decl.get_variables() %}
 {%-                 set variable_symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
 {%-                 set sym = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE) %}
-{%-                 if variable.name != "__h" %}
+{%-                 if variable.name not in ["dt", "__h"] %}
                     ("{{ printer.print(variable) }}", lambda pars, dt: {{ genn_derived_params_printer.print(sym.get_declaring_expression()) }}),
 {%-                 endif %}
 {%-             endfor %}
