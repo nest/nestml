@@ -100,13 +100,14 @@ class TestCM():
             f"Compiled nestml model 'cm_main_cm_default_nestml' not found, installing in:"
             f"    {target_path}")
 
-        generate_nest_compartmental_target(
-            input_path=input_path,
-            target_path=target_path,
-            module_name="cm_defaultmodule",
-            suffix="_nestml",
-            logging_level="ERROR"
-        )
+        if True:
+            generate_nest_compartmental_target(
+                input_path=input_path,
+                target_path=target_path,
+                module_name="cm_defaultmodule",
+                suffix="_nestml",
+                logging_level="ERROR"
+            )
 
     def get_model(self, reinstall_flag=True):
         if self.nestml_flag:
