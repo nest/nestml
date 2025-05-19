@@ -71,7 +71,7 @@ Currently, the following target platforms are supported for code generation. Cli
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
 
-      :doc:`"GeNN </running/running_genn>`
+      :doc:`GeNN </running/running_genn>`
 
       |genn_logo|
 
