@@ -67,6 +67,8 @@ Currently, the following target platforms are supported for code generation. Cli
 
       |pretty_render_logo|
 
+.. grid:: 2
+
    .. grid-item-card::
       :text-align: center
       :class-title: sd-d-flex-row sd-align-minor-center
