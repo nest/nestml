@@ -21,8 +21,11 @@
 
 from typing import Sequence, Optional, Mapping, Any, Dict
 
+import pynestml
 from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
+from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_model import ASTModel
 
 
@@ -31,7 +34,6 @@ class NESTDesktopCodeGenerator(CodeGenerator):
     Code generator for NEST Desktop
     """
     _default_options = {
-        "neuron_models": [],
         "synapse_models": [],
         "templates": {
             "path": "resources_nest_desktop",
@@ -50,7 +52,7 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         Generate the .json files for the given neuron and synapse models
         :param models: list of neuron models
         """
-        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models, neuron_models=self.get_option("neuron_models"),
+        neurons, synapses = CodeGeneratorUtils.get_model_types_from_names(models,
                                                                           synapse_models=self.get_option("synapse_models"))
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
@@ -64,8 +66,9 @@ class NESTDesktopCodeGenerator(CodeGenerator):
         from pynestml.codegeneration.nest_tools import NESTTools
 
         namespace = dict()
+        namespace["nestml_version"] = pynestml.__version__
         namespace["neuronName"] = neuron.get_name()
         namespace["neuron"] = neuron
-        namespace["parameters"] = NESTTools.get_neuron_parameters(neuron.get_name())
+        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(neuron.file_path)
 
         return namespace

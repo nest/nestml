@@ -24,13 +24,14 @@ from typing import List, Optional
 import re
 import tempfile
 import uuid
-from pynestml.meta_model.ast_node import ASTNode
 
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.utils.logger import Logger
 
 
 class NESTCodeGeneratorUtils:
@@ -82,6 +83,9 @@ class NESTCodeGeneratorUtils:
         """
         from pynestml.frontend.pynestml_frontend import generate_nest_target
 
+        # convert string to level to check correct formatting
+        Logger.string_to_level(logging_level)
+
         # generate temporary install directory
         install_path = tempfile.mkdtemp(prefix="nestml_target_")
 
@@ -119,6 +123,9 @@ class NESTCodeGeneratorUtils:
                 with open(synapse_fn, "w") as f:
                     print(nestml_synapse_model, file=f)
 
+            # explicitly mark this as a synapse model, even if the name does not end in "_synapse"
+            _codegen_opts["synapse_models"] = [synapse_model_name]
+
             input_fns += [synapse_fn]
             _codegen_opts["neuron_synapse_pairs"] = [{"neuron": neuron_model_name,
                                                       "synapse": synapse_model_name,
@@ -129,6 +136,9 @@ class NESTCodeGeneratorUtils:
 
         if codegen_opts:
             _codegen_opts.update(codegen_opts)
+
+        if logging_level.upper() != "DEBUG":
+            _codegen_opts["redirect_build_output"] = True    # hide stdout and stderr if not in DEBUG log level
 
         if not module_name:
             # generate unique ID

@@ -41,7 +41,6 @@ class MessageCode(Enum):
     CAST_NOT_POSSIBLE = 5
     TYPE_DIFFERENT_FROM_EXPECTED = 6
     ADD_SUB_TYPE_MISMATCH = 7
-    BUFFER_SET_TO_CONDUCTANCE_BASED = 8
     NO_VARIABLE_FOUND = 9
     SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 10
     MODEL_CONTAINS_ERRORS = 11
@@ -141,6 +140,10 @@ class MessageCode(Enum):
     EMIT_SPIKE_OUTPUT_PORT_TYPE_DIFFERS = 115
     CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES = 116
     INTEGRATE_ODES_ARG_HIGHER_ORDER = 117
+    DELAY_VARIABLE_NOT_SPECIFIED = 118
+    WEIGHT_VARIABLE_NOT_SPECIFIED = 119
+    DELAY_VARIABLE_NOT_FOUND = 120
+    WEIGHT_VARIABLE_NOT_FOUND = 121
 
 
 class Messages:
@@ -184,11 +187,6 @@ class Messages:
     @classmethod
     def get_lexer_error(cls, msg):
         message = 'Error occurred during lexing: ' + msg
-        return MessageCode.LEXER_ERROR, message
-
-    @classmethod
-    def get_could_not_determine_cond_based(cls, type_str, name):
-        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
@@ -323,20 +321,6 @@ class Messages:
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
             expected_type.print_symbol(), got_type.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
-
-    @classmethod
-    def get_buffer_set_to_conductance_based(cls, buffer):
-        """
-        Returns a message indicating that a buffer has been set to conductance based.
-        :param buffer: the name of the buffer
-        :type buffer: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (buffer is not None and isinstance(buffer, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer)
-        message = 'Buffer \'%s\' set to conductance based!' % buffer
-        return MessageCode.BUFFER_SET_TO_CONDUCTANCE_BASED, message
 
     @classmethod
     def get_no_variable_found(cls, variable_name):
@@ -1397,3 +1381,27 @@ class Messages:
     def get_continuous_output_port_cannot_have_attributes(cls):
         message = "continuous time output port may not have attributes."
         return MessageCode.CONTINUOUS_OUTPUT_PORT_MAY_NOT_HAVE_ATTRIBUTES, message
+
+    @classmethod
+    def get_delay_variable_not_specified(cls) -> Tuple[MessageCode, str]:
+        message = "Delay variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.DELAY_VARIABLE_NOT_SPECIFIED, message
+
+    @classmethod
+    def get_weight_variable_not_specified(cls) -> Tuple[MessageCode, str]:
+        message = "Weight variable is not specified for synapse model. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.WEIGHT_VARIABLE_NOT_SPECIFIED, message
+
+    @classmethod
+    def get_delay_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Delay variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.DELAY_VARIABLE_NOT_FOUND, message
+
+    @classmethod
+    def get_weight_variable_not_found(cls, variable_name: str) -> Tuple[MessageCode, str]:
+        message = "Weight variable '" + variable_name + "' not found in synapse. Please see https://nestml.readthedocs.io/en/latest/running/running_nest.html#dendritic-delay-and-synaptic-weight"
+
+        return MessageCode.WEIGHT_VARIABLE_NOT_FOUND, message

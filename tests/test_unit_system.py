@@ -28,7 +28,7 @@ from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSi
 from pynestml.codegeneration.printers.cpp_type_symbol_printer import CppTypeSymbolPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.codegeneration.printers.nest_cpp_function_call_printer import NESTCppFunctionCallPrinter
-from pynestml.codegeneration.printers.nestml_variable_printer import NestMLVariablePrinter
+from pynestml.codegeneration.printers.nestml_variable_printer import NESTMLVariablePrinter
 from pynestml.frontend.pynestml_frontend import generate_target
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -58,7 +58,7 @@ class TestUnitSystem:
 
         Logger.init_logger(LoggingLevel.INFO)
 
-        variable_printer = NestMLVariablePrinter(None)
+        variable_printer = NESTMLVariablePrinter(None)
         function_call_printer = NESTCppFunctionCallPrinter(None)
         cpp_variable_printer = CppVariablePrinter(None)
         self.printer = CppExpressionPrinter(CppSimpleExpressionPrinter(cpp_variable_printer,

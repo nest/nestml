@@ -15,7 +15,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 5
 
 - Ensure copyright transferal agreement is obtained from each author (contact: @heplesser). Obtain affiliation one-liner for each author.
 
-- Edit `setup.py` and enter the right version number. Edit `pynestml/__init__.py` and enter the right version number. Push to a new branch called `release-v5.0.1`.
+- Edit `setup.py` and enter the right version number. Edit `pynestml/__init__.py` and enter the right version number. Edit `codemeta.json` and enter the right version number. Push to a new branch called `release-v5.0.1`.
 
 - Log in to Zenodo, and create a new upload. Press the "Reserve DOI" button.
 

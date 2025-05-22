@@ -1,7 +1,6 @@
-"""
-delay_test_synapse_plastic
-##########################
-"""
+# delay_test_synapse_plastic
+# ##########################
+#
 model delay_test_plastic_synapse:
   state:
     x ms = 0 ms
