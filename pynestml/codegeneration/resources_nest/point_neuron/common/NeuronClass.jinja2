@@ -217,6 +217,8 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , continuous_inputs_( std::vector< nest::RingBuffer >( MAX_CONTINUOUS_INPUT ) )
+  , continuous_inputs_grid_sum_( std::vector< double >( MAX_CONTINUOUS_INPUT ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -234,6 +236,8 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+  , continuous_inputs_( std::vector< nest::RingBuffer >( MAX_CONTINUOUS_INPUT ) )
+  , continuous_inputs_grid_sum_( std::vector< double >( MAX_CONTINUOUS_INPUT ) )
 {%- endif %}
 {%- if uses_numeric_solver %}
 {%-     if numeric_solver == "rk45" %}
@@ -442,16 +446,9 @@ void {{ neuronName }}::init_buffers_()
   get_spike_inputs_grid_sum_().clear();
   get_spike_input_received_().clear();
   get_spike_input_received_grid_sum_().clear();
+  get_continuous_inputs_().clear();
+  get_continuous_inputs_grid_sum_().clear();
 {% endif %}
-{%- if neuron.get_continuous_input_ports() | length > 0 %}
-
-  // continuous time input buffers
-{%-   filter indent(2,True) %}
-{%-     for inputPort in neuron.get_continuous_input_ports() %}
-{{ buffer_initialization.BufferInitialization(inputPort) }}
-{%-     endfor %}
-{%-   endfilter %}
-{%- endif %}
 
   B_.logger_.reset();
 
@@ -576,6 +573,8 @@ void {{ neuronName }}::pre_run_hook()
   B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_input_received_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_input_received_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
+  B_.continuous_inputs_.resize(MAX_CONTINUOUS_INPUT);
+  B_.continuous_inputs_grid_sum_.resize(MAX_CONTINUOUS_INPUT);
 {%-   endif %}
 }
 {%- if neuron.get_functions()|length > 0 %}
@@ -880,7 +879,10 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
     }
 {%-     else %}
-    B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
+    for (long i = 0; i < MAX_CONTINUOUS_INPUT; ++i)
+    {
+      get_continuous_inputs_grid_sum_()[i] = get_continuous_inputs_()[i].get_value(lag);
+    }
 {%-     endif %}
 {%- endfor %}
 
@@ -1124,15 +1126,14 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
   std::cout << "[neuron " << this << "] {{neuronName}}::handle(CurrentEvent)" << std::endl;
 #endif
   assert(e.get_delay_steps() > 0);
+  assert( e.get_rport() < B_.continuous_inputs_.size() );
 
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
   const double weight = e.get_weight();
 
-{%- for port in neuron.get_continuous_input_ports() %}
-  get_{{port.get_symbol_name()}}().add_value(
+  B_.continuous_inputs_[e.get_rport()].add_value(
                e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                weight * current );
-{%- endfor %}
 }
 {%- endif %}
 
