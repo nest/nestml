@@ -1022,11 +1022,11 @@ inline nest_port_t {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest_
   // It confirms to the connection management system that we are able
   // to handle @c CurrentEvent on port 0. You need to extend the function
   // if you want to differentiate between input ports.
-  if (receptor_type != 0)
+  if (receptor_type > MAX_CONTINUOUS_INPUT)
   {
     throw nest::UnknownReceptorType(receptor_type, get_name());
   }
-  return 0;
+  return receptor_type;
 }
 {%- endif %}
 

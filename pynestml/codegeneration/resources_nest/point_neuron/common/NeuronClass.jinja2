@@ -217,6 +217,8 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+{%- endif %}
+{%- if has_continuous_input %}
   , continuous_inputs_( std::vector< nest::RingBuffer >( MAX_CONTINUOUS_INPUT ) )
   , continuous_inputs_grid_sum_( std::vector< double >( MAX_CONTINUOUS_INPUT ) )
 {%- endif %}
@@ -236,6 +238,8 @@ std::vector< std::tuple< int, int > > {{ neuronName }}::rport_to_nestml_buffer_i
   , spike_inputs_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_( std::vector< nest::RingBuffer >( NUM_SPIKE_RECEPTORS ) )
   , spike_input_received_grid_sum_( std::vector< double >( NUM_SPIKE_RECEPTORS ) )
+{%- endif %}
+{%- if has_continuous_input %}
   , continuous_inputs_( std::vector< nest::RingBuffer >( MAX_CONTINUOUS_INPUT ) )
   , continuous_inputs_grid_sum_( std::vector< double >( MAX_CONTINUOUS_INPUT ) )
 {%- endif %}
@@ -446,6 +450,8 @@ void {{ neuronName }}::init_buffers_()
   get_spike_inputs_grid_sum_().clear();
   get_spike_input_received_().clear();
   get_spike_input_received_grid_sum_().clear();
+{%- endif %}
+{%- if has_continuous_input %}
   get_continuous_inputs_().clear();
   get_continuous_inputs_grid_sum_().clear();
 {% endif %}
@@ -573,9 +579,11 @@ void {{ neuronName }}::pre_run_hook()
   B_.spike_inputs_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_input_received_.resize(NUM_SPIKE_RECEPTORS);
   B_.spike_input_received_grid_sum_.resize(NUM_SPIKE_RECEPTORS);
+{%-   endif %}
+{%- if has_continuous_input %}
   B_.continuous_inputs_.resize(MAX_CONTINUOUS_INPUT);
   B_.continuous_inputs_grid_sum_.resize(MAX_CONTINUOUS_INPUT);
-{%-   endif %}
+{% endif %}
 }
 {%- if neuron.get_functions()|length > 0 %}
 
@@ -868,8 +876,9 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     /**
      * handle continuous input ports
     **/
-{%  for inputPort in neuron.get_continuous_input_ports() %}
+{%- if has_continuous_input %}
 {%-     if use_gap_junctions %}
+{%  for inputPort in neuron.get_continuous_input_ports() %}
     if ( called_from_wfr_update )
     {
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value_wfr_update(lag);
@@ -878,13 +887,14 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     {
       B_.{{ inputPort.name }}_grid_sum_ = get_{{ inputPort.name }}().get_value(lag);
     }
+{%- endfor %}
 {%-     else %}
     for (long i = 0; i < MAX_CONTINUOUS_INPUT; ++i)
     {
       get_continuous_inputs_grid_sum_()[i] = get_continuous_inputs_()[i].get_value(lag);
     }
 {%-     endif %}
-{%- endfor %}
+{%- endif %}
 
 {%- if use_gap_junctions %}
     if ( called_from_wfr_update )
