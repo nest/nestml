@@ -1,0 +1,4 @@
+model non_dimensionalisation_transformer_test_neuron:
+    state:
+        I_foo A = 42 mA
+        V_3 V = I_foo / 5 nS

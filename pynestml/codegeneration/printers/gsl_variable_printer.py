@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
+
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -45,7 +45,7 @@ class GSLVariablePrinter(CppVariablePrinter):
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(node.get_complete_name()):
-                return str(NESTUnitConverter.get_factor(PredefinedUnits.get_unit(node.get_complete_name()).get_unit()))
+                return str(PredefinedUnits.get_unit(node.get_complete_name()).get_unit())
 
             code, message = Messages.get_could_not_resolve(node.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
