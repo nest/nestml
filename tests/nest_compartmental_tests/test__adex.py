@@ -213,9 +213,6 @@ class TestContinuousInput:
             plt.title('MultiComp (blue) and adex (red) voltage')
 
             plt.subplot(412)
-            # plt.plot(res_cm['times'], res_cm['m_Ca_1'], c='b', ls='--', lw=2., label='m')
-            # plt.plot(res_cm['times'], res_cm['h_Ca_1'], c='r', ls='--', lw=2., label='h')
-            # plt.plot(res_cm['times'], res_cm['m_Ca_1']*res_cm['h_Ca_1'], c='k', ls='--', lw=2., label='g')
             plt.legend()
             plt.xlim(0, SimTime)
             plt.ylabel('Ca')

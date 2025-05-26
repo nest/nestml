@@ -34,7 +34,6 @@ from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 
-from pynestml.codegeneration.printers.cpp_simple_expression_printer import CppSimpleExpressionPrinter
 from pynestml.codegeneration.printers.nestml_printer import NESTMLPrinter
 from pynestml.codegeneration.printers.constant_printer import ConstantPrinter
 from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODEToolboxExpressionPrinter
@@ -257,13 +256,6 @@ class MechanismProcessing:
 
         return odetoolbox_indict
 
-    # @classmethod
-    # def compute_update_block_variations(cls, info_collector, mechs_info, global_info):
-    #    if global_info["UpdateBlock"] is not None:
-    #        info_collector.collect_update_block_dependencies_and_owned(mechs_info, global_info)
-    #        global_info["UpdateBlock"] = info_collector.recursive_update_block_reduction(mechs_info, [],
-    #                                                                                     global_info["UpdateBlock"])
-
     @classmethod
     def extract_mech_blocks(cls, info_collector, mechs_info, global_info):
         block_list = list()
@@ -305,8 +297,7 @@ class MechanismProcessing:
             mechs_info = info_collector.detect_mechs(cls.mechType)
 
             # collect and process all basic mechanism information
-            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info,
-                                                                              cls.mechType)
+            mechs_info = info_collector.collect_mechanism_related_definitions(neuron, mechs_info, global_info, cls.mechType)
             cls.extract_mech_blocks(info_collector, mechs_info, global_info)
             mechs_info = info_collector.extend_variables_with_initialisations(neuron, mechs_info)
 

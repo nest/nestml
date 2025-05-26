@@ -21,16 +21,11 @@
 import copy
 from collections import defaultdict
 
-from pynestml.meta_model.ast_node import ASTNode
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
-# from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTSynapseInformationCollector(object):
@@ -343,7 +338,6 @@ class ASTSynapseInformationCollector(object):
 
                     search_variables.remove(variable)
                     found_variables.append(variable)
-                    # IMPLEMENT CATCH NONDEFINED!!!
 
             syn_info[mechanism_name]["States"] = mechanism_states
             syn_info[mechanism_name]["Parameters"] = mechanism_parameters
@@ -385,17 +379,14 @@ class ASTKernelInformationCollectorVisitor(ASTVisitor):
         self.inside_kernel = False
         self.inside_kernel_call = False
         self.inside_declaration = False
-        # self.inside_variable = False
         self.inside_simple_expression = False
         self.inside_expression = False
-        # self.inside_function_call = False
 
         self.current_inline_expression = None
         self.current_kernel = None
         self.current_expression = None
         self.current_simple_expression = None
         self.current_declaration = None
-        # self.current_variable = None
 
         self.current_synapse_name = None
 
@@ -483,8 +474,7 @@ class ASTKernelInformationCollectorVisitor(ASTVisitor):
         dereferenced = defaultdict()
         for potential_internals_name in synapse_variable_names:
             if potential_internals_name in self.internal_var_name_to_declaration:
-                dereferenced[potential_internals_name] = self.internal_var_name_to_declaration[
-                    potential_internals_name]
+                dereferenced[potential_internals_name] = self.internal_var_name_to_declaration[potential_internals_name]
         return dereferenced
 
     def get_synapse_specific_state_declarations(self, synapse_inline: ASTInlineExpression) -> defaultdict:

@@ -120,7 +120,6 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
         external_input_pre = nest.Create("spike_generator", params={"spike_times": spike_times})
 
         neuron = nest.Create('cm_default_nestml')
-        print("created")
 
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0, 'gbar_Na': 1.0}
         neuron.compartments = [
@@ -128,18 +127,18 @@ class TestConsistencyBetweenSimCalls(unittest.TestCase):
             {"parent_idx": 0, "params": {}},
             {"parent_idx": 1, "params": params}
         ]
-        print("comps")
+
         neuron.receptors = [
             {"comp_idx": 0, "receptor_type": "AMPA"},
         ]
-        print("syns")
+
         mm = nest.Create('multimeter', 1, {
             'record_from': ['v_comp0', 'Na0', 'AMPA0'], 'interval': .1})
 
         nest.Connect(external_input_pre, neuron, "one_to_one",
                      syn_spec={'synapse_model': 'static_synapse', 'weight': 5.0, 'delay': 0.1})
         nest.Connect(mm, neuron)
-        print("pre sim")
+
         nest.Simulate(sim_time)
         for i in range(repeats):
             nest.SetStatus(neuron,

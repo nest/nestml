@@ -19,7 +19,7 @@ Writing a compartmental NESTML model
 Defining the membrane potential variable
 ----------------------------------------
 
-One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.). This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and synapses.
+One variable in the model represents the local membrane potential in a compartment. By default, it is called ``v_comp``. (This name is defined in the compartmental code generator options as the ``compartmental_variable_name`` option.). This variable needs to be defined as a state in any compartmental model to be referenced in the equations describing channels and receptors.
 
 .. code-block:: nestml
     
@@ -113,12 +113,12 @@ The only difference here is that the equation that is marked with the ``@mechani
 
 For a complete example, please see `concmech.nestml <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/resources/concmech.nestml>`_ and its associated unit test, `test__concmech_model.py <https://github.com/nest/nestml/blob/master/tests/nest_compartmental_tests/test__concmech_model.py>`_.
 
-Synapse description
+Receptor description
 -------------------
 
-Here synapse models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
+Here receptor models are based on convolutions over a buffer of incoming spikes. This means that the equation for the
 current-contribution must contain a convolve() call and a description of the kernel used for that convolution is needed.
-The descriptor for synapses is ``@mechanism::receptor``.
+The descriptor for receptors is ``@mechanism::receptor``.
 
 .. code-block:: nestml
 
@@ -160,7 +160,7 @@ For a complete example, please see `continuous_test.nestml <https://github.com/n
 Mechanism interdependence
 -------------------------
 
-Above examples of explicit interdependence inbetween concentration and channel models where already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and synapses are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or synapse-type amongst multiple in a given compartment or some concentration.
+Above examples of explicit interdependence inbetween concentration and channel models where already described. Note that it is not necessary to describe the basic interaction inherent through the contribution to the overall current of the compartment. During a simulation step all currents of channels and receptors are added up and contribute to the change of the membrane potential (v_comp) in the next timestep. Thereby one must only express a dependence explicitly if the mechanism depends on the activity of a specific channel- or receptor-type amongst multiple in a given compartment or some concentration.
 
 General compartment scripting
 -----------------------------

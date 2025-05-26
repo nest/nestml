@@ -82,5 +82,4 @@ class Builder(WithOptions, metaclass=ABCMeta):
         ret = super().set_options(options)
         ret.pop("redirect_build_output", None)
         ret.pop("build_output_dir", None)
-        ret.pop("fastexp", None)
         return ret

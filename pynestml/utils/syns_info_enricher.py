@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import copy
-from collections import defaultdict
 
 import sympy
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -85,7 +84,7 @@ class SynsInfoEnricher:
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, syn_model=True)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     @classmethod

@@ -570,6 +570,9 @@ void nest::{{concentration_name}}{{cm_unique_suffix}}::new_concentration(std::si
         {{concentration_name}}.push_back(0);
         compartment_association.push_back(comp_ass);
 
+        if( concentration_params->known( "{{concentration_name}}" ) )
+            {{concentration_name}}[neuron_{{ concentration_name }}_concentration_count-1] = getValue< double >( concentration_params, "{{concentration_name}}" );
+
         {%- for pure_variable_name, variable_info in concentration_info["States"].items() %}
         // state variable {{pure_variable_name }}
         {%- set variable = variable_info["ASTVariable"] %}
@@ -1917,6 +1920,3 @@ std::vector< double > nest::{{continuous_name}}{{cm_unique_suffix}}::distribute_
 
 // {{continuous_name}} continuous input end ///////////////////////////////////////////////////////////
 {%- endfor %}
-
-
-{#%- include "cm_global_dynamics.cpp.jinja2" %#}

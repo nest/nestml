@@ -22,11 +22,6 @@
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.nest_variable_printer import NESTVariablePrinter
 
-from pynestml.utils.model_parser import ModelParser
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.symbol_table.scope import Scope, ScopeType, Symbol, SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
-
 
 class ASTVectorParameterSetterAndPrinter(ASTPrinter):
     def __init__(self):

@@ -989,8 +989,7 @@ class Messages:
         return MessageCode.ASSIGNING_TO_INLINE, message
 
     @classmethod
-    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str,
-                                         other_type_str):
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
         """
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
         :param name: the name of the model

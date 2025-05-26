@@ -687,6 +687,7 @@ class NESTCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         """
         namespace = self._get_model_namespace(neuron)
+
         if "paired_synapse" in dir(neuron):
             if "state_vars_that_need_continuous_buffering" in dir(neuron):
                 assert self.get_option("continuous_state_buffering_method") in ["continuous_time_buffer", "post_spike_based"]

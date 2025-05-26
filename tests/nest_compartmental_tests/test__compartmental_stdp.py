@@ -22,12 +22,10 @@
 import os
 import unittest
 
-import numpy as np
 import pytest
 
 import nest
 
-from pynestml.codegeneration.nest_tools import NESTTools
 from pynestml.frontend.pynestml_frontend import generate_nest_compartmental_target
 
 # set to `True` to plot simulation traces
@@ -86,7 +84,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
 
         nest.Install("cm_stdp_module.so")
 
-    def run_model(self, model_case):
+    def run_model(self, model_case, pre_spike, post_spike, measuring_spike):
         """
         Test the interaction between the pre- and post-synaptic spikes using STDP (Spike-Timing-Dependent Plasticity).
 
@@ -120,14 +118,14 @@ class TestCompartmentalConcmech(unittest.TestCase):
         nest.SetKernelStatus(dict(resolution=.1))
         nest.Install("cm_stdp_module.so")
 
-        pre_spike_times = [2, 29]
-        post_spike_times = [12]
+        pre_spike_times = [pre_spike, measuring_spike]
+        post_spike_times = [post_spike]
         sim_time = 30
 
         external_input_pre = nest.Create("spike_generator", params={"spike_times": pre_spike_times})
         external_input_post = nest.Create("spike_generator", params={"spike_times": post_spike_times})
         pre_neuron = nest.Create("parrot_neuron")
-        post_neuron = nest.Create('multichannel_test_model_nestml')
+        post_neuron = nest.Create('multichannel_test_model_nestml', params={"tau_minus": 20.0})
         print("created")
 
         params = {'C_m': 10.0, 'g_C': 0.0, 'g_L': 1.5, 'e_L': -70.0}
@@ -138,7 +136,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         if model_case == "nestml":
             post_neuron.receptors = [
                 {"comp_idx": 0, "receptor_type": "AMPA"},
-                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 0.1}}
+                {"comp_idx": 0, "receptor_type": "AMPA_stdp_synapse_nestml", "params": {'w': 0.1, "tau_tr_post": 10.0}}
             ]
             mm = nest.Create('multimeter', 1, {
                 'record_from': ['v_comp0', 'w1', 'AMPA0', 'AMPA_stdp_synapse_nestml1', 'pre_trace1',
@@ -146,12 +144,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
         elif model_case == "nest":
             post_neuron.receptors = [
                 {"comp_idx": 0, "receptor_type": "AMPA"},
-                {"comp_idx": 0, "receptor_type": "AMPA", "params": {'w': 0.0, "Wmax": 20.0,
-                                                                    "alpha": 1.0,
-                                                                    "lambda": 0.05,
-                                                                    "tau_plus": 20.0,
-                                                                    "mu_plus": 1.0,
-                                                                    "mu_minus": 1.0, }}
+                {"comp_idx": 0, "receptor_type": "AMPA"}
             ]
             mm = nest.Create('multimeter', 1, {
                 'record_from': ['v_comp0', 'AMPA0', 'AMPA1'], 'interval': .1})
@@ -182,6 +175,7 @@ class TestCompartmentalConcmech(unittest.TestCase):
                     "delay": 0.1,
                     "weight": 0.1,
                     "receptor_type": 1,
+                    #"tau_minus": 10.0,
                 },
             )
         nest.Connect(mm, post_neuron)
@@ -227,19 +221,48 @@ class TestCompartmentalConcmech(unittest.TestCase):
         return recorded
 
     def test__compartmental_stdp(self):
-        rec_nest = self.run_model("nest")
-        rec_nestml = self.run_model("nestml")
+        rec_nest_runs = list()
+        rec_nestml_runs = list()
+        for ms in range(11, 31):
+            rec_nest_runs.append(self.run_model("nest", 2, 10, ms))
+            rec_nestml_runs.append(self.run_model("nestml", 2, 10, ms))
 
         fig, axs = plt.subplots(4)
 
-        axs[0].plot(rec_nest['times'], rec_nest['v_comp'], c='r', label='nest')
-        axs[0].plot(rec_nestml['times'], rec_nestml['v_comp'], c='g', label="nestml")
+        ax_bg = (0.3, 0.3, 0.3)
+        fig_bg = (0.45, 0.45, 0.45)
 
-        axs[1].plot(rec_nest['times'], rec_nest['post_trace'], c='r', label='nest')
-        axs[1].plot(rec_nestml['times'], rec_nestml['post_trace'], c='g', label="nestml")
+        fig.set_facecolor(fig_bg)
+        for ax in axs:
+            ax.set_facecolor(ax_bg)
 
-        axs[2].plot(rec_nest['times'], rec_nest['pre_trace'], c='r', label='nest')
-        axs[2].plot(rec_nestml['times'], rec_nestml['pre_trace'], c='g', label="nestml")
+        for i in range(len(rec_nest_runs)):
+            increasing = 0+(1/len(rec_nestml_runs))*i
+            decreasing = 1.0-(1/len(rec_nestml_runs))*i
+            nest_color=(increasing, 1-increasing/5, 0)
+            nestml_color=(increasing, 0, decreasing)
+
+            rec_nest_raw = rec_nest_runs[i]
+            rec_nestml_raw = rec_nestml_runs[i]
+
+            rec_nest = dict()
+            rec_nestml = dict()
+
+            cut_off_index=(11+i)*10
+            for entry_name, entry in rec_nest_raw.items():
+                rec_nest[entry_name] = entry[cut_off_index+1:cut_off_index+2]
+
+            for entry_name, entry in rec_nestml_raw.items():
+                rec_nestml[entry_name] = entry[cut_off_index+1:cut_off_index+2]
+
+            axs[0].plot(rec_nest['times'], rec_nest['v_comp'], color=nest_color, marker='o', label='nest')
+            axs[0].plot(rec_nestml['times'], rec_nestml['v_comp'], color=nestml_color, marker='o', label="nestml")
+
+            axs[1].plot(rec_nest['times'], rec_nest['post_trace'], color=nest_color, marker='o', label='nest')
+            axs[1].plot(rec_nestml['times'], rec_nestml['post_trace'], color=nestml_color, marker='o', label="nestml")
+
+            axs[2].plot(rec_nest['times'], rec_nest['pre_trace'], color=nest_color, marker='o', label='nest')
+            axs[2].plot(rec_nestml['times'], rec_nestml['pre_trace'], color=nestml_color, marker='o', label="nestml")
 
         # axs[3].plot(rec_nest['times'], rec_nest['weight'], c='r', label='nest')
         # axs[3].plot(rec_nestml['times'], rec_nestml['weight'], c='g', label="nestml")
@@ -249,9 +272,9 @@ class TestCompartmentalConcmech(unittest.TestCase):
         axs[2].set_title('pre_trace')
         # axs[3].set_title('weight')
 
-        axs[0].legend()
-        axs[1].legend()
-        axs[2].legend()
+        # axs[0].legend()
+        # axs[1].legend()
+        # axs[2].legend()
         # axs[3].legend()
 
         plt.show()

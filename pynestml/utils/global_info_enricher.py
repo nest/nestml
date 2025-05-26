@@ -46,7 +46,6 @@ class GlobalInfoEnricher:
     def enrich_with_additional_info(cls, neuron: ASTModel, global_info: dict):
         global_info = cls.transform_ode_solutions(neuron, global_info)
         global_info = cls.extract_infunction_declarations(global_info)
-        # global_info = cls.substituteNoneWithEmptyBlocks(global_info)
 
         return global_info
 

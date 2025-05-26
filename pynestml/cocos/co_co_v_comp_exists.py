@@ -47,7 +47,6 @@ class CoCoVCompDefined(CoCo):
         :param neuron: a single neuron instance.
         """
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
-        from pynestml.codegeneration.code_generator_utils import CodeGeneratorUtils
 
         if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
             return
@@ -65,18 +64,6 @@ class CoCoVCompDefined(CoCo):
         if isinstance(state_blocks, ASTBlockWithVariables):
             state_blocks = [state_blocks]
 
-        stack = traceback.extract_stack()
-        formatted = ''.join(traceback.format_list(stack))
-        print("Traceback: \n" + formatted)
-        print("Neuron name: " + neuron.name)
-        print("State names: ")
-        for state_block in state_blocks:
-            declarations = state_block.get_declarations()
-            for declaration in declarations:
-                variables = declaration.get_variables()
-                for variable in variables:
-                    variable_name = variable.get_name().lower().strip()
-                    print(variable_name)
         for state_block in state_blocks:
             declarations = state_block.get_declarations()
             for declaration in declarations:
@@ -92,5 +79,4 @@ class CoCoVCompDefined(CoCo):
     @classmethod
     def log_error(cls, neuron: ASTModel, error_position, missing_variable_name):
         code, message = Messages.get_v_comp_variable_value_missing(neuron.get_name(), missing_variable_name)
-        Logger.log_message(error_position=error_position, node=neuron, log_level=LoggingLevel.ERROR, code=code,
-                           message=message)
+        Logger.log_message(error_position=error_position, node=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)

@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import shutil
 
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -60,12 +59,9 @@ from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
 from pynestml.utils.global_info_enricher import GlobalInfoEnricher
 from pynestml.utils.global_processing import GlobalProcessing
-from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.transformers.inline_expression_expansion_transformer import InlineExpressionExpansionTransformer
-from pynestml.utils.ast_vector_parameter_setter_and_printer import ASTVectorParameterSetterAndPrinter
 from pynestml.utils.ast_vector_parameter_setter_and_printer_factory import ASTVectorParameterSetterAndPrinterFactory
 from pynestml.utils.mechanism_processing import MechanismProcessing
 from pynestml.utils.channel_processing import ChannelProcessing
@@ -386,16 +382,10 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
             ASTUtils.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             ASTUtils.create_integrate_odes_combinations(synapse)
             ASTUtils.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
-            self.update_symbol_table(synapse)
-            # spike_updates, _ = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+            self.update_symbol_table(synapse, True)
 
-            # if not self.analytic_solver[synapse.get_name()] is None:
-            #     synapse = ASTUtils.add_declarations_to_internals(
-            #         synapse, self.analytic_solver[synapse.get_name()]["propagators"])
-
-            self.update_symbol_table(synapse)
         else:
-            self.update_symbol_table(synapse)
+            self.update_symbol_table(synapse, True)
 
         synapse_name_stripped = removesuffix(removesuffix(synapse.name.split("_with_")[0], "_"),
                                              FrontendConfiguration.suffix)
@@ -620,11 +610,6 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
         # translate all remaining variable names according to the naming
         # conventions of ODE-toolbox
         ASTUtils.replace_convolution_aliasing_inlines(neuron)
-
-        # add propagator variables calculated by odetoolbox into internal blocks
-        # if self.analytic_solver[neuron.get_name()] is not None:
-        #     neuron = ASTUtils.add_declarations_to_internals(
-        #         neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         # generate how to calculate the next spike update
         self.update_symbol_table(neuron)
@@ -879,14 +864,14 @@ class NESTCompartmentalCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def update_symbol_table(self, neuron):
+    def update_symbol_table(self, neuron, syn_model=False):
         """
         Update symbol table and scope.
         """
         SymbolTable.delete_model_scope(neuron.get_name())
         symbol_table_visitor = ASTSymbolTableVisitor()
         neuron.accept(symbol_table_visitor)
-        CoCosManager.check_cocos(neuron, after_ast_rewrite=True)
+        CoCosManager.check_cocos(neuron, after_ast_rewrite=True, syn_model=syn_model)
         SymbolTable.add_model_scope(neuron.get_name(), neuron.get_scope())
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:

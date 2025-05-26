@@ -22,7 +22,6 @@ import copy
 from collections import defaultdict
 
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
-from pynestml.meta_model.ast_expression import ASTExpression
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
@@ -347,12 +346,7 @@ class ASTMechanismInformationCollector(object):
             mechanism_info["convolutions"] = defaultdict()
             info_collector = ASTKernelInformationCollectorVisitor()
             neuron.accept(info_collector)
-            # mech_info[
-            #    "internals_used_declared"] = info_collector.get_synapse_specific_internal_declarations(mech_info["root_expression"])
-            # mech_info["total_used_declared"] = info_collector.get_variable_names_of_synapse(
-            #    mech_info["root_expression"])
 
-            inlines = list()
             inlines = copy.copy(mechanism_info["SecondaryInlineExpressions"])
             if isinstance(mechanism_info["root_expression"], ASTInlineExpression):
                 inlines.append(mechanism_info["root_expression"])
@@ -362,7 +356,6 @@ class ASTMechanismInformationCollector(object):
                 for kernel_var, spikes_var in kernel_arg_pairs:
                     kernel_name = kernel_var.get_name()
                     spikes_name = spikes_var.get_name()
-                    # if spikes_name == "self_spikes":
                     convolution_name = info_collector.construct_kernel_X_spike_buf_name(
                         kernel_name, spikes_name, 0)
                     mechanism_info["convolutions"][convolution_name] = {
@@ -723,17 +716,14 @@ class ASTKernelInformationCollectorVisitor(ASTVisitor):
         self.inside_kernel = False
         self.inside_kernel_call = False
         self.inside_declaration = False
-        # self.inside_variable = False
         self.inside_simple_expression = False
         self.inside_expression = False
-        # self.inside_function_call = False
 
         self.current_inline_expression = None
         self.current_kernel = None
         self.current_expression = None
         self.current_simple_expression = None
         self.current_declaration = None
-        # self.current_variable = None
 
         self.current_synapse_name = None
 

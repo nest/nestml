@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
-from collections import defaultdict
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
@@ -48,8 +47,6 @@ class ReceptorProcessing(MechanismProcessing):
             # only do this if any synapses found
             # otherwise tests may fail
             mechs_info = cls.collect_and_check_inputs_per_synapse(mechs_info)
-
-        # mechs_info = cls.convolution_ode_toolbox_processing(neuron, mechs_info)
 
         return mechs_info
 
@@ -99,20 +96,6 @@ class ReceptorProcessing(MechanismProcessing):
                     node=causing_object)
 
         return new_syns_info
-
-    # @classmethod
-    # def convolution_ode_toolbox_processing(cls, neuron, syns_info):
-    #    if not neuron.get_parameters_blocks():
-    #        return syns_info
-    #
-    #    parameters_block = neuron.get_parameters_blocks()[0]
-    #
-    #       for synapse_name, synapse_info in syns_info.items():
-    #          for convolution_name, convolution_info in synapse_info["convolutions"].items():
-    #             kernel_buffer = (convolution_info["kernel"]["ASTKernel"], convolution_info["spikes"]["ASTInputPort"])
-    #            convolution_solution = cls.ode_solve_convolution(neuron, parameters_block, kernel_buffer)
-    #            syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = convolution_solution
-    #    return syns_info
 
     @classmethod
     def ode_solve_convolution(cls,
