@@ -566,6 +566,7 @@ private:
 
   enum ContinuousInput
   {
+{%-       set ns.count = 0 -%}
 {%- for port in neuron.get_continuous_input_ports() %}
 {%-   if port.has_vector_parameter() -%}
 {%      set size = utils.get_numeric_vector_size(port) | int %}
