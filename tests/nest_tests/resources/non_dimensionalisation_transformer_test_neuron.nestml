@@ -1,49 +1,4 @@
 model non_dimensionalisation_transformer_test_neuron:
     state:
-        V_1 V = -0.07 V
-        V_2 V = -70 mV
-
-
-    CASE 1:
-
-        >>>>> in combination with preferred prefix for CONDUCTANCE = nano
-        >>>>> in combination with preferred prefix for CURRENT = milli
-        >>>>> in combination with preferred prefix for VOLTAGE = M (megavolt)
-
         I_foo A = 42 mA
         V_3 V = I_foo / 5 nS
-
-            ---> we expect I_foo to be 42 mA
-            ---> we expect "float I_foo" to be 42
-
-            ---> we expect V_3 to be 8.4 MV
-            ---> we expect "float V_3 = 8.4"
-
-
-    CASE 2:
-
-        >>>>> in combination with preferred prefix for CONDUCTANCE = nano
-        >>>>> in combination with preferred prefix for CURRENT = 1 (ampere)
-        >>>>> in combination with preferred prefix for VOLTAGE = M (megavolt)
-
-        I_foo A = 42 mA
-        V_3 V = I_foo / 5 nS
-
-            ---> we expect I_foo to be 42 mA
-            ---> we expect "float I_foo" to be 0.042
-
-            ---> we expect V_3 to be 8.4 MV
-            ---> we expect "float V_3 = 8.4"
-
-
-
-        For each variable and for each numeric literal: multiply by its preferred prefix; then result will be in SI units!
-
-        V_3 V = I_foo / 5 nS
-              = (42 * 1E-3) / (5 * 1E-9)   # in Volt
-              = 8.4E6  # in Volt
-
-        Then divide the whole thing by preferred prefix of left-hand side variable, in this case, Mega (1E6):
-
-              = 8.4E6 / 1E6
-              = 8.4

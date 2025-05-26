@@ -44,11 +44,10 @@ class ASTNode(metaclass=ABCMeta):
         pre_comments = list()
         in_comment = None
         #
-        implicit_conversion_factor = None
     """
 
     def __init__(self, source_position: ASTSourceLocation = None, scope: Scope = None, comment: Optional[str] = None, pre_comments: Optional[List[str]] = None,
-                 in_comment: Optional[str] = None, implicit_conversion_factor: Optional[float] = None):
+                 in_comment: Optional[str] = None):
         """
         The standard constructor.
         :param source_position: a source position element.
@@ -56,7 +55,6 @@ class ASTNode(metaclass=ABCMeta):
         :param comment: comment for this node
         :param pre_comments: pre-comments for this node
         :param in_comment: in-comment for this node
-        :param implicit_conversion_factor: see set_implicit_conversion_factor()
         """
         self.source_position = source_position
         self.scope = scope
@@ -65,7 +63,6 @@ class ASTNode(metaclass=ABCMeta):
             pre_comments = []
         self.pre_comments = pre_comments
         self.in_comment = in_comment
-        self.implicit_conversion_factor = implicit_conversion_factor
 
     @abstractmethod
     def clone(self):
@@ -102,22 +99,6 @@ class ASTNode(metaclass=ABCMeta):
         :return: List of children of this node.
         """
         pass
-
-    def set_implicit_conversion_factor(self, implicit_factor: Optional[float]) -> None:
-        """
-        Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the
-        context where it is used. eg. Volt + milliVolt needs to either be
-        1000*Volt + milliVolt or Volt + 0.001 * milliVolt
-        :param implicit_factor: the factor to be installed
-        """
-        self.implicit_conversion_factor = implicit_factor
-
-    def get_implicit_conversion_factor(self) -> Optional[float]:
-        """
-        Returns the factor installed as implicitConversionFactor for this expression
-        :return: the conversion factor, if present, or None
-        """
-        return self.implicit_conversion_factor
 
     def get_source_position(self):
         """

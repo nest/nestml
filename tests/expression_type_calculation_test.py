@@ -22,7 +22,6 @@
 import os
 import unittest
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -63,7 +62,7 @@ class ExpressionTestVisitor(ASTVisitor):
 
         if isinstance(_expr.type, UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-                       str(NESTUnitConverter.get_factor(_expr.type.astropy_unit))
+                       str(_expr.type.astropy_unit)
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)

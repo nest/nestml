@@ -21,15 +21,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence, Mapping, Optional, Union
+from typing import Any, Dict, Sequence, Mapping, Optional, Union
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
@@ -43,6 +45,110 @@ from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
+
+
+
+class NonDimensionalisationVisitor(ASTVisitor):
+    def __init__(self, preferred_prefix: Dict[str, str]):
+        super().__init__()
+        self.preferred_prefix = preferred_prefix
+
+    def visit_variable(self, node: ASTVariable) -> None:
+        print("In visit_variable("+str(node)+")")
+        if node.get_type_symbol():
+            print("The unit is: "+str(node.get_type_symbol().unit.unit))
+            print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
+
+        import pdb;pdb.set_trace()
+
+        # grab the prefix for this variable
+        # XXX TODO
+
+        # find the corresponding desired prefix
+        # XXX TODO
+
+        # multiply by the right conversion factor into the expression
+        # XXX TODO
+
+        # change variable type
+        # XXX TODO
+
+        for quantity, preferred_prefix in self.preferred_prefix.items():
+            pass
+
+    def visit_simple_expression(self, node):
+        if node.get_numeric_literal() is not None:
+            print("Numeric literal: " + str(node.get_numeric_literal()))
+            print("\tUnit: " + str(node.type.unit.unit))
+            return
+
+        super().visit_simple_expression(node)
+
+    def visit_assignment(self, node: ASTAssignment):
+        # XXX TODO: insert conversion factor for LHS
+        pass
+
+    def visit_ode_equation(self, node: ASTOdeEquation):
+        # XXX TODO: insert conversion factor for LHS
+        pass
+
+    def visit_inline_expression(self, node: ASTInlineExpression):
+        # XXX TODO: insert conversion factor for LHS
+        pass
+
+    def visit_declaration(self, node: ASTDeclaration):
+        # XXX TODO: insert conversion factor for LHS
+        pass
+
+    # @classmethod
+    # def get_factor(cls, unit: units.UnitBase) -> float:
+    #     """
+    #     Gives a factor for a given unit that transforms it to a "neuroscience" scale. If the given unit is not listed as a neuroscience unit, the factor is 1.
+
+    #     :param unit: an astropy unit
+    #     :type unit: IrreducibleUnit or Unit or CompositeUnit
+    #     :return: a factor to that unit, converting it to "neuroscience" scales.
+    #     """
+
+    #     # check if it is dimensionless, thus only a prefix
+    #     if unit.physical_type == 'dimensionless':
+    #         return unit.si
+
+    #     # otherwise check if it is one of the base units
+    #     target_unit = None
+    #     if unit.physical_type == 'electrical conductance':
+    #         target_unit = units.nS
+
+    #     if unit.physical_type == 'electrical resistance':
+    #         target_unit = units.Gohm
+
+    #     if unit.physical_type == 'time':
+    #         target_unit = units.ms
+
+    #     if unit.physical_type == 'electrical capacitance':
+    #         target_unit = units.pF
+
+    #     if unit.physical_type == 'electrical potential':
+    #         target_unit = units.mV
+
+    #     if unit.physical_type == 'electrical current':
+    #         target_unit = units.pA
+
+    #     if target_unit is not None:
+    #         return (unit / target_unit).si.scale
+
+    #     if unit == unit.bases[0] and len(unit.bases) == 1:
+    #         # this case means that we stuck in a recursive definition
+    #         # just return the factor 1.0
+    #         return 1.0
+
+    #     # now if it is not a base unit, it has to be a combined one, e.g. s**2, decompose it
+    #     factor = 1.0
+    #     for i in range(0, len(unit.bases)):
+    #         factor *= cls.get_factor(unit.bases[i]) ** unit.powers[i]
+    #     return factor
+
+
 
 
 class NonDimensionalisationTransformer(Transformer):
@@ -80,10 +186,10 @@ class NonDimensionalisationTransformer(Transformer):
         super(Transformer, self).__init__(options)
 
     def transform_(self, model: Union[ASTNode, Sequence[ASTNode]]) -> Union[ASTNode, Sequence[ASTNode]]:
-        transformed_model = model.duplicate()
+        transformed_model = model.clone()
 
-        for quantity, preferred_prefix in self.get_option("quantity_to_preferred_prefix").items():
-            pass
+        visitor = NonDimensionalisationVisitor(self.get_option("quantity_to_preferred_prefix"))
+        transformed_model.accept(visitor)
 
         return transformed_model
 
@@ -93,7 +199,7 @@ class NonDimensionalisationTransformer(Transformer):
         single = False
         if isinstance(models, ASTNode):
             single = True
-            model = [models.duplicate()]
+            model = [models]
 
         for model in models:
             transformed_models.append(self.transform_(model))

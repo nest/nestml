@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.nest_unit_converter import NESTUnitConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -110,7 +109,7 @@ class ASTPowerVisitor(ASTVisitor):
             symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
             if symbol is None:
                 if PredefinedUnits.is_unit(variable.get_complete_name()):
-                    return NESTUnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit())
+                    return PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()
 
                 raise Exception("Declaration for symbol '" + str(variable) + "' not found and is not a unit.")
 

@@ -28,7 +28,6 @@ from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
-from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
@@ -68,9 +67,8 @@ class CorrectExpressionVisitor(ASTVisitor):
             if isinstance(rhs_type, ErrorTypeSymbol):
                 LoggingHelper.drop_missing_type_error(node)
                 return
-            if self.__types_do_not_match(lhs_type, rhs_type):
-                TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
-        return
+            # if self.__types_do_not_match(lhs_type, rhs_type):
+            #     TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
 
     def visit_inline_expression(self, node):
         """
@@ -82,8 +80,8 @@ class CorrectExpressionVisitor(ASTVisitor):
         if isinstance(rhs_type, ErrorTypeSymbol):
             LoggingHelper.drop_missing_type_error(node)
             return
-        if self.__types_do_not_match(lhs_type, rhs_type):
-            TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
+        # if self.__types_do_not_match(lhs_type, rhs_type):
+        #     TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, node.get_expression())
 
     def visit_assignment(self, node):
         """
@@ -120,23 +118,23 @@ class CorrectExpressionVisitor(ASTVisitor):
         lhs_type_symbol = lhs_variable_symbol.get_type_symbol()
 
         if node.is_compound_product:
-            if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol):
-                TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol,
-                                                   node.get_expression())
-                return
+            # if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol):
+            #     TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol,
+            #                                        node.get_expression())
+            #     return
             return
 
         if node.is_compound_quotient:
-            if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
-                TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
-                                                   node.get_expression())
-                return
+            # if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
+            #     TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
+            #                                        node.get_expression())
+            #     return
             return
 
         assert node.is_compound_sum or node.is_compound_minus
-        if self.__types_do_not_match(lhs_type_symbol, rhs_type_symbol):
-            TypeCaster.try_to_recover_or_error(lhs_type_symbol, rhs_type_symbol,
-                                               node.get_expression())
+        # if self.__types_do_not_match(lhs_type_symbol, rhs_type_symbol):
+        #     TypeCaster.try_to_recover_or_error(lhs_type_symbol, rhs_type_symbol,
+        #                                        node.get_expression())
 
     @staticmethod
     def __types_do_not_match(lhs_type_symbol, rhs_type_symbol):
@@ -154,11 +152,10 @@ class CorrectExpressionVisitor(ASTVisitor):
             LoggingHelper.drop_missing_type_error(node)
             return
 
-        if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol.get_type_symbol(),
-                                                                         rhs_type_symbol):
-            TypeCaster.try_to_recover_or_error(lhs_variable_symbol.get_type_symbol(), rhs_type_symbol,
-                                               node.get_expression())
-        return
+        # if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol.get_type_symbol(),
+        #                                                                  rhs_type_symbol):
+        #     TypeCaster.try_to_recover_or_error(lhs_variable_symbol.get_type_symbol(), rhs_type_symbol,
+        #                                        node.get_expression())
 
     def visit_if_clause(self, node):
         """
