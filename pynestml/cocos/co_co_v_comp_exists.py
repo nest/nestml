@@ -26,6 +26,8 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
 
+import traceback
+
 
 class CoCoVCompDefined(CoCo):
     """
@@ -47,6 +49,9 @@ class CoCoVCompDefined(CoCo):
         from pynestml.codegeneration.nest_compartmental_code_generator import NESTCompartmentalCodeGenerator
 
         if not FrontendConfiguration.get_target_platform().upper() == 'NEST_COMPARTMENTAL':
+            return
+
+        if not isinstance(neuron, ASTModel):
             return
 
         enforced_variable_name = NESTCompartmentalCodeGenerator._default_options["compartmental_variable_name"]

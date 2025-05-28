@@ -37,6 +37,7 @@ class ChannelProcessing(MechanismProcessing):
     @classmethod
     def collect_information_for_specific_mech_types(cls, neuron, mechs_info):
         mechs_info = cls.write_key_zero_parameters_for_root_inlines(mechs_info)
+        cls.check_all_convolutions_with_self_spikes(mechs_info)
 
         return mechs_info
 
