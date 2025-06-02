@@ -1,0 +1,8 @@
+{#
+  Generates C++ initialization of variables related to delay variables
+  @param variable VariableSymbol
+  @result C++ declaration
+#}
+  DV_.delayed_{{ variable.get_symbol_name() }}_idx = 0;
+  DV_.delay_{{ variable.get_symbol_name() }}_steps = nest::Time::delay_ms_to_steps( {{ declarations.print_delay_parameter(variable) }} ) + 1;
+  DV_.delayed_{{ variable.get_symbol_name() }}.resize( DV_.delay_{{ variable.get_symbol_name() }}_steps );
