@@ -26,6 +26,8 @@ import sympy
 
 import odetoolbox
 
+from astropy import units as u
+
 from pynestml.codegeneration.printers.ast_printer import ASTPrinter
 from pynestml.codegeneration.printers.cpp_variable_printer import CppVariablePrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -1569,19 +1571,80 @@ class ASTUtils:
                         return var
         return None
 
+    # @classmethod
+    # def generate_parameter_value_dict(cls, node: ASTModel, parameters_block: ASTEquationsBlock) -> dict:
+    #     """
+    #     Generates a dict which maps the initial parameter values to their variable names from the parameters section
+    #     :param node: the neuron or synapse containing the parameter
+    #     :param parameters_block: the parameter block
+    #     :return: a dict {"parameter_names": initial_values}
+    #     """
+    #     parameter_value_dict = {}
+    #     for decl in parameters_block.get_declarations():
+    #         if isinstance(decl.expression, ASTSimpleExpression):
+    #             for var in decl.variables:
+    #                 parameter_value_dict[var.get_name()] = float(decl.expression.numeric_literal)
+    #         if isinstance(decl.expression, ASTExpression):
+    #             for var in decl.variables:
+    #                 parameter_value_dict[var.get_name()] = float(str(decl.expression.unary_operator) + str(decl.expression.expression.numeric_literal))
+    #             pass
+    #     return parameter_value_dict
+
+    def _to_base_value_from_string(self,quantity_str):
+        local_dict = {'u': u}
+        quantity = eval(quantity_str, {"__builtins__": {}}, local_dict)
+        canonical_unit = u.get_physical_type(quantity.unit)._unit
+        # Return the SI base value and unit name
+        return quantity.si.value, str(canonical_unit)
+
     @classmethod
     def generate_parameter_value_dict(cls, node: ASTModel, parameters_block: ASTEquationsBlock) -> dict:
+        """
+        Generates a dict which maps the initial parameter values to their variable names from the parameters section
+        :param node: the neuron or synapse containing the parameter
+        :param parameters_block: the parameter block
+        :return: a dict {"parameter_names": initial_values}
+        """
         parameter_value_dict = {}
-        for decl in parameters_block.get_declarations():
-            if isinstance(decl.expression, ASTSimpleExpression):
-                for var in decl.variables:
-                    parameter_value_dict[var.get_name()] = int(decl.expression.numeric_literal)
-            if isinstance(decl.expression, ASTExpression):
-                for var in decl.variables:
-                    parameter_value_dict[var.get_name()] = int(str(decl.expression.unary_operator) + str(decl.expression.expression.numeric_literal))
+        for declarations in parameters_block.get_declarations():
+            if isinstance(declarations.expression, ASTSimpleExpression):
+                # declarations.variables[0].astropy_unit = None
+                # declarations.data_type = ' real'
+                if ((declarations.expression.numeric_literal.real != None) and hasattr(declarations.expression.variable, 'name')):
+                    expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
+                    float_value_in_si, unit_in_si = cls._to_base_value_from_string(cls,expr)
+                    declarations.expression.numeric_literal = float_value_in_si
+                    parameter_value_dict[declarations.variables[0].name] = float_value_in_si
+                    declarations.expression.variable.name = unit_in_si
+                    pass
+
+            if isinstance(declarations.expression, ASTExpression):
+                expr = str(declarations.expression.unary_operator) + str(
+                    declarations.expression.expression.numeric_literal) + '* u.' + declarations.expression.expression.variable.name
+                float_value_in_si, unit_in_si = cls._to_base_value_from_string(cls, expr)
+                declarations.expression.expression.numeric_literal = abs(float_value_in_si)
+                parameter_value_dict[declarations.variables[0].name] = float_value_in_si
+                declarations.expression.expression.variable.name = unit_in_si
                 pass
+
         return parameter_value_dict
 
+
+    @classmethod
+    def generate_updated_state_dict(cls, node: ASTModel, state_block: ASTEquationsBlock, parameter_value_dict: dict) -> dict:
+        updated_state_dict = {}
+        for declarations in state_block.get_declarations():
+            if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal == None:
+                if declarations.expression.variable.name in parameter_value_dict:
+                    updated_state_dict[declarations.variables[0]] = parameter_value_dict[declarations.expression.variable.name]
+                pass
+            if isinstance(declarations.expression, ASTSimpleExpression) and declarations.expression.numeric_literal != None:
+                expr = str(declarations.expression.numeric_literal) + '* u.' + declarations.expression.variable.name
+                float_value_in_si, unit_in_si = cls._to_base_value_from_string(cls, expr)
+                declarations.expression.numeric_literal = float_value_in_si
+                updated_state_dict[declarations.variables[0]] = float_value_in_si
+
+        return updated_state_dict
 
     @classmethod
     def get_internal_by_name(cls, node: ASTModel, var_name: str) -> ASTDeclaration:
@@ -2269,6 +2332,18 @@ class ASTUtils:
                 equations_block.get_declarations().remove(decl)
 
         return decl_to_remove
+
+    @classmethod
+    def add_timestep_symbol(cls, model: ASTModel) -> None:
+        """
+        Add timestep variable to the internals block
+        """
+        from pynestml.utils.model_parser import ModelParser
+        assert model.get_initial_value(
+            "__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        assert not "__h" in [sym.name for sym in model.get_internal_symbols(
+        )], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        model.add_to_internals_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
     @classmethod
     def generate_kernel_buffers(cls, model: ASTModel, equations_block: Union[ASTEquationsBlock, List[ASTEquationsBlock]]) -> Mapping[ASTKernel, ASTInputPort]:
