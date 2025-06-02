@@ -3,41 +3,5 @@
 uint32_t rand_count=0;
 
 extern volatile uint32_t systicks;
-//  extern global_neuron_params_t global_neuron_params __attribute__((aligned(0x10)));
+extern global_neuron_params_t global_neuron_params __attribute__((aligned(0x10)));
 
-static inline void _lif_neuron_closed_form (
-        neuron_pointer_t neuron,
-        input_t input_this_timestep,
-        neuron_params_t * neuron_params
-        ) {
-//    neuron->V_membrane = neuron_params->V_init + (neuron->V_membrane - neuron_params->V_init) * (0.904837418f) + neuron_params->alpha_decay * input_this_timestep;
-    neuron->V_membrane = neuron_params->V_init + (neuron->V_membrane - neuron_params->V_init) * (-1.0f* (neuron_params->alpha_decay - 1.0f)) + neuron_params->alpha_decay * input_this_timestep;
-//    neuron->V_membrane = (neuron->V_membrane) * neuron_params->alpha_decay + input_this_timestep;
-}
-
-void neuron_calc_I_offset(neuron_pointer_t neuron){
-  (void) neuron;
-}
-
-REAL neuron_model_state_update(
-       input_t exc_input, input_t inh_input, neuron_pointer_t neuron, neuron_params_t* neuron_params)
-{
-    if (neuron->refract_timer <= 0) {
-        neuron_calc_I_offset(neuron);
-        input_t input_this_timestep = neuron_params->beta * ((exc_input - inh_input) + neuron_params->I_offset);
-        _lif_neuron_closed_form(neuron, input_this_timestep, neuron_params);
-    } else {
-        neuron->refract_timer -= 1;
-    }
-    return neuron->V_membrane;
-}
-
-void neuron_model_has_spiked(neuron_pointer_t neuron, neuron_params_t* neuron_params) {
-    neuron->V_membrane = neuron_params->V_reset;
-    neuron->refract_timer  = neuron_params->T_refract;
-}
-
-
-REAL neuron_model_get_membrane_voltage(neuron_pointer_t neuron) {
-    return neuron->V_membrane;
-}

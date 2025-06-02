@@ -19,18 +19,18 @@ void neuron_reset();
 
 void neuron_do_timestep_update();
 
-void record_spike(uint32_t neuron_id);
+void neuron_check_and_spike(neuron_state_t* state, neuron_params_t* params, index_t neuron_index);
 
 void clear_spike_record();
 
-void check_spike(REAL result, REAL threshold, index_t neuron_index);
+void send_spike_record();
+
+void record_spike(uint32_t neuron_id);
+
+void record_voltages();
 
 bool input_buffer_initialise();
 
 void print_neuron_params();
 
-// write spike record to predefined memory location in SRAM
-void send_spike_record();
-
-void record_voltages();
 #endif // _NEURON_H_

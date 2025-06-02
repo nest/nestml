@@ -1,32 +1,36 @@
-#ifndef _NEURON_MODEL_{{ capitalize(neoronName) }}_IMPL_H_
-#define _NEURON_MODEL_{ capitalize(neoronName) }}_IMPL_H_
+#ifndef _NEURON_MODEL_{{ neuronName|upper }}_IMPL_H_
+#define _NEURON_MODEL_{{ neuronName|upper }}_IMPL_H_
 
 #include "neuron_model.h"
 #include "common/neuron-typedefs.h"
-typedef struct neuron_t {
-    REAL    V_membrane;
-    int32_t refract_timer;
-} neuron_t;
 
-{#typedef struct global_neuron_params_t {#}
-{#    uint32_t reset_by_subtraction; // use like bool#}
-{#`}` global_neuron_params_t;#}
+typedef struct global_neuron_params_t {
+    REAL calc_step_raw; // ode calc timestep
+    REAL weight_scaling_factor; // scaling factor for syn weights
+} global_neuron_params_t;
 
+// neuron state variables
+typedef struct neuron_state_t {
+    {%- for statevar in state | sort(attribute="0|int") %}
+        REAL {{ statevar }};
+    {%- endfor %}
+} neuron_state_t;
+
+// neuron parameters from .nestml file and internal parameters
 typedef struct neuron_params_t {
-    {%- for parameter in neuron.parameter_value_dict %}
-        REAL {{ parameter }},
+    {%- for parameter in neuron.parameter_value_dict | sort(attribute="0|int") %}
+        REAL {{ parameter }};
+    {%- endfor %}
+
+    {%- for propagator in propagators_as_math_expressions | sort(attribute="0|int") %}
+        REAL {{ propagator }};
     {%- endfor %}
 } neuron_params_t;
 
-REAL neuron_model_state_update(
-    input_t exc_input, input_t inh_input, neuron_pointer_t neuron,
-    neuron_params_t* neuron_params);
+typedef struct neuron_impl_t {
+    neuron_state_t state;
+    neuron_params_t parameter;
+} neuron_impl_t;
 
-void neuron_model_has_spiked(neuron_pointer_t neuron, neuron_params_t* neuron_params);
-
-REAL neuron_model_get_membrane_voltage(neuron_pointer_t neuron);
-
-void neuron_calc_I_offset(neuron_pointer_t neuron);
-
-#endif // _NEURON_MODEL_LIF_CURR_IMPL_H_
+#endif // _NEURON_MODEL_{{ neuronName|upper }}_IMPL_H_
 

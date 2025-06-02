@@ -9,7 +9,7 @@ typedef unsigned int Card;
 
 #ifdef FLOATING_POINT
 
-#include <math.h>
+#include {{ '<' }}math.h{{ '>' }}
 
 typedef float          REAL;
 typedef float          UREAL;
@@ -40,7 +40,7 @@ typedef float          UFRACT;
 
 #else
 
-#include <stdfix.h>
+#include {{ '<' }}stdfix.h{{ '>' }}
 #define REAL_CONST(x)   x##k
 #define UREAL_CONST(x)  x##uk
 #define FRACT_CONST(x)  x##lr

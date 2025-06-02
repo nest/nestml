@@ -4,6 +4,7 @@
 #include {{ '<' }}data_specification.h{{ '>' }}
 #include {{ '<' }}comms.h{{ '>' }}
 #include {{ '<' }}synch_helper.h{{ '>' }}
+#include "common/neuron-typedefs.h"
 #include "regions.h"
 #include "{{ neuronName }}.h"
 #include "neuron.h"
@@ -19,17 +20,13 @@ uint32_t qpe_x;
 uint32_t qpe_y;
 
 static volatile uint32_t *status;
-static volatile uint32_t *data = (uint32_t *) {{ neuronName }}_DATA_BASE;
+static volatile uint32_t *data = (uint32_t *) {{ neuronName|upper }}_DATA_BASE;
 
 // dummy array to reserve memory for data specification
 uint32_t data_specification[16] __attribute__((section(".myDataSpecSection")));
 
-// routing table
-// uint32_t routing_table_ __attribute__((section(".myRoutingTableSection"))); // TODO: not used
-uint32_t routing_info_ __attribute__((section(".myRoutingTableSection"))); // TODO: not used
-
 // dummy array to reserve memory for log_info
-uint32_t log_data[LIF_CURR_EXP_DEBUG_SIZE/4 + 4] __attribute__((section(".myLogInfoSection")));
+uint32_t log_data[{{ neuronName|upper }}_DEBUG_SIZE/4 + 4] __attribute__((section(".myLogInfoSection")));
 
 // data specification pointer
 data_specification_metadata_t *ds_regions;
@@ -107,42 +104,25 @@ void timer_callback(){
         set_mask_feedthrough_irq(qpe_x, qpe_y, pe_id, 1+2);
         return;
     }
-
-    uint32_t t1 = timer[TIMER1_VALUE];
-
+    log_info("reached timer_callback()\n");
     receive_spikes();
-
-    uint32_t t2 = timer[TIMER1_VALUE];
-
     synapses_do_timestep_update(systicks);
-
-    uint32_t t3 = timer[TIMER1_VALUE];
-
     neuron_do_timestep_update();
-
-    uint32_t t4 = timer[TIMER1_VALUE];
-
     if (global_params_ptr->profiling)
-        log_info("Profiling [%d]: %i, %i, %i, %i\n", systicks, t1, t2, t3, t4);
+//        log_info("Profiling [%d]: %i, %i\n", systicks, t1, t4);
 
     if (global_params_ptr->record_time_done == 1){
         if (systicks < sim_config.n_simulation_ticks) {
             time_done_records_all_timesteps[systicks] = timer[TIMER1_VALUE];
         }
     }
-
-    // check if processing finished within systick
-    // If raw interrupt status register is true, it means that the timer already reached 0
-    if (timer[TIMER1_INT_STATUS] == 1) {
-        log_info("ERROR: Deadline missed in systick %i\n", systicks);
-    }
 }
 
 void log_prepare(){
-    status = &(data[LIF_CURR_EXP_STATUS]);
-    *status = LIF_CURR_EXP_STATUS_RUNNING;
+    status = &(data[{{ neuronName|upper }}_STATUS]);
+    *status = {{ neuronName|upper }}_STATUS_RUNNING;
     log_init(
-        (uint32_t *) &(data[LIF_CURR_EXP_DEBUG_START]), LIF_CURR_EXP_DEBUG_SIZE);
+        (uint32_t *) &(data[{{ neuronName|upper }}_DEBUG_START]), {{ neuronName|upper }}_DEBUG_SIZE);
 }
 
 void timer_init(){
@@ -168,7 +148,7 @@ static inline bool initialise_common_regions(data_specification_metadata_t **ds_
 
     // Get the address this core's DTCM data starts at from SRAM
     //*ds_regions = data_specification_get_data_address();
-    *ds_regions = (data_specification_metadata_t*) LIF_CURR_EXP_DATA_SPEC;
+    *ds_regions = (data_specification_metadata_t*) {{ neuronName|upper }}_DATA_SPEC;
 
     // Read the header
     if (!data_specification_read_header(*ds_regions)) {
@@ -222,8 +202,11 @@ void initialise_global_params(address_t region_address) {
     log_info("record_v: %d\n", global_params_ptr->record_v);
     log_info("record_time_done: %d\n", global_params_ptr->record_time_done);
     log_info("profiling: %d\n", global_params_ptr->profiling);
-    log_info("reset_by_subtraction: %d\n", global_params_ptr->reset_by_subtraction);
-    global_neuron_params.reset_by_subtraction = global_params_ptr->reset_by_subtraction;
+    log_info("calc_step_raw: %d\n", f2ui(global_params_ptr->calc_step_raw));
+    log_info("weight_scaling_factor: %d\n", f2ui(global_params_ptr->weight_scaling_factor));
+    global_neuron_params.calc_step_raw = global_params_ptr->calc_step_raw;
+    global_neuron_params.weight_scaling_factor = global_params_ptr->weight_scaling_factor;
+
 }
 
 void reset_all() {
@@ -262,9 +245,8 @@ int main() {
     srand();
     log_prepare();
     comms_init();
-    input_buffer_initialise();
     neuron_initialise();
-    log_info("test1\n");
+
 
     initialise_common_regions(&ds_regions);
 

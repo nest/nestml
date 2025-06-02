@@ -20,157 +20,455 @@
 #
 #  Generated from NESTML {{ nestml_version }} at time: {{ now }}
 
-
 import numpy as np
+import math
+import re
 
 from spinnaker2.neuron_models.application import BaseApplication
-from spinnaker2.neuron_models.lif_neuron import LIFApplication
+from spinnaker2.coordinates import ByteAddr, align_addr_to_next_multiple_of_other
+from spinnaker2.configuration import MemoryRegion, PEConfig
 from spinnaker2.coordinates import ByteAddr
+from spinnaker2.mapper import SynapseWordSize, SynapseWordSpec
+from spinnaker2.neuron_models.application import BaseApplication
+from spinnaker2.neuron_models.common import (
+    N_WORDS_MPT_ENTRY,
+    add_log_memory_region,
+    collect_routing_targets,
+    format_routing_targets,
+)
 
 
 
 
-class {{neuronName}}Application(LIFApplication):
 
-{%- filter indent(4, False) %}
-default_parameters = {
-    {%- for parameter in neuron.parameter_value_dict %}
-        "{{ parameter }}": {{ neuron.parameter_value_dict[parameter] }},
-    {%- endfor %}
-}
+class {{neuronName}}Application(BaseApplication):
+    sw_spec = SynapseWordSpec(
+        word_size=SynapseWordSize.SIZE_16,
+        weight=4,
+        delay=3,
+        synapse_type=1,
+        target=8,
+    )
+    profiling = True
 
-max_atoms_per_core = 250
-splittable = True
-recordables = ["spikes", "v", "v_last"]  # TODO: Read this out from NESTML file
-# fixed addresses
-neuron_params_addr = ByteAddr(0xDC00)
-data_spec_addr = ByteAddr(0x10000)  # until 0x10080
-log_addr = ByteAddr(0x1B000)
-data_spec_max_size = 16  # in words
-{%- endfilter %}
-{%- filter indent(4, False) %}
-
-def __init__(self):
-    app_name =  "{{ neuronName }}"
-    BaseApplication.__init__(self, name=app_name)
-@classmethod
-def convert_lif_neuron_params_to_raw_data(cls, pop_slice):
-{#    """#}
-{#    convert the lif neuron params to raw data.#}
-{##}
-{#    In the ARM C program, each neuron has a struct:#}
-{#    >>>#}
-{#        typedef float REAL;#}
-{#        typedef struct neuron_params_t {#}
-{#            REAL C_m,#}
-{#            REAL tau_m,#}
-{#            REAL tau_syn_inh,#}
-{#            REAL tau_syn_exc,#}
-{#            REAL refr_T,#}
-{#            REAL E_L,#}
-{#            REAL V_reset,#}
-{#            REAL V_th,#}
-{#            REAL I_e,#}
-{#        } neuron_params_t;#}
-{#        neuron_params_t neuron_params_array[N_NEURONS];#}
-{#    <<<#}
-{##}
-{#    returns a list of uint32 representing the raw data to be sent to SpiNNaker2#}
-{#    """#}
-    ordered_param_names = [
-        {%- for parameter in neuron.parameter_value_dict %}
-            "{{ parameter }}",
+    # here the default parameters from .nestml
+    # and the internal parameters with evaluated, numerical values have to be printed
+    default_parameters = {
+        {%- for parameter in neuron.parameter_value_dict | sort(attribute="0|int") %}
+            "{{ parameter }}": {{ neuron.parameter_value_dict[parameter] | float }},
         {%- endfor %}
+    }
+
+    propagators = {
+        {%- for propagator in propagators_as_math_expressions | sort(attribute="0|int") %}
+            "{{ propagator }}": "{{ propagators_as_math_expressions[propagator] }}",
+        {%- endfor %}
+    }
+
+    max_atoms_per_core = 32
+    splittable = False
+    recordables = ["spikes", "v", "v_last", "time_done"]
+    # fixed addresses
+    neuron_params_addr = ByteAddr(0xDC00)
+    data_spec_addr = ByteAddr(0x10000)  # until 0x10080
+    log_addr = ByteAddr(0x1B000)
+    data_spec_max_size = 16  # in words
+
+    def __init__(self):
+        app_name =  "{{neuronName}}"
+        BaseApplication.__init__(self, name=app_name)
+
+    def calculate_propagator_expressions(self, default_parameters, propagators, pop_slice):
+        """
+        Calculate propagator expressions with support for both single values and lists of values.
+
+        Args:
+            default_parameters: Dictionary of default parameter values
+            propagators: Dictionary of propagator expressions
+            pop_slice: Population slice with params attribute
+
+        Returns:
+            Dictionary of propagator expressions with parameters substituted
+        """
+        # Get user parameters
+        user_parameters = pop_slice.pop.params
+        user_parameters_has_lists = any(isinstance(value, list) for value in user_parameters.values())
+        # Create updated parameters dictionary
+        updated_parameters = {}
+        for key in default_parameters:
+            if key in user_parameters:
+                if user_parameters_has_lists:
+                    updated_parameters[key] = list(map(str, user_parameters[key]))
+            else:
+                updated_parameters[key] = str(default_parameters[key])
+
+        if not user_parameters_has_lists:
+            propagators_as_math_expressions = {}
+            for propagator_name in propagators:
+                expression = propagators[propagator_name]
+                for symbol, value in updated_parameters.items():
+                    expression = expression.replace(symbol, str(value))
+                propagators_as_math_expressions[propagator_name] = expression
+            return updated_parameters|propagators_as_math_expressions
+        else:
+            # Handle lists of parameters
+            list_lengths = [len(value) for value in updated_parameters.values()
+                            if isinstance(value, list)]
+
+            if not list_lengths:
+                return self.calculate_propagator_expressions(default_parameters, propagators, pop_slice)
+
+            if len(set(list_lengths)) > 1:
+                raise ValueError("All parameter lists must have the same length")
+
+            list_length = list_lengths[0]
+
+            # Create list of parameter sets
+            parameter_sets = []
+            for i in range(list_length):
+                param_set = {}
+                for key, value in updated_parameters.items():
+                    if isinstance(value, list):
+                        param_set[key] = value[i]
+                    else:
+                        param_set[key] = value
+                parameter_sets.append(param_set)
+
+            # Calculate expressions for each parameter set
+            all_expressions = []
+            for param_set in parameter_sets:
+                expressions = {}
+                for propagator_name in propagators:
+                    expression = propagators[propagator_name]
+                    for symbol, value in param_set.items():
+                        expression = expression.replace(symbol, str(value))
+                    expressions[propagator_name] = expression
+                all_expressions.append(expressions)
+
+            return [{**d1, **d2} for d1, d2 in zip(parameter_sets, all_expressions)]
+
+    def evaluate_propagator_expressions(self, propagators_as_math_expressions):
+        """
+        Evaluate propagator expressions with support for both single expressions and lists of expressions.
+
+        Args:
+            propagators_as_math_expressions: Dictionary of expressions or list of dictionaries
+
+        Returns:
+            Dictionary of evaluated expressions or list of dictionaries
+        """
+        # Define supported math functions and constants
+        safe_dict = {
+            # Basic math functions
+            'exp': math.exp,
+            'ln': math.log,
+            'log10': math.log10,
+            'pow': math.pow,
+            'sqrt': math.sqrt,
+            # Trigonometric functions
+            'sin': math.sin,
+            'cos': math.cos,
+            'tan': math.tan,
+            'asin': math.asin,
+            'acos': math.acos,
+            'atan': math.atan,
+            'atan2': math.atan2,
+            # Hyperbolic functions
+            'sinh': math.sinh,
+            'cosh': math.cosh,
+            'tanh': math.tanh,
+            # Math functions
+            'abs': abs,
+            'ceil': math.ceil,
+            'floor': math.floor,
+            'round': round,
+            'erf': math.erf,
+            'erfc': math.erfc,
+            # Constants
+            'e': math.e,
+            'pi': math.pi,
+            'inf': float('inf'),
+        }
+
+        if isinstance(propagators_as_math_expressions, list):
+            all_results = []
+            for expressions_dict in propagators_as_math_expressions:
+                results = {}
+                for key, expression in expressions_dict.items():
+                    results[key] = self._evaluate_single_expression(expression, safe_dict)
+                all_results.append(results)
+            return all_results
+        else:
+            name_value_dict = {}
+            for key, expression in propagators_as_math_expressions.items():
+                name_value_dict[key] = self._evaluate_single_expression(expression, safe_dict)
+            return name_value_dict
+
+    def _evaluate_single_expression(self, expression, safe_dict):
+        """
+        Helper method to evaluate a single expression safely.
+
+        Args:
+            expression: Math expression as string
+            safe_dict: Dictionary of allowed functions and constants
+
+        Returns:
+            Evaluated result
+        """
+        # Check if the expression contains only allowed characters and function names
+        allowed_pattern = r'^[\s\d\.\+\-\*\/\(\)\,\^\%]+$'
+        cleaned_expr = expression
+
+        # Remove all function names from the expression before checking the pattern
+        for func_name in safe_dict.keys():
+            cleaned_expr = cleaned_expr.replace(func_name, '')
+
+        if not re.match(allowed_pattern, cleaned_expr):
+            raise ValueError(f"Expression '{expression}' contains disallowed characters or functions")
+
+        try:
+            result = eval(expression, {"__builtins__": {}}, safe_dict)
+            return result
+        except Exception as e:
+            raise ValueError(f"Error evaluating expression '{expression}': {str(e)}")
+
+    def convert_calculated_propagators_to_raw_data(self, name_value_dict, pop_slice=None):
+        """
+        Coverts calculated propagator values to 32bit data, which can be sent over to SpiNNaker2
+
+        Args:
+            name_value_dict: Dictionary of propagator name and attached value
+
+        Returns:
+            List of 32bit values representing bits of attached propagator values
+        """
+        if isinstance(name_value_dict, list):
+            all_raw_data = []
+            for single_dict in name_value_dict:
+                del single_dict['__h']
+                values = list(single_dict.values())
+                float32_array = np.array(values, dtype=np.float32)
+                raw_data = np.frombuffer(float32_array.data, dtype=np.uint32)
+                all_raw_data.append(raw_data.tolist())
+            return [item for sublist in all_raw_data for item in sublist]
+        else:
+            n_neurons = pop_slice.pop.size
+            del name_value_dict['__h']
+            values = list(name_value_dict.values())
+            copy = values.copy()
+            values.extend(copy * (n_neurons - 1))
+            float32_array = np.array(values, dtype=np.float32)
+            raw_data = np.frombuffer(float32_array.data, dtype=np.uint32)
+            return raw_data.tolist()
+
+
+    def pe_config(self, pe, mapper, sim_cfg, debug=True):
+        """
+        return PE configuration for a given PE
+        """
+
+        config = PEConfig(pe, self.name, self.mem_file)
+        pop_slice = mapper.mapping.get_population_slice(pe)
+
+        if debug:
+            add_log_memory_region(config, self.log_addr, 4000)
+
+        calculation_timestep_in_s = pop_slice.pop.get_calculation_timestep_in_s()
+        # calculation_timestep_in_s = 0.001
+        self.default_parameters["__h"] = 0.001  # float(calculation_timestep_in_s)
+        weight_scaling_factor = pop_slice.pop.get_weight_scaling_factor()
+
+        #####################
+        # neuron parameters #
+        #####################
+        neuron_params = pop_slice.pop.params
+        propagator_expressions = self.calculate_propagator_expressions(default_parameters=self.default_parameters, propagators=self.propagators, pop_slice=pop_slice)
+        evaluated_expression = self.evaluate_propagator_expressions(propagator_expressions)
+        neuron_params_raw = self.convert_calculated_propagators_to_raw_data(evaluated_expression, pop_slice)
+
+        ################
+        # routing info #
+        ################
+        target_cores = mapper.routing_targets.get(pe, set())
+        tgt_qpes_and_pes = collect_routing_targets(target_cores)
+        n_targets = len(tgt_qpes_and_pes)
+        routing_targets_raw = format_routing_targets(tgt_qpes_and_pes)
+        key_offset = mapper.key_offsets[pe]
+
+        rt_addr = ByteAddr(self.data_spec_addr + self.data_spec_max_size * 4)
+        routing_targets_addr = ByteAddr(rt_addr + 3 * 4)  # start address of routing table
+        rt_data = [
+            key_offset,
+            n_targets,
+            routing_targets_addr,
+        ] + routing_targets_raw
+        config.add_mem_data_to_send(rt_addr.to_WordAddr(), rt_data)
+
+        ################
+        # timer config #
+        ################
+        timer_config_addr = align_addr_to_next_multiple_of_other(ByteAddr(rt_addr + len(rt_data) * 4), ByteAddr(0x10))
+        timer_config_addr = ByteAddr(timer_config_addr)
+        sim_config = [sim_cfg["timer_period"], sim_cfg["n_simulation_ticks"]]
+        config.add_mem_data_to_send(timer_config_addr.to_WordAddr(), sim_config)
+
+        #################
+        # global params #
+        #################
+        if calculation_timestep_in_s is not None:
+            calc_step_list = list([calculation_timestep_in_s])
+            calc_step_array = np.array(calc_step_list, dtype=np.float32)
+            calc_step_raw = np.frombuffer(calc_step_array.data, dtype=np.uint32).tolist()
+            weight_scaling_factor_list = list([weight_scaling_factor])
+            weight_scaling_factor_array = np.array(weight_scaling_factor_list, dtype=np.float32)
+            weight_scaling_factor_raw = np.frombuffer(weight_scaling_factor_array.data, dtype=np.uint32).tolist()
+            n_neurons = pop_slice.size()
+            record_spikes = "spikes" in pop_slice.pop.record
+            record_v_all = "v" in pop_slice.pop.record
+            record_v_last = "v_last" in pop_slice.pop.record
+            record_v = 1 if record_v_all else 2 if record_v_last else 0
+            time_done_flag = "time_done" in pop_slice.pop.record
+            global_params_raw = [
+                n_neurons,
+                int(record_spikes),
+                int(record_v),
+                int(self.profiling),
+                int(time_done_flag),
+                calc_step_raw[0],
+                weight_scaling_factor_raw[0]
+            ]
+
+        else:
+            n_neurons = pop_slice.size()
+            record_spikes = "spikes" in pop_slice.pop.record
+            record_v_all = "v" in pop_slice.pop.record
+            record_v_last = "v_last" in pop_slice.pop.record
+            record_v = 1 if record_v_all else 2 if record_v_last else 0
+            time_done_flag = "time_done" in pop_slice.pop.record
+            global_params_raw = [
+                n_neurons,
+                int(record_spikes),
+                int(record_v),
+                int(self.profiling),
+                int(time_done_flag),
+            ]
+        global_params_addr = align_addr_to_next_multiple_of_other(
+            ByteAddr(timer_config_addr + len(sim_config) * 4), ByteAddr(0x10)
+        )
+        global_params_addr = ByteAddr(global_params_addr)
+        config.add_mem_data_to_send(global_params_addr.to_WordAddr(), global_params_raw)
+
+        ############################################
+        # master population table and synapse rows #
+        ############################################
+
+        # Master population table info
+        mpt_info_addr = align_addr_to_next_multiple_of_other(
+            ByteAddr(global_params_addr + len(global_params_raw) * 4),
+            ByteAddr(0x10),
+        )
+        mpt_info_addr = ByteAddr(mpt_info_addr)
+        mpt_info_len = 2
+
+        # 1: estimate size of MPT
+        mpt_length = mapper.estimate_master_pop_table_length(pe)
+
+        mpt_addr = align_addr_to_next_multiple_of_other(ByteAddr(mpt_info_addr + mpt_info_len * 4), ByteAddr(0x10))
+        mpt_addr = ByteAddr(mpt_addr)
+        mpt_n_bytes = mpt_length * N_WORDS_MPT_ENTRY * 4
+
+        syn_row_addr = align_addr_to_next_multiple_of_other(ByteAddr(mpt_addr + mpt_n_bytes), ByteAddr(0x10))
+        syn_row_addr = ByteAddr(syn_row_addr)
+
+        all_syn_rows_raw, pop_table_raw = mapper.synapse_rows_and_master_pop_table(pe, self.sw_spec, syn_row_addr)
+        syn_row_addr_end = ByteAddr(syn_row_addr + len(all_syn_rows_raw) * 4)
+
+        # Master population table info
+        mpt_info_raw = [mpt_addr, mpt_length]
+        assert len(mpt_info_raw) == mpt_info_len  # make sure that the addresses don't overlap
+        config.add_mem_data_to_send(mpt_info_addr.to_WordAddr(), mpt_info_raw)
+
+        ###################
+        # spike recording #
+        ###################
+        if record_spikes:
+            SPIKE_RECORD_LENGTH = (self.max_atoms_per_core + 31) // 32 + 2
+            timesteps_to_record = sim_cfg["n_simulation_ticks"]
+            spike_recording_total_words = SPIKE_RECORD_LENGTH * timesteps_to_record
+            spike_record_addr = align_addr_to_next_multiple_of_other(syn_row_addr_end, ByteAddr(0x10))
+            spike_record_addr = ByteAddr(spike_record_addr)
+            config.add_mem_region_to_read(
+                "spike_record",
+                MemoryRegion(spike_record_addr.to_WordAddr(), spike_recording_total_words),
+            )
+            spike_record_addr_end = ByteAddr(spike_record_addr + spike_recording_total_words * 4)
+        else:
+            spike_record_addr = syn_row_addr_end
+            spike_record_addr_end = syn_row_addr_end
+
+        #####################
+        # voltage recording #
+        #####################
+        if record_v_all or record_v_last:
+            timesteps_to_record = sim_cfg["n_simulation_ticks"] if record_v_all else 1
+            voltage_record_addr = align_addr_to_next_multiple_of_other(spike_record_addr_end, ByteAddr(0x10))
+            voltage_record_addr = ByteAddr(voltage_record_addr)
+            # for each timestep: 1 word header + n_neurons*voltages
+            voltage_recording_total_words = (1 + n_neurons) * timesteps_to_record
+            config.add_mem_region_to_read(
+                "voltage_record", MemoryRegion(voltage_record_addr.to_WordAddr(), voltage_recording_total_words)
+            )
+            voltage_record_addr_end = ByteAddr(voltage_record_addr + voltage_recording_total_words * 4)
+        else:
+            voltage_record_addr = spike_record_addr_end
+            voltage_record_addr_end = spike_record_addr_end
+
+        #######################
+        # time done recording #
+        #######################
+
+        if time_done_flag:
+            timesteps_to_record = sim_cfg["n_simulation_ticks"]
+            time_done_addr = align_addr_to_next_multiple_of_other(voltage_record_addr_end, ByteAddr(0x10))
+            time_done_addr = ByteAddr(time_done_addr)
+            config.add_mem_region_to_read(
+                "time_done_record",
+                MemoryRegion(time_done_addr.to_WordAddr(), timesteps_to_record),
+            )
+            time_done_addr_end = ByteAddr(time_done_addr + timesteps_to_record * 4)
+
+        else:
+            time_done_addr = voltage_record_addr
+            time_done_addr_end = voltage_record_addr_end
+
+        if time_done_addr_end > self.log_addr:
+            raise MemoryError(
+                f"synapse rows too large in population {pop_slice.pop.name}: "
+                f"{hex(time_done_addr_end)}, {hex(self.log_addr)} "
+                f"by {time_done_addr_end- self.log_addr} byte"
+            )
+
+        ######################
+        # data specification #
+        ######################
+        data_spec = [
+            0xAD130AD6,  # magic_number
+            0x00010000,  # version
+            rt_addr,  # start of routing table
+            timer_config_addr,  # start of timer config
+            global_params_addr,  # start of global params
+            mpt_info_addr,  # master population table info address
+            syn_row_addr,  # start of synapse rows
+            self.neuron_params_addr,  # start of neuron params
+            spike_record_addr,  # start of spike records
+            voltage_record_addr,  # start of voltage records
+            time_done_addr,  # start of time_done records
+            self.log_addr,  # start of log (dummy)
         ]
-    n_params = len(ordered_param_names)
-    max_neurons = cls.max_atoms_per_core
 
-    float_array = np.zeros(max_neurons * n_params, dtype=np.float32)
-    params = pop_slice.pop.params
-    n_neurons = pop_slice.size()
-    for i, key in enumerate(ordered_param_names):
-        value = params.get(key, cls.default_params[key])
-        if np.isscalar(value) or len(value) == 1:  # same value for all
-            float_array[i : i + n_params * n_neurons : n_params] = value
-        else:  # array like
-            assert len(value) == pop_slice.pop.size
-            float_array[i : i + n_params * n_neurons : n_params] = value[pop_slice.start : pop_slice.stop]
+        config.add_mem_data_to_send(self.data_spec_addr.to_WordAddr(), data_spec)
+        config.add_mem_data_to_send(mpt_addr.to_WordAddr(), pop_table_raw)
+        config.add_mem_data_to_send(syn_row_addr.to_WordAddr(), all_syn_rows_raw)
+        config.add_mem_data_to_send(self.neuron_params_addr.to_WordAddr(), neuron_params_raw)
 
-    # convert to uint32 array and return as list
-    raw_data = np.frombuffer(float_array.data, dtype=np.uint32)
-    return raw_data.tolist()
-    {%- endfilter %}
-
-
-
-
-
-
-{#    def __init__(self,#}
-{## TODO: Initial values of input ports incorrect#}
-{## XXX: need to print default values here?#}
-{##}
-{#{%- filter indent(16) %}#}
-{#{%- for variable_symbol in neuron.get_state_symbols() %}#}
-{#{%-     set variable = utils.get_state_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}#}
-{#{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}#}
-{#{%- endfor %}#}
-{#{%- endfilter %}#}
-{##}
-{#{%- filter indent(16) %}#}
-{#{%- for variable_symbol in neuron.get_parameter_symbols() %}#}
-{#{%-     set variable = utils.get_parameter_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}#}
-{#{%-     include "directives_py/ConstructorParameterWithDefault.jinja2"%}#}
-{#{%- endfor %}#}
-{##}
-{#{%- for variable_symbol in neuron.get_spike_input_ports() %}#}
-{#{%-   if variable_symbol.get_initial_value() == None %}#}
-{#{{variable_symbol.get_symbol_name()}} = 0.0,#}
-{#{%-   else %}#}
-{#{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,#}
-{#{%-   endif %}#}
-{#{%- endfor %}#}
-{##}
-{#{%- for variable_symbol in neuron.get_continuous_input_ports() %}#}
-{#{%-   if variable_symbol.get_initial_value() == None %}#}
-{#{{variable_symbol.get_symbol_name()}} = 0.0,#}
-{#{%-   else %}#}
-{#{{variable_symbol.get_symbol_name()}} = {{variable_symbol.get_initial_value()}} ,#}
-{#{%-   endif %}#}
-{#{%- endfor %}#}
-{#{%- endfilter %}#}
-{#                ):#}
-{#        timestep = (SpynnakerDataView.get_simulation_time_step_ms())#}
-{##}
-{#        # compute propagators and other internal parameters#}
-{#{%- filter indent(8) %}#}
-{#{%- for variable_symbol in neuron.get_internal_symbols() %}#}
-{#{%-   set variable = utils.get_internal_variable_by_name(astnode, variable_symbol.get_symbol_name()) %}#}
-{#{%-   include "directives_py/MemberInitialization.jinja2" %}#}
-{#{%- endfor %}#}
-{#{%- endfilter %}#}
-{##}
-{#        super().__init__({{neuronName}}Impl(#}
-{#                 # state:#}
-{#{%- for sym in neuron.get_state_symbols() %}#}
-{#                {{sym.get_symbol_name()}},#}
-{#{%- endfor %}#}
-
-{#                 # parameters:#}
-{#{%- for sym in neuron.get_parameter_symbols() %}#}
-{#                {{sym.get_symbol_name()}},#}
-{#{%- endfor %}#}
-{##}
-{#                 # input ports:#}
-{#{%- for sym in neuron.get_spike_input_ports() %}#}
-{#                {{sym.get_symbol_name()}},#}
-{#{%- endfor %}#}
-{#                 # continuous ports:#}
-{#{%- for sym in neuron.get_continuous_input_ports() %}#}
-{#                {{sym.get_symbol_name()}},#}
-{#{%- endfor %}#}
-{#                 # internal variables:#}
-{#{%- for sym in neuron.get_internal_symbols() %}#}
-{#                {{sym.get_symbol_name()}},#}
-{#{%- endfor %}#}
-{#                                           ))#}
+        return config
