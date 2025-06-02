@@ -1,0 +1,7 @@
+#include "neuron_model_{{ neuronName }}_impl.h"
+
+uint32_t rand_count=0;
+
+extern volatile uint32_t systicks;
+extern global_neuron_params_t global_neuron_params __attribute__((aligned(0x10)));
+
