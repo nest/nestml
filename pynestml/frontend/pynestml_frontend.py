@@ -61,7 +61,7 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
     if options is None:
         options = {}
 
-    if target_name.upper() in ["NEST", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP"]:
+    if target_name.upper() in ["SPINNAKER2", "NEST", "PYTHON_STANDALONE", "NEST_COMPARTMENTAL", "NEST_DESKTOP"]:
         from pynestml.transformers.add_timestep_to_internals_transformer import AddTimestepToInternalsTransformer
 
         add_timestep_to_internals_transformer = AddTimestepToInternalsTransformer()
@@ -83,6 +83,13 @@ def transformers_from_target_name(target_name: str, options: Optional[Mapping[st
         synapse_post_neuron_co_generation = SynapseRemovePostPortTransformer()
         options = synapse_post_neuron_co_generation.set_options(options)
         transformers.append(synapse_post_neuron_co_generation)
+
+    if target_name.upper() in ["SPINNAKER2"]:
+        pass
+        from pynestml.transformers.spinnaker2_unit_transformer import Spinnaker2UnitTransformer
+
+        # unit_transformer = Spinnaker2UnitTransformer()
+        # transformers.append(unit_transformer)
 
     if target_name.upper() == "NEST":
         from pynestml.transformers.synapse_post_neuron_transformer import SynapsePostNeuronTransformer
