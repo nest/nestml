@@ -35,11 +35,10 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class SpiNNaker2Builder(Builder):
-    r"""Compiles and build the SpiNNaker2 Python Class and generated C code."""
+    r"""
+    Compiles and build the SpiNNaker2 Python Class and generated C code.
+    """
 
-    # _default_options = {
-    #     "neuron_synapse_pairs": [],
-    # }
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__(options)
@@ -67,244 +66,61 @@ class SpiNNaker2Builder(Builder):
 
         generated_file_names = os.listdir(target_path)
         generated_file_names_neuron_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and not "impl.py" in fn and not "example" in fn]
-        # generated_file_names_neuron_impl_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "impl.py" in fn]
-        # generated_file_names_makefiles = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "Makefile_*") if not fn == "Makefile"]
-        # generated_file_names_neuron_c = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.c")]
-        # generated_file_names_neuron_h = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.h")]
-        # generated_file_names_neuron_examples_py = [fn for fn in generated_file_names if fnmatch.fnmatch(fn, "*.py") and "example" in fn]
+        generated_file_names_synapse_types = [fn for fn in generated_file_names if fn in {'synapse_types.h', 'synapse_types_exponential_impl.h'}]
+        generated_file_names_common = [fn for fn in generated_file_names if fn in {'maths-util.h', 'neuron-typedefs.h'}]
 
         old_cwd = os.getcwd()
         try:
             os.chdir(install_path)
-
-            make_cmd = ['make']
 
             # check if we run on win
             if sys.platform.startswith('win'):
                 shell = True
             else:
                 shell = False
-            #
-            # # copy C files from target to install directory
-            # try:
-            #     os.mkdir(os.path.join(install_path, "c_models"))
-            # except (FileExistsError, FileNotFoundError):
-            #     pass
-            #
-            # try:
-            #     os.mkdir(os.path.join(install_path, "c_models/src"))
-            # except (FileExistsError, FileNotFoundError):
-            #     pass
-            #
-            # try:
-            #     os.mkdir(os.path.join(install_path, "c_models/src/my_models"))
-            # except (FileExistsError, FileNotFoundError):
-            #     pass
-            #
-            # try:
-            #     os.mkdir(os.path.join(install_path, "c_models/src/my_models/implementations"))
-            # except (FileExistsError, FileNotFoundError):
-            #     pass
-            #
-            # for fn in generated_file_names_neuron_c:
-            #     try:
-            #         to_path = os.path.join(install_path, "c_models", "src", "my_models", "implementations")
-            #         print("Copying \"" + fn + "\" to " + to_path)
-            #         subprocess.check_call(["cp", "-v", fn, to_path],
-            #                               stderr=subprocess.STDOUT,
-            #                               shell=shell,
-            #                               cwd=str(os.path.join(target_path)))
-            #     except subprocess.CalledProcessError:
-            #         pass
-            #
-            # for fn in generated_file_names_neuron_h:
-            #     try:
-            #         to_path = os.path.join(install_path, "c_models", "src", "my_models", "implementations")
-            #         print("Copying \"" + fn + "\" to " + to_path)
-            #         subprocess.check_call(["cp", "-v", fn, to_path],
-            #                               stderr=subprocess.STDOUT,
-            #                               shell=shell,
-            #                               cwd=str(os.path.join(target_path)))
-            #     except subprocess.CalledProcessError:
-            #         pass
-
-            # copy python files from target to install directory
 
             try:
-                os.mkdir(os.path.join(install_path, "python_model_classes"))
-            except (FileExistsError, FileNotFoundError):
+                os.mkdir(os.path.join(install_path, "PySpiNNaker2Application"))
+                for fn in generated_file_names_neuron_py:
+                    subprocess.check_call(["cp", "-v", fn, os.path.join(install_path, "PySpiNNaker2Application")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                    subprocess.check_call(["rm", "-rf", fn, os.path.join(target_path, fn)],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+
+            except:
                 pass
 
             try:
-                to_path = os.path.join(install_path, "python_model_classes")
-                subprocess.check_call(["cp", "-v", "__init__.py", to_path],
-                                      stderr=subprocess.STDOUT,
-                                      shell=shell,
-                                      cwd=str(os.path.join(target_path)))
-            except Exception:
+                os.mkdir(os.path.join(target_path, "common"))
+                for fn in generated_file_names_common:
+                    subprocess.check_call(["cp", "-v", fn, os.path.join(target_path, "common")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                    subprocess.check_call(["rm", "-rf", fn, os.path.join(target_path, fn)],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+            except:
                 pass
 
-        #     try:
-        #         os.mkdir(os.path.join(install_path, "python_models8", "neuron"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     try:
-        #         os.mkdir(os.path.join(install_path, "python_models8", "neuron", "builds"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     to_path = os.path.join(install_path, "python_models8", "neuron", "builds")
-        #     for fn in generated_file_names_neuron_py:
-        #         try:
-        #             print("Copying \"" + fn + "\" to " + to_path)
-        #             subprocess.check_call(["cp", "-v", fn, to_path],
-        #                                   stderr=subprocess.STDOUT,
-        #                                   shell=shell,
-        #                                   cwd=target_path)
-        #         except subprocess.CalledProcessError:
-        #             pass
-        #
-        #     # Copy the pyNN implementation file
-        #     try:
-        #         os.makedirs(os.path.join(install_path, "python_models8", "neuron", "implementations"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     for fn in generated_file_names_neuron_impl_py:
-        #         try:
-        #             to_path = os.path.join(install_path, "python_models8", "neuron", "implementations")
-        #             print("Copying \"" + fn + "\" to " + to_path)
-        #             subprocess.check_call(["cp", "-v", os.path.join(target_path, fn), to_path],
-        #                                   stderr=subprocess.STDOUT,
-        #                                   shell=shell,
-        #                                   cwd=target_path)
-        #         except subprocess.CalledProcessError:
-        #             pass  # no problem if file is already there and gets overwritten
-        #
-        #     # Copy the example files
-        #     try:
-        #         os.mkdir(os.path.join(install_path, "examples"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     for fn in generated_file_names_neuron_examples_py:
-        #         try:
-        #             to_path = os.path.join(install_path, "examples")
-        #             print("Copying \"" + fn + "\" to " + to_path)
-        #             subprocess.check_call(["cp", "-v", os.path.join(target_path, fn), to_path],
-        #                                   stderr=subprocess.STDOUT,
-        #                                   shell=shell,
-        #                                   cwd=target_path)
-        #         except subprocess.CalledProcessError:
-        #             pass  # no problem if file is already there and gets overwritten
-        #
-        #     # create python_models8 module directory
-        #     try:
-        #         os.makedirs(os.path.join(install_path, "python_models8", "model_binaries"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     try:
-        #         subprocess.check_call(["touch", os.path.join(install_path, "python_models8", "model_binaries", "__init__.py")])
-        #     except Exception:
-        #         pass
-        #
-        #     # Copy the root Makefile
-        #     try:
-        #         os.makedirs(os.path.join(install_path, "c_models", "makefiles"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     try:
-        #         subprocess.check_call(["cp", "-v", "Makefile_root", os.path.join(install_path, "c_models", "Makefile")],
-        #                               stderr=subprocess.STDOUT,
-        #                               shell=shell,
-        #                               cwd=target_path)
-        #     except subprocess.CalledProcessError:
-        #         pass
-        #
-        #     try:
-        #         subprocess.check_call(["cp", "-v", "Makefile_models", os.path.join(install_path, "c_models", "makefiles", "Makefile")],
-        #                               stderr=subprocess.STDOUT,
-        #                               shell=shell,
-        #                               cwd=target_path)
-        #     except subprocess.CalledProcessError:
-        #         pass
-        #
-        #     # Copy the extra.mk file
-        #     try:
-        #         subprocess.check_call(["cp", "-v", "extra.mk", os.path.join(install_path, "c_models", "makefiles")],
-        #                               stderr=subprocess.STDOUT,
-        #                               shell=shell,
-        #                               cwd=target_path)
-        #     except subprocess.CalledProcessError:
-        #         pass
-        #
-        #     # Copy the extra_neuron.mk file
-        #     try:
-        #         subprocess.check_call(["cp", "-v", "extra_neuron.mk", os.path.join(install_path, "c_models", "makefiles")],
-        #                               stderr=subprocess.STDOUT,
-        #                               shell=shell,
-        #                               cwd=target_path)
-        #     except subprocess.CalledProcessError:
-        #         pass
-        #
-        #     # Copy the model Makefile
-        #     for fn in generated_file_names_makefiles:
-        #         neuron_subdir = fn[len("Makefile_"):]
-        #
-        #         try:
-        #             os.mkdir(os.path.join(install_path, "c_models", "makefiles", neuron_subdir))
-        #         except (FileExistsError, FileNotFoundError):
-        #             pass
-        #
-        #         try:
-        #             try:
-        #                 os.makedirs(os.path.join(install_path, "c_models", "makefiles", neuron_subdir))
-        #             except (FileExistsError, FileNotFoundError):
-        #                 pass
-        #
-        #             subprocess.check_call(["cp", "-v", fn, os.path.join(install_path, "c_models", "makefiles", neuron_subdir, "Makefile")],
-        #                                   stderr=subprocess.STDOUT,
-        #                                   shell=shell,
-        #                                   cwd=target_path)
-        #         except subprocess.CalledProcessError:
-        #             pass
-        #
-        #     # Copy the .h files of the neuron model
-        #     try:
-        #         os.makedirs(os.path.join(install_path, "c_models", "src", "my_models", "implementations"))
-        #     except (FileExistsError, FileNotFoundError):
-        #         pass
-        #
-        #     for fn in generated_file_names_neuron_c:
-        #         try:
-        #             subprocess.check_call(["cp", "-v", fn, os.path.join(install_path, "c_models", "src", "my_models", "implementations", fn)],
-        #                                   stderr=subprocess.STDOUT,
-        #                                   shell=shell,
-        #                                   cwd=target_path)
-        #         except subprocess.CalledProcessError:
-        #             pass
-        #
-        #     # call make clean
-        #     try:
-        #         subprocess.check_call(["make", "clean"],
-        #                               stderr=subprocess.STDOUT,
-        #                               shell=shell,
-        #                               cwd=str(os.path.join(install_path, "c_models")))
-        #     except subprocess.CalledProcessError:
-        #         raise GeneratedCodeBuildException(
-        #             'Error occurred during \'make clean\'! More detailed error messages can be found in stdout.')
-        #
-        #     # call make
-        #     try:
-        #         subprocess.check_call(make_cmd,
-        #                               stderr=subprocess.STDOUT,
-        #                               shell=shell,
-        #                               cwd=str(os.path.join(install_path, "c_models", "makefiles")))
-        #     except subprocess.CalledProcessError:
-        #         raise GeneratedCodeBuildException(
-        #             'Error occurred during \'make\'! More detailed error messages can be found in stdout.')
+            try:
+                os.mkdir(os.path.join(target_path, "synapse_types"))
+                for fn in generated_file_names_synapse_types:
+                    subprocess.check_call(["cp", "-v", fn, os.path.join(target_path, "synapse_types")],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+                    subprocess.check_call(["rm", "-rf", fn, os.path.join(target_path, fn)],
+                                          stderr=subprocess.STDOUT,
+                                          shell=shell,
+                                          cwd=target_path)
+            except:
+                pass
+
         finally:
             os.chdir(old_cwd)
