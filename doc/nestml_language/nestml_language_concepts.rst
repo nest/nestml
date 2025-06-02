@@ -1186,6 +1186,19 @@ The statements in the event handler will be executed when the event occurs and i
    onReceive(in_spikes):
        V_m += in_spikes.psp    # consistent units: lhs and rhs both in [mV]
 
+In ``onReceive`` blocks, a spiking input port may not appear without an attribute present:
+
+.. code-block:: nestml
+
+   state:
+       x real = 0
+
+   input:
+       in_spikes <- spike(weight pA)
+
+   onReceive(in_spikes):
+       x += in_spikes    # error!
+
 To specify in which sequence the event handlers should be called in case multiple events are received at the exact same time, the ``priority`` parameter can be used, which can be given an integer value, where a larger value means higher priority (handled earlier). For example:
 
 .. code-block:: nestml

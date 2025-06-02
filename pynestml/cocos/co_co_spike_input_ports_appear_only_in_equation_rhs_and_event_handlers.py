@@ -63,11 +63,11 @@ class SpikeInputPortsAppearOnlyInEquationRHSAndEventHandlersVisitor(ASTVisitor):
                 # input port appears inside the declaration of an onReceive block; everything is OK
                 return
 
-            if in_port.parameters and not node.attribute:
-                # input port has parameters (for instance, ``x`` in ``foo <- spike(x real)`` but the variable reference is missing an attribute (``foo`` instead of ``foo.x``)
-                code, message = Messages.get_spike_input_port_attribute_missing(node.get_name())
-                Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                   log_level=LoggingLevel.ERROR)
+            # if in_port.parameters and not node.attribute:
+            #     # input port has parameters (for instance, ``x`` in ``foo <- spike(x real)`` but the variable reference is missing an attribute (``foo`` instead of ``foo.x``)
+            #     code, message = Messages.get_spike_input_port_attribute_missing(node.get_name())
+            #     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+            #                        log_level=LoggingLevel.ERROR)
 
             _node = node
             while _node:

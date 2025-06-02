@@ -52,11 +52,16 @@ from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToo
 from pynestml.codegeneration.printers.sympy_simple_expression_printer import SympySimpleExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.real_type_symbol import RealTypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -77,6 +82,7 @@ from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_set_vector_parameter_in_update_expressions import ASTSetVectorParameterInUpdateExpressionVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 def find_spiking_post_port(synapse, namespace):
@@ -85,6 +91,37 @@ def find_spiking_post_port(synapse, namespace):
             if ASTUtils.get_input_port_by_name(synapse.get_input_blocks(), post_port_name).is_spike():
                 return post_port_name
     return None
+
+
+class NoAttributesSpikingInputPortNecessaryVisitor(ASTVisitor):
+    r"""This visitor checks whether any references occur in the model to a spiking input port without attributes.
+
+    For instance, for a spiking input port:
+
+    .. code:: nestml
+
+       input:
+           spikes_in_port <- spike(weight pA)
+
+    A reference to the port with attribute would be ``spikes_in_port.weight`` and a reference without attributes would be ``spikes_in_port``.
+
+    If no references to the port without an attribute are present, then no code needs to be generated for the buffer, saving on runtime performance.
+    """
+    def __init__(self, model: ASTModel):
+        super().__init__()
+
+        self._attributes_spiking_input_port_necessary = False
+        self._spike_input_ports = model.get_spike_input_port_names()
+
+    def visit_variable(self, node: ASTVariable):
+        if node.name in self._spike_input_ports:
+            print("inspecting " + str(node) + " in "  + str(node.get_parent().get_parent()) + " parent: " + str(node.get_parent().get_parent()))
+        if node.name in self._spike_input_ports \
+         and node.get_attribute() is None \
+         and not ASTUtils.find_parent_node_by_type(node, ASTInputBlock) \
+         and not (ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock) and node.get_parent().input_port_variable.name == node.name):
+            import pdb;pdb.set_trace()
+            self._attributes_spiking_input_port_necessary = True
 
 
 class NESTCodeGenerator(CodeGenerator):
@@ -112,7 +149,7 @@ class NESTCodeGenerator(CodeGenerator):
     - **solver**: A string identifying the preferred ODE solver. ``"analytic"`` for propagator solver preferred; fallback to numeric solver in case ODEs are not analytically solvable. Use ``"numeric"`` to disable analytic solver.
     - **gsl_adaptive_step_size_controller**: For the numeric (GSL) solver: how to interpret the absolute and relative tolerance values. Can be changed to trade off integration accuracy with numerical stability. The default value is ``"with_respect_to_solution"``. Can also be set to ``"with_respect_to_derivative"``. (Tolerance values can be specified at runtime as parameters of the model instance.) For further details, see https://www.gnu.org/software/gsl/doc/html/ode-initval.html#adaptive-step-size-control.
     - **numeric_solver**: A string identifying the preferred numeric ODE solver. Supported are ``"rk45"`` and ``"forward-Euler"``.
-    - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
+    - **continuous_state_buffering_method**: Which method to use for buffering state variables between neuron and synapse pairs. When a synapse has a "continuous" input port, connected to a postsynaptic neuron, either the value is obtained taking the synaptic (dendritic, that is, synapse-soma) delay into account, requiring a buffer to store the value at each timepoint (``continuous_state_buffering_method = "continuous_time_buffer"``); or the value is obtained at the times of the somatic spikes of the postsynaptic neuron, ignoring the synaptic delay (``continuous_state_buffering_method == "post_spike_based"``). The former is more physically accurate but requires a large buffer and can require a long time to simulate. The latter ignores the dendritic delay but is much more computationally efficient.
     - **delay_variable**: A mapping identifying, for each synapse (the name of which is given as a key), the variable or parameter in the model that corresponds with the NEST ``Connection`` class delay property.
     - **weight_variable**: Like ``delay_variable``, but for synaptic weight.
     - **linear_time_invariant_spiking_input_ports**: A list of spiking input ports which can be treated as linear and time-invariant; this implies that, for the given port(s), the weight of all spikes received within a timestep can be added together, improving memory consumption and runtime performance. Use with caution; for example, this is not compatible with using a single input port for, depending on the sign of the weight of the spike event, processing both inhibitory vs. excitatory spikes.
@@ -557,7 +594,12 @@ class NESTCodeGenerator(CodeGenerator):
         if "continuous_post_ports" in dir(astnode):
             namespace["continuous_post_ports"] = astnode.continuous_post_ports
 
+        # input port/event handling options
         namespace["linear_time_invariant_spiking_input_ports"] = self.get_option("linear_time_invariant_spiking_input_ports")
+
+        v = NoAttributesSpikingInputPortNecessaryVisitor(astnode)
+        astnode.accept(v)
+        namespace["attributes_spiking_input_port_necessary"] = v._attributes_spiking_input_port_necessary
 
         return namespace
 

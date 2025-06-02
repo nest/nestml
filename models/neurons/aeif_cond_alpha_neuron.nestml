@@ -1,48 +1,48 @@
 # aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
 # ###############################################################################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
-# 
+#
 # The membrane potential is given by the following differential equation:
-# 
+#
 # .. math::
-# 
+#
 #    C_m \frac{dV_m}{dt} =
 #    -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) -
 #    g_e(t)(V_m-E_e) \\
 #    -g_i(t)(V_m-E_i)-w + I_e
-# 
+#
 # and
-# 
+#
 # .. math::
-# 
+#
 #    \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
-# 
+#
 # Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
-# 
+#
 # .. note::
-# 
+#
 #    The default refractory period for ``aeif`` models is zero, consistent with the model definition in
 #    Brette & Gerstner [1]_.  Thus, an ``aeif`` neuron with default parameters can fire multiple spikes in a single
 #    time step, which can lead to exploding spike numbers and extreme slow-down of simulations.
 #    To avoid such unphysiological behavior, you should set a refractory time ``refr_t > 0``.
-# 
-# 
+#
+#
 # References
 # ++++++++++
-# 
+#
 # .. [1] Brette R and Gerstner W (2005). Adaptive exponential
 #        integrate-and-fire model as an effective description of neuronal
 #        activity. Journal of Neurophysiology. 943637-3642
 #        DOI: https://doi.org/10.1152/jn.00686.2005
-# 
-# 
+#
+#
 # See also
 # ++++++++
-# 
+#
 # iaf_cond_alpha, aeif_cond_exp
 #
 #
@@ -50,7 +50,7 @@
 # +++++++++++++++++++
 #
 # This file is part of NEST.
-# 
+#
 # Copyright (C) 2004 The NEST Initiative
 #
 # NEST is free software: you can redistribute it and/or modify
@@ -75,11 +75,11 @@ model aeif_cond_alpha_neuron:
         refr_t ms = 0 ms    # Refractory period timer
 
     equations:
-        inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
         kernel g_inh = (e / tau_syn_inh) * t * exp(-t / tau_syn_inh)
         kernel g_exc = (e / tau_syn_exc) * t * exp(-t / tau_syn_exc)
 
         # Add inlines to simplify the equation definition of V_m
+        inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
         inline exp_arg real = (V_bounded - V_th) / Delta_T
         inline I_spike pA = g_L * Delta_T * exp(exp_arg)
         inline I_syn_exc pA = convolve(g_exc, exc_spikes.weight) * (V_bounded - E_exc)
@@ -117,13 +117,6 @@ model aeif_cond_alpha_neuron:
 
         # Constant external input current
         I_e pA = 0 pA
-
-    internals:
-        # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude conductance excursion
-        PSConInit_E nS/ms = nS * e / tau_syn_exc
-
-        # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion
-        PSConInit_I nS/ms = nS * e / tau_syn_inh
 
     input:
         exc_spikes <- spike(weight nS)
