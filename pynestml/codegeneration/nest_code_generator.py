@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import datetime
@@ -312,13 +311,14 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_model(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars, analytic_solver, parameter_value_dict = self.analyse_neuron(neuron)
+            spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars, analytic_solver, parameter_value_dict, updated_state_dict = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
             neuron.post_spike_updates = post_spike_updates
             neuron.equations_with_delay_vars = equations_with_delay_vars
             neuron.equations_with_vector_vars = equations_with_vector_vars
             neuron.analytic_solver = analytic_solver
             neuron.parameter_value_dict = parameter_value_dict
+            neuron.updated_state_dict = updated_state_dict
 
     def analyse_transform_synapses(self, synapses: List[ASTModel]) -> None:
         """
@@ -367,9 +367,9 @@ class NESTCodeGenerator(CodeGenerator):
         # Collect all parameters and their attached values
         parameter_block = neuron.get_parameters_blocks()[0]
         parameter_value_dict = ASTUtils.generate_parameter_value_dict(neuron, parameter_block)
-        # parameter_value_dict = ASTUtils.generate_parameter_value_dict(neuron, parameter_block)
-        # for sym in neuron.get_parameter_symbols():
-        #     parameter_value_dict[sym.get_symbol_name()] =
+        state_block = neuron.get_state_blocks()[0]
+        updated_state_dict = ASTUtils.generate_updated_state_dict(neuron, state_block, parameter_value_dict)
+
 
 
 
@@ -424,7 +424,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
-        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars, analytic_solver, parameter_value_dict
+        return spike_updates, post_spike_updates, equations_with_delay_vars, equations_with_vector_vars, analytic_solver, parameter_value_dict, updated_state_dict
 
     def analyse_synapse(self, synapse: ASTModel) -> Dict[str, ASTAssignment]:
         """
