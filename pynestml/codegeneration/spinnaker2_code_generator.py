@@ -1,11 +1,13 @@
 import os
 import copy
+import pynestml
 
+from typing import Sequence, Optional, Mapping, Any, Dict
 
-from typing import Sequence, Optional, Mapping, Any
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.code_generator import CodeGenerator
+from pynestml.codegeneration.python_standalone_target_tools import  PythonStandaloneTargetTools
 
 from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 
@@ -20,9 +22,9 @@ from pynestml.codegeneration.printers.ode_toolbox_expression_printer import ODET
 from pynestml.codegeneration.printers.ode_toolbox_function_call_printer import ODEToolboxFunctionCallPrinter
 from pynestml.codegeneration.printers.ode_toolbox_variable_printer import ODEToolboxVariablePrinter
 
-from pynestml.codegeneration.printers.spinnaker_c_function_call_printer import SpinnakerCFunctionCallPrinter
+from pynestml.codegeneration.printers.spinnaker2_c_function_call_printer import Spinnaker2CFunctionCallPrinter
 from pynestml.codegeneration.printers.spinnaker_c_type_symbol_printer import SpinnakerCTypeSymbolPrinter
-from pynestml.codegeneration.printers.spinnaker_c_variable_printer import SpinnakerCVariablePrinter
+from pynestml.codegeneration.printers.spinnaker2_c_variable_printer import Spinnaker2CVariablePrinter
 from pynestml.codegeneration.printers.spinnaker_gsl_function_call_printer import SpinnakerGSLFunctionCallPrinter
 
 
@@ -36,20 +38,36 @@ from pynestml.codegeneration.printers.spinnaker_python_function_call_printer imp
 from pynestml.codegeneration.printers.spinnaker_python_simple_expression_printer import SpinnakerPythonSimpleExpressionPrinter
 from pynestml.codegeneration.printers.spinnaker_python_type_symbol_printer import SpinnakerPythonTypeSymbolPrinter
 from pynestml.codegeneration.python_standalone_code_generator import PythonStandaloneCodeGenerator
+from pynestml.codegeneration.python_code_generator_utils import PythonCodeGeneratorUtils
 from pynestml.meta_model.ast_model import ASTModel
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
+from pynestml.codegeneration.python_standalone_target_tools import PythonStandaloneTargetTools
+from pynestml.codegeneration.spinnaker2TargetTools import Spinnaker2TargetTools
+
+
 
 class CustomNESTCodeGenerator(NESTCodeGenerator):
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
+        namespace = super()._get_model_namespace(astnode)
+        namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
+        namespace["gsl_printer"] = self._gsl_printer
+        namespace["neuronName"] = astnode.get_name()
+        namespace["neuron"] = astnode
+        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(astnode.file_path)
+        namespace["propagators_as_math_expressions"] = Spinnaker2TargetTools.get_propagators_as_math_expressions(
+            namespace["neuron"], namespace["parameters"])
+        return namespace
+
     def setup_printers(self):
         self._constant_printer = ConstantPrinter()
 
         # C/Spinnaker API printers
         self._type_symbol_printer = SpinnakerCTypeSymbolPrinter()
-        self._nest_variable_printer = SpinnakerCVariablePrinter(expression_printer=None, with_origin=True,
+        self._nest_variable_printer = Spinnaker2CVariablePrinter(expression_printer=None, with_origin=True,
                                                                 with_vector_parameter=True)
-        self._nest_function_call_printer = SpinnakerCFunctionCallPrinter(None)
-        self._nest_function_call_printer_no_origin = SpinnakerCFunctionCallPrinter(None)
+        self._nest_function_call_printer = Spinnaker2CFunctionCallPrinter(None)
+        self._nest_function_call_printer_no_origin = Spinnaker2CFunctionCallPrinter(None)
 
         self._printer = CppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer,
@@ -59,7 +77,7 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
         self._nest_function_call_printer._expression_printer = self._printer
         self._nest_printer = CppPrinter(expression_printer=self._printer)
 
-        self._nest_variable_printer_no_origin = SpinnakerCVariablePrinter(None, with_origin=False,
+        self._nest_variable_printer_no_origin = Spinnaker2CVariablePrinter(None, with_origin=False,
                                                                           with_vector_parameter=False)
         self._printer_no_origin = CppExpressionPrinter(
             simple_expression_printer=CSimpleExpressionPrinter(variable_printer=self._nest_variable_printer_no_origin,
@@ -92,6 +110,21 @@ class CustomNESTCodeGenerator(NESTCodeGenerator):
 
 
 class CustomPythonStandaloneCodeGenerator(PythonStandaloneCodeGenerator):
+    def _get_model_namespace(self, astnode: ASTModel) -> Dict:
+        namespace = super()._get_model_namespace(astnode)
+        namespace["python_codegen_utils"] = PythonCodeGeneratorUtils
+        namespace["gsl_printer"] = self._gsl_printer
+        namespace["neuronName"] = astnode.get_name()
+        namespace["neuron"] = astnode
+        namespace["parameters"], namespace["state"] = PythonStandaloneTargetTools.get_neuron_parameters_and_state(astnode.file_path)
+        namespace["propagators_as_math_expressions"] = Spinnaker2TargetTools.get_propagators_as_math_expressions(
+            namespace["neuron"], namespace["parameters"])
+        return namespace
+
+
+
+
+
     def setup_printers(self):
         super().setup_printers()
 
@@ -138,30 +171,50 @@ class Spinnaker2CodeGenerator(CodeGenerator):
     """
 
     _default_options = {
-        # "neuron_synapse_pairs": [],
+        # "neuron_synapse_pairs": [
+        #                         {"neuron": 'nestml/models/neurons/iaf_psc_exp_neuron.nestml',# "iaf_psc_exp_neuron",
+        #                         "synapse": 'nestml/models/synapses/stdp_synapse.nestml',  #"stdp_synapse",
+        #                         "post_ports": ["post_spikes"]}
+        # ],
         "templates": {
-            "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2"))),
+            "path": os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2"))),  #, os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2/common"))), os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources_spinnaker2/synapse_types")))],
             "model_templates": {
                 "neuron":  ["@NEURON_NAME@.py.jinja2",
                             "@NEURON_NAME@.c.jinja2",
                             "@NEURON_NAME@.h.jinja2",
-                            "decay.h.jinja2",
+                            # "decay.h.jinja2",
                             "global_params.h.jinja2",
                             "neuron.c.jinja2",
                             "neuron.h.jinja2",
                             "neuron_model.h.jinja2",
-                            "neuron_model_@NEURON_NAME@_impl.c.jinja2",
+                            # "neuron_model_@NEURON_NAME@_impl.c.jinja2",
                             "neuron_model_@NEURON_NAME@_impl.h.jinja2",
                             "param_defs.h.jinja2",
                             "population_table.h.jinja2",
+                            "population_table_binary_search_impl.c.jinja2",
                             "regions.h.jinja2",
                             "simulation.h.jinja2",
+                            "maths-util.h.jinja2",
+                            "neuron-typedefs.h.jinja2",
+                            "spike_processing.c.jinja2",
+                            "spike_processing.h.jinja2",
+                            "qpe.ld.jinja2",
+                            "qpe_isr.c.jinja2",
                             "synapse_row.h.jinja2",
                             "synapses.c.jinja2",
                             "synapses.h.jinja2",
+                            "synapse_types.h.jinja2",
+                            "synapse_types_exponential_impl.h.jinja2",
                             ],
+                "synapse":  [
+    # "synapse_row.h.jinja2",
+                #             "synapses.c.jinja2",
+                #             "synapses.h.jinja2",
+                #             "synapse_types.h.jinja2",
+                #             "synapse_types_exponential_impl.h.jinja2",
+                             ],
             },
-            "module_templates": []
+            "module_templates": ["Makefile.jinja2",]
         }
     }
 
@@ -169,16 +222,16 @@ class Spinnaker2CodeGenerator(CodeGenerator):
         super().__init__(options)
 
         options_cpp = copy.deepcopy(NESTCodeGenerator._default_options)
-        # options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
+        options_cpp["neuron_synapse_pairs"] = self._options["neuron_synapse_pairs"]
         options_cpp["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                  self._options["templates"]["model_templates"]["neuron"]
-                                                                 if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2")
-                                                                      or ("Makefile" in fname)) and "@NEURON_NAME@" in fname)]
-        # options_cpp["templates"]["model_templates"]["synapse"] = [fname for fname in
-        #                                                           self._options["templates"]["model_templates"]["synapse"]
-        #                                                           if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname)) and "@SYNAPSE_NAME@" in fname)]
-        # options_cpp["nest_version"] = "<not available>"
-        # options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
+                                                                 if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or fname.endswith(".ld.jinja2")
+                                                                      or ("Makefile" in fname)))]  # and "@NEURON_NAME@" in fname)]
+        options_cpp["templates"]["model_templates"]["synapse"] = [fname for fname in
+                                                                  self._options["templates"]["model_templates"]["synapse"]
+                                                                  if ((fname.endswith(".h.jinja2") or fname.endswith(".c.jinja2") or ("Makefile" in fname)))]  # and "@SYNAPSE_NAME@" in fname)]
+        options_cpp["nest_version"] = pynestml.__version__
+        options_cpp["templates"]["module_templates"] = self._options["templates"]["module_templates"]
         options_cpp["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_cpp = CustomNESTCodeGenerator(options_cpp)
 
@@ -186,22 +239,20 @@ class Spinnaker2CodeGenerator(CodeGenerator):
         options_py["templates"]["model_templates"]["neuron"] = [fname for fname in
                                                                 self._options["templates"]["model_templates"]["neuron"]
                                                                 if (fname.endswith(".py.jinja2")) and ("@NEURON_NAME@" in fname or fname == "__init__.py.jinja2")]
-        # options_py["templates"]["model_templates"]["synapse"] = [fname for fname in
-        #                                                          self._options["templates"]["model_templates"][
-        #                                                              "synapse"] if (fname.endswith(".py.jinja2")) and "@SYNAPSE_NAME@" in fname]
-        options_py["nest_version"] = "<not available>"
+        options_py["templates"]["model_templates"]["synapse"] = [fname for fname in
+                                                                 self._options["templates"]["model_templates"][
+                                                                     "synapse"] if (fname.endswith(".py.jinja2")) and "@SYNAPSE_NAME@" in fname]
+        options_py["nest_version"] = pynestml.__version__
         options_py["templates"]["module_templates"] = []
         options_py["templates"]["path"] = self._options["templates"]["path"]
         self.codegen_py = CustomPythonStandaloneCodeGenerator(options_py)
 
     def generate_code(self, models: Sequence[ASTModel]) -> None:
         cloned_models = []
-        for model in models:
+        for model in models:  # TODO: check if this can be removed
             cloned_model = model.clone()
-            cloned_model.accept(ASTParentVisitor())
-            cloned_model.accept(ASTSymbolTableVisitor())
-            CoCosManager.check_cocos(cloned_model)
             cloned_models.append(cloned_model)
 
-        self.codegen_cpp.generate_code(cloned_models)
+        self.codegen_cpp.generate_code(models)
         self.codegen_py.generate_code(cloned_models)
+        # self.codegen_py.generate_code(models)
