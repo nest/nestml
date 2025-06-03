@@ -161,6 +161,7 @@ jobs:
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
+
   build_and_test_nest:
     needs: [static_checks]
     runs-on: ubuntu-latest
@@ -361,6 +362,58 @@ jobs:
         run: |
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_compartmental_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+          done;
+          exit $rc
+
+  build_and_test_genn:
+    needs: [static_checks]
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v4
+
+      # Setup Python version
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libncurses5-dev pkg-config libffi-dev
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip pytest matplotlib scipy pybind11 psutil
+          python -m pip install -r requirements.txt
+
+      # Install GeNN
+      - name: Install GeNN
+        run: |
+          # XXX: using master branch due to fix from https://github.com/genn-team/genn/pull/676. We can switch back to latest GeNN release when a new version is released
+          wget https://github.com/genn-team/genn/archive/master.zip -O genn-master.zip
+          unzip genn-master.zip
+          cd genn-master
+          python setup.py install --user
+
+      # Install NESTML
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
+      # Run integration tests
+      - name: Run integration tests
+        run: |
+          rc=0
+          for fn in $GITHUB_WORKSPACE/tests/genn_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
