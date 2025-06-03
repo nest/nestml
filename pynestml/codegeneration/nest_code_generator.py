@@ -108,17 +108,28 @@ class NoAttributesSpikingInputPortNecessaryVisitor(ASTVisitor):
 
     If no references to the port without an attribute are present, then no code needs to be generated for the buffer, saving on runtime performance.
     """
-    def __init__(self, model: ASTModel):
+    def __init__(self, model: ASTModel, enable_on_receive_check: bool = True):
         super().__init__()
 
+        self._model = model
         self._attributes_spiking_input_port_necessary = False
         self._spike_input_ports = model.get_spike_input_port_names()
+        self.enable_on_receive_check = enable_on_receive_check
 
     def visit_variable(self, node: ASTVariable):
         if node.name in self._spike_input_ports \
            and node.get_attribute() is None \
-           and not ASTUtils.find_parent_node_by_type(node, ASTInputBlock) \
-           and not (ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock) and ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock).input_port_variable.name == node.name):
+           and not ASTUtils.find_parent_node_by_type(node, ASTInputBlock):
+
+            if self.enable_on_receive_check and ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock):
+                # parent is an onReceive block: ignore mentions in the onReceive block input_port_variable, check instead for occurrences in the body (statements) of the block
+                on_receive_block_stmts = ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock).get_stmts_body()
+                v = NoAttributesSpikingInputPortNecessaryVisitor(self._model, enable_on_receive_check=False)
+                on_receive_block_stmts.accept(v)
+                self._attributes_spiking_input_port_necessary = v._attributes_spiking_input_port_necessary
+
+                return
+
             self._attributes_spiking_input_port_necessary = True
 
 
