@@ -964,12 +964,12 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = ASTUtils.transform_ode_and_kernels_to_json(neuron, neuron.get_parameters_blocks(), kernel_buffers, printer=self._ode_toolbox_printer)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
                                             disable_analytic_solver=disable_analytic_solver,
                                             preserve_expressions=self.get_option("preserve_expressions"),
-                                            simplify_expression=self.get_option("simplify_expression"),
                                             log_level=FrontendConfiguration.logging_level)
 
         for solver in solver_result:
@@ -997,7 +997,6 @@ class NESTCodeGenerator(CodeGenerator):
                                                     disable_stiffness_check=True,
                                                     disable_analytic_solver=True,
                                                     preserve_expressions=self.get_option("preserve_expressions"),
-                                                    simplify_expression=self.get_option("simplify_expression"),
                                                     log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
