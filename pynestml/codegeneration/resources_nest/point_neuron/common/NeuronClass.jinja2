@@ -920,11 +920,13 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
-    const size_t n_spikes_received = B_.spike_input_{{ inport }}_n_spikes_received_.get_value(lag);
-    if (n_spikes_received)
     {
-      // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer resets the RingBuffer entries
-      on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(origin, lag, n_spikes_received);
+      const size_t n_spikes_received = B_.spike_input_{{ inport }}_n_spikes_received_.get_value(lag);
+      if (n_spikes_received)
+      {
+        // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer resets the RingBuffer entries
+        on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(origin, lag, n_spikes_received);
+      }
     }
 {%- endfor %}
 

@@ -60,6 +60,7 @@ from pynestml.meta_model.ast_model import ASTModel
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmts_body import ASTStmtsBody
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -114,13 +115,10 @@ class NoAttributesSpikingInputPortNecessaryVisitor(ASTVisitor):
         self._spike_input_ports = model.get_spike_input_port_names()
 
     def visit_variable(self, node: ASTVariable):
-        if node.name in self._spike_input_ports:
-            print("inspecting " + str(node) + " in "  + str(node.get_parent().get_parent()) + " parent: " + str(node.get_parent().get_parent()))
         if node.name in self._spike_input_ports \
-         and node.get_attribute() is None \
-         and not ASTUtils.find_parent_node_by_type(node, ASTInputBlock) \
-         and not (ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock) and node.get_parent().input_port_variable.name == node.name):
-            import pdb;pdb.set_trace()
+           and node.get_attribute() is None \
+           and not ASTUtils.find_parent_node_by_type(node, ASTInputBlock) \
+           and not (ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock) and ASTUtils.find_parent_node_by_type(node, ASTOnReceiveBlock).input_port_variable.name == node.name):
             self._attributes_spiking_input_port_necessary = True
 
 
@@ -379,6 +377,10 @@ class NESTCodeGenerator(CodeGenerator):
         code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
+        v = NoAttributesSpikingInputPortNecessaryVisitor(neuron)
+        neuron.accept(v)
+        neuron._attributes_spiking_input_port_necessary = v._attributes_spiking_input_port_necessary
+
         if not neuron.get_equations_blocks():
             # add all declared state variables as none of them are used in equations block
             self.non_equations_state_variables[neuron.get_name()] = []
@@ -465,6 +467,10 @@ class NESTCodeGenerator(CodeGenerator):
         """
         code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
+
+        v = NoAttributesSpikingInputPortNecessaryVisitor(synapse)
+        synapse.accept(v)
+        synapse._attributes_spiking_input_port_necessary = v._attributes_spiking_input_port_necessary
 
         spike_updates = {}
         if synapse.get_equations_blocks():
@@ -597,9 +603,7 @@ class NESTCodeGenerator(CodeGenerator):
         # input port/event handling options
         namespace["linear_time_invariant_spiking_input_ports"] = self.get_option("linear_time_invariant_spiking_input_ports")
 
-        v = NoAttributesSpikingInputPortNecessaryVisitor(astnode)
-        astnode.accept(v)
-        namespace["attributes_spiking_input_port_necessary"] = v._attributes_spiking_input_port_necessary
+        namespace["attributes_spiking_input_port_necessary"] = astnode._attributes_spiking_input_port_necessary
 
         return namespace
 

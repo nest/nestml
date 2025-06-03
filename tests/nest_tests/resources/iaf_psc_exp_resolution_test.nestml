@@ -1,9 +1,9 @@
 # iaf_psc_exp_resolution_test
 # ###########################
-# 
+#
 # Description
 # +++++++++++
-# 
+#
 # Used to test resolution() function.
 #
 model iaf_psc_exp_resolution_test_neuron:
@@ -38,7 +38,7 @@ model iaf_psc_exp_resolution_test_neuron:
         c ms = resolution()
 
     input:
-        spike_in_port <- spike
+        spike_in_port <- spike(weight pA)
         I_stim pA <- continuous
 
     output:
@@ -46,10 +46,10 @@ model iaf_psc_exp_resolution_test_neuron:
 
     onReceive(spike_in_port):
         # route the incoming spike on the basis of the weight: less than zero means an inhibitory spike; greater than zero means an excitatory spike
-        if spike_in_port < 0:
-            I_syn_inh += spike_in_port * pA * s
+        if spike_in_port.weight < 0:
+            I_syn_inh += spike_in_port.weight
         else:
-            I_syn_exc += spike_in_port * pA * s
+            I_syn_exc += spike_in_port.weight
 
     update:
         d ms = resolution()
