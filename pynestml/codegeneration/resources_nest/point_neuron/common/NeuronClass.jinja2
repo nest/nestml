@@ -70,7 +70,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "{{ neuronName }}.h"
 
 // uncomment the next line to enable printing of detailed debug information
-// #define DEBUG
+#define DEBUG
 
 {%  if state_vars_that_need_continuous_buffering | length > 0 %}
 {%-     if continuous_state_buffering_method == "continuous_time_buffer" %}
@@ -920,10 +920,11 @@ void {{ neuronName }}::update(nest::Time const & origin, const long from, const 
     **/
 {%  for blk in neuron.get_on_receive_blocks() %}
 {%-     set inport = utils.port_name_printer(blk.get_input_port_variable()) %}
-    if (B_.spike_input_{{ inport }}_n_spikes_received_.get_value(lag))
+    const size_t n_spikes_received = B_.spike_input_{{ inport }}_n_spikes_received_.get_value(lag);
+    if (n_spikes_received)
     {
       // B_.spike_input_{{ inport }} = false;  // no need to reset the flag -- reading from the RingBuffer resets the RingBuffer entries
-      on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(origin, lag);
+      on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(origin, lag, n_spikes_received);
     }
 {%- endfor %}
 
@@ -1341,7 +1342,7 @@ void {{ neuronName }}::handle(nest::SpikeEvent &e)
 {%-             endif %}
 {%-         endif %}
 
-    // set the "spike received" flag
+    // increment the number of spikes received
     B_.spike_input_{{ spike_in_port_name }}_n_spikes_received_.add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       1. );
@@ -1380,10 +1381,10 @@ void {{ neuronName }}::handle(nest::CurrentEvent& e)
 {%-     set inputPort = utils.get_input_port_by_name(astnode.get_input_blocks(), inport.split(".")[0]) %}
 {%-     set inputPortSymbol = astnode.get_scope().resolve_to_symbol(inputPort.name, SymbolKind.VARIABLE) %}
 void
-{{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag)
+{{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag, const size_t n_spikes_received)
 {
 #ifdef DEBUG
-  std::cout << "[neuron " << this << "] {{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}()" << std::endl;
+  std::cout << "[neuron " << this << "] {{ neuronName }}::on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(lag=" << lag << ", n_spikes_received = " << n_spikes_received << ")" << std::endl;
 #endif
 
   const double __timestep = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the timestep() function
@@ -1448,9 +1449,7 @@ void
   std::vector< double >::iterator __spike_input_{{ inputPort.name }}_list_iterator = __spike_input_{{ inputPort.name }}_list.begin();
 {%-     endif %}
 
-  const size_t n_spikes = B_.spike_input_{{ inputPort.name }}_n_spikes_received_.get_value(lag);
-std::cout << "PROCESSING " << n_spikes <<" SPIKES\n";
-  for (size_t spike_idx = 0; spike_idx < n_spikes; ++spike_idx)
+  for (size_t spike_idx = 0; spike_idx < n_spikes_received; ++spike_idx)
   {
     /**
      * Grab the actual spike event data from the buffers (for the current timepoint ``origin + lag``)

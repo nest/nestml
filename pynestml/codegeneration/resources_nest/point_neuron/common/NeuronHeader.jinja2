@@ -477,7 +477,7 @@ public:
 
 {%  filter indent(2, True) -%}
 {%-     for blk in neuron.get_on_receive_blocks() %}
-    void on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag);
+    void on_receive_block_{{ utils.port_name_printer(blk.get_input_port_variable()) }}(nest::Time const &origin, const long lag, const size_t n_spikes_received);
 {%-     endfor %}
 {%- endfilter %}
 

@@ -1,3 +1,4 @@
+*.orig
 .settings/
 target/
 .idea/
