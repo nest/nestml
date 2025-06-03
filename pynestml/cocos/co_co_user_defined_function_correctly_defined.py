@@ -28,7 +28,6 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
-from pynestml.utils.type_caster import TypeCaster
 
 
 class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
@@ -128,9 +127,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                         code, message = Messages.get_type_could_not_be_derived(cls.processed_function.get_name())
                         Logger.log_message(error_position=stmt.get_source_position(),
                                            code=code, message=message, log_level=LoggingLevel.ERROR)
-                    elif not type_of_return.equals(type_symbol):
-                        TypeCaster.try_to_recover_or_error(type_symbol, type_of_return,
-                                                           stmt.get_return_stmt().get_expression())
+                    # elif not type_of_return.equals(type_symbol):
+                    #     TypeCaster.try_to_recover_or_error(type_symbol, type_of_return,
+                    #                                        stmt.get_return_stmt().get_expression())
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.is_if_stmt():
