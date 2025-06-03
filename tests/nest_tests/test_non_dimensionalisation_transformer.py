@@ -96,8 +96,8 @@ class TestNonDimensionalisationTransformer:
 
     @pytest.mark.parametrize("preffered_prefix", ["1", "m"])
     def test_non_dimensionalisation_transformer(self, preffered_prefix: str):
-        codegen_opts = {"quantity_to_preferred_prefix": {"V": "M",
-                                                         "I": preffered_prefix}}
+        codegen_opts = {"quantity_to_preferred_prefix": {"electrical potential": "M",
+                                                         "electrical current": preffered_prefix}}
         self.generate_code(codegen_opts)
 
         nest.ResetKernel()

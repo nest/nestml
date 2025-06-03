@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Sequence, Mapping, Optional, Union
 
+from quantities.quantity import get_conversion_factor
+
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -38,6 +40,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.transformers.transformer import Transformer
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.string_utils import removesuffix
@@ -45,6 +48,7 @@ from pynestml.visitors.ast_parent_visitor import ASTParentVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
+import astropy.units as u
 
 
 
@@ -53,20 +57,45 @@ class NonDimensionalisationVisitor(ASTVisitor):
         super().__init__()
         self.preferred_prefix = preferred_prefix
 
+    def get_conversion_factor_to_desired(self, from_unit_str, to_unit_str, to_unit_base_unit):
+        try:
+            from_unit = u.Unit(from_unit_str)
+
+            # If to_unit_str is "1", interpret it as the base unit of the same physical type
+            if to_unit_str == "1":
+                physical_type = from_unit.physical_type
+                # Get canonical base unit for that physical type
+                to_unit = physical_type._physical_type_id[0][0]
+            else:
+                # Target unit is desired prefix concatenated with base unit for corresponding physical type
+                to_unit = u.Unit(to_unit_str+str(to_unit_base_unit))
+
+            # Compute the scale factor (no value, just unit scaling)
+            return from_unit.to(to_unit)
+
+        except:
+            raise ValueError(f"Invalid unit")
+
     def visit_variable(self, node: ASTVariable) -> None:
         print("In visit_variable("+str(node)+")")
         if node.get_type_symbol():
             print("The unit is: "+str(node.get_type_symbol().unit.unit))
             print("The quantity is: "+str(node.get_type_symbol().unit.unit.physical_type))
 
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
 
         # grab the prefix for this variable
         # XXX TODO
 
+
         # find the corresponding desired prefix
         # XXX TODO
-
+        if node.get_type_symbol() is None: # add check if node name can be interpreted as astropy unit
+            print("The preferred prefix for:"+str(u.get_physical_type(u.Unit(node.name)))+"is: "+self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))])
+            desired_prefix = self.preferred_prefix[str(u.get_physical_type(u.Unit(node.name)))]
+            to_unit_base_unit = u.get_physical_type(u.Unit(node.name))._unit
+            conversion_factor = self.get_conversion_factor_to_desired(node.name, desired_prefix, to_unit_base_unit)
+            new_expression_string = "*"+str(conversion_factor)
         # multiply by the right conversion factor into the expression
         # XXX TODO
 
