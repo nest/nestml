@@ -921,6 +921,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         odetoolbox_indict = self.create_ode_toolbox_indict(neuron, kernel_buffers)
 
+        odetoolbox_indict["options"]["simplify_expression"] = self.get_option("simplify_expression")
         disable_analytic_solver = self.get_option("solver") != "analytic"
         solver_result = odetoolbox.analysis(odetoolbox_indict,
                                             disable_stiffness_check=True,
